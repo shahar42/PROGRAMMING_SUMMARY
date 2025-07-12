@@ -46,19 +46,40 @@ then
     # Install pipx if not found
     if ! command -v pipx &> /dev/null
     then
-        echo "pipx not found. Installing pipx..."
-        python3 -m pip install --user pipx
-        if [ $? -ne 0 ]; then
-            echo "Error: Failed to install pipx. Please check your Python/pip installation."
-            echo "You might need to resolve 'externally-managed-environment' issues manually."
-            exit 1
+        echo "pipx not found. Attempting to install pipx via apt (if available)..."
+        if command -v apt &> /dev/null; then
+            sudo apt update && sudo apt install -y pipx
+            if [ $? -eq 0 ]; then
+                echo "pipx installed via apt."
+                python3 -m pipx ensurepath
+            else
+                echo "Failed to install pipx via apt. Falling back to pip install --user..."
+                python3 -m pip install --user pipx
+                if [ $? -ne 0 ]; then
+                    echo "Error: Failed to install pipx using pip install --user."
+                    echo "You might need to resolve 'externally-managed-environment' issues manually."
+                    echo "Consider using 'python3 -m venv' to create a virtual environment and install pipx there."
+                    exit 1
+                fi
+                python3 -m pipx ensurepath
+                echo "pipx installed via pip --user."
+            fi
+        else
+            echo "apt not found. Attempting to install pipx via pip install --user..."
+            python3 -m pip install --user pipx
+            if [ $? -ne 0 ]; then
+                echo "Error: Failed to install pipx using pip install --user."
+                echo "You might need to resolve 'externally-managed-environment' issues manually."
+                echo "Consider using 'python3 -m venv' to create a virtual environment and install pipx there."
+                exit 1
+            fi
+            python3 -m pipx ensurepath
+            echo "pipx installed via pip --user."
         fi
-        # Ensure pipx is in PATH for the current session
-        python3 -m pipx ensurepath
         # Re-source shell to update PATH, or instruct user to do so
         # This is tricky in a script. We'll rely on pipx ensurepath making it available.
         # For a new shell, user would need to re-source their shell config.
-        echo "pipx installed. You might need to open a new terminal or run 'source ~/.bashrc' (or equivalent) if 'pipx' command is not immediately found."
+        echo "You might need to open a new terminal or run 'source ~/.bashrc' (or equivalent) if 'pipx' command is not immediately found."
     fi
 
     # Install git-filter-repo using pipx
