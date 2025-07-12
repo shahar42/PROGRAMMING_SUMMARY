@@ -17,7 +17,6 @@ from pathlib import Path
 from core.progress_tracker import ProgressTracker
 from core.pdf_extractor import PDFStructureExtractor
 from core.concept_detector import ConceptBoundaryDetector
-from core.quality_validator import QualityValidator
 from processors.gemini_processor import GeminiAtomicProcessor
 
 
@@ -40,10 +39,9 @@ class ExtractionEngine:
         
         print(f"✅ API key loaded successfully (length: {len(api_key)} chars)")
         
-        # Initialize components
+        # Initialize components (no validator)
         self.progress_tracker = ProgressTracker()
         self.processor = GeminiAtomicProcessor(api_key)
-        self.validator = QualityValidator()
         
         print(f"🏛️  Archaeological C Extraction Engine Initialized")
         print(f"📚 Source: {pdf_path}")
@@ -83,25 +81,19 @@ class ExtractionEngine:
                 processed_concept = self.processor.process_concept(concept)
                 
                 if processed_concept:
-                    # Validate quality
-                    is_valid, message = self.validator.validate_concept(processed_concept)
+                    # Save directly (no validation)
+                    filename = self._save_concept(processed_concept, concepts_extracted)
+                    concepts_extracted += 1
                     
-                    if is_valid:
-                        # Save to file
-                        filename = self._save_concept(processed_concept, concepts_extracted)
-                        concepts_extracted += 1
-                        
-                        # Track for summary
-                        extracted_concepts.append({
-                            "topic": processed_concept.get('topic', 'Unknown'),
-                            "explanation": processed_concept.get('explanation', 'No explanation available'),
-                            "filename": filename,
-                            "page_range": processed_concept["extraction_metadata"]["page_range"]
-                        })
-                        
-                        print(f"✅ Saved atomic concept: {processed_concept.get('topic', 'Unknown')}")
-                    else:
-                        print(f"❌ Quality check failed: {message}")
+                    # Track for summary
+                    extracted_concepts.append({
+                        "topic": processed_concept.get('topic', 'Unknown'),
+                        "explanation": processed_concept.get('explanation', 'No explanation available'),
+                        "filename": filename,
+                        "page_range": processed_concept["extraction_metadata"]["page_range"]
+                    })
+                    
+                    print(f"✅ Saved atomic concept: {processed_concept.get('topic', 'Unknown')}")
                 else:
                     print(f"❌ Failed to process concept")
         
