@@ -6,12 +6,16 @@ Content-Intelligent extraction for Linkers and Loaders book
 Archaeologically extracts atomic linking/loading concepts from the book
 """
 
+import sys
 import os
 import json
 import re
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
+
+# Add project root to Python path for module imports
+sys.path.append('.')
 
 # Import modular components
 from core.progress_tracker import ProgressTracker

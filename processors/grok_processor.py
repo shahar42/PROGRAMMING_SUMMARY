@@ -21,7 +21,7 @@ class GrokAtomicProcessor:
         
         self.api_key = api_key
         self.base_url = "https://api.x.ai/v1"
-        self.model = "grok-beta"
+        self.model = "grok-3-mini"
         
         try:
             # Test the API key with a simple request
@@ -95,7 +95,7 @@ class GrokAtomicProcessor:
                 {"role": "user", "content": prompt}
             ],
             "model": self.model,
-            "max_tokens": 2000,
+            "max_tokens": 4000,
             "temperature": 0.1,  # Low temperature for consistent structured output
             "stream": False
         }
@@ -136,7 +136,7 @@ Return your response as valid JSON in this EXACT format:
 {{
   "topic": "Concept Name",
   "explanation": "Clear definition of what this concept is and why it's used...",
-  "syntax": "generalized code pattern",
+  "syntax": "simple function signature only - no newlines or code blocks",
   "code_example": [
     "line1 of complete program",
     "line2 of complete program",
@@ -152,6 +152,8 @@ Extract the atomic concept as JSON:"""
     
     def _parse_grok_response(self, response_text):
         """Parse Grok's JSON response"""
+        print(f"Full Grok response: {response_text}")
+        print(f"Response length: {len(response_text)}")
         try:
             # Extract JSON from response (handle potential markdown wrapping)
             json_match = re.search(r'\{.*\}', response_text, re.DOTALL)

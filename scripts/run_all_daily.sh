@@ -55,9 +55,9 @@ declare -A BOOK_NAMES=(
 
 declare -A BOOK_STATUS=(
     ["kernighan_ritchie"]="active"
-    ["unix_env"]="pending"
-    ["linkers_loaders"]="pending"
-    ["os_three_pieces"]="pending"
+    ["unix_env"]="active"
+    ["linkers_loaders"]="active"
+    ["os_three_pieces"]="active"
 )
 
 # Counters for summary

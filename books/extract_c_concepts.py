@@ -6,12 +6,16 @@ Refactored version using modular core components
 Archaeologically extracts atomic programming concepts from K&R C book
 """
 
+import sys
 import os
 import json
 import re
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
+
+# Add project root to Python path for module imports
+sys.path.append('.')
 
 # Import modular components
 from core.progress_tracker import ProgressTracker
@@ -40,7 +44,8 @@ class ExtractionEngine:
         print(f"✅ API key loaded successfully (length: {len(api_key)} chars)")
         
         # Initialize components (no validator)
-        self.progress_tracker = ProgressTracker()
+        progress_file = self.output_dir / "progress.json"
+        self.progress_tracker = ProgressTracker(str(progress_file))
         self.processor = GeminiAtomicProcessor(api_key)
         
         print(f"🏛️  Archaeological C Extraction Engine Initialized")
@@ -220,7 +225,7 @@ def main():
     """Main execution"""
     # Configuration
     pdf_path = "/home/shahar42/Suumerizing_C_holy_grale_book/The C Programming Language (Kernighan Ritchie).pdf"
-    output_dir = "/home/shahar42/Suumerizing_C_holy_grale_book/summeries"
+    output_dir = "/home/shahar42/Suumerizing_C_holy_grale_book/outputs/kernighan_ritchie"
     
     # Verify files exist
     if not os.path.exists(pdf_path):

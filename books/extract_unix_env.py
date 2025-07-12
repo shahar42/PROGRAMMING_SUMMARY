@@ -6,12 +6,16 @@ Content-Intelligent extraction for Advanced Programming in the UNIX Environment
 Archaeologically extracts atomic programming concepts from UNIX Environment book
 """
 
+import sys
 import os
 import json
 import re
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
+
+# Add project root to Python path for module imports
+sys.path.append('.')
 
 # Import modular components
 from core.progress_tracker import ProgressTracker

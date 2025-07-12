@@ -1,0 +1,4 @@
+ - search_concepts - Search by keyword/topic
+  - get_concept_details - Get full details by concept ID
+  - list_books - Show all available books
+  - get_concepts_by_topic 
