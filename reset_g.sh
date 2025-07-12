@@ -53,6 +53,50 @@ if ! git diff-index --quiet HEAD --; then
     exit 1
 fi
 
+# --- git-filter-repo Installation Check and Attempt ---
+echo "Checking for git-filter-repo..."
+if ! command -v git-filter-repo &> /dev/null
+then
+    echo "git-filter-repo is not found. Attempting to install using pipx..."
+
+    # Install pipx if not found
+    if ! command -v pipx &> /dev/null
+    then
+        echo "pipx not found. Attempting to install pipx via 'pip install --user'..."
+        python3 -m pip install --user pipx
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to install pipx using 'pip install --user'."
+            echo "It seems your environment is preventing this (e.g., 'externally-managed-environment')."
+            echo "Please manually install 'git-filter-repo' into your *active virtual environment* using:"
+            echo "  pip install git-filter-repo"
+            echo "Then, run this script again."
+            exit 1
+        fi
+        python3 -m pipx ensurepath
+        echo "pipx installed via pip --user."
+        echo "You might need to open a new terminal or run 'source ~/.bashrc' (or equivalent) if 'pipx' command is not immediately found."
+    fi
+
+    # Install git-filter-repo using pipx
+    pipx install git-filter-repo
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to install git-filter-repo using pipx."
+        echo "Please manually install 'git-filter-repo' into your *active virtual environment* using:"
+        echo "  pip install git-filter-repo"
+        echo "Then, run this script again."
+        exit 1
+    fi
+    echo "git-filter-repo installed via pipx."
+fi
+
+# Final check for git-filter-repo after installation attempt
+if ! command -v git-filter-repo &> /dev/null
+then
+    echo "Error: git-filter-repo is still not found after installation attempt."
+    echo "Please ensure it's correctly installed and in your system's PATH (or activated virtual environment)."
+    exit 1
+fi
+
 # Confirm with the user TWICE due to destructive nature
 read -p "Are you absolutely sure you want to PERMANENTLY DELETE ALL REMOTE HISTORY for '${TARGET_BRANCH}'? (type 'YES' to confirm): " CONFIRM_1
 if [[ ! "$CONFIRM_1" == "YES" ]]
@@ -89,33 +133,27 @@ fi
 git add .
 git commit -m "Prepare for full repository reset: remove sensitive file and add to .gitignore"
 
-# Step 2: Delete the remote branch
-echo "Deleting remote branch '${TARGET_BRANCH}'..."
-git push origin --delete "${TARGET_BRANCH}"
+# Step 2: Clean history using git-filter-repo
+echo "Cleaning local history using git-filter-repo to remove '${SECRET_FILE}'..."
+# git-filter-repo works on the current repository directly.
+git filter-repo --path "${SECRET_FILE}" --invert-paths --force
 if [ $? -ne 0 ]; then
-    echo "Warning: Failed to delete remote branch '${TARGET_BRANCH}'. This might be due to branch protection rules or it not existing."
-    echo "Attempting to force push anyway, but manual intervention on GitHub might be needed."
-    # Continue, but warn. User might need to disable branch protection temporarily.
+    echo "Error: git-filter-repo failed during history cleaning. Check the output above."
+    exit 1
 fi
+echo "Local history cleaned of '${SECRET_FILE}'."
 
-# Step 3: Create a new, empty commit (optional, but ensures a clean root if needed)
-# If you want to completely wipe and start with literally nothing, you could do:
-# git checkout --orphan new_main
-# git rm -rf .
-# git commit --allow-empty -m "Initial commit of clean repository"
-# git branch -D main # Delete old main
-# git branch -m main # Rename new_main to main
-# For this script, we'll just force push the current local state.
-
-# Step 4: Force push the current local branch as the new remote branch
+# Step 3: Force push the current local branch as the new remote branch
 echo "Force pushing current local '${TARGET_BRANCH}' as the new remote history..."
+# The --force is critical here to overwrite the remote history.
+# We no longer attempt to delete the branch explicitly, as force push will overwrite it.
 git push -u origin "${TARGET_BRANCH}" --force
 if [ $? -ne 0 ]; then
     echo "Error: Force push failed. Please check your network connection, permissions, or GitHub branch protection rules."
     echo "You may need to temporarily disable branch protection on GitHub if it's enabled."
     exit 1
 fi
-echo "Remote repository for '${TARGET_BRANCH}' has been reset to your current local state."
+echo "Remote repository for '${TARGET_BRANCH}' has been reset to your clean local state."
 
 echo ""
 echo "--------------------------------------------------------"
