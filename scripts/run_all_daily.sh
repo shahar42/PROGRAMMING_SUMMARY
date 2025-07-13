@@ -1,42 +1,108 @@
 #!/bin/bash
-# Master Daily Multi-Book Extraction Runner
-# Orchestrates all 4 book extractions with error handling and consolidated logging
+# Enhanced Master Daily Multi-Book Extraction Runner
+# Optimized for cron execution with file locking and enhanced logging
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Exit on any error for cron reliability
+set -euo pipefail
 
-# Configuration
+# Colors for output (disabled in cron mode)
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    BLUE='\033[0;34m'
+    YELLOW='\033[1;33m'
+    NC='\033[0m'
+else
+    RED=''
+    GREEN=''
+    BLUE=''
+    YELLOW=''
+    NC=''
+fi
+
+# Configuration with full paths for cron
 PROJECT_DIR="/home/shahar42/Suumerizing_C_holy_grale_book"
 VENV_PATH="$PROJECT_DIR/venv"
 LOG_DIR="$PROJECT_DIR/logs"
 BOOKS_DIR="$PROJECT_DIR/books"
+LOCK_FILE="$PROJECT_DIR/extraction.lock"
+MASTER_LOG="$LOG_DIR/master_extraction_$(date +%Y-%m-%d).log"
 
-# Ensure we're in the right directory
-cd "$PROJECT_DIR" || {
-    echo -e "${RED}❌ Failed to change to project directory: $PROJECT_DIR${NC}"
-    exit 1
+# Function for timestamped logging
+log() {
+    local level="$1"
+    shift
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] $*" | tee -a "$MASTER_LOG"
 }
 
-# Activate virtual environment
-source "$VENV_PATH/bin/activate" || {
-    echo -e "${RED}❌ Failed to activate virtual environment${NC}"
+# Function for cleanup on exit
+cleanup() {
+    if [[ -f "$LOCK_FILE" ]]; then
+        rm -f "$LOCK_FILE"
+        log "INFO" "Lock file removed"
+    fi
+}
+
+# Set up cleanup trap
+trap cleanup EXIT INT TERM
+
+# Check for running instance (file locking)
+if [[ -f "$LOCK_FILE" ]]; then
+    log "ERROR" "Another extraction is already running (lock file exists)"
+    exit 1
+fi
+
+# Create lock file with PID
+echo $$ > "$LOCK_FILE"
+log "INFO" "Created lock file with PID $$"
+
+# Ensure we're in the right directory
+if [[ ! -d "$PROJECT_DIR" ]]; then
+    log "ERROR" "Project directory not found: $PROJECT_DIR"
+    exit 1
+fi
+
+cd "$PROJECT_DIR" || {
+    log "ERROR" "Failed to change to project directory: $PROJECT_DIR"
     exit 1
 }
 
 # Create logs directory if it doesn't exist
 mkdir -p "$LOG_DIR"
 
-# Start master log
-MASTER_LOG="$LOG_DIR/master_extraction_$(date +%Y-%m-%d).log"
-echo "$(date): Starting master daily extraction..." >> "$MASTER_LOG"
+# Activate virtual environment with full path
+if [[ ! -f "$VENV_PATH/bin/activate" ]]; then
+    log "ERROR" "Virtual environment not found: $VENV_PATH"
+    exit 1
+fi
 
-echo -e "${BLUE}🏛️  Master Archaeological Extraction Engine${NC}"
-echo -e "${BLUE}📅 Date: $(date)${NC}"
-echo ""
+source "$VENV_PATH/bin/activate" || {
+    log "ERROR" "Failed to activate virtual environment"
+    exit 1
+}
+
+# Load environment variables
+if [[ -f "config/config.env" ]]; then
+    source "config/config.env"
+    log "INFO" "Loaded environment configuration"
+else
+    log "ERROR" "Config file not found: config/config.env"
+    exit 1
+fi
+
+# Verify API keys are available
+if [[ -z "${GEMINI_API_KEY:-}" ]]; then
+    log "ERROR" "GEMINI_API_KEY not found in environment"
+    exit 1
+fi
+
+if [[ -z "${GROK_API_KEY:-}" ]]; then
+    log "ERROR" "GROK_API_KEY not found in environment"
+    exit 1
+fi
+
+log "INFO" "Starting master daily extraction..."
+log "INFO" "Run type: $(if [[ -t 1 ]]; then echo 'Interactive'; else echo 'Automated (cron)'; fi)"
 
 # Book extraction configuration
 declare -A BOOK_SCRIPTS=(
@@ -60,11 +126,23 @@ declare -A BOOK_STATUS=(
     ["os_three_pieces"]="active"
 )
 
+declare -A BOOK_AI_MODEL=(
+    ["kernighan_ritchie"]="Gemini"
+    ["unix_env"]="Grok"
+    ["linkers_loaders"]="Gemini"
+    ["os_three_pieces"]="Grok"
+)
+
 # Counters for summary
 TOTAL_BOOKS=0
 SUCCESSFUL_BOOKS=0
 FAILED_BOOKS=0
 declare -A BOOK_RESULTS
+declare -A BOOK_DURATIONS
+declare -A BOOK_CONCEPTS
+
+log "INFO" "Master Archaeological Extraction Engine"
+log "INFO" "Date: $(date)"
 
 # Process each book
 for book_key in "${!BOOK_SCRIPTS[@]}"; do
@@ -72,98 +150,111 @@ for book_key in "${!BOOK_SCRIPTS[@]}"; do
     script_path="${BOOK_SCRIPTS[$book_key]}"
     book_name="${BOOK_NAMES[$book_key]}"
     book_status="${BOOK_STATUS[$book_key]}"
+    ai_model="${BOOK_AI_MODEL[$book_key]}"
     
-    echo -e "${BLUE}📚 Processing: $book_name${NC}"
+    log "INFO" "Processing: $book_name ($ai_model)"
     
     # Check if script exists
     if [[ ! -f "$script_path" ]]; then
-        echo -e "${RED}❌ Script not found: $script_path${NC}"
+        log "ERROR" "Script not found: $script_path"
         BOOK_RESULTS[$book_key]="SCRIPT_MISSING"
         FAILED_BOOKS=$((FAILED_BOOKS + 1))
-        echo "$(date): $book_name - Script missing: $script_path" >> "$MASTER_LOG"
         continue
     fi
     
-    # Skip pending books for now (can be enabled later)
+    # Skip pending books
     if [[ "$book_status" == "pending" ]]; then
-        echo -e "${YELLOW}⏳ Skipping $book_name (status: pending)${NC}"
+        log "INFO" "Skipping $book_name (status: pending)"
         BOOK_RESULTS[$book_key]="PENDING"
         continue
     fi
     
-    # Run the extraction
-    echo -e "${YELLOW}⚡ Running extraction for $book_name...${NC}"
-    
     # Create book-specific log
     book_log="$LOG_DIR/${book_key}_$(date +%Y-%m-%d).log"
     
-    # Run extraction with timeout and error handling
-    timeout 300 python "$script_path" >> "$book_log" 2>&1
-    exit_code=$?
+    # Record start time
+    start_time=$(date +%s)
+    log "INFO" "Running extraction for $book_name..."
     
-    if [[ $exit_code -eq 0 ]]; then
-        echo -e "${GREEN}✅ $book_name extraction completed successfully${NC}"
+    # Run extraction with timeout and enhanced error handling
+    if timeout 600 python3 "$script_path" >> "$book_log" 2>&1; then
+        end_time=$(date +%s)
+        duration=$((end_time - start_time))
+        BOOK_DURATIONS[$book_key]=$duration
+        
+        # Count extracted concepts from progress file
+        progress_file="outputs/$book_key/progress.json"
+        if [[ -f "$progress_file" ]]; then
+            concepts=$(jq -r '.total_concepts_extracted // 0' "$progress_file" 2>/dev/null || echo "0")
+            BOOK_CONCEPTS[$book_key]=$concepts
+        else
+            BOOK_CONCEPTS[$book_key]="0"
+        fi
+        
+        log "INFO" "$book_name extraction completed successfully (${duration}s, ${BOOK_CONCEPTS[$book_key]} total concepts)"
         BOOK_RESULTS[$book_key]="SUCCESS"
         SUCCESSFUL_BOOKS=$((SUCCESSFUL_BOOKS + 1))
-        echo "$(date): $book_name - Extraction successful" >> "$MASTER_LOG"
-    elif [[ $exit_code -eq 124 ]]; then
-        echo -e "${RED}❌ $book_name extraction timed out (>5 minutes)${NC}"
-        BOOK_RESULTS[$book_key]="TIMEOUT"
-        FAILED_BOOKS=$((FAILED_BOOKS + 1))
-        echo "$(date): $book_name - Extraction timed out" >> "$MASTER_LOG"
     else
-        echo -e "${RED}❌ $book_name extraction failed (exit code: $exit_code)${NC}"
-        BOOK_RESULTS[$book_key]="FAILED"
-        FAILED_BOOKS=$((FAILED_BOOKS + 1))
-        echo "$(date): $book_name - Extraction failed with exit code $exit_code" >> "$MASTER_LOG"
+        exit_code=$?
+        end_time=$(date +%s)
+        duration=$((end_time - start_time))
+        BOOK_DURATIONS[$book_key]=$duration
         
-        # Show last few lines of error log
-        echo -e "${YELLOW}Last error output:${NC}"
-        tail -5 "$book_log"
+        if [[ $exit_code -eq 124 ]]; then
+            log "ERROR" "$book_name extraction timed out (>10 minutes)"
+            BOOK_RESULTS[$book_key]="TIMEOUT"
+        else
+            log "ERROR" "$book_name extraction failed (exit code: $exit_code)"
+            BOOK_RESULTS[$book_key]="FAILED"
+            
+            # Log last few lines of error
+            if [[ -f "$book_log" ]]; then
+                log "ERROR" "Last error output for $book_name:"
+                tail -3 "$book_log" | while read -r line; do
+                    log "ERROR" "  $line"
+                done
+            fi
+        fi
+        FAILED_BOOKS=$((FAILED_BOOKS + 1))
     fi
-    
-    echo ""
 done
 
 # Generate master summary
-echo -e "${BLUE}📊 Master Extraction Summary${NC}"
-echo -e "${BLUE}════════════════════════════${NC}"
-echo ""
+log "INFO" "Master Extraction Summary"
+log "INFO" "========================="
 
 for book_key in "${!BOOK_RESULTS[@]}"; do
     book_name="${BOOK_NAMES[$book_key]}"
     result="${BOOK_RESULTS[$book_key]}"
+    duration="${BOOK_DURATIONS[$book_key]:-0}"
+    concepts="${BOOK_CONCEPTS[$book_key]:-0}"
     
     case $result in
         "SUCCESS")
-            echo -e "✅ $book_name: ${GREEN}COMPLETED${NC}"
+            log "INFO" "✅ $book_name: COMPLETED (${duration}s, $concepts concepts)"
             ;;
         "PENDING")
-            echo -e "⏳ $book_name: ${YELLOW}PENDING${NC}"
+            log "INFO" "⏳ $book_name: PENDING"
             ;;
         "FAILED")
-            echo -e "❌ $book_name: ${RED}FAILED${NC}"
+            log "ERROR" "❌ $book_name: FAILED (${duration}s)"
             ;;
         "TIMEOUT")
-            echo -e "⏰ $book_name: ${RED}TIMEOUT${NC}"
+            log "ERROR" "⏰ $book_name: TIMEOUT (${duration}s)"
             ;;
         "SCRIPT_MISSING")
-            echo -e "📄 $book_name: ${RED}SCRIPT MISSING${NC}"
+            log "ERROR" "📄 $book_name: SCRIPT MISSING"
             ;;
     esac
 done
 
-echo ""
-echo -e "${BLUE}Statistics:${NC}"
-echo -e "📚 Total books configured: $TOTAL_BOOKS"
-echo -e "✅ Successful extractions: $SUCCESSFUL_BOOKS"
-echo -e "❌ Failed extractions: $FAILED_BOOKS"
-
-# Write final status to master log
-echo "$(date): Master extraction completed - Success: $SUCCESSFUL_BOOKS, Failed: $FAILED_BOOKS" >> "$MASTER_LOG"
+log "INFO" "Statistics:"
+log "INFO" "📚 Total books configured: $TOTAL_BOOKS"
+log "INFO" "✅ Successful extractions: $SUCCESSFUL_BOOKS"
+log "INFO" "❌ Failed extractions: $FAILED_BOOKS"
 
 # Generate consolidated daily summary
-DAILY_SUMMARY="$PROJECT_DIR/outputs/master_daily_summary_$(date +%Y-%m-%d).md"
+DAILY_SUMMARY="$PROJECT_DIR/outputs/master_daily_summary_$(date +%Y-%m-%d-%H%M).md"
 
 cat > "$DAILY_SUMMARY" << EOF
 # 🏛️ Master Daily Extraction Summary
@@ -172,6 +263,7 @@ cat > "$DAILY_SUMMARY" << EOF
 **Total Books:** $TOTAL_BOOKS
 **Successful:** $SUCCESSFUL_BOOKS
 **Failed:** $FAILED_BOOKS
+**Run Type:** $(if [[ -t 1 ]]; then echo 'Interactive'; else echo 'Automated (cron)'; fi)
 
 ## Book Status
 
@@ -180,9 +272,15 @@ EOF
 for book_key in "${!BOOK_RESULTS[@]}"; do
     book_name="${BOOK_NAMES[$book_key]}"
     result="${BOOK_RESULTS[$book_key]}"
+    ai_model="${BOOK_AI_MODEL[$book_key]}"
+    duration="${BOOK_DURATIONS[$book_key]:-0}"
+    concepts="${BOOK_CONCEPTS[$book_key]:-0}"
     
-    echo "### $book_name" >> "$DAILY_SUMMARY"
+    echo "### $book_name ($ai_model)" >> "$DAILY_SUMMARY"
     echo "**Status:** $result" >> "$DAILY_SUMMARY"
+    if [[ "$result" == "SUCCESS" ]]; then
+        echo "**Duration:** ${duration}s | **Total Concepts:** $concepts" >> "$DAILY_SUMMARY"
+    fi
     echo "" >> "$DAILY_SUMMARY"
 done
 
@@ -193,23 +291,37 @@ cat >> "$DAILY_SUMMARY" << EOF
 - **Individual Logs:** \`logs/{book}_$(date +%Y-%m-%d).log\`
 
 ## Next Steps
-Run this script again tomorrow to continue multi-book extraction.
+- Next automated run: $(if [[ $(date +%H) -lt 11 ]]; then echo "Today at 11:00"; elif [[ $(date +%H) -lt 23 ]]; then echo "Today at 23:00"; else echo "Tomorrow at 11:00"; fi)
+- Check individual book logs for any issues
+- Monitor API usage and rate limits
 
 ---
 *Generated by Master Archaeological Extraction Engine*
 EOF
 
-echo ""
-echo -e "${GREEN}📋 Master summary saved: $DAILY_SUMMARY${NC}"
+log "INFO" "Master summary saved: $DAILY_SUMMARY"
 
-# Optional: Check API usage and warn about limits
-echo ""
-echo -e "${BLUE}💡 Next Run Suggestions:${NC}"
-if [[ $SUCCESSFUL_BOOKS -gt 0 ]]; then
-    echo "✅ Consider enabling more 'pending' books in config/books_config.json"
-fi
+# Performance and health metrics
+total_duration=0
+for duration in "${BOOK_DURATIONS[@]}"; do
+    total_duration=$((total_duration + duration))
+done
+
+log "INFO" "Performance Metrics:"
+log "INFO" "💡 Total execution time: ${total_duration}s"
+log "INFO" "💡 Average per book: $((total_duration / TOTAL_BOOKS))s"
+log "INFO" "💡 Success rate: $((SUCCESSFUL_BOOKS * 100 / TOTAL_BOOKS))%"
+
+# API usage warnings
 if [[ $FAILED_BOOKS -gt 0 ]]; then
-    echo "🔧 Check individual logs for failed books and fix issues"
+    log "WARN" "Some extractions failed - check API rate limits"
 fi
 
-echo -e "${GREEN}🎉 Master daily extraction complete!${NC}"
+# Final status
+if [[ $SUCCESSFUL_BOOKS -eq $TOTAL_BOOKS ]]; then
+    log "INFO" "🎉 All book extractions completed successfully!"
+    exit 0
+else
+    log "WARN" "Some extractions had issues (Success: $SUCCESSFUL_BOOKS/$TOTAL_BOOKS)"
+    exit 1
+fi

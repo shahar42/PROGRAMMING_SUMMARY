@@ -1,0 +1,28 @@
+{
+  "topic": "Relocation Entries and Address Patching",
+  "explanation": "Relocation entries are crucial during the linking and loading process.  They identify places within an object file where addresses need to be adjusted after the linker combines multiple object files into a single executable.  This adjustment is necessary because the final memory addresses of functions and data are not known until linking is complete.  Address patching, using relocation entries, resolves these addresses, ensuring that all references within the program correctly point to their intended targets.  Without relocation, the program wouldn't know where to find functions or data defined in other object files or libraries.",
+  "syntax": "Relocation entries typically have a format such as:\n{\n  offset: Address within the section needing relocation,\n  type: Relocation type (e.g., absolute, relative, PC-relative),\n  symbol: Symbol being referenced,\n  addend: Constant value to add to the symbol's address\n}",
+  "code_example": [
+    "; Example illustrating a relocation entry (conceptual)",
+    "; Assume a call to a function 'myfunc' located in another object file",
+    "call myfunc ; Instruction in object file 'a.o'",
+    "; Relocation entry for this call in 'a.o':",
+    "; offset: 0x10 (address of the call instruction)",
+    "; type: PC-relative",
+    "; symbol: myfunc",
+    "; addend: 0",
+    "; During linking, the linker finds the address of 'myfunc' (e.g., 0x1000).",
+    "; It uses the relocation entry to patch the 'call' instruction:",
+    "; The PC-relative address is calculated as 0x1000 - (0x10 + 4) = 0xFFC (assuming 4-byte instructions)",
+    "; The 'call' instruction is updated to reflect the correct relative address 0xFFC."
+  ],
+  "example_explanation": "The example shows a conceptual relocation entry for a function call.  The `call myfunc` instruction initially has a placeholder address. The relocation entry specifies where this placeholder is (offset), what type of adjustment is needed (PC-relative), and which symbol to resolve ('myfunc'). The linker uses this information to determine 'myfunc's final address and patch the instruction accordingly, making the program executable. This process ensures that the call instruction correctly jumps to the function's location regardless of where the function is loaded in memory.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "31-31",
+    "extraction_date": "2025-07-13T23:45:48.983218",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}

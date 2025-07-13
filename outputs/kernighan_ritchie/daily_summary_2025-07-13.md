@@ -1,38 +1,38 @@
 # Daily C Concept Extraction Summary
-**Date:** 2025-07-13 00:57:36
-**Duration:** 13.3 seconds
-**Page Range:** 31-45
+**Date:** 2025-07-13 23:19:47
+**Duration:** 13.2 seconds
+**Page Range:** 46-60
 
 ## Concepts Extracted Today: 4
 
-### 1. Null-Termination of Strings
-**What it's about:** In C, strings are represented as arrays of characters.  A special character, the null character ('\0'), is appended to the end of the array to mark its end. This is crucial because functions that work...
+### 1. Bitwise AND Operator (&)
+**What it's about:** The bitwise AND operator compares corresponding bits of two integer operands. If both bits are 1, the resulting bit is 1; otherwise, it's 0.  It's used for masking: selecting specific bits within an i...
 
-- **File:** `concept_009_null_termination_of_strings.json`
-- **Pages:** 31-31
+- **File:** `concept_013_bitwise_and_operator_.json`
+- **Pages:** 46-46
 
-### 2. External Variables in C
-**What it's about:** External variables in C are declared outside of any function, making them globally accessible to all functions within the program.  This allows functions to share data without passing arguments, and t...
+### 2. Assignment Operators
+**What it's about:** Assignment operators in C are used to assign values to variables.  They take a value on the right-hand side and store it into the variable on the left-hand side.  This is fundamental for manipulating ...
 
-- **File:** `concept_010_external_variables_in_c.json`
-- **Pages:** 31-32
+- **File:** `concept_014_assignment_operators.json`
+- **Pages:** 46-46
 
-### 3. External Variables in C
-**What it's about:** External variables, declared with the `extern` keyword, allow you to access variables defined in other source files. This is crucial for modularity and code organization in larger C programs.  By decl...
+### 3. Compound Assignment Operators
+**What it's about:** Compound assignment operators in C combine an arithmetic or bitwise operation with an assignment.  They provide a shorter, more concise way to update a variable's value by performing an operation on i...
 
-- **File:** `concept_011_external_variables_in_c.json`
-- **Pages:** 32-32
+- **File:** `concept_015_compound_assignment_operators.json`
+- **Pages:** 46-46
 
-### 4. Function Definition in C
-**What it's about:** A function definition in C specifies a block of reusable code that performs a specific task.  It's used to organize and modularize code, making programs easier to understand, maintain, and debug.  Fun...
+### 4. Counting Set Bits in an Integer
+**What it's about:** This concept describes how to count the number of bits that are set to 1 in an unsigned integer.  It's useful in various bit manipulation tasks, such as determining the number of active flags or analy...
 
-- **File:** `concept_012_function_definition_in_c.json`
-- **Pages:** 33-33
+- **File:** `concept_016_counting_set_bits_in_an_intege.json`
+- **Pages:** 46-46
 
 ## Progress Summary
-- **Total Concepts Extracted:** 12
-- **Extraction Sessions Completed:** 3
-- **Last Processed Page:** 45
+- **Total Concepts Extracted:** 16
+- **Extraction Sessions Completed:** 4
+- **Last Processed Page:** 60
 
 ## Next Session
 Run the extraction script again tomorrow to continue processing the K&R C Programming book.

@@ -1,39 +1,39 @@
 # Daily Operating Systems Extraction Summary
-**Date:** 2025-07-13 00:58:26
-**Duration:** 34.9 seconds
-**Page Range:** 16-30
+**Date:** 2025-07-13 23:20:36
+**Duration:** 41.3 seconds
+**Page Range:** 31-45
 **Book:** Operating Systems - Three Easy Pieces
 
 ## OS Concepts Extracted Today: 4
 
-### 1. Variable Declaration
-**What it's about:** A variable in C is a named memory location used to store data values that can be manipulated during program execution. It is essential for holding and referencing data, enabling dynamic computations a...
+### 1. Variables in C
+**What it's about:** Variables in C are named memory locations that store data values, which can be modified during program execution. They are used to hold and manipulate data, making programs dynamic and capable of perf...
 
-- **File:** `os_concept_005_variable_declaration.json`
-- **Pages:** 16-16
+- **File:** `os_concept_009_variables_in_c.json`
+- **Pages:** 31-31
 
-### 2. String Literal
-**What it's about:** A string literal in C is a sequence of characters enclosed in double quotes, representing a constant string of text. It is used to store and manipulate textual data, such as messages or URLs, in progr...
+### 2. Thread Creation in C
+**What it's about:** Thread creation in C is the process of starting a new thread of execution within a program, allowing multiple tasks to run concurrently. It is used to improve program efficiency, enable parallel proce...
 
-- **File:** `os_concept_006_string_literal.json`
-- **Pages:** 16-16
+- **File:** `os_concept_010_thread_creation_in_c.json`
+- **Pages:** 31-31
 
-### 3. String Literals
-**What it's about:** A string literal in C is a sequence of characters enclosed in double quotes, representing a constant string of text. It is used to store and display textual data in programs, such as messages or ident...
+### 3. Race Condition
+**What it's about:** A race condition is a concurrency issue that occurs when multiple threads access and modify shared data simultaneously without proper synchronization, leading to unpredictable results. It happens beca...
 
-- **File:** `os_concept_007_string_literals.json`
-- **Pages:** 16-16
+- **File:** `os_concept_011_race_condition.json`
+- **Pages:** 31-31
 
-### 4. Threads in C
-**What it's about:** Threads in C are lightweight units of execution within a process that allow multiple tasks to run concurrently, improving program efficiency and responsiveness. They are used to handle parallel operat...
+### 4. Basic Thread Creation with pthreads
+**What it's about:** Pthreads is a POSIX standard library for creating and managing threads in C, allowing multiple threads of execution within a single process. It is used to perform tasks concurrently, improving program...
 
-- **File:** `os_concept_008_threads_in_c.json`
-- **Pages:** 16-16
+- **File:** `os_concept_012_basic_thread_creation_with_pth.json`
+- **Pages:** 31-31
 
 ## OS Progress Summary
-- **Total OS Concepts Extracted:** 8
-- **Extraction Sessions Completed:** 2
-- **Last Processed Page:** 30
+- **Total OS Concepts Extracted:** 12
+- **Extraction Sessions Completed:** 3
+- **Last Processed Page:** 45
 
 ## Next Session
 Run the OS extraction script again tomorrow to continue processing.

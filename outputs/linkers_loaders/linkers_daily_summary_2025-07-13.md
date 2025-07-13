@@ -1,39 +1,39 @@
 # Daily Linkers & Loaders Extraction Summary
-**Date:** 2025-07-13 00:59:01
-**Duration:** 12.1 seconds
-**Page Range:** 16-30
+**Date:** 2025-07-13 23:45:43
+**Duration:** 18.9 seconds
+**Page Range:** 31-45
 **Book:** Linkers and Loaders
 
 ## Linking Concepts Extracted Today: 4
 
-### 1. Including Header Files
-**What it's about:** Header files in C provide declarations for functions and variables that are defined elsewhere.  They're essential because they allow you to use pre-written code without needing to know its implementat...
+### 1. Relocation Entries and Address Patching
+**What it's about:** Relocation entries are crucial during the linking and loading process.  They identify places within an object file where addresses need to be adjusted after the linker combines multiple object files i...
 
-- **File:** `linkers_concept_005_including_header_files.json`
-- **Pages:** 16-16
+- **File:** `linkers_concept_009_relocation_entries_and_address.json`
+- **Pages:** 31-31
 
-### 2. Declaring and Initializing Variables
-**What it's about:** Variables are named storage locations in a program's memory used to hold data.  Declaring a variable tells the compiler its name and data type, reserving space in memory. Initialization assigns an ini...
+### 2. Symbol Resolution and Relocation
+**What it's about:** Symbol resolution is the process of associating symbolic names (like function or variable names) used in source code with their actual memory addresses during the linking process. Relocation involves ...
 
-- **File:** `linkers_concept_006_declaring_and_initializing_var.json`
-- **Pages:** 16-16
+- **File:** `linkers_concept_010_symbol_resolution_and_relocati.json`
+- **Pages:** 31-32
 
-### 3. Function Calls
-**What it's about:** Function calls are the mechanism in C to invoke or use pre-defined or user-defined blocks of code.  They promote modularity, reusability, and readability by breaking down complex tasks into smaller, m...
+### 3. Segment Combination and Padding during Linking
+**What it's about:** During the linking process, the linker combines corresponding segments (like .text, .data, .bss) from multiple object files into a single executable file.  This consolidation ensures that the program'...
 
-- **File:** `linkers_concept_007_function_calls.json`
-- **Pages:** 16-16
+- **File:** `linkers_concept_011_segment_combination_and_paddin.json`
+- **Pages:** 32-34
 
-### 4. Function Definition and Call in C
-**What it's about:** Functions are reusable blocks of code that perform specific tasks.  They improve code organization, readability, and reusability by breaking down a large program into smaller, manageable modules.  A f...
+### 4. Relocation and Address Patching
+**What it's about:** Relocation is the process of adjusting addresses within a program's code and data segments after it has been linked.  This is necessary because the linker doesn't know the final memory addresses where...
 
-- **File:** `linkers_concept_008_function_definition_and_call_i.json`
-- **Pages:** 16-17
+- **File:** `linkers_concept_012_relocation_and_address_patchin.json`
+- **Pages:** 34-34
 
 ## Linkers Progress Summary
-- **Total Linking Concepts Extracted:** 8
-- **Extraction Sessions Completed:** 2
-- **Last Processed Page:** 30
+- **Total Linking Concepts Extracted:** 12
+- **Extraction Sessions Completed:** 3
+- **Last Processed Page:** 45
 
 ## Next Session
 Run the Linkers & Loaders extraction script again tomorrow to continue processing.
