@@ -1,5 +1,6 @@
 #!/bin/bash
 # Enhanced Master Daily Multi-Book Extraction Runner
+# Updated with Expert C Programming + GPT-4.1 Nano integration
 # Optimized for cron execution with file locking and enhanced logging
 
 # Exit on any error for cron reliability
@@ -101,15 +102,21 @@ if [[ -z "${GROK_API_KEY:-}" ]]; then
     exit 1
 fi
 
+if [[ -z "${OPENAI_API_KEY:-}" ]]; then
+    log "ERROR" "OPENAI_API_KEY not found in environment"
+    exit 1
+fi
+
 log "INFO" "Starting master daily extraction..."
 log "INFO" "Run type: $(if [[ -t 1 ]]; then echo 'Interactive'; else echo 'Automated (cron)'; fi)"
 
-# Book extraction configuration
+# Book extraction configuration - UPDATED WITH EXPERT C PROGRAMMING
 declare -A BOOK_SCRIPTS=(
     ["kernighan_ritchie"]="$BOOKS_DIR/extract_c_concepts.py"
     ["unix_env"]="$BOOKS_DIR/extract_unix_env.py"
     ["linkers_loaders"]="$BOOKS_DIR/extract_linkers_loaders.py"
     ["os_three_pieces"]="$BOOKS_DIR/extract_os_three_pieces.py"
+    ["expert_c_programming"]="$BOOKS_DIR/extract_Expert_C_Programming.py"
 )
 
 declare -A BOOK_NAMES=(
@@ -117,6 +124,7 @@ declare -A BOOK_NAMES=(
     ["unix_env"]="UNIX Environment"
     ["linkers_loaders"]="Linkers & Loaders"
     ["os_three_pieces"]="Operating Systems"
+    ["expert_c_programming"]="Expert C Programming"
 )
 
 declare -A BOOK_STATUS=(
@@ -124,6 +132,7 @@ declare -A BOOK_STATUS=(
     ["unix_env"]="active"
     ["linkers_loaders"]="active"
     ["os_three_pieces"]="active"
+    ["expert_c_programming"]="active"
 )
 
 declare -A BOOK_AI_MODEL=(
@@ -131,6 +140,7 @@ declare -A BOOK_AI_MODEL=(
     ["unix_env"]="Grok"
     ["linkers_loaders"]="Gemini"
     ["os_three_pieces"]="Grok"
+    ["expert_c_programming"]="GPT-4.1 Nano"
 )
 
 # Counters for summary

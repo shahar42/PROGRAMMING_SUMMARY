@@ -1,0 +1,27 @@
+{
+  "topic": "Position Independent Code (PIC) and Global Offset Table (GOT)",
+  "explanation": "Position Independent Code (PIC) is a crucial technique for creating shared libraries and dynamically linked executables.  Because the load address of a shared library isn't known at compile time, PIC ensures that the code can run correctly regardless of where it's loaded into memory.  The Global Offset Table (GOT) is a data structure used by PIC to resolve addresses at runtime.  It holds the actual memory addresses of global variables and functions used by the shared library.  This allows the code to make relative jumps and references, thereby avoiding hardcoded memory addresses that would break if the library's load address changed.",
+  "syntax": "The specific syntax varies based on the architecture and assembler, but generally involves using special instructions to access GOT entries.  For example, on x86-64, `lea` instruction can load an address from GOT, and subsequent instructions would reference that address.  Compilers automatically generate PIC code when appropriate.",
+  "code_example": [
+    "# This example is a conceptual illustration and may not compile directly without a specific assembler and linker setup",
+    "# Assembly code fragment (x86-64)",
+    ".global _start",
+    "_start:",
+    "    # Load address of external function from GOT",
+    "    leaq   GOT_external_function(%rip), %rax",
+    "    # Call external function",
+    "    jmpq   *%rax",
+    "GOT_external_function:",
+    "    .quad external_function  # Address will be filled by linker/loader",
+    "# ...rest of code..."
+  ],
+  "example_explanation": "This example shows a simplified representation of PIC.  The `lea` instruction loads the address of the `GOT_external_function` entry into the `rax` register. This GOT entry contains the address of `external_function` which is resolved at runtime by the dynamic linker.  The `jmpq *%rax` then jumps to the resolved address of `external_function`. The linker will fill in the address of `external_function` into the GOT entry before the program runs.  This demonstrates how PIC and GOT enable code to run regardless of where the shared library is loaded in memory, as the code only needs to know the relative position within GOT; the absolute address is determined at runtime.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "49-49",
+    "extraction_date": "2025-07-14T01:36:24.627169",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}

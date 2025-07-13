@@ -28,7 +28,8 @@ books_metadata = {
     "kernighan_ritchie": "The C Programming Language (Kernighan & Ritchie)",
     "unix_env": "Advanced Programming in the UNIX Environment (Stevens)",
     "linkers_loaders": "Linkers and Loaders (Levine)",
-    "os_three_pieces": "Operating Systems: Three Easy Pieces (Arpaci-Dusseau)"
+    "os_three_pieces": "Operating Systems: Three Easy Pieces (Arpaci-Dusseau)",
+    "expert_c_programming": "Expert C Programming Deep C Secrets (van der Linden)"
 }
 
 def build_concept_index():
@@ -155,7 +156,7 @@ async def search_by_book(book_name: str, query: str = "") -> str:
     """Search concepts within a specific book.
     
     Args:
-        book_name: Name of the book to search in (kernighan_ritchie, unix_env, linkers_loaders, os_three_pieces)
+        book_name: Name of the book to search in (kernighan_ritchie, unix_env, linkers_loaders, os_three_pieces, expert_c_programming)
         query: Search query within the book (optional, empty means show all concepts from book)
     """
     # Validate book name
@@ -224,6 +225,7 @@ async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
     ]
     BOOK_WEIGHTS = {
         "linkers_loaders": 3,
+        "expert_c_programming": 3,  # Expert C Programming is advanced
         "unix_env": 2,
         "os_three_pieces": 2,
         "kernighan_ritchie": 0  # K&R is foundational, so less inherently "advanced"
