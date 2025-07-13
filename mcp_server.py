@@ -1,251 +1,795 @@
 #!/usr/bin/env python3
 """
-Programming Concepts MCP Server
-Serves archaeological extraction database to Claude via MCP protocol
+Programming Concepts MCP Server using FastMCP
+Provides access to programming concepts from technical books.
 """
 
-import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import logging
+from typing import Any, Dict, List
 
-# MCP server imports
-try:
-    from mcp.server.fastmcp import FastMCP
-    from typing import Annotated
-except ImportError:
-    print("MCP package not found. Install with: pip install mcp")
-    sys.exit(1)
+# Add current directory to Python path
+sys.path.append('.')
+
+from mcp.server.fastmcp import FastMCP
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("programming-concepts-mcp")
 
-class ConceptDatabase:
-    """Manages the archaeological extraction database"""
+# Initialize FastMCP server
+mcp = FastMCP("programming-concepts")
+
+# Global variables for concepts database
+concepts = []
+books_metadata = {
+    "kernighan_ritchie": "The C Programming Language (Kernighan & Ritchie)",
+    "unix_env": "Advanced Programming in the UNIX Environment (Stevens)",
+    "linkers_loaders": "Linkers and Loaders (Levine)",
+    "os_three_pieces": "Operating Systems: Three Easy Pieces (Arpaci-Dusseau)"
+}
+
+def build_concept_index():
+    """Build the concept index from outputs directory."""
+    global concepts
     
-    def __init__(self, concepts_root: str = "outputs"):
-        self.concepts_root = Path(concepts_root)
-        self.concepts_index: Dict[str, Dict] = {}
-        self.book_metadata = {
-            "kernighan_ritchie": {
-                "title": "The C Programming Language",
-                "authors": "Kernighan & Ritchie",
-                "focus": "C language fundamentals"
-            },
-            "unix_env": {
-                "title": "Advanced Programming in the UNIX Environment", 
-                "authors": "W. Richard Stevens",
-                "focus": "UNIX system programming"
-            },
-            "linkers_loaders": {
-                "title": "Linkers and Loaders",
-                "authors": "John R. Levine", 
-                "focus": "Binary formats and linking"
-            },
-            "os_three_pieces": {
-                "title": "Operating Systems: Three Easy Pieces",
-                "authors": "Remzi H. Arpaci-Dusseau",
-                "focus": "Operating system concepts"
-            }
-        }
-        self._build_index()
+    logger.info("Building concept index from outputs")
     
-    def _build_index(self):
-        """Build searchable index of all extracted concepts"""
-        logger.info(f"Building concept index from {self.concepts_root}")
+    outputs_dir = Path("outputs")
+    if not outputs_dir.exists():
+        logger.error("outputs directory not found")
+        return
+    
+    total_concepts = 0
+    
+    for book_dir in outputs_dir.iterdir():
+        if not book_dir.is_dir():
+            continue
+            
+        book_name = book_dir.name
+        if book_name not in books_metadata:
+            continue
+            
+        logger.info(f"Indexing book: {book_name}")
         
-        concept_count = 0
-        for book_dir in self.concepts_root.iterdir():
-            if not book_dir.is_dir():
+        # Look for JSON files containing concepts
+        concept_files = list(book_dir.glob("*.json"))
+        book_concepts = 0
+        
+        for concept_file in concept_files:
+            if concept_file.name in ["progress.json", "metadata.json"]:
                 continue
                 
-            book_name = book_dir.name
-            logger.info(f"Indexing book: {book_name}")
-            
-            # Find all concept JSON files
-            concept_files = list(book_dir.glob("*concept_*.json"))
-            logger.info(f"Found {len(concept_files)} concepts in {book_name}")
-            
-            for concept_file in concept_files:
-                try:
-                    with open(concept_file, 'r', encoding='utf-8') as f:
-                        concept_data = json.load(f)
+            try:
+                with open(concept_file, 'r', encoding='utf-8') as f:
+                    concept_data = json.load(f)
                     
-                    # Create unique concept ID
-                    concept_id = f"{book_name}_{concept_file.stem}"
+                # Handle both single concept and list of concepts
+                if isinstance(concept_data, list):
+                    for concept in concept_data:
+                        add_concept(concept, book_name, concept_file.name)
+                        book_concepts += 1
+                elif isinstance(concept_data, dict):
+                    add_concept(concept_data, book_name, concept_file.name)
+                    book_concepts += 1
                     
-                    # Enhance concept with metadata
-                    enhanced_concept = {
-                        **concept_data,
-                        "concept_id": concept_id,
-                        "book": book_name,
-                        "book_title": self.book_metadata.get(book_name, {}).get("title", book_name),
-                        "file_path": str(concept_file),
-                        "search_text": f"{concept_data.get('topic', '')} {concept_data.get('explanation', '')}"
-                    }
-                    
-                    self.concepts_index[concept_id] = enhanced_concept
-                    concept_count += 1
-                    
-                except Exception as e:
-                    logger.warning(f"Failed to index {concept_file}: {e}")
-        
-        logger.info(f"Successfully indexed {concept_count} concepts across {len(self.book_metadata)} books")
-    
-    def search_concepts(self, query: str, book: Optional[str] = None, limit: int = 10) -> List[Dict]:
-        """Search concepts by query with optional book filter"""
-        results = []
-        query_lower = query.lower()
-        
-        for concept_id, concept in self.concepts_index.items():
-            # Apply book filter if specified
-            if book and concept['book'] != book:
+            except (json.JSONDecodeError, IOError) as e:
+                logger.warning(f"Failed to load {concept_file}: {e}")
                 continue
-            
-            # Search in topic, explanation, and syntax
-            searchable_text = concept['search_text'].lower()
-            if query_lower in searchable_text:
-                results.append({
-                    'concept_id': concept_id,
-                    'topic': concept['topic'],
-                    'book': concept['book'],
-                    'book_title': concept['book_title'],
-                    'explanation': concept['explanation'][:200] + "..." if len(concept['explanation']) > 200 else concept['explanation'],
-                    'syntax': concept.get('syntax', 'N/A')
-                })
         
-        # Sort by relevance (simple: topic matches first)
-        results.sort(key=lambda x: query_lower in x['topic'].lower(), reverse=True)
-        return results[:limit]
+        if book_concepts > 0:
+            logger.info(f"Found {book_concepts} concepts in {book_name}")
+            total_concepts += book_concepts
     
-    def get_concept_by_id(self, concept_id: str) -> Optional[Dict]:
-        """Get full concept details by ID"""
-        return self.concepts_index.get(concept_id)
-    
-    def list_books(self) -> List[Dict]:
-        """List all available books with concept counts"""
-        book_stats = {}
-        
-        # Count concepts per book
-        for concept in self.concepts_index.values():
-            book = concept['book']
-            if book not in book_stats:
-                book_stats[book] = 0
-            book_stats[book] += 1
-        
-        # Build book list with metadata
-        books = []
-        for book_name, metadata in self.book_metadata.items():
-            books.append({
-                'book_id': book_name,
-                'title': metadata['title'],
-                'authors': metadata['authors'], 
-                'focus': metadata['focus'],
-                'concept_count': book_stats.get(book_name, 0)
-            })
-        
-        return books
-    
-    def get_concepts_by_topic(self, topic: str, limit: int = 5) -> List[Dict]:
-        """Find concepts related to a specific topic"""
-        return self.search_concepts(topic, limit=limit)
+    logger.info(f"Successfully indexed {total_concepts} concepts across {len([k for k in books_metadata.keys() if any(Path('outputs').glob(f'{k}/*.json'))])} books")
 
-# Initialize FastMCP server
-mcp = FastMCP("programming-concepts-mcp")
-database = ConceptDatabase()
-logger.info("Programming Concepts MCP Server initialized")
+def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
+    """Add a concept to the index."""
+    global concepts
+    
+    # Generate a unique ID for the concept
+    concept_id = f"{book_name}_{filename.replace('.json', '')}_{len(concepts)}"
+    
+    # Extract key information
+    title = concept_data.get('title', concept_data.get('concept', 'Unknown Concept'))
+    description = concept_data.get('description', concept_data.get('summary', ''))
+    content = concept_data.get('content', concept_data.get('explanation', ''))
+    syntax = concept_data.get('syntax', concept_data.get('code', ''))
+    
+    concept = {
+        'id': concept_id,
+        'title': title,
+        'description': description,
+        'content': content,
+        'syntax': syntax,
+        'book': book_name,
+        'book_title': books_metadata[book_name],
+        'source_file': filename,
+        'raw_data': concept_data
+    }
+    
+    concepts.append(concept)
 
 @mcp.tool()
-def search_concepts(query: str, book: str = None, limit: int = 10) -> str:
-    """Search programming concepts by topic, keyword, or concept name"""
-    results = database.search_concepts(query=query, book=book, limit=limit)
+async def search_concepts(query: str, limit: int = 10) -> str:
+    """Search programming concepts by keyword, topic, or description.
     
-    if not results:
+    Args:
+        query: Search query (use '*' to list all concepts)
+        limit: Maximum number of results to return (default: 10)
+    """
+    query_lower = query.lower()
+    
+    if query == "*":
+        # Return all concepts
+        matching_concepts = concepts[:limit]
+    else:
+        # Search concepts
+        matching_concepts = []
+        for concept in concepts:
+            if (query_lower in concept['title'].lower() or 
+                query_lower in concept['description'].lower() or 
+                query_lower in concept['content'].lower() or
+                query_lower in concept['book_title'].lower()):
+                matching_concepts.append(concept)
+                if len(matching_concepts) >= limit:
+                    break
+    
+    if not matching_concepts:
         return f"No concepts found for query: '{query}'"
     
-    response = f"Found {len(results)} programming concepts:\n\n"
-    for i, result in enumerate(results, 1):
-        response += f"{i}. **{result['topic']}** ({result['book_title']})\n"
-        response += f"   ID: `{result['concept_id']}`\n"
-        response += f"   Syntax: `{result['syntax']}`\n"
-        response += f"   {result['explanation']}\n\n"
+    # Format results
+    result_text = f"Found {len(matching_concepts)} programming concepts:\n\n"
+    for i, concept in enumerate(matching_concepts, 1):
+        result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+        if concept['description']:
+            result_text += f"   {concept['description'][:100]}{'...' if len(concept['description']) > 100 else ''}\n"
+        result_text += f"   ID: `{concept['id']}`\n\n"
     
-    return response
+    return result_text
 
 @mcp.tool()
-def get_concept_details(concept_id: str) -> str:
-    """Get complete details of a specific programming concept including code examples"""
-    concept = database.get_concept_by_id(concept_id)
+async def search_by_book(book_name: str, query: str = "") -> str:
+    """Search concepts within a specific book.
+    
+    Args:
+        book_name: Name of the book to search in (kernighan_ritchie, unix_env, linkers_loaders, os_three_pieces)
+        query: Search query within the book (optional, empty means show all concepts from book)
+    """
+    # Validate book name
+    if book_name not in books_metadata:
+        available_books = list(books_metadata.keys())
+        return f"Invalid book name. Available books: {', '.join(available_books)}"
+    
+    # Filter concepts by book
+    book_concepts = [c for c in concepts if c['book'] == book_name]
+    
+    if not book_concepts:
+        return f"No concepts found for book: {books_metadata[book_name]}"
+    
+    # If query is provided, filter further
+    if query:
+        query_lower = query.lower()
+        matching_concepts = []
+        for concept in book_concepts:
+            if (query_lower in concept['title'].lower() or 
+                query_lower in concept['description'].lower() or 
+                query_lower in concept['content'].lower()):
+                matching_concepts.append(concept)
+    else:
+        matching_concepts = book_concepts
+    
+    if not matching_concepts:
+        return f"No concepts found for query '{query}' in {books_metadata[book_name]}"
+    
+    # Format results
+    result_text = f"Found {len(matching_concepts)} concepts in **{books_metadata[book_name]}**"
+    if query:
+        result_text += f" matching '{query}'"
+    result_text += ":\n\n"
+    
+    for i, concept in enumerate(matching_concepts, 1):
+        result_text += f"{i}. **{concept['title']}**\n"
+        if concept['description']:
+            result_text += f"   {concept['description'][:150]}{'...' if len(concept['description']) > 150 else ''}\n"
+        result_text += f"   ID: `{concept['id']}`\n\n"
+    
+    return result_text
+
+@mcp.tool()
+async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
+    """Finds advanced concepts related to a specific topic.
+
+    "Advanced" is determined by a scoring system based on keywords and the source book.
+
+    Args:
+        topic: The general programming topic to search for (e.g., 'memory', 'linking').
+        threshold: A score (default: 2) a concept must meet to be considered "advanced".
+                   Higher values return more specialized concepts.
+    """
+    # 1. Define our heuristics for what makes a concept "advanced"
+    ADVANCED_KEYWORDS = [
+        'advanced', 'internals', 'optimization', 'low-level', 'kernel', 'complex',
+        'performance', 'architecture', 'concurrent', 'asynchronous', 'memory layout',
+        'virtual memory', 'system call', 'linking', 'loading', 'multithreading',
+        'synchronization', 'parallelism', 'cache coherence', 'memory alignment',
+        'interrupts', 'scheduling', 'file systems', 'network stack', 'garbage collection',
+        'instruction pipelining', 'branch prediction', 'memory paging', 'context switching',
+        'atomic operations', 'lock-free programming', 'syscalls',
+        'dynamic linking', 'static analysis',
+        'memory fences', 'thread affinity', 'heap management', 'GOT', 'TLB',
+        'page table', 'segment'
+    ]
+    BOOK_WEIGHTS = {
+        "linkers_loaders": 3,
+        "unix_env": 2,
+        "os_three_pieces": 2,
+        "kernighan_ritchie": 0  # K&R is foundational, so less inherently "advanced"
+    }
+
+    # 2. Search for concepts matching the topic and calculate their "advanced score"
+    advanced_matches = []
+    topic_lower = topic.lower()
+
+    for concept in concepts:
+        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
+
+        # First, ensure the concept is relevant to the topic at all
+        if topic_lower not in concept_text:
+            continue
+
+        # Calculate the advanced score
+        advanced_score = 0
+        # Add points for being from an advanced book
+        advanced_score += BOOK_WEIGHTS.get(concept['book'], 0)
+        # Add points for each advanced keyword found
+        for keyword in ADVANCED_KEYWORDS:
+            if keyword in concept_text:
+                advanced_score += 1
+
+        # Only include concepts that meet our threshold
+        if advanced_score >= threshold:
+            advanced_matches.append({'concept': concept, 'score': advanced_score})
+
+    # 3. Format and return the results
+    if not advanced_matches:
+        return f"No advanced concepts found for topic '{topic}' with threshold {threshold}. Try a lower threshold or broader topic."
+
+    # Sort results to show the "most advanced" first
+    advanced_matches.sort(key=lambda x: x['score'], reverse=True)
+
+    result_text = f"Found {len(advanced_matches)} advanced concepts for '{topic}' (Threshold: {threshold}):\n\n"
+    for i, match in enumerate(advanced_matches, 1):
+        concept = match['concept']
+        result_text += f"{i}. **{concept['title']}** (From: {concept['book_title']})\n"
+        result_text += f"   *Advanced Score: {match['score']}*\n"
+        result_text += f"   {concept['description'][:100]}{'...' if len(concept['description']) > 100 else ''}\n"
+        result_text += f"   ID: `{concept['id']}`\n\n"
+
+    return result_text
+
+@mcp.tool()
+async def find_code_examples(pattern: str = "") -> str:
+    """Find all concepts that contain actual code examples.
+    
+    Args:
+        pattern: Optional pattern to search within code examples (e.g. 'malloc', 'file', 'fork')
+    """
+    code_concepts = []
+    pattern_lower = pattern.lower() if pattern else ""
+    
+    for concept in concepts:
+        # Check if concept has code/syntax
+        has_code = (concept['syntax'] and concept['syntax'].strip()) or \
+                  (concept['raw_data'].get('code') and concept['raw_data']['code'].strip()) or \
+                  (concept['raw_data'].get('example') and concept['raw_data']['example'].strip())
+        
+        if has_code:
+            # If pattern specified, check if it matches
+            if pattern:
+                code_text = (concept['syntax'] + " " + 
+                           str(concept['raw_data'].get('code', '')) + " " +
+                           str(concept['raw_data'].get('example', ''))).lower()
+                if pattern_lower in code_text:
+                    code_concepts.append(concept)
+            else:
+                code_concepts.append(concept)
+    
+    if not code_concepts:
+        if pattern:
+            return f"No code examples found matching pattern: '{pattern}'"
+        else:
+            return "No code examples found in the knowledge base"
+    
+    # Format results
+    result_text = f"Found {len(code_concepts)} concepts with code examples"
+    if pattern:
+        result_text += f" matching '{pattern}'"
+    result_text += ":\n\n"
+    
+    for i, concept in enumerate(code_concepts, 1):
+        result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+        
+        # Show code preview
+        code_sample = concept['syntax'] or concept['raw_data'].get('code', '') or concept['raw_data'].get('example', '')
+        if code_sample:
+            # Show first few lines of code
+            code_lines = code_sample.strip().split('\n')[:3]
+            preview = '\n'.join(code_lines)
+            if len(code_sample.split('\n')) > 3:
+                preview += "\n   ..."
+            result_text += f"   ```c\n   {preview}\n   ```\n"
+        
+        result_text += f"   ID: `{concept['id']}`\n\n"
+    
+    return result_text
+
+@mcp.tool()
+async def compare_concepts(concept1_id: str, concept2_id: str) -> str:
+    """Compare two concepts side-by-side.
+    
+    Args:
+        concept1_id: ID of the first concept to compare
+        concept2_id: ID of the second concept to compare
+    """
+    # Find both concepts
+    concept1 = None
+    concept2 = None
+    
+    for c in concepts:
+        if c['id'] == concept1_id:
+            concept1 = c
+        elif c['id'] == concept2_id:
+            concept2 = c
+    
+    if not concept1:
+        return f"First concept not found: {concept1_id}"
+    if not concept2:
+        return f"Second concept not found: {concept2_id}"
+    
+    # Format comparison
+    result_text = f"# Concept Comparison\n\n"
+    
+    # Basic info comparison
+    result_text += f"## Overview\n"
+    result_text += f"| Aspect | **{concept1['title']}** | **{concept2['title']}** |\n"
+    result_text += f"|--------|-------------------------|-------------------------|\n"
+    result_text += f"| Source | {concept1['book_title']} | {concept2['book_title']} |\n"
+    result_text += f"| ID | `{concept1['id']}` | `{concept2['id']}` |\n\n"
+    
+    # Description comparison
+    if concept1['description'] or concept2['description']:
+        result_text += f"## Description Comparison\n\n"
+        result_text += f"### {concept1['title']}\n"
+        result_text += f"{concept1['description'] or 'No description available'}\n\n"
+        result_text += f"### {concept2['title']}\n"
+        result_text += f"{concept2['description'] or 'No description available'}\n\n"
+    
+    # Content comparison
+    if concept1['content'] or concept2['content']:
+        result_text += f"## Detailed Content Comparison\n\n"
+        result_text += f"### {concept1['title']} Details\n"
+        result_text += f"{concept1['content'][:500] if concept1['content'] else 'No detailed content available'}\n"
+        if concept1['content'] and len(concept1['content']) > 500:
+            result_text += "...\n"
+        result_text += f"\n### {concept2['title']} Details\n"
+        result_text += f"{concept2['content'][:500] if concept2['content'] else 'No detailed content available'}\n"
+        if concept2['content'] and len(concept2['content']) > 500:
+            result_text += "...\n"
+        result_text += "\n"
+    
+    # Code comparison
+    if concept1['syntax'] or concept2['syntax']:
+        result_text += f"## Code Comparison\n\n"
+        result_text += f"### {concept1['title']} Code\n"
+        if concept1['syntax']:
+            result_text += f"```c\n{concept1['syntax']}\n```\n\n"
+        else:
+            result_text += "No code example available\n\n"
+        
+        result_text += f"### {concept2['title']} Code\n"
+        if concept2['syntax']:
+            result_text += f"```c\n{concept2['syntax']}\n```\n\n"
+        else:
+            result_text += "No code example available\n\n"
+    
+    # Key differences
+    result_text += f"## Key Observations\n"
+    if concept1['book'] != concept2['book']:
+        result_text += f"- **Different Sources**: {concept1['book_title']} vs {concept2['book_title']}\n"
+    else:
+        result_text += f"- **Same Source**: Both from {concept1['book_title']}\n"
+    
+    if concept1['syntax'] and concept2['syntax']:
+        result_text += f"- **Both have code examples** - useful for practical comparison\n"
+    elif concept1['syntax'] or concept2['syntax']:
+        result_text += f"- **Only one has code example** - theoretical vs practical perspective\n"
+    
+    return result_text
+
+@mcp.tool()
+async def generate_study_path(goal: str) -> str:
+    """Create ordered learning sequence for a programming goal.
+    
+    Args:
+        goal: Learning goal (e.g. 'system programming', 'memory management', 'file I/O', 'C basics')
+    """
+    goal_lower = goal.lower()
+    
+    # Define study paths based on common goals
+    study_paths = {
+        'c basics': ['basic', 'variable', 'function', 'array', 'pointer', 'string'],
+        'memory management': ['pointer', 'malloc', 'free', 'memory', 'heap', 'stack'],
+        'file io': ['file', 'open', 'read', 'write', 'close', 'stream'],
+        'system programming': ['process', 'fork', 'exec', 'signal', 'pipe', 'thread'],
+        'unix programming': ['unix', 'system call', 'process', 'signal', 'file descriptor'],
+        'debugging': ['debug', 'error', 'gdb', 'valgrind', 'trace'],
+        'compilation': ['compile', 'link', 'library', 'object', 'makefile'],
+        'data structures': ['struct', 'array', 'list', 'tree', 'hash']
+    }
+    
+    # Find matching keywords for the goal
+    relevant_keywords = []
+    for path_name, keywords in study_paths.items():
+        if any(keyword in goal_lower for keyword in path_name.split()):
+            relevant_keywords.extend(keywords)
+            break
+    
+    # If no specific path found, extract keywords from goal
+    if not relevant_keywords:
+        relevant_keywords = goal_lower.split()
+    
+    # Find concepts matching the keywords
+    relevant_concepts = []
+    for concept in concepts:
+        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
+        relevance_score = sum(1 for keyword in relevant_keywords if keyword in concept_text)
+        
+        if relevance_score > 0:
+            relevant_concepts.append((concept, relevance_score))
+    
+    if not relevant_concepts:
+        return f"No concepts found for learning goal: '{goal}'"
+    
+    # Sort by relevance and book authority
+    book_priority = {'kernighan_ritchie': 4, 'unix_env': 3, 'os_three_pieces': 2, 'linkers_loaders': 1}
+    relevant_concepts.sort(key=lambda x: (x[1], book_priority.get(x[0]['book'], 0)), reverse=True)
+    
+    # Create study path
+    result_text = f"# Study Path: {goal.title()}\n\n"
+    result_text += f"Found {len(relevant_concepts)} relevant concepts organized by learning progression:\n\n"
+    
+    # Group by complexity/book
+    basic_concepts = []
+    intermediate_concepts = []
+    advanced_concepts = []
+    
+    for concept, score in relevant_concepts:
+        concept_text = concept['title'].lower() + ' ' + concept['description'].lower()
+        
+        # Simple heuristic for complexity
+        if any(word in concept_text for word in ['basic', 'introduction', 'overview', 'simple']):
+            basic_concepts.append(concept)
+        elif any(word in concept_text for word in ['advanced', 'complex', 'optimization', 'internals']):
+            advanced_concepts.append(concept)
+        else:
+            intermediate_concepts.append(concept)
+    
+    # If no clear categorization, distribute evenly
+    if not basic_concepts and not advanced_concepts:
+        third = len(relevant_concepts) // 3
+        basic_concepts = [c[0] for c in relevant_concepts[:third]]
+        intermediate_concepts = [c[0] for c in relevant_concepts[third:2*third]]
+        advanced_concepts = [c[0] for c in relevant_concepts[2*third:]]
+    
+    # Format study path
+    if basic_concepts:
+        result_text += f"## 📚 Foundation Level\n"
+        for i, concept in enumerate(basic_concepts[:5], 1):
+            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+            result_text += f"   {concept['description'][:100] if concept['description'] else 'Core concept'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
+            result_text += f"   ID: `{concept['id']}`\n\n"
+    
+    if intermediate_concepts:
+        result_text += f"## 🔧 Practical Level\n"
+        for i, concept in enumerate(intermediate_concepts[:5], 1):
+            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+            result_text += f"   {concept['description'][:100] if concept['description'] else 'Practical application'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
+            result_text += f"   ID: `{concept['id']}`\n\n"
+    
+    if advanced_concepts:
+        result_text += f"## 🚀 Advanced Level\n"
+        for i, concept in enumerate(advanced_concepts[:5], 1):
+            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+            result_text += f"   {concept['description'][:100] if concept['description'] else 'Advanced topic'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
+            result_text += f"   ID: `{concept['id']}`\n\n"
+    
+    result_text += f"## 💡 Study Tips\n"
+    result_text += f"- Start with Foundation Level concepts\n"
+    result_text += f"- Use `get_concept_details(id)` for full explanations\n"
+    result_text += f"- Use `find_code_examples('{goal}')` for practical examples\n"
+    result_text += f"- Compare concepts between different books for deeper understanding\n"
+    
+    return result_text
+
+@mcp.tool()
+async def explain_my_code(code_snippet: str, language: str = "C") -> str:
+    """Analyze code using concepts from your knowledge base.
+    
+    Args:
+        code_snippet: The code to analyze
+        language: Programming language (default: C)
+    """
+    code_lower = code_snippet.lower()
+    
+    # Extract keywords/patterns from code
+    code_keywords = []
+    
+    # Common C patterns to look for
+    c_patterns = {
+        'malloc': ['malloc', 'memory allocation', 'heap'],
+        'free': ['free', 'memory deallocation'],
+        'pointer': ['*', 'pointer', 'address'],
+        'array': ['[', ']', 'array', 'index'],
+        'function': ['(', ')', 'function', 'call'],
+        'struct': ['struct', 'structure'],
+        'file': ['fopen', 'fclose', 'fread', 'fwrite', 'file'],
+        'process': ['fork', 'exec', 'wait', 'process'],
+        'signal': ['signal', 'kill', 'sigaction'],
+        'thread': ['pthread', 'thread', 'mutex'],
+        'string': ['strcpy', 'strlen', 'strcmp', 'string'],
+        'stdio': ['printf', 'scanf', 'fprintf', 'input', 'output']
+    }
+    
+    # Identify relevant concepts based on code content
+    for keyword, patterns in c_patterns.items():
+        if any(pattern in code_lower for pattern in patterns):
+            code_keywords.append(keyword)
+    
+    # Find concepts that match the identified keywords
+    relevant_concepts = []
+    for concept in concepts:
+        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
+        relevance_score = sum(1 for keyword in code_keywords if keyword in concept_text)
+        
+        # Also check if concept has similar code patterns
+        if concept['syntax']:
+            syntax_lower = concept['syntax'].lower()
+            code_similarity = sum(1 for line in code_snippet.split('\n') 
+                                if any(word in syntax_lower for word in line.split() if len(word) > 2))
+            relevance_score += code_similarity * 0.5
+        
+        if relevance_score > 0:
+            relevant_concepts.append((concept, relevance_score))
+    
+    if not relevant_concepts:
+        return f"No relevant concepts found for this {language} code. The code might use patterns not covered in the knowledge base."
+    
+    # Sort by relevance
+    relevant_concepts.sort(key=lambda x: x[1], reverse=True)
+    
+    # Format analysis
+    result_text = f"# Code Analysis: {language}\n\n"
+    result_text += f"## Your Code\n```{language.lower()}\n{code_snippet}\n```\n\n"
+    
+    result_text += f"## Analysis Using Knowledge Base\n\n"
+    result_text += f"Identified {len(code_keywords)} key patterns: {', '.join(code_keywords)}\n\n"
+    
+    # Show most relevant concepts
+    top_concepts = relevant_concepts[:5]
+    result_text += f"### 🔍 Relevant Concepts ({len(top_concepts)} found)\n\n"
+    
+    for i, (concept, score) in enumerate(top_concepts, 1):
+        result_text += f"**{i}. {concept['title']}** ({concept['book_title']})\n"
+        result_text += f"   {concept['description'][:150] if concept['description'] else 'No description'}{'...' if len(concept.get('description', '')) > 150 else ''}\n"
+        
+        # Show relevant code if available
+        if concept['syntax'] and any(keyword in concept['syntax'].lower() for keyword in code_keywords):
+            code_preview = concept['syntax'].strip().split('\n')[:2]
+            result_text += f"   ```c\n   {chr(10).join(code_preview)}\n   ```\n"
+        
+        result_text += f"   ID: `{concept['id']}` | Relevance: {score:.1f}\n\n"
+    
+    # Provide expert insights
+    result_text += f"### 📚 Expert Insights\n"
+    
+    # Group insights by book
+    book_insights = {}
+    for concept, score in top_concepts:
+        book = concept['book_title']
+        if book not in book_insights:
+            book_insights[book] = []
+        book_insights[book].append(concept['title'])
+    
+    for book, concept_titles in book_insights.items():
+        result_text += f"- **{book}**: Covers {', '.join(concept_titles[:3])}\n"
+    
+    result_text += f"\n### 🚀 Next Steps\n"
+    result_text += f"- Use `get_concept_details()` for detailed explanations of relevant concepts\n"
+    result_text += f"- Use `find_code_examples('{code_keywords[0] if code_keywords else 'pattern'}')` for similar examples\n"
+    result_text += f"- Compare implementations across different books for best practices\n"
+    
+    return result_text
+
+@mcp.tool()
+async def get_concept_details(concept_id: str) -> str:
+    """Get detailed information about a specific concept.
+    
+    Args:
+        concept_id: The ID of the concept to retrieve
+    """
+    # Find the concept
+    concept = None
+    for c in concepts:
+        if c['id'] == concept_id:
+            concept = c
+            break
     
     if not concept:
         return f"Concept not found: {concept_id}"
     
-    response = f"# {concept['topic']}\n\n"
-    response += f"**Source:** {concept['book_title']}\n"
-    response += f"**Pages:** {concept.get('extraction_metadata', {}).get('page_range', 'N/A')}\n\n"
-    response += f"## Explanation\n{concept['explanation']}\n\n"
-    response += f"## Syntax\n```\n{concept.get('syntax', 'N/A')}\n```\n\n"
+    # Format detailed response
+    result_text = f"# {concept['title']}\n\n"
+    result_text += f"**Source:** {concept['book_title']}\n\n"
     
-    if concept.get('code_example'):
-        response += "## Code Example\n```c\n"
-        response += "\n".join(concept['code_example'])
-        response += "\n```\n\n"
+    if concept['description']:
+        result_text += f"## Description\n{concept['description']}\n\n"
     
-    if concept.get('example_explanation'):
-        response += f"## Example Explanation\n{concept['example_explanation']}\n"
+    if concept['content']:
+        result_text += f"## Details\n{concept['content']}\n\n"
     
-    return response
+    if concept['syntax']:
+        result_text += f"## Code Example\n```c\n{concept['syntax']}\n```\n\n"
+    
+    # Add any additional information from raw data
+    raw_data = concept['raw_data']
+    for key, value in raw_data.items():
+        if key not in ['title', 'description', 'content', 'syntax', 'concept', 'summary', 'explanation', 'code'] and value:
+            result_text += f"**{key.title()}:** {value}\n"
+    
+    return result_text
 
 @mcp.tool()
-def list_books() -> str:
-    """List all available programming books in the database with statistics"""
-    books = database.list_books()
-    response = "# Available Programming Books\n\n"
-    for book in books:
-        response += f"## {book['title']}\n"
-        response += f"- **Authors:** {book['authors']}\n"
-        response += f"- **Focus:** {book['focus']}\n"
-        response += f"- **Concepts:** {book['concept_count']} extracted\n"
-        response += f"- **Book ID:** `{book['book_id']}`\n\n"
+async def generate_reference_sheet(topic: str, format: str = "markdown") -> str:
+    """Generate a formatted reference sheet for a specific topic.
     
-    return response
+    Args:
+        topic: The programming topic to create a reference for
+        format: Output format - 'markdown', 'text', or 'html'
+    """
+    global concepts
+    
+    if not concepts:
+        return "No concepts available"
+    
+    # Search for relevant concepts
+    topic_lower = topic.lower()
+    relevant_concepts = []
+    
+    for concept in concepts:
+        if (topic_lower in concept['title'].lower() or 
+            topic_lower in concept['description'].lower() or 
+            topic_lower in concept['content'].lower()):
+            relevant_concepts.append(concept)
+    
+    if not relevant_concepts:
+        return f"No concepts found for topic: {topic}"
+    
+    # Group concepts by book
+    by_book = {}
+    for concept in relevant_concepts:
+        book = concept['book_title']
+        if book not in by_book:
+            by_book[book] = []
+        by_book[book].append(concept)
+    
+    # Generate reference sheet based on format
+    if format.lower() == "markdown":
+        return _generate_markdown_reference(topic, by_book)
+    elif format.lower() == "html":
+        return _generate_html_reference(topic, by_book)
+    else:  # text format
+        return _generate_text_reference(topic, by_book)
 
-@mcp.tool()
-def get_concepts_by_topic(topic: str, limit: int = 5) -> str:
-    """Find programming concepts related to a specific topic across all books"""
-    results = database.get_concepts_by_topic(topic=topic, limit=limit)
+def _generate_markdown_reference(topic: str, by_book: dict) -> str:
+    """Generate markdown formatted reference sheet."""
+    output = f"# {topic.title()} Reference Sheet\n\n"
+    output += f"*Generated from {sum(len(concepts) for concepts in by_book.values())} concepts across {len(by_book)} books*\n\n"
     
-    if not results:
-        return f"No concepts found for topic: '{topic}'"
+    for book, concepts in by_book.items():
+        output += f"## {book}\n\n"
+        
+        for concept in concepts:
+            output += f"### {concept['title']}\n\n"
+            
+            if concept['description']:
+                output += f"{concept['description']}\n\n"
+            
+            if concept['syntax']:
+                output += f"```c\n{concept['syntax']}\n```\n\n"
+            
+            if concept['content']:
+                output += f"**Details:** {concept['content'][:200]}{'...' if len(concept['content']) > 200 else ''}\n\n"
+            
+            output += f"*Source: {book}*\n\n---\n\n"
     
-    response = f"# Programming Concepts: {topic}\n\n"
-    for result in results:
-        response += f"## {result['topic']} ({result['book_title']})\n"
-        response += f"**ID:** `{result['concept_id']}`\n"
-        response += f"**Syntax:** `{result['syntax']}`\n"
-        response += f"{result['explanation']}\n\n"
-    
-    return response
+    return output
 
-def main():
-    """Main MCP server entry point"""
-    logger.info("Starting Programming Concepts MCP Server for Claude Code...")
-    logger.info("MCP Server ready for Claude Code")
+def _generate_html_reference(topic: str, by_book: dict) -> str:
+    """Generate HTML formatted reference sheet."""
+    output = f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>{topic.title()} Reference Sheet</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; }}
+        h1 {{ color: #333; border-bottom: 2px solid #007acc; }}
+        h2 {{ color: #007acc; }}
+        pre {{ background: #f4f4f4; padding: 10px; border-radius: 5px; }}
+        .source {{ font-style: italic; color: #666; }}
+    </style>
+</head>
+<body>
+    <h1>{topic.title()} Reference Sheet</h1>
+    <p><em>Generated from {sum(len(concepts) for concepts in by_book.values())} concepts across {len(by_book)} books</em></p>
+"""
     
-    try:
-        mcp.run(transport="stdio")
-    except Exception as e:
-        logger.error(f"Server error: {e}")
-        raise
+    for book, concepts in by_book.items():
+        output += f"    <h2>{book}</h2>\n"
+        
+        for concept in concepts:
+            output += f"    <h3>{concept['title']}</h3>\n"
+            
+            if concept['description']:
+                output += f"    <p>{concept['description']}</p>\n"
+            
+            if concept['syntax']:
+                output += f"    <pre><code>{concept['syntax']}</code></pre>\n"
+            
+            if concept['content']:
+                content = concept['content'][:200] + ('...' if len(concept['content']) > 200 else '')
+                output += f"    <p><strong>Details:</strong> {content}</p>\n"
+            
+            output += f"    <p class='source'>Source: {book}</p>\n    <hr>\n"
+    
+    output += "</body></html>"
+    return output
+
+def _generate_text_reference(topic: str, by_book: dict) -> str:
+    """Generate plain text formatted reference sheet."""
+    output = f"{topic.upper()} REFERENCE SHEET\n"
+    output += "=" * len(f"{topic.upper()} REFERENCE SHEET") + "\n\n"
+    output += f"Generated from {sum(len(concepts) for concepts in by_book.values())} concepts across {len(by_book)} books\n\n"
+    
+    for book, concepts in by_book.items():
+        output += f"{book.upper()}\n"
+        output += "-" * len(book) + "\n\n"
+        
+        for concept in concepts:
+            output += f"{concept['title']}\n"
+            
+            if concept['description']:
+                output += f"Description: {concept['description']}\n"
+            
+            if concept['syntax']:
+                output += f"Code:\n{concept['syntax']}\n"
+            
+            if concept['content']:
+                content = concept['content'][:200] + ('...' if len(concept['content']) > 200 else '')
+                output += f"Details: {content}\n"
+            
+            output += f"Source: {book}\n\n"
+    
+    return output
+
+# Initialize the concepts database when the module loads
+build_concept_index()
+logger.info("Programming Concepts MCP Server initialized")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        logger.info("Server stopped by user")
-    except Exception as e:
-        logger.error(f"Server startup failed: {e}")
-        sys.exit(1)
+    # Run the FastMCP server
+    logger.info("Starting Programming Concepts MCP Server for Claude Code...")
+    logger.info("MCP Server ready for Claude Code")
+    mcp.run(transport='stdio')
