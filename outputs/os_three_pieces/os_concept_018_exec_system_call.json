@@ -1,0 +1,31 @@
+{
+  "topic": "exec() System Call",
+  "explanation": "The exec() system call is a family of functions in C that replaces the current process's memory space with a new program. It is used to execute a different executable file from within a running process, which is essential for scenarios where you need to run external commands or programs without keeping the original process's code, such as in process management or scripting.",
+  "syntax": "int execvp(const char *file, char *const argv[]);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <unistd.h>",
+    "#include <sys/types.h>",
+    "#include <sys/wait.h>",
+    "",
+    "int main() {",
+    "    pid_t pid = fork();",
+    "    if (pid == 0) {  // Child process",
+    "        char *args[] = {\"ls\", \"-l\", NULL};",
+    "        execvp(\"ls\", args);  // Replace child with 'ls -l' command",
+    "        printf(\"execvp failed\\n\");  // This line won't execute if execvp succeeds",
+    "    } else if (pid > 0) {  // Parent process",
+    "        wait(NULL);  // Wait for child to finish",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the execvp variant of the exec() system call by forking a child process. In the child, execvp replaces the process image with the 'ls -l' command, which lists files in long format. If successful, the child no longer runs the original code; instead, it executes the new program, showing how exec() switches to a different executable while the parent waits for it to complete.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "61-61",
+    "extraction_date": "2025-07-16T12:07:11.502118",
+    "has_code": false,
+    "has_explanation": true
+  }
+}

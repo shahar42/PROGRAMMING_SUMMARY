@@ -1,0 +1,25 @@
+{
+  "topic": "Position Independent Code (PIC)",
+  "explanation": "Position Independent Code (PIC) is a technique used to compile code so that it can be loaded and executed at any address in memory, without requiring modification. This is crucial for shared libraries (like .so files on Linux or .dll files on Windows) because multiple programs might load the same library simultaneously, each at a different memory location.  Without PIC, each program would need a separate copy of the library, wasting memory and resources. PIC allows the code to refer to its own addresses and external addresses in a way that's independent of its load address.",
+  "syntax": "The exact syntax for generating PIC depends on the compiler and architecture.  Generally, it involves using compiler flags (like -fPIC on GCC) and special instructions (like GOT and PLT for ELF).  The compiler and linker handle the complexities of generating and resolving addresses.",
+  "code_example": [
+    "#include <stdio.h>",
+    "int global_variable = 10;",
+    "void my_function() {",
+    "  printf(\"Global variable value: %d\\n\", global_variable);",
+    "}",
+    "int main() {",
+    "  my_function();",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This simple C example, when compiled with the `-fPIC` flag (e.g., `gcc -fPIC -shared -o libmylib.so myprogram.c`), will produce a shared library (`libmylib.so`). The key is that `global_variable`'s address within `my_function` will be resolved at runtime using the Global Offset Table (GOT) or Procedure Linkage Table (PLT) mechanisms.  This ensures that the library functions correctly regardless of where it is loaded into memory by the dynamic linker. The dynamic linker loads the library and resolves the addresses of global variables and functions at runtime. Without PIC, the address of `global_variable` would be hardcoded, and the library would only function at a specific memory address.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "61-61",
+    "extraction_date": "2025-07-16T12:07:37.050911",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

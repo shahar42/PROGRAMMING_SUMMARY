@@ -1,0 +1,31 @@
+{
+  "topic": "Timer Interrupt",
+  "explanation": "A timer interrupt is a hardware mechanism that periodically interrupts the CPU to allow the operating system to regain control, even if user processes are not yielding the CPU voluntarily. It is used to prevent any single process from monopolizing system resources, ensuring fair scheduling and system stability by returning control to the OS at regular intervals.",
+  "syntax": "signal(int sig, void (*func)(int));",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <signal.h>",
+    "#include <unistd.h>",
+    "",
+    "void handler(int sig) {",
+    "    printf(\"Timer interrupt handled\\n\");",
+    "}",
+    "",
+    "int main() {",
+    "    signal(SIGALRM, handler);  // Set up signal handler for timer",
+    "    alarm(5);  // Start a timer for 5 seconds",
+    "    printf(\"Main program running...\\n\");",
+    "    for(volatile int i = 0; i < 1000000000; i++);  // Simulate a long-running process",
+    "    printf(\"Main program finished\\n\");",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program demonstrates a timer interrupt by setting an alarm for 5 seconds using the alarm() function, which triggers the SIGALRM signal. The handler function is called when the timer expires, interrupting the main program's loop and printing a message. This illustrates how a timer can regain control from a running process, similar to how an OS uses hardware interrupts to maintain system control.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "76-76",
+    "extraction_date": "2025-07-16T23:02:29.989662",
+    "has_code": false,
+    "has_explanation": true
+  }
+}

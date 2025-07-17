@@ -1,0 +1,31 @@
+{
+  "topic": "wait() System Call",
+  "explanation": "The wait() system call in C is a function that allows a parent process to suspend its execution until one of its child processes terminates. It is used to synchronize processes, ensuring that the parent does not proceed before the child has finished, which helps in creating deterministic program behavior and avoiding issues like race conditions in multi-process environments.",
+  "syntax": "pid_t wait(int *status);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <unistd.h>",
+    "#include <sys/wait.h>",
+    "",
+    "int main() {",
+    "    pid_t pid = fork();",
+    "    if (pid == 0) {  // Child process",
+    "        printf(\"hello, I am child (pid: %d)\\n\", getpid());",
+    "        exit(0);",
+    "    } else if (pid > 0) {  // Parent process",
+    "        wait(NULL);  // Wait for child to finish",
+    "        printf(\"hello, I am parent of %d (pid: %d)\\n\", pid, getpid());",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this example, the program forks a child process. The child prints its message and exits immediately. The parent calls wait(), which blocks until the child terminates, ensuring the child's message is printed first. After wait() returns, the parent prints its message, demonstrating how wait() synchronizes the processes to produce deterministic output.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "61-61",
+    "extraction_date": "2025-07-16T12:07:03.562729",
+    "has_code": false,
+    "has_explanation": false
+  }
+}

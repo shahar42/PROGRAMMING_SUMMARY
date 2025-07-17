@@ -1,0 +1,29 @@
+{
+  "topic": "Setting the O_SYNC Flag for Synchronous File Writes",
+  "explanation": "The O_SYNC flag is a file descriptor flag in Unix-like systems that ensures write operations are performed synchronously. This means that a write call will not return until the data is physically written to the disk, rather than just queued. It is used to guarantee data persistence, which is crucial for applications like databases to prevent data loss in case of system failures or crashes.",
+  "syntax": "fcntl(fd, F_SETFL, flags | O_SYNC)",
+  "code_example": [
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "#include <stdio.h>",
+    "",
+    "int main() {",
+    "    int flags = fcntl(STDOUT_FILENO, F_GETFL, 0);",
+    "    if (flags != -1) {",
+    "        flags |= O_SYNC;",
+    "        fcntl(STDOUT_FILENO, F_SETFL, flags);",
+    "    }",
+    "    // Perform a simple write to demonstrate",
+    "    write(STDOUT_FILENO, \"Synchronous write test\\n\", 24);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program first retrieves the current flags of STDOUT_FILENO using fcntl, adds the O_SYNC flag to them, and sets the updated flags. It then performs a write operation to stdout, which will now attempt synchronous writes, demonstrating how O_SYNC ensures the data is written to disk before proceeding, as verified by the flag modification.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "120-120",
+    "extraction_date": "2025-07-16T23:01:52.306677",
+    "has_code": true,
+    "has_explanation": true
+  }
+}
