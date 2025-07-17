@@ -1,0 +1,38 @@
+{
+  "topic": "Process Creation and Execution with fork() and exec()",
+  "explanation": "In UNIX system programming, creating and managing processes is fundamental.  `fork()` duplicates the current process, creating a child process that's an almost exact copy.  `exec()` family of functions replaces the current process's image with a new program, effectively running a different executable within the same process ID.  These are crucial for building complex applications that leverage multiple processes for concurrency or running external commands.",
+  "syntax": "pid_t fork(void);\nint execl(const char *path, const char *arg0, ... , NULL);\nint execlp(const char *file, const char *arg0, ... , NULL); // other exec variants exist",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <unistd.h>",
+    "#include <sys/wait.h>",
+    "int main() {",
+    "    pid_t pid = fork();",
+    "    if (pid < 0) {",
+    "        perror(\"fork failed\");",
+    "        exit(1);",
+    "    }",
+    "    else if (pid == 0) {",
+    "        // Child process",
+    "        execlp(\"date\", \"date\", NULL);",
+    "        perror(\"execlp failed\"); // only reached if execlp fails",
+    "        exit(1);",
+    "    } else {",
+    "        // Parent process",
+    "        wait(NULL); // Wait for child to finish",
+    "        printf(\"Child process completed\\n\");",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates `fork()` and `execlp()`. `fork()` creates a child process. The child process executes `execlp(\"date\", \"date\", NULL)`, replacing its image with the `/bin/date` program.  The parent process waits for the child using `wait(NULL)`.  If `execlp` fails (for example, if the `/bin/date` program is not found),  the error handling in the child process will print an error message.  This showcases the fundamental process creation and execution mechanisms crucial in UNIX system programming.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "136-136",
+    "extraction_date": "2025-07-18T01:47:58.448515",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "unix_programming"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "topic": "Pointer Operations and Memory Management with `free()`",
+  "explanation": "In C, dynamic memory allocation using `malloc()` requires explicit deallocation using `free()` to prevent memory leaks.  Pointers are essential for managing dynamically allocated memory.  `free()` releases the memory pointed to by a pointer, making it available for reuse by the operating system.  Failure to free dynamically allocated memory results in a memory leak, consuming system resources and potentially leading to program crashes.",
+  "syntax": "void free(void *ptr);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "struct node {",
+    "    int data;",
+    "    struct node *next;",
+    "};",
+    "",
+    "int main() {",
+    "    struct node *head = (struct node *)malloc(sizeof(struct node));",
+    "    if (head == NULL) {",
+    "        perror(\"Memory allocation failed\");",
+    "        return 1;",
+    "    }",
+    "    head->data = 10;",
+    "    head->next = NULL;",
+    "",
+    "    struct node *p = head;",
+    "    struct node *temp;",
+    "",
+    "    while (p != NULL) {",
+    "        temp = p;",
+    "        p = p->next;",
+    "        free(temp);",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates safe memory management.  A linked list is created dynamically.  The `while` loop iterates through the list. Before freeing each node (`free(temp)`), a temporary pointer `temp` stores the address of the current node, ensuring that the address is not lost before freeing the memory.  This prevents dangling pointers and memory leaks.  The `if` statement checks for memory allocation failure (`malloc` returning `NULL`), handling potential errors gracefully. This illustrates correct usage of `free()` in conjunction with pointer manipulation to avoid memory errors.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "136-136",
+    "extraction_date": "2025-07-18T01:48:02.340900",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "c_programming"
+  }
+}
