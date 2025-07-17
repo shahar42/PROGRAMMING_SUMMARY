@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-K&R C Programming MCP Server
-Focused on C language syntax, operators, control structures, functions
+Expert C Programming MCP Server
+Focused on advanced C techniques, pitfalls, expert-level programming, deep language insights
 """
 
 import json
@@ -11,15 +11,15 @@ from pathlib import Path
 sys.path.append('.')
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("kernighan-ritchie")
+mcp = FastMCP("expert-c-programming")
 
-# Load K&R concepts only
+# Load Expert C Programming concepts only
 concepts = []
-book_name = "kernighan_ritchie"
-book_title = "The C Programming Language (Kernighan & Ritchie)"
+book_name = "expert_c_programming"
+book_title = "Expert C Programming: Deep C Secrets (van der Linden)"
 
 def load_concepts():
-    """Load K&R concepts from outputs directory"""
+    """Load Expert C Programming concepts from outputs directory"""
     global concepts
     concepts_dir = Path("outputs") / book_name
     
@@ -46,7 +46,7 @@ def load_concepts():
 
 @mcp.tool()
 def search_concepts(query: str, limit: int = 10) -> str:
-    """Search K&R C programming concepts"""
+    """Search Expert C Programming concepts"""
     if not query.strip():
         return "Please provide a search query"
         
@@ -62,9 +62,9 @@ def search_concepts(query: str, limit: int = 10) -> str:
                 break
     
     if not matches:
-        return f"No K&R concepts found for: '{query}'"
+        return f"No Expert C Programming concepts found for: '{query}'"
     
-    result = f"Found {len(matches)} K&R C Programming concepts:\n\n"
+    result = f"Found {len(matches)} Expert C Programming concepts:\n\n"
     for i, concept in enumerate(matches, 1):
         result += f"{i}. **{concept['title']}**\n"
         if concept['description']:
@@ -76,11 +76,11 @@ def search_concepts(query: str, limit: int = 10) -> str:
 
 @mcp.tool()
 def get_concept_details(concept_id: str) -> str:
-    """Get detailed information about a K&R concept"""
+    """Get detailed information about an Expert C Programming concept"""
     concept = next((c for c in concepts if c['id'] == concept_id), None)
     
     if not concept:
-        return f"K&R concept not found: {concept_id}"
+        return f"Expert C Programming concept not found: {concept_id}"
     
     result = f"# {concept['title']}\n\n**Source:** {book_title}\n\n"
     
@@ -101,9 +101,9 @@ def get_concept_details(concept_id: str) -> str:
 
 @mcp.tool()
 def list_all_concepts() -> str:
-    """List all available K&R concepts"""
+    """List all available Expert C Programming concepts"""
     if not concepts:
-        return "No K&R concepts loaded"
+        return "No Expert C Programming concepts loaded"
     
     result = f"**{book_title}** - {len(concepts)} concepts:\n\n"
     for i, concept in enumerate(concepts, 1):
@@ -115,5 +115,5 @@ def list_all_concepts() -> str:
 load_concepts()
 
 if __name__ == "__main__":
-    print(f"🚀 Starting K&R C Programming server with {len(concepts)} concepts")
+    print(f"🚀 Starting Expert C Programming server with {len(concepts)} concepts")
     mcp.run()
