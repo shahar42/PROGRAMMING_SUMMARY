@@ -73,6 +73,11 @@ BOOK_SERVER_CONFIGS = {
         "script_path": "scripts/book_servers/expert_c_server.py",
         "port": 8105,
         "description": "Expert C Programming server"
+    },
+        "memory_optimization": {
+        "script_path": "memory_optimization_server.py",
+        "port": 8106,
+        "description": "Memory optimization, cache performance, TLB efficiency"
     }
 }
 

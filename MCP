@@ -1,0 +1,256 @@
+# MCP Server Architecture Documentation
+
+## Overview
+
+The Model Context Protocol (MCP) server system is a sophisticated multi-server architecture designed to provide intelligent access to programming concepts extracted from five classic computer science books. The system uses FastMCP framework and implements a hierarchical server structure with intelligent routing capabilities.
+
+## Architecture Components
+
+### 1. Main Programming Concepts Server (`mcp_server.py`)
+
+**Purpose**: Central repository server that provides unified access to all programming concepts across all books.
+
+**Key Features**:
+- Loads concepts from all 5 books into a single searchable database
+- Provides cross-book concept search and comparison
+- Generates study paths and reference sheets
+
+**Tools Available**:
+- `search_concepts(query, limit)` - Search across all books
+- `get_concept_details(concept_id)` - Get detailed information about a specific concept
+- `compare_concepts(concept1_id, concept2_id)` - Compare two concepts side-by-side
+- `generate_study_path(goal)` - Create ordered learning sequences
+- `explain_my_code(code_snippet, language)` - Analyze code using knowledge base
+- `search_by_book(book_name, query)` - Search within specific book
+- `find_advanced_concepts(topic, threshold)` - Find advanced concepts
+- `generate_reference_sheet(topic, format)` - Generate formatted reference sheets
+
+### 2. Master Orchestrator Server (`master_orchestrator_mcp.py`)
+
+**Purpose**: Intelligent routing and spawning coordinator that dynamically manages book-specific micro-servers.
+
+**Key Features**:
+- Analyzes programming questions using topic detection
+- Spawns appropriate book servers on-demand
+- Manages server lifecycle (start/stop/status)
+- Coordinates multi-server responses
+
+**Tools Available**:
+- `analyze_and_route_question(programming_question)` - Main routing function
+- `list_active_servers()` - Show currently running servers
+- `spawn_specific_server(book_name)` - Manually start a book server
+- `kill_specific_server(book_name)` - Stop a specific server
+- `cleanup_unused_servers()` - Clean up all active servers
+- `get_orchestrator_status()` - Get detailed system status
+
+**Server Ports**:
+- Base Port: 8100
+- K&R Server: 8101
+- UNIX Environment: 8102
+- Linkers & Loaders: 8103
+- Operating Systems: 8104
+- Expert C Programming: 8105
+
+### 3. Topic Detection Server (`topic_detection_mcp.py`)
+
+**Purpose**: Intelligent question analysis and server recommendation engine.
+
+**Key Features**:
+- Analyzes user questions for relevant keywords and concepts
+- Calculates relevance scores for each book
+- Provides routing recommendations
+- Caches extracted concepts for performance
+
+**Tools Available**:
+- `detect_relevant_server(user_question)` - Main detection function
+- `analyze_topic_coverage(user_question)` - Detailed relevance analysis
+- `list_available_servers()` - Show all book servers and focus areas
+- `refresh_concept_cache()` - Update concept cache
+- `get_cache_status()` - View cache statistics
+
+### 4. Book-Specific Sub-Servers
+
+Each book has its dedicated server with specialized tools:
+
+#### K&R C Programming Server (`kernighan_ritchie_server.py`)
+**Focus**: C language syntax, operators, control structures, functions
+- `search_concepts(query, limit)`
+- `get_concept_details(concept_id)`
+- `list_all_concepts()`
+
+#### UNIX Environment Server (`unix_env_server.py`)
+**Focus**: System calls, APIs, UNIX programming patterns, file operations
+- `search_concepts(query, limit)`
+- `get_concept_details(concept_id)`
+- `list_all_concepts()`
+
+#### Linkers & Loaders Server (`linkers_loaders_server.py`)
+**Focus**: Binary formats, linking mechanics, loader concepts, object files
+- `search_concepts(query, limit)`
+- `get_concept_details(concept_id)`
+- `list_all_concepts()`
+
+#### Operating Systems Server (`os_three_pieces_server.py`)
+**Focus**: OS algorithms, data structures, system concepts, concurrency
+- `search_concepts(query, limit)`
+- `get_concept_details(concept_id)`
+- `list_all_concepts()`
+
+#### Expert C Programming Server (`expert_c_programming_server.py`)
+**Focus**: Advanced C techniques, pitfalls, expert-level programming
+- `search_concepts(query, limit)`
+- `get_concept_details(concept_id)`
+- `list_all_concepts()`
+
+## Data Sources
+
+The servers load concepts from JSON files in the `outputs/` directory:
+
+```
+outputs/
+├── kernighan_ritchie/
+├── unix_env/
+├── linkers_loaders/
+├── os_three_pieces/
+└── expert_c_programming/
+```
+
+Each concept file contains:
+- `topic`: Concept title
+- `explanation`: Main description
+- `syntax`: Code syntax examples
+- `code_example`: Array of code lines
+- `example_explanation`: Explanation of code examples
+- `extraction_metadata`: Source information
+
+## Configuration
+
+### Server Configuration (Claude Code)
+
+Add servers using appropriate scopes:
+
+```bash
+# Local scope (private to project)
+claude mcp add programming-concepts -- python mcp_server.py
+
+# Project scope (shared via .mcp.json)
+claude mcp add master-orchestrator -s project -- python scripts/master_orchestrator_mcp.py
+
+# User scope (available across projects)
+claude mcp add topic-detection -s user -- python scripts/topic_detection_mcp.py
+```
+
+### Environment Variables
+
+- Use `-e` or `--env` flags for sensitive data
+- Support for `${VAR}` and `${VAR:-default}` in .mcp.json
+
+## Usage Patterns
+
+### 1. Direct Concept Search
+```
+User: "Search for malloc concepts"
+→ Main server searches all books
+→ Returns consolidated results
+```
+
+### 2. Intelligent Routing
+```
+User: "How does fork() work in UNIX?"
+→ Topic detection analyzes question
+→ Orchestrator spawns UNIX Environment server
+→ Server provides specialized response
+```
+
+### 3. Multi-Server Coordination
+```
+User: "Compare memory management in C vs OS perspective"
+→ Orchestrator spawns K&R and OS servers
+→ Coordinates responses from both
+→ Provides comprehensive answer
+```
+
+## Future Features
+
+### 1. Enhanced Concept Extraction
+- **Real-time PDF Processing**: Direct PDF analysis without pre-extraction
+- **Multi-language Support**: Extend beyond C to other programming languages
+- **Concept Relationship Mapping**: Build knowledge graphs showing concept connections
+- **Version Control Integration**: Track concept evolution across book editions
+
+### 2. Advanced Query Capabilities
+- **Natural Language Understanding**: More sophisticated question parsing
+- **Context-Aware Responses**: Remember previous queries in session
+- **Code Generation**: Generate working examples based on concepts
+- **Interactive Tutorials**: Step-by-step guided learning paths
+
+### 3. Collaboration Features
+- **Shared Study Sessions**: Multiple users accessing same concept paths
+- **Annotation System**: User notes on concepts
+- **Community Contributions**: Allow adding custom concepts
+- **Progress Tracking**: Monitor learning advancement
+
+### 4. Performance Optimizations
+- **Distributed Caching**: Redis-based concept cache
+- **Load Balancing**: Distribute requests across server instances
+- **Async Processing**: Non-blocking server operations
+- **Resource Pooling**: Reuse server processes for efficiency
+
+## Best Practices
+
+1. **Server Management**
+   - Use orchestrator for automatic server lifecycle
+   - Clean up unused servers regularly
+   - Monitor server status with `get_orchestrator_status()`
+
+2. **Query Optimization**
+   - Use specific book servers for targeted searches
+   - Leverage caching with topic detection
+   - Batch related queries when possible
+
+3. **Error Handling**
+   - All servers provide graceful error messages
+   - Check server status before complex operations
+   - Use fallback strategies for failed spawns
+
+4. **Security**
+   - Never hardcode credentials
+   - Use environment variables for sensitive data
+   - Validate all user inputs
+
+## Troubleshooting
+
+**Server Won't Start**
+- Check if port is already in use
+- Verify Python path and dependencies
+- Review server logs for specific errors
+
+**Concepts Not Loading**
+- Ensure outputs directory exists
+- Verify JSON file format
+- Check file permissions
+
+**Routing Issues**
+- Refresh concept cache
+- Verify topic detection is working
+- Check orchestrator status
+
+## Development Guidelines
+
+1. **Adding New Books**
+   - Create extractor configuration
+   - Add book to BOOK_CONFIGS
+   - Create dedicated server script
+   - Update orchestrator configuration
+
+2. **Extending Tools**
+   - Follow FastMCP patterns
+   - Document all parameters
+   - Include usage examples
+   - Handle edge cases
+
+3. **Testing**
+   - Use MCP inspector for validation
+   - Test with various query types
+   - Verify cross-server communication
+   - Monitor resource usage

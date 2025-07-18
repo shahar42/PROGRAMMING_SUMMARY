@@ -69,6 +69,65 @@ BOOK_CONFIGS = {
     }
 }
 
+MEMORY_OPTIMIZATION_KEYWORDS = {
+    # High relevance (0.8-1.0) - Core memory optimization terms
+    'cache': 0.9,
+    'memory locality': 0.95,
+    'tlb': 0.9,
+    'cache miss': 0.95,
+    'cache line': 0.9,
+    'memory optimization': 0.95,
+    'cache optimization': 0.95,
+    'spatial locality': 0.9,
+    'temporal locality': 0.9,
+    'cache blocking': 0.85,
+    'memory alignment': 0.85,
+    
+    # Medium-high relevance (0.6-0.8) - Related performance terms
+    'prefetch': 0.8,
+    'memory bandwidth': 0.8,
+    'cache hierarchy': 0.8,
+    'virtual memory': 0.7,
+    'page fault': 0.75,
+    'numa': 0.8,
+    'memory performance': 0.85,
+    'access pattern': 0.75,
+    'data locality': 0.8,
+    'cache friendly': 0.8,
+    
+    # Medium relevance (0.4-0.6) - Broader terms
+    'memory': 0.5,
+    'performance': 0.4,
+    'optimization': 0.4,
+    'array access': 0.6,
+    'matrix': 0.5,
+    'loop optimization': 0.6,
+    'data structure': 0.5,
+    'bottleneck': 0.5,
+    
+    # Specific technical terms (0.7-0.9)
+    'huge pages': 0.8,
+    'tlb miss': 0.9,
+    'cache hit': 0.85,
+    'memory hierarchy': 0.8,
+    'false sharing': 0.85,
+    'cache coherence': 0.8,
+    'memory pool': 0.7,
+    'memory allocator': 0.7,
+    'struct packing': 0.8,
+    'memory fragmentation': 0.75,
+    'prefetching': 0.8,
+    'memory bound': 0.8,
+    'memory intensive': 0.75,
+    'cache efficiency': 0.85,
+    'memory subsystem': 0.8,
+    'stride': 0.7,
+    'page size': 0.7,
+    'memory mapping': 0.7,
+    'cache size': 0.75,
+    'working set': 0.7
+}
+
 def extract_keywords_from_topic(topic: str) -> Tuple[List[str], List[str]]:
     """
     Extract both phrases and individual keywords from a concept topic.
@@ -261,8 +320,42 @@ def calculate_topic_scores(user_input: str) -> Dict[str, Dict]:
             "matches": unique_matches[:5],  # Limit to top 5 matches for readability
             "focus": config["focus"]
         }
-    
+        
+    book_scores = enhanced_memory_relevance_calculation(user_input_lower, book_scores)    
+
     return book_scores
+
+def enhanced_memory_relevance_calculation(question_lower, existing_scores):
+    """Enhanced relevance calculation for memory optimization"""
+    
+    # Calculate memory optimization score
+    memory_score = 0
+    word_count = 0
+    
+    for word, weight in MEMORY_OPTIMIZATION_KEYWORDS.items():
+        if word in question_lower:
+            memory_score += weight
+            word_count += 1
+    
+    # Boost score for multiple memory-related terms
+    if word_count >= 2:
+        memory_score *= 1.2
+    
+    # Boost for specific patterns indicating memory issues
+    performance_patterns = [
+        'slow performance', 'cache misses', 'memory bottleneck',
+        'optimize memory', 'improve cache', 'reduce latency',
+        'memory access pattern', 'cache performance'
+    ]
+    
+    for pattern in performance_patterns:
+        if pattern in question_lower:
+            memory_score += 0.3
+    
+    # Add to existing scores
+    existing_scores['memory_optimization'] = min(memory_score, 1.0)
+    
+    return existing_scores
 
 def get_recommendations(book_scores: Dict[str, Dict]) -> Dict:
     """Generate server recommendations based on scores"""

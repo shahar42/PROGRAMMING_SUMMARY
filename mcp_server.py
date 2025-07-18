@@ -9,6 +9,9 @@ import logging
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
+from collections import defaultdict
+import re
+from typing import List, Tuple, Dict
 
 # Add current directory to Python path
 sys.path.append('.')
@@ -728,6 +731,496 @@ async def generate_reference_sheet(topic: str, format: str = "markdown") -> str:
     else:  # text format
         return _generate_text_reference(topic, by_book)
 
+@mcp.tool()
+async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
+    """AI-powered synthesis: Combine concepts from multiple books into comprehensive explanation.
+    
+    Args:
+        topic: The topic to synthesize (e.g., 'memory management', 'pointers', 'processes')
+        max_sources: Maximum number of source books to include (default: 5)
+    """
+    topic_lower = topic.lower()
+    
+    # Find all related concepts across books
+    related_concepts = []
+    concept_scores = []
+    
+    for concept in concepts:
+        # Calculate relevance score using multiple factors
+        title_score = 2.0 if topic_lower in concept['title'].lower() else 0.0
+        desc_score = 1.5 if topic_lower in concept['description'].lower() else 0.0
+        content_score = 1.0 if topic_lower in concept['content'].lower() else 0.0
+        
+        # Boost score for certain books based on topic
+        book_boost = {
+            'memory': {'kernighan_ritchie': 1.5, 'os_three_pieces': 2.0, 'expert_c_programming': 1.8},
+            'process': {'unix_env': 2.0, 'os_three_pieces': 1.8},
+            'link': {'linkers_loaders': 2.5},
+            'pointer': {'kernighan_ritchie': 2.0, 'expert_c_programming': 2.2}
+        }
+        
+        boost = 1.0
+        for keyword, boosts in book_boost.items():
+            if keyword in topic_lower:
+                boost = boosts.get(concept['book'], 1.0)
+                break
+                
+        total_score = (title_score + desc_score + content_score) * boost
+        
+        if total_score > 0:
+            related_concepts.append(concept)
+            concept_scores.append(total_score)
+    
+    if not related_concepts:
+        return f"No concepts found for synthesis on topic: '{topic}'"
+    
+    # Sort by score and group by book
+    sorted_pairs = sorted(zip(related_concepts, concept_scores), key=lambda x: x[1], reverse=True)
+    concepts_by_book = {}
+    
+    for concept, score in sorted_pairs[:15]:  # Top 15 concepts
+        book = concept['book']
+        if book not in concepts_by_book:
+            concepts_by_book[book] = []
+        concepts_by_book[book].append((concept, score))
+    
+    # Limit books to max_sources
+    if len(concepts_by_book) > max_sources:
+        # Keep books with highest total scores
+        book_scores = {book: sum(score for _, score in concepts) 
+                      for book, concepts in concepts_by_book.items()}
+        top_books = sorted(book_scores.items(), key=lambda x: x[1], reverse=True)[:max_sources]
+        concepts_by_book = {book: concepts_by_book[book] for book, _ in top_books}
+    
+    # Generate synthesized content
+    result = f"# 🧬 Synthesized Knowledge: {topic.title()}\n\n"
+    result += f"*AI-powered synthesis combining insights from {len(concepts_by_book)} authoritative sources*\n\n"
+    
+    # Executive Summary
+    result += "## 📋 Executive Summary\n\n"
+    result += f"This synthesis combines {sum(len(c) for c in concepts_by_book.values())} concepts from:\n"
+    for book in concepts_by_book:
+        result += f"- **{books_metadata[book]}**\n"
+    result += "\n"
+    
+    # Core Concepts Section
+    result += f"## 🎯 Core Understanding of {topic.title()}\n\n"
+    
+    # Synthesize main explanation
+    all_descriptions = []
+    for book_concepts in concepts_by_book.values():
+        for concept, _ in book_concepts[:3]:  # Top 3 from each book
+            if concept['description']:
+                all_descriptions.append(concept['description'])
+    
+    if all_descriptions:
+        # Create unified explanation
+        result += "### Unified Explanation\n\n"
+        # Combine unique insights
+        seen_points = set()
+        for desc in all_descriptions:
+            sentences = desc.split('. ')
+            for sentence in sentences:
+                normalized = sentence.lower().strip()
+                if normalized and normalized not in seen_points and len(normalized) > 20:
+                    seen_points.add(normalized)
+                    result += f"- {sentence.strip()}.\n"
+        result += "\n"
+    
+    # Technical Details by Perspective
+    result += "## 🔍 Multi-Perspective Analysis\n\n"
+    
+    for book, book_concepts in concepts_by_book.items():
+        book_name = books_metadata[book].split('(')[0].strip()
+        result += f"### {book_name} Perspective\n\n"
+        
+        # Combine insights from this book
+        for concept, score in book_concepts[:2]:  # Top 2 concepts
+            if concept['content']:
+                result += f"**{concept['title']}**: {concept['content'][:200]}...\n\n"
+    
+    # Code Examples Section
+    result += "## 💻 Unified Code Examples\n\n"
+    
+    code_examples = []
+    for book, book_concepts in concepts_by_book.items():
+        for concept, _ in book_concepts:
+            if concept['syntax']:
+                code_examples.append({
+                    'code': concept['syntax'],
+                    'source': books_metadata[book],
+                    'title': concept['title']
+                })
+    
+    if code_examples:
+        result += "### Comprehensive Example\n\n```c\n"
+        result += "/* Synthesized from multiple sources */\n\n"
+        
+        # Intelligently combine code examples
+        seen_patterns = set()
+        for example in code_examples[:3]:  # Top 3 examples
+            code_lines = example['code'].split('\n')
+            result += f"/* From {example['source'].split('(')[0].strip()} */\n"
+            for line in code_lines:
+                normalized = line.strip().lower()
+                if normalized and normalized not in seen_patterns:
+                    seen_patterns.add(normalized)
+                    result += f"{line}\n"
+            result += "\n"
+        result += "```\n\n"
+    
+    # Key Insights Section
+    result += "## 💡 Synthesized Insights\n\n"
+    
+    # Generate insights based on patterns
+    insights = []
+    
+    # Pattern: If multiple books cover it, it's fundamental
+    if len(concepts_by_book) >= 3:
+        insights.append(f"**Fundamental Concept**: {topic.title()} is covered across {len(concepts_by_book)} sources, indicating its critical importance in systems programming.")
+    
+    # Pattern: Book-specific insights
+    if 'kernighan_ritchie' in concepts_by_book and 'expert_c_programming' in concepts_by_book:
+        insights.append(f"**Evolution**: Compare basic {topic} concepts from K&R with advanced techniques from Expert C Programming to see the evolution of best practices.")
+    
+    if 'unix_env' in concepts_by_book and 'os_three_pieces' in concepts_by_book:
+        insights.append(f"**System-Level View**: Both UNIX and OS perspectives provide complementary views on {topic} at the system level.")
+    
+    for insight in insights:
+        result += f"{insight}\n\n"
+    
+    # Cross-References
+    result += "## 🔗 Related Concepts for Deeper Understanding\n\n"
+    
+    # Find related topics mentioned across concepts
+    related_topics = set()
+    for book_concepts in concepts_by_book.values():
+        for concept, _ in book_concepts:
+            # Extract potential related topics from content
+            content_words = (concept['content'] + ' ' + concept['description']).lower().split()
+            for word in ['memory', 'pointer', 'process', 'thread', 'file', 'system', 'kernel', 'linking']:
+                if word in content_words and word != topic_lower:
+                    related_topics.add(word)
+    
+    if related_topics:
+        result += "Consider exploring these related topics:\n"
+        for related in sorted(related_topics)[:5]:
+            result += f"- `synthesize_concepts('{related}')`\n"
+    
+    result += f"\n---\n*Synthesis generated from {len(concepts_by_book)} books with {sum(len(c) for c in concepts_by_book.values())} relevant concepts*"
+    
+    return result
+
+
+@mcp.tool()
+async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate") -> str:
+    """Generate a custom tutorial by merging related concepts across books.
+    
+    Args:
+        topic: The topic for the tutorial (e.g., 'pointers', 'file operations')
+        skill_level: Target skill level - 'beginner', 'intermediate', or 'advanced'
+    """
+    topic_lower = topic.lower()
+    skill_level_lower = skill_level.lower()
+    
+    if skill_level_lower not in ['beginner', 'intermediate', 'advanced']:
+        return "Invalid skill level. Please choose 'beginner', 'intermediate', or 'advanced'."
+    
+    # Find and categorize concepts by complexity
+    beginner_concepts = []
+    intermediate_concepts = []
+    advanced_concepts = []
+    
+    for concept in concepts:
+        if topic_lower in concept['title'].lower() or topic_lower in concept['description'].lower():
+            # Categorize based on book and content
+            if concept['book'] == 'kernighan_ritchie' or 'basic' in concept['title'].lower():
+                beginner_concepts.append(concept)
+            elif concept['book'] == 'expert_c_programming' or 'advanced' in concept['title'].lower():
+                advanced_concepts.append(concept)
+            else:
+                intermediate_concepts.append(concept)
+    
+    # Select concepts based on skill level
+    if skill_level_lower == 'beginner':
+        selected_concepts = beginner_concepts + intermediate_concepts[:2]
+    elif skill_level_lower == 'intermediate':
+        selected_concepts = beginner_concepts[-2:] + intermediate_concepts + advanced_concepts[:2]
+    else:  # advanced
+        selected_concepts = intermediate_concepts[-2:] + advanced_concepts
+    
+    if not selected_concepts:
+        return f"No concepts found to create a tutorial on '{topic}'"
+    
+    # Generate tutorial structure
+    result = f"# 📚 Custom Tutorial: {topic.title()}\n\n"
+    result += f"**Skill Level**: {skill_level.title()}\n"
+    result += f"**Duration**: Approximately {len(selected_concepts) * 10} minutes\n"
+    result += f"**Sources**: {len(set(c['book'] for c in selected_concepts))} books\n\n"
+    
+    # Learning Objectives
+    result += "## 🎯 Learning Objectives\n\n"
+    result += "By the end of this tutorial, you will:\n"
+    
+    if skill_level_lower == 'beginner':
+        result += f"- Understand the fundamental concepts of {topic}\n"
+        result += f"- Write basic code using {topic}\n"
+        result += f"- Recognize common patterns and use cases\n"
+    elif skill_level_lower == 'intermediate':
+        result += f"- Master practical applications of {topic}\n"
+        result += f"- Understand system-level implications\n"
+        result += f"- Implement efficient solutions using {topic}\n"
+    else:
+        result += f"- Master advanced techniques in {topic}\n"
+        result += f"- Understand optimization strategies\n"
+        result += f"- Recognize and avoid common pitfalls\n"
+    
+    result += "\n## 📖 Tutorial Content\n\n"
+    
+    # Progressive lessons
+    for i, concept in enumerate(selected_concepts, 1):
+        result += f"### Lesson {i}: {concept['title']}\n\n"
+        
+        # Concept explanation
+        if concept['description']:
+            result += f"**Concept**: {concept['description']}\n\n"
+        
+        # Detailed explanation
+        if concept['content']:
+            result += f"**Explanation**: {concept['content'][:300]}...\n\n"
+        
+        # Code example
+        if concept['syntax']:
+            result += "**Example**:\n```c\n"
+            result += concept['syntax']
+            result += "\n```\n\n"
+        
+        # Practice exercise
+        result += f"**Practice**: Try modifying the above code to "
+        if skill_level_lower == 'beginner':
+            result += "experiment with different values.\n\n"
+        elif skill_level_lower == 'intermediate':
+            result += "handle edge cases and error conditions.\n\n"
+        else:
+            result += "optimize for performance and memory usage.\n\n"
+        
+        result += "---\n\n"
+    
+    # Summary and Next Steps
+    result += "## 🎉 Tutorial Summary\n\n"
+    result += f"Congratulations! You've completed the {skill_level} tutorial on {topic}.\n\n"
+    
+    result += "### Key Takeaways\n"
+    for concept in selected_concepts[:3]:
+        result += f"- {concept['title']}\n"
+    
+    result += f"\n### Next Steps\n"
+    if skill_level_lower == 'beginner':
+        result += f"- Try `generate_custom_tutorial('{topic}', 'intermediate')` to continue learning\n"
+    elif skill_level_lower == 'intermediate':
+        result += f"- Explore `generate_custom_tutorial('{topic}', 'advanced')` for expert techniques\n"
+    else:
+        result += f"- Review `create_best_practices_guide('{topic}')` for production-ready patterns\n"
+    
+    result += f"- Practice with `find_code_examples('{topic}')` for more examples\n"
+    
+    return result
+
+
+@mcp.tool()
+async def create_best_practices_guide(topic: str) -> str:
+    """Analyze patterns across all sources to generate best practices guide.
+    
+    Args:
+        topic: The topic to analyze for best practices (e.g., 'error handling', 'memory management')
+    """
+    topic_lower = topic.lower()
+    
+    # Collect all relevant concepts
+    relevant_concepts = []
+    for concept in concepts:
+        relevance_score = 0
+        if topic_lower in concept['title'].lower():
+            relevance_score += 3
+        if topic_lower in concept['description'].lower():
+            relevance_score += 2
+        if topic_lower in concept['content'].lower():
+            relevance_score += 1
+            
+        if relevance_score > 0:
+            relevant_concepts.append((concept, relevance_score))
+    
+    if not relevant_concepts:
+        return f"No concepts found to generate best practices for '{topic}'"
+    
+    # Sort by relevance
+    relevant_concepts.sort(key=lambda x: x[1], reverse=True)
+    
+    # Analyze patterns across books
+    patterns_by_book = {}
+    code_patterns = []
+    common_recommendations = []
+    pitfalls = []
+    
+    for concept, _ in relevant_concepts[:20]:  # Top 20 concepts
+        book = concept['book']
+        if book not in patterns_by_book:
+            patterns_by_book[book] = []
+        patterns_by_book[book].append(concept)
+        
+        # Extract patterns from content
+        content = (concept['content'] + ' ' + concept['description']).lower()
+        
+        # Look for recommendations
+        if any(word in content for word in ['should', 'must', 'always', 'recommend']):
+            common_recommendations.append(concept)
+        
+        # Look for pitfalls
+        if any(word in content for word in ['avoid', 'never', 'pitfall', 'error', 'mistake', 'wrong']):
+            pitfalls.append(concept)
+        
+        # Collect code patterns
+        if concept['syntax']:
+            code_patterns.append({
+                'code': concept['syntax'],
+                'source': concept['book_title'],
+                'context': concept['title']
+            })
+    
+    # Generate best practices guide
+    result = f"# 🏆 Best Practices Guide: {topic.title()}\n\n"
+    result += f"*Analyzing {len(relevant_concepts)} concepts from {len(patterns_by_book)} authoritative sources*\n\n"
+    
+    # Overview
+    result += "## 📊 Analysis Overview\n\n"
+    result += f"This guide synthesizes best practices for {topic} based on:\n"
+    for book, concepts in patterns_by_book.items():
+        result += f"- **{books_metadata[book]}**: {len(concepts)} relevant concepts\n"
+    result += "\n"
+    
+    # Core Best Practices
+    result += "## ✅ Core Best Practices\n\n"
+    
+    # Synthesize recommendations from different sources
+    practice_num = 1
+    seen_practices = set()
+    
+    for rec_concept in common_recommendations[:8]:
+        # Extract actionable practices
+        sentences = rec_concept['description'].split('. ')
+        for sentence in sentences:
+            if any(word in sentence.lower() for word in ['should', 'must', 'always']):
+                practice = sentence.strip()
+                if practice.lower() not in seen_practices:
+                    seen_practices.add(practice.lower())
+                    result += f"### {practice_num}. {practice}\n"
+                    result += f"*Source: {rec_concept['book_title']}*\n\n"
+                    
+                    # Add supporting code if available
+                    if rec_concept['syntax']:
+                        result += "**Example**:\n```c\n"
+                        result += rec_concept['syntax'][:200]
+                        if len(rec_concept['syntax']) > 200:
+                            result += "\n// ..."
+                        result += "\n```\n\n"
+                    
+                    practice_num += 1
+    
+    # Common Patterns
+    result += "## 🔄 Common Implementation Patterns\n\n"
+    
+    if code_patterns:
+        # Group similar patterns
+        pattern_groups = {}
+        for pattern in code_patterns[:10]:
+            # Simple grouping by first significant line
+            lines = pattern['code'].strip().split('\n')
+            for line in lines:
+                if line.strip() and not line.strip().startswith('//'):
+                    key = line.strip()[:30]
+                    if key not in pattern_groups:
+                        pattern_groups[key] = []
+                    pattern_groups[key].append(pattern)
+                    break
+        
+        pattern_num = 1
+        for key, patterns in list(pattern_groups.items())[:5]:
+            result += f"### Pattern {pattern_num}: {patterns[0]['context']}\n\n"
+            
+            # Show variations from different sources
+            for i, pattern in enumerate(patterns[:2]):
+                result += f"**Approach {i+1}** ({pattern['source'].split('(')[0].strip()}):\n"
+                result += "```c\n"
+                result += pattern['code'][:150]
+                if len(pattern['code']) > 150:
+                    result += "\n// ..."
+                result += "\n```\n\n"
+            
+            pattern_num += 1
+    
+    # Pitfalls to Avoid
+    result += "## ⚠️ Common Pitfalls and How to Avoid Them\n\n"
+    
+    pitfall_num = 1
+    seen_pitfalls = set()
+    
+    for pitfall_concept in pitfalls[:6]:
+        content = pitfall_concept['description'] + ' ' + pitfall_concept['content']
+        sentences = content.split('. ')
+        
+        for sentence in sentences:
+            if any(word in sentence.lower() for word in ['avoid', 'never', 'don\'t']):
+                pitfall = sentence.strip()
+                if pitfall.lower() not in seen_pitfalls and len(pitfall) > 20:
+                    seen_pitfalls.add(pitfall.lower())
+                    result += f"### Pitfall {pitfall_num}: {pitfall}\n"
+                    result += f"*Identified in: {pitfall_concept['book_title']}*\n\n"
+                    
+                    # Add corrective action if available
+                    if pitfall_concept['syntax']:
+                        result += "**How to avoid**:\n```c\n"
+                        result += pitfall_concept['syntax'][:150]
+                        if len(pitfall_concept['syntax']) > 150:
+                            result += "\n// ..."
+                        result += "\n```\n\n"
+                    
+                    pitfall_num += 1
+                    if pitfall_num > 5:
+                        break
+    
+    # Expert Insights
+    result += "## 🎓 Expert Insights\n\n"
+    
+    # Prioritize insights from expert books
+    expert_books = ['expert_c_programming', 'unix_env']
+    for book in expert_books:
+        if book in patterns_by_book:
+            book_concepts = patterns_by_book[book][:2]
+            for concept in book_concepts:
+                if concept['content']:
+                    result += f"### {concept['title']}\n"
+                    result += f"{concept['content'][:250]}...\n"
+                    result += f"*— {books_metadata[book]}*\n\n"
+    
+    # Quick Reference Card
+    result += "## 📋 Quick Reference Card\n\n"
+    result += f"### {topic.title()} Best Practices Checklist\n\n"
+    
+    checklist_items = [
+        f"Review relevant concepts with `search_concepts('{topic}')`",
+        f"deep Study implementations across books with `synthesize_concepts('{topic}')`",
+        f"Practice with examples using `find_code_examples('{topic}')`",
+        "Test edge cases and error conditions",
+        "Consider performance implications",
+        "Document concisely your implementation decisions"
+    ]
+    
+    for item in checklist_items:
+        result += f"- [ ] {item}\n"
+    
+    result += f"\n---\n*Best practices guide generated from {len(relevant_concepts)} concepts across {len(patterns_by_book)} authoritative sources*"
+    
+    return result
 
 def _generate_markdown_reference(topic: str, by_book: dict) -> str:
     """Generate markdown formatted reference sheet."""
