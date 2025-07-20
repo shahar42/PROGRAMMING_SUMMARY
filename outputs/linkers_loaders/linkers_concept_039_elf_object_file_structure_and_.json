@@ -1,0 +1,31 @@
+{
+  "topic": "ELF Object File Structure and Linking",
+  "explanation": "ELF (Executable and Linkable Format) is a common object file format. Understanding its structure is crucial for comprehending the linking and loading process.  ELF files contain various sections, each with a specific purpose. The linker combines these sections from different object files and libraries to create an executable.  The arrangement of these sections and their interaction during loading impacts program execution.",
+  "syntax": "ELF sections:\n.text (code)\n.data (initialized data)\n.bss (uninitialized data)\n.rodata (read-only data)\n.init (initialization code)\n.fini (finalization code)\n.got (Global Offset Table)\n.plt (Procedure Linkage Table)\n.interp (dynamic linker path)\n[others]",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <elf.h>",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "#include <sys/mman.h>",
+    "",
+    "int main() {",
+    "    int fd = open(\"myprogram\", O_RDONLY);",
+    "    if (fd == -1) return 1;",
+    "    Elf64_Ehdr header;",
+    "    read(fd, &header, sizeof(header));",
+    "    printf(\"ELF Header: Magic=%x\\n\", header.e_ident[EI_MAG0]);",
+    "    close(fd);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This C example demonstrates basic ELF object file analysis. It opens an ELF executable (\"myprogram\"), reads its ELF header, and prints its magic number. This illustrates the fundamental structure of ELF files, where the header provides information about the file type, architecture, and section layout.  The subsequent sections (.text, .data, etc.)  which aren't shown in the example, are then accessed to perform linking and loading, in a real program, typically by a loader, not directly by this code.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "151-152",
+    "extraction_date": "2025-07-19T15:45:21.651250",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}
