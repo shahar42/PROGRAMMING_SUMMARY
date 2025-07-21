@@ -160,7 +160,7 @@ class ExpertCExtractionEngine:
                 concept["source_title"] = "Expert C Programming: Deep C Secrets"
                 
                 # Generate atomic training data
-                processed_concept = self.processor.process_concept(concept)
+                processed_concept = self.processor.process_concept(concept, "expert_c_programming")
                 
                 if processed_concept:
                     # Update source in metadata

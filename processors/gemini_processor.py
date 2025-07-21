@@ -14,6 +14,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 import google.generativeai as genai
+from processors.base_processor import BaseAtomicProcessor
+
+
 
 # Ensure we can find project root from anywhere
 PROJECT_ROOT = "/home/shahar42/Suumerizing_C_holy_grale_book"
@@ -21,7 +24,7 @@ if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
 
 
-class GeminiAtomicProcessor:
+class GeminiAtomicProcessor(BaseAtomicProcessor):
     """Processes raw content into atomic training data using Gemini"""
     
     def __init__(self, api_key):
@@ -35,8 +38,14 @@ class GeminiAtomicProcessor:
         except Exception as e:
             print(f"❌ Failed to initialize Gemini: {e}")
             raise
+        super().__init__()
+
+
+    def process_concept(self, concept_data, book_name="kernighan_ritchie"):
+        """New main entry point that includes deduplication"""
+        return self.process_concept_with_deduplication(concept_data, book_name)    
     
-    def process_concept(self, concept_data):
+    def _extract_with_ai(self, concept_data):
         """Transform raw concept into atomic training format"""
         
         # Detect book context from metadata

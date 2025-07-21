@@ -1,38 +1,38 @@
 # Daily C Concept Extraction Summary
-**Date:** 2025-07-21 01:44:55
-**Duration:** 15.5 seconds
-**Page Range:** 196-210
+**Date:** 2025-07-21 10:43:43
+**Duration:** 16.4 seconds
+**Page Range:** 211-217
 
 ## Concepts Extracted Today: 4
 
-### 1. Function Definition and Call
-**What it's about:** Functions are fundamental building blocks in C programming. They encapsulate a block of code that performs a specific task.  Using functions promotes modularity, reusability, and code readability.  Fu...
+### 1. Non-local Jumps with setjmp and longjmp
+**What it's about:** In C, `setjmp` and `longjmp` provide a mechanism for non-local jumps, allowing immediate returns from deeply nested function calls, bypassing the normal function call and return stack.  This is useful...
 
-- **File:** `concept_049_function_definition_and_call.json`
-- **Pages:** 196-196
+- **File:** `concept_053_non_local_jumps_with_setjmp_an.json`
+- **Pages:** 211-211
 
-### 2. Function Definition and Call
-**What it's about:** Functions are fundamental building blocks in C programming. They encapsulate a block of code that performs a specific task.  This promotes modularity, reusability, and code organization. Functions are...
+### 2. Function Pointers
+**What it's about:** Function pointers are variables that store the address of a function.  They are a powerful feature in C that allows for dynamic function calls, callbacks, and flexible code design.  This is particular...
 
-- **File:** `concept_050_function_definition_and_call.json`
-- **Pages:** 196-196
+- **File:** `concept_054_function_pointers.json`
+- **Pages:** 211-211
 
-### 3. Conditional Statements and Control Flow
-**What it's about:** Conditional statements alter the flow of execution in a C program based on whether a condition is true or false.  They're fundamental for creating programs that make decisions and respond to different...
+### 3. Signal Handling
+**What it's about:** Signal handling in C allows a program to respond to asynchronous events, such as interrupts or errors.  This is crucial for robust program design, enabling graceful handling of unexpected situations i...
 
-- **File:** `concept_051_conditional_statements_and_con.json`
-- **Pages:** 196-196
+- **File:** `concept_055_signal_handling.json`
+- **Pages:** 211-211
 
-### 4. Iteration Statements in C
-**What it's about:** Iteration statements in C (loops) allow you to repeatedly execute a block of code based on a condition.  They are fundamental for controlling program flow and performing repetitive tasks efficiently. ...
+### 4. Signal Handling
+**What it's about:** Signal handling in UNIX system programming allows processes to gracefully respond to asynchronous events, such as interrupts or errors, without halting execution.  It's crucial for robust applications...
 
-- **File:** `concept_052_iteration_statements_in_c.json`
-- **Pages:** 196-196
+- **File:** `concept_056_signal_handling.json`
+- **Pages:** 211-213
 
 ## Progress Summary
-- **Total Concepts Extracted:** 52
-- **Extraction Sessions Completed:** 14
-- **Last Processed Page:** 210
+- **Total Concepts Extracted:** 56
+- **Extraction Sessions Completed:** 15
+- **Last Processed Page:** 217
 
 ## Next Session
 Run the extraction script again tomorrow to continue processing the K&R C Programming book.

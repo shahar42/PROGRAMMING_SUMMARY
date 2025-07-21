@@ -88,7 +88,8 @@ class LinkersLoadersExtractionEngine:
                 concept["source_title"] = "Linkers and Loaders"
                 
                 # Generate atomic training data
-                processed_concept = self.processor.process_concept(concept)
+                processed_concept = self.processor.process_concept(concept, "linkers_loaders")
+
                 
                 if processed_concept:
                     # Update source in metadata

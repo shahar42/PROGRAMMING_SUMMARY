@@ -88,7 +88,8 @@ class OSExtractionEngine:
                 concept["source_title"] = "Operating Systems - Three Easy Pieces"
                 
                 # Generate atomic training data
-                processed_concept = self.processor.process_concept(concept)
+                processed_concept = self.processor.process_concept(concept, "os_three_pieces")
+
                 
                 if processed_concept:
                     # Update source in metadata

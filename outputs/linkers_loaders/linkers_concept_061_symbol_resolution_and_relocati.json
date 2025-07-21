@@ -1,0 +1,35 @@
+{
+  "topic": "Symbol Resolution and Relocation",
+  "explanation": "Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up references to functions and variables (symbols) in one object file to their actual definitions in other object files or libraries. Relocation addresses the fact that the final memory addresses of code and data sections are not known until the linker or loader performs its work.  Relocation involves adjusting addresses within the object files to reflect their correct locations in the final program's memory space. This ensures that all parts of the program can correctly access each other, even if they're located at different memory addresses during execution.",
+  "syntax": "No single universal syntax, but generally involves:\n* **Symbol Table:** A data structure within an object file mapping symbol names to addresses (or offsets).  This is crucial for the linker to identify and connect various components of the program.\n* **Relocation Entries:** Data within object files specifying which memory addresses need to be modified (relocated) based on the final memory layout of the program.\n* **Linker/Loader Actions:** The linker and loader use symbol tables and relocation entries to resolve symbol references and adjust memory addresses during linking and loading.",
+  "code_example": [
+    "# This example is conceptual and not executable directly.",
+    "# It represents the stages of symbol resolution and relocation.",
+    "Object File 1 (libA.o):",
+    "  Symbol Table:",
+    "    functionA: 0x1000  // FunctionA defined at offset 0x1000 in libA.o",
+    "  Code:",
+    "    call functionB   // call to functionB defined in another object file",
+    "Object File 2 (libB.o):",
+    "  Symbol Table:",
+    "    functionB: 0x2000  // FunctionB defined at offset 0x2000 in libB.o",
+    "Linker Phase (Linking):",
+    "  1. Symbol Resolution: Linker finds 'functionB' in libB.o's symbol table.",
+    "  2. Relocation: Linker determines that 'call functionB' in libA.o needs its address adjusted.",
+    "     - It resolves functionB's final address (e.g., 0x4000 in the combined program).",
+    "     - It generates a relocation entry for the 'call functionB' instruction in libA.o.",
+    "Loader Phase (Loading):",
+    "  1. Loader loads libA.o and libB.o into memory.",
+    "  2. Loader uses the relocation entries to patch the address of 'call functionB' in libA.o",
+    "     - Changing it from 0x2000 (the offset within libB.o) to 0x4000 (final memory address)."
+  ],
+  "example_explanation": "The example illustrates the two main phases: linking and loading. Linking involves resolving symbols (functionB) and creating relocation entries. Loading involves using those entries to adjust memory addresses, ensuring that calls to functions in different object files work correctly after the program is loaded into memory.  The offsets (0x1000, 0x2000) are addresses within the individual object files. The final address (0x4000) is the address after the linker and loader have placed the object files in memory.  The key is that the final addresses aren't known until the linking and loading stages are complete.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "225-225",
+    "extraction_date": "2025-07-21T17:35:37.256932",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

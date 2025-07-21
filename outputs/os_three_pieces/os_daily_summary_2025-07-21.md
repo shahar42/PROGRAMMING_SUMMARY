@@ -1,27 +1,39 @@
 # Daily Operating Systems Extraction Summary
-**Date:** 2025-07-21 01:45:51
-**Duration:** 33.2 seconds
-**Page Range:** 166-180
+**Date:** 2025-07-21 17:33:55
+**Duration:** 57.3 seconds
+**Page Range:** 211-225
 **Book:** Operating Systems - Three Easy Pieces
 
-## OS Concepts Extracted Today: 2
+## OS Concepts Extracted Today: 4
 
-### 1. Integer Literal
-**What it's about:** An integer literal is a constant value that represents an integer number directly in C code. It is used to provide fixed numeric values for operations, variable initialization, or expressions, making ...
+### 1. Function Call
+**What it's about:** A function call in C is the process of invoking a function to execute its code. It is used to promote code reuse, improve program modularity, and organize complex logic into smaller, manageable blocks...
 
-- **File:** `os_concept_042_integer_literal.json`
-- **Pages:** 166-166
+- **File:** `os_concept_051_function_call.json`
+- **Pages:** 211-211
 
-### 2. Segmentation Fault
-**What it's about:** A segmentation fault is an error that occurs in C when a program attempts to access memory it does not have permission to access, such as dereferencing a null pointer or writing to an invalid address....
+### 2. C Arrays
+**What it's about:** In C, an array is a fixed-size collection of elements of the same data type stored in contiguous memory locations. It is used to efficiently store and access multiple related values, such as a list of...
 
-- **File:** `os_concept_043_segmentation_fault.json`
-- **Pages:** 166-166
+- **File:** `os_concept_052_c_arrays.json`
+- **Pages:** 211-211
+
+### 3. Array Element Access in C
+**What it's about:** Array element access in C refers to retrieving or modifying individual elements of an array using the subscript operator []. It is used to efficiently work with collections of data by allowing direct ...
+
+- **File:** `os_concept_053_array_element_access_in_c.json`
+- **Pages:** 211-211
+
+### 4. Free() Function
+**What it's about:** The free() function in C is used to deallocate memory that was previously allocated by functions like malloc(). It is essential for managing memory efficiently, preventing memory leaks, and allowing t...
+
+- **File:** `os_concept_054_free_function.json`
+- **Pages:** 181-181
 
 ## OS Progress Summary
-- **Total OS Concepts Extracted:** 43
-- **Extraction Sessions Completed:** 12
-- **Last Processed Page:** 180
+- **Total OS Concepts Extracted:** 54
+- **Extraction Sessions Completed:** 15
+- **Last Processed Page:** 225
 
 ## Next Session
 Run the OS extraction script again tomorrow to continue processing.

@@ -10,9 +10,11 @@ import json
 import re
 from datetime import datetime
 import requests
+from processors.base_processor import BaseAtomicProcessor
 
 
-class GrokAtomicProcessor:
+
+class GrokAtomicProcessor(BaseAtomicProcessor):
     """Processes raw content into atomic training data using Grok"""
     
     def __init__(self, api_key):
@@ -30,6 +32,12 @@ class GrokAtomicProcessor:
         except Exception as e:
             print(f"❌ Failed to initialize Grok: {e}")
             raise
+        super().__init__()
+
+
+    def process_concept(self, concept_data, book_name="unix_env"):
+        """New main entry point that includes deduplication"""
+        return self.process_concept_with_deduplication(concept_data, book_name)
     
     def _test_connection(self):
         """Test API connection"""
@@ -57,7 +65,7 @@ class GrokAtomicProcessor:
         if response.status_code != 200:
             raise Exception(f"API test failed: {response.status_code} - {response.text}")
     
-    def process_concept(self, concept_data):
+    def _extract_with_ai(self, concept_data):
         """Transform raw concept into atomic training format"""
         
         prompt = self._build_atomic_extraction_prompt(concept_data["raw_content"])

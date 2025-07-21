@@ -14,6 +14,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 import requests
+from processors.base_processor import BaseAtomicProcessor
+
 
 # Ensure project root accessibility
 PROJECT_ROOT = "/home/shahar42/Suumerizing_C_holy_grale_book"
@@ -21,7 +23,7 @@ if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
 
 
-class GPT4NanoAtomicProcessor:
+class GPT4NanoAtomicProcessor(BaseAtomicProcessor):
     """Processes raw content into atomic training data using GPT-4.1 Nano"""
     
     def __init__(self, api_key):
@@ -39,6 +41,11 @@ class GPT4NanoAtomicProcessor:
         except Exception as e:
             print(f"❌ Failed to initialize GPT-4.1 Nano: {e}")
             raise
+        super().__init__()
+
+    def process_concept(self, concept_data, book_name="expert_c_programming"):
+        """New main entry point that includes deduplication"""
+        return self.process_concept_with_deduplication(concept_data, book_name)
     
     def _test_connection(self):
         """Test API connection with minimal request"""
@@ -64,46 +71,46 @@ class GPT4NanoAtomicProcessor:
         if response.status_code != 200:
             raise Exception(f"API test failed: {response.status_code} - {response.text}")
     
-    def process_concept(self, concept_data):
-        """
-        Transform raw concept into atomic training format
-        
-        This method signature matches other processors for seamless integration.
-        Input: concept_data dict with keys: raw_content, page_range, has_code, has_explanation
-        Output: structured concept dict with standardized format
-        """
-        
-        # Detect book context (inherit from existing system)
-        source_title = concept_data.get("source_title", "")
-        book_context = self._detect_book_context(source_title, concept_data.get("raw_content", ""))
-        
-        # Build context-aware prompt
-        prompt = self._build_atomic_extraction_prompt(
-            concept_data["raw_content"], 
-            book_context
-        )
-        
-        try:
-            response_text = self._call_gpt4_nano_api(prompt)
+    def _extract_with_ai(self, concept_data):
+            """
+            Transform raw concept into atomic training format
             
-            # Parse response into structured format
-            parsed_concept = self._parse_gpt4_response(response_text)
+            This method signature matches other processors for seamless integration.
+            Input: concept_data dict with keys: raw_content, page_range, has_code, has_explanation
+            Output: structured concept dict with standardized format
+            """
             
-            # Add standardized metadata (REQUIRED for integration)
-            parsed_concept["extraction_metadata"] = {
-                "source": concept_data.get("source_title", "Unknown Source"),
-                "page_range": concept_data["page_range"],
-                "extraction_date": datetime.now().isoformat(),
-                "has_code": concept_data["has_code"],
-                "has_explanation": concept_data["has_explanation"],
-                "book_context": book_context
-            }
+            # Detect book context (inherit from existing system)
+            source_title = concept_data.get("source_title", "")
+            book_context = self._detect_book_context(source_title, concept_data.get("raw_content", ""))
             
-            return parsed_concept
+            # Build context-aware prompt
+            prompt = self._build_atomic_extraction_prompt(
+                concept_data["raw_content"], 
+                book_context
+            )
             
-        except Exception as e:
-            print(f"Error processing concept: {e}")
-            return None
+            try:
+                response_text = self._call_gpt4_nano_api(prompt)
+                
+                # Parse response into structured format
+                parsed_concept = self._parse_gpt4_response(response_text)
+                
+                # Add standardized metadata (REQUIRED for integration)
+                parsed_concept["extraction_metadata"] = {
+                    "source": concept_data.get("source_title", "Unknown Source"),
+                    "page_range": concept_data["page_range"],
+                    "extraction_date": datetime.now().isoformat(),
+                    "has_code": concept_data["has_code"],
+                    "has_explanation": concept_data["has_explanation"],
+                    "book_context": book_context
+                }
+                
+                return parsed_concept
+                
+            except Exception as e:
+                print(f"Error processing concept: {e}")
+                return None
     
     def _call_gpt4_nano_api(self, prompt):
         """Make API call to GPT-4.1 Nano - optimized for cost efficiency"""

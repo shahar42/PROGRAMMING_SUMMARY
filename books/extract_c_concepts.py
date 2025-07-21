@@ -83,7 +83,7 @@ class ExtractionEngine:
                 print(f"\n⚡ Processing concept {i+1}/{min(len(concepts), max_concepts)}...")
                 
                 # Generate atomic training data
-                processed_concept = self.processor.process_concept(concept)
+                processed_concept = self.processor.process_concept(concept, "kernighan_ritchie")
                 
                 if processed_concept:
                     # Save directly (no validation)

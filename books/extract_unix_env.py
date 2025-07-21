@@ -88,7 +88,7 @@ class UnixExtractionEngine:
                 concept["source_title"] = "Advanced Programming in the UNIX Environment 3rd Edition"
                 
                 # Generate atomic training data
-                processed_concept = self.processor.process_concept(concept)
+                processed_concept = self.processor.process_concept(concept, "unix_env")
                 
                 if processed_concept:
                     # Update source in metadata

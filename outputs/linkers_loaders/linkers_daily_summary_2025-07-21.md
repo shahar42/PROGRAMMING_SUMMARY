@@ -1,39 +1,39 @@
 # Daily Linkers & Loaders Extraction Summary
-**Date:** 2025-07-21 01:46:25
-**Duration:** 17.0 seconds
-**Page Range:** 180-194
+**Date:** 2025-07-21 17:35:07
+**Duration:** 32.1 seconds
+**Page Range:** 225-239
 **Book:** Linkers and Loaders
 
 ## Linking Concepts Extracted Today: 4
 
-### 1. Symbol Resolution in Object Files
-**What it's about:** Symbol resolution is the process of matching up symbolic references in a program (like function or variable names) with their actual addresses in memory during the linking and loading process.  This i...
+### 1. Overlay Loading
+**What it's about:** Overlay loading is a memory management technique used to load only necessary parts of a program into memory at a given time.  This is crucial for running large programs that exceed available memory. I...
 
-- **File:** `linkers_concept_046_symbol_resolution_in_object_fi.json`
-- **Pages:** 180-180
+- **File:** `linkers_concept_058_overlay_loading.json`
+- **Pages:** 225-225
 
-### 2. Symbol Tables and Symbol Resolution
-**What it's about:** Symbol tables are data structures within object files that map symbolic names (like function or variable names) to their memory addresses.  During the linking process, the linker uses symbol tables fr...
+### 2. Symbol Resolution and Relocation
+**What it's about:** Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves associating symbolic names (like function or variable names) used in the source code ...
 
-- **File:** `linkers_concept_047_symbol_tables_and_symbol_resol.json`
-- **Pages:** 180-180
+- **File:** `linkers_concept_059_symbol_resolution_and_relocati.json`
+- **Pages:** 165-165
 
-### 3. Symbol Resolution
-**What it's about:** Symbol resolution is the process of associating symbolic names (like function or variable names used in source code) with their actual memory addresses during the linking and loading of a program.  Th...
+### 3. Symbol Resolution and Relocation
+**What it's about:** Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up references to functions and variables (symbols) in the program's code wit...
 
-- **File:** `linkers_concept_048_symbol_resolution.json`
-- **Pages:** 180-181
+- **File:** `linkers_concept_060_symbol_resolution_and_relocati.json`
+- **Pages:** 225-225
 
-### 4. Symbol Resolution in Static Linking
-**What it's about:** Symbol resolution is the process of associating symbolic references (like function or variable names) in an object file with their actual memory addresses during the linking process.  In static linkin...
+### 4. Symbol Resolution and Relocation
+**What it's about:** Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up references to functions and variables (symbols) in one object file to the...
 
-- **File:** `linkers_concept_049_symbol_resolution_in_static_li.json`
-- **Pages:** 181-181
+- **File:** `linkers_concept_061_symbol_resolution_and_relocati.json`
+- **Pages:** 225-225
 
 ## Linkers Progress Summary
-- **Total Linking Concepts Extracted:** 49
-- **Extraction Sessions Completed:** 13
-- **Last Processed Page:** 194
+- **Total Linking Concepts Extracted:** 61
+- **Extraction Sessions Completed:** 16
+- **Last Processed Page:** 239
 
 ## Next Session
 Run the Linkers & Loaders extraction script again tomorrow to continue processing.

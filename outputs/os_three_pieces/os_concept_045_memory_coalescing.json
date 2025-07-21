@@ -1,0 +1,36 @@
+{
+  "topic": "Memory Coalescing",
+  "explanation": "Memory coalescing is a technique used in dynamic memory allocators to merge adjacent free memory blocks into a single larger block. It is employed to reduce memory fragmentation, making larger contiguous blocks available for future allocations and improving overall memory efficiency in programs that frequently allocate and deallocate memory.",
+  "syntax": "void free(void *ptr)",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "",
+    "int main() {",
+    "    void *p1 = malloc(10);  // Allocate first block",
+    "    void *p2 = malloc(10);  // Allocate second block",
+    "    if (p1 && p2) {",
+    "        free(p1);  // Free first block",
+    "        free(p2);  // Free second block, potentially coalescing with the first",
+    "        void *p3 = malloc(20);  // Attempt to allocate a larger block",
+    "        if (p3) {",
+    "            printf(\"Successfully allocated 20 bytes after coalescing\\n\");",
+    "            free(p3);",
+    "        } else {",
+    "            printf(\"Failed to allocate 20 bytes\\n\");",
+    "        }",
+    "    } else {",
+    "        printf(\"Initial allocations failed\\n\");",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program allocates two 10-byte blocks of memory. It then frees both blocks, which may trigger the allocator to coalesce them into a single 20-byte free block. Finally, it attempts to allocate a 20-byte block; if successful, it demonstrates that coalescing has made a larger contiguous block available, as indicated by the printed message.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "181-181",
+    "extraction_date": "2025-07-21T10:45:11.384631",
+    "has_code": false,
+    "has_explanation": true
+  }
+}
