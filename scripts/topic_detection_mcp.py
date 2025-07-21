@@ -263,10 +263,97 @@ def load_extracted_concepts() -> Dict[str, Dict[str, List[str]]]:
     
     return concepts_by_book
 
-def calculate_topic_scores(user_input: str) -> Dict[str, Dict]:
-    """Calculate relevance scores for each book based on enhanced keyword matching"""
+def progressive_query_analysis(user_input: str) -> Dict[str, List[str]]:
+    """
+    Progressive query analysis - breaks down query into stages for broader-to-narrow search
+    
+    Returns:
+        Dict with 'individual_words', 'two_word_phrases', 'full_phrases', 'expanded_terms'
+    """
     user_input_lower = user_input.lower()
-    user_words = re.findall(r'\b\w+\b', user_input_lower)
+    
+    # Stage 1: Individual words (broadest)
+    individual_words = re.findall(r'\b\w+\b', user_input_lower)
+    # Filter out common stop words that don't add meaning
+    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'why', 'when', 'where', 'is', 'are', 'was', 'were'}
+    meaningful_words = [word for word in individual_words if word not in stop_words and len(word) > 2]
+    
+    # Stage 2: Two-word combinations (medium specificity)
+    two_word_phrases = []
+    for i in range(len(individual_words) - 1):
+        if individual_words[i] not in stop_words and individual_words[i+1] not in stop_words:
+            phrase = f"{individual_words[i]} {individual_words[i+1]}"
+            two_word_phrases.append(phrase)
+    
+    # Stage 3: Three+ word phrases (highest specificity)
+    full_phrases = []
+    words = individual_words
+    for i in range(len(words) - 2):
+        if all(word not in stop_words for word in words[i:i+3]):
+            phrase = " ".join(words[i:i+3])
+            full_phrases.append(phrase)
+    
+    # Stage 4: Query expansion with related terms
+    expanded_terms = expand_query_terms(meaningful_words)
+    
+    return {
+        'individual_words': meaningful_words,
+        'two_word_phrases': two_word_phrases,
+        'full_phrases': full_phrases,
+        'expanded_terms': expanded_terms
+    }
+
+def expand_query_terms(words: List[str]) -> List[str]:
+    """
+    Expand query terms with related concepts and synonyms
+    
+    This helps find broader context when specific terms don't match
+    """
+    expansion_map = {
+        # C Language terms
+        'static': ['storage', 'variable', 'scope', 'duration', 'class', 'linkage'],
+        'storage': ['memory', 'variable', 'allocation', 'duration', 'class'],
+        'class': ['type', 'category', 'storage', 'specifier'],
+        'malloc': ['memory', 'allocation', 'heap', 'dynamic', 'free'],
+        'pointer': ['address', 'reference', 'memory', 'dereference', 'indirection'],
+        'function': ['procedure', 'routine', 'call', 'return', 'parameter'],
+        'array': ['index', 'element', 'subscript', 'dimension'],
+        
+        # UNIX/OS terms  
+        'fork': ['process', 'child', 'parent', 'exec', 'pid'],
+        'process': ['thread', 'task', 'execution', 'scheduler', 'pid'],
+        'file': ['descriptor', 'stream', 'directory', 'path', 'inode'],
+        'pipe': ['ipc', 'communication', 'fifo', 'redirection'],
+        'signal': ['interrupt', 'handler', 'asynchronous', 'event'],
+        
+        # Linking/Loading terms
+        'symbol': ['reference', 'definition', 'resolution', 'binding', 'export'],
+        'link': ['binding', 'resolution', 'loader', 'dynamic', 'static'],
+        'library': ['shared', 'dynamic', 'static', 'object', 'archive'],
+        'object': ['file', 'code', 'binary', 'compilation'],
+        
+        # Memory/Performance terms
+        'cache': ['memory', 'performance', 'locality', 'miss', 'hit'],
+        'memory': ['allocation', 'management', 'virtual', 'physical', 'address'],
+        'optimization': ['performance', 'efficiency', 'speed', 'improvement'],
+        'page': ['virtual', 'memory', 'fault', 'table', 'mapping']
+    }
+    
+    expanded = []
+    for word in words:
+        if word in expansion_map:
+            expanded.extend(expansion_map[word])
+    
+    return list(set(expanded))  # Remove duplicates
+
+def calculate_topic_scores_progressive(user_input: str) -> Dict[str, Dict]:
+    """
+    Enhanced calculate_topic_scores with progressive search strategy
+    
+    SURGICAL FIX: Implements broader-to-narrow search to avoid over-specificity bias
+    """
+    # Get progressive query breakdown
+    query_analysis = progressive_query_analysis(user_input)
     
     # Load extracted concepts (cached)
     extracted_concepts = load_extracted_concepts()
@@ -277,53 +364,94 @@ def calculate_topic_scores(user_input: str) -> Dict[str, Dict]:
         score = 0.0
         matches = []
         
-        # 1. Check predefined keywords (baseline matching)
-        predefined_matches = [word for word in user_words if word in config["keywords"]]
-        score += len(predefined_matches) * 0.1  # Lower weight for predefined
-        matches.extend(predefined_matches)
-        
-        # 2. Check extracted concept phrases (high weight)
-        if book_id in extracted_concepts:
-            concept_data = extracted_concepts[book_id]
+        # STAGE 1: Individual word matching (broad foundation) - Weight: 0.15
+        individual_matches = []
+        for word in query_analysis['individual_words']:
+            # Check predefined keywords
+            if word in config["keywords"]:
+                individual_matches.append(word)
             
-            # Phrase matching (highest priority)
-            for phrase in concept_data.get("phrases", []):
-                if phrase in user_input_lower:
-                    score += 0.5  # High weight for exact phrase matches
-                    matches.append(phrase)
-            
-            # Individual word matching (medium priority)
-            word_matches = [word for word in user_words if word in concept_data.get("words", [])]
-            score += len(word_matches) * 0.2  # Medium weight for extracted words
-            matches.extend(word_matches)
+            # Check extracted concept words
+            if book_id in extracted_concepts:
+                concept_data = extracted_concepts[book_id]
+                if word in concept_data.get("words", []):
+                    individual_matches.append(word)
         
-        # 3. Focus area phrase matching (medium weight)
+        if individual_matches:
+            base_score = len(individual_matches) * 0.15
+            score += base_score
+            matches.extend(individual_matches)
+        
+        # STAGE 2: Two-word phrase matching (medium specificity) - Weight: 0.25  
+        two_word_matches = []
+        for phrase in query_analysis['two_word_phrases']:
+            if book_id in extracted_concepts:
+                concept_data = extracted_concepts[book_id]
+                if phrase in concept_data.get("phrases", []):
+                    two_word_matches.append(phrase)
+                    score += 0.25
+        
+        matches.extend(two_word_matches)
+        
+        # STAGE 3: Expanded term matching (contextual broadening) - Weight: 0.1
+        expanded_matches = []
+        for term in query_analysis['expanded_terms']:
+            if book_id in extracted_concepts:
+                concept_data = extracted_concepts[book_id]
+                if term in concept_data.get("words", []):
+                    expanded_matches.append(f"related:{term}")
+                    score += 0.1
+        
+        matches.extend(expanded_matches)
+        
+        # STAGE 4: Full phrase matching (highest specificity) - Weight: 0.4
+        # Only boost if we already have some relevance from broader terms
+        if score > 0:  # Only apply if we have baseline relevance
+            full_phrase_matches = []
+            for phrase in query_analysis['full_phrases']:
+                if book_id in extracted_concepts:
+                    concept_data = extracted_concepts[book_id]
+                    if phrase in concept_data.get("phrases", []):
+                        full_phrase_matches.append(phrase)
+                        score += 0.4  # High boost for exact matches
+            
+            matches.extend(full_phrase_matches)
+        
+        # STAGE 5: Focus area contextual matching - Weight: 0.2
         focus_words = config["focus"].lower().split()
-        for i in range(len(focus_words) - 1):
-            phrase = f"{focus_words[i]} {focus_words[i+1]}"
-            if phrase in user_input_lower:
-                score += 0.3
-                matches.append(phrase)
+        for word in query_analysis['individual_words']:
+            if word in focus_words:
+                score += 0.2
+                matches.append(f"focus:{word}")
         
-        # 4. Normalize score by input length (avoid bias toward long inputs)
-        if user_words:
-            normalized_score = min(score, 1.0)  # Cap at 1.0
-        else:
-            normalized_score = 0.0
+        # Normalize and cap score
+        normalized_score = min(score, 1.0)
         
-        # Remove duplicate matches
-        unique_matches = list(dict.fromkeys(matches))
+        # Remove duplicate matches and limit for readability
+        unique_matches = list(dict.fromkeys(matches))[:7]
         
         book_scores[book_id] = {
             "name": config["name"],
             "score": round(normalized_score, 3),
-            "matches": unique_matches[:5],  # Limit to top 5 matches for readability
-            "focus": config["focus"]
+            "matches": unique_matches,
+            "focus": config["focus"],
+            "query_breakdown": {
+                "individual_words": len(query_analysis['individual_words']),
+                "two_word_phrases": len(query_analysis['two_word_phrases']),
+                "expanded_terms": len(query_analysis['expanded_terms']),
+                "full_phrases": len(query_analysis['full_phrases'])
+            }
         }
-        
-    book_scores = enhanced_memory_relevance_calculation(user_input_lower, book_scores)    
-
+    
+    # Apply existing memory optimization enhancement
+    book_scores = enhanced_memory_relevance_calculation(user_input.lower(), book_scores)
+    
     return book_scores
+
+
+def calculate_topic_scores(user_input: str) -> Dict[str, Dict]:
+    """Calculate relevance scores using progressive search strategy"""
+    return calculate_topic_scores_progressive(user_input)
 
 def enhanced_memory_relevance_calculation(question_lower, existing_scores):
     """Enhanced relevance calculation for memory optimization"""
@@ -353,7 +481,7 @@ def enhanced_memory_relevance_calculation(question_lower, existing_scores):
             memory_score += 0.3
     
     # Add to existing scores
-    existing_scores['memory_optimization'] = min(memory_score, 1.0)
+    #existing_scores['memory_optimization'] = min(memory_score, 1.0)
     
     return existing_scores
 
