@@ -104,7 +104,7 @@ class GrokAtomicProcessor:
             f"{self.base_url}/chat/completions",
             headers=headers,
             json=payload,
-            timeout=60
+            timeout=110
         )
         
         if response.status_code != 200:

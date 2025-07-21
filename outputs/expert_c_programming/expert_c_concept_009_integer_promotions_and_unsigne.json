@@ -1,19 +1,20 @@
 {
   "topic": "Integer Promotions and Unsigned Comparison Pitfalls",
-  "explanation": "This concept addresses the subtle and often overlooked behavior of integer promotions and implicit conversions during comparisons in C, especially when mixing signed and unsigned types. In advanced C programming, understanding how signed integers are promoted to unsigned types during comparison is crucial to prevent logical bugs, such as incorrect condition evaluations or unexpected behavior when negative values are involved. Recognizing these promotion rules allows developers to write robust, portable code and avoid pitfalls related to implicit type conversions that can lead to subtle bugs in complex systems.",
-  "syntax": "Comparison between signed and unsigned integers triggers implicit integer promotions:\n\nif (signed_int < unsigned_int) {\n    // comparison occurs after signed_int is promoted to unsigned\n}\n\nNote: Explicit casting can control promotion behavior:\n\nif ((int)signed_value < unsigned_value) { ... }",
+  "explanation": "In advanced C programming, understanding how integer promotions and implicit conversions affect comparisons between signed and unsigned types is crucial. When a signed integer is compared to an unsigned integer, the signed value is promoted to unsigned, which can lead to unexpected results\u2014such as negative values becoming large positive numbers. This subtle behavior often causes bugs that are difficult to detect, especially in complex code involving size calculations or system interfaces. Mastery of this concept enables developers to write correct, portable code by explicitly controlling type conversions and avoiding unintended promotion pitfalls.",
+  "syntax": "Comparison between signed and unsigned integers:\n\nif (signed_int < unsigned_int) {\n    // ...\n}\n\n// Implicit promotion rules:\n// signed_int is promoted to unsigned_int if compared directly with unsigned_int\n",
   "code_example": [
-    "unsigned int TOTAL_ELEMENTS = sizeof(some_struct);",
+    "unsigned int total_elements = sizeof(int) * 10;",
     "int d = -1;",
-    "if (d < TOTAL_ELEMENTS) {",
-    "    // Unexpectedly false because d is promoted to unsigned, making -1 large positive",
+    "if (d < total_elements) {",
+    "    // Unexpectedly false because d is promoted to unsigned int,",
+    "    // making -1 become a large positive number.",
     "}"
   ],
-  "example_explanation": "In this example, TOTAL_ELEMENTS is of unsigned int type, derived from sizeof, which returns an unsigned value. The variable d is signed int with a negative value. When comparing d to TOTAL_ELEMENTS, d is implicitly promoted to unsigned int, turning -1 into a large positive number, which causes the comparison to evaluate as false unexpectedly. This demonstrates the importance of understanding integer promotion rules and the potential pitfalls when mixing signed and unsigned types in advanced C programming, highlighting the need for explicit casts to ensure correct comparison semantics.",
+  "example_explanation": "This example demonstrates how comparing a signed integer 'd' with an unsigned integer 'total_elements' leads to implicit promotion of 'd' to unsigned. Since 'd' is -1, promoting it to unsigned results in a large positive number, causing the comparison to behave unexpectedly. This illustrates the subtlety of integer promotions and the importance of explicit casting\u2014such as casting 'd' to 'int'\u2014to ensure correct comparison behavior in advanced C programming.",
   "extraction_metadata": {
     "source": "Expert C Programming: Deep C Secrets",
     "page_range": "31-31",
-    "extraction_date": "2025-07-16T12:04:53.832197",
+    "extraction_date": "2025-07-21T09:48:24.345651",
     "has_code": true,
     "has_explanation": true,
     "book_context": "expert_c_programming"
