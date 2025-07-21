@@ -1,33 +1,39 @@
 # Daily Expert C Programming Extraction Summary
-**Date:** 2025-07-21 17:32:10
-**Duration:** 19.6 seconds
-**Page Range:** 136-150
+**Date:** 2025-07-21 22:59:06
+**Duration:** 36.5 seconds
+**Page Range:** 196-210
 **Book:** Expert C Programming: Deep C Secrets
 
-## Expert C Concepts Extracted Today: 3
+## Expert C Concepts Extracted Today: 4
 
-### 1. Advanced Use of Function Pointers for Callback Mechanisms
-**What it's about:** In advanced C programming, function pointers are employed to implement flexible callback mechanisms, enabling dynamic behavior, plugin architectures, or event-driven designs. Mastering complex functio...
+### 1. Complex Macro-Based Command Parsing and State Management
+**What it's about:** In advanced C programming, especially in embedded or command-driven systems, macros are often employed to implement complex command parsing, state management, and control flow without incurring runtim...
 
-- **File:** `expert_c_concept_035_advanced_use_of_function_point.json`
-- **Pages:** 136-136
+- **File:** `expert_c_concept_050_complex_macro_based_command_pa.json`
+- **Pages:** 196-196
 
-### 2. Function Pointer Callbacks for Dynamic Behavior
-**What it's about:** In advanced C programming, function pointers are used to implement callback mechanisms that enable dynamic, flexible behavior at runtime. This technique allows functions to be passed as arguments, fac...
+### 2. Implementing State Machines Using GOSUB and RETURN for Advanced Control Flow
+**What it's about:** In advanced C programming, especially in embedded systems or performance-critical applications, developers sometimes utilize the GOSUB and RETURN pattern—an extension of function call semantics—to imp...
 
-- **File:** `expert_c_concept_036_function_pointer_callbacks_for.json`
-- **Pages:** 47-47
+- **File:** `expert_c_concept_051_implementing_state_machines_us.json`
+- **Pages:** 196-196
 
-### 3. Function Pointer Arrays for Callback Dispatch
-**What it's about:** In advanced C programming, arrays of function pointers are used to implement flexible callback mechanisms, dispatch tables, or plugin architectures. This technique allows dynamic selection and invocat...
+### 3. Complex Control Flow with GOTO and Conditional Execution
+**What it's about:** In advanced C programming, the use of GOTO statements combined with conditional expressions enables the creation of highly flexible and efficient control flow structures, especially in scenarios requi...
 
-- **File:** `expert_c_concept_037_function_pointer_arrays_for_ca.json`
-- **Pages:** 106-106
+- **File:** `expert_c_concept_052_complex_control_flow_with_goto.json`
+- **Pages:** 196-196
+
+### 4. Advanced Use of the C Preprocessor for Conditional Compilation and Macro Tricks
+**What it's about:** In advanced C programming, the preprocessor is leveraged beyond simple macro definitions to implement complex compile-time logic, conditional compilation, and macro tricks that enable code flexibility...
+
+- **File:** `expert_c_concept_053_advanced_use_of_the_c_preproce.json`
+- **Pages:** 196-196
 
 ## Expert C Progress Summary
-- **Total Expert C Concepts Extracted:** 37
-- **Extraction Sessions Completed:** 10
-- **Last Processed Page:** 150
+- **Total Expert C Concepts Extracted:** 53
+- **Extraction Sessions Completed:** 14
+- **Last Processed Page:** 210
 
 ## Next Session
 Run the Expert C Programming extraction script again tomorrow to continue processing.

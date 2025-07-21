@@ -1,0 +1,35 @@
+{
+  "topic": "Lazy Binding in Dynamic Linking",
+  "explanation": "Lazy binding is a technique used in dynamic linking where the resolution of symbols from a shared library is delayed until the symbol is actually accessed during program execution. This contrasts with eager binding, where all symbols are resolved when the program loads. Lazy binding improves startup time and reduces memory consumption because only the necessary symbols are resolved, and it allows for faster loading of applications that depend on many shared libraries.",
+  "syntax": "The exact syntax for lazy binding is not a code pattern but rather a compiler and linker optimization.  Compilers generate code that checks if a symbol has been resolved; if not, the runtime performs the resolution, often through a technique such as lazy PLT entries.",
+  "code_example": [
+    "#include <dlfcn.h>",
+    "#include <stdio.h>",
+    "int main() {",
+    "  void *handle = dlopen(\"mylib.so\", RTLD_LAZY);",
+    "  if (!handle) {",
+    "    fprintf(stderr, \"%s\\n\", dlerror());",
+    "    return 1;",
+    "  }",
+    "  typedef void (*myfunc_t)(void);",
+    "  myfunc_t myfunc = (myfunc_t)dlsym(handle, \"myfunction\");",
+    "  if (!myfunc) {",
+    "    fprintf(stderr, \"%s\\n\", dlerror());",
+    "    dlclose(handle);",
+    "    return 1;",
+    "  }",
+    "  myfunc();",
+    "  dlclose(handle);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This C code demonstrates lazy binding using the dlopen() function with the RTLD_LAZY flag.  The program loads the shared library \"mylib.so\" using lazy binding.  The dlsym() function retrieves the address of the \"myfunction\" symbol only when it is called.  If \"myfunction\" is never called, its address is never resolved.  This showcases the core idea of lazy binding, where symbol resolution is postponed until the symbol is actually used. The RTLD_LAZY flag explicitly instructs the dynamic linker to employ lazy binding. If this flag was omitted or replaced with RTLD_NOW, eager binding would be used instead, leading to different runtime behavior.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "270-270",
+    "extraction_date": "2025-07-21T22:29:12.173148",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}

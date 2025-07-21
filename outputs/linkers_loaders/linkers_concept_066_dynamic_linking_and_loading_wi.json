@@ -1,0 +1,37 @@
+{
+  "topic": "Dynamic Linking and Loading with ELF Shared Libraries",
+  "explanation": "Dynamic linking defers the linking of program libraries until runtime.  This contrasts with static linking, where libraries are incorporated directly into the executable during compilation.  Dynamic linking uses shared libraries (like .so files on Linux or .dll files on Windows), allowing multiple programs to share a single copy of a library in memory, saving memory and enabling updates to libraries without recompiling dependent programs.  The ELF (Executable and Linkable Format) file structure plays a crucial role in this process.",
+  "syntax": "ELF Shared Library Structure:\n\nRead-only segments:\n  .hash (hash table for symbol lookup)\n  .dynsym (dynamic symbol table)\n  .dynstr (dynamic string table)\n  .plt (Procedure Linkage Table)\n  .text (code segment)\n  .rodata (read-only data segment)\n\nRead-write segments:\n  .data (initialized data segment)\n  .got (Global Offset Table)\n  .dynamic (dynamic section containing metadata)\n  .bss (uninitialized data segment)",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <dlfcn.h>",
+    "",
+    "int main() {",
+    "  void *handle = dlopen(\"./mylib.so\", RTLD_LAZY);",
+    "  if (!handle) {",
+    "    fprintf(stderr, \"Error opening shared library: %s\\n\", dlerror());",
+    "    return 1;",
+    "  }",
+    "",
+    "  void (*myfunc)(char*) = dlsym(handle, \"my_function\");",
+    "  if (!myfunc) {",
+    "    fprintf(stderr, \"Error getting symbol: %s\\n\", dlerror());",
+    "    dlclose(handle);",
+    "    return 1;",
+    "  }",
+    "",
+    "  myfunc(\"Hello from dynamic library!\");",
+    "  dlclose(handle);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This C code demonstrates dynamic linking. It uses `dlopen()` to load the shared library `mylib.so` at runtime.  `dlsym()` then retrieves the address of the function `my_function` from the library's symbol table.  The function is called, and the library is unloaded with `dlclose()`.  This exemplifies dynamic linking because the linking happens at runtime, not during compilation.  The ELF format is implicitly used here, as `dlopen()` and `dlsym()` rely on the ELF structure's symbol table and dynamic section to resolve function addresses during the loading process.  The `.plt` (Procedure Linkage Table) and `.got` (Global Offset Table) within the ELF structure facilitate the efficient resolution and calling of functions from the dynamically loaded library.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "255-257",
+    "extraction_date": "2025-07-21T22:13:26.102957",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}

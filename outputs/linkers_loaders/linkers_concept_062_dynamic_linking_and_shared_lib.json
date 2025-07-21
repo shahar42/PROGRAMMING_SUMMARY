@@ -1,0 +1,35 @@
+{
+  "topic": "Dynamic Linking and Shared Libraries",
+  "explanation": "Dynamic linking is a mechanism where a program's required libraries are not linked into its executable at compile time, but rather loaded at runtime.  This allows multiple programs to share a single copy of a library in memory, saving memory and disk space. Shared libraries (like .so files on Linux or .dll files on Windows) are essential for this.  The loader resolves symbols from the shared library at runtime, linking the program's code to the library's functions.",
+  "syntax": "No specific syntax, but the use of shared libraries (.so, .dll) in a linker command line is a key indicator (e.g., -l<library_name>).  The program's executable will contain references to the library that are resolved during the loading phase.",
+  "code_example": [
+    "# Simple C code demonstrating dynamic linking (Illustrative - actual implementation needs system calls)",
+    "#include <stdio.h>",
+    "#include <dlfcn.h>",
+    "int main() {",
+    "  void *handle = dlopen(\"./mylib.so\", RTLD_LAZY);",
+    "  if (!handle) {",
+    "    fprintf(stderr, \"dlopen() error: %s\\n\", dlerror());",
+    "    return 1;",
+    "  }",
+    "  void (*my_function)() = dlsym(handle, \"my_function\");",
+    "  if (!my_function) {",
+    "    fprintf(stderr, \"dlsym() error: %s\\n\", dlerror());",
+    "    dlclose(handle);",
+    "    return 1;",
+    "  }",
+    "  (*my_function)();",
+    "  dlclose(handle);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example uses the dlopen(), dlsym(), and dlclose() functions to demonstrate dynamic linking. It loads a shared library (\"mylib.so\"), resolves the address of a function (\"my_function\"), executes it, and then unloads the library.  The  `mylib.so` would contain the definition of `my_function`. The linker doesn't embed `my_function` directly; instead, it creates a placeholder and the dynamic linker resolves this at runtime. This highlights the core principle of loading and linking code at runtime rather than statically during compilation. Note this is a simplified example and error handling should be more robust in a real-world application.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "240-240",
+    "extraction_date": "2025-07-21T21:00:29.276275",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}

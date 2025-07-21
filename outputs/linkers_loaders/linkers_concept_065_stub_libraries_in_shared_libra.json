@@ -1,0 +1,25 @@
+{
+  "topic": "Stub Libraries in Shared Library Linking",
+  "explanation": "Stub libraries are intermediary files created during the linking process of shared libraries (like DLLs on Windows or .so files on Linux).  They act as placeholders, providing symbol definitions for the actual shared library without containing the library's code or data. This allows the linker to resolve symbols during the linking of the application, even before the shared library is loaded at runtime.  This is crucial for dynamic linking, enabling applications to use shared libraries without needing to be relinked every time the library is updated.",
+  "syntax": "Stub library creation involves extracting symbol information (addresses of functions and variables) from the shared library.  For each symbol, a stub entry is created. This entry is then used during the linking of an application that uses the shared library. During runtime, the dynamic linker will resolve the stub's symbols to the actual shared library's address. Different operating systems (e.g., Linux, Windows) have varying implementations of this mechanism.",
+  "code_example": [
+    "; Example stub function (conceptual):",
+    "; Assume 'shared_lib_func' is a function in a shared library",
+    "global shared_lib_func",
+    "section .text",
+    "shared_lib_func:",
+    "    jmp dword [shared_lib_func_address] ; Jump to actual function address in shared library at runtime",
+    "section .data",
+    "shared_lib_func_address dd 0 ; Placeholder address, resolved by dynamic linker",
+    "; Other stubs for data and function symbols would follow..."
+  ],
+  "example_explanation": "This assembly code snippet illustrates a stub function.  The `shared_lib_func` label represents a symbol from the shared library.  Instead of containing the actual code, the stub jumps to the address stored in `shared_lib_func_address`. This address is initially 0, but the dynamic linker will update it at runtime to point to the correct location of `shared_lib_func` within the loaded shared library.  The dynamic linker resolves the symbol and patches the address at runtime.  This process is repeated for every function and global variable defined in the shared library but referenced by the application.  The stub library thus allows applications to link against the shared library even before it is loaded and run.  The mechanism differs slightly between operating systems; this shows a simplified conceptual approach.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "240-241",
+    "extraction_date": "2025-07-21T21:01:47.847500",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

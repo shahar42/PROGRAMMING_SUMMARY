@@ -1,39 +1,33 @@
 # Daily Operating Systems Extraction Summary
-**Date:** 2025-07-21 17:33:55
-**Duration:** 57.3 seconds
-**Page Range:** 211-225
+**Date:** 2025-07-21 23:01:28
+**Duration:** 58.3 seconds
+**Page Range:** 271-285
 **Book:** Operating Systems - Three Easy Pieces
 
-## OS Concepts Extracted Today: 4
+## OS Concepts Extracted Today: 3
 
-### 1. Function Call
-**What it's about:** A function call in C is the process of invoking a function to execute its code. It is used to promote code reuse, improve program modularity, and organize complex logic into smaller, manageable blocks...
+### 1. Null Pointer Dereferencing and Segmentation Faults
+**What it's about:** A null pointer in C is a pointer that does not point to a valid memory location, often initialized as NULL. Dereferencing a null pointer attempts to access memory at address zero or an invalid locatio...
 
-- **File:** `os_concept_051_function_call.json`
-- **Pages:** 211-211
+- **File:** `os_concept_066_null_pointer_dereferencing_and.json`
+- **Pages:** 271-271
 
-### 2. C Arrays
-**What it's about:** In C, an array is a fixed-size collection of elements of the same data type stored in contiguous memory locations. It is used to efficiently store and access multiple related values, such as a list of...
+### 2. Null Pointer Dereference
+**What it's about:** A null pointer dereference in C occurs when a program attempts to access or modify memory using a pointer that has been set to NULL, which represents no valid memory address. This concept is used to h...
 
-- **File:** `os_concept_052_c_arrays.json`
-- **Pages:** 211-211
+- **File:** `os_concept_067_null_pointer_dereference.json`
+- **Pages:** 271-271
 
-### 3. Array Element Access in C
-**What it's about:** Array element access in C refers to retrieving or modifying individual elements of an array using the subscript operator []. It is used to efficiently work with collections of data by allowing direct ...
+### 3. Dereferencing a Null Pointer
+**What it's about:** Dereferencing a null pointer in C occurs when you attempt to access or modify the memory location pointed to by a pointer that has a value of NULL (typically 0). This is problematic because NULL does ...
 
-- **File:** `os_concept_053_array_element_access_in_c.json`
-- **Pages:** 211-211
-
-### 4. Free() Function
-**What it's about:** The free() function in C is used to deallocate memory that was previously allocated by functions like malloc(). It is essential for managing memory efficiently, preventing memory leaks, and allowing t...
-
-- **File:** `os_concept_054_free_function.json`
-- **Pages:** 181-181
+- **File:** `os_concept_068_dereferencing_a_null_pointer.json`
+- **Pages:** 271-271
 
 ## OS Progress Summary
-- **Total OS Concepts Extracted:** 54
-- **Extraction Sessions Completed:** 15
-- **Last Processed Page:** 225
+- **Total OS Concepts Extracted:** 68
+- **Extraction Sessions Completed:** 19
+- **Last Processed Page:** 285
 
 ## Next Session
 Run the OS extraction script again tomorrow to continue processing.

@@ -1,33 +1,33 @@
 # Daily UNIX Environment Extraction Summary
-**Date:** 2025-07-21 17:32:54
-**Duration:** 46.3 seconds
-**Page Range:** 240-254
+**Date:** 2025-07-21 23:00:09
+**Duration:** 67.4 seconds
+**Page Range:** 300-314
 **Book:** Advanced Programming in the UNIX Environment 3rd Edition
 
 ## UNIX Concepts Extracted Today: 3
 
-### 1. BSS Segment in C Programs
-**What it's about:** The BSS segment is a memory section in a C program used to store uninitialized static variables, such as global or static variables without explicit initial values. It is used to optimize program size...
+### 1. wait() Function
+**What it's about:** The wait() function in C is used to suspend the execution of the calling process until one of its child processes terminates. It is essential for process synchronization, allowing the parent process t...
 
-- **File:** `unix_concept_060_bss_segment_in_c_programs.json`
-- **Pages:** 240-240
+- **File:** `unix_concept_073_wait_function.json`
+- **Pages:** 272-272
 
-### 2. Shared Libraries
-**What it's about:** Shared libraries are reusable code modules in C programming that allow multiple programs to share a single copy of common routines in memory, reducing executable file sizes and enabling easy updates t...
+### 2. Executing Shell Commands with fork and exec
+**What it's about:** In C, fork() creates a new process by duplicating the current one, and exec functions (like execl) replace the process image with a new program. This mechanism is used to run external shell commands f...
 
-- **File:** `unix_concept_061_shared_libraries.json`
-- **Pages:** 240-241
+- **File:** `unix_concept_074_executing_shell_commands_with_.json`
+- **Pages:** 300-300
 
-### 3. Free Function in C
-**What it's about:** The free() function in C is used to deallocate memory that was previously allocated using functions like malloc(). It is essential for managing dynamic memory, preventing memory leaks, and ensuring ef...
+### 3. system Function
+**What it's about:** The system function in C is used to execute a command as if it were entered at the shell prompt. It allows a C program to interact with the operating system by running external commands, which is usef...
 
-- **File:** `unix_concept_062_free_function_in_c.json`
-- **Pages:** 181-182
+- **File:** `unix_concept_075_system_function.json`
+- **Pages:** 211-211
 
 ## UNIX Progress Summary
-- **Total UNIX Concepts Extracted:** 62
-- **Extraction Sessions Completed:** 17
-- **Last Processed Page:** 254
+- **Total UNIX Concepts Extracted:** 75
+- **Extraction Sessions Completed:** 21
+- **Last Processed Page:** 314
 
 ## Next Session
 Run the UNIX extraction script again tomorrow to continue processing.

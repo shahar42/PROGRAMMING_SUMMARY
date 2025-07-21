@@ -1,39 +1,39 @@
 # Daily Linkers & Loaders Extraction Summary
-**Date:** 2025-07-21 17:35:07
-**Duration:** 32.1 seconds
-**Page Range:** 225-239
+**Date:** 2025-07-21 23:02:40
+**Duration:** 23.6 seconds
+**Page Range:** 285-298
 **Book:** Linkers and Loaders
 
 ## Linking Concepts Extracted Today: 4
 
-### 1. Overlay Loading
-**What it's about:** Overlay loading is a memory management technique used to load only necessary parts of a program into memory at a given time.  This is crucial for running large programs that exceed available memory. I...
+### 1. Symbol Resolution
+**What it's about:** Symbol resolution is the process of matching up symbolic references in a program's object files (like function and variable names) with their actual memory addresses during the linking and loading pro...
 
-- **File:** `linkers_concept_058_overlay_loading.json`
-- **Pages:** 225-225
+- **File:** `linkers_concept_074_symbol_resolution.json`
+- **Pages:** 285-285
 
-### 2. Symbol Resolution and Relocation
-**What it's about:** Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves associating symbolic names (like function or variable names) used in the source code ...
+### 2. Incremental Linking
+**What it's about:** Incremental linking is a linking technique that avoids relinking the entire program when only a small portion of it changes.  This speeds up the linking process, especially useful in large software pr...
 
-- **File:** `linkers_concept_059_symbol_resolution_and_relocati.json`
-- **Pages:** 165-165
+- **File:** `linkers_concept_075_incremental_linking.json`
+- **Pages:** 285-285
 
-### 3. Symbol Resolution and Relocation
-**What it's about:** Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up references to functions and variables (symbols) in the program's code wit...
+### 3. Symbol Resolution
+**What it's about:** Symbol resolution is the process of associating symbolic names (like function or variable names used in source code) with their actual memory addresses during the linking and loading of a program.  Th...
 
-- **File:** `linkers_concept_060_symbol_resolution_and_relocati.json`
-- **Pages:** 225-225
+- **File:** `linkers_concept_076_symbol_resolution.json`
+- **Pages:** 180-181
 
-### 4. Symbol Resolution and Relocation
-**What it's about:** Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up references to functions and variables (symbols) in one object file to the...
+### 4. Link-Time Optimization (LTO) and Dead Code Elimination
+**What it's about:** Link-Time Optimization (LTO) is a compiler optimization technique that improves performance by analyzing and optimizing code across multiple object files during the linking stage.  A crucial part of L...
 
-- **File:** `linkers_concept_061_symbol_resolution_and_relocati.json`
-- **Pages:** 225-225
+- **File:** `linkers_concept_077_link_time_optimization_lto_and.json`
+- **Pages:** 285-285
 
 ## Linkers Progress Summary
-- **Total Linking Concepts Extracted:** 61
-- **Extraction Sessions Completed:** 16
-- **Last Processed Page:** 239
+- **Total Linking Concepts Extracted:** 77
+- **Extraction Sessions Completed:** 20
+- **Last Processed Page:** 298
 
 ## Next Session
 Run the Linkers & Loaders extraction script again tomorrow to continue processing.
