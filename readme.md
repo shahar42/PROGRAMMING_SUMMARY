@@ -6,3 +6,4 @@ you can ask for memory optimizations, this will make the mcp choose the books re
 you can ask it to an ordered learning sequence for programming goals like "memory management" or "system programming"
 you can create personalized tutorials by selecting and ordering concepts based on the your skill level (beginner/intermediate/advanced)
 
+<img width="828" height="856" alt="image" src="https://github.com/user-attachments/assets/01574291-ee08-4f65-9449-052e4266bdf2" />
