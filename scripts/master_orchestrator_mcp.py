@@ -2,6 +2,7 @@
 """
 Master Programming Orchestrator MCP Server
 Part 2: Spawns and coordinates book-specific micro servers based on intelligent routing
+UPDATED: Now includes CSAPP (Computer Systems) server support
 """
 
 import json
@@ -39,7 +40,8 @@ except ImportError as e:
         "unix_env": {"name": "UNIX Environment"},
         "linkers_loaders": {"name": "Linkers & Loaders"},
         "os_three_pieces": {"name": "Operating Systems"},
-        "expert_c_programming": {"name": "Expert C Programming"}
+        "expert_c_programming": {"name": "Expert C Programming"},
+        "csapp_2016": {"name": "Computer Systems (CSAPP)"}
     }
 
 # Global state for active servers
@@ -47,7 +49,7 @@ ACTIVE_SERVERS = {}  # {server_name: {"process": subprocess, "port": int, "start
 BASE_PORT = 8100  # Starting port for micro servers
 PROJECT_ROOT = "/home/shahar42/Suumerizing_C_holy_grale_book"
 
-# Book server configurations
+# Book server configurations - UPDATED with CSAPP
 BOOK_SERVER_CONFIGS = {
     "kernighan_ritchie": {
         "script_path": "scripts/book_servers/kernighan_ritchie_server.py",
@@ -72,441 +74,371 @@ BOOK_SERVER_CONFIGS = {
     "expert_c_programming": {
         "script_path": "scripts/book_servers/expert_c_server.py",
         "port": 8105,
-        "description": "Expert C Programming server"
+        "description": "Expert C Programming techniques server"
     },
-        "memory_optimization": {
-        "script_path": "memory_optimization_server.py",
+    "csapp_2016": {
+        "script_path": "scripts/book_servers/csapp_server.py",
         "port": 8106,
-        "description": "Memory optimization, cache performance, TLB efficiency"
+        "description": "Computer Systems & Architecture concepts server"
     }
 }
 
-def save_server_state():
-    """Save active server state to disk for persistence"""
-    try:
-        state_file = Path(PROJECT_ROOT) / "scripts" / "orchestrator_state.json"
-        
-        # Convert process objects to serializable data
-        serializable_state = {}
-        for name, data in ACTIVE_SERVERS.items():
-            if data["process"] and data["process"].poll() is None:  # Still running
-                serializable_state[name] = {
-                    "pid": data["process"].pid,
-                    "port": data["port"],
-                    "started_at": data["started_at"],
-                    "description": BOOK_SERVER_CONFIGS.get(name, {}).get("description", "")
-                }
-        
-        with open(state_file, 'w') as f:
-            json.dump(serializable_state, f, indent=2)
-        
-        logger.info(f"💾 Saved server state: {len(serializable_state)} active servers")
-    except Exception as e:
-        logger.warning(f"Could not save server state: {e}")
-
-def load_server_state():
-    """Load active server state from disk"""
-    try:
-        state_file = Path(PROJECT_ROOT) / "scripts" / "orchestrator_state.json"
-        if not state_file.exists():
-            return
-        
-        with open(state_file, 'r') as f:
-            saved_state = json.load(f)
-        
-        # Verify which servers are still actually running
-        for name, data in saved_state.items():
-            try:
-                # Check if process is still alive
-                os.kill(data["pid"], 0)  # Send signal 0 to check if process exists
-                logger.info(f"📡 Found running server: {name} (PID: {data['pid']})")
-                
-                # Recreate the process object (for management, not starting)
-                ACTIVE_SERVERS[name] = {
-                    "process": None,  # We can't recreate the subprocess object
-                    "port": data["port"],
-                    "started_at": data["started_at"],
-                    "pid": data["pid"]
-                }
-            except (OSError, ProcessLookupError):
-                logger.info(f"🔍 Server {name} no longer running (PID: {data['pid']})")
-        
-        logger.info(f"📂 Loaded server state: {len(ACTIVE_SERVERS)} active servers")
-    except Exception as e:
-        logger.warning(f"Could not load server state: {e}")
-
-def spawn_book_server(book_name: str) -> Dict:
-    """Spawn a specific book server if not already running"""
+def cleanup_on_exit():
+    """Clean up all active servers on exit"""
+    global ACTIVE_SERVERS
     
-    if book_name in ACTIVE_SERVERS:
-        process = ACTIVE_SERVERS[book_name]["process"]
-        if process and process.poll() is None:
-            return {
-                "status": "already_running",
-                "message": f"{BOOK_CONFIGS.get(book_name, {}).get('name', book_name)} server already active",
-                "port": ACTIVE_SERVERS[book_name]["port"]
-            }
+    if ACTIVE_SERVERS:
+        logger.info("🧹 Cleaning up active servers...")
+        for server_name, server_info in ACTIVE_SERVERS.items():
+            try:
+                process = server_info["process"]
+                if process.poll() is None:  # Still running
+                    process.terminate()
+                    logger.info(f"🛑 Terminated {server_name}")
+            except Exception as e:
+                logger.error(f"Error terminating {server_name}: {e}")
+        
+        ACTIVE_SERVERS.clear()
+
+# Register cleanup function
+import atexit
+atexit.register(cleanup_on_exit)
+
+@mcp.tool()
+def analyze_and_route_question(programming_question: str) -> Dict:
+    """
+    Analyze a programming question and route to appropriate book servers
+    
+    Args:
+        programming_question: The user's programming or systems question
+        
+    Returns:
+        Dictionary with routing recommendations and spawned servers
+    """
+    try:
+        # Use topic detection from Part 1
+        topic_scores = calculate_topic_scores(programming_question)
+        recommendations = get_recommendations(topic_scores)
+        
+        logger.info(f"📊 Question analysis: {programming_question[:50]}...")
+        logger.info(f"🎯 Top recommendations: {[r['book'] for r in recommendations[:3]]}")
+        
+        # Spawn servers for top recommendations
+        spawned_servers = []
+        routing_details = []
+        
+        for rec in recommendations[:2]:  # Top 2 recommendations
+            book_name = rec['book']
+            confidence = rec['confidence']
+            
+            if book_name in BOOK_SERVER_CONFIGS:
+                spawn_result = spawn_specific_server(book_name)
+                if spawn_result['success']:
+                    spawned_servers.append({
+                        "server": book_name,
+                        "port": BOOK_SERVER_CONFIGS[book_name]["port"],
+                        "confidence": confidence,
+                        "description": BOOK_SERVER_CONFIGS[book_name]["description"]
+                    })
+                
+                routing_details.append({
+                    "book": book_name,
+                    "confidence": confidence,
+                    "reasoning": rec.get('reasoning', 'Topic match detected'),
+                    "server_spawned": spawn_result['success']
+                })
+        
+        return {
+            "question": programming_question,
+            "analysis": {
+                "topic_scores": topic_scores,
+                "routing_recommendations": routing_details
+            },
+            "spawned_servers": spawned_servers,
+            "total_active_servers": len(ACTIVE_SERVERS),
+            "status": "success",
+            "next_steps": f"Query the spawned servers on ports: {[s['port'] for s in spawned_servers]}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in routing analysis: {e}")
+        return {
+            "question": programming_question,
+            "error": str(e),
+            "status": "error",
+            "fallback": "Use main programming concepts server for general queries"
+        }
+
+@mcp.tool()
+def spawn_specific_server(book_name: str) -> Dict:
+    """
+    Manually spawn a specific book server
+    
+    Args:
+        book_name: Name of the book server to spawn (e.g., 'csapp_2016', 'kernighan_ritchie')
+        
+    Returns:
+        Dictionary with spawn result and server details
+    """
+    global ACTIVE_SERVERS
     
     if book_name not in BOOK_SERVER_CONFIGS:
         return {
-            "status": "error",
-            "message": f"Unknown book server: {book_name}",
-            "available": list(BOOK_SERVER_CONFIGS.keys())
+            "success": False,
+            "error": f"Unknown book server: {book_name}",
+            "available_servers": list(BOOK_SERVER_CONFIGS.keys())
         }
     
-    config = BOOK_SERVER_CONFIGS[book_name]
-    script_path = Path(PROJECT_ROOT) / config["script_path"]
+    # Check if already running
+    if book_name in ACTIVE_SERVERS:
+        server_info = ACTIVE_SERVERS[book_name]
+        if server_info["process"].poll() is None:  # Still running
+            return {
+                "success": True,
+                "message": f"{book_name} server already running",
+                "port": server_info["port"],
+                "started_at": server_info["started_at"],
+                "status": "already_active"
+            }
+        else:
+            # Process died, remove from active list
+            del ACTIVE_SERVERS[book_name]
     
-    # Create the script if it doesn't exist (will be created in Part 3)
-    if not script_path.exists():
-        script_path.parent.mkdir(parents=True, exist_ok=True)
-        create_placeholder_server(script_path, book_name, config["port"])
+    # Spawn new server
+    config = BOOK_SERVER_CONFIGS[book_name]
+    script_path = os.path.join(PROJECT_ROOT, config["script_path"])
+    
+    if not os.path.exists(script_path):
+        return {
+            "success": False,
+            "error": f"Server script not found: {script_path}",
+            "config": config
+        }
     
     try:
-        # Spawn the server process
-        process = subprocess.Popen([
-            "python3", str(script_path)
-        ], 
-        cwd=PROJECT_ROOT,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        preexec_fn=os.setsid  # Create new process group for easier cleanup
+        # Start the server process
+        process = subprocess.Popen(
+            [sys.executable, script_path],
+            cwd=PROJECT_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=os.environ.copy()
         )
         
-        # Wait a moment and check if it started successfully
-        time.sleep(1)
-        if process.poll() is not None:
+        # Give it a moment to start
+        time.sleep(2)
+        
+        # Check if it started successfully
+        if process.poll() is None:  # Still running
+            ACTIVE_SERVERS[book_name] = {
+                "process": process,
+                "port": config["port"],
+                "started_at": time.time(),
+                "description": config["description"]
+            }
+            
+            logger.info(f"🚀 Successfully spawned {book_name} server on port {config['port']}")
+            
+            return {
+                "success": True,
+                "server": book_name,
+                "port": config["port"],
+                "description": config["description"],
+                "started_at": time.time(),
+                "status": "newly_spawned"
+            }
+        else:
+            # Process died immediately
             stdout, stderr = process.communicate()
             return {
-                "status": "error",
-                "message": f"Server failed to start: {stderr.decode()[:200]}",
-                "stdout": stdout.decode()[:200]
+                "success": False,
+                "error": f"Server process died immediately",
+                "stdout": stdout.decode() if stdout else "",
+                "stderr": stderr.decode() if stderr else "",
+                "config": config
             }
-        
-        # Register the active server
-        ACTIVE_SERVERS[book_name] = {
-            "process": process,
-            "port": config["port"],
-            "started_at": time.time(),
-            "pid": process.pid
-        }
-        
-        save_server_state()
-        
-        logger.info(f"🚀 Spawned {book_name} server (PID: {process.pid}, Port: {config['port']})")
-        
-        return {
-            "status": "started",
-            "message": f"Successfully started {BOOK_CONFIGS.get(book_name, {}).get('name', book_name)} server",
-            "port": config["port"],
-            "pid": process.pid
-        }
-        
+            
     except Exception as e:
+        logger.error(f"Error spawning {book_name} server: {e}")
         return {
-            "status": "error", 
-            "message": f"Failed to spawn {book_name} server: {str(e)}"
+            "success": False,
+            "error": str(e),
+            "config": config
         }
 
-def create_placeholder_server(script_path: Path, book_name: str, port: int):
-    """Create a placeholder book server (will be replaced in Part 3)"""
+@mcp.tool()
+def list_active_servers() -> Dict:
+    """
+    List all currently active book servers
     
-    server_template = f'''#!/usr/bin/env python3
-"""
-{BOOK_CONFIGS.get(book_name, {}).get("name", book_name)} MCP Server
-Placeholder server - will be enhanced in Part 3
-"""
-
-import sys
-import time
-sys.path.append('/home/shahar42/Suumerizing_C_holy_grale_book')
-
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("{book_name}")
+    Returns:
+        Dictionary with active server information
+    """
+    global ACTIVE_SERVERS
+    
+    active_list = []
+    dead_servers = []
+    
+    for server_name, server_info in list(ACTIVE_SERVERS.items()):
+        process = server_info["process"]
+        
+        if process.poll() is None:  # Still running
+            uptime = time.time() - server_info["started_at"]
+            active_list.append({
+                "server": server_name,
+                "port": server_info["port"],
+                "description": server_info["description"],
+                "uptime_seconds": round(uptime, 2),
+                "status": "running"
+            })
+        else:
+            # Process died
+            dead_servers.append(server_name)
+            del ACTIVE_SERVERS[server_name]
+    
+    return {
+        "active_servers": active_list,
+        "total_active": len(active_list),
+        "dead_servers_cleaned": dead_servers,
+        "available_servers": list(BOOK_SERVER_CONFIGS.keys()),
+        "server_descriptions": {name: config["description"] for name, config in BOOK_SERVER_CONFIGS.items()}
+    }
 
 @mcp.tool()
-def search_concepts(query: str) -> str:
-    """Search for programming concepts in {BOOK_CONFIGS.get(book_name, {}).get("name", book_name)}"""
+def kill_specific_server(book_name: str) -> Dict:
+    """
+    Stop a specific book server
     
-    # Placeholder - will load actual book concepts in Part 3
-    return f"📚 {{BOOK_CONFIGS.get(book_name, {{}}).get('name', book_name)}} Server Response:\\n\\nSearching for: '{{query}}'\\n\\n[Placeholder - This will be connected to actual book concepts in Part 3]\\n\\nTopics related to {{query}} from {{BOOK_CONFIGS.get(book_name, {{}}).get('name', book_name)}} book would appear here."
-
-@mcp.tool()
-def get_book_info() -> str:
-    """Get information about this book server"""
-    
-    return f"""📖 **{{BOOK_CONFIGS.get(book_name, {{}}).get('name', book_name)}} Server**
-    
-🔧 Status: Active (Placeholder)
-🎯 Focus: {{BOOK_SERVER_CONFIGS.get(book_name, {{}}).get('description', 'Programming concepts')}}
-📊 Port: {port}
-🏗️  Version: Part 2 Placeholder (will be enhanced in Part 3)
-
-This server is currently a placeholder and will be connected to actual extracted concepts in Part 3."""
-
-if __name__ == "__main__":
-    print(f"🚀 Starting {{BOOK_CONFIGS.get(book_name, {{}}).get('name', book_name)}} server on port {port}")
-    mcp.run()
-'''
-    
-    with open(script_path, 'w') as f:
-        f.write(server_template)
-    
-    script_path.chmod(0o755)  # Make executable
-    logger.info(f"📝 Created placeholder server: {script_path}")
-
-def kill_book_server(book_name: str) -> Dict:
-    """Kill a specific book server"""
+    Args:
+        book_name: Name of the server to stop
+        
+    Returns:
+        Dictionary with termination result
+    """
+    global ACTIVE_SERVERS
     
     if book_name not in ACTIVE_SERVERS:
         return {
-            "status": "not_running",
-            "message": f"{book_name} server is not active"
+            "success": False,
+            "message": f"Server {book_name} is not currently active",
+            "active_servers": list(ACTIVE_SERVERS.keys())
         }
     
     try:
-        server_data = ACTIVE_SERVERS[book_name]
+        server_info = ACTIVE_SERVERS[book_name]
+        process = server_info["process"]
         
-        if "pid" in server_data:
-            # Kill by PID if we have it
-            try:
-                os.killpg(server_data["pid"], signal.SIGTERM)  # Kill process group
-                time.sleep(1)
-                os.killpg(server_data["pid"], signal.SIGKILL)  # Force kill if needed
-            except (OSError, ProcessLookupError):
-                pass  # Process already dead
-        
-        if server_data["process"]:
-            # Kill via subprocess object if available
-            server_data["process"].terminate()
-            time.sleep(1)
-            if server_data["process"].poll() is None:
-                server_data["process"].kill()
+        if process.poll() is None:  # Still running
+            process.terminate()
+            time.sleep(1)  # Give it time to terminate gracefully
+            
+            if process.poll() is None:  # Still running, force kill
+                process.kill()
+                time.sleep(0.5)
         
         del ACTIVE_SERVERS[book_name]
-        save_server_state()
         
-        logger.info(f"🛑 Killed {book_name} server")
+        logger.info(f"🛑 Terminated {book_name} server")
         
         return {
-            "status": "killed",
-            "message": f"Successfully stopped {BOOK_CONFIGS.get(book_name, {}).get('name', book_name)} server"
+            "success": True,
+            "message": f"Successfully terminated {book_name} server",
+            "port_freed": server_info["port"],
+            "remaining_active": len(ACTIVE_SERVERS)
         }
         
     except Exception as e:
+        logger.error(f"Error killing {book_name}: {e}")
         return {
-            "status": "error",
-            "message": f"Failed to kill {book_name} server: {str(e)}"
+            "success": False,
+            "error": str(e),
+            "server": book_name
         }
 
-# Initialize server state on startup
-load_server_state()
-
 @mcp.tool()
-def analyze_and_route_question(programming_question: str) -> str:
+def cleanup_unused_servers() -> Dict:
     """
-    Analyze a programming question and spawn appropriate book servers to answer it.
+    Clean up all active servers (useful for resource management)
     
-    Args:
-        programming_question: The programming question to analyze and route
-        
     Returns:
-        Coordinated response from spawned servers
+        Dictionary with cleanup results
     """
-    
-    if not programming_question.strip():
-        return "Please provide a programming question to analyze."
-    
-    # Step 1: Use Part 1 topic detection
-    try:
-        book_scores = calculate_topic_scores(programming_question)
-        recommendations = get_recommendations(book_scores)
-    except Exception as e:
-        logger.error(f"Topic detection failed: {e}")
-        return f"❌ Topic detection error: {e}"
-    
-    if not recommendations["primary"]:
-        return "❌ Unable to determine appropriate servers for this question."
-    
-    # Step 2: Spawn recommended servers
-    spawned_servers = []
-    spawn_results = []
-    
-    for server_rec in recommendations["primary"][:2]:  # Max 2 primary servers
-        # Convert "K&R C Programming-server" → "kernighan_ritchie"
-        book_name = None
-        for book_id, config in BOOK_CONFIGS.items():
-            if config["name"] in server_rec:
-                book_name = book_id
-                break
-        
-        if book_name:
-            result = spawn_book_server(book_name)
-            spawn_results.append(f"• {server_rec}: {result['status']}")
-            if result["status"] in ["started", "already_running"]:
-                spawned_servers.append(book_name)
-    
-    # Step 3: Generate coordinated response
-    response_parts = [
-        f"🎯 **Question Analysis:** \"{programming_question}\"",
-        "",
-        f"🧠 **Intelligent Routing Results:**"
-    ]
-    
-    if recommendations["top_match"]:
-        book_id, data = recommendations["top_match"]
-        confidence = "high" if data["score"] >= 0.3 else "moderate" if data["score"] >= 0.15 else "low"
-        response_parts.append(f"• **Top Match:** {data['name']} (confidence: {confidence})")
-        if data["matches"]:
-            response_parts.append(f"• **Keywords Detected:** {', '.join(data['matches'][:3])}")
-    
-    response_parts.extend([
-        "",
-        "🚀 **Server Spawning Results:**"
-    ])
-    response_parts.extend(spawn_results)
-    
-    if spawned_servers:
-        response_parts.extend([
-            "",
-            f"✅ **Active Servers:** {len(spawned_servers)} book servers ready",
-            f"📡 **Next Step:** Query specific servers using their search_concepts tools",
-            "",
-            "🔧 **Available Commands:**",
-            "• `list_active_servers()` - See all running servers",
-            "• Use individual book server tools to get detailed answers"
-        ])
-    else:
-        response_parts.append("❌ **No servers spawned successfully**")
-    
-    return "\n".join(response_parts)
-
-@mcp.tool()
-def list_active_servers() -> str:
-    """List all currently active book servers"""
+    global ACTIVE_SERVERS
     
     if not ACTIVE_SERVERS:
-        return "📭 **No active book servers**\n\nUse `analyze_and_route_question()` to spawn servers based on your question."
+        return {
+            "message": "No active servers to clean up",
+            "servers_terminated": 0
+        }
     
-    response_parts = [f"📡 **Active Book Servers:** {len(ACTIVE_SERVERS)}", ""]
+    terminated_servers = []
+    errors = []
     
-    for book_name, data in ACTIVE_SERVERS.items():
-        book_config = BOOK_CONFIGS.get(book_name, {})
-        server_config = BOOK_SERVER_CONFIGS.get(book_name, {})
-        
-        status = "🟢 Running"
-        if data["process"] and data["process"].poll() is not None:
-            status = "🔴 Stopped"
-        
-        uptime = int(time.time() - data["started_at"]) if "started_at" in data else 0
-        
-        response_parts.append(
-            f"• **{book_config.get('name', book_name)}** {status}\n"
-            f"  Port: {data['port']} | Uptime: {uptime}s | PID: {data.get('pid', 'unknown')}\n"
-            f"  Focus: {server_config.get('description', 'Programming concepts')}\n"
-        )
+    for server_name in list(ACTIVE_SERVERS.keys()):
+        result = kill_specific_server(server_name)
+        if result["success"]:
+            terminated_servers.append(server_name)
+        else:
+            errors.append(f"{server_name}: {result.get('error', 'Unknown error')}")
     
-    response_parts.extend([
-        "🔧 **Management Commands:**",
-        "• `kill_book_server('book_name')` - Stop specific server",
-        "• `cleanup_unused_servers()` - Stop all idle servers"
-    ])
-    
-    return "\n".join(response_parts)
+    return {
+        "servers_terminated": terminated_servers,
+        "total_terminated": len(terminated_servers),
+        "errors": errors,
+        "remaining_active": len(ACTIVE_SERVERS),
+        "message": f"Cleanup complete. Terminated {len(terminated_servers)} servers."
+    }
 
 @mcp.tool()
-def spawn_specific_server(book_name: str) -> str:
+def get_orchestrator_status() -> Dict:
     """
-    Manually spawn a specific book server.
+    Get comprehensive status of the orchestrator and all managed servers
     
-    Args:
-        book_name: Name of the book server to spawn (kernighan_ritchie, unix_env, etc.)
+    Returns:
+        Complete system status information
     """
+    global ACTIVE_SERVERS
     
-    result = spawn_book_server(book_name)
+    # Clean up dead processes
+    active_count_before = len(ACTIVE_SERVERS)
+    list_active_servers()  # This cleans up dead servers
+    active_count_after = len(ACTIVE_SERVERS)
     
-    if result["status"] == "started":
-        return f"✅ **{BOOK_CONFIGS.get(book_name, {}).get('name', book_name)} Server Started**\n\n🚀 Port: {result['port']}\n📊 PID: {result['pid']}\n\n🔧 You can now use this server's tools to search for concepts!"
-    elif result["status"] == "already_running":
-        return f"ℹ️ **{BOOK_CONFIGS.get(book_name, {}).get('name', book_name)} Server Already Running**\n\n📡 Port: {result['port']}\n\n✅ Ready to use!"
-    else:
-        return f"❌ **Failed to start {book_name} server**\n\n🔍 Error: {result['message']}\n\n💡 Available servers: {', '.join(BOOK_SERVER_CONFIGS.keys())}"
-
-@mcp.tool()
-def kill_specific_server(book_name: str) -> str:
-    """
-    Kill a specific book server.
+    # Calculate total available ports
+    all_ports = [config["port"] for config in BOOK_SERVER_CONFIGS.values()]
+    used_ports = [server["port"] for server in ACTIVE_SERVERS.values()]
+    free_ports = [port for port in all_ports if port not in used_ports]
     
-    Args:
-        book_name: Name of the book server to kill
-    """
-    
-    result = kill_book_server(book_name)
-    
-    if result["status"] == "killed":
-        return f"🛑 **{BOOK_CONFIGS.get(book_name, {}).get('name', book_name)} Server Stopped**\n\n✅ Successfully terminated server"
-    elif result["status"] == "not_running":
-        return f"ℹ️ **{book_name} server was not running**"
-    else:
-        return f"❌ **Failed to stop {book_name} server**\n\n🔍 Error: {result['message']}"
-
-@mcp.tool()
-def cleanup_unused_servers() -> str:
-    """Clean up all active servers (useful for testing or resource management)"""
-    
-    if not ACTIVE_SERVERS:
-        return "📭 **No active servers to clean up**"
-    
-    cleanup_results = []
-    servers_to_kill = list(ACTIVE_SERVERS.keys())
-    
-    for book_name in servers_to_kill:
-        result = kill_book_server(book_name)
-        cleanup_results.append(f"• {BOOK_CONFIGS.get(book_name, {}).get('name', book_name)}: {result['status']}")
-    
-    return f"🧹 **Cleanup Complete**\n\n" + "\n".join(cleanup_results)
-
-@mcp.tool()
-def get_orchestrator_status() -> str:
-    """Get detailed status of the master orchestrator system"""
-    
-    # Check topic detection
-    topic_detection_status = "✅ Working" if 'calculate_topic_scores' in globals() else "❌ Failed"
-    
-    # Count available vs active servers
-    available_servers = len(BOOK_SERVER_CONFIGS)
-    active_servers = len(ACTIVE_SERVERS)
-    
-    # System info
-    status_parts = [
-        "🎛️ **Master Orchestrator Status**",
-        "",
-        f"🧠 **Topic Detection (Part 1):** {topic_detection_status}",
-        f"📊 **Available Book Servers:** {available_servers}",
-        f"📡 **Active Servers:** {active_servers}",
-        f"🏗️ **Project Root:** {PROJECT_ROOT}",
-        "",
-        "📚 **Book Server Registry:**"
-    ]
-    
-    for book_id, config in BOOK_SERVER_CONFIGS.items():
-        status = "🟢 Active" if book_id in ACTIVE_SERVERS else "⚪ Inactive"
-        book_name = BOOK_CONFIGS.get(book_id, {}).get('name', book_id)
-        status_parts.append(f"• **{book_name}:** {status} (Port {config['port']})")
-    
-    status_parts.extend([
-        "",
-        "🎯 **Core Capabilities:**",
-        "• ✅ Intelligent question analysis and routing",
-        "• ✅ Dynamic server spawning and lifecycle management", 
-        "• ✅ Multi-server coordination and response synthesis",
-        "• 🔄 Book-specific concept servers (Part 3 - in development)"
-    ])
-    
-    return "\n".join(status_parts)
+    return {
+        "orchestrator_status": "running",
+        "total_managed_books": len(BOOK_SERVER_CONFIGS),
+        "active_servers": len(ACTIVE_SERVERS),
+        "dead_servers_cleaned": active_count_before - active_count_after,
+        "port_management": {
+            "base_port": BASE_PORT,
+            "total_ports": len(all_ports),
+            "used_ports": used_ports,
+            "free_ports": free_ports
+        },
+        "book_servers": {
+            name: {
+                "description": config["description"],
+                "port": config["port"],
+                "status": "active" if name in ACTIVE_SERVERS else "inactive"
+            }
+            for name, config in BOOK_SERVER_CONFIGS.items()
+        },
+        "project_root": PROJECT_ROOT,
+        "supported_books": list(BOOK_SERVER_CONFIGS.keys())
+    }
 
 if __name__ == "__main__":
-    # Run the MCP server
-    logger.info("🎛️ Starting Master Programming Orchestrator...")
+    logger.info("🎭 Starting Master Programming Orchestrator")
+    logger.info(f"📚 Managing {len(BOOK_SERVER_CONFIGS)} book servers")
+    logger.info(f"🌐 Port range: {BASE_PORT+1}-{BASE_PORT+len(BOOK_SERVER_CONFIGS)}")
+    
+    # Log available servers including CSAPP
+    for book, config in BOOK_SERVER_CONFIGS.items():
+        logger.info(f"  📖 {book}: {config['description']} (port {config['port']})")
+    
     mcp.run()

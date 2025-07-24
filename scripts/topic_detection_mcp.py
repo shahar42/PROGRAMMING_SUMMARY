@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 """
-Programming Topic Detection MCP Server
-Part 1: Intelligent routing for programming questions to appropriate book servers
-Enhanced with caching and phrase-aware keyword extraction
+Topic Detection MCP Server
+Part 1: Intelligent question analysis and server recommendation engine
+UPDATED: Now includes CSAPP (Computer Systems) topic detection and routing
 """
 
 import json
 import logging
 import re
 import sys
-import time
 from pathlib import Path
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Optional, Tuple
+from collections import defaultdict
 
 # Add current directory to Python path
 sys.path.append('.')
+sys.path.append('scripts')
 
 from mcp.server.fastmcp import FastMCP
 
@@ -25,646 +26,444 @@ logger = logging.getLogger("topic-detection-mcp")
 # Initialize FastMCP server
 mcp = FastMCP("topic-detection")
 
-# Global cache for extracted concepts
-EXTRACTED_CONCEPTS_CACHE = {}
-CACHE_LAST_UPDATED = {}
-CACHE_FILE_TIMESTAMPS = {}
-
-# Book configurations from your existing setup
+# Book configurations with enhanced CSAPP support
 BOOK_CONFIGS = {
     "kernighan_ritchie": {
         "name": "K&R C Programming",
         "focus": "C language syntax, operators, control structures, functions",
-        "keywords": ["malloc", "free", "pointer", "struct", "array", "function", "printf", "scanf", 
-                    "for", "while", "if", "else", "int", "char", "string", "variable", "const",
-                    "extern", "static", "typedef", "sizeof", "bitwise", "assignment", "operators"]
+        "keywords": [
+            "variable", "function", "pointer", "array", "struct", "union", 
+            "malloc", "free", "string", "stdio", "printf", "scanf",
+            "if", "while", "for", "switch", "break", "continue",
+            "char", "int", "float", "double", "void", "const", "static"
+        ],
+        "weight": 1.0
     },
     "unix_env": {
-        "name": "UNIX Environment", 
+        "name": "UNIX Environment",
         "focus": "System calls, APIs, UNIX programming patterns, file operations",
-        "keywords": ["fork", "exec", "signal", "pipe", "file", "descriptor", "process", "thread",
-                    "read", "write", "open", "close", "ioctl", "mmap", "socket", "unix", "system",
-                    "environment", "api", "syscall", "stat", "chmod"]
+        "keywords": [
+            "fork", "exec", "wait", "signal", "pipe", "socket", "bind", "listen",
+            "open", "read", "write", "close", "chmod", "chown", "stat",
+            "process", "daemon", "ipc", "fifo", "mmap", "select", "poll",
+            "posix", "unix", "linux", "file descriptor", "system call"
+        ],
+        "weight": 1.2
     },
     "linkers_loaders": {
         "name": "Linkers & Loaders",
-        "focus": "Binary formats, linking mechanics, loader concepts, object files", 
-        "keywords": ["linking", "loader", "symbol", "undefined", "reference", "shared", "library",
-                    "object", "binary", "elf", "dynamic", "static", "relocation", "section",
-                    "segment", "compilation", "build", "makefile", "ld"]
+        "focus": "Binary formats, linking mechanics, loader concepts, object files",
+        "keywords": [
+            "linker", "loader", "object file", "symbol table", "relocation",
+            "dynamic linking", "static linking", "shared library", "dll",
+            "elf", "executable", "binary", "symbol resolution", "undefined symbol",
+            "library", "archive", "link time", "load time", "runtime"
+        ],
+        "weight": 1.1
     },
     "os_three_pieces": {
         "name": "Operating Systems",
         "focus": "OS algorithms, data structures, system concepts, concurrency",
-        "keywords": ["scheduler", "memory", "virtual", "page", "tlb", "cache", "interrupt", 
-                    "context", "switch", "mutex", "semaphore", "deadlock", "race", "condition",
-                    "filesystem", "inode", "kernel", "cpu", "algorithm", "concurrency"]
+        "keywords": [
+            "scheduler", "scheduling", "virtual memory", "page", "page table",
+            "file system", "inode", "directory", "block", "disk",
+            "thread", "mutex", "semaphore", "lock", "synchronization",
+            "deadlock", "race condition", "kernel", "user space", "system call"
+        ],
+        "weight": 1.3
     },
     "expert_c_programming": {
-        "name": "Expert C Programming", 
-        "focus": "Advanced C techniques, pitfalls, expert-level programming",
-        "keywords": ["optimization", "pitfall", "undefined", "behavior", "volatile", "register",
-                    "inline", "pragma", "casting", "alignment", "endian", "performance", "debug",
-                    "profiling", "expert", "advanced", "tricks", "secrets"]
+        "name": "Expert C Programming",
+        "focus": "Advanced C techniques, pitfalls, expert-level programming, deep language insights",
+        "keywords": [
+            "undefined behavior", "sequence point", "volatile", "restrict",
+            "alignment", "padding", "endianness", "stack overflow",
+            "buffer overflow", "memory leak", "dangling pointer",
+            "optimization", "compiler", "preprocessor", "macro", "inline"
+        ],
+        "weight": 1.4
+    },
+    "csapp_2016": {
+        "name": "Computer Systems (CSAPP)",
+        "focus": "Computer architecture, memory hierarchy, virtual memory, concurrency, system calls, network programming, performance optimization",
+        "keywords": [
+            # Machine-level programming
+            "assembly", "x86", "x86-64", "register", "instruction", "opcode",
+            "stack frame", "calling convention", "parameter passing",
+            
+            # Processor architecture
+            "processor", "cpu", "pipeline", "pipelining", "hazard", "stall",
+            "branch prediction", "out of order", "superscalar", "instruction set",
+            
+            # Memory hierarchy
+            "cache", "cache miss", "cache hit", "locality", "spatial locality",
+            "temporal locality", "memory hierarchy", "memory mountain",
+            "cache line", "cache block", "associativity", "replacement policy",
+            
+            # Virtual memory
+            "virtual memory", "virtual address", "physical address", "page table",
+            "page fault", "tlb", "translation", "address translation", "mmu",
+            "page", "page size", "memory protection", "segmentation",
+            
+            # Concurrency and parallelism
+            "thread", "threading", "synchronization", "mutex", "semaphore",
+            "race condition", "deadlock", "atomic", "critical section",
+            "parallel", "parallelism", "multicore", "shared memory",
+            
+            # System software
+            "system call", "exception", "interrupt", "context switch",
+            "process", "fork", "exec", "signal", "exceptional control flow",
+            
+            # Network programming
+            "socket", "tcp", "udp", "client", "server", "protocol",
+            "network", "internet", "ip address", "port", "connection",
+            
+            # Performance optimization
+            "performance", "optimization", "bottleneck", "profiling",
+            "throughput", "latency", "bandwidth", "scalability"
+        ],
+        "weight": 1.5  # Higher weight for systems concepts
     }
 }
 
-MEMORY_OPTIMIZATION_KEYWORDS = {
-    # High relevance (0.8-1.0) - Core memory optimization terms
-    'cache': 0.9,
-    'memory locality': 0.95,
-    'tlb': 0.9,
-    'cache miss': 0.95,
-    'cache line': 0.9,
-    'memory optimization': 0.95,
-    'cache optimization': 0.95,
-    'spatial locality': 0.9,
-    'temporal locality': 0.9,
-    'cache blocking': 0.85,
-    'memory alignment': 0.85,
-    
-    # Medium-high relevance (0.6-0.8) - Related performance terms
-    'prefetch': 0.8,
-    'memory bandwidth': 0.8,
-    'cache hierarchy': 0.8,
-    'virtual memory': 0.7,
-    'page fault': 0.75,
-    'numa': 0.8,
-    'memory performance': 0.85,
-    'access pattern': 0.75,
-    'data locality': 0.8,
-    'cache friendly': 0.8,
-    
-    # Medium relevance (0.4-0.6) - Broader terms
-    'memory': 0.5,
-    'performance': 0.4,
-    'optimization': 0.4,
-    'array access': 0.6,
-    'matrix': 0.5,
-    'loop optimization': 0.6,
-    'data structure': 0.5,
-    'bottleneck': 0.5,
-    
-    # Specific technical terms (0.7-0.9)
-    'huge pages': 0.8,
-    'tlb miss': 0.9,
-    'cache hit': 0.85,
-    'memory hierarchy': 0.8,
-    'false sharing': 0.85,
-    'cache coherence': 0.8,
-    'memory pool': 0.7,
-    'memory allocator': 0.7,
-    'struct packing': 0.8,
-    'memory fragmentation': 0.75,
-    'prefetching': 0.8,
-    'memory bound': 0.8,
-    'memory intensive': 0.75,
-    'cache efficiency': 0.85,
-    'memory subsystem': 0.8,
-    'stride': 0.7,
-    'page size': 0.7,
-    'memory mapping': 0.7,
-    'cache size': 0.75,
-    'working set': 0.7
-}
+# Global cache for extracted concepts
+CONCEPT_CACHE = {}
+CACHE_LOADED = False
 
-def extract_keywords_from_topic(topic: str) -> Tuple[List[str], List[str]]:
-    """
-    Extract both phrases and individual keywords from a concept topic.
+def load_concept_cache():
+    """Load all concepts from all books for better topic detection"""
+    global CONCEPT_CACHE, CACHE_LOADED
     
-    Args:
-        topic: The concept topic string (e.g., "External Variables in C")
-        
-    Returns:
-        Tuple of (phrases, individual_words)
-    """
-    # Keep the full topic as a primary phrase (cleaned)
-    primary_phrase = topic.lower().strip()
-    phrases = [primary_phrase]
+    if CACHE_LOADED:
+        return CONCEPT_CACHE
     
-    # Extract meaningful sub-phrases (2-3 words)
-    words = re.findall(r'\b\w+\b', topic.lower())
-    sub_phrases = []
+    project_root = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
+    outputs_dir = project_root / "outputs"
     
-    # Create 2-word phrases
-    for i in range(len(words) - 1):
-        if words[i] not in ['in', 'of', 'the', 'and', 'or', 'with', 'for', 'to']:
-            sub_phrases.append(f"{words[i]} {words[i+1]}")
-    
-    # Create 3-word phrases for longer topics
-    if len(words) >= 3:
-        for i in range(len(words) - 2):
-            if not any(stop in [words[i], words[i+1], words[i+2]] 
-                      for stop in ['in', 'of', 'the', 'and', 'or', 'with', 'for', 'to']):
-                sub_phrases.append(f"{words[i]} {words[i+1]} {words[i+2]}")
-    
-    phrases.extend(sub_phrases)
-    
-    # Extract important individual words (filter out common words)
-    stop_words = {'in', 'of', 'the', 'and', 'or', 'with', 'for', 'to', 'a', 'an', 'is', 'are', 'using'}
-    individual_words = [word for word in words if word not in stop_words and len(word) > 2]
-    
-    return phrases, individual_words
-
-def get_file_modification_times(outputs_dir: Path) -> Dict[str, float]:
-    """Get modification times for all concept files"""
-    file_times = {}
-    
-    if not outputs_dir.exists():
-        return file_times
-        
-    for book_dir in outputs_dir.iterdir():
-        if book_dir.is_dir() and book_dir.name in BOOK_CONFIGS:
-            for concept_file in book_dir.glob("concept_*.json"):
-                try:
-                    file_times[str(concept_file)] = concept_file.stat().st_mtime
-                except OSError:
-                    pass  # Skip files we can't read
-                    
-    return file_times
-
-def cache_needs_refresh() -> bool:
-    """Check if cache needs to be refreshed based on file modification times"""
-    if not EXTRACTED_CONCEPTS_CACHE:
-        return True  # Cache is empty
-        
-    outputs_dir = Path("outputs")
-    current_times = get_file_modification_times(outputs_dir)
-    
-    # Check if any files are newer than our cache
-    for file_path, mod_time in current_times.items():
-        if file_path not in CACHE_FILE_TIMESTAMPS:
-            return True  # New file found
-        if mod_time > CACHE_FILE_TIMESTAMPS[file_path]:
-            return True  # File was modified
+    for book_name in BOOK_CONFIGS.keys():
+        book_dir = outputs_dir / book_name
+        if book_dir.exists():
+            concept_files = list(book_dir.glob("*concept_*.json"))
+            CONCEPT_CACHE[book_name] = []
             
-    return False
-
-def load_extracted_concepts() -> Dict[str, Dict[str, List[str]]]:
-    """
-    Load actual extracted concept topics with caching and auto-refresh.
-    
-    Returns:
-        Dict with structure: {book_id: {"phrases": [...], "words": [...]}}
-    """
-    global EXTRACTED_CONCEPTS_CACHE, CACHE_LAST_UPDATED, CACHE_FILE_TIMESTAMPS
-    
-    # Check if we need to refresh cache
-    if not cache_needs_refresh():
-        logger.debug("Using cached extracted concepts")
-        return EXTRACTED_CONCEPTS_CACHE
-    
-    logger.info("Refreshing extracted concepts cache...")
-    
-    concepts_by_book = {}
-    outputs_dir = Path("outputs")
-    
-    if not outputs_dir.exists():
-        logger.warning(f"Outputs directory not found: {outputs_dir}")
-        return {}
-    
-    # Update file timestamps
-    CACHE_FILE_TIMESTAMPS = get_file_modification_times(outputs_dir)
-    
-    for book_dir in outputs_dir.iterdir():
-        if book_dir.is_dir() and book_dir.name in BOOK_CONFIGS:
-            book_phrases = []
-            book_words = []
-            concept_count = 0
-            
-            for concept_file in book_dir.glob("concept_*.json"):
+            for concept_file in concept_files:
                 try:
                     with open(concept_file, 'r', encoding='utf-8') as f:
                         concept = json.load(f)
-                        
-                        # Extract keywords from the topic
-                        if 'topic' in concept:
-                            phrases, words = extract_keywords_from_topic(concept['topic'])
-                            book_phrases.extend(phrases)
-                            book_words.extend(words)
-                            concept_count += 1
-                            
+                        CONCEPT_CACHE[book_name].append({
+                            "topic": concept.get('topic', ''),
+                            "explanation": concept.get('explanation', ''),
+                            "keywords": extract_keywords_from_concept(concept)
+                        })
                 except Exception as e:
-                    logger.warning(f"Could not load {concept_file}: {e}")
-            
-            if concept_count > 0:
-                # Remove duplicates while preserving order
-                concepts_by_book[book_dir.name] = {
-                    "phrases": list(dict.fromkeys(book_phrases)),  # Remove duplicates, preserve order
-                    "words": list(dict.fromkeys(book_words))
-                }
-                logger.info(f"Loaded {concept_count} concepts from {book_dir.name}: "
-                           f"{len(concepts_by_book[book_dir.name]['phrases'])} phrases, "
-                           f"{len(concepts_by_book[book_dir.name]['words'])} words")
+                    logger.warning(f"Error loading {concept_file}: {e}")
     
-    # Update cache
-    EXTRACTED_CONCEPTS_CACHE = concepts_by_book
-    CACHE_LAST_UPDATED[time.time()] = True
-    
-    return concepts_by_book
+    CACHE_LOADED = True
+    logger.info(f"📚 Loaded concept cache for {len(CONCEPT_CACHE)} books")
+    return CONCEPT_CACHE
 
-def progressive_query_analysis(user_input: str) -> Dict[str, List[str]]:
-    """
-    Progressive query analysis - breaks down query into stages for broader-to-narrow search
-    
-    Returns:
-        Dict with 'individual_words', 'two_word_phrases', 'full_phrases', 'expanded_terms'
-    """
-    user_input_lower = user_input.lower()
-    
-    # Stage 1: Individual words (broadest)
-    individual_words = re.findall(r'\b\w+\b', user_input_lower)
-    # Filter out common stop words that don't add meaning
-    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'why', 'when', 'where', 'is', 'are', 'was', 'were'}
-    meaningful_words = [word for word in individual_words if word not in stop_words and len(word) > 2]
-    
-    # Stage 2: Two-word combinations (medium specificity)
-    two_word_phrases = []
-    for i in range(len(individual_words) - 1):
-        if individual_words[i] not in stop_words and individual_words[i+1] not in stop_words:
-            phrase = f"{individual_words[i]} {individual_words[i+1]}"
-            two_word_phrases.append(phrase)
-    
-    # Stage 3: Three+ word phrases (highest specificity)
-    full_phrases = []
-    words = individual_words
-    for i in range(len(words) - 2):
-        if all(word not in stop_words for word in words[i:i+3]):
-            phrase = " ".join(words[i:i+3])
-            full_phrases.append(phrase)
-    
-    # Stage 4: Query expansion with related terms
-    expanded_terms = expand_query_terms(meaningful_words)
-    
-    return {
-        'individual_words': meaningful_words,
-        'two_word_phrases': two_word_phrases,
-        'full_phrases': full_phrases,
-        'expanded_terms': expanded_terms
-    }
+def extract_keywords_from_concept(concept):
+    """Extract keywords from a concept for better matching"""
+    text = f"{concept.get('topic', '')} {concept.get('explanation', '')}"
+    # Simple keyword extraction - could be enhanced
+    words = re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
+    return list(set(words))
 
-def expand_query_terms(words: List[str]) -> List[str]:
+def calculate_topic_scores(user_question: str) -> Dict[str, float]:
     """
-    Expand query terms with related concepts and synonyms
-    
-    This helps find broader context when specific terms don't match
+    Calculate relevance scores for each book based on the user's question
+    Enhanced with concept cache and CSAPP systems keywords
     """
-    expansion_map = {
-        # C Language terms
-        'static': ['storage', 'variable', 'scope', 'duration', 'class', 'linkage'],
-        'storage': ['memory', 'variable', 'allocation', 'duration', 'class'],
-        'class': ['type', 'category', 'storage', 'specifier'],
-        'malloc': ['memory', 'allocation', 'heap', 'dynamic', 'free'],
-        'pointer': ['address', 'reference', 'memory', 'dereference', 'indirection'],
-        'function': ['procedure', 'routine', 'call', 'return', 'parameter'],
-        'array': ['index', 'element', 'subscript', 'dimension'],
-        
-        # UNIX/OS terms  
-        'fork': ['process', 'child', 'parent', 'exec', 'pid'],
-        'process': ['thread', 'task', 'execution', 'scheduler', 'pid'],
-        'file': ['descriptor', 'stream', 'directory', 'path', 'inode'],
-        'pipe': ['ipc', 'communication', 'fifo', 'redirection'],
-        'signal': ['interrupt', 'handler', 'asynchronous', 'event'],
-        
-        # Linking/Loading terms
-        'symbol': ['reference', 'definition', 'resolution', 'binding', 'export'],
-        'link': ['binding', 'resolution', 'loader', 'dynamic', 'static'],
-        'library': ['shared', 'dynamic', 'static', 'object', 'archive'],
-        'object': ['file', 'code', 'binary', 'compilation'],
-        
-        # Memory/Performance terms
-        'cache': ['memory', 'performance', 'locality', 'miss', 'hit'],
-        'memory': ['allocation', 'management', 'virtual', 'physical', 'address'],
-        'optimization': ['performance', 'efficiency', 'speed', 'improvement'],
-        'page': ['virtual', 'memory', 'fault', 'table', 'mapping']
-    }
+    question_lower = user_question.lower()
+    question_words = set(re.findall(r'\b[a-zA-Z]{2,}\b', question_lower))
     
-    expanded = []
-    for word in words:
-        if word in expansion_map:
-            expanded.extend(expansion_map[word])
+    scores = {}
     
-    return list(set(expanded))  # Remove duplicates
-
-def calculate_topic_scores_progressive(user_input: str) -> Dict[str, Dict]:
-    """
-    Enhanced calculate_topic_scores with progressive search strategy
+    # Load concept cache for enhanced detection
+    concept_cache = load_concept_cache()
     
-    SURGICAL FIX: Implements broader-to-narrow search to avoid over-specificity bias
-    """
-    # Get progressive query breakdown
-    query_analysis = progressive_query_analysis(user_input)
-    
-    # Load extracted concepts (cached)
-    extracted_concepts = load_extracted_concepts()
-    
-    book_scores = {}
-    
-    for book_id, config in BOOK_CONFIGS.items():
+    for book_name, config in BOOK_CONFIGS.items():
         score = 0.0
-        matches = []
         
-        # STAGE 1: Individual word matching (broad foundation) - Weight: 0.15
-        individual_matches = []
-        for word in query_analysis['individual_words']:
-            # Check predefined keywords
-            if word in config["keywords"]:
-                individual_matches.append(word)
-            
-            # Check extracted concept words
-            if book_id in extracted_concepts:
-                concept_data = extracted_concepts[book_id]
-                if word in concept_data.get("words", []):
-                    individual_matches.append(word)
+        # Score based on configured keywords
+        keyword_matches = 0
+        for keyword in config["keywords"]:
+            if keyword.lower() in question_lower:
+                keyword_matches += 1
+                # Give higher scores for exact phrase matches
+                if len(keyword.split()) > 1:
+                    score += 3.0  # Multi-word phrases get higher score
+                else:
+                    score += 1.0
         
-        if individual_matches:
-            base_score = len(individual_matches) * 0.15
-            score += base_score
-            matches.extend(individual_matches)
+        # Bonus for multiple keyword matches (indicates strong relevance)
+        if keyword_matches > 2:
+            score += keyword_matches * 0.5
         
-        # STAGE 2: Two-word phrase matching (medium specificity) - Weight: 0.25  
-        two_word_matches = []
-        for phrase in query_analysis['two_word_phrases']:
-            if book_id in extracted_concepts:
-                concept_data = extracted_concepts[book_id]
-                if phrase in concept_data.get("phrases", []):
-                    two_word_matches.append(phrase)
-                    score += 0.25
+        # Score based on extracted concepts (if cache is loaded)
+        if book_name in concept_cache:
+            concept_matches = 0
+            for concept in concept_cache[book_name][:50]:  # Limit to avoid slowdown
+                concept_keywords = concept.get("keywords", [])
+                matches = len(question_words.intersection(set(concept_keywords)))
+                if matches > 0:
+                    concept_matches += matches
+                    score += matches * 0.3
         
-        matches.extend(two_word_matches)
+        # Apply book weight
+        score *= config["weight"]
         
-        # STAGE 3: Expanded term matching (contextual broadening) - Weight: 0.1
-        expanded_matches = []
-        for term in query_analysis['expanded_terms']:
-            if book_id in extracted_concepts:
-                concept_data = extracted_concepts[book_id]
-                if term in concept_data.get("words", []):
-                    expanded_matches.append(f"related:{term}")
-                    score += 0.1
+        # Special boosting for CSAPP systems questions
+        if book_name == "csapp_2016":
+            systems_indicators = ["system", "architecture", "processor", "memory", "cache", "assembly", "performance"]
+            systems_matches = sum(1 for indicator in systems_indicators if indicator in question_lower)
+            if systems_matches > 0:
+                score += systems_matches * 2.0  # Strong boost for systems questions
         
-        matches.extend(expanded_matches)
-        
-        # STAGE 4: Full phrase matching (highest specificity) - Weight: 0.4
-        # Only boost if we already have some relevance from broader terms
-        if score > 0:  # Only apply if we have baseline relevance
-            full_phrase_matches = []
-            for phrase in query_analysis['full_phrases']:
-                if book_id in extracted_concepts:
-                    concept_data = extracted_concepts[book_id]
-                    if phrase in concept_data.get("phrases", []):
-                        full_phrase_matches.append(phrase)
-                        score += 0.4  # High boost for exact matches
-            
-            matches.extend(full_phrase_matches)
-        
-        # STAGE 5: Focus area contextual matching - Weight: 0.2
-        focus_words = config["focus"].lower().split()
-        for word in query_analysis['individual_words']:
-            if word in focus_words:
-                score += 0.2
-                matches.append(f"focus:{word}")
-        
-        # Normalize and cap score
-        normalized_score = min(score, 1.0)
-        
-        # Remove duplicate matches and limit for readability
-        unique_matches = list(dict.fromkeys(matches))[:7]
-        
-        book_scores[book_id] = {
-            "name": config["name"],
-            "score": round(normalized_score, 3),
-            "matches": unique_matches,
-            "focus": config["focus"],
-            "query_breakdown": {
-                "individual_words": len(query_analysis['individual_words']),
-                "two_word_phrases": len(query_analysis['two_word_phrases']),
-                "expanded_terms": len(query_analysis['expanded_terms']),
-                "full_phrases": len(query_analysis['full_phrases'])
-            }
-        }
+        scores[book_name] = round(score, 2)
     
-    # Apply existing memory optimization enhancement
-    book_scores = enhanced_memory_relevance_calculation(user_input.lower(), book_scores)
-    
-    return book_scores
+    return scores
 
-
-def calculate_topic_scores(user_input: str) -> Dict[str, Dict]:
-    """Calculate relevance scores using progressive search strategy"""
-    return calculate_topic_scores_progressive(user_input)
-
-def enhanced_memory_relevance_calculation(question_lower, existing_scores):
-    """Enhanced relevance calculation for memory optimization"""
+def get_recommendations(topic_scores: Dict[str, float], min_score: float = 0.5) -> List[Dict]:
+    """
+    Get book recommendations based on topic scores
+    Enhanced with better reasoning for CSAPP
+    """
+    recommendations = []
     
-    # Calculate memory optimization score
-    memory_score = 0
-    word_count = 0
-    
-    for word, weight in MEMORY_OPTIMIZATION_KEYWORDS.items():
-        if word in question_lower:
-            memory_score += weight
-            word_count += 1
-    
-    # Boost score for multiple memory-related terms
-    if word_count >= 2:
-        memory_score *= 1.2
-    
-    # Boost for specific patterns indicating memory issues
-    performance_patterns = [
-        'slow performance', 'cache misses', 'memory bottleneck',
-        'optimize memory', 'improve cache', 'reduce latency',
-        'memory access pattern', 'cache performance'
-    ]
-    
-    for pattern in performance_patterns:
-        if pattern in question_lower:
-            memory_score += 0.3
-    
-    # Add to existing scores
-    #existing_scores['memory_optimization'] = min(memory_score, 1.0)
-    
-    return existing_scores
-
-def get_recommendations(book_scores: Dict[str, Dict]) -> Dict:
-    """Generate server recommendations based on scores"""
     # Sort books by score
-    sorted_books = sorted(book_scores.items(), key=lambda x: x[1]["score"], reverse=True)
+    sorted_books = sorted(topic_scores.items(), key=lambda x: x[1], reverse=True)
     
-    # Determine primary and secondary recommendations
-    primary = []
-    secondary = []
+    for book_name, score in sorted_books:
+        if score >= min_score:
+            config = BOOK_CONFIGS[book_name]
+            
+            # Determine confidence level
+            if score >= 5.0:
+                confidence = "very_high"
+            elif score >= 3.0:
+                confidence = "high"
+            elif score >= 1.5:
+                confidence = "medium"
+            else:
+                confidence = "low"
+            
+            # Generate reasoning
+            reasoning = f"Score: {score} - "
+            if book_name == "csapp_2016":
+                reasoning += "Systems programming and computer architecture concepts detected"
+            elif book_name == "kernighan_ritchie":
+                reasoning += "C language syntax and basic programming concepts"
+            elif book_name == "unix_env":
+                reasoning += "UNIX system calls and environment programming"
+            elif book_name == "linkers_loaders":
+                reasoning += "Binary linking and loading concepts"
+            elif book_name == "os_three_pieces":
+                reasoning += "Operating systems algorithms and concepts"
+            elif book_name == "expert_c_programming":
+                reasoning += "Advanced C programming techniques and pitfalls"
+            
+            recommendations.append({
+                "book": book_name,
+                "name": config["name"],
+                "score": score,
+                "confidence": confidence,
+                "focus": config["focus"],
+                "reasoning": reasoning
+            })
     
-    for book_id, data in sorted_books:
-        if data["score"] >= 0.25:  # High relevance threshold (increased due to better scoring)
-            primary.append(f"{data['name']}-server")
-        elif data["score"] >= 0.1:  # Moderate relevance threshold
-            secondary.append(f"{data['name']}-server")
-    
-    # Ensure at least one recommendation
-    if not primary and sorted_books:
-        primary.append(f"{sorted_books[0][1]['name']}-server")
-    
-    return {
-        "primary": primary[:2],  # Max 2 primary recommendations
-        "secondary": secondary[:2],  # Max 2 secondary recommendations
-        "top_match": sorted_books[0] if sorted_books else None
-    }
+    return recommendations
 
 @mcp.tool()
-def detect_programming_topics(user_question: str) -> str:
+def detect_relevant_server(user_question: str) -> Dict:
     """
-    Analyze a programming question and recommend which book servers to consult.
+    Main tool: Analyze user question and recommend appropriate book servers
+    Enhanced with CSAPP systems programming detection
     
     Args:
-        user_question: The programming question or topic to analyze
+        user_question: The programming or systems question to analyze
         
     Returns:
-        Natural language recommendation with confidence and reasoning
+        Dictionary with analysis results and server recommendations
     """
-    if not user_question.strip():
-        return "Please provide a programming question to analyze."
+    logger.info(f"🔍 Analyzing question: {user_question[:100]}...")
     
     # Calculate topic relevance scores
-    book_scores = calculate_topic_scores(user_question)
-    recommendations = get_recommendations(book_scores)
+    topic_scores = calculate_topic_scores(user_question)
     
-    # Generate natural, concise response
-    if not recommendations["primary"]:
-        return "Unable to determine the best server for this question. Try rephrasing with more specific programming terms."
+    # Get recommendations
+    recommendations = get_recommendations(topic_scores)
     
-    # Get details of top match
-    top_book_id, top_data = recommendations["top_match"]
-    confidence = "high" if top_data["score"] >= 0.4 else "moderate" if top_data["score"] >= 0.2 else "low"
+    # Determine primary recommendation
+    primary_rec = recommendations[0] if recommendations else None
     
-    # Build response
-    response_parts = []
+    result = {
+        "question": user_question,
+        "analysis": {
+            "topic_scores": topic_scores,
+            "total_books_analyzed": len(BOOK_CONFIGS),
+            "books_with_relevance": len([s for s in topic_scores.values() if s > 0])
+        },
+        "recommendations": recommendations,
+        "primary_recommendation": primary_rec,
+        "routing_decision": {
+            "recommended_server": primary_rec["book"] if primary_rec else "main_server",
+            "confidence": primary_rec["confidence"] if primary_rec else "none",
+            "reasoning": primary_rec["reasoning"] if primary_rec else "No specific book match found"
+        }
+    }
     
-    # Primary recommendation
-    response_parts.append(f"**Recommended:** {', '.join(recommendations['primary'])}")
+    logger.info(f"🎯 Primary recommendation: {primary_rec['book'] if primary_rec else 'main_server'}")
     
-    # Confidence and reasoning
-    if top_data["matches"]:
-        key_terms = ", ".join(top_data["matches"][:3])
-        response_parts.append(f"**Confidence:** {confidence} (detected: {key_terms})")
-    
-    # Focus area context
-    response_parts.append(f"**Why:** {top_data['focus']}")
-    
-    # Secondary suggestions if available
-    if recommendations["secondary"]:
-        response_parts.append(f"**Also consider:** {', '.join(recommendations['secondary'])}")
-    
-    return "\n".join(response_parts)
+    return result
 
 @mcp.tool()
-def refresh_concept_cache() -> str:
-    """Manually refresh the extracted concepts cache"""
-    global EXTRACTED_CONCEPTS_CACHE, CACHE_FILE_TIMESTAMPS
-    
-    # Clear cache to force refresh
-    EXTRACTED_CONCEPTS_CACHE.clear()
-    CACHE_FILE_TIMESTAMPS.clear()
-    
-    # Reload concepts
-    concepts = load_extracted_concepts()
-    
-    total_concepts = sum(len(book_data.get("phrases", [])) for book_data in concepts.values())
-    
-    return f"✅ Cache refreshed successfully!\n\nLoaded concepts from {len(concepts)} books with {total_concepts} total phrases."
-
-@mcp.tool()
-def get_cache_status() -> str:
-    """Get current cache status and statistics"""
-    if not EXTRACTED_CONCEPTS_CACHE:
-        return "❌ Cache is empty. Run refresh_concept_cache() to initialize."
-    
-    status_parts = ["📊 **Extracted Concepts Cache Status**\n"]
-    
-    total_phrases = 0
-    total_words = 0
-    
-    for book_id, concepts in EXTRACTED_CONCEPTS_CACHE.items():
-        book_name = BOOK_CONFIGS[book_id]["name"]
-        phrases = len(concepts.get("phrases", []))
-        words = len(concepts.get("words", []))
-        
-        total_phrases += phrases
-        total_words += words
-        
-        status_parts.append(f"• **{book_name}:** {phrases} phrases, {words} words")
-    
-    status_parts.extend([
-        "",
-        f"**Total:** {total_phrases} phrases, {total_words} words across {len(EXTRACTED_CONCEPTS_CACHE)} books",
-        f"**Cache Files:** {len(CACHE_FILE_TIMESTAMPS)} concept files tracked"
-    ])
-    
-    if CACHE_LAST_UPDATED:
-        last_update = max(CACHE_LAST_UPDATED.keys())
-        status_parts.append(f"**Last Updated:** {time.ctime(last_update)}")
-    
-    return "\n".join(status_parts)
-
-@mcp.tool()
-def list_available_servers() -> str:
-    """List all available book servers and their focus areas"""
-    
-    server_list = []
-    for book_id, config in BOOK_CONFIGS.items():
-        server_name = f"{config['name']}-server"
-        server_list.append(f"• **{server_name}:** {config['focus']}")
-    
-    return "**Available Programming Book Servers:**\n" + "\n".join(server_list)
-
-@mcp.tool()
-def analyze_topic_coverage(user_question: str) -> str:
+def analyze_topic_coverage(user_question: str) -> Dict:
     """
-    Detailed analysis of how each book server relates to the question.
+    Detailed analysis of how well each book covers the topic
     
     Args:
-        user_question: Programming question to analyze
+        user_question: Question to analyze
         
     Returns:
-        Detailed breakdown of relevance scores and reasoning
+        Detailed coverage analysis including CSAPP systems coverage
     """
-    if not user_question.strip():
-        return "Please provide a programming question to analyze."
+    topic_scores = calculate_topic_scores(user_question)
+    question_words = set(re.findall(r'\b[a-zA-Z]{3,}\b', user_question.lower()))
     
-    book_scores = calculate_topic_scores(user_question)
+    coverage_analysis = {}
     
-    analysis_parts = [f"**Topic Analysis for:** \"{user_question}\"\n"]
-    
-    # Sort by relevance
-    sorted_scores = sorted(book_scores.items(), key=lambda x: x[1]["score"], reverse=True)
-    
-    for book_id, data in sorted_scores:
-        score_bar = "█" * int(data["score"] * 10) + "░" * (10 - int(data["score"] * 10))
-        relevance = "High" if data["score"] >= 0.4 else "Medium" if data["score"] >= 0.2 else "Low"
+    for book_name, score in topic_scores.items():
+        config = BOOK_CONFIGS[book_name]
         
-        analysis_parts.append(
-            f"**{data['name']}:** {score_bar} {data['score']:.3f} ({relevance})\n"
-            f"  Keywords: {', '.join(data['matches'][:5]) if data['matches'] else 'none'}\n"
-            f"  Focus: {data['focus']}\n"
-        )
+        # Find matching keywords
+        matching_keywords = []
+        for keyword in config["keywords"]:
+            if keyword.lower() in user_question.lower():
+                matching_keywords.append(keyword)
+        
+        # Calculate coverage percentage (rough estimate)
+        total_relevant_words = len(question_words)
+        coverage_words = len(set(matching_keywords))
+        coverage_percentage = min(100, (coverage_words / max(1, total_relevant_words)) * 100)
+        
+        coverage_analysis[book_name] = {
+            "name": config["name"],
+            "relevance_score": score,
+            "matching_keywords": matching_keywords,
+            "coverage_percentage": round(coverage_percentage, 1),
+            "focus_area": config["focus"],
+            "recommendation": "primary" if score == max(topic_scores.values()) else "secondary" if score > 1.0 else "minimal"
+        }
     
-    return "\n".join(analysis_parts)
+    return {
+        "question": user_question,
+        "coverage_analysis": coverage_analysis,
+        "summary": {
+            "best_match": max(topic_scores, key=topic_scores.get),
+            "total_matches": len([s for s in topic_scores.values() if s > 0]),
+            "avg_coverage": round(sum(coverage_percentage for coverage_percentage in [a["coverage_percentage"] for a in coverage_analysis.values()]) / len(coverage_analysis), 1)
+        }
+    }
 
-# Initialize cache on server startup
-def initialize_cache():
-    """Initialize the concepts cache on server startup"""
-    try:
-        concepts = load_extracted_concepts()
-        if concepts:
-            logger.info(f"✅ Initialized concept cache with {len(concepts)} books")
-        else:
-            logger.warning("⚠️ No extracted concepts found - using predefined keywords only")
-    except Exception as e:
-        logger.error(f"❌ Failed to initialize concept cache: {e}")
+@mcp.tool()
+def list_available_servers() -> Dict:
+    """
+    List all available book servers and their focus areas
+    Updated to include CSAPP
+    
+    Returns:
+        Dictionary with server information
+    """
+    servers = {}
+    
+    for book_name, config in BOOK_CONFIGS.items():
+        servers[book_name] = {
+            "name": config["name"],
+            "focus": config["focus"],
+            "keyword_count": len(config["keywords"]),
+            "weight": config["weight"],
+            "sample_keywords": config["keywords"][:10]  # First 10 keywords as sample
+        }
+    
+    return {
+        "available_servers": servers,
+        "total_servers": len(servers),
+        "newest_addition": "csapp_2016",
+        "server_priorities": {
+            "systems_programming": "csapp_2016",
+            "c_language": "kernighan_ritchie", 
+            "unix_programming": "unix_env",
+            "linking_loading": "linkers_loaders",
+            "operating_systems": "os_three_pieces",
+            "advanced_c": "expert_c_programming"
+        }
+    }
 
-# Initialize cache when module loads
-initialize_cache()
+@mcp.tool()
+def refresh_concept_cache() -> Dict:
+    """
+    Refresh the concept cache by reloading from all book directories
+    
+    Returns:
+        Cache refresh status
+    """
+    global CONCEPT_CACHE, CACHE_LOADED
+    
+    CONCEPT_CACHE.clear()
+    CACHE_LOADED = False
+    
+    # Reload cache
+    cache = load_concept_cache()
+    
+    cache_stats = {}
+    for book_name, concepts in cache.items():
+        cache_stats[book_name] = len(concepts)
+    
+    return {
+        "cache_refreshed": True,
+        "books_loaded": len(cache),
+        "concept_counts": cache_stats,
+        "total_concepts": sum(cache_stats.values()),
+        "cache_status": "ready"
+    }
+
+@mcp.tool()
+def get_cache_status() -> Dict:
+    """
+    Get current status of the concept cache
+    
+    Returns:
+        Cache status information
+    """
+    cache = load_concept_cache()
+    
+    cache_info = {}
+    total_concepts = 0
+    
+    for book_name, concepts in cache.items():
+        concept_count = len(concepts)
+        cache_info[book_name] = {
+            "concept_count": concept_count,
+            "book_title": BOOK_CONFIGS[book_name]["name"],
+            "sample_topics": [c.get("topic", "Unknown")[:50] for c in concepts[:3]]
+        }
+        total_concepts += concept_count
+    
+    return {
+        "cache_loaded": CACHE_LOADED,
+        "books_in_cache": len(cache),
+        "total_concepts": total_concepts,
+        "cache_details": cache_info,
+        "newest_book": "csapp_2016" if "csapp_2016" in cache else "none"
+    }
 
 if __name__ == "__main__":
-    # Run the MCP server
-    logger.info("🚀 Starting Enhanced Topic Detection MCP Server...")
+    logger.info("🎯 Starting Topic Detection Server")
+    logger.info(f"📚 Configured for {len(BOOK_CONFIGS)} book servers")
+    logger.info("🆕 New: CSAPP (Computer Systems) support added")
+    
+    # Load initial cache
+    load_concept_cache()
+    
     mcp.run()

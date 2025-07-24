@@ -1,39 +1,33 @@
 # Daily UNIX Environment Extraction Summary
-**Date:** 2025-07-22 00:24:13
-**Duration:** 66.8 seconds
-**Page Range:** 330-344
+**Date:** 2025-07-22 08:34:37
+**Duration:** 63.8 seconds
+**Page Range:** 360-374
 **Book:** Advanced Programming in the UNIX Environment 3rd Edition
 
-## UNIX Concepts Extracted Today: 4
+## UNIX Concepts Extracted Today: 3
 
-### 1. getsid Function
-**What it's about:** The getsid function in C retrieves the process group ID of the session leader for a specified process. It is used in Unix-like systems to query session information, which helps manage process hierarch...
+### 1. The signal() Function in C
+**What it's about:** The signal() function in C is used to install a new signal handler for a specified signal, allowing programs to respond to asynchronous events like interrupts or errors. It is essential for handling s...
 
-- **File:** `unix_concept_080_getsid_function.json`
-- **Pages:** 330-330
+- **File:** `unix_concept_088_the_signal_function_in_c.json`
+- **Pages:** 360-360
 
-### 2. O_NOCTTY Flag in open()
-**What it's about:** The O_NOCTTY flag is a file access mode flag used with the open() function in C programming to prevent a terminal device from becoming the controlling terminal of the calling process. It is used to av...
+### 2. fork() and Signal Disposition Inheritance
+**What it's about:** The fork() system call in C creates a new process by duplicating the calling process, known as the child process. It is used to enable multitasking and process creation in Unix-like systems. The child...
 
-- **File:** `unix_concept_081_o_noctty_flag_in_open.json`
-- **Pages:** 330-332
+- **File:** `unix_concept_089_fork_and_signal_disposition_in.json`
+- **Pages:** 360-360
 
-### 3. Conditional Compilation
-**What it's about:** Conditional compilation in C is a preprocessor directive that allows specific parts of the code to be included or excluded during compilation based on whether certain macros are defined. It is used to...
+### 3. Using the signal() Function
+**What it's about:** The signal() function in C is used to install a custom handler for a specific signal, allowing programs to respond to asynchronous events like interrupts. It is essential for handling signals such as ...
 
-- **File:** `unix_concept_082_conditional_compilation.json`
-- **Pages:** 332-332
-
-### 4. C Function
-**What it's about:** A C function is a reusable block of code that performs a specific task. It is used to organize code into logical units, promote reusability, and make programs easier to read, debug, and maintain, much...
-
-- **File:** `unix_concept_083_c_function.json`
-- **Pages:** 47-47
+- **File:** `unix_concept_090_using_the_signal_function.json`
+- **Pages:** 360-360
 
 ## UNIX Progress Summary
-- **Total UNIX Concepts Extracted:** 83
-- **Extraction Sessions Completed:** 23
-- **Last Processed Page:** 344
+- **Total UNIX Concepts Extracted:** 90
+- **Extraction Sessions Completed:** 25
+- **Last Processed Page:** 374
 
 ## Next Session
 Run the UNIX extraction script again tomorrow to continue processing.

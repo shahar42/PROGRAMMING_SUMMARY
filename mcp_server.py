@@ -2,6 +2,7 @@
 """
 Programming Concepts MCP Server using FastMCP
 Provides access to programming concepts from technical books.
+ENHANCED: Now includes direct concept access via tools with URI-style addressing
 """
 
 import json
@@ -140,6 +141,118 @@ def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
 
     concepts.append(concept)
 
+# ===============================
+# NEW: ENHANCED CONCEPT ACCESS
+# ===============================
+
+def concept_to_clean_uri_id(concept):
+    """Convert concept to clean URI-friendly ID"""
+    # Use the original filename without extension as the base
+    base_id = concept['source_file'].replace('.json', '')
+    
+    # Clean up the ID to be URI-friendly
+    clean_id = re.sub(r'[^\w\-_]', '_', base_id)
+    clean_id = re.sub(r'_+', '_', clean_id)  # Remove multiple underscores
+    clean_id = clean_id.strip('_')  # Remove leading/trailing underscores
+    
+    return clean_id
+
+def find_concept_by_uri_id(book_name: str, uri_id: str):
+    """Find concept by book and URI ID"""
+    for concept in concepts:
+        if concept['book'] == book_name:
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            if concept_uri_id == uri_id:
+                return concept
+    return None
+
+# Note: FastMCP resource support requires different implementation
+# For now, we'll use tools to simulate resource access
+
+@mcp.tool()
+async def read_concept_resource(book_name: str, concept_id: str) -> str:
+    """
+    Read a specific concept as a resource-like tool
+    
+    Args:
+        book_name: Name of the book (e.g., 'os_three_pieces')
+        concept_id: Clean concept identifier
+        
+    Returns:
+        Formatted concept content
+    """
+    # Validate book exists
+    if book_name not in books_metadata:
+        available_books = list(books_metadata.keys())
+        return f"Error: Book '{book_name}' not found. Available books: {', '.join(available_books)}"
+    
+    # Find the concept
+    concept = find_concept_by_uri_id(book_name, concept_id)
+    
+    if not concept:
+        # List available concepts for debugging
+        available_concepts = []
+        for c in concepts:
+            if c['book'] == book_name:
+                available_concepts.append(concept_to_clean_uri_id(c))
+        
+        return f"Error: Concept '{concept_id}' not found in {book_name}. Available concepts: {', '.join(available_concepts[:5])}..."
+    
+    # Format the concept content
+    result = f"# {concept['title']}\n\n"
+    result += f"**Source:** {concept['book_title']}\n\n"
+
+    if concept['description']:
+        result += f"## Description\n{concept['description']}\n\n"
+
+    if concept['content']:
+        result += f"## Details\n{concept['content']}\n\n"
+
+    if concept['syntax']:
+        result += f"## Code Example\n```c\n{concept['syntax']}\n```\n\n"
+
+    # Add any additional information from raw data
+    raw_data = concept['raw_data']
+    for key, value in raw_data.items():
+        if key not in ['title', 'description', 'content', 'syntax', 'concept', 'summary', 'explanation',
+                       'code'] and value:
+            result += f"**{key.title()}:** {value}\n"
+
+    return result
+
+@mcp.tool()
+async def list_concept_uris() -> str:
+    """List all available concept URIs"""
+    
+    result = "## Available Concept URIs\n\n"
+    
+    by_book = {}
+    for concept in concepts:
+        book_name = concept['book']
+        if book_name not in by_book:
+            by_book[book_name] = []
+        
+        concept_id = concept_to_clean_uri_id(concept)
+        uri = f"concept://{book_name}/{concept_id}"
+        by_book[book_name].append((concept['title'], uri))
+    
+    for book_name, book_concepts in by_book.items():
+        result += f"### {books_metadata[book_name]}\n\n"
+        for title, uri in book_concepts[:10]:  # Show first 10 per book
+            result += f"- **{title}**: `{uri}`\n"
+        if len(book_concepts) > 10:
+            result += f"- ... and {len(book_concepts) - 10} more concepts\n"
+        result += "\n"
+    
+    result += f"\n**Total:** {len(concepts)} concepts across {len(by_book)} books\n"
+    result += f"\n**Usage:** Use `read_concept_resource(book_name, concept_id)` to access specific concepts"
+    
+    return result
+
+# ===============================
+# EXISTING TOOLS (unchanged)
+# ===============================
+
 @mcp.tool()
 async def search_concepts(query: str, limit: int = 10) -> str:
     """Search programming concepts by keyword, topic, or description.
@@ -168,13 +281,17 @@ async def search_concepts(query: str, limit: int = 10) -> str:
     if not matching_concepts:
         return f"No concepts found for query: '{query}'"
 
-    # Format results
+    # Format results with concept path information
     result_text = f"Found {len(matching_concepts)} programming concepts:\n\n"
     for i, concept in enumerate(matching_concepts, 1):
+        concept_uri_id = concept_to_clean_uri_id(concept)
+        concept_path = f"{concept['book']}/{concept_uri_id}"
+        
         result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
         if concept['description']:
             result_text += f"   {concept['description'][:100]}{'...' if len(concept['description']) > 100 else ''}\n"
-        result_text += f"   ID: `{concept['id']}`\n\n"
+        result_text += f"   ID: `{concept['id']}`\n"
+        result_text += f"   Path: `{concept_path}`\n\n"
 
     return result_text
 
@@ -220,10 +337,14 @@ async def search_by_book(book_name: str, query: str = "") -> str:
     result_text += ":\n\n"
 
     for i, concept in enumerate(matching_concepts, 1):
+        concept_uri_id = concept_to_clean_uri_id(concept)
+        concept_path = f"{concept['book']}/{concept_uri_id}"
+        
         result_text += f"{i}. **{concept['title']}**\n"
         if concept['description']:
             result_text += f"   {concept['description'][:150]}{'...' if len(concept['description']) > 150 else ''}\n"
-        result_text += f"   ID: `{concept['id']}`\n\n"
+        result_text += f"   ID: `{concept['id']}`\n"
+        result_text += f"   Path: `{concept_path}`\n\n"
 
     return result_text
 
@@ -294,10 +415,14 @@ async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
     result_text = f"Found {len(advanced_matches)} advanced concepts for '{topic}' (Threshold: {threshold}):\n\n"
     for i, match in enumerate(advanced_matches, 1):
         concept = match['concept']
+        concept_uri_id = concept_to_clean_uri_id(concept)
+        concept_path = f"{concept['book']}/{concept_uri_id}"
+        
         result_text += f"{i}. **{concept['title']}** (From: {concept['book_title']})\n"
         result_text += f"   *Advanced Score: {match['score']}*\n"
         result_text += f"   {concept['description'][:100]}{'...' if len(concept['description']) > 100 else ''}\n"
-        result_text += f"   ID: `{concept['id']}`\n\n"
+        result_text += f"   ID: `{concept['id']}`\n"
+        result_text += f"   Path: `{concept_path}`\n\n"
 
     return result_text
 
@@ -342,6 +467,9 @@ async def find_code_examples(pattern: str = "") -> str:
     result_text += ":\n\n"
 
     for i, concept in enumerate(code_concepts, 1):
+        concept_uri_id = concept_to_clean_uri_id(concept)
+        uri = f"concept://{concept['book']}/{concept_uri_id}"
+        
         result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
 
         # Show code preview
@@ -354,7 +482,8 @@ async def find_code_examples(pattern: str = "") -> str:
                 preview += "\n   ..."
             result_text += f"   ```c\n   {preview}\n   ```\n"
 
-        result_text += f"   ID: `{concept['id']}`\n\n"
+        result_text += f"   ID: `{concept['id']}`\n"
+        result_text += f"   URI: `{uri}`\n\n"
 
     return result_text
 
@@ -522,23 +651,35 @@ async def generate_study_path(goal: str) -> str:
     if basic_concepts:
         result_text += f"## 📚 Foundation Level\n"
         for i, concept in enumerate(basic_concepts[:5], 1):
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
             result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
             result_text += f"   {concept['description'][:100] if concept['description'] else 'Core concept'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n\n"
+            result_text += f"   ID: `{concept['id']}`\n"
+            result_text += f"   URI: `{uri}`\n\n"
 
     if intermediate_concepts:
         result_text += f"## 🔧 Practical Level\n"
         for i, concept in enumerate(intermediate_concepts[:5], 1):
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
             result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
             result_text += f"   {concept['description'][:100] if concept['description'] else 'Practical application'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n\n"
+            result_text += f"   ID: `{concept['id']}`\n"
+            result_text += f"   URI: `{uri}`\n\n"
 
     if advanced_concepts:
         result_text += f"## 🚀 Advanced Level\n"
         for i, concept in enumerate(advanced_concepts[:5], 1):
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
             result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
             result_text += f"   {concept['description'][:100] if concept['description'] else 'Advanced topic'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n\n"
+            result_text += f"   ID: `{concept['id']}`\n"
+            result_text += f"   URI: `{uri}`\n\n"
 
     result_text += f"## 💡 Study Tips\n"
     result_text += f"- Start with Foundation Level concepts\n"
@@ -617,6 +758,9 @@ async def explain_my_code(code_snippet: str, language: str = "C") -> str:
     result_text += f"### 🔍 Relevant Concepts ({len(top_concepts)} found)\n\n"
 
     for i, (concept, score) in enumerate(top_concepts, 1):
+        concept_uri_id = concept_to_clean_uri_id(concept)
+        uri = f"concept://{concept['book']}/{concept_uri_id}"
+        
         result_text += f"**{i}. {concept['title']}** ({concept['book_title']})\n"
         result_text += f"   {concept['description'][:150] if concept['description'] else 'No description'}{'...' if len(concept.get('description', '')) > 150 else ''}\n"
 
@@ -625,7 +769,8 @@ async def explain_my_code(code_snippet: str, language: str = "C") -> str:
             code_preview = concept['syntax'].strip().split('\n')[:2]
             result_text += f"   ```c\n   {chr(10).join(code_preview)}\n   ```\n"
 
-        result_text += f"   ID: `{concept['id']}` | Relevance: {score:.1f}\n\n"
+        result_text += f"   ID: `{concept['id']}` | Relevance: {score:.1f}\n"
+        result_text += f"   URI: `{uri}`\n\n"
 
     # Provide expert insights
     result_text += f"### 📚 Expert Insights\n"
@@ -667,8 +812,12 @@ async def get_concept_details(concept_id: str) -> str:
         return f"Concept not found: {concept_id}"
 
     # Format detailed response
+    concept_uri_id = concept_to_clean_uri_id(concept)
+    uri = f"concept://{concept['book']}/{concept_uri_id}"
+    
     result_text = f"# {concept['title']}\n\n"
-    result_text += f"**Source:** {concept['book_title']}\n\n"
+    result_text += f"**Source:** {concept['book_title']}\n"
+    result_text += f"**URI:** `{uri}`\n\n"
 
     if concept['description']:
         result_text += f"## Description\n{concept['description']}\n\n"
@@ -837,7 +986,10 @@ async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
         # Combine insights from this book
         for concept, score in book_concepts[:2]:  # Top 2 concepts
             if concept['content']:
-                result += f"**{concept['title']}**: {concept['content'][:200]}...\n\n"
+                concept_uri_id = concept_to_clean_uri_id(concept)
+                uri = f"concept://{concept['book']}/{concept_uri_id}"
+                result += f"**{concept['title']}**: {concept['content'][:200]}...\n"
+                result += f"[Read full concept]({uri})\n\n"
     
     # Code Examples Section
     result += "## 💻 Unified Code Examples\n\n"
@@ -849,7 +1001,8 @@ async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
                 code_examples.append({
                     'code': concept['syntax'],
                     'source': books_metadata[book],
-                    'title': concept['title']
+                    'title': concept['title'],
+                    'concept': concept
                 })
     
     if code_examples:
@@ -979,6 +1132,9 @@ async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate"
     
     # Progressive lessons
     for i, concept in enumerate(selected_concepts, 1):
+        concept_uri_id = concept_to_clean_uri_id(concept)
+        uri = f"concept://{concept['book']}/{concept_uri_id}"
+        
         result += f"### Lesson {i}: {concept['title']}\n\n"
         
         # Concept explanation
@@ -1004,6 +1160,7 @@ async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate"
         else:
             result += "optimize for performance and memory usage.\n\n"
         
+        result += f"**Full Details**: [Read complete concept]({uri})\n\n"
         result += "---\n\n"
     
     # Summary and Next Steps
@@ -1084,7 +1241,8 @@ async def create_best_practices_guide(topic: str) -> str:
             code_patterns.append({
                 'code': concept['syntax'],
                 'source': concept['book_title'],
-                'context': concept['title']
+                'context': concept['title'],
+                'concept': concept
             })
     
     # Generate best practices guide
@@ -1113,8 +1271,13 @@ async def create_best_practices_guide(topic: str) -> str:
                 practice = sentence.strip()
                 if practice.lower() not in seen_practices:
                     seen_practices.add(practice.lower())
+                    
+                    concept_uri_id = concept_to_clean_uri_id(rec_concept)
+                    uri = f"concept://{rec_concept['book']}/{concept_uri_id}"
+                    
                     result += f"### {practice_num}. {practice}\n"
-                    result += f"*Source: {rec_concept['book_title']}*\n\n"
+                    result += f"*Source: {rec_concept['book_title']}*\n"
+                    result += f"[Read full concept]({uri})\n\n"
                     
                     # Add supporting code if available
                     if rec_concept['syntax']:
@@ -1149,12 +1312,16 @@ async def create_best_practices_guide(topic: str) -> str:
             
             # Show variations from different sources
             for i, pattern in enumerate(patterns[:2]):
+                concept_uri_id = concept_to_clean_uri_id(pattern['concept'])
+                uri = f"concept://{pattern['concept']['book']}/{concept_uri_id}"
+                
                 result += f"**Approach {i+1}** ({pattern['source'].split('(')[0].strip()}):\n"
                 result += "```c\n"
                 result += pattern['code'][:150]
                 if len(pattern['code']) > 150:
                     result += "\n// ..."
-                result += "\n```\n\n"
+                result += "\n```\n"
+                result += f"[View complete example]({uri})\n\n"
             
             pattern_num += 1
     
@@ -1173,8 +1340,13 @@ async def create_best_practices_guide(topic: str) -> str:
                 pitfall = sentence.strip()
                 if pitfall.lower() not in seen_pitfalls and len(pitfall) > 20:
                     seen_pitfalls.add(pitfall.lower())
+                    
+                    concept_uri_id = concept_to_clean_uri_id(pitfall_concept)
+                    uri = f"concept://{pitfall_concept['book']}/{concept_uri_id}"
+                    
                     result += f"### Pitfall {pitfall_num}: {pitfall}\n"
-                    result += f"*Identified in: {pitfall_concept['book_title']}*\n\n"
+                    result += f"*Identified in: {pitfall_concept['book_title']}*\n"
+                    result += f"[Read full context]({uri})\n\n"
                     
                     # Add corrective action if available
                     if pitfall_concept['syntax']:
@@ -1198,9 +1370,13 @@ async def create_best_practices_guide(topic: str) -> str:
             book_concepts = patterns_by_book[book][:2]
             for concept in book_concepts:
                 if concept['content']:
+                    concept_uri_id = concept_to_clean_uri_id(concept)
+                    uri = f"concept://{concept['book']}/{concept_uri_id}"
+                    
                     result += f"### {concept['title']}\n"
                     result += f"{concept['content'][:250]}...\n"
-                    result += f"*— {books_metadata[book]}*\n\n"
+                    result += f"*— {books_metadata[book]}*\n"
+                    result += f"[Read complete insight]({uri})\n\n"
     
     # Quick Reference Card
     result += "## 📋 Quick Reference Card\n\n"
@@ -1208,11 +1384,11 @@ async def create_best_practices_guide(topic: str) -> str:
     
     checklist_items = [
         f"Review relevant concepts with `search_concepts('{topic}')`",
-        f"deep Study implementations across books with `synthesize_concepts('{topic}')`",
+        f"Study implementations across books with `synthesize_concepts('{topic}')`",
         f"Practice with examples using `find_code_examples('{topic}')`",
         "Test edge cases and error conditions",
         "Consider performance implications",
-        "Document concisely your implementation decisions"
+        "Document your implementation decisions"
     ]
     
     for item in checklist_items:
@@ -1231,6 +1407,9 @@ def _generate_markdown_reference(topic: str, by_book: dict) -> str:
         output += f"## {book}\n\n"
 
         for concept in concepts:
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
             output += f"### {concept['title']}\n\n"
 
             if concept['description']:
@@ -1242,7 +1421,7 @@ def _generate_markdown_reference(topic: str, by_book: dict) -> str:
             if concept['content']:
                 output += f"**Details:** {concept['content'][:200]}{'...' if len(concept['content']) > 200 else ''}\n\n"
 
-            output += f"*Source: {book}*\n\n---\n\n"
+            output += f"*Source: {book}* | [Full Details]({uri})\n\n---\n\n"
 
     return output
 
@@ -1270,6 +1449,9 @@ def _generate_html_reference(topic: str, by_book: dict) -> str:
         output += f"    <h2>{book}</h2>\n"
 
         for concept in concepts:
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
             output += f"    <h3>{concept['title']}</h3>\n"
 
             if concept['description']:
@@ -1282,7 +1464,7 @@ def _generate_html_reference(topic: str, by_book: dict) -> str:
                 content = concept['content'][:200] + ('...' if len(concept['content']) > 200 else '')
                 output += f"    <p><strong>Details:</strong> {content}</p>\n"
 
-            output += f"    <p class='source'>Source: {book}</p>\n    <hr>\n"
+            output += f"    <p class='source'>Source: {book} | <a href='{uri}'>Full Details</a></p>\n    <hr>\n"
 
     output += "</body></html>"
     return output
@@ -1299,6 +1481,9 @@ def _generate_text_reference(topic: str, by_book: dict) -> str:
         output += "-" * len(book) + "\n\n"
 
         for concept in concepts:
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
             output += f"{concept['title']}\n"
 
             if concept['description']:
@@ -1311,17 +1496,17 @@ def _generate_text_reference(topic: str, by_book: dict) -> str:
                 content = concept['content'][:200] + ('...' if len(concept['content']) > 200 else '')
                 output += f"Details: {content}\n"
 
-            output += f"Source: {book}\n\n"
+            output += f"Source: {book}\nURI: {uri}\n\n"
 
     return output
 
 
 # Initialize the concepts database when the module loads
 build_concept_index()
-logger.info("Programming Concepts MCP Server initialized")
+logger.info("Programming Concepts MCP Server initialized with enhanced concept access")
 
 if __name__ == "__main__":
     # Run the FastMCP server
     logger.info("Starting Programming Concepts MCP Server for Claude Code...")
-    logger.info("MCP Server ready for Claude Code")
+    logger.info("MCP Server ready for Claude Code with enhanced concept access")
     mcp.run(transport='stdio')

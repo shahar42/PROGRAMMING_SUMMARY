@@ -1,7 +1,7 @@
 #!/bin/bash
-# Enhanced Master Daily Multi-Book Extraction Runner
-# Updated with Expert C Programming + GPT-4.1 Nano integration
-# Optimized for cron execution with file locking and enhanced logging
+# Enhanced Master Daily CSAPP 2016 Extraction Runner
+# Updated to only process CSAPP 2016 with file locking and enhanced logging
+# Optimized for cron execution
 
 # Exit on any error for cron reliability
 set -euo pipefail
@@ -91,143 +91,113 @@ else
     exit 1
 fi
 
-# Verify API keys are available
+# Verify API keys are available (only Gemini needed for CSAPP)
 if [[ -z "${GEMINI_API_KEY:-}" ]]; then
     log "ERROR" "GEMINI_API_KEY not found in environment"
     exit 1
 fi
 
-if [[ -z "${GROK_API_KEY:-}" ]]; then
-    log "ERROR" "GROK_API_KEY not found in environment"
-    exit 1
-fi
-
-if [[ -z "${OPENAI_API_KEY:-}" ]]; then
-    log "ERROR" "OPENAI_API_KEY not found in environment"
-    exit 1
-fi
-
-log "INFO" "Starting master daily extraction..."
+log "INFO" "Starting CSAPP 2016 daily extraction..."
 log "INFO" "Run type: $(if [[ -t 1 ]]; then echo 'Interactive'; else echo 'Automated (cron)'; fi)"
 
-# Book extraction configuration - UPDATED WITH EXPERT C PROGRAMMING
+# Book extraction configuration - only CSAPP 2016
 declare -A BOOK_SCRIPTS=(
-    ["kernighan_ritchie"]="$BOOKS_DIR/extract_c_concepts.py"
-    ["unix_env"]="$BOOKS_DIR/extract_unix_env.py"
-    ["linkers_loaders"]="$BOOKS_DIR/extract_linkers_loaders.py"
-    ["os_three_pieces"]="$BOOKS_DIR/extract_os_three_pieces.py"
-    ["expert_c_programming"]="$BOOKS_DIR/extract_Expert_C_Programming.py"
+    ["csapp_2016"]="$BOOKS_DIR/extract_csapp_2016.py"
 )
 
 declare -A BOOK_NAMES=(
-    ["kernighan_ritchie"]="K&R C Programming"
-    ["unix_env"]="UNIX Environment"
-    ["linkers_loaders"]="Linkers & Loaders"
-    ["os_three_pieces"]="Operating Systems"
-    ["expert_c_programming"]="Expert C Programming"
+    ["csapp_2016"]="Computer Systems: A Programmer's Perspective"
 )
 
 declare -A BOOK_STATUS=(
-    ["kernighan_ritchie"]="active"
-    ["unix_env"]="active"
-    ["linkers_loaders"]="active"
-    ["os_three_pieces"]="active"
-    ["expert_c_programming"]="active"
+    ["csapp_2016"]="active"
 )
 
 declare -A BOOK_AI_MODEL=(
-    ["kernighan_ritchie"]="Gemini"
-    ["unix_env"]="Grok"
-    ["linkers_loaders"]="Gemini"
-    ["os_three_pieces"]="Grok"
-    ["expert_c_programming"]="GPT-4.1 Nano"
+    ["csapp_2016"]="Gemini"
 )
 
 # Counters for summary
-TOTAL_BOOKS=0
+TOTAL_BOOKS=1
 SUCCESSFUL_BOOKS=0
 FAILED_BOOKS=0
 declare -A BOOK_RESULTS
 declare -A BOOK_DURATIONS
 declare -A BOOK_CONCEPTS
 
-log "INFO" "Master Archaeological Extraction Engine"
+log "INFO" "Master Archaeological Extraction Engine (CSAPP 2016 only)"
 log "INFO" "Date: $(date)"
 
-# Process each book
-for book_key in "${!BOOK_SCRIPTS[@]}"; do
-    TOTAL_BOOKS=$((TOTAL_BOOKS + 1))
-    script_path="${BOOK_SCRIPTS[$book_key]}"
-    book_name="${BOOK_NAMES[$book_key]}"
-    book_status="${BOOK_STATUS[$book_key]}"
-    ai_model="${BOOK_AI_MODEL[$book_key]}"
-    
-    log "INFO" "Processing: $book_name ($ai_model)"
-    
-    # Check if script exists
-    if [[ ! -f "$script_path" ]]; then
-        log "ERROR" "Script not found: $script_path"
-        BOOK_RESULTS[$book_key]="SCRIPT_MISSING"
-        FAILED_BOOKS=$((FAILED_BOOKS + 1))
-        continue
-    fi
-    
-    # Skip pending books
+# Process CSAPP 2016
+book_key="csapp_2016"
+script_path="${BOOK_SCRIPTS[$book_key]}"
+book_name="${BOOK_NAMES[$book_key]}"
+book_status="${BOOK_STATUS[$book_key]}"
+ai_model="${BOOK_AI_MODEL[$book_key]}"
+
+log "INFO" "Processing: $book_name ($ai_model)"
+
+# Check if script exists
+if [[ ! -f "$script_path" ]]; then
+    log "ERROR" "Script not found: $script_path"
+    BOOK_RESULTS[$book_key]="SCRIPT_MISSING"
+    FAILED_BOOKS=$((FAILED_BOOKS + 1))
+else
+    # Skip if pending
     if [[ "$book_status" == "pending" ]]; then
         log "INFO" "Skipping $book_name (status: pending)"
         BOOK_RESULTS[$book_key]="PENDING"
-        continue
-    fi
-    
-    # Create book-specific log
-    book_log="$LOG_DIR/${book_key}_$(date +%Y-%m-%d).log"
-    
-    # Record start time
-    start_time=$(date +%s)
-    log "INFO" "Running extraction for $book_name..."
-    
-    # Run extraction with timeout and enhanced error handling
-    if timeout 600 python3 "$script_path" >> "$book_log" 2>&1; then
-        end_time=$(date +%s)
-        duration=$((end_time - start_time))
-        BOOK_DURATIONS[$book_key]=$duration
-        
-        # Count extracted concepts from progress file
-        progress_file="outputs/$book_key/progress.json"
-        if [[ -f "$progress_file" ]]; then
-            concepts=$(jq -r '.total_concepts_extracted // 0' "$progress_file" 2>/dev/null || echo "0")
-            BOOK_CONCEPTS[$book_key]=$concepts
-        else
-            BOOK_CONCEPTS[$book_key]="0"
-        fi
-        
-        log "INFO" "$book_name extraction completed successfully (${duration}s, ${BOOK_CONCEPTS[$book_key]} total concepts)"
-        BOOK_RESULTS[$book_key]="SUCCESS"
-        SUCCESSFUL_BOOKS=$((SUCCESSFUL_BOOKS + 1))
     else
-        exit_code=$?
-        end_time=$(date +%s)
-        duration=$((end_time - start_time))
-        BOOK_DURATIONS[$book_key]=$duration
-        
-        if [[ $exit_code -eq 124 ]]; then
-            log "ERROR" "$book_name extraction timed out (>10 minutes)"
-            BOOK_RESULTS[$book_key]="TIMEOUT"
-        else
-            log "ERROR" "$book_name extraction failed (exit code: $exit_code)"
-            BOOK_RESULTS[$book_key]="FAILED"
-            
-            # Log last few lines of error
-            if [[ -f "$book_log" ]]; then
-                log "ERROR" "Last error output for $book_name:"
-                tail -3 "$book_log" | while read -r line; do
-                    log "ERROR" "  $line"
-                done
+        # Create book-specific log
+        book_log="$LOG_DIR/${book_key}_$(date +%Y-%m-%d).log"
+
+        # Record start time
+        start_time=$(date +%s)
+        log "INFO" "Running extraction for $book_name..."
+
+        # Run extraction with timeout and enhanced error handling
+        if timeout 600 python3 "$script_path" >> "$book_log" 2>&1; then
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            BOOK_DURATIONS[$book_key]=$duration
+
+            # Count extracted concepts from progress file
+            progress_file="outputs/$book_key/progress.json"
+            if [[ -f "$progress_file" ]]; then
+                concepts=$(jq -r '.total_concepts_extracted // 0' "$progress_file" 2>/dev/null || echo "0")
+                BOOK_CONCEPTS[$book_key]=$concepts
+            else
+                BOOK_CONCEPTS[$book_key]="0"
             fi
+
+            log "INFO" "$book_name extraction completed successfully (${duration}s, ${BOOK_CONCEPTS[$book_key]} total concepts)"
+            BOOK_RESULTS[$book_key]="SUCCESS"
+            SUCCESSFUL_BOOKS=$((SUCCESSFUL_BOOKS + 1))
+        else
+            exit_code=$?
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            BOOK_DURATIONS[$book_key]=$duration
+
+            if [[ $exit_code -eq 124 ]]; then
+                log "ERROR" "$book_name extraction timed out (>10 minutes)"
+                BOOK_RESULTS[$book_key]="TIMEOUT"
+            else
+                log "ERROR" "$book_name extraction failed (exit code: $exit_code)"
+                BOOK_RESULTS[$book_key]="FAILED"
+
+                # Log last few lines of error
+                if [[ -f "$book_log" ]]; then
+                    log "ERROR" "Last error output for $book_name:"
+                    tail -3 "$book_log" | while read -r line; do
+                        log "ERROR" "  $line"
+                    done
+                fi
+            fi
+            FAILED_BOOKS=$((FAILED_BOOKS + 1))
         fi
-        FAILED_BOOKS=$((FAILED_BOOKS + 1))
     fi
-done
+fi
 
 # Generate master summary
 log "INFO" "Master Extraction Summary"
@@ -238,7 +208,7 @@ for book_key in "${!BOOK_RESULTS[@]}"; do
     result="${BOOK_RESULTS[$book_key]}"
     duration="${BOOK_DURATIONS[$book_key]:-0}"
     concepts="${BOOK_CONCEPTS[$book_key]:-0}"
-    
+
     case $result in
         "SUCCESS")
             log "INFO" "✅ $book_name: COMPLETED (${duration}s, $concepts concepts)"
@@ -267,7 +237,7 @@ log "INFO" "❌ Failed extractions: $FAILED_BOOKS"
 DAILY_SUMMARY="$PROJECT_DIR/outputs/master_daily_summary_$(date +%Y-%m-%d-%H%M).md"
 
 cat > "$DAILY_SUMMARY" << EOF
-# 🏛️ Master Daily Extraction Summary
+# 🏛️ Master Daily Extraction Summary (CSAPP 2016)
 
 **Date:** $(date '+%Y-%m-%d %H:%M:%S')
 **Total Books:** $TOTAL_BOOKS
@@ -285,7 +255,7 @@ for book_key in "${!BOOK_RESULTS[@]}"; do
     ai_model="${BOOK_AI_MODEL[$book_key]}"
     duration="${BOOK_DURATIONS[$book_key]:-0}"
     concepts="${BOOK_CONCEPTS[$book_key]:-0}"
-    
+
     echo "### $book_name ($ai_model)" >> "$DAILY_SUMMARY"
     echo "**Status:** $result" >> "$DAILY_SUMMARY"
     if [[ "$result" == "SUCCESS" ]]; then
@@ -301,7 +271,7 @@ cat >> "$DAILY_SUMMARY" << EOF
 - **Individual Logs:** \`logs/{book}_$(date +%Y-%m-%d).log\`
 
 ## Next Steps
-- Next automated run: $(if [[ $(date +%H) -lt 11 ]]; then echo "Today at 11:00"; elif [[ $(date +%H) -lt 23 ]]; then echo "Today at 23:00"; else echo "Tomorrow at 11:00"; fi)
+- Next automated run: $(if [[ $(date +%-H) -lt 11 ]]; then echo "Today at 11:00"; elif [[ $(date +%-H) -lt 23 ]]; then echo "Today at 23:00"; else echo "Tomorrow at 11:00"; fi)
 - Check individual book logs for any issues
 - Monitor API usage and rate limits
 
@@ -324,14 +294,14 @@ log "INFO" "💡 Success rate: $((SUCCESSFUL_BOOKS * 100 / TOTAL_BOOKS))%"
 
 # API usage warnings
 if [[ $FAILED_BOOKS -gt 0 ]]; then
-    log "WARN" "Some extractions failed - check API rate limits"
+    log "WARN" "Extraction failed - check API rate limits"
 fi
 
 # Final status
 if [[ $SUCCESSFUL_BOOKS -eq $TOTAL_BOOKS ]]; then
-    log "INFO" "🎉 All book extractions completed successfully!"
+    log "INFO" "🎉 CSAPP 2016 extraction completed successfully!"
     exit 0
 else
-    log "WARN" "Some extractions had issues (Success: $SUCCESSFUL_BOOKS/$TOTAL_BOOKS)"
+    log "WARN" "CSAPP 2016 extraction had issues (Success: $SUCCESSFUL_BOOKS/$TOTAL_BOOKS)"
     exit 1
 fi

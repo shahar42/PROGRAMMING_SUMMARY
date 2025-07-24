@@ -1,0 +1,23 @@
+{
+  "topic": "Integer Overflow and Security Vulnerabilities",
+  "explanation": "Integer overflow occurs when an arithmetic operation results in a value that is too large to be represented by the data type.  In the context of computer systems and architecture, this is a critical security vulnerability because it can lead to unexpected behavior, crashes, or malicious exploitation.  Unsigned integer types, while efficient, are especially susceptible, as they wrap around to zero after reaching their maximum value, potentially allowing an attacker to access unauthorized memory regions.",
+  "syntax": "No specific syntax, but the vulnerability arises from using signed and unsigned integers together in calculations, especially when dealing with lengths or sizes of memory regions.",
+  "code_example": [
+    "size_t memcpy(void *dest, const void *src, size_t n);",
+    "int copy_from_kernel(void *user_dest, int maxlen) {",
+    "  char *kbuf = (char *)KERNEL_DATA;",
+    "  size_t len = min(maxlen, (int)strlen(kbuf));",
+    "  memcpy(user_dest, kbuf, len);",
+    "  return len;",
+    "}"
+  ],
+  "example_explanation": "The `copy_from_kernel` function intends to copy a portion of kernel data to a user-specified buffer.  It uses `maxlen` (a signed integer) to limit the number of bytes copied. However,  `memcpy` expects a `size_t` (unsigned integer) for its length argument (`len`). If a negative `maxlen` is passed, the `min` function computes a large positive value for `len` because of the unsigned nature of `size_t`, causing `memcpy` to attempt to copy far beyond the intended region, potentially exposing sensitive kernel memory.  This demonstrates how a data type mismatch and integer overflow can create a significant security vulnerability by enabling unauthorized memory access.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "115-116",
+    "extraction_date": "2025-07-23T00:31:58.095917",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

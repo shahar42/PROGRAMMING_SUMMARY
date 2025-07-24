@@ -26,7 +26,7 @@ def load_concepts():
     if not concepts_dir.exists():
         return
         
-    for concept_file in concepts_dir.glob("concept_*.json"):
+    for concept_file in concepts_dir.glob("*concept_*.json"):
         try:
             with open(concept_file, 'r', encoding='utf-8') as f:
                 concept_data = json.load(f)

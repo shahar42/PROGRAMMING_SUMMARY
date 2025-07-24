@@ -1,39 +1,33 @@
 # Daily Operating Systems Extraction Summary
-**Date:** 2025-07-22 00:25:32
-**Duration:** 59.4 seconds
-**Page Range:** 301-315
+**Date:** 2025-07-22 08:35:56
+**Duration:** 57.3 seconds
+**Page Range:** 331-345
 **Book:** Operating Systems - Three Easy Pieces
 
-## OS Concepts Extracted Today: 4
+## OS Concepts Extracted Today: 3
 
-### 1. Typedef for Structures in C
-**What it's about:** Typedef for a struct in C is a way to create an alias for a complex data type, such as a structure, to make the code more readable and easier to maintain. It is used to simplify type declarations, esp...
+### 1. Mutex Lock
+**What it's about:** A mutex lock is a synchronization mechanism in C programming that ensures only one thread can access a shared resource at a time. It is used to prevent race conditions in multithreaded applications, m...
 
-- **File:** `os_concept_073_typedef_for_structures_in_c.json`
-- **Pages:** 121-121
+- **File:** `os_concept_080_mutex_lock.json`
+- **Pages:** 316-316
 
-### 2. Structure Definition in C
-**What it's about:** A structure in C is a user-defined data type that groups together variables of the same or different types under a single name. It is used to organize related data into a single unit, making code more...
+### 2. Race Condition
+**What it's about:** A race condition is a concurrency issue that occurs when multiple threads access and modify shared data simultaneously without proper synchronization, leading to unpredictable results. It happens beca...
 
-- **File:** `os_concept_074_structure_definition_in_c.json`
-- **Pages:** 301-301
+- **File:** `os_concept_081_race_condition.json`
+- **Pages:** 31-31
 
-### 3. Arrow Operator for Accessing Struct Members via Pointers
-**What it's about:** The arrow operator (->) in C is used to access members of a structure through a pointer to that structure. It combines dereferencing the pointer and accessing the member in one step, making code clean...
+### 3. Implementing a Simple Spinlock in C
+**What it's about:** A spinlock is a low-level synchronization mechanism in multi-threaded programming where a thread repeatedly checks (spins) until it can acquire a lock on a shared resource. It is used to ensure mutual...
 
-- **File:** `os_concept_075_arrow_operator_for_accessing_s.json`
-- **Pages:** 301-301
-
-### 4. Declaring a pthread_t Variable
-**What it's about:** pthread_t is a data type in C from the POSIX threads library that represents a thread identifier. It is used to create and manage threads, enabling concurrent execution of code to improve program perf...
-
-- **File:** `os_concept_076_declaring_a_pthread_t_variable.json`
-- **Pages:** 301-301
+- **File:** `os_concept_082_implementing_a_simple_spinlock.json`
+- **Pages:** 331-331
 
 ## OS Progress Summary
-- **Total OS Concepts Extracted:** 76
-- **Extraction Sessions Completed:** 21
-- **Last Processed Page:** 315
+- **Total OS Concepts Extracted:** 82
+- **Extraction Sessions Completed:** 23
+- **Last Processed Page:** 345
 
 ## Next Session
 Run the OS extraction script again tomorrow to continue processing.

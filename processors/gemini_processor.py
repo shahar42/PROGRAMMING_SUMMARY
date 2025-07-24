@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Enhanced Gemini Atomic Processor Module
-FIXED: Now includes book context awareness for proper concept extraction
+UPDATED: Now includes CSAPP (Computer Systems) context awareness for proper concept extraction
 
 Processes raw content into atomic training data using Google's Gemini AI.
 Works from any directory with absolute path handling.
@@ -15,8 +15,6 @@ from datetime import datetime
 from pathlib import Path
 import google.generativeai as genai
 from processors.base_processor import BaseAtomicProcessor
-
-
 
 # Ensure we can find project root from anywhere
 PROJECT_ROOT = "/home/shahar42/Suumerizing_C_holy_grale_book"
@@ -39,7 +37,6 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
             print(f"❌ Failed to initialize Gemini: {e}")
             raise
         super().__init__()
-
 
     def process_concept(self, concept_data, book_name="kernighan_ritchie"):
         """New main entry point that includes deduplication"""
@@ -85,7 +82,9 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
         content_lower = raw_content.lower()
         
         # Book detection patterns
-        if "linkers" in source_lower or "loaders" in source_lower:
+        if "computer systems" in source_lower or "csapp" in source_lower:
+            return "csapp_systems"
+        elif "linkers" in source_lower or "loaders" in source_lower:
             return "linkers_loaders"
         elif "unix" in source_lower or "environment" in source_lower:
             return "unix_programming"
@@ -95,11 +94,14 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
             return "c_programming"
         
         # Content-based detection as fallback
+        systems_indicators = ["assembly", "processor", "cache", "virtual memory", "pipeline", "instruction set"]
         linking_indicators = ["linker", "loader", "object file", "symbol table", "relocation", "dynamic linking"]
         unix_indicators = ["system call", "unix", "posix", "file descriptor", "process"]
         os_indicators = ["scheduler", "virtual memory", "file system", "thread", "process"]
         
-        if any(indicator in content_lower for indicator in linking_indicators):
+        if any(indicator in content_lower for indicator in systems_indicators):
+            return "csapp_systems"
+        elif any(indicator in content_lower for indicator in linking_indicators):
             return "linkers_loaders"
         elif any(indicator in content_lower for indicator in unix_indicators):
             return "unix_programming"
@@ -160,100 +162,122 @@ CONTENT TO PROCESS:
 Extract the {context_info['subject']} concept as JSON:"""
     
     def _get_book_context_info(self, book_context):
-        """Get context-specific information for different books"""
+        """Get context-specific information for different books including CSAPP"""
         
         contexts = {
+            # NEW: CSAPP Computer Systems context
+            "csapp_systems": {
+                "subject": "computer systems and architecture",
+                "book_title": "Computer Systems: A Programmer's Perspective (CSAPP)",
+                "level": "systems-level and performance-oriented",
+                "focus_instruction": "Focus EXCLUSIVELY on systems programming concepts, computer architecture, memory hierarchy, performance optimization, and hardware-software interaction. AVOID information representation basics and linking details.",
+                "example_type": "Complete assembly code, system calls, or architecture demonstrations",
+                "concept_examples": [
+                    "Machine-level programming with x86-64 assembly",
+                    "Memory hierarchy and caching strategies", 
+                    "Virtual memory and address translation",
+                    "Processor pipelining and hazard handling",
+                    "Concurrency and synchronization primitives",
+                    "System call interfaces and exceptional control flow",
+                    "Network programming with sockets",
+                    "Performance optimization techniques"
+                ],
+                "avoid_concepts": [
+                    "Basic C language syntax (covered in K&R)",
+                    "Information representation and number systems",
+                    "Linking and loading mechanics (covered in Linkers book)",
+                    "High-level programming concepts",
+                    "Basic data structures and algorithms"
+                ]
+            },
+            
+            # Existing contexts
             "linkers_loaders": {
                 "subject": "linking and loading",
                 "book_title": "Linkers and Loaders by John Levine",
                 "level": "advanced system-level",
                 "focus_instruction": "Focus on concepts related to program linking, loading, object files, symbol resolution, dynamic libraries, and binary formats.",
-                "concept_examples": """
-- Object file formats (ELF, COFF, PE)
-- Symbol tables and symbol resolution
-- Relocation entries and address patching
-- Dynamic vs static linking
-- Shared libraries and DLLs
-- Loader architecture and program loading
-- Application Binary Interfaces (ABI)
-- Position Independent Code (PIC)
-- Global Offset Table (GOT)
-- Procedure Linkage Table (PLT)""",
-                "avoid_concepts": """
-- Basic C programming concepts (variables, functions, loops)
-- Simple printf or scanf examples
-- Basic data types or operators
-- Elementary control structures""",
-                "example_type": "Code demonstrating linking/loading concepts, object file analysis, or system-level examples"
+                "example_type": "Complete linker scripts, object file analysis, or loading demonstrations",
+                "concept_examples": [
+                    "Symbol resolution across object files",
+                    "Relocation entry processing",
+                    "Dynamic library loading mechanisms",
+                    "ELF file format structures",
+                    "Position-independent code generation",
+                    "Library interpositioning techniques"
+                ],
+                "avoid_concepts": [
+                    "Basic C programming syntax",
+                    "High-level application design",
+                    "Operating system concepts not related to linking",
+                    "Network programming basics"
+                ]
             },
             
             "unix_programming": {
                 "subject": "UNIX system programming",
                 "book_title": "Advanced Programming in the UNIX Environment",
-                "level": "system programming",
-                "focus_instruction": "Focus EXCLUSIVELY on UNIX system calls, APIs, process management, file operations, and system-level programming. AVOID basic C language tutorials or simple programming examples that don't involve system programming.",
-                "concept_examples": """
-- System calls (open, read, write, fork, exec)
-- Process management and IPC
-- File descriptors and file operations
-- Signal handling and process control
-- UNIX APIs and standards compliance
-- Process groups and sessions
-- File system operations
-- Network programming concepts""",
-                "avoid_concepts": """
-- Basic C syntax or language features (variables, loops, functions)
-- Simple hello world programs or basic printf examples
-- Basic variable declarations and initialization
-- Elementary programming concepts (#include, main function basics)
-- Language tutorial concepts that don't use system calls
-- Simple string manipulation without system interaction""",
-                "example_type": "Code demonstrating UNIX system calls, process operations, or system-level functionality"
+                "level": "system-level programming",
+                "focus_instruction": "Focus on UNIX/POSIX system calls, APIs, and system programming patterns. Emphasize practical system programming techniques.",
+                "example_type": "Complete system call examples with error handling",
+                "concept_examples": [
+                    "File I/O with system calls",
+                    "Process creation and management",
+                    "Signal handling mechanisms",
+                    "Inter-process communication",
+                    "File system operations",
+                    "Network socket programming"
+                ],
+                "avoid_concepts": [
+                    "Basic C language features",
+                    "Hardware architecture details",
+                    "High-level application frameworks",
+                    "GUI programming concepts"
+                ]
             },
             
             "operating_systems": {
-                "subject": "operating systems",
+                "subject": "operating systems principles",
                 "book_title": "Operating Systems: Three Easy Pieces",
-                "level": "operating systems",
-                "focus_instruction": "Focus EXCLUSIVELY on operating system algorithms, data structures, and mechanisms. Extract concepts about how the OS works internally, NOT basic programming. Prioritize system-level concepts over language features.",
-                "concept_examples": """
-- Process and thread management (context switching, process control blocks)
-- Memory management and virtual memory (page tables, TLB, paging algorithms)
-- File system implementation (inodes, directory structures, journaling)
-- CPU scheduling algorithms (round-robin, CFS, priority scheduling)
-- Synchronization primitives (mutexes, semaphores, condition variables)
-- Deadlock prevention and detection algorithms
-- I/O systems and device management (device drivers, interrupt handling)
-- Virtual memory systems (demand paging, page replacement algorithms)""",
-                "avoid_concepts": """
-- Basic C programming constructs (variables, arrays, strings, basic functions)
-- Simple variable declarations and basic data types
-- Basic control flow (if/else, loops) without OS context
-- Elementary programming examples (hello world, simple calculations)
-- Language syntax tutorials that don't demonstrate OS concepts
-- String literals or basic I/O without system-level context""",
-                "example_type": "Code demonstrating OS concepts, system calls, or theoretical examples of OS mechanisms"
+                "level": "conceptual and implementation-focused",
+                "focus_instruction": "Focus on core OS concepts, algorithms, and data structures. Emphasize how operating systems manage resources.",
+                "example_type": "Pseudocode algorithms or system implementation examples",
+                "concept_examples": [
+                    "Process scheduling algorithms",
+                    "Memory management policies",
+                    "File system implementations",
+                    "Synchronization primitives",
+                    "Virtual memory mechanisms",
+                    "I/O subsystem design"
+                ],
+                "avoid_concepts": [
+                    "Application-level programming",
+                    "Specific hardware details",
+                    "Network protocol implementations",
+                    "Database concepts"
+                ]
             },
             
             "c_programming": {
-                "subject": "C programming",
-                "book_title": "The C Programming Language by Kernighan & Ritchie",
-                "level": "programming language",
-                "focus_instruction": "Focus on C language features, syntax, standard library, and programming techniques.",
-                "concept_examples": """
-- C language syntax and features
-- Standard library functions
-- Memory management (malloc, free)
-- Pointer operations and arrays
-- String manipulation
-- File I/O operations
-- Data structures in C
-- Function definitions and calls""",
-                "avoid_concepts": """
-- System-level concepts better suited for other books
-- Operating system internals
-- Linking and loading details""",
-                "example_type": "Complete, compilable C program demonstrating the language concept"
+                "subject": "C programming language",
+                "book_title": "The C Programming Language (K&R)",
+                "level": "foundational programming",
+                "focus_instruction": "Focus on C language syntax, semantics, and standard library usage. Emphasize proper C programming techniques.",
+                "example_type": "Complete, compilable C programs demonstrating the concept",
+                "concept_examples": [
+                    "Variable declarations and scope",
+                    "Control flow structures",
+                    "Function definitions and calls",
+                    "Pointer operations and arrays",
+                    "Standard library functions",
+                    "Memory management with malloc/free"
+                ],
+                "avoid_concepts": [
+                    "System programming concepts",
+                    "Hardware architecture details",
+                    "Operating system internals",
+                    "Network programming specifics"
+                ]
             }
         }
         

@@ -1,0 +1,40 @@
+{
+  "topic": "Using Mutex for Thread Safety in C",
+  "explanation": "A mutex, or mutual exclusion lock, is a synchronization mechanism in C that ensures only one thread can access a shared resource at a time. It is used to prevent race conditions in multi-threaded programs, where multiple threads might interfere with each other when modifying shared data, thereby maintaining data integrity and avoiding errors.",
+  "syntax": "pthread_mutex_lock(&mutex); /* critical section */ pthread_mutex_unlock(&mutex);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <pthread.h>",
+    "#include <stdlib.h>",
+    "",
+    "pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;",
+    "int shared_counter = 0;",
+    "",
+    "void *increment_counter(void *arg) {",
+    "    for(int i = 0; i < 10000; i++) {",
+    "        pthread_mutex_lock(&mutex);",
+    "        shared_counter++;",
+    "        pthread_mutex_unlock(&mutex);",
+    "    }",
+    "    return NULL;",
+    "}",
+    "",
+    "int main() {",
+    "    pthread_t thread1, thread2;",
+    "    pthread_create(&thread1, NULL, increment_counter, NULL);",
+    "    pthread_create(&thread2, NULL, increment_counter, NULL);",
+    "    pthread_join(thread1, NULL);",
+    "    pthread_join(thread2, NULL);",
+    "    printf(\"Final counter value: %d\\n\", shared_counter);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program creates two threads that each increment a shared counter 10,000 times. The mutex is used to lock the critical section where the counter is modified, ensuring that only one thread can increment it at a time. This prevents race conditions, so the final counter value should be 20,000, demonstrating how the mutex protects the shared resource and maintains thread safety.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "480-480",
+    "extraction_date": "2025-07-23T17:38:35.485770",
+    "has_code": false,
+    "has_explanation": false
+  }
+}
