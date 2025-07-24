@@ -3,6 +3,7 @@
 Programming Concepts MCP Server using FastMCP
 Provides access to programming concepts from technical books.
 ENHANCED: Now includes direct concept access via tools with URI-style addressing
+UPDATED: Efficient book-specific duplicate cleanup functionality
 """
 
 import json
@@ -33,7 +34,8 @@ books_metadata = {
     "unix_env": "Advanced Programming in the UNIX Environment (Stevens)",
     "linkers_loaders": "Linkers and Loaders (Levine)",
     "os_three_pieces": "Operating Systems: Three Easy Pieces (Arpaci-Dusseau)",
-    "expert_c_programming": "Expert C Programming Deep C Secrets (van der Linden)"
+    "expert_c_programming": "Expert C Programming Deep C Secrets (van der Linden)",
+    "csapp_2016": "Computer Systems: A Programmer's Perspective (3rd Edition)"
 }
 
 
@@ -142,7 +144,7 @@ def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
     concepts.append(concept)
 
 # ===============================
-# NEW: ENHANCED CONCEPT ACCESS
+# ENHANCED CONCEPT ACCESS
 # ===============================
 
 def concept_to_clean_uri_id(concept):
@@ -166,8 +168,321 @@ def find_concept_by_uri_id(book_name: str, uri_id: str):
                 return concept
     return None
 
-# Note: FastMCP resource support requires different implementation
-# For now, we'll use tools to simulate resource access
+# ===============================
+# EFFICIENT DUPLICATE CLEANUP TOOLS
+# ===============================
+
+@mcp.tool()
+async def analyze_concept_duplicates(book_name: str, similarity_threshold: float = 0.90) -> str:
+    """Analyze duplicate concepts in a book directory without making any changes.
+    
+    Args:
+        book_name: Book directory name (kernighan_ritchie, unix_env, linkers_loaders, os_three_pieces, expert_c_programming, csapp_2016)
+        similarity_threshold: Similarity threshold for considering duplicates (0.0-1.0, default: 0.90)
+    """
+    from pathlib import Path
+    import json
+    from difflib import SequenceMatcher
+    
+    # Validate book name
+    if book_name not in books_metadata:
+        available_books = list(books_metadata.keys())
+        return f"Invalid book name '{book_name}'. Available books: {', '.join(available_books)}"
+    
+    # Get book directory
+    PROJECT_ROOT = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
+    book_dir = PROJECT_ROOT / "outputs" / book_name
+    
+    if not book_dir.exists():
+        return f"Book directory not found: {book_dir}"
+    
+    # Find all concept JSON files
+    concept_files = list(book_dir.glob("*concept_*.json"))
+    if not concept_files:
+        return f"No concept files found in {book_dir}"
+    
+    result = f"# 📊 Duplicate Analysis for {books_metadata[book_name]}\n\n"
+    result += f"**Files Analyzed:** {len(concept_files)}\n"
+    result += f"**Similarity Threshold:** {similarity_threshold:.0%}\n\n"
+    
+    # Load all concepts
+    loaded_concepts = []
+    for file_path in concept_files:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                concept_data = json.load(f)
+                loaded_concepts.append({
+                    'data': concept_data,
+                    'file_path': file_path,
+                    'file_name': file_path.name
+                })
+        except Exception as e:
+            logger.warning(f"Failed to load {file_path}: {e}")
+    
+    # Calculate similarity matrix for top similar pairs
+    similar_pairs = []
+    
+    for i, concept1 in enumerate(loaded_concepts):
+        for j, concept2 in enumerate(loaded_concepts[i+1:], i+1):
+            # Calculate similarity using same algorithm as cleanup tool
+            topic1 = concept1['data'].get('topic', '')
+            topic2 = concept2['data'].get('topic', '')
+            topic_sim = SequenceMatcher(None, topic1.lower(), topic2.lower()).ratio()
+            
+            exp1 = concept1['data'].get('explanation', '')
+            exp2 = concept2['data'].get('explanation', '')
+            exp_sim = SequenceMatcher(None, exp1.lower(), exp2.lower()).ratio()
+            
+            combined_similarity = (topic_sim * 0.3 + exp_sim * 0.7)
+            
+            if combined_similarity >= 0.5:  # Include moderately similar pairs for analysis
+                similar_pairs.append({
+                    'similarity': combined_similarity,
+                    'concept1': concept1,
+                    'concept2': concept2,
+                    'is_duplicate': combined_similarity >= similarity_threshold
+                })
+    
+    # Sort by similarity (highest first)
+    similar_pairs.sort(key=lambda x: x['similarity'], reverse=True)
+    
+    # Count duplicates
+    duplicates = [pair for pair in similar_pairs if pair['is_duplicate']]
+    
+    result += f"## Summary\n\n"
+    result += f"- **Total similar pairs found:** {len(similar_pairs)}\n"
+    result += f"- **Pairs above duplicate threshold:** {len(duplicates)}\n"
+    result += f"- **Estimated files that could be removed:** {len(duplicates)}\n\n"
+    
+    if duplicates:
+        result += f"## 🚨 Potential Duplicates (≥{similarity_threshold:.0%} similar)\n\n"
+        for i, pair in enumerate(duplicates[:10], 1):  # Show top 10
+            result += f"### {i}. Similarity: {pair['similarity']:.1%}\n"
+            result += f"**File 1:** `{pair['concept1']['file_name']}`\n"
+            result += f"Topic: {pair['concept1']['data'].get('topic', 'Unknown')}\n\n"
+            result += f"**File 2:** `{pair['concept2']['file_name']}`\n" 
+            result += f"Topic: {pair['concept2']['data'].get('topic', 'Unknown')}\n\n"
+        
+        if len(duplicates) > 10:
+            result += f"*...and {len(duplicates) - 10} more duplicate pairs*\n\n"
+    
+    if len(similar_pairs) > len(duplicates):
+        result += f"## 📋 Other Similar Pairs ({similarity_threshold-0.1:.0%}-{similarity_threshold:.0%} similar)\n\n"
+        similar_not_dup = [p for p in similar_pairs if not p['is_duplicate']][:5]
+        
+        for i, pair in enumerate(similar_not_dup, 1):
+            result += f"{i}. **{pair['similarity']:.1%}** - `{pair['concept1']['file_name']}` vs `{pair['concept2']['file_name']}`\n"
+    
+    result += f"\n## 💡 Recommendations\n\n"
+    
+    if duplicates:
+        result += f"- Run `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, True)` for a dry run\n"
+        result += f"- Run `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, False)` to perform cleanup\n"
+        result += f"- Consider adjusting threshold if too many/few duplicates detected\n"
+    else:
+        result += f"- ✅ No duplicates found at {similarity_threshold:.0%} threshold\n"
+        result += f"- Consider lowering threshold (e.g., 0.80) if you want more aggressive deduplication\n"
+    
+    return result
+
+@mcp.tool()
+async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float = 0.90, dry_run: bool = True) -> str:
+    """Clean up duplicate concept files for a specific book.
+    
+    Args:
+        book_name: Book directory name (kernighan_ritchie, unix_env, linkers_loaders, os_three_pieces, expert_c_programming, csapp_2016)
+        similarity_threshold: Similarity threshold for considering duplicates (0.0-1.0, default: 0.90)
+        dry_run: If True, only report what would be cleaned without actually deleting files
+    """
+    from pathlib import Path
+    import shutil
+    from datetime import datetime
+    import json
+    from difflib import SequenceMatcher
+    
+    # Validate book name
+    if book_name not in books_metadata:
+        available_books = list(books_metadata.keys())
+        return f"Invalid book name '{book_name}'. Available books: {', '.join(available_books)}"
+    
+    # Get book directory
+    PROJECT_ROOT = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
+    book_dir = PROJECT_ROOT / "outputs" / book_name
+    
+    if not book_dir.exists():
+        return f"Book directory not found: {book_dir}"
+    
+    # Find all concept JSON files
+    concept_files = list(book_dir.glob("*concept_*.json"))
+    if not concept_files:
+        return f"No concept files found in {book_dir}"
+    
+    result = f"# 🧹 Duplicate Cleanup Report for {books_metadata[book_name]}\n\n"
+    result += f"**Similarity Threshold:** {similarity_threshold:.0%}\n"
+    result += f"**Mode:** {'DRY RUN (no files will be deleted)' if dry_run else 'ACTIVE CLEANUP'}\n"
+    result += f"**Files Scanned:** {len(concept_files)}\n\n"
+    
+    # Load all concepts for comparison
+    loaded_concepts = []
+    failed_loads = 0
+    
+    for file_path in concept_files:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                concept_data = json.load(f)
+                loaded_concepts.append({
+                    'data': concept_data,
+                    'file_path': file_path,
+                    'file_name': file_path.name
+                })
+        except Exception as e:
+            failed_loads += 1
+            logger.warning(f"Failed to load {file_path}: {e}")
+    
+    if failed_loads > 0:
+        result += f"⚠️ **Warning:** {failed_loads} files could not be loaded\n\n"
+    
+    # Helper function to calculate similarity between concepts
+    def calculate_concept_similarity(concept1_data, concept2_data):
+        """Calculate similarity between two concepts using multiple factors"""
+        
+        # Topic similarity
+        topic1 = concept1_data.get('topic', '')
+        topic2 = concept2_data.get('topic', '')
+        topic_sim = SequenceMatcher(None, topic1.lower(), topic2.lower()).ratio()
+        
+        # Explanation similarity
+        exp1 = concept1_data.get('explanation', '')
+        exp2 = concept2_data.get('explanation', '')
+        exp_sim = SequenceMatcher(None, exp1.lower(), exp2.lower()).ratio()
+        
+        # Code similarity (if both have code)
+        code_sim = 0.0
+        code1 = concept1_data.get('code_example', [])
+        code2 = concept2_data.get('code_example', [])
+        
+        if code1 and code2:
+            code_text1 = '\n'.join(code1) if isinstance(code1, list) else str(code1)
+            code_text2 = '\n'.join(code2) if isinstance(code2, list) else str(code2)
+            code_sim = SequenceMatcher(None, code_text1.lower(), code_text2.lower()).ratio()
+        
+        # Content similarity
+        content1 = concept1_data.get('content', concept1_data.get('example_explanation', ''))
+        content2 = concept2_data.get('content', concept2_data.get('example_explanation', ''))
+        content_sim = SequenceMatcher(None, content1.lower(), content2.lower()).ratio()
+        
+        # Weighted average
+        weights = {'topic': 0.3, 'explanation': 0.4, 'code': 0.2, 'content': 0.1}
+        combined_similarity = (
+            topic_sim * weights['topic'] +
+            exp_sim * weights['explanation'] +
+            code_sim * weights['code'] +
+            content_sim * weights['content']
+        )
+        
+        return combined_similarity
+    
+    # Find duplicate groups
+    duplicate_groups = []
+    processed_indices = set()
+    
+    for i, concept1 in enumerate(loaded_concepts):
+        if i in processed_indices:
+            continue
+            
+        duplicate_group = [concept1]
+        processed_indices.add(i)
+        
+        for j, concept2 in enumerate(loaded_concepts[i+1:], i+1):
+            if j in processed_indices:
+                continue
+                
+            similarity = calculate_concept_similarity(concept1['data'], concept2['data'])
+            
+            if similarity >= similarity_threshold:
+                duplicate_group.append(concept2)
+                processed_indices.add(j)
+        
+        if len(duplicate_group) > 1:
+            duplicate_groups.append(duplicate_group)
+    
+    # Report findings
+    if not duplicate_groups:
+        result += "✅ **No duplicates found!** All concepts appear to be unique.\n"
+        return result
+    
+    result += f"🔍 **Found {len(duplicate_groups)} duplicate groups:**\n\n"
+    
+    files_to_delete = []
+    files_kept = []
+    backup_dir = None
+    
+    if not dry_run:
+        # Create backup directory
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = book_dir / f"cleanup_backup_{timestamp}"
+        backup_dir.mkdir(exist_ok=True)
+    
+    for group_num, group in enumerate(duplicate_groups, 1):
+        result += f"### Group {group_num}: {len(group)} similar concepts\n\n"
+        
+        # Choose the best concept to keep (longest explanation or most recent)
+        best_concept = max(group, key=lambda x: (
+            len(x['data'].get('explanation', '')),
+            len(x['data'].get('code_example', [])),
+            x['file_path'].stat().st_mtime
+        ))
+        
+        files_kept.append(best_concept['file_name'])
+        
+        for i, concept in enumerate(group):
+            is_keeper = concept == best_concept
+            
+            # Calculate similarity with best concept
+            if concept != best_concept:
+                similarity = calculate_concept_similarity(best_concept['data'], concept['data'])
+                similarity_text = f" (similarity: {similarity:.1%})"
+            else:
+                similarity_text = ""
+            
+            status = "**KEEP**" if is_keeper else ("WOULD DELETE" if dry_run else "DELETE")
+            result += f"- {status}: `{concept['file_name']}`{similarity_text}\n"
+            result += f"  Topic: {concept['data'].get('topic', 'Unknown')[:60]}...\n"
+            
+            if not is_keeper:
+                if not dry_run:
+                    # Create backup before deletion
+                    backup_path = backup_dir / concept['file_name']
+                    shutil.copy2(concept['file_path'], backup_path)
+                    
+                    # Delete the duplicate
+                    concept['file_path'].unlink()
+                    files_to_delete.append(concept['file_name'])
+                else:
+                    files_to_delete.append(concept['file_name'])
+        
+        result += "\n"
+    
+    # Summary
+    result += "## 📊 Cleanup Summary\n\n"
+    result += f"- **Duplicate groups found:** {len(duplicate_groups)}\n"
+    result += f"- **Files to delete:** {len(files_to_delete)}\n"
+    result += f"- **Files kept:** {len(files_kept)}\n"
+    
+    if not dry_run:
+        result += f"- **Backup location:** `{backup_dir}`\n"
+        result += f"- **Files deleted:** {len(files_to_delete)}\n"
+        result += "\n✅ **Cleanup completed successfully!**\n"
+        result += "\n💡 **Note:** Deleted files are backed up and can be restored if needed.\n"
+    else:
+        result += "\n⚠️ **This was a dry run** - no files were actually deleted.\n"
+        result += "\nRun `cleanup_duplicate_concepts('{}', {}, False)` to perform actual cleanup.".format(book_name, similarity_threshold)
+    
+    return result
+
+# ===============================
+# CONCEPT ACCESS TOOLS
+# ===============================
 
 @mcp.tool()
 async def read_concept_resource(book_name: str, concept_id: str) -> str:
@@ -250,7 +565,7 @@ async def list_concept_uris() -> str:
     return result
 
 # ===============================
-# EXISTING TOOLS (unchanged)
+# SEARCH AND DISCOVERY TOOLS
 # ===============================
 
 @mcp.tool()
@@ -295,13 +610,12 @@ async def search_concepts(query: str, limit: int = 10) -> str:
 
     return result_text
 
-
 @mcp.tool()
 async def search_by_book(book_name: str, query: str = "") -> str:
     """Search concepts within a specific book.
 
     Args:
-        book_name: Name of the book to search in (kernighan_ritchie, unix_env, linkers_loaders, os_three_pieces, expert_c_programming)
+        book_name: Name of the book to search in
         query: Search query within the book (optional, empty means show all concepts from book)
     """
     # Validate book name
@@ -348,19 +662,15 @@ async def search_by_book(book_name: str, query: str = "") -> str:
 
     return result_text
 
-
 @mcp.tool()
 async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
     """Finds advanced concepts related to a specific topic.
 
-    "Advanced" is determined by a scoring system based on keywords and the source book.
-
     Args:
         topic: The general programming topic to search for (e.g., 'memory', 'linking').
         threshold: A score (default: 2) a concept must meet to be considered "advanced".
-                   Higher values return more specialized concepts.
     """
-    # 1. Define our heuristics for what makes a concept "advanced"
+    # Define heuristics for what makes a concept "advanced"
     ADVANCED_KEYWORDS = [
         'advanced', 'internals', 'optimization', 'low-level', 'kernel', 'complex',
         'performance', 'architecture', 'concurrent', 'asynchronous', 'memory layout',
@@ -375,13 +685,14 @@ async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
     ]
     BOOK_WEIGHTS = {
         "linkers_loaders": 3,
-        "expert_c_programming": 3,  # Expert C Programming is advanced
+        "expert_c_programming": 3,
+        "csapp_2016": 3,
         "unix_env": 2,
         "os_three_pieces": 2,
-        "kernighan_ritchie": 0  # K&R is foundational, so less inherently "advanced"
+        "kernighan_ritchie": 0
     }
 
-    # 2. Search for concepts matching the topic and calculate their "advanced score"
+    # Search for concepts matching the topic and calculate their "advanced score"
     advanced_matches = []
     topic_lower = topic.lower()
 
@@ -405,7 +716,6 @@ async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
         if advanced_score >= threshold:
             advanced_matches.append({'concept': concept, 'score': advanced_score})
 
-    # 3. Format and return the results
     if not advanced_matches:
         return f"No advanced concepts found for topic '{topic}' with threshold {threshold}. Try a lower threshold or broader topic."
 
@@ -425,7 +735,6 @@ async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
         result_text += f"   Path: `{concept_path}`\n\n"
 
     return result_text
-
 
 @mcp.tool()
 async def find_code_examples(pattern: str = "") -> str:
@@ -487,6 +796,9 @@ async def find_code_examples(pattern: str = "") -> str:
 
     return result_text
 
+# ===============================
+# ANALYSIS AND COMPARISON TOOLS
+# ===============================
 
 @mcp.tool()
 async def compare_concepts(concept1_id: str, concept2_id: str) -> str:
@@ -571,125 +883,6 @@ async def compare_concepts(concept1_id: str, concept2_id: str) -> str:
 
     return result_text
 
-
-@mcp.tool()
-async def generate_study_path(goal: str) -> str:
-    """Create ordered learning sequence for a programming goal.
-
-    Args:
-        goal: Learning goal (e.g. 'system programming', 'memory management', 'file I/O', 'C basics')
-    """
-    goal_lower = goal.lower()
-
-    # Define study paths based on common goals
-    study_paths = {
-        'c basics': ['basic', 'variable', 'function', 'array', 'pointer', 'string'],
-        'memory management': ['pointer', 'malloc', 'free', 'memory', 'heap', 'stack'],
-        'file io': ['file', 'open', 'read', 'write', 'close', 'stream'],
-        'system programming': ['process', 'fork', 'exec', 'signal', 'pipe', 'thread'],
-        'unix programming': ['unix', 'system call', 'process', 'signal', 'file descriptor'],
-        'debugging': ['debug', 'error', 'gdb', 'valgrind', 'trace'],
-        'compilation': ['compile', 'link', 'library', 'object', 'makefile'],
-        'data structures': ['struct', 'array', 'list', 'tree', 'hash']
-    }
-
-    # Find matching keywords for the goal
-    relevant_keywords = []
-    for path_name, keywords in study_paths.items():
-        if any(keyword in goal_lower for keyword in path_name.split()):
-            relevant_keywords.extend(keywords)
-            break
-
-    # If no specific path found, extract keywords from goal
-    if not relevant_keywords:
-        relevant_keywords = goal_lower.split()
-
-    # Find concepts matching the keywords
-    relevant_concepts = []
-    for concept in concepts:
-        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
-        relevance_score = sum(1 for keyword in relevant_keywords if keyword in concept_text)
-
-        if relevance_score > 0:
-            relevant_concepts.append((concept, relevance_score))
-
-    if not relevant_concepts:
-        return f"No concepts found for learning goal: '{goal}'"
-
-    # Sort by relevance and book authority
-    book_priority = {'kernighan_ritchie': 4, 'unix_env': 3, 'os_three_pieces': 2, 'linkers_loaders': 1}
-    relevant_concepts.sort(key=lambda x: (x[1], book_priority.get(x[0]['book'], 0)), reverse=True)
-
-    # Create study path
-    result_text = f"# Study Path: {goal.title()}\n\n"
-    result_text += f"Found {len(relevant_concepts)} relevant concepts organized by learning progression:\n\n"
-
-    # Group by complexity/book
-    basic_concepts = []
-    intermediate_concepts = []
-    advanced_concepts = []
-
-    for concept, score in relevant_concepts:
-        concept_text = concept['title'].lower() + ' ' + concept['description'].lower()
-
-        # Simple heuristic for complexity
-        if any(word in concept_text for word in ['basic', 'introduction', 'overview', 'simple']):
-            basic_concepts.append(concept)
-        elif any(word in concept_text for word in ['advanced', 'complex', 'optimization', 'internals']):
-            advanced_concepts.append(concept)
-        else:
-            intermediate_concepts.append(concept)
-
-    # If no clear categorization, distribute evenly
-    if not basic_concepts and not advanced_concepts:
-        third = len(relevant_concepts) // 3
-        basic_concepts = [c[0] for c in relevant_concepts[:third]]
-        intermediate_concepts = [c[0] for c in relevant_concepts[third:2 * third]]
-        advanced_concepts = [c[0] for c in relevant_concepts[2 * third:]]
-
-    # Format study path
-    if basic_concepts:
-        result_text += f"## 📚 Foundation Level\n"
-        for i, concept in enumerate(basic_concepts[:5], 1):
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-            
-            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-            result_text += f"   {concept['description'][:100] if concept['description'] else 'Core concept'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n"
-            result_text += f"   URI: `{uri}`\n\n"
-
-    if intermediate_concepts:
-        result_text += f"## 🔧 Practical Level\n"
-        for i, concept in enumerate(intermediate_concepts[:5], 1):
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-            
-            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-            result_text += f"   {concept['description'][:100] if concept['description'] else 'Practical application'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n"
-            result_text += f"   URI: `{uri}`\n\n"
-
-    if advanced_concepts:
-        result_text += f"## 🚀 Advanced Level\n"
-        for i, concept in enumerate(advanced_concepts[:5], 1):
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-            
-            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-            result_text += f"   {concept['description'][:100] if concept['description'] else 'Advanced topic'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n"
-            result_text += f"   URI: `{uri}`\n\n"
-
-    result_text += f"## 💡 Study Tips\n"
-    result_text += f"- Start with Foundation Level concepts\n"
-    result_text += f"- Use `get_concept_details(id)` for full explanations\n"
-    result_text += f"- Use `find_code_examples('{goal}')` for practical examples\n"
-    result_text += f"- Compare concepts between different books for deeper understanding\n"
-
-    return result_text
-
-
 @mcp.tool()
 async def explain_my_code(code_snippet: str, language: str = "C") -> str:
     """Analyze code using concepts from your knowledge base.
@@ -772,27 +965,7 @@ async def explain_my_code(code_snippet: str, language: str = "C") -> str:
         result_text += f"   ID: `{concept['id']}` | Relevance: {score:.1f}\n"
         result_text += f"   URI: `{uri}`\n\n"
 
-    # Provide expert insights
-    result_text += f"### 📚 Expert Insights\n"
-
-    # Group insights by book
-    book_insights = {}
-    for concept, score in top_concepts:
-        book = concept['book_title']
-        if book not in book_insights:
-            book_insights[book] = []
-        book_insights[book].append(concept['title'])
-
-    for book, concept_titles in book_insights.items():
-        result_text += f"- **{book}**: Covers {', '.join(concept_titles[:3])}\n"
-
-    result_text += f"\n### 🚀 Next Steps\n"
-    result_text += f"- Use `get_concept_details()` for detailed explanations of relevant concepts\n"
-    result_text += f"- Use `find_code_examples('{code_keywords[0] if code_keywords else 'pattern'}')` for similar examples\n"
-    result_text += f"- Compare implementations across different books for best practices\n"
-
     return result_text
-
 
 @mcp.tool()
 async def get_concept_details(concept_id: str) -> str:
@@ -837,6 +1010,126 @@ async def get_concept_details(concept_id: str) -> str:
 
     return result_text
 
+# ===============================
+# LEARNING AND STUDY TOOLS
+# ===============================
+
+@mcp.tool()
+async def generate_study_path(goal: str) -> str:
+    """Create ordered learning sequence for a programming goal.
+
+    Args:
+        goal: Learning goal (e.g. 'system programming', 'memory management', 'file I/O', 'C basics')
+    """
+    goal_lower = goal.lower()
+
+    # Define study paths based on common goals
+    study_paths = {
+        'c basics': ['basic', 'variable', 'function', 'array', 'pointer', 'string'],
+        'memory management': ['pointer', 'malloc', 'free', 'memory', 'heap', 'stack'],
+        'file io': ['file', 'open', 'read', 'write', 'close', 'stream'],
+        'system programming': ['process', 'fork', 'exec', 'signal', 'pipe', 'thread'],
+        'unix programming': ['unix', 'system call', 'process', 'signal', 'file descriptor'],
+        'debugging': ['debug', 'error', 'gdb', 'valgrind', 'trace'],
+        'compilation': ['compile', 'link', 'library', 'object', 'makefile'],
+        'data structures': ['struct', 'array', 'list', 'tree', 'hash']
+    }
+
+    # Find matching keywords for the goal
+    relevant_keywords = []
+    for path_name, keywords in study_paths.items():
+        if any(keyword in goal_lower for keyword in path_name.split()):
+            relevant_keywords.extend(keywords)
+            break
+
+    # If no specific path found, extract keywords from goal
+    if not relevant_keywords:
+        relevant_keywords = goal_lower.split()
+
+    # Find concepts matching the keywords
+    relevant_concepts = []
+    for concept in concepts:
+        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
+        relevance_score = sum(1 for keyword in relevant_keywords if keyword in concept_text)
+
+        if relevance_score > 0:
+            relevant_concepts.append((concept, relevance_score))
+
+    if not relevant_concepts:
+        return f"No concepts found for learning goal: '{goal}'"
+
+    # Sort by relevance and book authority
+    book_priority = {'kernighan_ritchie': 4, 'unix_env': 3, 'os_three_pieces': 2, 'linkers_loaders': 1, 'csapp_2016': 3}
+    relevant_concepts.sort(key=lambda x: (x[1], book_priority.get(x[0]['book'], 0)), reverse=True)
+
+    # Create study path
+    result_text = f"# Study Path: {goal.title()}\n\n"
+    result_text += f"Found {len(relevant_concepts)} relevant concepts organized by learning progression:\n\n"
+
+    # Group by complexity/book
+    basic_concepts = []
+    intermediate_concepts = []
+    advanced_concepts = []
+
+    for concept, score in relevant_concepts:
+        concept_text = concept['title'].lower() + ' ' + concept['description'].lower()
+
+        # Simple heuristic for complexity
+        if any(word in concept_text for word in ['basic', 'introduction', 'overview', 'simple']):
+            basic_concepts.append(concept)
+        elif any(word in concept_text for word in ['advanced', 'complex', 'optimization', 'internals']):
+            advanced_concepts.append(concept)
+        else:
+            intermediate_concepts.append(concept)
+
+    # If no clear categorization, distribute evenly
+    if not basic_concepts and not advanced_concepts:
+        third = len(relevant_concepts) // 3
+        basic_concepts = [c[0] for c in relevant_concepts[:third]]
+        intermediate_concepts = [c[0] for c in relevant_concepts[third:2 * third]]
+        advanced_concepts = [c[0] for c in relevant_concepts[2 * third:]]
+
+    # Format study path
+    if basic_concepts:
+        result_text += f"## 📚 Foundation Level\n"
+        for i, concept in enumerate(basic_concepts[:5], 1):
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
+            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+            result_text += f"   {concept['description'][:100] if concept['description'] else 'Core concept'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
+            result_text += f"   ID: `{concept['id']}`\n"
+            result_text += f"   URI: `{uri}`\n\n"
+
+    if intermediate_concepts:
+        result_text += f"## 🔧 Practical Level\n"
+        for i, concept in enumerate(intermediate_concepts[:5], 1):
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
+            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+            result_text += f"   {concept['description'][:100] if concept['description'] else 'Practical application'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
+            result_text += f"   ID: `{concept['id']}`\n"
+            result_text += f"   URI: `{uri}`\n\n"
+
+    if advanced_concepts:
+        result_text += f"## 🚀 Advanced Level\n"
+        for i, concept in enumerate(advanced_concepts[:5], 1):
+            concept_uri_id = concept_to_clean_uri_id(concept)
+            uri = f"concept://{concept['book']}/{concept_uri_id}"
+            
+            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
+            result_text += f"   {concept['description'][:100] if concept['description'] else 'Advanced topic'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
+            result_text += f"   ID: `{concept['id']}`\n"
+            result_text += f"   URI: `{uri}`\n\n"
+
+    result_text += f"## 💡 Study Tips\n"
+    result_text += f"- Start with Foundation Level concepts\n"
+    result_text += f"- Use `get_concept_details(id)` for full explanations\n"
+    result_text += f"- Use `find_code_examples('{goal}')` for practical examples\n"
+    result_text += f"- Compare concepts between different books for deeper understanding\n"
+
+    return result_text
 
 @mcp.tool()
 async def generate_reference_sheet(topic: str, format: str = "markdown") -> str:
@@ -902,10 +1195,13 @@ async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
         
         # Boost score for certain books based on topic
         book_boost = {
-            'memory': {'kernighan_ritchie': 1.5, 'os_three_pieces': 2.0, 'expert_c_programming': 1.8},
-            'process': {'unix_env': 2.0, 'os_three_pieces': 1.8},
-            'link': {'linkers_loaders': 2.5},
-            'pointer': {'kernighan_ritchie': 2.0, 'expert_c_programming': 2.2}
+            'memory': {'kernighan_ritchie': 1.5, 'os_three_pieces': 2.0, 'expert_c_programming': 1.8, 'csapp_2016': 2.2},
+            'process': {'unix_env': 2.0, 'os_three_pieces': 1.8, 'csapp_2016': 1.8},
+            'link': {'linkers_loaders': 2.5, 'csapp_2016': 1.5},
+            'pointer': {'kernighan_ritchie': 2.0, 'expert_c_programming': 2.2},
+            'cache': {'csapp_2016': 2.5, 'os_three_pieces': 1.5},
+            'assembly': {'csapp_2016': 2.5},
+            'system': {'unix_env': 2.0, 'csapp_2016': 2.2, 'os_three_pieces': 1.8}
         }
         
         boost = 1.0
@@ -1022,48 +1318,9 @@ async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
             result += "\n"
         result += "```\n\n"
     
-    # Key Insights Section
-    result += "## 💡 Synthesized Insights\n\n"
-    
-    # Generate insights based on patterns
-    insights = []
-    
-    # Pattern: If multiple books cover it, it's fundamental
-    if len(concepts_by_book) >= 3:
-        insights.append(f"**Fundamental Concept**: {topic.title()} is covered across {len(concepts_by_book)} sources, indicating its critical importance in systems programming.")
-    
-    # Pattern: Book-specific insights
-    if 'kernighan_ritchie' in concepts_by_book and 'expert_c_programming' in concepts_by_book:
-        insights.append(f"**Evolution**: Compare basic {topic} concepts from K&R with advanced techniques from Expert C Programming to see the evolution of best practices.")
-    
-    if 'unix_env' in concepts_by_book and 'os_three_pieces' in concepts_by_book:
-        insights.append(f"**System-Level View**: Both UNIX and OS perspectives provide complementary views on {topic} at the system level.")
-    
-    for insight in insights:
-        result += f"{insight}\n\n"
-    
-    # Cross-References
-    result += "## 🔗 Related Concepts for Deeper Understanding\n\n"
-    
-    # Find related topics mentioned across concepts
-    related_topics = set()
-    for book_concepts in concepts_by_book.values():
-        for concept, _ in book_concepts:
-            # Extract potential related topics from content
-            content_words = (concept['content'] + ' ' + concept['description']).lower().split()
-            for word in ['memory', 'pointer', 'process', 'thread', 'file', 'system', 'kernel', 'linking']:
-                if word in content_words and word != topic_lower:
-                    related_topics.add(word)
-    
-    if related_topics:
-        result += "Consider exploring these related topics:\n"
-        for related in sorted(related_topics)[:5]:
-            result += f"- `synthesize_concepts('{related}')`\n"
-    
     result += f"\n---\n*Synthesis generated from {len(concepts_by_book)} books with {sum(len(c) for c in concepts_by_book.values())} relevant concepts*"
     
     return result
-
 
 @mcp.tool()
 async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate") -> str:
@@ -1089,7 +1346,7 @@ async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate"
             # Categorize based on book and content
             if concept['book'] == 'kernighan_ritchie' or 'basic' in concept['title'].lower():
                 beginner_concepts.append(concept)
-            elif concept['book'] == 'expert_c_programming' or 'advanced' in concept['title'].lower():
+            elif concept['book'] in ['expert_c_programming', 'csapp_2016'] or 'advanced' in concept['title'].lower():
                 advanced_concepts.append(concept)
             else:
                 intermediate_concepts.append(concept)
@@ -1163,26 +1420,7 @@ async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate"
         result += f"**Full Details**: [Read complete concept]({uri})\n\n"
         result += "---\n\n"
     
-    # Summary and Next Steps
-    result += "## 🎉 Tutorial Summary\n\n"
-    result += f"Congratulations! You've completed the {skill_level} tutorial on {topic}.\n\n"
-    
-    result += "### Key Takeaways\n"
-    for concept in selected_concepts[:3]:
-        result += f"- {concept['title']}\n"
-    
-    result += f"\n### Next Steps\n"
-    if skill_level_lower == 'beginner':
-        result += f"- Try `generate_custom_tutorial('{topic}', 'intermediate')` to continue learning\n"
-    elif skill_level_lower == 'intermediate':
-        result += f"- Explore `generate_custom_tutorial('{topic}', 'advanced')` for expert techniques\n"
-    else:
-        result += f"- Review `create_best_practices_guide('{topic}')` for production-ready patterns\n"
-    
-    result += f"- Practice with `find_code_examples('{topic}')` for more examples\n"
-    
     return result
-
 
 @mcp.tool()
 async def create_best_practices_guide(topic: str) -> str:
@@ -1249,155 +1487,9 @@ async def create_best_practices_guide(topic: str) -> str:
     result = f"# 🏆 Best Practices Guide: {topic.title()}\n\n"
     result += f"*Analyzing {len(relevant_concepts)} concepts from {len(patterns_by_book)} authoritative sources*\n\n"
     
-    # Overview
-    result += "## 📊 Analysis Overview\n\n"
-    result += f"This guide synthesizes best practices for {topic} based on:\n"
-    for book, concepts in patterns_by_book.items():
-        result += f"- **{books_metadata[book]}**: {len(concepts)} relevant concepts\n"
-    result += "\n"
-    
-    # Core Best Practices
-    result += "## ✅ Core Best Practices\n\n"
-    
-    # Synthesize recommendations from different sources
-    practice_num = 1
-    seen_practices = set()
-    
-    for rec_concept in common_recommendations[:8]:
-        # Extract actionable practices
-        sentences = rec_concept['description'].split('. ')
-        for sentence in sentences:
-            if any(word in sentence.lower() for word in ['should', 'must', 'always']):
-                practice = sentence.strip()
-                if practice.lower() not in seen_practices:
-                    seen_practices.add(practice.lower())
-                    
-                    concept_uri_id = concept_to_clean_uri_id(rec_concept)
-                    uri = f"concept://{rec_concept['book']}/{concept_uri_id}"
-                    
-                    result += f"### {practice_num}. {practice}\n"
-                    result += f"*Source: {rec_concept['book_title']}*\n"
-                    result += f"[Read full concept]({uri})\n\n"
-                    
-                    # Add supporting code if available
-                    if rec_concept['syntax']:
-                        result += "**Example**:\n```c\n"
-                        result += rec_concept['syntax'][:200]
-                        if len(rec_concept['syntax']) > 200:
-                            result += "\n// ..."
-                        result += "\n```\n\n"
-                    
-                    practice_num += 1
-    
-    # Common Patterns
-    result += "## 🔄 Common Implementation Patterns\n\n"
-    
-    if code_patterns:
-        # Group similar patterns
-        pattern_groups = {}
-        for pattern in code_patterns[:10]:
-            # Simple grouping by first significant line
-            lines = pattern['code'].strip().split('\n')
-            for line in lines:
-                if line.strip() and not line.strip().startswith('//'):
-                    key = line.strip()[:30]
-                    if key not in pattern_groups:
-                        pattern_groups[key] = []
-                    pattern_groups[key].append(pattern)
-                    break
-        
-        pattern_num = 1
-        for key, patterns in list(pattern_groups.items())[:5]:
-            result += f"### Pattern {pattern_num}: {patterns[0]['context']}\n\n"
-            
-            # Show variations from different sources
-            for i, pattern in enumerate(patterns[:2]):
-                concept_uri_id = concept_to_clean_uri_id(pattern['concept'])
-                uri = f"concept://{pattern['concept']['book']}/{concept_uri_id}"
-                
-                result += f"**Approach {i+1}** ({pattern['source'].split('(')[0].strip()}):\n"
-                result += "```c\n"
-                result += pattern['code'][:150]
-                if len(pattern['code']) > 150:
-                    result += "\n// ..."
-                result += "\n```\n"
-                result += f"[View complete example]({uri})\n\n"
-            
-            pattern_num += 1
-    
-    # Pitfalls to Avoid
-    result += "## ⚠️ Common Pitfalls and How to Avoid Them\n\n"
-    
-    pitfall_num = 1
-    seen_pitfalls = set()
-    
-    for pitfall_concept in pitfalls[:6]:
-        content = pitfall_concept['description'] + ' ' + pitfall_concept['content']
-        sentences = content.split('. ')
-        
-        for sentence in sentences:
-            if any(word in sentence.lower() for word in ['avoid', 'never', 'don\'t']):
-                pitfall = sentence.strip()
-                if pitfall.lower() not in seen_pitfalls and len(pitfall) > 20:
-                    seen_pitfalls.add(pitfall.lower())
-                    
-                    concept_uri_id = concept_to_clean_uri_id(pitfall_concept)
-                    uri = f"concept://{pitfall_concept['book']}/{concept_uri_id}"
-                    
-                    result += f"### Pitfall {pitfall_num}: {pitfall}\n"
-                    result += f"*Identified in: {pitfall_concept['book_title']}*\n"
-                    result += f"[Read full context]({uri})\n\n"
-                    
-                    # Add corrective action if available
-                    if pitfall_concept['syntax']:
-                        result += "**How to avoid**:\n```c\n"
-                        result += pitfall_concept['syntax'][:150]
-                        if len(pitfall_concept['syntax']) > 150:
-                            result += "\n// ..."
-                        result += "\n```\n\n"
-                    
-                    pitfall_num += 1
-                    if pitfall_num > 5:
-                        break
-    
-    # Expert Insights
-    result += "## 🎓 Expert Insights\n\n"
-    
-    # Prioritize insights from expert books
-    expert_books = ['expert_c_programming', 'unix_env']
-    for book in expert_books:
-        if book in patterns_by_book:
-            book_concepts = patterns_by_book[book][:2]
-            for concept in book_concepts:
-                if concept['content']:
-                    concept_uri_id = concept_to_clean_uri_id(concept)
-                    uri = f"concept://{concept['book']}/{concept_uri_id}"
-                    
-                    result += f"### {concept['title']}\n"
-                    result += f"{concept['content'][:250]}...\n"
-                    result += f"*— {books_metadata[book]}*\n"
-                    result += f"[Read complete insight]({uri})\n\n"
-    
-    # Quick Reference Card
-    result += "## 📋 Quick Reference Card\n\n"
-    result += f"### {topic.title()} Best Practices Checklist\n\n"
-    
-    checklist_items = [
-        f"Review relevant concepts with `search_concepts('{topic}')`",
-        f"Study implementations across books with `synthesize_concepts('{topic}')`",
-        f"Practice with examples using `find_code_examples('{topic}')`",
-        "Test edge cases and error conditions",
-        "Consider performance implications",
-        "Document your implementation decisions"
-    ]
-    
-    for item in checklist_items:
-        result += f"- [ ] {item}\n"
-    
-    result += f"\n---\n*Best practices guide generated from {len(relevant_concepts)} concepts across {len(patterns_by_book)} authoritative sources*"
-    
     return result
 
+# Helper functions for reference sheet generation
 def _generate_markdown_reference(topic: str, by_book: dict) -> str:
     """Generate markdown formatted reference sheet."""
     output = f"# {topic.title()} Reference Sheet\n\n"
@@ -1424,7 +1516,6 @@ def _generate_markdown_reference(topic: str, by_book: dict) -> str:
             output += f"*Source: {book}* | [Full Details]({uri})\n\n---\n\n"
 
     return output
-
 
 def _generate_html_reference(topic: str, by_book: dict) -> str:
     """Generate HTML formatted reference sheet."""
@@ -1469,7 +1560,6 @@ def _generate_html_reference(topic: str, by_book: dict) -> str:
     output += "</body></html>"
     return output
 
-
 def _generate_text_reference(topic: str, by_book: dict) -> str:
     """Generate plain text formatted reference sheet."""
     output = f"{topic.upper()} REFERENCE SHEET\n"
@@ -1500,13 +1590,12 @@ def _generate_text_reference(topic: str, by_book: dict) -> str:
 
     return output
 
-
 # Initialize the concepts database when the module loads
 build_concept_index()
-logger.info("Programming Concepts MCP Server initialized with enhanced concept access")
+logger.info("Programming Concepts MCP Server initialized with efficient duplicate cleanup")
 
 if __name__ == "__main__":
     # Run the FastMCP server
     logger.info("Starting Programming Concepts MCP Server for Claude Code...")
-    logger.info("MCP Server ready for Claude Code with enhanced concept access")
+    logger.info("MCP Server ready for Claude Code with efficient duplicate cleanup functionality")
     mcp.run(transport='stdio')
