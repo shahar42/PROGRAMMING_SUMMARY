@@ -1,17 +1,17 @@
-MCP Server Project Description
+MCP Server Project Description:
 
 This project enables an AI client to access summarized, concept-factored JSON files created by Gemini, Grok, or OpenAI. The mcp_server.py provides comprehensive coverage of C programming concepts, including linking, loading, and system programming, with all answers derived from authoritative books listed in the project's books directory. This ensures reliable, high-quality responses while minimizing token usage.
 
-Key Features
+Key Features:
 
 
-Concept Comparison: Compare C programming concepts to gain insights into their differences and applications.
+1. Concept Comparison: Compare C programming concepts to gain insights into their differences and applications.
 
-Memory Optimization Queries: Request memory optimization strategies, leveraging expert-level resources like Expert C Programming.
+2. Memory Optimization Queries: Request memory optimization strategies, leveraging expert-level resources like Expert C Programming.
 
-Ordered Learning Paths: Generate structured sequences for learning goals such as "memory management" or "system programming."
+3. Ordered Learning Paths: Generate structured sequences for learning goals such as "memory management" or "system programming."
 
-Personalized Tutorials: Create tailored tutorials by selecting concepts based on your skill level (beginner, intermediate, or advanced).
+4. Personalized Tutorials: Create tailored tutorials by selecting concepts based on your skill level (beginner, intermediate, or advanced).
 
 
 
