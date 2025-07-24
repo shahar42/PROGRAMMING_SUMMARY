@@ -13,4 +13,10 @@ Ordered Learning Paths: Generate structured sequences for learning goals such as
 
 Personalized Tutorials: Create tailored tutorials by selecting concepts based on your skill level (beginner, intermediate, or advanced).
 
+
+
+
+
+
+
 <img width="828" height="856" alt="image" src="https://github.com/user-attachments/assets/01574291-ee08-4f65-9449-052e4266bdf2" />
