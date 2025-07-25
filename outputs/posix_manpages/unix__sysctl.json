@@ -1,0 +1,76 @@
+{
+  "name": "_sysctl",
+  "synopsis": [
+    "#include <unistd.h>",
+    "#include <linux/sysctl.h>",
+    "int _sysctl(struct __sysctl_args *args);"
+  ],
+  "description": "The _sysctl() system call reads and writes kernel parameters using a structured argument. It searches a tree of system variables and invokes routines to access or modify them. However, this call is deprecated and has been removed in recent kernels.",
+  "parameters": [
+    {
+      "name": "args",
+      "type": "struct __sysctl_args *",
+      "description": "Pointer to a structure containing the parameters: int *name (vector describing the variable), int nlen (length of the vector), void *oldval (address to store old value or 0), size_t *oldlenp (available room for old value), void *newval (address of new value or 0), and size_t newlen (size of new value)"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on successful completion",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "No search permission for one of the encountered directories, or no read permission where oldval was nonzero, or no write permission where newval was nonzero"
+    },
+    {
+      "code": "EPERM",
+      "description": "No search permission for one of the encountered directories, or no read permission where oldval was nonzero, or no write permission where newval was nonzero"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The invocation asked for the previous value by setting oldval non-NULL, but allowed zero room in oldlenp"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "The specified name was not found"
+    }
+  ],
+  "bugs": "Object names vary between kernel versions, making this system call unreliable for applications. Not all available objects are properly documented. It is not possible to change the operating system by writing to /proc/sys/kernel/ostype.",
+  "versions": "Introduced in Linux 1.3.57, removed in Linux 5.5 and glibc 2.32; originated in 4.4BSD.",
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <string.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "#include <linux/sysctl.h>",
+    "int main(void) {",
+    "    int name[] = { CTL_KERN, KERN_OSTYPE };",
+    "    char osname[OSNAMESZ];",
+    "    size_t osnamelth;",
+    "    struct __sysctl_args args;",
+    "    memset(&args, 0, sizeof(args));",
+    "    args.name = name;",
+    "    args.nlen = ARRAY_SIZE(name);",
+    "    args.oldval = osname;",
+    "    args.oldlenp = &osnamelth;",
+    "    osnamelth = sizeof(osname);",
+    "    if (syscall(SYS__sysctl, &args) == -1) {",
+    "        perror(\"_sysctl\");",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    printf(\"This machine is running %*s\\n\", (int) osnamelth, osname);",
+    "    exit(EXIT_SUCCESS);",
+    "}"
+  ],
+  "related_calls": [],
+  "extraction_metadata": {
+    "syscall_file": "_sysctl.pdf",
+    "extraction_date": "2025-07-25T23:49:33.657443",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,26 +1,26 @@
 # Daily CSAPP Systems Extraction Summary
-**Date:** 2025-07-25 20:00:41
+**Date:** 2025-07-25 23:50:44
 **Book:** Computer Systems: A Programmer's Perspective (3rd Edition)
 **Focus:** Computer architecture and systems programming
 
 ## Systems Concepts Extracted Today: 4
 
-### 1. Control Flow Implementation in Assembly
-**Systems concept:** Control flow, the order in which instructions are executed, is fundamental to program behavior.  In computer architecture, control flow is implemented using conditional jumps and branches based on the...
+### 1. x86-64 Procedure Call Convention and Stack Frame Management
+**Systems concept:** x86-64 uses a calling convention to manage procedure calls, defining how arguments are passed, return values are handled, and how the stack is used to manage local variables and control flow.  Underst...
 
-### 2. Conditional Branching in Assembly and its impact on CPU Pipeline
-**Systems concept:** Conditional branching is a fundamental control flow mechanism where the CPU executes different instructions based on a condition.  In computer architecture, this impacts CPU pipelining significantly b...
+### 2. Procedure Call and Return using Stack
+**Systems concept:** Procedure call and return are fundamental mechanisms for managing program execution flow.  In computer systems, functions (procedures) are organized hierarchically, and efficient transfer of control b...
 
-### 3. Conditional Branching and Control Flow in x86-64 Assembly
-**Systems concept:** Conditional branching is a fundamental aspect of computer architecture that allows a program to alter its execution sequence based on runtime conditions.  This is crucial for implementing decision-mak...
+### 3. Procedure Call and Return in x86-64
+**Systems concept:** Procedure call and return are fundamental mechanisms for modularizing code and enabling code reuse in computer systems.  In x86-64, the `call` instruction pushes the return address (the address of the...
 
-### 4. Conditional Branching in Assembly and its Relation to High-Level Control Flow
-**Systems concept:** High-level programming languages like C use control flow statements (if, else, while, etc.) to alter the execution sequence.  Compilers translate these into assembly instructions, primarily using cond...
+### 4. Machine-level programming with x86-64 assembly
+**Systems concept:** Machine-level programming involves writing code directly in the instruction set architecture (ISA) of a processor, such as x86-64. This allows for fine-grained control over hardware resources and opti...
 
 ## CSAPP Progress Summary
-- **Total Systems Concepts:** 55
-- **Extraction Sessions:** 16
-- **Last Processed Page:** 253
+- **Total Systems Concepts:** 63
+- **Extraction Sessions:** 18
+- **Last Processed Page:** 283
 
 ## Next Session
 Continue CSAPP systems extraction to explore more computer architecture concepts.

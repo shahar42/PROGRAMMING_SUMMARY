@@ -143,6 +143,58 @@ def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
 
     concepts.append(concept)
 
+
+def format_parameters(parameters):
+    """Format parameter list for display"""
+    if not parameters:
+        return ""
+    
+    formatted = []
+    for param in parameters:
+        name = param.get('name', 'unknown')
+        param_type = param.get('type', 'unknown') 
+        desc = param.get('description', 'No description')
+        formatted.append(f"- **{name}** ({param_type}): {desc}")
+    
+    return "\n".join(formatted)
+
+def format_errors(errors):
+    """Format error list for display"""
+    if not errors:
+        return ""
+    
+    formatted = []
+    for error in errors:
+        code = error.get('code', 'UNKNOWN')
+        desc = error.get('description', 'No description')
+        formatted.append(f"- **{code}**: {desc}")
+    
+    return "\n".join(formatted)
+
+def load_posix_concepts():
+    """Load POSIX syscalls as concepts"""
+    posix_dir = Path("/home/shahar42/Suumerizing_C_holy_grale_book/outputs/posix_manpages")
+    
+    if not posix_dir.exists():
+        return
+        
+    for json_file in posix_dir.glob("unix_*.json"):
+        try:
+            with open(json_file, 'r', encoding='utf-8') as f:
+                syscall = json.load(f)
+            
+            # Format as concept
+            concept_data = {
+                'topic': f"{syscall['name']}() - POSIX System Call",
+                'explanation': syscall['description'],
+                'syntax': '\n'.join(syscall['synopsis']),
+                'content': f"Parameters:\n{format_parameters(syscall.get('parameters', []))}\n\nErrors:\n{format_errors(syscall.get('errors', []))}"
+            }
+            
+            add_concept(concept_data, 'posix_manpages', json_file.name)
+            
+        except Exception as e:
+            logger.warning(f"Error loading POSIX concept {json_file}: {e}")
 # ===============================
 # ENHANCED CONCEPT ACCESS
 # ===============================

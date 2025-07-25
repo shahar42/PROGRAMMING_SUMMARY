@@ -28,28 +28,49 @@ logger = logging.getLogger("master-orchestrator-mcp")
 # Initialize FastMCP server
 mcp = FastMCP("master-orchestrator")
 
-# Import topic detection from Part 1
+# Import topic detection from Part 1, with robust error handling
 try:
-    from topic_detection_mcp import calculate_topic_scores, get_recommendations, BOOK_CONFIGS
+    from topic_detection_mcp import calculate_topic_scores, get_recommendations, BOOK_CONFIGS, classify_query_intent
     logger.info("✅ Successfully imported topic detection from Part 1")
-except ImportError as e:
-    logger.error(f"❌ Could not import topic detection: {e}")
-    # Fallback basic detection
+except (ImportError, SyntaxError) as e:
+    logger.error(f"❌ Could not import from 'topic_detection_mcp.py': {e}")
+    logger.warning("⚠️ Using fallback topic detection and intent classification.")
+    
+    # Fallback basic detection for BOOK_CONFIGS
     BOOK_CONFIGS = {
         "kernighan_ritchie": {"name": "K&R C Programming"},
         "unix_env": {"name": "UNIX Environment"},
         "linkers_loaders": {"name": "Linkers & Loaders"},
         "os_three_pieces": {"name": "Operating Systems"},
         "expert_c_programming": {"name": "Expert C Programming"},
-        "csapp_2016": {"name": "Computer Systems (CSAPP)"}
+        "csapp_2016": {"name": "Computer Systems (CSAPP)"},
+        "posix_manpages": {"name": "POSIX Manpages"}
     }
 
-# Global state for active servers
-ACTIVE_SERVERS = {}  # {server_name: {"process": subprocess, "port": int, "started_at": timestamp}}
-BASE_PORT = 8100  # Starting port for micro servers
-PROJECT_ROOT = "/home/shahar42/Suumerizing_C_holy_grale_book"
+    # Fallback functions to allow the server to run
+    def calculate_topic_scores(question: str) -> Dict:
+        """Fallback topic score calculator."""
+        logger.warning("Using fallback 'calculate_topic_scores'")
+        return {book: 0.0 for book in BOOK_CONFIGS.keys()}
 
-# Book server configurations - UPDATED with CSAPP
+    def get_recommendations(scores: Dict) -> List:
+        """Fallback recommendation generator."""
+        logger.warning("Using fallback 'get_recommendations'")
+        return [{"book": "kernighan_ritchie", "confidence": "low", "reasoning": "Fallback due to import error"}]
+
+    def classify_query_intent(question: str) -> str:
+        """Fallback intent classifier."""
+        logger.warning("Using fallback 'classify_query_intent'")
+        if any(keyword in question.lower() for keyword in ["man", "usage", "parameters", "arguments", "return value"]):
+            return "reference"
+        return "conceptual"
+
+# Global state for active servers
+ACTIVE_SERVERS: Dict[str, Dict] = {}  # {server_name: {"process": subprocess, "port": int, "started_at": timestamp}}
+BASE_PORT = 8100  # Starting port for micro servers
+PROJECT_ROOT = Path(__file__).resolve().parents[2] # More robust way to find project root
+
+# Book server configurations
 BOOK_SERVER_CONFIGS = {
     "kernighan_ritchie": {
         "script_path": "scripts/book_servers/kernighan_ritchie_server.py",
@@ -57,7 +78,7 @@ BOOK_SERVER_CONFIGS = {
         "description": "K&R C Programming concepts server"
     },
     "unix_env": {
-        "script_path": "scripts/book_servers/unix_env_server.py", 
+        "script_path": "scripts/book_servers/unix_env_server.py",
         "port": 8102,
         "description": "UNIX Environment programming server"
     },
@@ -80,6 +101,11 @@ BOOK_SERVER_CONFIGS = {
         "script_path": "scripts/book_servers/csapp_server.py",
         "port": 8106,
         "description": "Computer Systems & Architecture concepts server"
+    },
+    "posix_manpages": {
+    "script_path": "scripts/book_servers/posix_manpages_server.py",
+    "port": 8107,
+    "description": "POSIX system call reference server"
     }
 }
 
@@ -123,15 +149,30 @@ def analyze_and_route_question(programming_question: str) -> Dict:
         logger.info(f"📊 Question analysis: {programming_question[:50]}...")
         logger.info(f"🎯 Top recommendations: {[r['book'] for r in recommendations[:3]]}")
         
-        # Spawn servers for top recommendations
+        # Intent-aware routing
+        intent = classify_query_intent(programming_question)
         spawned_servers = []
         routing_details = []
         
-        for rec in recommendations[:2]:  # Top 2 recommendations
+        # Prioritize POSIX for API reference queries
+        if intent == "reference" and any(rec['book'] == 'posix_manpages' for rec in recommendations[:3]):
+            spawn_result = spawn_specific_server("posix_manpages")
+            if spawn_result['success']:
+                spawned_servers.append({
+                    "server": "posix_manpages",
+                    "port": 8107,
+                    "confidence": "high",
+                    "description": "POSIX system call reference"
+                })
+        
+        # Add top book recommendations (limit to 2 total servers)
+        for rec in recommendations[:2]:
+            if len(spawned_servers) >= 2:
+                break
             book_name = rec['book']
             confidence = rec['confidence']
             
-            if book_name in BOOK_SERVER_CONFIGS:
+            if book_name in BOOK_SERVER_CONFIGS and book_name != 'posix_manpages':
                 spawn_result = spawn_specific_server(book_name)
                 if spawn_result['success']:
                     spawned_servers.append({
@@ -161,7 +202,7 @@ def analyze_and_route_question(programming_question: str) -> Dict:
         }
         
     except Exception as e:
-        logger.error(f"Error in routing analysis: {e}")
+        logger.error(f"Error in routing analysis: {e}", exc_info=True)
         return {
             "question": programming_question,
             "error": str(e),
@@ -202,6 +243,7 @@ def spawn_specific_server(book_name: str) -> Dict:
             }
         else:
             # Process died, remove from active list
+            logger.warning(f"Found dead server process for {book_name}. Cleaning up.")
             del ACTIVE_SERVERS[book_name]
     
     # Spawn new server
@@ -222,6 +264,7 @@ def spawn_specific_server(book_name: str) -> Dict:
             cwd=PROJECT_ROOT,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            text=True, # Decode stdout/stderr as text
             env=os.environ.copy()
         )
         
@@ -230,10 +273,11 @@ def spawn_specific_server(book_name: str) -> Dict:
         
         # Check if it started successfully
         if process.poll() is None:  # Still running
+            start_time = time.time()
             ACTIVE_SERVERS[book_name] = {
                 "process": process,
                 "port": config["port"],
-                "started_at": time.time(),
+                "started_at": start_time,
                 "description": config["description"]
             }
             
@@ -244,22 +288,23 @@ def spawn_specific_server(book_name: str) -> Dict:
                 "server": book_name,
                 "port": config["port"],
                 "description": config["description"],
-                "started_at": time.time(),
+                "started_at": start_time,
                 "status": "newly_spawned"
             }
         else:
             # Process died immediately
             stdout, stderr = process.communicate()
+            logger.error(f"Failed to spawn {book_name}. Process died immediately.")
             return {
                 "success": False,
-                "error": f"Server process died immediately",
-                "stdout": stdout.decode() if stdout else "",
-                "stderr": stderr.decode() if stderr else "",
+                "error": f"Server process for {book_name} died immediately",
+                "stdout": stdout,
+                "stderr": stderr,
                 "config": config
             }
             
     except Exception as e:
-        logger.error(f"Error spawning {book_name} server: {e}")
+        logger.error(f"Error spawning {book_name} server: {e}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -348,7 +393,7 @@ def kill_specific_server(book_name: str) -> Dict:
         }
         
     except Exception as e:
-        logger.error(f"Error killing {book_name}: {e}")
+        logger.error(f"Error killing {book_name}: {e}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -399,21 +444,19 @@ def get_orchestrator_status() -> Dict:
     """
     global ACTIVE_SERVERS
     
-    # Clean up dead processes
-    active_count_before = len(ACTIVE_SERVERS)
-    list_active_servers()  # This cleans up dead servers
-    active_count_after = len(ACTIVE_SERVERS)
+    # Clean up dead processes by calling list_active_servers
+    status_report = list_active_servers()
     
     # Calculate total available ports
     all_ports = [config["port"] for config in BOOK_SERVER_CONFIGS.values()]
-    used_ports = [server["port"] for server in ACTIVE_SERVERS.values()]
+    used_ports = [server["port"] for server in status_report["active_servers"]]
     free_ports = [port for port in all_ports if port not in used_ports]
     
     return {
         "orchestrator_status": "running",
         "total_managed_books": len(BOOK_SERVER_CONFIGS),
-        "active_servers": len(ACTIVE_SERVERS),
-        "dead_servers_cleaned": active_count_before - active_count_after,
+        "active_servers": len(status_report["active_servers"]),
+        "dead_servers_cleaned_now": status_report["dead_servers_cleaned"],
         "port_management": {
             "base_port": BASE_PORT,
             "total_ports": len(all_ports),
@@ -424,11 +467,11 @@ def get_orchestrator_status() -> Dict:
             name: {
                 "description": config["description"],
                 "port": config["port"],
-                "status": "active" if name in ACTIVE_SERVERS else "inactive"
+                "status": "active" if config["port"] in used_ports else "inactive"
             }
             for name, config in BOOK_SERVER_CONFIGS.items()
         },
-        "project_root": PROJECT_ROOT,
+        "project_root": str(PROJECT_ROOT),
         "supported_books": list(BOOK_SERVER_CONFIGS.keys())
     }
 

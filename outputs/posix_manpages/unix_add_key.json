@@ -1,0 +1,96 @@
+{
+  "name": "add_key",
+  "synopsis": [
+    "#include <keyutils.h>",
+    "key_serial_t add_key(const char *type, const char *description, const void *payload, size_t plen, key_serial_t keyring);"
+  ],
+  "description": "The add_key() system call creates or updates a key in the kernel's key management facility with the specified type, description, and payload, then attaches it to the given keyring and returns the key's serial number. If the key already exists in the keyring and the type supports it, it updates the existing key instead.",
+  "parameters": [
+    {
+      "name": "type",
+      "type": "const char *",
+      "description": "The type of the key to create or update (e.g., \"keyring\", \"user\")."
+    },
+    {
+      "name": "description",
+      "type": "const char *",
+      "description": "A string describing the key, with length limits based on the key type."
+    },
+    {
+      "name": "payload",
+      "type": "const void *",
+      "description": "The data payload for the key; for keyrings, this should be NULL."
+    },
+    {
+      "name": "plen",
+      "type": "size_t",
+      "description": "The length of the payload data."
+    },
+    {
+      "name": "keyring",
+      "type": "key_serial_t",
+      "description": "The serial number of the keyring to attach the key to, or a special ID like KEY_SPEC_SESSION_KEYRING."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the serial number of the key created or updated",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The keyring wasn’t available for modification by the user."
+    },
+    {
+      "code": "EDQUOT",
+      "description": "The key quota for this user would be exceeded by creating this key or linking it to the keyring."
+    },
+    {
+      "code": "EFAULT",
+      "description": "One or more of type, description, and payload points outside the process’s accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The size of the string in type or description exceeded the limit, the payload data was invalid, or type was \"logon\" without a proper description prefix."
+    },
+    {
+      "code": "EKEYEXPIRED",
+      "description": "The keyring has expired."
+    },
+    {
+      "code": "EKEYREVOKED",
+      "description": "The keyring has been revoked."
+    },
+    {
+      "code": "ENOKEY",
+      "description": "The keyring doesn’t exist."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to create a key."
+    },
+    {
+      "code": "EPERM",
+      "description": "The type started with a period, or for \"keyring\" type, the description started with a period."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.10",
+  "posix_compliance": null,
+  "examples": [
+    "key_serial_t key = add_key(argv[1], argv[2], argv[3], strlen(argv[3]), KEY_SPEC_SESSION_KEYRING);",
+    "if (key == -1) { perror(\"add_key\"); exit(EXIT_FAILURE); }",
+    "printf(\"Key ID is %jx\\n\", (uintmax_t) key);"
+  ],
+  "related_calls": [
+    "keyctl",
+    "request_key"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "add_key.pdf",
+    "extraction_date": "2025-07-25T23:51:25.498731",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

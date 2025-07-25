@@ -123,6 +123,18 @@ BOOK_CONFIGS = {
             "throughput", "latency", "bandwidth", "scalability"
         ],
         "weight": 1.5  # Higher weight for systems concepts
+    },
+    "posix_manpages": {
+    "name": "POSIX System Calls Reference",
+    "focus": "Comprehensive reference for POSIX system calls, including parameters, return values, and error codes",
+    "keywords": [
+        "syscall", "system call", "parameters", "errno", "return value",
+        "epoll", "fork", "exec", "socket", "bind", "listen", "accept",
+        "read", "write", "open", "close", "poll", "select",
+        "pipe", "dup", "dup2", "wait", "waitpid", "signal", "sigaction",
+        "mmap", "munmap", "fstat", "lseek", "connect", "send", "recv"
+    ],
+    "weight": 1.7
     }
 }
 
@@ -273,6 +285,23 @@ def get_recommendations(topic_scores: Dict[str, float], min_score: float = 0.5) 
             })
     
     return recommendations
+
+def classify_query_intent(user_question):
+    """Determine if user wants API reference or learning material"""
+    reference_patterns = [
+        r"\w+\(\)",  # function() syntax
+        r"parameters? (?:for|of) \w+",  # "parameters for fork"
+        r"return value",  # "return value"
+        r"error codes?",  # "error codes"
+        r"how do I (?:use|call) \w+"  # "how do I use epoll"
+    ]
+    
+    question_lower = user_question.lower()
+    for pattern in reference_patterns:
+        if re.search(pattern, question_lower):
+            return "reference"
+    
+    return "learning"
 
 @mcp.tool()
 def detect_relevant_server(user_question: str) -> Dict:

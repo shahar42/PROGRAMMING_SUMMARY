@@ -1,0 +1,115 @@
+{
+  "name": "bind",
+  "synopsis": [
+    "#include <sys/socket.h>",
+    "int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);"
+  ],
+  "description": "bind() assigns the address specified by addr to the socket referred to by the file descriptor sockfd. It is normally necessary to assign a local address using bind() before a SOCK_STREAM socket can receive connections. The rules for name binding vary by address family.",
+  "parameters": [
+    {
+      "name": "sockfd",
+      "type": "int",
+      "description": "File descriptor of the socket to bind."
+    },
+    {
+      "name": "addr",
+      "type": "const struct sockaddr *",
+      "description": "Pointer to the address structure to assign to the socket."
+    },
+    {
+      "name": "addrlen",
+      "type": "socklen_t",
+      "description": "Size, in bytes, of the address structure pointed to by addr."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The address is protected, and the user is not the superuser."
+    },
+    {
+      "code": "EADDRINUSE",
+      "description": "The given address is already in use."
+    },
+    {
+      "code": "EBADF",
+      "description": "sockfd is not a valid file descriptor."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The socket is already bound, or addrlen is wrong, or addr is not valid for this socket's domain."
+    },
+    {
+      "code": "ENOTSOCK",
+      "description": "The file descriptor sockfd does not refer to a socket."
+    },
+    {
+      "code": "EADDRNOTAVAIL",
+      "description": "A nonexistent interface was requested or the requested address was not local."
+    },
+    {
+      "code": "EFAULT",
+      "description": "addr points outside the user's accessible address space."
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in resolving addr."
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "addr is too long."
+    },
+    {
+      "code": "ENOENT",
+      "description": "A component in the directory prefix of the socket pathname does not exist."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available."
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix is not a directory."
+    },
+    {
+      "code": "EROFS",
+      "description": "The socket inode would reside on a read-only filesystem."
+    }
+  ],
+  "bugs": "The transparent proxy options are not described.",
+  "versions": "First appeared in 4.2BSD; POSIX.1-2001",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <sys/socket.h>",
+    "#include <sys/un.h>",
+    "struct sockaddr_un my_addr;",
+    "memset(&my_addr, 0, sizeof(my_addr));",
+    "my_addr.sun_family = AF_UNIX;",
+    "strncpy(my_addr.sun_path, MY_SOCK_PATH, sizeof(my_addr.sun_path) - 1);",
+    "if (bind(sfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == -1) handle_error(\"bind\");"
+  ],
+  "related_calls": [
+    "accept",
+    "connect",
+    "getsockname",
+    "listen",
+    "socket",
+    "getaddrinfo",
+    "getifaddrs",
+    "ip",
+    "ipv6",
+    "path_resolution",
+    "unix"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "bind.pdf",
+    "extraction_date": "2025-07-26T00:07:49.670233",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "clock_getres",
+  "synopsis": [
+    "#include <time.h>",
+    "int clock_getres(clockid_t clockid, struct timespec *_Nullable res);"
+  ],
+  "description": "The clock_getres() function retrieves the resolution (precision) of the specified clock. If the res pointer is not NULL, it stores the resolution in the provided struct timespec. The resolution is implementation-dependent and cannot be configured by a process.",
+  "parameters": [
+    {
+      "name": "clockid",
+      "type": "clockid_t",
+      "description": "Identifier of the clock for which to retrieve the resolution."
+    },
+    {
+      "name": "res",
+      "type": "struct timespec *_Nullable",
+      "description": "Pointer to a timespec structure to store the resolution, or NULL if not needed."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "res points outside the accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The clockid specified is invalid."
+    },
+    {
+      "code": "ENODEV",
+      "description": "The hot-pluggable device represented by a dynamic clockid has disappeared."
+    }
+  ],
+  "bugs": null,
+  "versions": "glibc 2.17 and later",
+  "posix_compliance": "POSIX.1b-1993",
+  "examples": [
+    "#define CLOCKFD 3",
+    "#define FD_TO_CLOCKID(fd) ((~(clockid_t) (fd) << 3) | CLOCKFD)",
+    "int fd;",
+    "clockid_t clkid;",
+    "struct timespec ts;",
+    "fd = open(\"/dev/ptp0\", O_RDWR);",
+    "clkid = FD_TO_CLOCKID(fd);",
+    "clock_getres(clkid, &ts);"
+  ],
+  "related_calls": [
+    "clock_gettime",
+    "clock_settime"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "clock_getres.pdf",
+    "extraction_date": "2025-07-26T00:13:19.932643",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}
