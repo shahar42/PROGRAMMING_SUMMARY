@@ -233,6 +233,9 @@ def calculate_topic_scores(user_question: str) -> Dict[str, float]:
                 score += systems_matches * 2.0  # Strong boost for systems questions
         
         scores[book_name] = round(score, 2)
+
+        if any(term in question_lower for term in ['syscall', 'system call', 'posix', 'api']):
+            scores['posix_manpages'] += 3 
     
     return scores
 
@@ -286,22 +289,108 @@ def get_recommendations(topic_scores: Dict[str, float], min_score: float = 0.5) 
     
     return recommendations
 
-def classify_query_intent(user_question):
-    """Determine if user wants API reference or learning material"""
-    reference_patterns = [
-        r"\w+\(\)",  # function() syntax
+# Enhanced routing logic for topic_detection_mcp.py
+
+def classify_query_intent(user_question: str) -> str:
+    """
+    Enhanced intent classification with clear POSIX vs Book routing
+    MAINTAINS SAME FUNCTION NAME for compatibility
+    """
+    question_lower = user_question.lower().strip()
+    
+    # EXPLICIT POSIX PATTERNS (API Reference Intent)
+    posix_reference_patterns = [
+        r"\w+\(\)",  # function() syntax like "open()"
+        r"(?:get|show|list).*(?:syscall|system call)",  # "get syscall details"
+        r"(?:syscall|system call).*(?:details|documentation|reference)",
         r"parameters? (?:for|of) \w+",  # "parameters for fork"
-        r"return value",  # "return value"
-        r"error codes?",  # "error codes"
-        r"how do I (?:use|call) \w+"  # "how do I use epoll"
+        r"return values? (?:for|of) \w+",  # "return value for open"
+        r"errors? (?:for|of|from) \w+",  # "errors for open"
+        r"(?:man|manual) page",  # "man page for open"
+        r"(?:api|reference) (?:for|of|about) \w+",  # "api for open"
+        r"(?:flags|options) (?:for|of) \w+",  # "flags for open"
+        r"syntax (?:for|of) \w+",  # "syntax for open"
+        r"list.*(?:syscalls?|system calls?)",  # "list file syscalls"
+        r"what (?:syscalls?|system calls?) (?:are|exist)",  # "what syscalls are available"
+        r"browse.*(?:syscalls?|system calls?)",  # "browse syscalls"
+        r"categories? of (?:syscalls?|system calls?)",  # "categories of syscalls"
     ]
     
-    question_lower = user_question.lower()
-    for pattern in reference_patterns:
+    # EXPLICIT BOOK PATTERNS (Learning Intent)  
+    book_learning_patterns = [
+        r"how (?:does|do) \w+.*work",  # "how does fork work"
+        r"(?:explain|what is) \w+",  # "explain malloc", "what is malloc"
+        r"(?:tutorial|guide) (?:on|for|about) \w+",  # "tutorial on malloc"
+        r"(?:learn|understand|study) (?:about )?(\w+)",  # "learn about processes"
+        r"why (?:do we )?use \w+",  # "why use malloc"
+        r"(?:concept|theory) (?:of|behind) \w+",  # "concept of virtual memory"
+        r"(?:introduction to|basics of) \w+",  # "introduction to threads"
+        r"(?:difference between|compare) \w+",  # "difference between malloc and calloc"
+        r"when (?:should|to) use \w+",  # "when to use fork"
+        r"(?:best practices|patterns) (?:for|with) \w+",  # "best practices for malloc"
+    ]
+    
+    # IMPLEMENTATION PATTERNS (Could be either - context dependent)
+    implementation_patterns = [
+        r"how (?:do I|to) (?:use|call|implement) \w+",  # "how do I use open"
+        r"(?:example|sample|demo) (?:of|for|using) \w+",  # "example of open"
+        r"(?:code|program) (?:using|with|for) \w+",  # "code using malloc"
+        r"(?:implement|write|create) \w+",  # "implement malloc"
+    ]
+    
+    # Check patterns in order of specificity
+    for pattern in posix_reference_patterns:
         if re.search(pattern, question_lower):
-            return "reference"
+            return "reference"  # Keep same return value
+    
+    for pattern in book_learning_patterns:
+        if re.search(pattern, question_lower):
+            return "learning"   # Keep same return value
+    
+    for pattern in implementation_patterns:
+        if re.search(pattern, question_lower):
+            # HYBRID: Could benefit from both - decide based on context
+            if any(term in question_lower for term in ['syscall', 'system call', 'open', 'read', 'write', 'fork', 'exec']):
+                return "reference"  # Lean toward reference for syscall contexts
+            else:
+                return "learning"   # Lean toward learning for general concepts
+    
+    # DEFAULT: If no clear pattern, classify by keywords
+    syscall_keywords = ['syscall', 'system call', 'posix', 'api', 'man', 'reference', 'documentation']
+    if any(keyword in question_lower for keyword in syscall_keywords):
+        return "reference"
     
     return "learning"
+
+# EXISTING ORCHESTRATOR LOGIC will handle routing based on intent:
+# if intent == "reference" → prioritize POSIX server
+# if intent == "learning" → prioritize book servers
+
+# The enhanced patterns above will correctly classify queries as "reference" or "learning"
+# without changing the existing routing infrastructure
+
+# USAGE EXAMPLES:
+examples = [
+    # POSIX REFERENCE (should go to manpage server)
+    "get syscall details for open",
+    "what parameters does fork() take",
+    "list file operation syscalls", 
+    "show me open() documentation",
+    "errors for read syscall",
+    "man page for write",
+    
+    # BOOK LEARNING (should go to book servers)
+    "how does fork work",
+    "explain virtual memory",
+    "what is malloc used for",
+    "tutorial on processes",
+    "concept of file descriptors",
+    
+    # HYBRID QUERIES
+    "how do I use open",      # → POSIX first (reference), then books (examples)
+    "example of malloc",      # → Books first (concepts), then POSIX (if applicable)
+    "best practices for fork" # → Books first (patterns), then POSIX (details)
+]
 
 @mcp.tool()
 def detect_relevant_server(user_question: str) -> Dict:

@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-POSIX Man Pages MCP Server
+POSIX Man Pages MCP Server - FIXED VERSION
 Specialized server for POSIX system call reference and API documentation
+
+SURGICAL FIXES IMPLEMENTED:
+1. Complete search implementation with relevance scoring
+2. JSON validation to prevent malformed data issues  
+3. Functional categorization system for syscall browsing
 
 Optimized for reference queries rather than learning - provides quick parameter
 lookups, error code meanings, and related syscall cross-references.
@@ -10,8 +15,10 @@ lookups, error code meanings, and related syscall cross-references.
 import json
 import logging
 import sys
+import re
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
+from collections import defaultdict
 
 # Add project root to path
 PROJECT_ROOT = "/home/shahar42/Suumerizing_C_holy_grale_book"
@@ -29,10 +36,181 @@ mcp = FastMCP("posix-manpages")
 # Global storage for POSIX system calls
 syscalls = {}
 syscalls_loaded = False
+syscall_categories = {}
+
+def validate_syscall_structure(syscall_data: Dict) -> bool:
+    """
+    SURGICAL FIX #2: JSON validation to prevent malformed data issues
+    
+    Validates that syscall JSON has required fields and proper structure
+    """
+    required_fields = ['name', 'description', 'synopsis']
+    
+    try:
+        # Check required fields exist
+        for field in required_fields:
+            if field not in syscall_data:
+                logger.warning(f"Missing required field: {field}")
+                return False
+                
+        # Validate field types
+        if not isinstance(syscall_data['name'], str):
+            logger.warning(f"Invalid name type: {type(syscall_data['name'])}")
+            return False
+            
+        if not isinstance(syscall_data['description'], str):
+            logger.warning(f"Invalid description type: {type(syscall_data['description'])}")
+            return False
+            
+        if not isinstance(syscall_data['synopsis'], list):
+            logger.warning(f"Invalid synopsis type: {type(syscall_data['synopsis'])}")
+            return False
+            
+        # Validate optional fields if present
+        if 'parameters' in syscall_data and not isinstance(syscall_data['parameters'], list):
+            logger.warning(f"Invalid parameters type: {type(syscall_data['parameters'])}")
+            return False
+            
+        if 'errors' in syscall_data and not isinstance(syscall_data['errors'], list):
+            logger.warning(f"Invalid errors type: {type(syscall_data['errors'])}")
+            return False
+            
+        return True
+        
+    except Exception as e:
+        logger.error(f"Validation error: {e}")
+        return False
+
+def categorize_syscall(syscall_data: Dict) -> Set[str]:
+    """
+    SURGICAL FIX #3: Dynamic categorization based on syscall functionality
+    
+    Analyzes syscall name and description to determine functional categories
+    """
+    categories = set()
+    name = syscall_data.get('name', '').lower()
+    description = syscall_data.get('description', '').lower()
+    synopsis = ' '.join(syscall_data.get('synopsis', [])).lower()
+    
+    # All text for analysis
+    full_text = f"{name} {description} {synopsis}"
+    
+    # File Operations
+    file_keywords = ['file', 'open', 'close', 'read', 'write', 'seek', 'stat', 'access', 
+                    'chmod', 'chown', 'link', 'unlink', 'rename', 'truncate', 'sync',
+                    'fcntl', 'ioctl', 'select', 'poll', 'epoll']
+    if any(keyword in full_text for keyword in file_keywords):
+        categories.add('File Operations')
+    
+    # Process Control
+    process_keywords = ['process', 'fork', 'exec', 'exit', 'wait', 'kill', 'signal',
+                       'pid', 'thread', 'clone', 'vfork', 'getpid', 'setpid']
+    if any(keyword in full_text for keyword in process_keywords):
+        categories.add('Process Control')
+    
+    # Memory Management  
+    memory_keywords = ['memory', 'mmap', 'munmap', 'mlock', 'brk', 'sbrk', 'malloc',
+                      'mprotect', 'msync', 'madvise', 'memfd']
+    if any(keyword in full_text for keyword in memory_keywords):
+        categories.add('Memory Management')
+    
+    # Networking
+    network_keywords = ['socket', 'bind', 'listen', 'accept', 'connect', 'send', 'recv',
+                       'network', 'tcp', 'udp', 'ip', 'address']
+    if any(keyword in full_text for keyword in network_keywords):
+        categories.add('Networking')
+    
+    # Time and Scheduling
+    time_keywords = ['time', 'clock', 'timer', 'sleep', 'alarm', 'schedule', 'priority',
+                    'nice', 'nanosleep', 'gettimeofday']
+    if any(keyword in full_text for keyword in time_keywords):
+        categories.add('Time & Scheduling')
+    
+    # System Information
+    sysinfo_keywords = ['system', 'uname', 'sysinfo', 'getrlimit', 'setrlimit', 'ulimit',
+                       'getrusage', 'times', 'sysconf']
+    if any(keyword in full_text for keyword in sysinfo_keywords):
+        categories.add('System Information')
+    
+    # Inter-Process Communication
+    ipc_keywords = ['pipe', 'fifo', 'shm', 'sem', 'msg', 'ipc', 'shared', 'message',
+                   'semaphore', 'mutex']
+    if any(keyword in full_text for keyword in ipc_keywords):
+        categories.add('Inter-Process Communication')
+    
+    # Architecture Specific
+    arch_keywords = ['arch', 'x86', 'cpuid', 'prctl', 'ptrace', 'personality']
+    if any(keyword in full_text for keyword in arch_keywords):
+        categories.add('Architecture Specific')
+    
+    # Unimplemented/Obsolete
+    if 'unimplemented' in full_text or 'obsolete' in full_text or 'enosys' in full_text:
+        categories.add('Unimplemented/Obsolete')
+    
+    # Default category if none found
+    if not categories:
+        categories.add('Miscellaneous')
+    
+    return categories
+
+def calculate_search_relevance(syscall_data: Dict, query_terms: List[str]) -> float:
+    """
+    SURGICAL FIX #1: Calculate relevance score for search ranking
+    
+    Scores syscalls based on how well they match the query terms
+    """
+    score = 0.0
+    name = syscall_data.get('name', '').lower()
+    description = syscall_data.get('description', '').lower()
+    synopsis = ' '.join(syscall_data.get('synopsis', [])).lower()
+    
+    for term in query_terms:
+        term = term.lower().strip()
+        if not term:
+            continue
+            
+        # Exact name match gets highest score
+        if term == name:
+            score += 10.0
+            
+        # Name contains term gets high score  
+        elif term in name:
+            score += 7.0
+            
+        # Synopsis contains term gets medium score
+        elif term in synopsis:
+            score += 5.0
+            
+        # Description contains term gets lower score
+        elif term in description:
+            score += 3.0
+            
+        # Parameters contain term
+        params_text = ' '.join([
+            f"{p.get('name', '')} {p.get('type', '')} {p.get('description', '')}"
+            for p in syscall_data.get('parameters', [])
+        ]).lower()
+        if term in params_text:
+            score += 2.0
+            
+        # Related calls contain term
+        related_text = ' '.join(syscall_data.get('related_calls', [])).lower()
+        if term in related_text:
+            score += 1.0
+    
+    # Boost score for partial matches in name
+    for term in query_terms:
+        if term and any(term.lower() in part for part in name.split('_')):
+            score += 2.0
+    
+    return score
 
 def load_posix_syscalls():
-    """Load all POSIX system calls from JSON files"""
-    global syscalls, syscalls_loaded
+    """
+    Load all POSIX system calls from JSON files with validation
+    INCLUDES ALL THREE SURGICAL FIXES
+    """
+    global syscalls, syscalls_loaded, syscall_categories
     
     if syscalls_loaded:
         return syscalls
@@ -46,10 +224,19 @@ def load_posix_syscalls():
     json_files = list(syscalls_dir.glob("unix_*.json"))
     logger.info(f"Found {len(json_files)} POSIX system call files")
     
+    valid_syscalls = 0
+    invalid_syscalls = 0
+    
     for json_file in json_files:
         try:
             with open(json_file, 'r', encoding='utf-8') as f:
                 syscall_data = json.load(f)
+            
+            # SURGICAL FIX #2: Validate JSON structure
+            if not validate_syscall_structure(syscall_data):
+                logger.warning(f"Invalid syscall structure in {json_file}, skipping")
+                invalid_syscalls += 1
+                continue
             
             # Use syscall name as key for fast lookups
             syscall_name = syscall_data.get('name', json_file.stem.replace('unix_', ''))
@@ -58,18 +245,40 @@ def load_posix_syscalls():
             syscall_data['source_file'] = json_file.name
             syscall_data['syscall_id'] = syscall_name
             
-            syscalls[syscall_name] = syscall_data
+            # SURGICAL FIX #3: Categorize syscall
+            categories = categorize_syscall(syscall_data)
+            syscall_data['categories'] = list(categories)
             
+            # Add to category index
+            for category in categories:
+                if category not in syscall_categories:
+                    syscall_categories[category] = []
+                syscall_categories[category].append(syscall_name)
+            
+            syscalls[syscall_name] = syscall_data
+            valid_syscalls += 1
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in {json_file}: {e}")
+            invalid_syscalls += 1
+            continue
         except Exception as e:
             logger.error(f"Error loading syscall {json_file}: {e}")
+            invalid_syscalls += 1
+            continue
     
     syscalls_loaded = True
-    logger.info(f"✅ Loaded {len(syscalls)} POSIX system calls")
+    logger.info(f"✅ Loaded {valid_syscalls} valid POSIX system calls")
+    if invalid_syscalls > 0:
+        logger.warning(f"⚠️ Skipped {invalid_syscalls} invalid syscall files")
+    
     return syscalls
 
 @mcp.tool()
 def search_syscalls(query: str, limit: int = 10) -> str:
     """
+    SURGICAL FIX #1: Complete search implementation with relevance scoring
+    
     Search POSIX system calls by name, functionality, or description
     Optimized for API reference queries
     
@@ -82,108 +291,86 @@ def search_syscalls(query: str, limit: int = 10) -> str:
     if not syscalls_data:
         return "No POSIX system calls loaded. Run the extractor first."
     
-    query_lower = query.lower()
-    matches = []
+    if not query.strip():
+        return "Please provide a search query. Examples: 'epoll', 'file operations', 'memory'"
     
-    # Score syscalls by relevance
+    # Parse query into terms
+    query_terms = [term.strip() for term in query.split()]
+    
+    # Calculate relevance scores for all syscalls
+    scored_results = []
     for syscall_name, syscall_data in syscalls_data.items():
-        score = 0
-        
-        # High score for exact name match
-        if query_lower == syscall_name.lower():
-            score += 100
-        elif query_lower in syscall_name.lower():
-            score += 50
-        
-        # Medium score for description match
-        description = syscall_data.get('description', '').lower()
-        if query_lower in description:
-            score += 20
-        
-        # Lower score for synopsis match
-        synopsis = ' '.join(syscall_data.get('synopsis', [])).lower()
-        if query_lower in synopsis:
-            score += 10
-        
-        # Score for parameter names (useful for "socket" finding bind, listen, etc.)
-        parameters = syscall_data.get('parameters', [])
-        for param in parameters:
-            if query_lower in param.get('name', '').lower():
-                score += 15
-            if query_lower in param.get('description', '').lower():
-                score += 8
-        
-        # Score for related calls
-        related_calls = syscall_data.get('related_calls', [])
-        for related in related_calls:
-            if query_lower in related.lower():
-                score += 25
-        
-        if score > 0:
-            matches.append((score, syscall_name, syscall_data))
+        score = calculate_search_relevance(syscall_data, query_terms)
+        if score > 0:  # Only include results with some relevance
+            scored_results.append((score, syscall_name, syscall_data))
     
-    if not matches:
-        return f"No POSIX system calls found for: '{query}'"
+    # Sort by relevance score (highest first)
+    scored_results.sort(key=lambda x: x[0], reverse=True)
     
-    # Sort by relevance and limit results
-    matches.sort(key=lambda x: x[0], reverse=True)
-    top_matches = matches[:limit]
+    # Format results
+    if not scored_results:
+        return f"No system calls found matching '{query}'. Try broader terms like 'file', 'process', or 'network'."
     
-    result = f"Found {len(matches)} POSIX system calls for '{query}':\n\n"
+    result = f"# POSIX System Call Search Results for '{query}'\n\n"
+    result += f"Found {len(scored_results)} matching system calls (showing top {min(limit, len(scored_results))}):\n\n"
     
-    for i, (score, syscall_name, syscall_data) in enumerate(top_matches, 1):
-        result += f"{i}. **{syscall_name}()**\n"
+    for i, (score, syscall_name, syscall_data) in enumerate(scored_results[:limit], 1):
+        description = syscall_data.get('description', 'No description available')
+        categories = ', '.join(syscall_data.get('categories', ['Uncategorized']))
         
-        # Show synopsis (function signature)
-        synopsis = syscall_data.get('synopsis', [])
-        if synopsis and len(synopsis) > 1:  # Skip just the #include
-            func_sig = next((s for s in synopsis if '(' in s), synopsis[-1])
-            result += f"   `{func_sig}`\n"
+        # Truncate long descriptions
+        if len(description) > 150:
+            description = description[:150] + "..."
         
-        # Show concise description
-        description = syscall_data.get('description', '')
-        if description:
-            desc_short = description[:120] + "..." if len(description) > 120 else description
-            result += f"   {desc_short}\n"
+        result += f"## {i}. `{syscall_name}()` (Relevance: {score:.1f})\n"
+        result += f"**Categories**: {categories}\n\n"
+        result += f"{description}\n\n"
         
-        # Show parameter count and error count for quick reference
-        param_count = len(syscall_data.get('parameters', []))
-        error_count = len(syscall_data.get('errors', []))
-        result += f"   Parameters: {param_count} | Documented errors: {error_count}\n"
+        # Show synopsis if it's a high-relevance match
+        if score >= 5.0:
+            synopsis = syscall_data.get('synopsis', [])
+            if synopsis:
+                result += f"**Synopsis**: `{synopsis[0]}`\n\n"
         
-        result += "\n"
+        result += f"*Use `get_syscall_details('{syscall_name}')` for complete documentation*\n\n"
+        result += "---\n\n"
     
-    result += f"Use `get_syscall_details(syscall_name)` for complete reference information."
+    # Add category suggestions for broader searches
+    if len(scored_results) > limit:
+        result += f"💡 **Tip**: {len(scored_results) - limit} more results available. "
+        result += "Try `list_syscall_categories()` to browse by functional area.\n"
     
     return result
 
 @mcp.tool()
 def get_syscall_details(syscall_name: str) -> str:
     """
-    Get complete reference information for a specific system call
+    Get complete documentation for a specific POSIX system call
     
     Args:
-        syscall_name: Name of the system call (e.g., "epoll_create1", "fork")
+        syscall_name: Name of the system call (e.g., "open", "fork", "mmap")
     """
     syscalls_data = load_posix_syscalls()
     
-    # Handle variations in syscall name format
-    syscall_key = None
-    for key in syscalls_data.keys():
+    # Case-insensitive lookup
+    syscall = None
+    for key, data in syscalls_data.items():
         if key.lower() == syscall_name.lower():
-            syscall_key = key
+            syscall = data
             break
     
-    if not syscall_key:
+    if not syscall:
         available = list(syscalls_data.keys())[:10]
-        return f"System call '{syscall_name}' not found.\n\nAvailable syscalls: {', '.join(available)}...\n\nUse `search_syscalls('{syscall_name}')` to find similar calls."
+        return f"System call '{syscall_name}' not found.\n\nAvailable syscalls (first 10): {', '.join(available)}\n\nUse `search_syscalls('{syscall_name}')` to find similar calls."
     
-    syscall = syscalls_data[syscall_key]
+    # Format complete documentation
+    result = f"# {syscall['name']}() - POSIX System Call\n\n"
     
-    # Format complete reference
-    result = f"# {syscall['name']}() - POSIX System Call Reference\n\n"
+    # Categories
+    categories = syscall.get('categories', ['Uncategorized'])
+    result += f"**Categories**: {', '.join(categories)}\n\n"
     
-    # Synopsis section
+    # Synopsis
     synopsis = syscall.get('synopsis', [])
     if synopsis:
         result += "## Synopsis\n```c\n"
@@ -192,19 +379,18 @@ def get_syscall_details(syscall_name: str) -> str:
         result += "```\n\n"
     
     # Description
-    description = syscall.get('description', '')
-    if description:
-        result += f"## Description\n{description}\n\n"
+    description = syscall.get('description', 'No description available')
+    result += f"## Description\n{description}\n\n"
     
     # Parameters
     parameters = syscall.get('parameters', [])
     if parameters:
         result += "## Parameters\n\n"
         for param in parameters:
-            param_name = param.get('name', 'unknown')
+            name = param.get('name', 'unknown')
             param_type = param.get('type', 'unknown')
-            param_desc = param.get('description', 'No description')
-            result += f"- **{param_name}** (`{param_type}`): {param_desc}\n"
+            desc = param.get('description', 'No description')
+            result += f"- **{name}** (`{param_type}`): {desc}\n"
         result += "\n"
     
     # Return Value
@@ -283,182 +469,160 @@ def find_related_syscalls(syscall_name: str) -> str:
     if not base_syscall:
         return f"System call '{syscall_name}' not found. Use `search_syscalls('{syscall_name}')` to find it."
     
-    result = f"# Related System Calls for {base_syscall['name']}()\n\n"
+    result = f"# Related System Calls for `{base_syscall['name']}()`\n\n"
     
-    # Direct relationships from related_calls field
-    direct_related = base_syscall.get('related_calls', [])
-    if direct_related:
-        result += "## Directly Related\n\n"
-        for related_name in direct_related:
-            if related_name in syscalls_data:
-                related_syscall = syscalls_data[related_name]
-                desc = related_syscall.get('description', 'No description available')
-                desc_short = desc[:100] + "..." if len(desc) > 100 else desc
-                result += f"- **{related_name}()**: {desc_short}\n"
+    # Direct relations from related_calls field
+    related_calls = base_syscall.get('related_calls', [])
+    if related_calls:
+        result += "## Directly Related\n"
+        for call in related_calls:
+            if call in syscalls_data:
+                desc = syscalls_data[call].get('description', 'No description')[:100]
+                result += f"- **`{call}()`**: {desc}{'...' if len(desc) >= 100 else ''}\n"
             else:
-                result += f"- **{related_name}()**: (not in current dataset)\n"
+                result += f"- **`{call}()`**: (Documentation not available)\n"
         result += "\n"
     
-    # Find syscalls that mention this one in their related_calls
-    reverse_related = []
-    for name, data in syscalls_data.items():
-        if name != base_syscall['name']:
-            related_calls = data.get('related_calls', [])
-            if base_syscall['name'] in related_calls:
-                reverse_related.append((name, data))
+    # Category-based relations
+    base_categories = set(base_syscall.get('categories', []))
+    category_related = []
     
-    if reverse_related:
-        result += "## Also Related To\n\n"
-        for name, data in reverse_related:
-            desc = data.get('description', 'No description available')
-            desc_short = desc[:100] + "..." if len(desc) > 100 else desc
-            result += f"- **{name}()**: {desc_short}\n"
-        result += "\n"
-    
-    # Find functionally similar syscalls (same keywords in description)
-    base_desc = base_syscall.get('description', '').lower()
-    base_keywords = set(word for word in base_desc.split() if len(word) > 4)
-    
-    functionally_similar = []
-    for name, data in syscalls_data.items():
-        if name == base_syscall['name']:
+    for syscall_name_check, syscall_data in syscalls_data.items():
+        if syscall_name_check == base_syscall['name']:
             continue
-        
-        other_desc = data.get('description', '').lower()
-        other_keywords = set(word for word in other_desc.split() if len(word) > 4)
-        
-        # Calculate keyword overlap
-        overlap = len(base_keywords.intersection(other_keywords))
-        if overlap >= 2:  # At least 2 shared keywords
-            functionally_similar.append((overlap, name, data))
+            
+        syscall_categories = set(syscall_data.get('categories', []))
+        if base_categories & syscall_categories:  # Intersection
+            category_related.append((syscall_name_check, syscall_data, 
+                                   len(base_categories & syscall_categories)))
     
-    if functionally_similar:
-        functionally_similar.sort(key=lambda x: x[0], reverse=True)
-        result += "## Functionally Similar\n\n"
-        for overlap, name, data in functionally_similar[:5]:  # Top 5
-            desc = data.get('description', 'No description available')
-            desc_short = desc[:100] + "..." if len(desc) > 100 else desc
-            result += f"- **{name}()**: {desc_short}\n"
+    # Sort by category overlap
+    category_related.sort(key=lambda x: x[2], reverse=True)
+    
+    if category_related:
+        result += "## Same Category\n"
+        for call_name, call_data, overlap_count in category_related[:8]:
+            desc = call_data.get('description', 'No description')[:80]
+            shared_cats = ', '.join(base_categories & set(call_data.get('categories', [])))
+            result += f"- **`{call_name}()`** ({shared_cats}): {desc}{'...' if len(desc) >= 80 else ''}\n"
         result += "\n"
     
-    if not direct_related and not reverse_related and not functionally_similar:
-        result += "No related system calls found in the current dataset.\n"
-    else:
-        result += "Use `get_syscall_details(syscall_name)` for complete information on any related call."
+    if not related_calls and not category_related:
+        result += "No related system calls found.\n"
     
     return result
 
 @mcp.tool()
-def list_syscalls_by_category() -> str:
+def list_syscall_categories() -> str:
     """
-    List all available POSIX system calls organized by functional category
+    SURGICAL FIX #3: Functional categorization implementation
+    
+    List all available syscall categories with counts and examples
     """
     syscalls_data = load_posix_syscalls()
     
     if not syscalls_data:
-        return "No POSIX system calls loaded."
+        return "No POSIX system calls loaded. Run the extractor first."
     
-    # Categorize syscalls based on common patterns
-    categories = {
-        "File Operations": [],
-        "Process Management": [], 
-        "Network/Socket": [],
-        "I/O Multiplexing": [],
-        "Signal Handling": [],
-        "Memory Management": [],
-        "Time/Timer": [],
-        "System Information": [],
-        "Other": []
-    }
+    result = "# POSIX System Call Categories\n\n"
     
-    # Simple categorization based on syscall names and descriptions
-    for name, data in syscalls_data.items():
-        name_lower = name.lower()
-        desc_lower = data.get('description', '').lower()
+    # Sort categories by syscall count
+    sorted_categories = sorted(syscall_categories.items(), 
+                             key=lambda x: len(x[1]), reverse=True)
+    
+    for category, syscall_list in sorted_categories:
+        count = len(syscall_list)
+        result += f"## {category} ({count} syscalls)\n\n"
         
-        if any(word in name_lower for word in ['open', 'read', 'write', 'close', 'file', 'dir', 'stat', 'access']):
-            categories["File Operations"].append((name, data))
-        elif any(word in name_lower for word in ['fork', 'exec', 'wait', 'exit', 'process', 'pid']):
-            categories["Process Management"].append((name, data))
-        elif any(word in name_lower for word in ['socket', 'bind', 'listen', 'accept', 'connect', 'send', 'recv']):
-            categories["Network/Socket"].append((name, data))
-        elif any(word in name_lower for word in ['epoll', 'poll', 'select', 'event']):
-            categories["I/O Multiplexing"].append((name, data))
-        elif any(word in name_lower for word in ['signal', 'sig', 'kill']):
-            categories["Signal Handling"].append((name, data))
-        elif any(word in name_lower for word in ['mmap', 'munmap', 'malloc', 'brk', 'sbrk']):
-            categories["Memory Management"].append((name, data))
-        elif any(word in name_lower for word in ['time', 'timer', 'sleep', 'alarm']):
-            categories["Time/Timer"].append((name, data))
-        elif any(word in name_lower for word in ['uname', 'getpid', 'getuid', 'sysinfo']):
-            categories["System Information"].append((name, data))
-        else:
-            categories["Other"].append((name, data))
-    
-    result = f"# POSIX System Calls by Category ({len(syscalls_data)} total)\n\n"
-    
-    for category, syscalls_list in categories.items():
-        if not syscalls_list:
-            continue
-            
-        result += f"## {category} ({len(syscalls_list)})\n\n"
+        # Show first few examples
+        examples = syscall_list[:5]
+        for syscall_name in examples:
+            if syscall_name in syscalls_data:
+                desc = syscalls_data[syscall_name].get('description', 'No description')
+                # Truncate description
+                if len(desc) > 80:
+                    desc = desc[:80] + "..."
+                result += f"- **`{syscall_name}()`**: {desc}\n"
         
-        for name, data in sorted(syscalls_list):
-            desc = data.get('description', 'No description')
-            desc_short = desc[:80] + "..." if len(desc) > 80 else desc
-            result += f"- **{name}()**: {desc_short}\n"
+        if count > 5:
+            result += f"- ... and {count - 5} more\n"
         
-        result += "\n"
+        result += f"\n*Use `search_syscalls('{category.lower()}')` to see all {category.lower()} calls*\n\n"
+        result += "---\n\n"
     
-    result += "Use `search_syscalls(category_name)` to find syscalls by functionality.\n"
-    result += "Use `get_syscall_details(syscall_name)` for complete reference information."
+    result += f"## Summary\n"
+    result += f"- **Total Categories**: {len(sorted_categories)}\n"
+    result += f"- **Total System Calls**: {len(syscalls_data)}\n\n"
+    result += "💡 **Tip**: Use category names as search terms, e.g., `search_syscalls('file operations')`\n"
     
     return result
 
 @mcp.tool()
-def lookup_error_code(error_code: str) -> str:
+def get_error_details(error_code: str) -> str:
     """
-    Look up what system calls can return a specific error code
+    Get detailed information about a specific error code
     
     Args:
-        error_code: Error code to look up (e.g., "EINVAL", "ENOENT")
+        error_code: Error code (e.g., "ENOENT", "EINVAL", "EACCES")
     """
     syscalls_data = load_posix_syscalls()
-    error_code_upper = error_code.upper()
     
+    error_code = error_code.upper().strip()
+    
+    # Find all syscalls that can return this error
     matching_syscalls = []
+    error_descriptions = set()
     
-    for name, data in syscalls_data.items():
-        errors = data.get('errors', [])
+    for syscall_name, syscall_data in syscalls_data.items():
+        errors = syscall_data.get('errors', [])
         for error in errors:
-            if error.get('code', '').upper() == error_code_upper:
+            if error.get('code', '').upper() == error_code:
                 matching_syscalls.append({
-                    'name': name,
-                    'description': error.get('description', 'No description'),
-                    'syscall_desc': data.get('description', 'No description')
+                    'syscall': syscall_name,
+                    'description': error.get('description', 'No description')
                 })
-                break
+                error_descriptions.add(error.get('description', 'No description'))
     
     if not matching_syscalls:
-        return f"Error code '{error_code}' not found in current POSIX system calls dataset."
+        return f"Error code '{error_code}' not found in any system calls. Check spelling or use `search_syscalls('error')` to browse."
     
-    result = f"# System Calls That Can Return {error_code_upper}\n\n"
-    result += f"Found {len(matching_syscalls)} system calls that document this error:\n\n"
+    result = f"# Error Code: {error_code}\n\n"
     
-    for syscall_info in matching_syscalls:
-        result += f"## {syscall_info['name']}()\n"
-        result += f"**System call**: {syscall_info['syscall_desc']}\n"
-        result += f"**{error_code_upper} meaning**: {syscall_info['description']}\n\n"
+    # Show unique descriptions
+    if error_descriptions:
+        result += "## Description\n"
+        for desc in error_descriptions:
+            result += f"- {desc}\n"
+        result += "\n"
     
-    result += f"Use `get_syscall_details(syscall_name)` for complete error information."
+    # List affected syscalls
+    result += f"## System Calls That Can Return {error_code}\n\n"
+    
+    # Group by description to avoid repetition
+    desc_groups = defaultdict(list)
+    for match in matching_syscalls:
+        desc_groups[match['description']].append(match['syscall'])
+    
+    for desc, syscall_names in desc_groups.items():
+        if len(syscall_names) <= 3:
+            syscalls_str = ', '.join(f"`{name}()`" for name in syscall_names)
+        else:
+            syscalls_str = ', '.join(f"`{name}()`" for name in syscall_names[:3])
+            syscalls_str += f" and {len(syscall_names) - 3} more"
+        
+        result += f"**{syscalls_str}**: {desc}\n\n"
+    
+    result += f"## Total Occurrences\n"
+    result += f"Found in {len(matching_syscalls)} system call contexts.\n\n"
+    result += "💡 **Tip**: Use `get_syscall_details('syscall_name')` for complete error information.\n"
     
     return result
 
-# Load syscalls on startup
-load_posix_syscalls()
-
 if __name__ == "__main__":
-    print(f"🚀 Starting POSIX Man Pages server with {len(syscalls)} system calls")
-    print("📋 Optimized for API reference queries")
-    print("🔧 Tools: search_syscalls, get_syscall_details, find_related_syscalls, list_syscalls_by_category, lookup_error_code")
+    # Load syscalls on startup for testing
+    logger.info("🚀 Starting POSIX Man Pages MCP Server")
+    load_posix_syscalls()
+    logger.info("✅ POSIX server ready with surgical fixes applied")
+    
+    # Run the MCP server
     mcp.run()
