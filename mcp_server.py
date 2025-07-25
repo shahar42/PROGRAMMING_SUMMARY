@@ -1376,10 +1376,16 @@ async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
 
 @mcp.tool()
 async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate") -> str:
-    """Generate a custom tutorial by merging related concepts across books.
+    """
+    ENHANCED: Generate comprehensive custom tutorial addressing review feedback:
+    - Complete explanations (no truncation)
+    - Concrete examples with tool outputs  
+    - Specific, actionable practice tasks
+    - Explicit source attribution
+    - Appropriate depth for skill level
     
     Args:
-        topic: The topic for the tutorial (e.g., 'pointers', 'file operations')
+        topic: The topic for the tutorial (e.g., 'pointers', 'file operations', 'linking')
         skill_level: Target skill level - 'beginner', 'intermediate', or 'advanced'
     """
     topic_lower = topic.lower()
@@ -1388,91 +1394,414 @@ async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate"
     if skill_level_lower not in ['beginner', 'intermediate', 'advanced']:
         return "Invalid skill level. Please choose 'beginner', 'intermediate', or 'advanced'."
     
-    # Find and categorize concepts by complexity
+    # Find and categorize concepts by complexity with better scoring
     beginner_concepts = []
     intermediate_concepts = []
     advanced_concepts = []
     
     for concept in concepts:
         if topic_lower in concept['title'].lower() or topic_lower in concept['description'].lower():
-            # Categorize based on book and content
-            if concept['book'] == 'kernighan_ritchie' or 'basic' in concept['title'].lower():
-                beginner_concepts.append(concept)
-            elif concept['book'] in ['expert_c_programming', 'csapp_2016'] or 'advanced' in concept['title'].lower():
-                advanced_concepts.append(concept)
-            else:
-                intermediate_concepts.append(concept)
+            # Enhanced categorization based on content complexity
+            complexity_score = _calculate_concept_complexity(concept)
+            
+            if complexity_score <= 3 or concept['book'] == 'kernighan_ritchie':
+                beginner_concepts.append((concept, complexity_score))
+            elif complexity_score <= 6 or concept['book'] in ['unix_env', 'linkers_loaders']:
+                intermediate_concepts.append((concept, complexity_score))
+            else:  # Advanced concepts
+                advanced_concepts.append((concept, complexity_score))
     
-    # Select concepts based on skill level
+    # Sort by complexity score within each category
+    beginner_concepts.sort(key=lambda x: x[1])
+    intermediate_concepts.sort(key=lambda x: x[1])
+    advanced_concepts.sort(key=lambda x: x[1])
+    
+    # Select concepts based on skill level with progressive difficulty
     if skill_level_lower == 'beginner':
-        selected_concepts = beginner_concepts + intermediate_concepts[:2]
+        selected_tuples = beginner_concepts[:3] + intermediate_concepts[:2]
+        estimated_duration = 45  # More realistic for beginners
     elif skill_level_lower == 'intermediate':
-        selected_concepts = beginner_concepts[-2:] + intermediate_concepts + advanced_concepts[:2]
+        selected_tuples = beginner_concepts[-1:] + intermediate_concepts[:3] + advanced_concepts[:2]
+        estimated_duration = 60  # Deeper content
     else:  # advanced
-        selected_concepts = intermediate_concepts[-2:] + advanced_concepts
+        selected_tuples = intermediate_concepts[-2:] + advanced_concepts[:4]
+        estimated_duration = 90  # Much more comprehensive
+    
+    selected_concepts = [concept for concept, _ in selected_tuples]
     
     if not selected_concepts:
         return f"No concepts found to create a tutorial on '{topic}'"
     
-    # Generate tutorial structure
-    result = f"# 📚 Custom Tutorial: {topic.title()}\n\n"
-    result += f"**Skill Level**: {skill_level.title()}\n"
-    result += f"**Duration**: Approximately {len(selected_concepts) * 10} minutes\n"
-    result += f"**Sources**: {len(set(c['book'] for c in selected_concepts))} books\n\n"
+    # ENHANCEMENT 1: Complete source attribution
+    source_books = list(set(concept['book_title'] for concept in selected_concepts))
+    source_mapping = {}
+    for concept in selected_concepts:
+        book = concept['book_title']
+        if book not in source_mapping:
+            source_mapping[book] = []
+        source_mapping[book].append(concept['title'])
     
-    # Learning Objectives
+    # Generate enhanced tutorial structure
+    result = f"# 📚 Enhanced Tutorial: {topic.title()}\n\n"
+    result += f"**Skill Level**: {skill_level.title()}\n"
+    result += f"**Estimated Duration**: {estimated_duration} minutes\n"
+    result += f"**Concepts Covered**: {len(selected_concepts)} lessons\n\n"
+    
+    # ENHANCEMENT 2: Explicit source attribution
+    result += "## 📖 Sources\n\n"
+    for book, concepts_list in source_mapping.items():
+        result += f"- **{book}**: {', '.join(concepts_list[:3])}"
+        if len(concepts_list) > 3:
+            result += f" (and {len(concepts_list) - 3} more)"
+        result += "\n"
+    result += "\n"
+    
+    # ENHANCEMENT 3: Clear, comprehensive learning objectives
     result += "## 🎯 Learning Objectives\n\n"
     result += "By the end of this tutorial, you will:\n"
     
     if skill_level_lower == 'beginner':
         result += f"- Understand the fundamental concepts of {topic}\n"
-        result += f"- Write basic code using {topic}\n"
-        result += f"- Recognize common patterns and use cases\n"
+        result += f"- Recognize common patterns and basic syntax\n"
+        result += f"- Write simple, working code examples\n"
+        result += f"- Identify when to use {topic} in your programs\n"
     elif skill_level_lower == 'intermediate':
         result += f"- Master practical applications of {topic}\n"
-        result += f"- Understand system-level implications\n"
-        result += f"- Implement efficient solutions using {topic}\n"
-    else:
-        result += f"- Master advanced techniques in {topic}\n"
-        result += f"- Understand optimization strategies\n"
-        result += f"- Recognize and avoid common pitfalls\n"
+        result += f"- Understand system-level implications and performance considerations\n"
+        result += f"- Implement robust solutions with proper error handling\n"
+        result += f"- Debug common issues and optimize implementations\n"
+    else:  # advanced
+        result += f"- Master advanced techniques and optimization strategies for {topic}\n"
+        result += f"- Understand deep system-level behavior and edge cases\n"
+        result += f"- Implement high-performance, production-ready solutions\n"
+        result += f"- Recognize and avoid subtle pitfalls and anti-patterns\n"
     
     result += "\n## 📖 Tutorial Content\n\n"
     
-    # Progressive lessons
+    # ENHANCEMENT 4: Progressive lessons with complete explanations
     for i, concept in enumerate(selected_concepts, 1):
         concept_uri_id = concept_to_clean_uri_id(concept)
         uri = f"concept://{concept['book']}/{concept_uri_id}"
         
         result += f"### Lesson {i}: {concept['title']}\n\n"
+        result += f"*Source: {concept['book_title']}*\n\n"
         
-        # Concept explanation
+        # ENHANCEMENT 5: Complete concept explanation (no truncation)
         if concept['description']:
             result += f"**Concept**: {concept['description']}\n\n"
         
-        # Detailed explanation
+        # ENHANCEMENT 6: Full detailed explanation
         if concept['content']:
-            result += f"**Explanation**: {concept['content'][:300]}...\n\n"
-        
-        # Code example
-        if concept['syntax']:
-            result += "**Example**:\n```c\n"
-            result += concept['syntax']
-            result += "\n```\n\n"
-        
-        # Practice exercise
-        result += f"**Practice**: Try modifying the above code to "
-        if skill_level_lower == 'beginner':
-            result += "experiment with different values.\n\n"
-        elif skill_level_lower == 'intermediate':
-            result += "handle edge cases and error conditions.\n\n"
+            result += f"**Detailed Explanation**:\n\n{concept['content']}\n\n"
         else:
-            result += "optimize for performance and memory usage.\n\n"
+            result += f"**Detailed Explanation**: [See full concept for complete details]({uri})\n\n"
         
-        result += f"**Full Details**: [Read complete concept]({uri})\n\n"
+        # ENHANCEMENT 7: Enhanced code examples with context
+        if concept['syntax']:
+            result += "**Code Example**:\n\n"
+            result += _generate_enhanced_code_example(concept, topic, skill_level_lower)
+            result += "\n"
+        
+        # ENHANCEMENT 8: Specific, actionable practice tasks
+        result += "**Practice Exercise**:\n\n"
+        result += _generate_specific_practice_task(concept, topic, skill_level_lower, i)
+        result += "\n"
+        
+        # ENHANCEMENT 9: Concrete tool demonstrations for advanced topics
+        if skill_level_lower == 'advanced' and _has_system_level_content(concept):
+            result += "**System Analysis**:\n\n"
+            result += _generate_tool_demonstration(concept, topic)
+            result += "\n"
+        
+        result += f"**Full Reference**: [Complete concept details]({uri})\n\n"
         result += "---\n\n"
     
+    # ENHANCEMENT 10: Advanced summary and next steps
+    result += "## 🎓 Summary & Next Steps\n\n"
+    result += f"You've now covered {len(selected_concepts)} key concepts in {topic}. "
+    
+    if skill_level_lower == 'beginner':
+        result += "Practice these fundamentals before moving to intermediate topics.\n\n"
+        result += "**Recommended Next Topics**: "
+        result += ", ".join(_get_next_topics_beginner(topic))
+    elif skill_level_lower == 'intermediate':
+        result += "You're ready to tackle real-world applications and performance optimization.\n\n"
+        result += "**Recommended Advanced Topics**: "
+        result += ", ".join(_get_next_topics_intermediate(topic))
+    else:
+        result += "You now have expert-level understanding. Consider contributing to open-source projects.\n\n"
+        result += "**Expert-Level Challenges**: "
+        result += ", ".join(_get_expert_challenges(topic))
+    
+    result += "\n\n## 🔗 Cross-References\n\n"
+    result += "Related tutorials you might find useful:\n"
+    for book in source_books[:3]:
+        result += f"- Search `{book.split('(')[0].strip()}` for advanced {topic} topics\n"
+    
+    result += f"\n---\n*Tutorial generated from {len(source_books)} authoritative sources, "
+    result += f"covering {len(selected_concepts)} progressive concepts*"
+    
     return result
+
+def _calculate_concept_complexity(concept: Dict) -> int:
+    """Calculate complexity score (1-10) based on content characteristics"""
+    score = 1
+    
+    # Book-based scoring
+    book_scores = {
+        'kernighan_ritchie': 1,
+        'unix_env': 3,
+        'linkers_loaders': 5,
+        'os_three_pieces': 6,
+        'expert_c_programming': 7,
+        'csapp_2016': 8
+    }
+    score += book_scores.get(concept['book'], 5)
+    
+    # Content complexity indicators
+    content = (concept.get('content', '') + concept.get('description', '')).lower()
+    
+    advanced_keywords = [
+        'optimization', 'performance', 'kernel', 'assembly', 'register',
+        'memory mapping', 'virtual memory', 'cache', 'pipeline', 'linker',
+        'loader', 'relocation', 'symbol table', 'debugging', 'profiling'
+    ]
+    
+    score += sum(1 for keyword in advanced_keywords if keyword in content)
+    
+    # Code complexity
+    if concept.get('syntax'):
+        code = concept['syntax']
+        if len(code.split('\n')) > 10:
+            score += 2
+        if any(advanced in code.lower() for advanced in ['asm', 'volatile', 'inline', 'optimize']):
+            score += 2
+    
+    return min(score, 10)
+
+def _generate_enhanced_code_example(concept: Dict, topic: str, skill_level: str) -> str:
+    """Generate enhanced code examples with context and annotations"""
+    code = concept['syntax']
+    
+    if not code:
+        return "```c\n/* No code example available for this concept */\n```\n"
+    
+    result = "```c\n"
+    
+    # Add contextual header based on skill level
+    if skill_level == 'beginner':
+        result += f"/* Basic {topic} example - {concept['title']} */\n"
+        result += f"/* Focus: Understanding the fundamental syntax */\n\n"
+    elif skill_level == 'intermediate':
+        result += f"/* {topic} implementation - {concept['title']} */\n"
+        result += f"/* Focus: Practical usage with error handling */\n\n"
+    else:
+        result += f"/* Advanced {topic} technique - {concept['title']} */\n"
+        result += f"/* Focus: Optimization and edge case handling */\n\n"
+    
+    # Add the actual code
+    lines = code.split('\n')
+    for line in lines:
+        result += f"{line}\n"
+    
+    # Add skill-appropriate annotations
+    if skill_level == 'advanced' and len(lines) > 5:
+        result += "\n/* Performance Notes:\n"
+        result += f" * This implementation demonstrates {topic} concepts\n"
+        result += " * Consider memory alignment and cache effects\n"
+        result += " * Profile in production for optimal performance\n"
+        result += " */\n"
+    
+    result += "```\n"
+    return result
+
+def _generate_specific_practice_task(concept: Dict, topic: str, skill_level: str, lesson_num: int) -> str:
+    """Generate specific, actionable practice tasks instead of generic ones"""
+    
+    concept_name = concept['title'].lower()
+    
+    # Topic-specific practice tasks
+    if 'linking' in topic.lower() or 'linker' in concept_name:
+        if skill_level == 'beginner':
+            return f"{lesson_num}. Create a simple program with two source files and compile them together.\n" \
+                   f"   Use `gcc -c file1.c file2.c` then `gcc file1.o file2.o -o program`.\n" \
+                   f"   Observe how the linker combines the object files."
+        elif skill_level == 'intermediate':
+            return f"{lesson_num}. Write a program that uses `libm` and link it incorrectly, then correctly.\n" \
+                   f"   Try: `gcc program.c -lm` (wrong) vs `gcc program.c -o program -lm` (right).\n" \
+                   f"   Document the error messages and explain why order matters."
+        else:
+            return f"{lesson_num}. Use `objdump -r` on an object file to examine relocation entries.\n" \
+                   f"   Create a program with global variables and function calls.\n" \
+                   f"   Analyze which symbols need relocation and why."
+    
+    elif 'memory' in topic.lower() or 'malloc' in concept_name:
+        if skill_level == 'beginner':
+            return f"{lesson_num}. Write a program that allocates an array with `malloc()` and frees it.\n" \
+                   f"   Add `printf()` statements to track allocation and deallocation.\n" \
+                   f"   What happens if you forget `free()`?"
+        elif skill_level == 'intermediate':
+            return f"{lesson_num}. Implement a simple memory pool allocator.\n" \
+                   f"   Pre-allocate a large block and manage sub-allocations manually.\n" \
+                   f"   Compare performance with standard `malloc()`."
+        else:
+            return f"{lesson_num}. Use `valgrind --tool=massif` to profile memory usage.\n" \
+                   f"   Create a program with different allocation patterns.\n" \
+                   f"   Analyze heap growth and identify optimization opportunities."
+    
+    elif 'process' in topic.lower() or 'fork' in concept_name:
+        if skill_level == 'beginner':
+            return f"{lesson_num}. Write a program that creates one child process with `fork()`.\n" \
+                   f"   Have parent and child print different messages.\n" \
+                   f"   Use `wait()` to ensure proper cleanup."
+        elif skill_level == 'intermediate':
+            return f"{lesson_num}. Create a producer-consumer program using `fork()` and pipes.\n" \
+                   f"   Parent writes data to pipe, child reads and processes it.\n" \
+                   f"   Handle pipe closure and error conditions."
+        else:
+            return f"{lesson_num}. Implement a process pool with `fork()` and signal handling.\n" \
+                   f"   Create N worker processes, distribute tasks via IPC.\n" \
+                   f"   Use `strace -f` to analyze system call patterns."
+    
+    else:
+        # Generic but still specific tasks
+        if skill_level == 'beginner':
+            return f"{lesson_num}. Modify the code example to use different input values.\n" \
+                   f"   Add error checking and print meaningful messages.\n" \
+                   f"   Test with both valid and invalid inputs."
+        elif skill_level == 'intermediate':
+            return f"{lesson_num}. Extend the example to handle edge cases and error conditions.\n" \
+                   f"   Add proper cleanup and resource management.\n" \
+                   f"   Write a test harness to verify correctness."
+        else:
+            return f"{lesson_num}. Optimize the implementation for performance and memory efficiency.\n" \
+                   f"   Profile with appropriate tools and document improvements.\n" \
+                   f"   Consider thread safety and scalability issues."
+
+def _has_system_level_content(concept: Dict) -> bool:
+    """Check if concept involves system-level topics that benefit from tool demonstrations"""
+    content = (concept.get('content', '') + concept.get('description', '') + concept.get('syntax', '')).lower()
+    
+    system_indicators = [
+        'linker', 'loader', 'object file', 'symbol', 'relocation',
+        'assembly', 'system call', 'kernel', 'memory map', 'virtual memory',
+        'process', 'thread', 'signal', 'pipe', 'socket'
+    ]
+    
+    return any(indicator in content for indicator in system_indicators)
+
+def _generate_tool_demonstration(concept: Dict, topic: str) -> str:
+    """Generate concrete tool usage examples for system-level concepts"""
+    
+    concept_content = concept.get('content', '').lower()
+    
+    if 'linker' in concept_content or 'symbol' in concept_content:
+        return """**Tool Demo**: Examining symbols with `nm`
+```bash
+# Compile object file
+gcc -c program.c
+
+# List all symbols
+nm program.o
+
+# Find specific symbols (undefined references)
+nm program.o | grep -E "U|T"
+
+# Check symbols in library
+nm /lib/x86_64-linux-gnu/libc.so.6 | grep malloc
+```
+**Expected Output**: You'll see symbol types (T=text, U=undefined, D=data)"""
+    
+    elif 'memory' in concept_content or 'malloc' in concept_content:
+        return """**Tool Demo**: Memory analysis with `pmap` and `valgrind`
+```bash
+# Compile with debug info
+gcc -g -o program program.c
+
+# Run and get PID
+./program &
+PROGRAM_PID=$!
+
+# Examine memory mapping
+pmap $PROGRAM_PID
+
+# Check for memory leaks
+valgrind --leak-check=full ./program
+```
+**Expected Output**: Memory layout showing heap, stack, and shared libraries"""
+    
+    elif 'process' in concept_content or 'fork' in concept_content:
+        return """**Tool Demo**: Process tracing with `strace`
+```bash
+# Trace system calls
+strace -f ./program
+
+# Focus on specific calls
+strace -e trace=fork,exec,wait ./program
+
+# Trace with timestamps
+strace -t -o trace.log ./program
+```
+**Expected Output**: Sequence of system calls showing process creation and management"""
+    
+    else:
+        return """**Tool Demo**: General debugging approach
+```bash
+# Compile with all warnings and debug info
+gcc -Wall -Wextra -g -o program program.c
+
+# Use gdb for debugging
+gdb ./program
+(gdb) break main
+(gdb) run
+(gdb) info variables
+```
+**Expected Output**: Detailed debugging information and variable states"""
+
+def _get_next_topics_beginner(topic: str) -> List[str]:
+    """Suggest next topics for beginner level"""
+    next_topics = {
+        'pointers': ['arrays', 'strings', 'dynamic memory'],
+        'functions': ['pointers', 'structures', 'file I/O'],
+        'memory': ['pointers', 'data structures', 'debugging'],
+        'linking': ['compilation process', 'libraries', 'makefiles'],
+        'processes': ['signals', 'file I/O', 'inter-process communication']
+    }
+    
+    for key in next_topics:
+        if key in topic.lower():
+            return next_topics[key]
+    
+    return ['advanced syntax', 'data structures', 'system programming']
+
+def _get_next_topics_intermediate(topic: str) -> List[str]:
+    """Suggest advanced topics for intermediate level"""
+    next_topics = {
+        'pointers': ['function pointers', 'complex data structures', 'memory optimization'],
+        'memory': ['virtual memory', 'memory mapping', 'cache optimization'],
+        'linking': ['dynamic loading', 'plugin architectures', 'binary analysis'],
+        'processes': ['thread programming', 'synchronization', 'performance optimization']
+    }
+    
+    for key in next_topics:
+        if key in topic.lower():
+            return next_topics[key]
+    
+    return ['system internals', 'performance optimization', 'concurrent programming']
+
+def _get_expert_challenges(topic: str) -> List[str]:
+    """Suggest expert-level challenges"""
+    challenges = {
+        'linking': ['Write a custom dynamic loader', 'Implement position-independent code', 'Binary patching techniques'],
+        'memory': ['Custom memory allocators', 'Lock-free data structures', 'NUMA optimization'],
+        'processes': ['High-performance servers', 'Real-time systems', 'Kernel modules']
+    }
+    
+    for key in challenges:
+        if key in topic.lower():
+            return challenges[key]
+    
+    return ['Contribute to open-source projects', 'Write performance-critical libraries', 'Develop system tools']
 
 @mcp.tool()
 async def create_best_practices_guide(topic: str) -> str:
