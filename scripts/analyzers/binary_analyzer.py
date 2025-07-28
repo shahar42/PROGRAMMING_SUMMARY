@@ -115,8 +115,8 @@ class BinaryAnalyzer:
             raise FileNotFoundError(f"Binary not found: {self.binary_path}")
             
         try:
-            with open(self.binary_path, 'rb') as f:
-                self.elffile = ELFFile(f)
+            self.file_handle = open(self.binary_path, 'rb')
+            self.elffile = ELFFile(self.file_handle)
                 
             # Validate it's an ELF file
             if not self.elffile.header['e_type'] in ['ET_EXEC', 'ET_DYN']:

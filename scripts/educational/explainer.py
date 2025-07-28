@@ -39,7 +39,7 @@ Think of the GOT like a phone book for your program. When your program wants to 
 
 The GOT is a table that stores the addresses of these external functions. Initially, these addresses point to helper code that will find the real function the first time it's called.
 """,
-                "entry_format": "📍 **{symbol_name}** at {address}\n   Current value: {current_value}\n   Status: {'✅ Resolved' if resolved else '⏳ Not yet resolved'}\n   From library: {library_source}\n",
+                "entry_format": "📍 **{symbol_name}** at {address}\n   Current value: {current_value}\n   Status: {status}\n   From library: {library_source}\n",
                 "summary": """
 🔑 **Key Points:**
 - GOT stores addresses of external functions and data
@@ -56,7 +56,7 @@ The GOT is a critical component of position-independent code (PIC) and dynamic l
 
 This analysis shows the current state of GOT entries and their resolution status.
 """,
-                "entry_format": "🎯 **{symbol_name}** (Index: {entry_index})\n   Virtual Address: {address}\n   Current Value: {current_value}\n   Relocation Type: {relocation_type}\n   Binding: {binding_type}\n   Resolution Status: {'Resolved' if resolved else 'Pending'}\n   Source Library: {library_source}\n",
+                "entry_format": "🎯 **{symbol_name}** (Index: {entry_index})\n   Virtual Address: {address}\n   Current Value: {current_value}\n   Relocation Type: {relocation_type}\n   Binding: {binding_type}\n   Resolution Status: {status}\n   Source Library: {library_source}\n",
                 "summary": """
 📊 **Technical Summary:**
 - GOT entries use R_*_JUMP_SLOT relocations for function calls
@@ -73,7 +73,7 @@ The GOT implements the System V ABI's position-independent code mechanism. Each 
 
 Architecture-specific implementation details and performance characteristics are analyzed below.
 """,
-                "entry_format": "🔬 **{symbol_name}** (GOT[{entry_index}])\n   Virtual Address: {address} (Runtime patchable)\n   Current Content: {current_value}\n   Relocation: {relocation_type}\n   Binding Strategy: {binding_type}\n   Resolution State: {'Runtime-resolved' if resolved else 'Unresolved (stub target)'}\n   Provider: {library_source}\n   Memory Access Pattern: Indirect through GOT\n",
+                "entry_format": "🔬 **{symbol_name}** (GOT[{entry_index}])\n   Virtual Address: {address} (Runtime patchable)\n   Current Content: {current_value}\n   Relocation: {relocation_type}\n   Binding Strategy: {binding_type}\n   Resolution State: {status}\n   Provider: {library_source}\n   Memory Access Pattern: Indirect through GOT\n",
                 "summary": """
 🧠 **Advanced Considerations:**
 - GOT entries incur one additional memory access per symbol reference
@@ -96,7 +96,7 @@ The PLT is like a bunch of small helper functions that work with the GOT. When y
 
 The PLT stub looks up the real function address in the GOT and jumps to it. If it's the first time calling this function, the PLT stub helps figure out where the function really is.
 """,
-                "stub_format": "📞 **{symbol_name}** (PLT stub #{stub_index})\n   Location: {address}\n   Jumps to GOT entry: {got_reference}\n   Status: {'✅ Ready to call' if is_resolved else '⏳ Will resolve on first call'}\n",
+                "stub_format": "📞 **{symbol_name}** (PLT stub #{stub_index})\n   Location: {address}\n   Jumps to GOT entry: {got_reference}\n   Status: {status}\n",
                 "disassembly_intro": "🔍 **What the computer actually does:**",
                 "summary": """
 🔑 **Key Points:**
@@ -114,7 +114,7 @@ The PLT provides trampolines for external function calls, implementing lazy bind
 
 The first call to a PLT stub triggers symbol resolution via _dl_runtime_resolve.
 """,
-                "stub_format": "🎯 **{symbol_name}** (PLT[{stub_index}])\n   Stub Address: {address}\n   Target GOT Entry: {got_reference}\n   Stub Type: {stub_type}\n   Resolution Status: {'Resolved' if is_resolved else 'Lazy (unresolved)'}\n   Final Target: {target_address}\n",
+                "stub_format": "🎯 **{symbol_name}** (PLT[{stub_index}])\n   Stub Address: {address}\n   Target GOT Entry: {got_reference}\n   Stub Type: {stub_type}\n   Resolution Status: {status}\n   Final Target: {target_address}\n",
                 "disassembly_intro": "🔍 **Assembly Analysis:**",
                 "summary": """
 📊 **Technical Details:**
@@ -131,7 +131,7 @@ The first call to a PLT stub triggers symbol resolution via _dl_runtime_resolve.
 
 The PLT implements the System V ABI's lazy binding protocol. Each entry is a precisely crafted instruction sequence that balances code size, performance, and flexibility. The implementation varies by architecture to optimize for instruction encoding efficiency and calling conventions.
 """,
-                "stub_format": "🔬 **{symbol_name}** (PLT[{stub_index}])\n   Stub VMA: {address} (Code segment)\n   GOT Reference: {got_reference} (Data segment)\n   Stub Implementation: {stub_type}\n   Binding State: {'Post-resolution direct jump' if is_resolved else 'Pre-resolution lazy stub'}\n   Target Symbol VMA: {target_address}\n   Performance: {'Resolved (single indirect jump)' if is_resolved else 'Unresolved (resolver overhead)'}\n",
+                "stub_format": "🔬 **{symbol_name}** (PLT[{stub_index}])\n   Stub VMA: {address} (Code segment)\n   GOT Reference: {got_reference} (Data segment)\n   Stub Implementation: {stub_type}\n   Binding State: {binding_state}\n   Target Symbol VMA: {target_address}\n   Performance: {performance_status}\n",
                 "disassembly_intro": "🔍 **Instruction-Level Analysis:**",
                 "summary": """
 🧠 **Advanced Performance Considerations:**
@@ -253,11 +253,19 @@ This system lets programs work with libraries that might be in different places 
         result += f"📊 **GOT Entries Found: {len(got_entries)}**\n\n"
         
         for entry in got_entries[:10]:  # Limit to first 10 for readability
+            # Determine status string based on detail level
+            if detail_level == 'beginner':
+                status = '✅ Resolved' if entry.resolved else '⏳ Not yet resolved'
+            elif detail_level == 'intermediate':
+                status = 'Resolved' if entry.resolved else 'Pending'
+            else:  # advanced
+                status = 'Runtime-resolved' if entry.resolved else 'Unresolved (stub target)'
+
             formatted_entry = explanations["entry_format"].format(
                 symbol_name=entry.symbol_name or "unnamed",
                 address=entry.address,
                 current_value=entry.current_value,
-                resolved=entry.resolved,
+                status=status,
                 library_source=entry.library_source or "unknown",
                 entry_index=getattr(entry, 'entry_index', 0),
                 relocation_type=getattr(entry, 'relocation_type', 'unknown'),
@@ -318,14 +326,27 @@ This system lets programs work with libraries that might be in different places 
         result += f"📊 **PLT Stubs Found: {len(display_stubs)}**\n\n"
         
         for stub in display_stubs[:10]:  # Limit to first 10 for readability
+            is_resolved = getattr(stub, 'is_resolved', False)
+            status, binding_state, performance_status = '', '', ''
+
+            if detail_level == 'beginner':
+                status = '✅ Ready to call' if is_resolved else '⏳ Will resolve on first call'
+            elif detail_level == 'intermediate':
+                status = 'Resolved' if is_resolved else 'Lazy (unresolved)'
+            else:  # advanced
+                binding_state = 'Post-resolution direct jump' if is_resolved else 'Pre-resolution lazy stub'
+                performance_status = 'Resolved (single indirect jump)' if is_resolved else 'Unresolved (resolver overhead)'
+            
             formatted_stub = explanations["stub_format"].format(
                 symbol_name=stub.symbol_name or "unnamed",
                 address=stub.address,
                 got_reference=stub.got_reference,
                 stub_index=getattr(stub, 'stub_index', 0),
                 stub_type=getattr(stub, 'stub_type', 'unknown'),
-                is_resolved=getattr(stub, 'is_resolved', False),
-                target_address=getattr(stub, 'target_address', 'unknown')
+                target_address=getattr(stub, 'target_address', 'unknown'),
+                status=status,
+                binding_state=binding_state,
+                performance_status=performance_status
             )
             result += formatted_stub + "\n"
             
@@ -515,177 +536,64 @@ int main() {
 }
 ```
 
-```c
-// file: global_var.c  
-int global_var = 42;
-```
-
-**Compilation & Analysis:**
-```bash
-# Compile as shared library
-gcc -fPIC -shared global_var.c -o libglobal.so
-
-# Compile main program
-gcc -L. -lglobal got_demo.c -o got_demo
-
-# Analyze GOT entries
-objdump -R got_demo
-readelf -r got_demo
-```
-
-**What happens:**
-1. `global_var` access goes through GOT entry
-2. `printf` call uses PLT stub that references GOT
-3. Runtime linker resolves addresses in GOT entries
+When compiled with: gcc -fPIC -o got_demo got_demo.c
+- The printf call goes through PLT/GOT mechanism
+- global_var access uses GOT for position independence
 """,
             "plt": """
 🔍 **PLT Demonstration Example**
 
 ```c
-// file: plt_demo.c
+// file: plt_demo.c  
 #include <stdio.h>
-#include <math.h>
+#include <string.h>
 
 int main() {
-    printf("Hello from PLT!\\n");     // First external call
-    printf("Square root: %.2f\\n", sqrt(16.0));  // Second external call
+    printf("Hello\\n");      // First call: PLT stub → resolver → printf
+    printf("World\\n");      // Second call: PLT stub → printf (direct)
+    
+    char buf[100];
+    strcpy(buf, "test");     // Another PLT/GOT resolved function
+    
     return 0;
 }
 ```
 
-**Compilation & Analysis:**
-```bash
-# Compile with dynamic linking
-gcc plt_demo.c -lm -o plt_demo
-
-# Examine PLT section
-objdump -d -j .plt plt_demo
-
-# Show PLT entries
-readelf -r plt_demo | grep JUMP_SLOT
-```
-
-**What the PLT does:**
-1. Each external function gets a PLT stub
-2. First call: PLT → resolver → library → update GOT → function
-3. Later calls: PLT → GOT → function (direct jump)
+Compilation: gcc -o plt_demo plt_demo.c
+- Each library function gets its own PLT stub
+- First call incurs resolution overhead
+- Subsequent calls are direct jumps through GOT
 """,
-            "lazy_binding": """
-🔍 **Lazy Binding Demonstration**
+            "dynamic_linking": """
+🔍 **Complete Dynamic Linking Example**
 
 ```c
-// file: lazy_demo.c
+// file: main.c
 #include <stdio.h>
 #include <dlfcn.h>
-#include <unistd.h>
-
-void show_got_entry() {
-    // This function will be resolved on first call
-    printf("Function resolved!\\n");
-}
 
 int main() {
-    printf("Program started - functions not yet resolved\\n");
-    sleep(1);  // Pause to allow inspection
+    // Static linking via PLT/GOT
+    printf("Static call\\n");
     
-    printf("About to call external function...\\n");
-    show_got_entry();  // First call - resolution happens here
-    
-    printf("Calling again - should be faster\\n");
-    show_got_entry();  // Second call - direct through GOT
+    // Dynamic loading at runtime
+    void* handle = dlopen("libm.so.6", RTLD_LAZY);
+    if (handle) {
+        double (*cosine)(double) = dlsym(handle, "cos");
+        if (cosine) {
+            printf("cos(0) = %f\\n", cosine(0.0));
+        }
+        dlclose(handle);
+    }
     
     return 0;
 }
 ```
 
-**Analysis with GDB:**
-```bash
-# Compile with debug info
-gcc -g lazy_demo.c -o lazy_demo
-
-# Debug session
-gdb lazy_demo
-(gdb) break main
-(gdb) run
-(gdb) x/i printf@plt     # Show PLT stub before resolution
-(gdb) continue
-(gdb) x/i printf@plt     # Show GOT entry after resolution
-```
-""",
-            "symbol_resolution": """
-🔍 **Symbol Resolution Example**
-
-```c
-// file: symbol_demo.c
-#include <stdio.h>
-
-// Override a library function
-int puts(const char *s) {
-    printf("[INTERCEPTED] %s\\n", s);
-    return 0;
-}
-
-int main() {
-    puts("This will be intercepted!");
-    printf("This goes to real printf\\n");
-    return 0;
-}
-```
-
-**Compilation & Analysis:**
-```bash
-# Compile and run
-gcc symbol_demo.c -o symbol_demo
-./symbol_demo
-
-# Examine symbol resolution order
-LD_DEBUG=symbols ./symbol_demo 2>&1 | grep puts
-
-# Show symbol table
-nm -D symbol_demo | grep puts
-```
-
-**What this demonstrates:**
-- Symbol resolution searches program first, then libraries
-- Global symbols can be interposed (overridden)
-- Dynamic linker resolves symbols at runtime
+Demonstrates both:
+- Compile-time dynamic linking (printf via PLT/GOT) 
+- Runtime dynamic loading (dlopen/dlsym)
 """
         }
         
-        concept_lower = concept.lower()
-        for key, example in examples.items():
-            if key in concept_lower:
-                return example
-        
-        # Default example
-        return f"""
-🔍 **General Dynamic Linking Example**
-
-```c
-// file: basic_demo.c
-#include <stdio.h>
-#include <stdlib.h>
-
-int main() {
-    printf("Hello, dynamic world!\\n");
-    void *ptr = malloc(100);
-    free(ptr);
-    return 0;
-}
-```
-
-**Analysis Commands:**
-```bash
-# Compile
-gcc basic_demo.c -o basic_demo
-
-# Show dynamic dependencies
-ldd basic_demo
-
-# Examine GOT/PLT
-objdump -d -j .plt basic_demo
-readelf -r basic_demo
-```
-
-This example shows basic dynamic linking with external function calls.
-"""
+        return examples.get(concept, "🔍 **Unknown concept requested**\n\nAvailable examples: got, plt, dynamic_linking")
