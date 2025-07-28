@@ -290,7 +290,7 @@ int main() {
             
             # Check server info
             try:
-                server_info = got_plt_mcp_server.get_server_info()
+                server_info = got_plt_mcp_server._get_server_info_impl()
                 info_available = len(server_info) > 100
                 self.test_results['integration']['server_info'] = info_available
                 logger.info(f"  Server Info: {'✅' if info_available else '❌'}")

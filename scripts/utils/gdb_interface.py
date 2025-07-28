@@ -321,12 +321,12 @@ class GDBInterface:
                     if match:
                         result['function'] = match.group(1).strip()
                 
-                elif "Program exited" in line:
+                elif "exited normally" in line or "exited with code" in line or "Program exited" in line:
                     result['status'] = 'program_exited'
-                
-                elif "Program terminated" in line:
+
+                elif "Program terminated" in line or "terminated" in line:
                     result['status'] = 'program_terminated'
-            
+                    
             return result
             
         except Exception as e:

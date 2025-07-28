@@ -1026,6 +1026,29 @@ def list_example_templates() -> str:
         return f"❌ Failed to list templates: {str(e)}"
 
 
+def _get_server_info_impl() -> str:
+    """
+    Internal implementation of server info logic
+    """
+    # Get concept statistics
+    total_concepts = len(concept_validator.list_available_concepts())
+    
+    info = f"""
+🔗 **GOT/PLT Educational Analysis Server - Phase 3**
+
+**Server Information:**
+- Name: {SERVER_INFO['name']}
+- Port: {SERVER_INFO['port']}
+- Framework: FastMCP
+- Focus: {SERVER_INFO['focus']}
+- Implementation: Phase 1 (Foundation) + Phase 2 (Educational Framework) + Phase 3 (Runtime Analysis) ✅
+
+**Status:** ✅ All phases operational - Ready for educational use!
+"""
+    
+    return info.strip()
+
+
 @mcp.tool()
 def get_server_info() -> str:
     """
@@ -1034,108 +1057,11 @@ def get_server_info() -> str:
     Returns:
         Server capabilities and integration information
     """
-    # Get concept statistics
-    total_concepts = len(concept_validator.list_available_concepts())
-    
-    info = f"""
-🔗 **GOT/PLT Educational Analysis Server - Phase 2**
-
-**Server Information:**
-- Name: {SERVER_INFO['name']}
-- Port: {SERVER_INFO['port']}
-- Framework: FastMCP
-- Focus: {SERVER_INFO['focus']}
-- Implementation: Phase 1 (Foundation) + Phase 2 (Educational Framework) ✅
-
-**Phase 1 Tools (Binary Analysis):**
-1. `inspect_got_table()` - Analyze Global Offset Table entries
-2. `analyze_plt_stubs()` - Disassemble Procedure Linkage Table stubs  
-3. `list_dynamic_symbols()` - List symbols requiring dynamic resolution
-4. `explain_linking_process()` - Comprehensive linking walkthrough
-5. `generate_minimal_example()` - Create demonstration code
-
-**Phase 2 Tools (Concept Validation):**
-6. `validate_concept()` - Test theory against real binary behavior
-7. `list_available_concepts()` - Show all concepts available for validation
-8. `find_related_concepts()` - Search concepts by keyword
-9. `get_concept_info()` - Detailed concept information from knowledge base
-10. `compare_theory_vs_practice()` - Side-by-side theory vs binary comparison
-11. `create_interactive_example()` - Generate compilable example files
-12. `list_example_templates()` - Show available example templates
-
-**Phase 3 Tools (Runtime Analysis):**
-13. `trace_symbol_resolution()` - Live trace of symbol resolution process
-14. `analyze_lazy_binding()` - Analyze lazy binding behavior with performance comparison
-15. `runtime_got_snapshot()` - Capture GOT state at execution points
-16. `compare_binding_modes()` - Compare lazy vs immediate binding
-17. `generate_lazy_binding_report()` - Comprehensive lazy binding analysis report
-18. `analyze_plt_behavior()` - Analyze PLT behavior during execution
-
-**Knowledge Base Integration:**
-- **Concepts Loaded:** {total_concepts} from Linkers & Loaders book
-- **Source:** `/outputs/linkers_loaders/` directory
-- **Format:** Extracted atomic concepts with theory, examples, and metadata
-- **Validation:** Real-time testing against ELF binaries
-
-**Educational Levels:**
-- **Beginner**: Simplified explanations with visual diagrams
-- **Intermediate**: Technical details with proper terminology
-- **Advanced**: Deep architectural analysis and optimization
-
-**Supported Architectures:**
-- x86-64 (Intel/AMD 64-bit) - Full support
-- AArch64 (ARM 64-bit) - Partial support
-- RISC-V 64-bit - Planned
-
-**Integration:**
-- Integrates with Master Orchestrator (port 8101)
-- Routes dynamic linking questions automatically
-- Validates concepts from existing knowledge extraction
-- Bridges theory and practice with educational explanations
-
-**Keywords for Routing:**
-{', '.join(SERVER_INFO['keywords'])}
-
-**Phase 2 Features:**
-✅ Concept validation against real binaries
-✅ Integration with existing concept database  
-✅ Theory vs practice comparisons
-✅ Educational error handling
-✅ Searchable concept repository
-✅ Detailed validation reports
-
-**Phase 3 Features:**
-✅ Runtime symbol resolution tracing
-✅ Lazy binding behavior analysis
-✅ Live GOT state snapshots
-✅ Performance overhead measurement
-✅ PLT interaction monitoring
-✅ GDB-based dynamic analysis
-
-**Runtime Analysis Capabilities:**
-- Live symbol resolution tracing with educational explanations
-- Lazy binding vs immediate binding comparisons
-- Performance impact measurement (first call vs subsequent calls)
-- GOT state changes during program execution
-- PLT stub behavior analysis
-- Educational runtime debugging scenarios
-
-**Usage Examples:**
-- `validate_concept("Global Offset Table")`
-- `find_related_concepts("lazy binding")`
-- `compare_theory_vs_practice("PLT", "/bin/ls")`
-- `trace_symbol_resolution("/bin/ls", "printf")`
-- `analyze_lazy_binding("/bin/cat", "malloc")`
-- `runtime_got_snapshot("/bin/echo", "main")`
-
-**Requirements:**
-- **Phase 1:** pyelftools, capstone, objdump, readelf
-- **Phase 2:** Existing concept database in `/outputs/linkers_loaders/`
-- **Phase 3:** GDB installed, dynamically linked binaries, execution permissions
-"""
-    
-    return info
-
+    try:
+        return _get_server_info_impl()
+    except Exception as e:
+        logger.error(f"Failed to get server info: {e}")
+        return f"❌ Failed to get server information: {str(e)}"
 
 # Server startup and integration
 if __name__ == "__main__":
