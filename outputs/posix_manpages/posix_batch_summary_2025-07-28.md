@@ -1,53 +1,53 @@
 # POSIX Man Page Extraction Summary
-**Date:** 2025-07-28 12:52:50
+**Date:** 2025-07-28 17:00:26
 **Extractor:** Grok-powered POSIX man page processor
 **Batch Size:** 8 system calls
 
 ## System Calls Extracted
 
-### 1. listen
-**Description:** The listen() system call marks the socket referred to by sockfd as a passive socket, used to accept incoming connection requests with accept(2). It specifies the maximum length of the queue for pending connections via the backlog parameter.
-**Errors:** 4 documented
-**POSIX:** POSIX.1-2008
-
-### 2. listxattr
-**Description:** listxattr() retrieves the list of extended attribute names associated with a specified file path. llistxattr() does the same for symbolic links, while flistxattr() operates on an open file descriptor. The function returns the size of the name list or -1 on error.
-**Errors:** 3 documented
-**POSIX:** None
-
-### 3. llistxattr
-**Description:** llistxattr() retrieves the list of extended attribute names associated with the specified path, treating symbolic links by their own attributes rather than the target file. It places the null-terminated list of names into a provided buffer and returns the size of the list.
-**Errors:** 3 documented
-**POSIX:** None
-
-### 4. llseek
-**Description:** The _llseek() system call repositions the file offset for the specified file descriptor to a 64-bit value formed by offset_high and offset_low, relative to the position defined by whence. It stores the new file offset in the provided result pointer. This call is primarily used on 32-bit platforms to handle large file offsets.
-**Errors:** 3 documented
-**POSIX:** None
-
-### 5. lock
-**Description:** The lock system call is not implemented in the Linux kernel.
-**Errors:** 1 documented
-**POSIX:** None
-
-### 6. lookup_dcookie
-**Description:** Looks up the full path of a directory entry specified by an opaque cookie identifier and copies it into a provided buffer. The kernel must hold a reference to the cookie for the operation to succeed.
-**Errors:** 6 documented
-**POSIX:** None
-
-### 7. lremovexattr
-**Description:** lremovexattr removes an extended attribute identified by name from the specified path. It is identical to removexattr except that for symbolic links, it removes the attribute from the link itself rather than the target file.
-**Errors:** 2 documented
-**POSIX:** None
-
-### 8. lseek
-**Description:** lseek() repositions the file offset of the open file associated with the file descriptor fd based on the offset and whence parameters. It supports directives like SEEK_SET, SEEK_CUR, SEEK_END, SEEK_DATA, and SEEK_HOLE to set the offset accordingly. This allows for operations such as seeking to data or holes in the file on supported systems.
+### 1. memfd_secret
+**Description:** memfd_secret() creates an anonymous RAM-based file and returns a file descriptor that refers to it, providing stronger protection for memory regions. The file is automatically released when all references are closed, and its size can be set using ftruncate(2).
 **Errors:** 5 documented
+**POSIX:** None
+
+### 2. migrate_pages
+**Description:** migrate_pages() attempts to move all pages of the specified process from memory nodes in old_nodes to nodes in new_nodes. Pages not in old_nodes are not migrated, and the kernel tries to maintain their relative topology. It requires appropriate privileges for other processes.
+**Errors:** 4 documented
+**POSIX:** None
+
+### 3. mincore
+**Description:** mincore() returns a vector indicating whether pages of the calling process's virtual memory are resident in core, avoiding page faults if referenced. It provides residency information for pages starting at addr for length bytes. The returned information is a snapshot and may be stale immediately.
+**Errors:** 4 documented
+**POSIX:** None
+
+### 4. mkdir
+**Description:** The mkdir() function creates a new directory with the specified pathname and mode, which is modified by the process's umask. The mkdirat() function operates similarly but allows the pathname to be relative to a given directory file descriptor.
+**Errors:** 15 documented
 **POSIX:** POSIX.1-2008
+
+### 5. mkdirat
+**Description:** The mkdirat() system call creates a new directory with the specified mode, similar to mkdir(), but interprets relative paths relative to a given directory file descriptor. It allows for more flexible path resolution, especially in scenarios requiring directory traversal from a specific file descriptor.
+**Errors:** 15 documented
+**POSIX:** POSIX.1-2008
+
+### 6. mknod
+**Description:** The mknod() system call creates a filesystem node such as a regular file, device special file, or named pipe with the specified mode and device number. It sets the ownership and permissions based on the process's effective IDs and umask. The mknodat() variant allows specifying a directory file descriptor for relative paths.
+**Errors:** 14 documented
+**POSIX:** POSIX.1-2008
+
+### 7. mknodat
+**Description:** The mknodat() system call creates a filesystem node (such as a file, device special file, or named pipe) with the specified mode and device number. It operates like mknod() but interprets relative pathnames relative to the directory file descriptor dirfd for better path resolution.
+**Errors:** 14 documented
+**POSIX:** POSIX.1-2008
+
+### 8. mlock
+**Description:** mlock() locks a specified range of the calling process's virtual address space into RAM, preventing it from being paged to swap. mlock2() performs a similar operation with additional flags for behavior control. These functions ensure memory pages remain resident in physical memory until unlocked.
+**Errors:** 4 documented
+**POSIX:** None
 
 ## Progress Summary
-- **Total System Calls Processed:** 207
-- **Extraction Sessions:** 41
+- **Total System Calls Processed:** 223
+- **Extraction Sessions:** 43
 - **Success Rate:** High (Grok-optimized)
 
 ---

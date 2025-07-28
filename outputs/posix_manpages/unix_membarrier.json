@@ -1,0 +1,61 @@
+{
+  "name": "membarrier",
+  "synopsis": [
+    "#include <linux/membarrier.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_membarrier, int cmd, unsigned int flags, int cpu_id);"
+  ],
+  "description": "The membarrier() system call reduces the overhead of memory barriers in multi-threaded applications by allowing replacement of barriers on frequently executed paths with compiler barriers and using membarrier on less frequent paths. It ensures memory accesses match program order for targeted threads, improving performance on multi-core systems.",
+  "parameters": [
+    {
+      "name": "cmd",
+      "type": "int",
+      "description": "The command to execute, such as MEMBARRIER_CMD_QUERY, MEMBARRIER_CMD_GLOBAL, or others"
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags for the command, typically set to 0"
+    },
+    {
+      "name": "cpu_id",
+      "type": "int",
+      "description": "CPU ID for specific commands, if applicable"
+    }
+  ],
+  "return_value": {
+    "success": "Returns a bit mask for MEMBARRIER_CMD_QUERY, or 0 for other commands",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "cmd is invalid, or flags is nonzero, or certain commands are disabled"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "The membarrier() system call is not implemented by the kernel"
+    },
+    {
+      "code": "EPERM",
+      "description": "The current process was not registered prior to using private expedited commands"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.3",
+  "posix_compliance": null,
+  "examples": [
+    "static int membarrier(int cmd, unsigned int flags, int cpu_id) { return syscall(__NR_membarrier, cmd, flags, cpu_id); }",
+    "ret = membarrier(MEMBARRIER_CMD_QUERY, 0, 0); if (ret < 0) { perror(\"membarrier\"); }",
+    "static void slow_path(int *read_a) { b = 1; membarrier(MEMBARRIER_CMD_GLOBAL, 0, 0); *read_a = a; }"
+  ],
+  "related_calls": [],
+  "extraction_metadata": {
+    "syscall_file": "membarrier.pdf",
+    "extraction_date": "2025-07-28T16:49:55.735869",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

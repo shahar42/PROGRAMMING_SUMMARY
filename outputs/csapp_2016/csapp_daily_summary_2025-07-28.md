@@ -1,26 +1,26 @@
 # Daily CSAPP Systems Extraction Summary
-**Date:** 2025-07-28 12:50:39
+**Date:** 2025-07-28 16:58:09
 **Book:** Computer Systems: A Programmer's Perspective (3rd Edition)
 **Focus:** Computer architecture and systems programming
 
 ## Systems Concepts Extracted Today: 4
 
 ### 1. Memory Hierarchy and Caching Strategies
-**Systems concept:** Computer systems employ a memory hierarchy to balance cost and performance.  This hierarchy consists of different levels of memory with varying speeds and capacities.  Faster, smaller memories (caches...
+**Systems concept:** Modern computer systems employ a memory hierarchy to manage the tradeoff between speed and cost.  Faster memory (e.g., cache) is more expensive per byte, while slower memory (e.g., main memory, disk) ...
 
-### 2. Virtual Memory and Address Translation
-**Systems concept:** Virtual memory is a memory management technique that provides each process with its own private address space, independent of the physical memory.  This allows processes to access more memory than is ...
+### 2. Memory Hierarchy and Caching Strategies
+**Systems concept:** Modern computer systems utilize a memory hierarchy to bridge the speed gap between CPU and main memory.  This hierarchy consists of multiple levels of storage with varying speeds and capacities.  Cach...
 
-### 3. Cache Memory and Spatial Locality
-**Systems concept:** Cache memory is a smaller, faster memory that sits between the CPU and main memory. It exploits spatial locality, the tendency for a program to access nearby memory locations sequentially.  By storing...
+### 3. Dynamic Memory Allocation and Coalescing
+**Systems concept:** Dynamic memory allocation is a crucial computer systems concept where the program requests memory during runtime, rather than at compile time.  This is managed by the heap, a region of memory separate...
 
-### 4. Memory Hierarchy and Caching Strategies
-**Systems concept:** Modern computer systems employ a memory hierarchy to bridge the speed gap between CPU and main memory.  This hierarchy consists of multiple levels of storage with varying speeds and capacities.  Cachi...
+### 4. Memory Allocation Optimization with Boundary Tags
+**Systems concept:** Boundary tags are data structures used in dynamic memory allocators to manage free and allocated blocks of memory.  They improve the efficiency of coalescing free blocks by storing essential informati...
 
 ## CSAPP Progress Summary
-- **Total Systems Concepts:** 213
-- **Extraction Sessions:** 56
-- **Last Processed Page:** 853
+- **Total Systems Concepts:** 221
+- **Extraction Sessions:** 58
+- **Last Processed Page:** 883
 
 ## Next Session
 Continue CSAPP systems extraction to explore more computer architecture concepts.
