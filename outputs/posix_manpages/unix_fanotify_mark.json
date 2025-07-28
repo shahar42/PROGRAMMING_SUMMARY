@@ -1,0 +1,103 @@
+{
+  "name": "fanotify_mark",
+  "synopsis": [
+    "#include <sys/fanotify.h>",
+    "int fanotify_mark(int fanotify_fd, unsigned int flags, uint64_t mask, int dirfd, const char *_Nullable pathname);"
+  ],
+  "description": "fanotify_mark() adds, removes, or modifies an fanotify mark on a filesystem object for event notifications. The caller must have read permission on the object and provide a file descriptor from fanotify_init(2).",
+  "parameters": [
+    {
+      "name": "fanotify_fd",
+      "type": "int",
+      "description": "File descriptor returned by fanotify_init(2) for the fanotify group"
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Bitmask specifying the operation (e.g., FAN_MARK_ADD, FAN_MARK_REMOVE) and options (e.g., FAN_MARK_DONT_FOLLOW)"
+    },
+    {
+      "name": "mask",
+      "type": "uint64_t",
+      "description": "Bitmask of events to listen for, ignore, or modify"
+    },
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor or AT_FDCWD for relative paths"
+    },
+    {
+      "name": "pathname",
+      "type": "const char *_Nullable",
+      "description": "Pathname of the filesystem object to mark"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "An invalid file descriptor was passed in fanotify_fd or dirfd is invalid"
+    },
+    {
+      "code": "EEXIST",
+      "description": "The mark cannot be updated due to conflicts, such as attempting to make an evictable mark on a non-evictable one"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flags or mask, or incompatible arguments (e.g., invalid combination with FAN_MARK_MOUNT)"
+    },
+    {
+      "code": "EISDIR",
+      "description": "Operation requires a directory but the specified path is not one"
+    },
+    {
+      "code": "ENODEV",
+      "description": "The filesystem object is not associated with a filesystem that supports fsid"
+    },
+    {
+      "code": "ENOENT",
+      "description": "The filesystem object specified by dirfd and pathname does not exist"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to allocate necessary resources"
+    },
+    {
+      "code": "ENOSPC",
+      "description": "Exceeded the limit on the number of marks for the user"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "The kernel does not support fanotify_mark()"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "The path is not a directory when required by flags or mask"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support file handle encoding"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller lacks the required capability (e.g., CAP_SYS_ADMIN)"
+    },
+    {
+      "code": "EXDEV",
+      "description": "The filesystem object is in a subvolume with a different fsid"
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "fanotify_mark.pdf",
+    "extraction_date": "2025-07-26T23:45:16.538095",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

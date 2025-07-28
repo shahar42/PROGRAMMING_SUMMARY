@@ -1,26 +1,26 @@
 # Daily CSAPP Systems Extraction Summary
-**Date:** 2025-07-26 00:11:53
+**Date:** 2025-07-26 23:43:52
 **Book:** Computer Systems: A Programmer's Perspective (3rd Edition)
 **Focus:** Computer architecture and systems programming
 
 ## Systems Concepts Extracted Today: 4
 
-### 1. X86-64 Floating-Point Argument Passing Conventions
-**Systems concept:** X86-64 architecture defines specific conventions for passing floating-point arguments to functions and returning floating-point values. Understanding these conventions is crucial for writing correct a...
+### 1. Processor Pipelining and Hazard Handling
+**Systems concept:** Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  Each instruction progresses through a series of stages (fetch, decode, execute, memory acce...
 
-### 2. Function Call Convention (x86-64)
-**Systems concept:** A function call convention defines how arguments are passed to a function and how the return value is retrieved.  Understanding this is crucial for interfacing between different parts of a program, es...
+### 2. Instruction-Level Parallelism and Pipelining
+**Systems concept:** Modern processors utilize pipelining to execute multiple instructions concurrently, overlapping the execution stages (fetch, decode, execute, memory access, write-back) of different instructions.  Thi...
 
-### 3. x86-64 Register Conventions for Function Arguments
-**Systems concept:** x86-64 architecture uses a specific calling convention to pass arguments to functions.  Understanding this convention is crucial for writing and debugging system-level code, especially when interactin...
+### 3. Memory Hierarchy and Caching Strategies
+**Systems concept:** Modern computer systems employ a memory hierarchy to bridge the performance gap between fast, expensive CPU registers and slower, cheaper main memory.  This hierarchy consists of multiple levels of st...
 
-### 4. Floating-Point Arithmetic Operations and Instruction Set Architecture
-**Systems concept:** Floating-point arithmetic is crucial for scientific computing and many other applications.  Understanding how the processor handles these operations at the instruction level is essential for writing e...
+### 4. Processor Pipelining and Hazard Handling
+**Systems concept:** Processor pipelining improves instruction execution speed by overlapping the execution stages of multiple instructions.  However, this can lead to hazards (data, control, or structural) that disrupt t...
 
 ## CSAPP Progress Summary
-- **Total Systems Concepts:** 79
-- **Extraction Sessions:** 22
-- **Last Processed Page:** 343
+- **Total Systems Concepts:** 107
+- **Extraction Sessions:** 29
+- **Last Processed Page:** 448
 
 ## Next Session
 Continue CSAPP systems extraction to explore more computer architecture concepts.

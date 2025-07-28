@@ -1,0 +1,76 @@
+{
+  "name": "io_getevents",
+  "synopsis": [
+    "#include <linux/aio_abi.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_io_getevents, aio_context_t ctx_id, long min_nr, long nr, struct io_event *events, struct timespec *timeout);"
+  ],
+  "description": "The io_getevents() system call reads at least a minimum number of asynchronous I/O events and up to a maximum from the specified AIO context's completion queue. It waits for the specified timeout period, or indefinitely if timeout is NULL.",
+  "parameters": [
+    {
+      "name": "ctx_id",
+      "type": "aio_context_t",
+      "description": "AIO context identifier"
+    },
+    {
+      "name": "min_nr",
+      "type": "long",
+      "description": "Minimum number of events to read"
+    },
+    {
+      "name": "nr",
+      "type": "long",
+      "description": "Maximum number of events to read"
+    },
+    {
+      "name": "events",
+      "type": "struct io_event *",
+      "description": "Array to store the read events"
+    },
+    {
+      "name": "timeout",
+      "type": "struct timespec *",
+      "description": "Timeout structure for waiting, or NULL to block indefinitely"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of events read (may be 0 or less than min_nr if timeout expires or interrupted)",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "Either events or timeout is an invalid pointer"
+    },
+    {
+      "code": "EINTR",
+      "description": "Interrupted by a signal handler"
+    },
+    {
+      "code": "EINVAL",
+      "description": "ctx_id is invalid, min_nr is out of range, or nr is out of range"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "io_getevents() is not implemented on this architecture"
+    }
+  ],
+  "bugs": "An invalid ctx_id may cause a segmentation fault instead of generating the error EINVAL.",
+  "versions": "Linux 2.5",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "io_cancel",
+    "io_destroy",
+    "io_setup",
+    "io_submit"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "io_getevents.pdf",
+    "extraction_date": "2025-07-28T12:13:39.969052",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

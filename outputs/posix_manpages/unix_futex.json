@@ -1,0 +1,139 @@
+{
+  "name": "futex",
+  "synopsis": [
+    "#include <linux/futex.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_futex, uint32_t *uaddr, int futex_op, uint32_t val, const struct timespec *timeout, uint32_t *uaddr2, uint32_t val3);",
+    "Note: glibc provides no wrapper for futex(), necessitating the use of syscall(2)."
+  ],
+  "description": "The futex() system call provides a method for user-space programs to wait on a shared memory value until a condition is met, typically for synchronization purposes. It allows most operations in user space with kernel involvement only when blocking is necessary. Futexes are commonly used for implementing locks and other primitives in shared memory.",
+  "parameters": [
+    {
+      "name": "uaddr",
+      "type": "uint32_t *",
+      "description": "Address of the futex word in shared memory"
+    },
+    {
+      "name": "futex_op",
+      "type": "int",
+      "description": "The operation to perform, such as FUTEX_WAIT or FUTEX_WAKE"
+    },
+    {
+      "name": "val",
+      "type": "uint32_t",
+      "description": "A value used for comparison or other purposes in the operation"
+    },
+    {
+      "name": "timeout",
+      "type": "const struct timespec *",
+      "description": "Optional timeout for waiting operations"
+    },
+    {
+      "name": "uaddr2",
+      "type": "uint32_t *",
+      "description": "Second address for operations like requeueing"
+    },
+    {
+      "name": "val3",
+      "type": "uint32_t",
+      "description": "Third value used in specific operations, such as bit masks"
+    }
+  ],
+  "return_value": {
+    "success": "Returns a value depending on the operation, such as 0 for FUTEX_WAIT if woken up.",
+    "failure": "Returns -1 and sets errno to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "No read access to the memory of a futex word."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "The value pointed to by uaddr was not equal to the expected value."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "For FUTEX_CMP_REQUEUE, the value pointed to by uaddr is not equal to the expected value."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "For FUTEX_LOCK_PI operations, the futex owner thread ID issue."
+    },
+    {
+      "code": "EDEADLK",
+      "description": "The futex word at uaddr is already locked by the caller."
+    },
+    {
+      "code": "EDEADLK",
+      "description": "Deadlock detected while requeueing for FUTEX_CMP_REQUEUE_PI."
+    },
+    {
+      "code": "EFAULT",
+      "description": "A required pointer argument did not point to a valid user-space address."
+    },
+    {
+      "code": "EINTR",
+      "description": "A FUTEX_WAIT operation was interrupted by a signal."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid argument, such as invalid timeout or unaligned address."
+    },
+    {
+      "code": "EINVAL",
+      "description": "For FUTEX_WAIT_BITSET, the bit mask supplied in val3 is zero."
+    },
+    {
+      "code": "EINVAL",
+      "description": "For FUTEX_CMP_REQUEUE_PI, uaddr equals uaddr2."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Kernel detected inconsistency between user-space and kernel state."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on open files has been reached for FUTEX_FD."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Kernel could not allocate memory for state information."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "Invalid operation specified in futex_op."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "FUTEX_CLOCK_REALTIME option used with unsupported operation."
+    },
+    {
+      "code": "EPERM",
+      "description": "Caller not allowed to attach to the futex."
+    },
+    {
+      "code": "EPERM",
+      "description": "Caller does not own the lock for FUTEX_UNLOCK_PI."
+    },
+    {
+      "code": "ESRCH",
+      "description": "The thread ID in the futex word does not exist."
+    },
+    {
+      "code": "ETIMEDOUT",
+      "description": "The operation timed out."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "futex.pdf",
+    "extraction_date": "2025-07-27T17:48:22.620864",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

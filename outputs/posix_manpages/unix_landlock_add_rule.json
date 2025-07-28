@@ -1,0 +1,79 @@
+{
+  "name": "landlock_add_rule",
+  "synopsis": [
+    "#include <linux/landlock.h>",
+    "#include <sys/syscall.h>",
+    "int syscall(SYS_landlock_add_rule, int ruleset_fd, enum landlock_rule_type rule_type, const void *rule_attr, uint32_t flags);"
+  ],
+  "description": "The landlock_add_rule() system call adds a new Landlock rule to an existing ruleset. A rule describes an action on an object, such as a file hierarchy with specific access rights. It is used to enforce security restrictions on filesystem operations.",
+  "parameters": [
+    {
+      "name": "ruleset_fd",
+      "type": "int",
+      "description": "File descriptor of the Landlock ruleset obtained from landlock_create_ruleset(2)."
+    },
+    {
+      "name": "rule_type",
+      "type": "enum landlock_rule_type",
+      "description": "Identifies the type of the rule, such as LANDLOCK_RULE_PATH_BENEATH for file hierarchies."
+    },
+    {
+      "name": "rule_attr",
+      "type": "const void *",
+      "description": "Pointer to the rule attributes structure, which varies based on rule_type."
+    },
+    {
+      "name": "flags",
+      "type": "uint32_t",
+      "description": "Must be set to 0; any other value is invalid."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno"
+  },
+  "errors": [
+    {
+      "code": "EOPNOTSUPP",
+      "description": "Landlock is supported by the kernel but disabled at boot time."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Flags is not 0, or the rule accesses are inconsistent."
+    },
+    {
+      "code": "ENOMSG",
+      "description": "Empty accesses in rule attributes."
+    },
+    {
+      "code": "EBADF",
+      "description": "ruleset_fd is not a valid file descriptor, or a member of rule_attr is not."
+    },
+    {
+      "code": "EBADFD",
+      "description": "ruleset_fd is not a ruleset file descriptor, or a member of rule_attr is not the expected type."
+    },
+    {
+      "code": "EPERM",
+      "description": "ruleset_fd has no write access to the underlying ruleset."
+    },
+    {
+      "code": "EFAULT",
+      "description": "rule_attr was not a valid address."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.13",
+  "posix_compliance": null,
+  "related_calls": [
+    "landlock_create_ruleset",
+    "landlock_restrict_self"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "landlock_add_rule.pdf",
+    "extraction_date": "2025-07-28T12:35:01.368260",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

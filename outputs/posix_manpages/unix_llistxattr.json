@@ -1,0 +1,64 @@
+{
+  "name": "llistxattr",
+  "synopsis": [
+    "#include <sys/xattr.h>",
+    "ssize_t llistxattr(const char *path, char *_Nullable list, size_t size);"
+  ],
+  "description": "llistxattr() retrieves the list of extended attribute names associated with the specified path, treating symbolic links by their own attributes rather than the target file. It places the null-terminated list of names into a provided buffer and returns the size of the list.",
+  "parameters": [
+    {
+      "name": "path",
+      "type": "const char *",
+      "description": "Pathname of the file or symbolic link to query."
+    },
+    {
+      "name": "list",
+      "type": "char *_Nullable",
+      "description": "Buffer to store the list of extended attribute names."
+    },
+    {
+      "name": "size",
+      "type": "size_t",
+      "description": "Size of the buffer in bytes; if zero, returns the required size without filling the buffer."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a nonnegative number indicating the size of the extended attribute name list.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "E2BIG",
+      "description": "The size of the list of extended attribute names is larger than the maximum size allowed; the list cannot be retrieved."
+    },
+    {
+      "code": "ENOTSUP",
+      "description": "Extended attributes are not supported by the filesystem, or are disabled."
+    },
+    {
+      "code": "ERANGE",
+      "description": "The size of the list buffer is too small to hold the result."
+    }
+  ],
+  "bugs": "The VFS imposes a limit of 64kB on the size of the extended attribute name list returned by llistxattr(). If the total size of attribute names exceeds this limit, it is no longer possible to retrieve the list.",
+  "versions": "Linux 2.4, glibc 2.3",
+  "posix_compliance": null,
+  "examples": [
+    "buflen = llistxattr(argv[1], NULL, 0);  // Determine the required buffer size",
+    "buflen = llistxattr(argv[1], buf, buflen);  // Retrieve the list of extended attributes"
+  ],
+  "related_calls": [
+    "getxattr",
+    "removexattr",
+    "setxattr",
+    "open",
+    "stat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "llistxattr.pdf",
+    "extraction_date": "2025-07-28T12:51:46.720557",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

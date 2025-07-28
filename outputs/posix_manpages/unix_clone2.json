@@ -1,0 +1,109 @@
+{
+  "name": "clone2",
+  "synopsis": [
+    "#define _GNU_SOURCE",
+    "#include <sched.h>",
+    "int clone(int (*fn)(void *_Nullable), void *stack, int flags, void *_Nullable arg, ...);",
+    "#include <linux/sched.h>",
+    "#include <sched.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_clone3, struct clone_args *cl_args, size_t size);"
+  ],
+  "description": "The clone system calls create a new child process similar to fork, but with more precise control over shared execution contexts such as memory, file descriptors, and signal handlers. This allows the child process to be placed in separate namespaces and share specific resources as specified.",
+  "parameters": [
+    {
+      "name": "fn",
+      "type": "int (*fn)(void *_Nullable)",
+      "description": "Function to be executed by the child process"
+    },
+    {
+      "name": "stack",
+      "type": "void *",
+      "description": "Pointer to the stack for the child process"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Bit mask of flags to control sharing and behavior"
+    },
+    {
+      "name": "arg",
+      "type": "void *_Nullable",
+      "description": "Argument passed to the function fn"
+    },
+    {
+      "name": "parent_tid",
+      "type": "pid_t *_Nullable",
+      "description": "Optional pointer to store child TID in parent's memory"
+    },
+    {
+      "name": "tls",
+      "type": "void *_Nullable",
+      "description": "Optional location of new thread-local storage"
+    },
+    {
+      "name": "child_tid",
+      "type": "pid_t *_Nullable",
+      "description": "Optional pointer to store child TID in child's memory"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the thread ID of the child process",
+    "failure": "Returns -1, no child process is created, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "CLONE_INTO_CGROUP specified but restrictions not met (clone3 only)"
+    },
+    {
+      "code": "EAGAIN",
+      "description": "Too many processes are already running"
+    },
+    {
+      "code": "EBUSY",
+      "description": "CLONE_INTO_CGROUP specified but cgroup has a domain controller (clone3 only)"
+    },
+    {
+      "code": "EEXIST",
+      "description": "One or more PIDs in set_tid already exist (clone3 only)"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flags or arguments specified, such as incompatible flag combinations"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to create the child process"
+    },
+    {
+      "code": "ENOSPC",
+      "description": "Limit on nesting depth of namespaces exceeded"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "CLONE_INTO_CGROUP specified but cgroup is in invalid state (clone3 only)"
+    },
+    {
+      "code": "EPERM",
+      "description": "Insufficient privileges for namespace creation or other operations"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.0 and later, with extensions up to Linux 5.7 and beyond for clone3 features",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "fork",
+    "execve",
+    "wait"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "clone2.pdf",
+    "extraction_date": "2025-07-26T10:26:20.324890",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

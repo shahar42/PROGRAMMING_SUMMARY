@@ -1,0 +1,78 @@
+{
+  "name": "ioctl_fideduperange",
+  "synopsis": [
+    "#include <linux/fs.h>",
+    "#include <sys/ioctl.h>",
+    "int ioctl(int src_fd, FIDEDUPERANGE, struct file_dedupe_range *arg);"
+  ],
+  "description": "This ioctl allows sharing physical storage between files by deduplicating identical data ranges on the same filesystem, reducing storage consumption through copy-on-write behavior. It compares and shares data from a source file to one or more destination files if the data is identical.",
+  "parameters": [
+    {
+      "name": "src_fd",
+      "type": "int",
+      "description": "File descriptor of the source file, which must be open for reading."
+    },
+    {
+      "name": "request",
+      "type": "int",
+      "description": "The ioctl request code, typically FIDEDUPERANGE."
+    },
+    {
+      "name": "arg",
+      "type": "struct file_dedupe_range *",
+      "description": "Pointer to a structure containing deduplication information, including source offset, length, and an array of destination details."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem which src_fd resides on does not support deduplication."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The filesystem does not support deduplicating the ranges of the given files; this can occur if file descriptors represent devices, FIFOs, or sockets, or if offsets and lengths are not aligned properly."
+    },
+    {
+      "code": "EISDIR",
+      "description": "One of the files is a directory and the filesystem does not support shared regions in directories."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "The kernel was unable to allocate sufficient memory to perform the operation or dest_count is too large."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support deduplicating either file descriptor, or if either refers to special inodes."
+    },
+    {
+      "code": "EPERM",
+      "description": "dest_fd is immutable."
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "One of the files is a swap file, which cannot share storage."
+    },
+    {
+      "code": "EXDEV",
+      "description": "dest_fd and src_fd are not on the same mounted filesystem."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.5",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "ioctl"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ioctl_fideduperange.pdf",
+    "extraction_date": "2025-07-28T12:18:06.728951",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

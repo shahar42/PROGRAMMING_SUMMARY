@@ -1,0 +1,35 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "Exceptional Control Flow (ECF) mechanisms are fundamental to how applications interact with the operating system and manage concurrency.  They represent a crucial hardware-software interface, enabling programs to handle unexpected events and coordinate with the OS kernel. This interaction is vital for tasks like process management, inter-process communication, and error handling, forming the backbone of many system-level operations.",
+  "syntax": "System calls are typically invoked using functions within a system's API (e.g., `open`, `read`, `write`, `close` in Unix-like systems).  Their underlying implementation involves triggering an exception that transfers control to the kernel.  Exceptional control flow can also manifest as hardware interrupts, software exceptions (like divide-by-zero), or signals.",
+  "code_example": [
+    "#include <unistd.h>",
+    "#include <stdio.h>",
+    "int main() {",
+    "    int fd = open(\"my_file.txt\", O_RDONLY);",
+    "    if (fd == -1) {",
+    "        perror(\"open\"); // System call to handle and report errors",
+    "        return 1;",
+    "    }",
+    "    char buffer[1024];",
+    "    ssize_t bytes_read = read(fd, buffer, sizeof(buffer));",
+    "    if (bytes_read == -1) {",
+    "        perror(\"read\"); // Another system call for error handling",
+    "        close(fd);",
+    "        return 1;",
+    "    }",
+    "    printf(\"%s\\n\", buffer);",
+    "    close(fd);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This C code demonstrates system calls (`open`, `read`, `close`, `perror`) within a typical application-level context. The `open` call requests a file descriptor to access \"my_file.txt\".  `read` retrieves data; `close` releases resources.  Crucially, `perror` shows how applications can interface with the OS using system calls, specifically to handle errors (exceptions). These calls trigger exceptional control flow: they invoke kernel routines to perform the requested I/O operation, demonstrating the pivotal role of ECF in coordinating applications and the operating system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "749-749",
+    "extraction_date": "2025-07-28T12:16:48.702232",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems"
+  }
+}

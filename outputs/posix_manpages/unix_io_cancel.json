@@ -1,0 +1,66 @@
+{
+  "name": "io_cancel",
+  "synopsis": [
+    "#include <linux/aio_abi.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_io_cancel, aio_context_t ctx_id, struct iocb *iocb, struct io_event *result);"
+  ],
+  "description": "The io_cancel() system call attempts to cancel an asynchronous I/O operation previously submitted with io_submit(2). It uses the AIO context and the I/O control block to identify the operation. If successful, the event is copied to the specified result without being placed in the completion queue.",
+  "parameters": [
+    {
+      "name": "ctx_id",
+      "type": "aio_context_t",
+      "description": "The AIO context to which the operation was submitted."
+    },
+    {
+      "name": "iocb",
+      "type": "struct iocb *",
+      "description": "Pointer to the I/O control block describing the operation to be canceled."
+    },
+    {
+      "name": "result",
+      "type": "struct io_event *",
+      "description": "Pointer to the memory where the result event will be copied if the operation is canceled."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "The iocb specified was not canceled."
+    },
+    {
+      "code": "EFAULT",
+      "description": "One of the data structures points to invalid data."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The AIO context specified by ctx_id is invalid."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "io_cancel() is not implemented on this architecture."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.5",
+  "posix_compliance": null,
+  "related_calls": [
+    "io_destroy",
+    "io_getevents",
+    "io_setup",
+    "io_submit",
+    "aio"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "io_cancel.pdf",
+    "extraction_date": "2025-07-28T12:13:18.819625",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

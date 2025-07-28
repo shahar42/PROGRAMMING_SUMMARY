@@ -1,0 +1,108 @@
+{
+  "name": "init_module",
+  "synopsis": [
+    "#include <linux/module.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_init_module, void *module_image, unsigned long len, const char *param_values);",
+    "int syscall(SYS_finit_module, int fd, const char *param_values, int flags);"
+  ],
+  "description": "The init_module system call loads an ELF image into kernel space, initializes module parameters, and runs the module's init function, requiring appropriate privileges. The finit_module system call performs a similar operation but reads the module from a file descriptor, potentially avoiding signature verification overhead.",
+  "parameters": [
+    {
+      "name": "module_image",
+      "type": "void*",
+      "description": "Pointer to a buffer containing the binary ELF image to be loaded"
+    },
+    {
+      "name": "len",
+      "type": "unsigned long",
+      "description": "Size of the module_image buffer"
+    },
+    {
+      "name": "param_values",
+      "type": "const char*",
+      "description": "String containing space-delimited specifications for module parameters"
+    },
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor from which to read the module"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Bit mask flags for finit_module, such as MODULE_INIT_IGNORE_MODVERSIONS"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADMSG",
+      "description": "Module signature is misformatted"
+    },
+    {
+      "code": "EBUSY",
+      "description": "Timeout while trying to resolve a symbol reference"
+    },
+    {
+      "code": "EFAULT",
+      "description": "An address argument referred to an invalid location"
+    },
+    {
+      "code": "ENOKEY",
+      "description": "Module signature is invalid or no key available (only if CONFIG_MODULE_SIG_FORCE is enabled)"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "EPERM",
+      "description": "Caller lacks CAP_SYS_MODULE capability or module loading is disabled"
+    },
+    {
+      "code": "EEXIST",
+      "description": "A module with this name is already loaded (init_module only)"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid param_values, ELF image inconsistencies, or invalid flags"
+    },
+    {
+      "code": "ENOEXEC",
+      "description": "The binary image is not a valid ELF image or for a different architecture"
+    },
+    {
+      "code": "EBADF",
+      "description": "File descriptor is not open for reading (finit_module only)"
+    },
+    {
+      "code": "EFBIG",
+      "description": "File referred to by fd is too large (finit_module only)"
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "File referred to by fd is open for read-write (finit_module only)"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6 for init_module; Linux 3.8 for finit_module",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "create_module",
+    "delete_module",
+    "query_module"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "init_module.pdf",
+    "extraction_date": "2025-07-28T12:03:21.494461",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

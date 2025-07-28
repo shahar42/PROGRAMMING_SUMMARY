@@ -1,0 +1,85 @@
+{
+  "name": "ioctl_ficlonerange",
+  "synopsis": [
+    "#include <linux/fs.h> /* Definition of FICLONE* constants */",
+    "#include <sys/ioctl.h>",
+    "int ioctl(int dest_fd, FICLONERANGE, struct file_clone_range *arg);",
+    "int ioctl(int dest_fd, FICLONE, int src_fd);"
+  ],
+  "description": "This ioctl operation allows sharing physical storage between files on supported filesystems by reflinking data ranges, which is faster than copying. It shares data from a source file to a destination file using copy-on-write, ensuring modifications remain private, and requires both files to be on the same filesystem.",
+  "parameters": [
+    {
+      "name": "dest_fd",
+      "type": "int",
+      "description": "File descriptor of the destination file, which must be open for writing"
+    },
+    {
+      "name": "FICLONERANGE",
+      "type": "unsigned long",
+      "description": "The ioctl command for cloning ranges"
+    },
+    {
+      "name": "arg",
+      "type": "struct file_clone_range *",
+      "description": "Pointer to a structure containing source file details: src_fd (int), src_offset (__u64), src_length (__u64), and dest_offset (__u64)"
+    },
+    {
+      "name": "FICLONE",
+      "type": "unsigned long",
+      "description": "The ioctl command for cloning entire files"
+    },
+    {
+      "name": "src_fd",
+      "type": "int",
+      "description": "File descriptor of the source file for the FICLONE variant"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem of src_fd does not support reflink"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The filesystem does not support reflinking the ranges of the given files, or either file descriptor represents a device, FIFO, or socket; offsets and lengths may need to be block-aligned"
+    },
+    {
+      "code": "EISDIR",
+      "description": "One of the files is a directory and the filesystem does not support shared regions in directories"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support reflinking either file descriptor, or either refers to special inodes"
+    },
+    {
+      "code": "EPERM",
+      "description": "dest_fd is immutable"
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "One of the files is a swap file, which cannot share storage"
+    },
+    {
+      "code": "EXDEV",
+      "description": "dest_fd and src_fd are not on the same mounted filesystem"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.5",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "ioctl"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ioctl_ficlonerange.pdf",
+    "extraction_date": "2025-07-28T12:17:53.646982",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "name": "getdents",
+  "synopsis": [
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_getdents, unsigned int fd, struct linux_dirent *dirp, unsigned int count);",
+    "#define _GNU_SOURCE",
+    "#include <dirent.h>",
+    "ssize_t getdents64(int fd, void *dirp, size_t count);"
+  ],
+  "description": "The system call getdents() reads several directory entries from the directory referred to by the open file descriptor fd into the buffer pointed to by dirp. The argument count specifies the size of that buffer. It is a low-level interface, and users are generally advised to use readdir(3) for POSIX-conforming operations.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "unsigned int",
+      "description": "File descriptor of the directory to read from"
+    },
+    {
+      "name": "dirp",
+      "type": "struct linux_dirent *",
+      "description": "Pointer to the buffer to hold the directory entries"
+    },
+    {
+      "name": "count",
+      "type": "unsigned int",
+      "description": "Size of the buffer pointed to by dirp"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes read on success, or 0 on end of directory",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "Invalid file descriptor fd"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Argument points outside the calling process’s address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Result buffer is too small"
+    },
+    {
+      "code": "ENOENT",
+      "description": "No such directory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "File descriptor does not refer to a directory"
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE",
+    "#include <dirent.h>",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "int main() {",
+    "    int fd = open(\".\", O_RDONLY | O_DIRECTORY);",
+    "    char buf[1024];",
+    "    long nread = syscall(SYS_getdents, fd, buf, 1024);",
+    "    // Process the buffer...",
+    "}"
+  ],
+  "related_calls": [
+    "readdir"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "getdents.pdf",
+    "extraction_date": "2025-07-27T18:12:00.835929",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

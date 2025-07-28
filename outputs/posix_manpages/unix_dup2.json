@@ -1,0 +1,63 @@
+{
+  "name": "dup2",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int dup2(int oldfd, int newfd);"
+  ],
+  "description": "The dup2() system call duplicates a file descriptor, making the specified newfd refer to the same open file description as oldfd. If newfd was previously open, it is closed first. This operation is performed atomically to prevent race conditions.",
+  "parameters": [
+    {
+      "name": "oldfd",
+      "type": "int",
+      "description": "The file descriptor to duplicate"
+    },
+    {
+      "name": "newfd",
+      "type": "int",
+      "description": "The file descriptor number to use for the duplicate; if already open, it is closed before reuse"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the new file descriptor (newfd)",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "oldfd isn’t an open file descriptor"
+    },
+    {
+      "code": "EBADF",
+      "description": "newfd is out of the allowed range for file descriptors"
+    },
+    {
+      "code": "EBUSY",
+      "description": "This may be returned by dup2() during a race condition with open(2) and dup()"
+    },
+    {
+      "code": "EINTR",
+      "description": "The dup2() call was interrupted by a signal"
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached"
+    }
+  ],
+  "bugs": "dup2() may return different errors compared to fcntl(F_DUPFD), and any errors from closing newfd are not reported.",
+  "versions": "POSIX.1-2001, POSIX.1-2008, SVr4, 4.3BSD",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "close",
+    "fcntl",
+    "open",
+    "pidfd_getfd"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "dup2.pdf",
+    "extraction_date": "2025-07-26T21:48:20.830208",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

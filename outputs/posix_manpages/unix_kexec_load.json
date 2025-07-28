@@ -1,0 +1,126 @@
+{
+  "name": "kexec_load",
+  "synopsis": [
+    "#include <linux/kexec.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_kexec_load, unsigned long entry, unsigned long nr_segments, struct kexec_segment *segments, unsigned long flags);",
+    "long syscall(SYS_kexec_file_load, int kernel_fd, int initrd_fd, unsigned long cmdline_len, const char *cmdline, unsigned long flags);"
+  ],
+  "description": "The kexec_load() system call loads a new kernel for later execution using reboot(2). It specifies kernel layout and flags for control. Additionally, kexec_file_load() loads a kernel from file descriptors with a command line.",
+  "parameters": [
+    {
+      "name": "entry",
+      "type": "unsigned long",
+      "description": "Physical entry address in the kernel image"
+    },
+    {
+      "name": "nr_segments",
+      "type": "unsigned long",
+      "description": "Number of segments in the segments array (up to 16)"
+    },
+    {
+      "name": "segments",
+      "type": "struct kexec_segment *",
+      "description": "Array of kexec_segment structures defining the kernel layout"
+    },
+    {
+      "name": "flags",
+      "type": "unsigned long",
+      "description": "Bit mask for controlling the operation, including KEXEC_ON_CRASH and architecture constants"
+    },
+    {
+      "name": "kernel_fd",
+      "type": "int",
+      "description": "File descriptor for the kernel file"
+    },
+    {
+      "name": "initrd_fd",
+      "type": "int",
+      "description": "File descriptor for the initrd file"
+    },
+    {
+      "name": "cmdline_len",
+      "type": "unsigned long",
+      "description": "Length of the command line string"
+    },
+    {
+      "name": "cmdline",
+      "type": "const char *",
+      "description": "The command line string for the kernel"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, errno is set"
+  },
+  "errors": [
+    {
+      "code": "EADDRNOTAVAIL",
+      "description": "The KEXEC_ON_CRASH flag was specified, but a segment region lies outside reserved crash kernel memory"
+    },
+    {
+      "code": "EADDRNOTAVAIL",
+      "description": "A mem or memsz field in segments is not a multiple of the system page size"
+    },
+    {
+      "code": "EBADF",
+      "description": "kernel_fd or initrd_fd is not a valid file descriptor"
+    },
+    {
+      "code": "EBUSY",
+      "description": "Another crash kernel is already being loaded or in use"
+    },
+    {
+      "code": "EINVAL",
+      "description": "flags is invalid"
+    },
+    {
+      "code": "EINVAL",
+      "description": "A bufsz field in segments exceeds the corresponding memsz"
+    },
+    {
+      "code": "EINVAL",
+      "description": "nr_segments exceeds 16"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Two or more kernel target buffers overlap"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The cmdline string does not end with '\\0'"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The file referred to by kernel_fd or initrd_fd is empty"
+    },
+    {
+      "code": "ENOEXEC",
+      "description": "kernel_fd does not refer to a loadable file"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Could not allocate memory"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller does not have the CAP_SYS_BOOT capability"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.13 for kexec_load, Linux 3.17 for kexec_file_load",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "reboot",
+    "syscall"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "kexec_load.pdf",
+    "extraction_date": "2025-07-28T12:32:31.428448",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

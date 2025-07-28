@@ -1,0 +1,51 @@
+{
+  "name": "getrusage",
+  "synopsis": [
+    "#include <sys/resource.h>",
+    "int getrusage(int who, struct rusage *usage);"
+  ],
+  "description": "getrusage() retrieves resource usage statistics for a specified entity, such as the calling process, its children, or the calling thread. It stores the information in a struct rusage, which includes metrics like CPU time and memory usage.",
+  "parameters": [
+    {
+      "name": "who",
+      "type": "int",
+      "description": "Specifies the entity for which to retrieve resource usage: RUSAGE_SELF for the calling process, RUSAGE_CHILDREN for terminated children, or RUSAGE_THREAD for the calling thread (available since Linux 2.6.26)."
+    },
+    {
+      "name": "usage",
+      "type": "struct rusage *",
+      "description": "Pointer to a struct rusage where the resource usage data is stored, including fields like ru_utime and ru_stime."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "usage points outside the accessible address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "who is invalid"
+    }
+  ],
+  "bugs": "Before Linux 2.6.9, if the disposition of SIGCHLD was set to SIG_IGN, resource usages of child processes were incorrectly included in RUSAGE_CHILDREN, contrary to POSIX; this was fixed in Linux 2.6.9 and later. Not all fields in struct rusage are maintained and are set to zero.",
+  "versions": "POSIX.1-2001, Linux 2.6.26 for RUSAGE_THREAD",
+  "posix_compliance": "POSIX.1-2008",
+  "related_calls": [
+    "clock_gettime",
+    "getrlimit",
+    "times",
+    "wait",
+    "wait4"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "getrusage.pdf",
+    "extraction_date": "2025-07-28T11:24:15.121218",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

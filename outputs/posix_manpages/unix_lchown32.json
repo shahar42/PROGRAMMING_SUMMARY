@@ -1,0 +1,93 @@
+{
+  "name": "lchown32",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int lchown(const char *pathname, uid_t owner, gid_t group);"
+  ],
+  "description": "Changes the ownership of a file specified by pathname without dereferencing symbolic links. Only a privileged process can change the owner, and the owner can change the group to one they are a member of. If owner or group is -1, that ID is not changed.",
+  "parameters": [
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Path to the file whose ownership is to be changed"
+    },
+    {
+      "name": "owner",
+      "type": "uid_t",
+      "description": "New owner user ID, or -1 to leave unchanged"
+    },
+    {
+      "name": "group",
+      "type": "gid_t",
+      "description": "New group ID, or -1 to leave unchanged"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied on a component of the path prefix"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor (for related calls)"
+    },
+    {
+      "code": "EFAULT",
+      "description": "pathname points outside your accessible address space"
+    },
+    {
+      "code": "EIO",
+      "description": "A low-level I/O error occurred while modifying the inode"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in resolving pathname"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "The file does not exist"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix is not a directory"
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling process did not have the required permissions to change owner and/or group, or the file is marked immutable or append-only"
+    },
+    {
+      "code": "EROFS",
+      "description": "The named file resides on a read-only filesystem"
+    }
+  ],
+  "bugs": null,
+  "versions": "Feature test macros: _POSIX_C_SOURCE >= 200809L or _XOPEN_SOURCE >= 500 since glibc 2.12",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <pwd.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\nint main(int argc, char *argv[]) {\n    // Program to change ownership as described\n    char *endptr;\n    uid_t uid;\n    struct passwd *pwd;\n    if (argc != 3 || argv[1][0] == '\\0') {\n        fprintf(stderr, \"%s <owner> <file>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    uid = strtol(argv[1], &endptr, 10);\n    if (*endptr != '\\0') {\n        pwd = getpwnam(argv[1]);\n        if (pwd == NULL) {\n            perror(\"getpwnam\");\n            exit(EXIT_FAILURE);\n        }\n        uid = pwd->pw_uid;\n    }\n    if (chown(argv[2], uid, -1) == -1) {\n        perror(\"chown\");\n        exit(EXIT_FAILURE);\n    }\n    exit(EXIT_SUCCESS);\n}"
+  ],
+  "related_calls": [
+    "chown",
+    "fchown",
+    "fchownat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "lchown32.pdf",
+    "extraction_date": "2025-07-28T12:40:54.847936",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

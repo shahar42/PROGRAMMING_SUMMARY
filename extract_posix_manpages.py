@@ -102,9 +102,9 @@ class POSIXManPageExtractor:
         )
         
         print(f"\n📊 Batch Complete:")
-        print(f"   ✅ Successful: {len(extracted_manpages)}")
-        print(f"   ❌ Failed: {len(batch_files) - len(extracted_manpages)}")
-        print(f"   📈 Total Progress: {processed_count + len(batch_files)}/{len(pdf_files)}")
+        print(f"  ✅ Successful: {len(extracted_manpages)}")
+        print(f"  ❌ Failed: {len(batch_files) - len(extracted_manpages)}")
+        print(f"  📈 Total Progress: {processed_count + len(batch_files)}/{len(pdf_files)}")
         
         return extracted_manpages
 
@@ -116,23 +116,23 @@ class POSIXManPageExtractor:
             content_blocks = extractor.extract_structured_content(0, max_pages=15)
             
             if not content_blocks:
-                print(f"   ⚠️  No content extracted from PDF")
+                print(f"  ⚠️  No content extracted from PDF")
                 return None
             
-            print(f"   📄 Extracted {len(content_blocks)} content blocks")
+            print(f"  📄 Extracted {len(content_blocks)} content blocks")
             
             # Detect man page sections for intelligent processing
             raw_content = self._combine_content_blocks(content_blocks)
             sections = self._parse_manpage_sections(raw_content)
             
-            print(f"   📋 Detected sections: {', '.join(sections.keys())}")
+            print(f"  📋 Detected sections: {', '.join(sections.keys())}")
             
             # Handle long documents by processing essential sections first
             if len(raw_content) > 8000:  # Grok context management
-                print(f"   📏 Long document ({len(raw_content)} chars), using section-aware processing")
+                print(f"  📏 Long document ({len(raw_content)} chars), using section-aware processing")
                 processed_sections = self._process_long_manpage(sections, pdf_file.stem)
             else:
-                print(f"   📄 Standard document ({len(raw_content)} chars), using full processing")
+                print(f"  📄 Standard document ({len(raw_content)} chars), using full processing")
                 processed_sections = self._process_standard_manpage(raw_content, pdf_file.stem)
             
             return processed_sections
@@ -237,20 +237,20 @@ class POSIXManPageExtractor:
             response_text = self.grok_processor._call_grok_api(prompt)
             
             if not response_text:
-                print(f"   ❌ Empty response from Grok")
+                print(f"  ❌ Empty response from Grok")
                 return None
             
             parsed_data = self._parse_grok_response(response_text, syscall_name)
             
             if parsed_data:
-                print(f"   ✅ Successfully parsed {syscall_name} with Grok")
+                print(f"  ✅ Successfully parsed {syscall_name} with Grok")
                 return parsed_data
             else:
-                print(f"   ❌ Failed to parse Grok response for {syscall_name}")
+                print(f"  ❌ Failed to parse Grok response for {syscall_name}")
                 return None
-                
+                    
         except Exception as e:
-            print(f"   💥 Grok extraction error: {e}")
+            print(f"  💥 Grok extraction error: {e}")
             return None
 
     def _build_manpage_extraction_prompt(self, content, syscall_name, is_chunked):
@@ -322,7 +322,7 @@ Extract as JSON:"""
             # Find JSON in response (handle potential markdown wrapping)
             json_match = re.search(r'\{.*\}', cleaned_response, re.DOTALL)
             if not json_match:
-                print(f"   ⚠️  No JSON found in Grok response")
+                print(f"  ⚠️  No JSON found in Grok response")
                 return None
             
             json_str = json_match.group()
@@ -332,7 +332,7 @@ Extract as JSON:"""
             required_fields = ['name', 'synopsis', 'description', 'return_value']
             for field in required_fields:
                 if field not in parsed_data:
-                    print(f"   ⚠️  Missing required field: {field}")
+                    print(f"  ⚠️  Missing required field: {field}")
                     return None
             
             # Add extraction metadata
@@ -347,11 +347,11 @@ Extract as JSON:"""
             return parsed_data
             
         except json.JSONDecodeError as e:
-            print(f"   ❌ JSON parse error: {e}")
-            print(f"   📝 Response preview: {response_text[:200]}...")
+            print(f"  ❌ JSON parse error: {e}")
+            print(f"  📝 Response preview: {response_text[:200]}...")
             return None
         except Exception as e:
-            print(f"   💥 Unexpected parsing error: {e}")
+            print(f"  💥 Unexpected parsing error: {e}")
             return None
 
     def save_manpage_json(self, manpage_data, filename_base):
@@ -362,7 +362,7 @@ Extract as JSON:"""
         with open(json_filepath, 'w', encoding='utf-8') as f:
             json.dump(manpage_data, f, indent=2, ensure_ascii=False)
         
-        print(f"   💾 Saved: {json_filename}")
+        print(f"  💾 Saved: {json_filename}")
 
     def generate_batch_summary(self, extracted_manpages):
         """Generate summary of the extraction batch"""
@@ -402,8 +402,8 @@ def main():
         # Create extractor
         extractor = POSIXManPageExtractor()
         
-        # Process batch of 5 PDFs
-        extracted = extractor.extract_batch(batch_size=5)
+        # Process batch of 8 PDFs
+        extracted = extractor.extract_batch(batch_size=8)
         
         # Generate batch summary
         if extracted:

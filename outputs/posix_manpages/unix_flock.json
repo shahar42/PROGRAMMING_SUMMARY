@@ -1,0 +1,65 @@
+{
+  "name": "flock",
+  "synopsis": [
+    "#include <sys/file.h>",
+    "int flock(int fd, int op);"
+  ],
+  "description": "Applies or removes an advisory lock on an open file specified by a file descriptor. The operation can be a shared lock, exclusive lock, or unlock, and may block if incompatible locks are held by other processes.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the open file on which to apply or remove the lock"
+    },
+    {
+      "name": "op",
+      "type": "int",
+      "description": "Operation to perform, such as LOCK_SH for shared lock, LOCK_EX for exclusive lock, LOCK_UN to remove a lock, and optionally LOCK_NB for non-blocking behavior"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "fd is not an open file descriptor"
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal while waiting for a lock"
+    },
+    {
+      "code": "EINVAL",
+      "description": "op is invalid"
+    },
+    {
+      "code": "ENOLCK",
+      "description": "The kernel ran out of memory for allocating lock records"
+    },
+    {
+      "code": "EWOULDBLOCK",
+      "description": "The file is locked and the LOCK_NB flag was specified"
+    }
+  ],
+  "bugs": "Converting a lock (e.g., shared to exclusive) is not guaranteed to be atomic, potentially allowing other lock requests in between; behavior varies with NFS and CIFS, where locks may interact with fcntl(2) or become mandatory.",
+  "versions": "Since Linux 2.0",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "close",
+    "dup",
+    "execve",
+    "fcntl",
+    "fork",
+    "open"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "flock.pdf",
+    "extraction_date": "2025-07-27T17:07:25.395299",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

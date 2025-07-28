@@ -1,38 +1,38 @@
 # POSIX Man Page Extraction Summary
-**Date:** 2025-07-26 00:13:19
+**Date:** 2025-07-26 23:45:16
 **Extractor:** Grok-powered POSIX man page processor
 **Batch Size:** 5 system calls
 
 ## System Calls Extracted
 
-### 1. chown
-**Description:** The chown family of system calls changes the owner and group of a file. They differ in how the file is specified, such as by pathname, file descriptor, or with options for symbolic links. Only privileged processes can change ownership, and certain behaviors depend on the file system and kernel version.
-**Errors:** 12 documented
+### 1. fadvise64
+**Description:** Announces an intended access pattern for file data to allow the kernel to perform appropriate optimizations. The advice applies to a specified region of the file and is not binding, serving as an expectation from the application.
+**Errors:** 3 documented
 **POSIX:** POSIX.1-2008
 
-### 2. chown32
-**Description:** These system calls change the owner and group of a file. They differ in how the file is specified, such as by pathname, file descriptor, or with additional options. Only privileged processes can change the owner, and specific rules apply for group changes.
-**Errors:** 12 documented
+### 2. fadvise64_64
+**Description:** The fadvise64_64 system call allows programs to advise the kernel about the expected access pattern of file data, enabling optimizations such as read-ahead or page caching.
+**Errors:** 3 documented
 **POSIX:** POSIX.1-2008
 
-### 3. chroot
-**Description:** chroot() changes the root directory of the calling process to that specified in path. This directory is used for pathnames beginning with /. Only a privileged process can call it.
-**Errors:** 9 documented
+### 3. fallocate
+**Description:** fallocate() is a Linux-specific system call that manipulates allocated disk space for a file. It allows operations like allocating, deallocating, or zeroing a specified byte range based on the mode provided.
+**Errors:** 20 documented
 **POSIX:** None
 
-### 4. clock_adjtime
-**Description:** The clock_adjtime() system call adjusts the specified clock using parameters from a timex structure. It reads and optionally sets kernel clock adjustment parameters based on the modes field.
+### 4. fanotify_init
+**Description:** fanotify_init() initializes a new fanotify group and returns a file descriptor for the event queue associated with the group. This descriptor is used to monitor specified filesystem objects and receive events via fanotify_mark(2).
 **Errors:** 5 documented
 **POSIX:** None
 
-### 5. clock_getres
-**Description:** The clock_getres() function retrieves the resolution (precision) of the specified clock. If the res pointer is not NULL, it stores the resolution in the provided struct timespec. The resolution is implementation-dependent and cannot be configured by a process.
-**Errors:** 3 documented
-**POSIX:** POSIX.1b-1993
+### 5. fanotify_mark
+**Description:** fanotify_mark() adds, removes, or modifies an fanotify mark on a filesystem object for event notifications. The caller must have read permission on the object and provide a file descriptor from fanotify_init(2).
+**Errors:** 13 documented
+**POSIX:** None
 
 ## Progress Summary
-- **Total System Calls Processed:** 35
-- **Extraction Sessions:** 7
+- **Total System Calls Processed:** 70
+- **Extraction Sessions:** 14
 - **Success Rate:** High (Grok-optimized)
 
 ---

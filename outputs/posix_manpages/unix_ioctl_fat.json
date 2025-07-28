@@ -1,0 +1,63 @@
+{
+  "name": "ioctl_fat",
+  "synopsis": [
+    "#include <linux/msdos_fs.h> /* Definition of [V]FAT_* and ATTR_* constants */",
+    "#include <sys/ioctl.h>",
+    "int ioctl(int fd, FAT_IOCTL_GET_ATTRIBUTES, uint32_t *attr);",
+    "int ioctl(int fd, FAT_IOCTL_SET_ATTRIBUTES, uint32_t *attr);",
+    "int ioctl(int fd, FAT_IOCTL_GET_VOLUME_ID, uint32_t *id);",
+    "int ioctl(int fd, VFAT_IOCTL_READDIR_BOTH, struct __fat_dirent entry[2]);",
+    "int ioctl(int fd, VFAT_IOCTL_READDIR_SHORT, struct __fat_dirent entry[2]);"
+  ],
+  "description": "The ioctl system call manipulates metadata on FAT filesystems, such as file attributes, volume IDs, and directory entries, which are not accessible through standard system calls. It allows reading and writing of FAT-specific attributes and directory information using a file descriptor.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor for a file, directory, or filesystem object"
+    },
+    {
+      "name": "request",
+      "type": "int",
+      "description": "The ioctl command, such as FAT_IOCTL_GET_ATTRIBUTES or VFAT_IOCTL_READDIR_BOTH"
+    },
+    {
+      "name": "arg",
+      "type": "void*",
+      "description": "Pointer to argument data, which varies by request (e.g., uint32_t * for attributes, struct __fat_dirent for directory entries)"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success for most operations; for VFAT_IOCTL_READDIR_BOTH and VFAT_IOCTL_READDIR_SHORT, returns 1 if a new directory entry is read, or 0 if the end of the directory is reached",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "ENOENT",
+      "description": "The file descriptor refers to a removed, but still open directory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "The file descriptor does not refer to a directory"
+    },
+    {
+      "code": "ENOTTY",
+      "description": "The file descriptor does not refer to an object in a FAT filesystem"
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "ioctl",
+    "open"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ioctl_fat.pdf",
+    "extraction_date": "2025-07-28T12:16:06.379816",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

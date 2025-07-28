@@ -1,0 +1,55 @@
+{
+  "name": "get_thread_area",
+  "synopsis": [
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "#include <asm/ldt.h>",
+    "int syscall(SYS_get_thread_area, struct user_desc *u_info);"
+  ],
+  "description": "The get_thread_area() system call provides architecture-specific support for thread-local storage. On x86, it reads the GDT entry specified by u_info->entry_number and fills in the user_desc structure. It is available on architectures like m68k and x86 for retrieving thread-local storage information.",
+  "parameters": [
+    {
+      "name": "u_info",
+      "type": "struct user_desc *",
+      "description": "Pointer to a user_desc structure where the GDT entry information is stored"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success for x86, or the thread area pointer value on m68k",
+    "failure": "Returns -1 on error, with errno set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "u_info is an invalid pointer"
+    },
+    {
+      "code": "EINVAL",
+      "description": "u_info->entry_number is out of bounds"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "get_thread_area() was invoked as a 64-bit system call"
+    },
+    {
+      "code": "ESRCH",
+      "description": "A free TLS entry could not be located (though primarily for set_thread_area)"
+    }
+  ],
+  "bugs": "On 64-bit kernels before Linux 3.19, setting certain padding bits in user_desc could prevent a TLS entry from being cleared properly. Additionally, prior to Linux 3.19, the DS and ES segment registers must not reference TLS entries.",
+  "versions": "Linux 2.5.32",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "arch_prctl",
+    "modify_ldt",
+    "ptrace"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "get_thread_area.pdf",
+    "extraction_date": "2025-07-27T18:03:10.273460",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}
