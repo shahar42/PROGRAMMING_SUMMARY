@@ -1,0 +1,104 @@
+{
+  "name": "oldlstat",
+  "synopsis": [
+    "#include <sys/stat.h>",
+    "int lstat(const char *restrict pathname, struct stat *restrict statbuf);"
+  ],
+  "description": "oldlstat is an older version of lstat, which retrieves file status information for a given pathname. It is identical to stat, except that if the pathname is a symbolic link, it returns information about the link itself rather than the file it refers to.",
+  "parameters": [
+    {
+      "name": "pathname",
+      "type": "const char *restrict",
+      "description": "Pathname of the file or symbolic link"
+    },
+    {
+      "name": "statbuf",
+      "type": "struct stat *restrict",
+      "description": "Pointer to the stat structure where file status information is stored"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied for one of the directories in the path prefix of pathname"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor (though not directly for oldlstat)"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links encountered while traversing the path"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "Pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A component of pathname does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix of pathname is not a directory"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "Pathname refers to a file whose size, inode number, or number of blocks cannot be represented"
+    }
+  ],
+  "bugs": "Fields in the stat structure may contain state information from different moments during execution, and use of st_blocks and st_blksize may be less portable across systems.",
+  "versions": "SVr4, 4.3BSD, POSIX.1-2001",
+  "posix_compliance": "POSIX.1-2001",
+  "examples": [
+    "#include <stdint.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <sys/stat.h>",
+    "#include <sys/sysmacros.h>",
+    "#include <time.h>",
+    "int main(int argc, char *argv[]) {",
+    "    struct stat sb;",
+    "    if (argc != 2) {",
+    "        fprintf(stderr, \"Usage: %s <pathname>\\n\", argv[0]);",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    if (lstat(argv[1], &sb) == -1) {",
+    "        perror(\"lstat\");",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    // ... (rest of the example code)",
+    "    exit(EXIT_SUCCESS);",
+    "}"
+  ],
+  "related_calls": [
+    "stat",
+    "fstat",
+    "fstatat",
+    "access",
+    "chmod",
+    "chown",
+    "readlink",
+    "statx",
+    "utime"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "oldlstat.pdf",
+    "extraction_date": "2025-07-29T12:13:08.282162",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

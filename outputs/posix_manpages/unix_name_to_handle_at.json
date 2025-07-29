@@ -1,0 +1,89 @@
+{
+  "name": "name_to_handle_at",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7)",
+    "#include <fcntl.h>",
+    "int name_to_handle_at(int dirfd, const char *pathname, struct file_handle *handle, int *mount_id, int flags);",
+    "int open_by_handle_at(int mount_fd, struct file_handle *handle, int flags);"
+  ],
+  "description": "The name_to_handle_at() system call returns a file handle and mount ID for a specified file path. The open_by_handle_at() system call uses this handle to open the file and return a file descriptor.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor or AT_FDCWD"
+    },
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Pathname relative to dirfd"
+    },
+    {
+      "name": "handle",
+      "type": "struct file_handle *",
+      "description": "Pointer to structure for file handle"
+    },
+    {
+      "name": "mount_id",
+      "type": "int *",
+      "description": "Pointer to return the mount ID"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags such as AT_EMPTY_PATH or AT_SYMLINK_FOLLOW"
+    }
+  ],
+  "return_value": {
+    "success": "name_to_handle_at() returns 0; open_by_handle_at() returns a file descriptor",
+    "failure": "Returns -1 on error, errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "pathname, mount_id, or handle points outside your accessible address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "flags includes an invalid bit value or handle->handle_bytes is greater than MAX_HANDLE_SZ"
+    },
+    {
+      "code": "ENOENT",
+      "description": "pathname is an empty string but AT_EMPTY_PATH was not specified in flags"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "The file descriptor in dirfd does not refer to a directory and conditions for AT_EMPTY_PATH are not met"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support decoding of a pathname to a file handle"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "The handle->handle_bytes value passed into the call was too small"
+    },
+    {
+      "code": "EBADF",
+      "description": "For open_by_handle_at(), mount_fd is not an open file descriptor"
+    },
+    {
+      "code": "EPERM",
+      "description": "For open_by_handle_at(), the caller does not have the CAP_DAC_READ_SEARCH capability"
+    },
+    {
+      "code": "ESTALE",
+      "description": "For open_by_handle_at(), the specified handle is not valid"
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "name_to_handle_at.pdf",
+    "extraction_date": "2025-07-29T12:01:02.516521",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

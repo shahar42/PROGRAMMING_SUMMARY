@@ -1,0 +1,104 @@
+{
+  "name": "newfstatat",
+  "synopsis": [
+    "#include <fcntl.h>",
+    "#include <sys/stat.h>",
+    "int newfstatat(int dirfd, const char *restrict pathname, struct stat *restrict statbuf, int flags);"
+  ],
+  "description": "newfstatat is the underlying system call for fstatat, retrieving file status information for a path relative to a directory file descriptor. It allows for additional flags to modify behavior, such as following symbolic links.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor, or AT_FDCWD to use the current working directory"
+    },
+    {
+      "name": "pathname",
+      "type": "const char *restrict",
+      "description": "Path to the file or symbolic link"
+    },
+    {
+      "name": "statbuf",
+      "type": "struct stat *restrict",
+      "description": "Pointer to a stat structure to store the file status"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify behavior, such as AT_SYMLINK_NOFOLLOW"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied for one of the directories in the path prefix of pathname"
+    },
+    {
+      "code": "EBADF",
+      "description": "dirfd is not a valid file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flag specified in flags"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links encountered while traversing the path"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A component of pathname does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix of pathname is not a directory"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "File size, inode number, or number of blocks cannot be represented in the appropriate types"
+    }
+  ],
+  "bugs": "Different fields in the stat structure may contain state information from different moments during execution, potentially leading to inconsistencies.",
+  "versions": "Linux 2.6.16",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <sys/stat.h>",
+    "#include <fcntl.h>",
+    "struct stat sb;",
+    "int ret = newfstatat(AT_FDCWD, \"/path/to/file\", &sb, 0);",
+    "if (ret == -1) {",
+    "    perror(\"newfstatat\");",
+    "    exit(EXIT_FAILURE);",
+    "}"
+  ],
+  "related_calls": [
+    "stat",
+    "fstat",
+    "lstat",
+    "fstatat",
+    "statx"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "newfstatat.pdf",
+    "extraction_date": "2025-07-29T12:01:29.469693",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

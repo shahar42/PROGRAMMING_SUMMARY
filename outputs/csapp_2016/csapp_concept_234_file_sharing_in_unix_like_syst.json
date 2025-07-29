@@ -1,0 +1,39 @@
+{
+  "topic": "File Sharing in Unix-like Systems",
+  "explanation": "File sharing in Unix-like operating systems allows multiple processes to access the same file concurrently.  This is achieved through a sophisticated mechanism involving three key data structures: the descriptor table (per-process), the file table (shared across processes), and the v-node table (also shared).  Understanding these structures is crucial for comprehending how the kernel manages file access, concurrency, and resource management efficiently.  This mechanism is essential for implementing various system functionalities like shared memory, inter-process communication, and concurrent file access.",
+  "syntax": "The system uses three tables: Descriptor Table (process-specific), File Table (shared), and v-node Table (shared).  A file descriptor in a process's descriptor table points to an entry in the file table.  The file table entry contains metadata like the file position and a reference count, pointing to an entry in the v-node table. The v-node table holds file system metadata.",
+  "code_example": [
+    ";Illustrative conceptual representation (not actual kernel code)",
+    ";Descriptor Table (Process 1)",
+    "descriptor_table_process1:",
+    "  dword file_table_entry1 ; points to an entry in the file table",
+    "  dword file_table_entry2",
+    ";File Table (Shared)",
+    "file_table:",
+    "  file_table_entry1:",
+    "    dword file_position: 0",
+    "    dword ref_count: 2",
+    "    dword v_node_table_entry1",
+    "  file_table_entry2:",
+    "    dword file_position: 10",
+    "    dword ref_count: 1",
+    "    dword v_node_table_entry2",
+    ";v-node Table (Shared)",
+    "v_node_table:",
+    "  v_node_table_entry1:",
+    "    dword file_size: 100",
+    "    dword file_mode: 0644",
+    "  v_node_table_entry2:",
+    "    dword file_size: 50",
+    "    dword file_mode: 0600"
+  ],
+  "example_explanation": "The example illustrates the three tables and how they interact. Process 1 has two open file descriptors (file_table_entry1 and file_table_entry2).  file_table_entry1 has a reference count of 2, indicating it's used by at least two file descriptors (possibly from different processes, not shown here). When a process closes a file descriptor, the reference count in the file table is decremented.  Only when the reference count reaches zero is the file table entry released by the kernel, illustrating efficient resource management and concurrency control in file sharing. The v-node table contains the persistent file metadata, ensuring data consistency and efficient access across processes.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "929-930",
+    "extraction_date": "2025-07-29T11:59:42.778374",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

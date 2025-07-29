@@ -1,0 +1,41 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide the mechanism for an application program to request services from the operating system kernel.  These services are essential for interacting with hardware resources, such as files, networks and other peripherals, which are typically inaccessible directly by user-level processes for security and resource management reasons. Exceptional control flow, in this context, refers to how the program handles situations arising from system call interactions, including errors and end-of-file conditions.  Understanding how these interfaces work is crucial for building efficient and reliable applications that interact with the underlying hardware and operating system.",
+  "syntax": "Generally, a system call involves invoking a specific function (often found in a standard library like <unistd.h> on Linux) which then traps to the kernel, performs the requested operation, and returns a status code (or error code) to the application.",
+  "code_example": [
+    "#include <unistd.h>",
+    "#include <sys/types.h>",
+    "#include <sys/stat.h>",
+    "#include <fcntl.h>",
+    "#include <stdio.h>",
+    "",
+    "int main() {",
+    "  int fd = open(\"my_file.txt\", O_RDONLY);",
+    "  if (fd == -1) {",
+    "    perror(\"open failed\");",
+    "    return 1;",
+    "  }",
+    "",
+    "  char buffer[1024];",
+    "  ssize_t bytes_read = read(fd, buffer, sizeof(buffer));",
+    "  if (bytes_read == -1) {",
+    "    perror(\"read failed\");",
+    "    close(fd);",
+    "    return 1;",
+    "  }",
+    "",
+    "  printf(\"Read %zd bytes: %s\\n\", bytes_read, buffer);",
+    "  close(fd);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This C program demonstrates several system calls: `open` to request the kernel open a file, returning a file descriptor; `read` to request data transfer from the opened file to memory, with error handling for a potential failure; and `close` to release the file resource.  The `perror` function illustrates how exceptional control flow (e.g., handling errors signaled by the kernel via return values) is managed. The program highlights how user-level code leverages system calls to interact indirectly with I/O devices – the hardware interaction is abstracted away, providing a safer and more manageable programming model. The `if` statements around system calls are a quintessential example of exceptional control flow as they address errors in the system call execution.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "914-914",
+    "extraction_date": "2025-07-29T11:54:38.321280",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems"
+  }
+}

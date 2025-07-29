@@ -1,0 +1,89 @@
+{
+  "name": "move_pages",
+  "synopsis": [
+    "#include <numaif.h>",
+    "long move_pages(int pid, unsigned long count, void *pages[.count], const int nodes[.count], int status[.count], int flags);"
+  ],
+  "description": "move_pages moves individual pages of a specified process to another NUMA node. The result of the move is reflected in a status array, and flags control the constraints on the pages to be moved.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "int",
+      "description": "The ID of the process in which pages are to be moved; 0 for the calling process."
+    },
+    {
+      "name": "count",
+      "type": "unsigned long",
+      "description": "The number of pages to move, defining the size of the pages, nodes, and status arrays."
+    },
+    {
+      "name": "pages",
+      "type": "void *pages[.count]",
+      "description": "An array of pointers to the pages that should be moved, aligned to page boundaries."
+    },
+    {
+      "name": "nodes",
+      "type": "const int nodes[.count]",
+      "description": "An array of integers specifying the desired node for each page; can be NULL to get current node status."
+    },
+    {
+      "name": "status",
+      "type": "int status[.count]",
+      "description": "An array that returns the status of each page after the operation."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags specifying the types of pages to move, such as MPOL_MF_MOVE or MPOL_MF_MOVE_ALL."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success, or a positive value indicating the number of nonmigrated pages.",
+    "failure": "Returns -1 on error, and sets errno to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "E2BIG",
+      "description": "Too many pages to move."
+    },
+    {
+      "code": "EACCES",
+      "description": "One of the target nodes is not allowed by the current cpuset."
+    },
+    {
+      "code": "EFAULT",
+      "description": "Parameter array could not be accessed."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flags specified or attempt to migrate pages of a kernel thread."
+    },
+    {
+      "code": "ENODEV",
+      "description": "One of the target nodes is not online."
+    },
+    {
+      "code": "EPERM",
+      "description": "Insufficient privileges for the operation."
+    },
+    {
+      "code": "ESRCH",
+      "description": "Process does not exist."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.18",
+  "posix_compliance": null,
+  "related_calls": [
+    "get_mempolicy",
+    "mbind",
+    "set_mempolicy"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "move_pages.pdf",
+    "extraction_date": "2025-07-29T11:02:54.157677",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

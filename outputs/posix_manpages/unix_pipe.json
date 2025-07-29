@@ -1,0 +1,82 @@
+{
+  "name": "pipe",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int pipe(int pipefd[2]);",
+    "#define _GNU_SOURCE",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "int pipe2(int pipefd[2], int flags);"
+  ],
+  "description": "pipe() creates a unidirectional pipe for interprocess communication, returning two file descriptors in an array: one for reading (pipefd[0]) and one for writing (pipefd[1]). Data written to the write end is buffered by the kernel until read from the read end.",
+  "parameters": [
+    {
+      "name": "pipefd",
+      "type": "int[2]",
+      "description": "Array to hold the two file descriptors: pipefd[0] for the read end and pipefd[1] for the write end."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags for pipe2() to modify behavior, such as O_CLOEXEC for close-on-exec, O_NONBLOCK for non-blocking I/O, or O_DIRECT for packet mode."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, sets errno, and leaves pipefd unchanged"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "pipefd is not valid."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid value in flags (for pipe2)."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on the total number of open files has been reached."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The user hard limit on memory that can be allocated for pipes has been reached."
+    },
+    {
+      "code": "ENOPKG",
+      "description": "O_NOTIFICATION_PIPE was passed in flags and support for notifications is not compiled into the kernel (for pipe2)."
+    }
+  ],
+  "bugs": null,
+  "versions": "pipe() since POSIX.1-2001; pipe2() since Linux 2.6.27, glibc 2.9",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <unistd.h>",
+    "int pipefd[2];",
+    "if (pipe(pipefd) == -1) { perror(\"pipe\"); exit(EXIT_FAILURE); }",
+    "/* For pipe2 example */",
+    "if (pipe2(pipefd, O_CLOEXEC) == -1) { perror(\"pipe2\"); exit(EXIT_FAILURE); }"
+  ],
+  "related_calls": [
+    "fork",
+    "read",
+    "socketpair",
+    "splice",
+    "tee",
+    "vmsplice",
+    "write",
+    "popen",
+    "pipe"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pipe.pdf",
+    "extraction_date": "2025-07-29T15:03:30.371595",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

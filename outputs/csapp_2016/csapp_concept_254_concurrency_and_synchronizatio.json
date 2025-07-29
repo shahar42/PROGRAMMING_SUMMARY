@@ -1,0 +1,36 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency allows multiple tasks to appear to run simultaneously, improving system responsiveness and throughput.  In computer systems, this is managed through synchronization primitives which coordinate access to shared resources to prevent race conditions and ensure data integrity.  This is crucial in operating systems and network programming for handling multiple clients or threads efficiently and correctly.",
+  "syntax": "Various synchronization primitives exist, including mutexes (mutual exclusion), semaphores, and condition variables.  The specific syntax depends on the operating system and programming language.  Generally, they involve functions like `pthread_mutex_lock()`, `pthread_mutex_unlock()`, `sem_wait()`, `sem_post()`, etc.",
+  "code_example": [
+    "#include \"csapp.h\"",
+    "int main() {",
+    "  pool pool; // Initialize pool structure from the provided code",
+    "  // ... other initialization ...",
+    "  while (1) {",
+    "    FD_ZERO(&pool.read_set);  /* Clear read_set */",
+    "    FD_SET(listenfd, &pool.read_set); /* Add listenfd to set */",
+    "    pool.maxi = -1;                /* reset maxi */",
+    "    for (int i = 0; i <= pool.maxi; i++) {",
+    "      int clientfd = pool.clientfd[i];",
+    "      if (clientfd > 0) {",
+    "        FD_SET(clientfd, &pool.read_set);  /* add clientfd to read_set */",
+    "      }",
+    "    }",
+    "    //Use select to wait for activity on descriptors",
+    "    pool.nready = select(pool.maxfd + 1, &pool.read_set, NULL, NULL, NULL);",
+    "    //handle activity on descriptors",
+    "     // ... handle connections and I/O using clientfd array  ...",
+    "  }",
+    "}"
+  ],
+  "example_explanation": "This example (simplified from echoservers.c) demonstrates concurrency by handling multiple client connections concurrently using the `select` system call.  `select` monitors multiple file descriptors (sockets in this case), waiting for activity (readability) on any of them. This avoids blocking while waiting for one client, allowing the server to handle multiple clients efficiently.  The `pool` structure manages the set of active client connections and their associated file descriptors, showcasing a concurrency control mechanism built to handle multiple clients without race conditions.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1004-1004",
+    "extraction_date": "2025-07-29T15:40:40.260746",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

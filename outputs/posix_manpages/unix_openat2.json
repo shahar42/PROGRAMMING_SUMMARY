@@ -1,0 +1,93 @@
+{
+  "name": "openat2",
+  "synopsis": [
+    "#include <fcntl.h>",
+    "#include <linux/openat2.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_openat2, int dirfd, const char *pathname, struct open_how *how, size_t size);"
+  ],
+  "description": "The openat2() system call extends openat(2) by providing a superset of its functionality through an extensible structure. It opens the file specified by pathname, optionally creating it if O_CREAT is specified, and allows advanced path resolution options. If pathname is relative, it is resolved relative to the directory referred to by dirfd.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor; if AT_FDCWD, uses the current working directory; ignored for absolute pathnames unless specified otherwise."
+    },
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Path to the file to open."
+    },
+    {
+      "name": "how",
+      "type": "struct open_how *",
+      "description": "Pointer to a structure specifying flags, mode, and resolution options for opening the file."
+    },
+    {
+      "name": "size",
+      "type": "size_t",
+      "description": "Size of the struct open_how structure, used for extensibility and version checking."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new file descriptor on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "E2BIG",
+      "description": "An extension that this kernel does not support was specified in how."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "how.resolve contains either RESOLVE_IN_ROOT or RESOLVE_BENEATH, and the kernel could not ensure that a '..' component didn’t escape."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "RESOLVE_CACHED was set, and the open operation cannot be performed using only cached information."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An unknown flag or invalid value was specified in how."
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode is nonzero, but how.flags does not contain O_CREAT or O_TMPFILE."
+    },
+    {
+      "code": "EINVAL",
+      "description": "size was smaller than any known version of struct open_how."
+    },
+    {
+      "code": "ELOOP",
+      "description": "how.resolve contains RESOLVE_NO_SYMLINKS, and one of the path components was a symbolic link."
+    },
+    {
+      "code": "ELOOP",
+      "description": "how.resolve contains RESOLVE_NO_MAGICLINKS, and one of the path components was a magic link."
+    },
+    {
+      "code": "EXDEV",
+      "description": "how.resolve contains either RESOLVE_IN_ROOT or RESOLVE_BENEATH, and an escape from the root during path resolution was detected."
+    },
+    {
+      "code": "EXDEV",
+      "description": "how.resolve contains RESOLVE_NO_XDEV, and a path component crosses a mount point."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.6",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "openat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "openat2.pdf",
+    "extraction_date": "2025-07-29T14:00:53.269134",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

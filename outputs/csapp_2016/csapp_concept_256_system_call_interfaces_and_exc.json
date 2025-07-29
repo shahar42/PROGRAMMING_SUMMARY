@@ -1,0 +1,46 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing hardware resources (network, disk), managing memory, or interacting with other processes. Exceptional control flow refers to how the program's execution path changes due to events outside the normal sequential flow, like system calls, interrupts, and signals.  Understanding this interaction is crucial for writing efficient and reliable systems programs.\n\nSystem calls provide an interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing hardware, managing files, or creating processes. Exceptional control flow refers to the changes in a program's execution due to events outside the normal flow of instructions, such as system calls, interrupts, and exceptions. Understanding how these mechanisms work is crucial for building robust and efficient systems-level programs.",
+  "syntax": "Generally, system calls are invoked using specific instructions (e.g., `syscall` on x86-64) with arguments passed through registers or the stack.  The kernel then handles the request, potentially changing the process state, and returns a result code indicating success or failure.  Exceptional control flow is managed using mechanisms like signal handlers or interrupt service routines.",
+  "code_example": [
+    "#include <sys/types.h>",
+    "#include <sys/socket.h>",
+    "#include <netinet/in.h>",
+    "#include <unistd.h>",
+    "#include <arpa/inet.h>",
+    "",
+    "int main() {",
+    "  int listenfd = socket(AF_INET, SOCK_STREAM, 0);",
+    "  struct sockaddr_in servaddr;",
+    "  // ... (Setup servaddr) ...",
+    "  bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr));",
+    "  listen(listenfd, 1);",
+    "  struct sockaddr_in clientaddr;",
+    "  socklen_t addrlen = sizeof(clientaddr);",
+    "  int connfd = accept(listenfd, (struct sockaddr*)&clientaddr, &addrlen);",
+    "  // ... (Communication on connfd) ...",
+    "  close(connfd);",
+    "  close(listenfd);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the `accept` system call.  It waits for an incoming connection request on a listening socket (`listenfd`).  The `accept` call blocks until a client connects. Once a connection is established, `accept` returns a new connected socket descriptor (`connfd`) that can be used for communication.  This exemplifies the system call interface, where the user-level process (the example program) requests a network service from the kernel via a function call (`accept`). The kernel manages the network connection, and the result is a new file descriptor representing the connection – an example of exceptional control flow, where the execution is changed by the external event (client connection).  The `close` calls demonstrate proper resource management after the system call operation is complete.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "959-959",
+    "extraction_date": "2025-07-29T14:00:23.922196",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T15:41:04.149706",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1004-1004",
+      "extraction_date": "2025-07-29T15:40:56.927158",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8713582754135132
+  }
+}
