@@ -1,53 +1,48 @@
 # POSIX Man Page Extraction Summary
-**Date:** 2025-07-29 15:43:51
+**Date:** 2025-07-29 18:18:48
 **Extractor:** Grok-powered POSIX man page processor
-**Batch Size:** 8 system calls
+**Batch Size:** 7 system calls
 
 ## System Calls Extracted
 
-### 1. pkey_alloc
-**Description:** pkey_alloc() allocates a protection key for memory protection and allows it to be used with pkey_mprotect(2). It requires flags to be 0 and specifies access rights to disable operations like data access or writes.
-**Errors:** 2 documented
-**POSIX:** None
+### 1. readlinkat
+**Description:** The readlinkat() system call reads the contents of a symbolic link into a buffer. It allows specifying a directory file descriptor for relative paths, which are resolved relative to that directory instead of the current working directory. It operates similarly to readlink() but with enhanced path resolution capabilities.
+**Errors:** 10 documented
+**POSIX:** POSIX.1-2008
 
-### 2. pkey_free
-**Description:** pkey_free() frees a previously allocated protection key, making it available for later allocations. After freeing, the key cannot be used in any protection-key-related operations, and its behavior is undefined if still assigned to an address range.
-**Errors:** 2 documented
-**POSIX:** None
-
-### 3. pkey_mprotect
-**Description:** pkey_mprotect changes the protection on specified memory pages and assigns a protection key. It requires the protection key to be allocated via pkey_alloc beforehand. This allows for fine-grained access control using memory protection keys.
-**Errors:** 6 documented
-**POSIX:** None
-
-### 4. poll
-**Description:** poll() waits for one of a set of file descriptors to become ready for I/O operations, similar to select(2). It monitors specified file descriptors for events such as readability or writability, and blocks until an event occurs or a timeout expires.
-**Errors:** 4 documented
-**POSIX:** None
-
-### 5. posix_fadvise
-**Description:** posix_fadvise() allows programs to announce an intended access pattern for a file region, enabling kernel optimizations. It applies to a specified offset and length in the file, but the advice is not binding and serves only as an expectation.
+### 2. readv
+**Description:** The readv() system call reads data from a file descriptor into multiple buffers described by an array of iovec structures. It operates similarly to read(2) but scatters the input across the buffers. The data transfer is atomic, ensuring contiguous reading.
 **Errors:** 3 documented
 **POSIX:** POSIX.1-2008
 
-### 6. ppoll
-**Description:** ppoll() waits for one of a set of file descriptors to become ready for I/O operations, similar to poll(), while allowing safe signal handling through a signal mask. It provides a more precise timeout using a timespec structure.
-**Errors:** 5 documented
+### 3. recv
+**Description:** The recv(), recvfrom(), and recvmsg() calls are used to receive messages from a socket. They work with both connectionless and connection-oriented sockets, and allow for flags to modify behavior such as nonblocking operation or out-of-band data.
+**Errors:** 10 documented
+**POSIX:** POSIX.1-2001
+
+### 4. recvfrom
+**Description:** The recvfrom() system call is used to receive a message from a socket and retrieve the source address. It works on both connectionless and connection-oriented sockets, returning the number of bytes received. If the message is too long for the buffer, excess bytes may be discarded depending on the socket type.
+**Errors:** 9 documented
+**POSIX:** POSIX.1-2001
+
+### 5. recvmmsg
+**Description:** The recvmmsg() system call extends recvmsg(2) to receive multiple messages from a socket in a single call, improving performance for applications. It also supports a timeout for the operation, allowing blocking or non-blocking behavior.
+**Errors:** 1 documented
 **POSIX:** None
 
-### 7. prctl
-**Description:** prctl() manipulates various aspects of the behavior of the calling thread or process, such as capabilities and floating-point modes. Careless use can confuse the user-space run-time environment, so it should be used with caution.
+### 6. recvmsg
+**Description:** The recvmsg() system call is used to receive messages from a socket, supporting both connectionless and connection-oriented sockets. It utilizes a msghdr structure to handle data buffers, ancillary data, and flags for advanced options.
+**Errors:** 9 documented
+**POSIX:** POSIX.1
+
+### 7. remap_file_pages
+**Description:** The remap_file_pages() system call rearranges the pages of a file mapped with mmap(2) to create a nonlinear mapping in memory, allowing the same file page to be mapped to multiple locations. It is deprecated and should be avoided, as it has been replaced by emulation in newer kernels and is inefficient for most use cases.
 **Errors:** 2 documented
 **POSIX:** None
 
-### 8. pread
-**Description:** pread() reads up to count bytes from file descriptor fd at a specified offset without changing the file offset.
-**Errors:** 1 documented
-**POSIX:** POSIX.1-2008
-
 ## Progress Summary
-- **Total System Calls Processed:** 295
-- **Extraction Sessions:** 52
+- **Total System Calls Processed:** 326
+- **Extraction Sessions:** 56
 - **Success Rate:** High (Grok-optimized)
 
 ---

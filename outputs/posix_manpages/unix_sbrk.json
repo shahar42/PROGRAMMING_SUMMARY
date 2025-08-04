@@ -1,0 +1,45 @@
+{
+  "name": "sbrk",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int brk(void *addr);",
+    "void *sbrk(intptr_t increment);"
+  ],
+  "description": "brk() and sbrk() change the location of the program break, which defines the end of the process's data segment. Increasing the break allocates memory, while decreasing it deallocates memory. brk() sets the break to a specific address, and sbrk() adjusts it by a given increment.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "void *",
+      "description": "The desired new end of the data segment for brk()"
+    },
+    {
+      "name": "increment",
+      "type": "intptr_t",
+      "description": "The number of bytes to increment the break by for sbrk()"
+    }
+  ],
+  "return_value": {
+    "success": "brk() returns 0; sbrk() returns the previous program break",
+    "failure": "Returns -1 or (void*)-1 on error, with errno set to ENOMEM"
+  },
+  "errors": [
+    {
+      "code": "ENOMEM",
+      "description": "The process would exceed its maximum data size or there is insufficient memory"
+    }
+  ],
+  "bugs": "The glibc wrapper for brk() differs from the kernel syscall behavior; various systems use different types for sbrk()'s argument. It is recommended to use malloc(3) instead for portability.",
+  "versions": "4.3BSD; SUSv1",
+  "posix_compliance": null,
+  "related_calls": [
+    "execve",
+    "getrlimit"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sbrk.pdf",
+    "extraction_date": "2025-07-30T23:23:07.998896",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

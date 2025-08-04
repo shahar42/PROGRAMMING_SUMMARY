@@ -1,0 +1,86 @@
+{
+  "name": "sendfile64",
+  "synopsis": [
+    "#include <sys/sendfile.h>",
+    "ssize_t sendfile64(int out_fd, int in_fd, off64_t *offset, size_t count);"
+  ],
+  "description": "sendfile64 copies data between file descriptors efficiently within the kernel, similar to sendfile, but designed to handle large file offsets. It is more efficient than using read and write as it avoids transferring data to user space.",
+  "parameters": [
+    {
+      "name": "out_fd",
+      "type": "int",
+      "description": "Output file descriptor opened for writing"
+    },
+    {
+      "name": "in_fd",
+      "type": "int",
+      "description": "Input file descriptor opened for reading, supporting mmap-like operations"
+    },
+    {
+      "name": "offset",
+      "type": "off64_t *",
+      "description": "Pointer to a variable holding the file offset; if not NULL, it is updated after the operation and does not modify the file offset of in_fd"
+    },
+    {
+      "name": "count",
+      "type": "size_t",
+      "description": "Number of bytes to copy between the file descriptors"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes written to out_fd; may be less than requested, so retries may be needed",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "Nonblocking I/O selected and the write would block"
+    },
+    {
+      "code": "EBADF",
+      "description": "Input file not opened for reading or output file not opened for writing"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Descriptor is not valid, locked, or does not support mmap-like operations; count is negative; or out_fd has O_APPEND set"
+    },
+    {
+      "code": "EIO",
+      "description": "Unspecified error while reading from in_fd"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to read from in_fd"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "Count is too large, exceeding the maximum size of the input or output file"
+    },
+    {
+      "code": "ESPIPE",
+      "description": "Offset is not NULL but the input file is not seekable"
+    }
+  ],
+  "bugs": "Limited to transferring at most 2,147,479,552 bytes; not portable across UNIX systems; behavior varies by kernel version, such as restrictions on out_fd types before Linux 2.6.33.",
+  "versions": "Linux 2.4",
+  "posix_compliance": "None",
+  "examples": [],
+  "related_calls": [
+    "copy_file_range",
+    "mmap",
+    "open",
+    "socket",
+    "splice"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sendfile64.pdf",
+    "extraction_date": "2025-08-02T11:41:25.632049",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

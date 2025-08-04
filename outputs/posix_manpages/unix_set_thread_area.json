@@ -1,0 +1,64 @@
+{
+  "name": "set_thread_area",
+  "synopsis": [
+    "#include <sys/syscall.h> /* Definition of SYS_* constants */",
+    "#include <unistd.h>",
+    "#if defined __i386__ || defined __x86_64__",
+    "# include <asm/ldt.h> /* Definition of struct user_desc */",
+    "int syscall(SYS_get_thread_area, struct user_desc *u_info);",
+    "int syscall(SYS_set_thread_area, struct user_desc *u_info);",
+    "#elif defined __m68k__",
+    "int syscall(SYS_get_thread_area);",
+    "int syscall(SYS_set_thread_area, unsigned long tp);",
+    "#elif defined __mips__ || defined __csk y__",
+    "int syscall(SYS_set_thread_area, unsigned long addr);",
+    "#endif",
+    "Note: glibc provides no wrappers for these system calls, necessitating the use of syscall(2)."
+  ],
+  "description": "set_thread_area() provides architecture-specific support for thread-local storage, allowing the storage of a pointer or setting of a TLS entry in the GDT on supported architectures like x86, m68k, MIPS, and C-SKY. It is primarily used by threading libraries to manage thread-specific data.",
+  "parameters": [
+    {
+      "name": "u_info",
+      "type": "struct user_desc *",
+      "description": "Pointer to a user_desc structure containing TLS entry details (on x86); varies by architecture, e.g., unsigned long tp on m68k"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success (always on C-SKY, MIPS, m68k; on x86 for set_thread_area)",
+    "failure": "Returns -1 on error (on x86), with errno set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "u_info is an invalid pointer"
+    },
+    {
+      "code": "EINVAL",
+      "description": "u_info->entry_number is out of bounds"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "get_thread_area() or set_thread_area() was invoked as a 64-bit system call"
+    },
+    {
+      "code": "ESRCH",
+      "description": "A free TLS entry could not be located"
+    }
+  ],
+  "bugs": "On 64-bit kernels before Linux 3.19, certain padding bits in user_desc could prevent a TLS entry from being cleared properly; prior to Linux 3.19, DS and ES segment registers must not reference TLS entries.",
+  "versions": "Linux 2.5.29",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "arch_prctl",
+    "modify_ldt",
+    "ptrace"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "set_thread_area.pdf",
+    "extraction_date": "2025-08-02T11:53:33.507294",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

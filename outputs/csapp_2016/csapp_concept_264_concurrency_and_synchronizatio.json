@@ -1,0 +1,35 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency allows multiple threads to execute seemingly at the same time, improving performance.  However, this introduces challenges in managing shared resources. Synchronization primitives are mechanisms that coordinate the execution of these threads, preventing race conditions and ensuring data consistency.  In the context of computer systems architecture, these primitives are often implemented using hardware support (e.g., atomic instructions) or operating system features to ensure efficient and predictable behavior.",
+  "syntax": "pthread_once_t once = PTHREAD_ONCE_INIT; // Initialization\npthread_once(&once, &init); // Call init only once\n// ... other thread synchronization primitives (mutexes, condition variables, semaphores)",
+  "code_example": [
+    "#include <pthread.h>",
+    "static pthread_once_t once = PTHREAD_ONCE_INIT;",
+    "void init(void) {",
+    "  // Initialization code to be executed only once",
+    "  printf(\"Initialization performed\\n\");",
+    "}",
+    "void *thread_func(void *arg) {",
+    "  pthread_once(&once, &init);",
+    "  // Access shared resources here",
+    "  return NULL;",
+    "}",
+    "int main() {",
+    "  pthread_t thread1, thread2;",
+    "  pthread_create(&thread1, NULL, thread_func, NULL);",
+    "  pthread_create(&thread2, NULL, thread_func, NULL);",
+    "  pthread_join(thread1, NULL);",
+    "  pthread_join(thread2, NULL);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example uses `pthread_once` to guarantee that the `init` function is executed only once, even if multiple threads call it concurrently. This prevents potential race conditions and ensures that the initialization is performed exactly once.  The `pthread_once` function demonstrates a synchronization primitive; it coordinates the execution of initialization across multiple threads, showcasing how concurrent programming interacts with operating system features to maintain data integrity and system stability. The example is not assembly, as such low level examples are not practical for explaining these concepts, however the use of system calls highlights the interaction between software and OS which manages concurrency.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1034-1034",
+    "extraction_date": "2025-07-29T16:15:24.739571",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

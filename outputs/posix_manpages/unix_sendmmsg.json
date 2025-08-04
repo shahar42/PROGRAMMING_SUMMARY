@@ -1,0 +1,64 @@
+{
+  "name": "sendmmsg",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sys/socket.h>",
+    "int sendmmsg(int sockfd, struct mmsghdr *msgvec, unsigned int vlen, int flags);"
+  ],
+  "description": "The sendmmsg() system call is an extension of sendmsg(2) that allows transmitting multiple messages on a socket using a single system call, providing performance benefits for some applications. It operates on a socket file descriptor and an array of message headers.",
+  "parameters": [
+    {
+      "name": "sockfd",
+      "type": "int",
+      "description": "File descriptor of the socket on which data is to be transmitted."
+    },
+    {
+      "name": "msgvec",
+      "type": "struct mmsghdr *",
+      "description": "Pointer to an array of mmsghdr structures, each containing a msghdr and a field for bytes transmitted."
+    },
+    {
+      "name": "vlen",
+      "type": "unsigned int",
+      "description": "Size of the array pointed to by msgvec, capped at UIO_MAXIOV (1024)."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags ORed together, identical to those used in sendmsg(2)."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of messages sent from msgvec; if less than vlen, the caller can retry.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "See sendmsg(2)",
+      "description": "Various errors as described in sendmsg(2); an error is returned only if no datagrams could be sent."
+    }
+  ],
+  "bugs": "If an error occurs after at least one message has been sent, the call succeeds and returns the number of messages sent, but the error code is lost; the caller must retry starting from the first failed message, with no guarantee of the same error.",
+  "versions": "Linux 3.0, glibc 2.14",
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE",
+    "#include <sys/socket.h>",
+    "int sockfd = socket(AF_INET, SOCK_DGRAM, 0);",
+    "struct mmsghdr msg[2];",
+    "retval = sendmmsg(sockfd, msg, 2, 0);",
+    "if (retval == -1) perror(\"sendmmsg()\");"
+  ],
+  "related_calls": [
+    "recvmmsg",
+    "sendmsg",
+    "socket"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sendmmsg.pdf",
+    "extraction_date": "2025-08-02T11:41:38.022297",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

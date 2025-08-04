@@ -1,0 +1,73 @@
+{
+  "name": "sched_getattr",
+  "synopsis": [
+    "#include <sched.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_sched_getattr, pid_t pid, struct sched_attr *attr, unsigned int size, unsigned int flags);"
+  ],
+  "description": "The sched_getattr() system call retrieves the scheduling policy and associated attributes for the thread specified by pid. If pid is zero, it gets the attributes of the calling thread. It stores the attributes in the provided struct and requires the buffer size for validation.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The ID of the thread to retrieve attributes for; if zero, refers to the calling thread."
+    },
+    {
+      "name": "attr",
+      "type": "struct sched_attr *",
+      "description": "Pointer to a struct sched_attr where the scheduling attributes will be stored."
+    },
+    {
+      "name": "size",
+      "type": "unsigned int",
+      "description": "The size of the buffer pointed to by attr, used to validate the structure size."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags for the operation; must be zero."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "attr is NULL; or pid is negative; or flags is not zero."
+    },
+    {
+      "code": "ESRCH",
+      "description": "The thread whose ID is pid could not be found."
+    },
+    {
+      "code": "E2BIG",
+      "description": "The buffer specified by size and attr is too small."
+    },
+    {
+      "code": "EINVAL",
+      "description": "size is invalid; that is, it is smaller than the initial version of the sched_attr structure (48 bytes) or larger than the system page size."
+    }
+  ],
+  "bugs": "In Linux versions up to 3.15, sched_setattr() failed with the error EFAULT instead of E2BIG for certain cases. Up to Linux 5.3, sched_getattr() failed with the error EFBIG if the in-kernel sched_attr structure was larger than the size passed by userspace.",
+  "versions": "Linux 3.14",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "sched_setscheduler",
+    "sched_setparam",
+    "sched_getscheduler",
+    "sched_getparam",
+    "nice",
+    "setpriority"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sched_getattr.pdf",
+    "extraction_date": "2025-07-30T23:25:02.074451",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "request_key",
+  "synopsis": [
+    "#include <keyutils.h>",
+    "key_serial_t request_key(const char *type, const char *description, const char *_Nullable callout_info, key_serial_t dest_keyring);"
+  ],
+  "description": "The request_key() system call searches for a key of a specified type and description in the keyrings. If the key is not found, it may create one using optional callout information and attach it to the specified keyring. It returns the key's serial number upon success.",
+  "parameters": [
+    {
+      "name": "type",
+      "type": "const char *",
+      "description": "The type of the key to request."
+    },
+    {
+      "name": "description",
+      "type": "const char *",
+      "description": "The description (name) of the key to match."
+    },
+    {
+      "name": "callout_info",
+      "type": "const char *_Nullable",
+      "description": "Optional information for instantiating the key if not found."
+    },
+    {
+      "name": "dest_keyring",
+      "type": "key_serial_t",
+      "description": "The keyring to attach the key to, or a special keyring ID."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the serial number of the key found or created",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The keyring wasn’t available for modification by the user."
+    },
+    {
+      "code": "EDQUOT",
+      "description": "The key quota for this user would be exceeded by creating or linking the key."
+    },
+    {
+      "code": "EFAULT",
+      "description": "One of the arguments points outside the process’s accessible address space."
+    },
+    {
+      "code": "EINTR",
+      "description": "The request was interrupted by a signal."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The size of the string in type, description, or callout_info exceeded the limit."
+    },
+    {
+      "code": "EKEYEXPIRED",
+      "description": "An expired key was found, but no replacement could be obtained."
+    },
+    {
+      "code": "EKEYREJECTED",
+      "description": "The attempt to generate a new key was rejected."
+    },
+    {
+      "code": "EKEYREVOKED",
+      "description": "A revoked key was found, but no replacement could be obtained."
+    },
+    {
+      "code": "ENOKEY",
+      "description": "No matching key was found and callout_info is NULL."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to create a key."
+    },
+    {
+      "code": "EPERM",
+      "description": "The type argument started with a period."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.10",
+  "posix_compliance": null,
+  "examples": [
+    "key = request_key(argv[1], argv[2], argv[3], KEY_SPEC_SESSION_KEYRING);",
+    "echo 'create user mtk:* * /bin/keyctl instantiate %k %c %S' > /etc/request-key.conf"
+  ],
+  "related_calls": [
+    "add_key",
+    "keyctl"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "request_key.pdf",
+    "extraction_date": "2025-07-30T11:22:47.158713",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

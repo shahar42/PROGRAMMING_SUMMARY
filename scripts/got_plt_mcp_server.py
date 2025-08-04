@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import traceback
+import os
 import functools
 
 sys.path.append('.')
@@ -15,6 +16,9 @@ except ImportError:
 
 from analyzers.binary_analyzer import BinaryAnalyzer, GOTEntry, PLTStub, SymbolInfo
 from educational.explainer import EducationalExplainer
+from analyzers.assembly_analyzer import AssemblyAnalyzer
+from utils.performance_estimator import PerformanceEstimator
+from utils.ascii_visualizer import ASCIIVisualizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("got-plt-mcp")
@@ -68,23 +72,214 @@ def inspect_got_table(binary_path: str, detail_level: str = "intermediate") -> s
         return f"❌ Error: {e}"
     except Exception as e:
         logger.error(f"GOT analysis failed: {e}\n{traceback.format_exc()}")
+
         return f"❌ Analysis failed: {str(e)}"
+
+
+@mcp.tool()
+def assembly_analyzer(assembly_file: str, c_file: str, detail_level: str = "intermediate") -> str:
+    """
+    Analyze C-to-assembly correlation with performance metrics and visualizations
+    
+    Args:
+        assembly_file: Path to .s assembly file  
+        c_file: Path to .c source file
+        detail_level: Analysis depth ("beginner", "intermediate", "advanced")
+        
+    Returns:
+        Comprehensive analysis with performance metrics and ASCII visualizations
+    """
+    try:
+        logger.info(f"Analyzing assembly correlation: {c_file} -> {assembly_file}")
+        
+        # Validate detail level
+        if detail_level not in VALID_DETAIL_LEVELS:
+            detail_level = DEFAULT_DETAIL_LEVEL
+        
+        # Validate files exist
+        if not os.path.exists(assembly_file):
+            return f"❌ Error: Assembly file not found: {assembly_file}"
+        
+        if not os.path.exists(c_file):
+            return f"❌ Error: C file not found: {c_file}"
+        
+        # Initialize analyzers
+        analyzer = AssemblyAnalyzer()
+        perf_estimator = PerformanceEstimator()
+        visualizer = ASCIIVisualizer()
+        
+        # Perform main analysis
+        analysis_result = analyzer.analyze_files(c_file, assembly_file)
+        
+        if not analysis_result['success']:
+            return f"❌ Analysis failed: {analysis_result.get('error', 'Unknown error')}"
+        
+        # Generate performance metrics
+        function_performances = []
+        for asm_func in analysis_result['asm_functions']:
+            perf = perf_estimator.analyze_function_performance(
+                asm_func.name, 
+                asm_func.instructions
+            )
+            function_performances.append(perf)
+        
+        # Generate visualizations
+        call_tree = visualizer.generate_function_call_tree(
+            analysis_result['asm_functions']
+        )
+        
+        data_flow = visualizer.generate_data_flow_diagram(
+            analysis_result['asm_functions'],
+            analysis_result['calling_convention'].__dict__ if analysis_result['calling_convention'] else {}
+        )
+        
+        register_usage = visualizer.generate_register_usage_diagram(
+            analysis_result['asm_functions']
+        )
+        
+        # Build comprehensive result based on detail level
+        result = _generate_assembly_analysis_report(
+            analysis_result, 
+            function_performances, 
+            call_tree, 
+            data_flow, 
+            register_usage,
+            detail_level
+        )
+        
+        return result
+        
+    except FileNotFoundError as e:
+        logger.warning(f"Assembly analysis failed for {c_file}/{assembly_file}: {e}")
+        return f"❌ Error: {e}"
+    except Exception as e:
+        logger.error(f"Assembly analysis failed: {e}\\n{traceback.format_exc()}")
+        return f"❌ Analysis failed: {str(e)}"
+
+def _generate_assembly_analysis_report(analysis_result, performances, call_tree, data_flow, register_usage, detail_level):
+    """Generate comprehensive assembly analysis report"""
+    
+    # Performance table
+    perf_estimator = PerformanceEstimator()
+    performance_table = perf_estimator.generate_performance_table(performances)
+    
+    # Header based on detail level
+    if detail_level == "beginner":
+        result = "🔍 **Assembly Analysis - Beginner Guide**\\n\\n"
+        result += "This analysis shows how your C code translates to assembly instructions.\\n\\n"
+    elif detail_level == "advanced":
+        result = "🔍 **Advanced Assembly Analysis & Optimization Report**\\n\\n"
+        result += "Deep technical analysis with performance optimization opportunities.\\n\\n"
+    else:
+        result = "🔍 **Assembly Analysis Report**\\n\\n"
+        result += "Comprehensive C-to-assembly correlation with performance insights.\\n\\n"
+    
+    # File information
+    result += f"**📁 Files Analyzed:**\\n"
+    result += f"- C Source: `{analysis_result['files']['c_file']}`\\n"
+    result += f"- Assembly: `{analysis_result['files']['assembly_file']}`\\n"
+    result += f"- Architecture: {analysis_result['architecture']}\\n\\n"
+    
+    # Function mapping
+    result += "**🔗 C-to-Assembly Function Mapping:**\\n"
+    c_functions = analysis_result['c_functions']
+    asm_functions = analysis_result['asm_functions']
+    
+    for c_func in c_functions:
+        asm_func = next((af for af in asm_functions if af.name == c_func.name), None)
+        if asm_func:
+            result += f"- **{c_func.name}()** (C lines {c_func.line_start}-{c_func.line_end}) "
+            result += f"→ {len(asm_func.instructions)} assembly instructions\\n"
+            
+            if detail_level == "advanced" and c_func.function_calls:
+                result += f"  - Calls: {', '.join(c_func.function_calls)}\\n"
+        else:
+            result += f"- **{c_func.name}()** → ⚠️ Not found in assembly\\n"
+    
+    result += "\\n"
+    
+    # Performance metrics
+    result += performance_table
+    result += "\\n"
+    
+    # Calling convention analysis
+    calling_conv = analysis_result['calling_convention']
+    if calling_conv:
+        result += "**📋 Calling Convention Analysis:**\\n"
+        result += f"- Convention: {calling_conv.convention.value}\\n"
+        result += f"- Parameter Registers: {', '.join(calling_conv.parameter_registers[:4])}\\n"
+        result += f"- Return Register: {calling_conv.return_register}\\n"
+        
+        if detail_level == "advanced":
+            result += f"- Callee-Saved: {', '.join(calling_conv.callee_saved[:4])}\\n"
+            result += f"- Caller-Saved: {', '.join(calling_conv.caller_saved[:4])}\\n"
+        
+        if calling_conv.violations:
+            result += f"- ⚠️ Violations: {len(calling_conv.violations)} detected\\n"
+        
+        result += "\\n"
+    
+    # Show detailed performance breakdown for complex functions
+    if detail_level == "advanced" and performances:
+        complex_funcs = [p for p in performances if p.complexity.value in ["High", "Very High"]]
+        if complex_funcs:
+            result += "**🔍 Detailed Performance Analysis:**\\n"
+            for perf in complex_funcs[:2]:  # Limit to 2 most complex
+                detailed = perf_estimator.generate_detailed_breakdown(perf)
+                result += detailed + "\\n"
+    
+    # Visualizations
+    if detail_level != "beginner":  # Skip complex visuals for beginners
+        result += call_tree + "\\n"
+        result += data_flow + "\\n"
+    
+    if detail_level == "advanced":
+        result += register_usage + "\\n"
+    
+    # Educational explanations based on correlations
+    correlations = analysis_result.get('correlations', [])
+    if correlations and detail_level in ["intermediate", "advanced"]:
+        result += "**📚 C-to-Assembly Correlations:**\\n"
+        for i, corr in enumerate(correlations[:3]):  # Show first 3
+            result += f"{i+1}. **{corr.c_construct}** (Line {corr.c_line})\\n"
+            result += f"   → {corr.explanation}\\n"
+            if corr.asm_instructions:
+                result += f"   → Assembly: `{corr.asm_instructions[0]}`\\n"
+            result += "\\n"
+    
+    # Summary and recommendations
+    result += "**💡 Summary & Recommendations:**\\n"
+    
+    total_instructions = sum(len(af.instructions) for af in asm_functions)
+    total_cycles = sum(p.estimated_cycles for p in performances)
+    
+    result += f"- Total Assembly Instructions: {total_instructions}\\n"
+    result += f"- Estimated Total Cycles: ~{total_cycles}\\n"
+    
+    # Generate recommendations based on analysis
+    if any(p.complexity.value in ["High", "Very High"] for p in performances):
+        result += "- ⚠️ Complex functions detected - consider optimization\\n"
+    
+    if total_instructions > 100:
+        result += "- 📈 Large codebase - consider profiling hot paths\\n"
+    
+    # Beginner-friendly tips
+    if detail_level == "beginner":
+        result += "\\n**🎓 Learning Tips:**\\n"
+        result += "- Each C statement typically becomes multiple assembly instructions\\n"
+        result += "- Function calls have overhead (saving registers, jumping)\\n"
+        result += "- Compilers optimize your code automatically\\n"
+        result += "- Use `-O2` or `-O3` flags for optimized assembly\\n"
+    
+    return result
 
 @mcp.tool()
 def trace_plt_ant_trail(binary_path: str, symbol_name: str, detail_level: str = "intermediate") -> str:
     """
     Trace the PLT 'ant trail' for a specific symbol - shows the discovery vs optimized paths
-    
-    Args:
-        binary_path: Path to ELF binary to analyze
-        symbol_name: Symbol to trace the ant trail for (e.g., 'printf')
-        detail_level: Explanation complexity ("beginner", "intermediate", "advanced")
-    
-    Returns:
-        Step-by-step ant trail narrative explaining lazy binding for this symbol
     """
     try:
-        logger.info(f"Tracing ant trail for {symbol_name} in {binary_path}")
+        logger.info(f"Tracing PLT ant trail for {symbol_name} in {binary_path}")
         
         if detail_level not in VALID_DETAIL_LEVELS:
             detail_level = DEFAULT_DETAIL_LEVEL
@@ -93,101 +288,72 @@ def trace_plt_ant_trail(binary_path: str, symbol_name: str, detail_level: str = 
         plt_stubs = analyzer.analyze_plt_stubs()
         binary_info = analyzer.get_binary_info()
         
-        # Find the specific PLT stub for this symbol
+        # Find the target stub - try exact match first, then partial match
         target_stub = None
         for stub in plt_stubs:
-            if symbol_name.lower() in stub.symbol_name.lower():
+            if stub.symbol_name == symbol_name:
+                target_stub = stub
+                break
+            # Try partial match (handles versioned symbols like printf@GLIBC_2.2.5)
+            elif symbol_name in stub.symbol_name or stub.symbol_name in symbol_name:
                 target_stub = stub
                 break
         
         if not target_stub:
-            available_symbols = [stub.symbol_name for stub in plt_stubs if stub.symbol_name != "unknown"]
+            # List available symbols for user reference
+            available_symbols = [stub.symbol_name for stub in plt_stubs if stub.symbol_name]
+            
+            # Try to find similar symbols
+            similar = [s for s in available_symbols if symbol_name.lower() in s.lower() or s.lower() in symbol_name.lower()]
+            
+            result = f"❌ Symbol '{symbol_name}' not found in PLT.\n\n"
+            
+            if similar:
+                result += f"🔍 **Similar symbols found:**\n"
+                for sym in similar:
+                    result += f"- {sym}\n"
+                result += f"\n💡 Try: `trace_plt_ant_trail(\"{binary_path}\", \"{similar[0]}\", \"{detail_level}\")`\n\n"
+            
             if available_symbols:
-                return f"❌ Symbol '{symbol_name}' not found in PLT.\n\n🐜 Available ant trails: {', '.join(available_symbols[:10])}"
+                result += f"🐜 Available ant trails: {', '.join(available_symbols[:5])}"
+                if len(available_symbols) > 5:
+                    result += f" (+{len(available_symbols)-5} more)"
             else:
-                return f"❌ No recognizable symbols found in PLT. Binary may be stripped or statically linked."
+                result += "🐜 No PLT symbols found - this binary may not use dynamic linking"
+            
+            return result
         
-        # Generate the ant trail story
-        result = f"""🐜 **Ant Trail Analysis: {symbol_name}**
-
-**Binary:** {binary_path}
-**PLT Entry:** {target_stub.address}
-**GOT Reference:** {target_stub.got_reference}
-
-"""
+        # Generate the ant trail analysis
+        result = f"🐜 **PLT Ant Trail Analysis: {target_stub.symbol_name}**\n\n"
         
-        if detail_level == "beginner":
-            result += f"""📖 **The Ant Trail Story:**
-
-🐜 **First Call (Discovery Journey):**
-1. First ant reaches the trail marker at {target_stub.address}
-2. Trail marker says "Go ask the scout!" (jumps to resolver)
-3. Scout ant searches through all the libraries to find {symbol_name}
-4. Scout finds {symbol_name} and writes the direct path in the trail guide
-5. First ant finally reaches {symbol_name} and completes its task
-
-🐜 **All Future Calls (Following the Trail):**
-1. Ant reaches the same trail marker at {target_stub.address}
-2. Trail guide now has the direct path written down
-3. Ant jumps directly to {symbol_name} - no scout needed!
-4. Much faster journey for all future ants
-
-💡 **Why This Matters:**
-The first ant does extra work so all future ants can be lazy!
-"""
-
-        elif detail_level == "intermediate":
-            result += f"""📖 **The Ant Trail Process:**
-
-🐜 **First Call - Discovery Phase:**
-1. CPU calls {symbol_name}@plt ({target_stub.address})
-2. PLT stub jumps to GOT entry (initially points back to PLT+6)
-3. PLT pushes relocation index and jumps to PLT[0] (resolver)
-4. Dynamic linker (_dl_runtime_resolve) searches for {symbol_name}
-5. Linker updates GOT entry with real {symbol_name} address
-6. Linker jumps to the resolved function
-
-🐜 **Subsequent Calls - Optimized Trail:**
-1. CPU calls {symbol_name}@plt ({target_stub.address})
-2. PLT stub jumps to GOT entry (now contains real address)
-3. Direct jump to {symbol_name} - no resolver overhead
-
-⚡ **Performance Impact:**
-- First call: ~100-1000x slower (symbol resolution)
-- Later calls: Nearly identical to direct call
-"""
-
-        else:  # advanced
-            result += f"""📖 **Detailed Ant Trail Architecture:**
-
-🐜 **First Call - Resolution Mechanics:**
-PLT Stub Instructions:
-"""
-            for i, instruction in enumerate(target_stub.disassembly[:3]):
-                result += f"  {i+1}. {instruction}\n"
+        # Rest of the existing trace logic...
+        if target_stub.disassembly:
+            result += "**🔍 PLT Stub Disassembly:**\n"
+            for instruction in target_stub.disassembly:
+                result += f"   {instruction}\n"
             
             result += f"""
-Resolution Flow:
-1. jmp *GOT[{symbol_name}] → Initially points to PLT+6
+**🐜 Trail Explanation:**
+1. jmp *GOT[{target_stub.symbol_name}] → Initially points to PLT+6
 2. push $reloc_index → Identifies which symbol to resolve  
 3. jmp PLT[0] → Calls _dl_runtime_resolve
 4. Resolver searches symbol tables in dependency order
-5. Updates GOT[{symbol_name}] = resolved_address
+5. Updates GOT[{target_stub.symbol_name}] = resolved_address
 6. Transfers control to resolved function
 
-🐜 **Optimized Path Analysis:**
-After resolution, the same jmp *GOT[{symbol_name}] becomes a direct jump.
+**🏃 Optimized Path Analysis:**
+After resolution, the same jmp *GOT[{target_stub.symbol_name}] becomes a direct jump.
 The push/jmp instructions become dead code - never executed again.
 
-🏗️ **Architecture Details:**
+**🏗️ Architecture Details:**
 - GOT Entry: {target_stub.got_reference}
-- Relocation Type: R_X86_64_JUMP_SLOT (typical)
-- Binding: {"Lazy" if not binary_info.get('immediate_binding', False) else "Immediate"}
+- PLT Address: {target_stub.address}
+- Stub Index: {target_stub.stub_index}
 """
 
         # Add educational insights
         result += f"""
-🎓 **Educational Insights:**
+**🎓 Educational Insights:**
 - The "ant trail" metaphor helps visualize why the first call is slow
 - PLT/GOT work together: PLT provides the code, GOT stores the data
 - This lazy binding saves startup time but costs on first use
@@ -202,7 +368,6 @@ The push/jmp instructions become dead code - never executed again.
     except Exception as e:
         logger.error(f"Ant trail analysis failed: {e}\n{traceback.format_exc()}")
         return f"❌ Analysis failed: {str(e)}"
-
 
 @mcp.tool()
 def analyze_plt_stubs(binary_path: str, symbol_filter: str = None, detail_level: str = "intermediate") -> str:
@@ -247,7 +412,7 @@ def list_dynamic_symbols(binary_path: str, category: str = "all", detail_level: 
         symbols = analyzer.list_dynamic_symbols(category)
         binary_info = analyzer.get_binary_info()
         
-        return explainer.generate_symbol_explanation(
+        return explainer.generate_symbols_explanation(
             symbols=symbols,
             binary_info=binary_info,
             detail_level=detail_level,
@@ -306,6 +471,14 @@ def get_server_info() -> str:
 3. `list_dynamic_symbols()` - List symbols requiring dynamic resolution
 4. `explain_linking_process()` - Comprehensive linking walkthrough
 5. `trace_plt_ant_trail()` - Follow the "ant trail" for symbol resolution
+6. `assembly_analyzer()` - C-to-assembly correlation with performance metrics
+
+** Assembly Analyzer Features:**
+- 📊 Performance metrics with cycle estimation
+- 🌳 ASCII function call trees
+- 🔄 Data flow diagrams
+- 📋 Calling convention analysis
+- 💡 Optimization suggestions
 
 **Educational Levels:**
 - **Beginner**: Simplified explanations with visual diagrams

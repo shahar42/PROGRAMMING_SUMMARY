@@ -1,0 +1,58 @@
+{
+  "name": "readahead",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#define _FILE_OFFSET_BITS 64",
+    "#include <fcntl.h>",
+    "ssize_t readahead(int fd, off_t offset, size_t count);"
+  ],
+  "description": "readahead() initiates readahead on a file to prefetch data into the page cache, allowing subsequent reads to be satisfied from the cache without blocking on disk I/O. It takes a file descriptor, an offset, and a byte count, but does not change the file offset and performs I/O in whole pages.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor identifying the file which is to be read."
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "Starting point from which data is to be read."
+    },
+    {
+      "name": "count",
+      "type": "size_t",
+      "description": "Number of bytes to be read."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid file descriptor or is not open for reading."
+    },
+    {
+      "code": "EINVAL",
+      "description": "fd does not refer to a file type to which readahead() can be applied."
+    }
+  ],
+  "bugs": "readahead() may block while reading filesystem metadata, even though it attempts to schedule reads in the background, potentially giving the appearance that it waits until data is read, especially with certain filesystems like ext[234] using indirect blocks.",
+  "versions": "Linux 2.4.13, glibc 2.3",
+  "posix_compliance": null,
+  "related_calls": [
+    "lseek",
+    "madvise",
+    "mmap",
+    "posix_fadvise",
+    "read"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "readahead.pdf",
+    "extraction_date": "2025-07-29T16:29:24.148236",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

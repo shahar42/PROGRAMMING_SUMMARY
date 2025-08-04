@@ -1,0 +1,66 @@
+{
+  "name": "recvmmsg",
+  "synopsis": [
+    "#define _GNU_SOURCE",
+    "#include <sys/socket.h>",
+    "int recvmmsg(int sockfd, struct mmsghdr *msgvec, unsigned int vlen, int flags, struct timespec *timeout);"
+  ],
+  "description": "The recvmmsg() system call extends recvmsg(2) to receive multiple messages from a socket in a single call, improving performance for applications. It also supports a timeout for the operation, allowing blocking or non-blocking behavior.",
+  "parameters": [
+    {
+      "name": "sockfd",
+      "type": "int",
+      "description": "File descriptor of the socket to receive data from."
+    },
+    {
+      "name": "msgvec",
+      "type": "struct mmsghdr *",
+      "description": "Pointer to an array of mmsghdr structures to store received messages."
+    },
+    {
+      "name": "vlen",
+      "type": "unsigned int",
+      "description": "Size of the msgvec array."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags for the operation, including those from recvmsg(2) and additional ones like MSG_WAITFORONE."
+    },
+    {
+      "name": "timeout",
+      "type": "struct timespec *",
+      "description": "Pointer to a timespec structure for the timeout period, or NULL for indefinite blocking."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of messages received in msgvec",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "timeout is invalid."
+    }
+  ],
+  "bugs": "The timeout is checked only after each datagram, potentially causing indefinite blocking if fewer than vlen messages are received in time. Additionally, errors after the first message may not be reported correctly and could be overwritten by unrelated events.",
+  "versions": "Linux 2.6.33, glibc 2.12",
+  "posix_compliance": null,
+  "examples": [
+    "retval = recvmmsg(sockfd, msgs, VLEN, 0, &timeout);"
+  ],
+  "related_calls": [
+    "clock_gettime",
+    "recvmsg",
+    "sendmmsg",
+    "sendmsg",
+    "socket"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "recvmmsg.pdf",
+    "extraction_date": "2025-07-29T18:18:17.700067",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

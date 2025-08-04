@@ -1,26 +1,26 @@
 # Daily CSAPP Systems Extraction Summary
-**Date:** 2025-07-29 15:41:18
+**Date:** 2025-07-29 16:27:47
 **Book:** Computer Systems: A Programmer's Perspective (3rd Edition)
 **Focus:** Computer architecture and systems programming
 
 ## Systems Concepts Extracted Today: 4
 
 ### 1. Concurrency and Synchronization Primitives
-**Systems concept:** Concurrency allows multiple tasks to appear to run simultaneously, improving system responsiveness and throughput.  In computer systems, this is managed through synchronization primitives which coordi...
+**Systems concept:** Concurrency involves multiple threads executing seemingly simultaneously.  In computer systems, this requires careful management to avoid race conditions (where the outcome depends on unpredictable th...
 
-### 2. System Call Interfaces and Exceptional Control Flow
-**Systems concept:** System calls are the interface between a process running in user space and the operating system kernel.  They provide a mechanism for applications to request services from the kernel, such as accessin...
+### 2. Concurrency and Synchronization Primitives
+**Systems concept:** Concurrency involves multiple threads of execution running seemingly simultaneously, enabling parallel processing and increased responsiveness.  Synchronization primitives are mechanisms that coordina...
 
-### 3. System Call Interfaces and Exceptional Control Flow
-**Systems concept:** System calls provide the interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing hardware resources (network...
+### 3. Concurrency and Synchronization Primitives using Pthreads
+**Systems concept:** Concurrency allows multiple threads of execution to run seemingly simultaneously, improving performance on multi-core systems.  Synchronization primitives are mechanisms that control the access of mul...
 
-### 4. System Call Interfaces and Exceptional Control Flow
-**Systems concept:** System calls provide an interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing hardware resources (netw...
+### 4. Concurrency and Synchronization Primitives using Pthreads
+**Systems concept:** Concurrency allows multiple threads of execution within a single process to run seemingly simultaneously, improving performance by overlapping computation.  Synchronization primitives are mechanisms t...
 
 ## CSAPP Progress Summary
-- **Total Systems Concepts:** 257
-- **Extraction Sessions:** 67
-- **Last Processed Page:** 1018
+- **Total Systems Concepts:** 269
+- **Extraction Sessions:** 70
+- **Last Processed Page:** 1063
 
 ## Next Session
 Continue CSAPP systems extraction to explore more computer architecture concepts.

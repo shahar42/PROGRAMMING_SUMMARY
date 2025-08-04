@@ -1,0 +1,73 @@
+{
+  "name": "preadv",
+  "synopsis": [
+    "#include <sys/uio.h>",
+    "ssize_t preadv(int fd, const struct iovec *iov, int iovcnt, off_t offset);"
+  ],
+  "description": "The preadv() system call reads data into multiple buffers from the file descriptor fd at a specified offset, combining the functionality of readv() and pread(2). It performs the read operation without changing the file offset, and the file must support seeking.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor from which to read"
+    },
+    {
+      "name": "iov",
+      "type": "const struct iovec *",
+      "description": "Pointer to an array of iovec structures describing the buffers"
+    },
+    {
+      "name": "iovcnt",
+      "type": "int",
+      "description": "Number of elements in the iov array"
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "File offset at which the read operation is performed"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes read",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "The sum of the iov_len values overflows an ssize_t value"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The vector count iovcnt is less than zero or greater than the permitted maximum"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "An unknown flag is specified (relevant for related calls like preadv2)"
+    }
+  ],
+  "bugs": "Linux 5.9 and Linux 5.10 have a bug where preadv2() with the RWF_NOWAIT flag may return 0 even when not at end of file.",
+  "versions": "Linux 2.6.30, glibc 2.10",
+  "posix_compliance": "BSD",
+  "examples": [
+    "char *str0 = \"hello \";",
+    "char *str1 = \"world\\n\";",
+    "struct iovec iov[2];",
+    "iov[0].iov_base = str0;",
+    "iov[0].iov_len = strlen(str0);",
+    "iov[1].iov_base = str1;",
+    "iov[1].iov_len = strlen(str1);",
+    "ssize_t nwritten = writev(STDOUT_FILENO, iov, 2);"
+  ],
+  "related_calls": [
+    "pread",
+    "read",
+    "write"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "preadv.pdf",
+    "extraction_date": "2025-07-29T16:10:58.602475",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

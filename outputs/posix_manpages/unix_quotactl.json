@@ -1,0 +1,105 @@
+{
+  "name": "quotactl",
+  "synopsis": [
+    "#include <sys/quota.h>",
+    "#include <xfs/xqm.h> /* Definition of Q_X* and XFS_QUOTA_* constants (or <linux/dqblk_xfs.h>; see NOTES) */",
+    "int quotactl(int op, const char *_Nullable special, int id, caddr_t addr);"
+  ],
+  "description": "The quotactl() system call manipulates disk quotas for users, groups, or projects on a filesystem. It allows operations such as turning quotas on or off, setting limits, and retrieving quota information. Quotas enforce limits on disk space and inodes, with soft and hard limits that can trigger warnings or restrictions.",
+  "parameters": [
+    {
+      "name": "op",
+      "type": "int",
+      "description": "Operation to be performed, constructed using the QCMD(subop, type) macro, specifying suboperation and quota type (e.g., USRQUOTA, GRPQUOTA)."
+    },
+    {
+      "name": "special",
+      "type": "const char *_Nullable",
+      "description": "Pointer to a null-terminated string containing the pathname of the mounted block special device for the filesystem."
+    },
+    {
+      "name": "id",
+      "type": "int",
+      "description": "User, group, or project ID, or quota format identifier for certain operations like Q_QUOTAON."
+    },
+    {
+      "name": "addr",
+      "type": "caddr_t",
+      "description": "Address of an optional, operation-specific data structure that is used for input or output depending on the operation."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "op is Q_QUOTAON, and the quota file pointed to by addr exists, but is not a regular file or is not on the filesystem pointed to by special."
+    },
+    {
+      "code": "EBUSY",
+      "description": "op is Q_QUOTAON, but another Q_QUOTAON has already been performed."
+    },
+    {
+      "code": "EFAULT",
+      "description": "addr or special is invalid."
+    },
+    {
+      "code": "EINVAL",
+      "description": "op or type is invalid."
+    },
+    {
+      "code": "EINVAL",
+      "description": "op is Q_QUOTAON, but the specified quota file is corrupted."
+    },
+    {
+      "code": "EINVAL",
+      "description": "op is Q_XQUOTARM, but addr does not point to valid quota types."
+    },
+    {
+      "code": "ENOENT",
+      "description": "The file specified by special or addr does not exist."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "The kernel has not been compiled with the CONFIG_QUOTA option."
+    },
+    {
+      "code": "ENOTBLK",
+      "description": "special is not a block device."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller lacked the required privilege (CAP_SYS_ADMIN) for the specified operation."
+    },
+    {
+      "code": "ERANGE",
+      "description": "op is Q_SETQUOTA, but the specified limits are out of the range allowed by the quota format."
+    },
+    {
+      "code": "ESRCH",
+      "description": "No disk quota is found for the indicated user. Quotas have not been turned on for this filesystem."
+    },
+    {
+      "code": "ESRCH",
+      "description": "op is Q_QUOTAON, but the specified quota format was not found."
+    },
+    {
+      "code": "ESRCH",
+      "description": "op is Q_GETNEXTQUOTA or Q_XGETNEXTQUOTA, but there is no ID greater than or equal to id that has an active quota."
+    }
+  ],
+  "bugs": "Q_XQUOTARM is buggy until Linux 3.16.",
+  "versions": "Linux 2.4 and later, with specific features since versions like 2.4.22, 2.6.15, 4.1, and 4.6.",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [],
+  "extraction_metadata": {
+    "syscall_file": "quotactl.pdf",
+    "extraction_date": "2025-07-29T16:29:01.115081",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

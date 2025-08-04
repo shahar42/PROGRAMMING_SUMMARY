@@ -1,0 +1,61 @@
+{
+  "name": "setpriority",
+  "synopsis": [
+    "#include <sys/resource.h>",
+    "int setpriority(int which, id_t who, int prio);"
+  ],
+  "description": "The setpriority() system call sets the scheduling priority (nice value) of a process, process group, or user as specified by the parameters. It adjusts the priority to influence CPU scheduling, with values clamped between -20 (highest) and 19 (lowest).",
+  "parameters": [
+    {
+      "name": "which",
+      "type": "int",
+      "description": "Specifies the type of entity to set priority for: PRIO_PROCESS, PRIO_PGRP, or PRIO_USER"
+    },
+    {
+      "name": "who",
+      "type": "id_t",
+      "description": "The identifier for the entity, interpreted relative to 'which' (e.g., process ID, process group ID, or user ID)"
+    },
+    {
+      "name": "prio",
+      "type": "int",
+      "description": "The new priority value, ranging from -20 (highest priority) to 19 (lowest priority)"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The caller attempted to set a higher priority (lower nice value) without the required capability (CAP_SYS_NICE)"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The 'which' argument is not one of the valid values (PRIO_PROCESS, PRIO_PGRP, or PRIO_USER)"
+    },
+    {
+      "code": "EPERM",
+      "description": "A process was located, but the effective user ID does not match and the caller lacks the required capability"
+    },
+    {
+      "code": "ESRCH",
+      "description": "No process could be located using the given 'which' and 'who' values"
+    }
+  ],
+  "bugs": "Under Linux with NPTL, the nice value is treated as a per-thread attribute instead of per-process as required by POSIX, which may lead to non-portable behavior.",
+  "versions": "POSIX.1-2001, SVr4, 4.4BSD; Linux 2.6.12 and later for certain privilege behaviors",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "fork"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "setpriority.pdf",
+    "extraction_date": "2025-08-03T10:55:35.275506",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

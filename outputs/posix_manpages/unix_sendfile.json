@@ -1,0 +1,86 @@
+{
+  "name": "sendfile",
+  "synopsis": [
+    "#include <sys/sendfile.h>",
+    "ssize_t sendfile(int out_fd, int in_fd, off_t *_Nullable offset, size_t count);"
+  ],
+  "description": "sendfile() copies data between two file descriptors directly in the kernel, making it more efficient than using read(2) and write(2). It requires an input file descriptor for reading and an output for writing, with an optional offset to specify the starting point.",
+  "parameters": [
+    {
+      "name": "out_fd",
+      "type": "int",
+      "description": "Output file descriptor opened for writing"
+    },
+    {
+      "name": "in_fd",
+      "type": "int",
+      "description": "Input file descriptor opened for reading, supporting mmap-like operations"
+    },
+    {
+      "name": "offset",
+      "type": "off_t *_Nullable",
+      "description": "Pointer to a variable holding the file offset; if NULL, uses and updates the file offset of in_fd"
+    },
+    {
+      "name": "count",
+      "type": "size_t",
+      "description": "Number of bytes to copy between the file descriptors"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes written to out_fd; may be less than requested, requiring retries",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "Nonblocking I/O has been selected and the write would block"
+    },
+    {
+      "code": "EBADF",
+      "description": "The input file was not opened for reading or the output file was not opened for writing"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Descriptor is not valid or locked, or an mmap-like operation is not available for in_fd, or count is negative, or out_fd has the O_APPEND flag set"
+    },
+    {
+      "code": "EIO",
+      "description": "Unspecified error while reading from in_fd"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to read from in_fd"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "Count is too large, exceeding the maximum size of the input or output file"
+    },
+    {
+      "code": "ESPIPE",
+      "description": "Offset is not NULL but the input file is not seekable"
+    }
+  ],
+  "bugs": "sendfile() has varying semantics and prototypes across UNIX systems, making it unsuitable for portable programs. Additionally, there are limitations based on kernel versions, such as restrictions on file descriptor types before Linux 2.6.33.",
+  "versions": "Linux 2.2, glibc 2.1",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "copy_file_range",
+    "mmap",
+    "open",
+    "socket",
+    "splice"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sendfile.pdf",
+    "extraction_date": "2025-08-02T11:41:16.313336",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "name": "select",
+  "synopsis": [
+    "#include <sys/select.h>",
+    "typedef /*...*/ fd_set;",
+    "int select(int nfds, fd_set *_Nullable restrict readfds, fd_set *_Nullable restrict writefds, fd_set *_Nullable restrict exceptfds, struct timeval *_Nullable restrict timeout);",
+    "void FD_CLR(int fd, fd_set *set);",
+    "int FD_ISSET(int fd, fd_set *set);",
+    "void FD_SET(int fd, fd_set *set);",
+    "void FD_ZERO(fd_set *set);",
+    "int pselect(int nfds, fd_set *_Nullable restrict readfds, fd_set *_Nullable restrict writefds, fd_set *_Nullable restrict exceptfds, const struct timespec *_Nullable restrict timeout, const sigset_t *_Nullable restrict sigmask);"
+  ],
+  "description": "select() allows a program to monitor multiple file descriptors for readiness in I/O operations, such as reading or writing, without blocking. It waits until one or more descriptors are ready or a timeout occurs. However, it is limited to a maximum of FD_SETSIZE (typically 1024) descriptors.",
+  "parameters": [
+    {
+      "name": "nfds",
+      "type": "int",
+      "description": "The highest file descriptor to check plus one."
+    },
+    {
+      "name": "readfds",
+      "type": "fd_set *_Nullable restrict",
+      "description": "Set of file descriptors to monitor for readability."
+    },
+    {
+      "name": "writefds",
+      "type": "fd_set *_Nullable restrict",
+      "description": "Set of file descriptors to monitor for writability."
+    },
+    {
+      "name": "exceptfds",
+      "type": "fd_set *_Nullable restrict",
+      "description": "Set of file descriptors to monitor for exceptions."
+    },
+    {
+      "name": "timeout",
+      "type": "struct timeval *_Nullable restrict",
+      "description": "Timeout value for the operation."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of ready file descriptors.",
+    "failure": "Returns -1 on error, and errno is set."
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "An invalid file descriptor was given."
+    },
+    {
+      "code": "EINTR",
+      "description": "A signal was caught."
+    },
+    {
+      "code": "EINVAL",
+      "description": "nfds is negative or exceeds limits, or timeout is invalid."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Unable to allocate memory for internal tables."
+    }
+  ],
+  "bugs": "select() is limited to FD_SETSIZE (1024) file descriptors, has design issues with value-result arguments, and may report spurious readiness; use poll(2) or epoll(7) for better alternatives.",
+  "versions": null,
+  "posix_compliance": "POSIX.1-2001",
+  "examples": [
+    "#include <stdio.h>\n#include <stdlib.h>\n#include <sys/select.h>\nint main(void) {\n    int retval;\n    fd_set rfds;\n    struct timeval tv;\n    FD_ZERO(&rfds);\n    FD_SET(0, &rfds);\n    tv.tv_sec = 5;\n    tv.tv_usec = 0;\n    retval = select(1, &rfds, NULL, NULL, &tv);\n    if (retval == -1) perror(\"select()\");\n    else if (retval) printf(\"Data is available now.\\n\");\n    else printf(\"No data within five seconds.\\n\");\n    exit(EXIT_SUCCESS);\n}"
+  ],
+  "related_calls": [
+    "poll",
+    "epoll"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "select.pdf",
+    "extraction_date": "2025-07-30T23:51:52.154250",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

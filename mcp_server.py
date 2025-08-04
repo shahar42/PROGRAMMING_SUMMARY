@@ -97,18 +97,21 @@ def build_concept_index():
 
 
 def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
-    """Add a concept to the index with proper field mapping."""
+    """Add a concept to the index with proper field mapping and CLEAN ID generation."""
     global concepts
 
-    # Generate a unique ID for the concept
-    concept_id = f"{book_name}_{filename.replace('.json', '')}_{len(concepts)}"
+    # FIXED: Generate clean, predictable IDs
+    # Extract concept number from filename if present
+    concept_num_match = re.search(r'concept_(\d+)', filename)
+    if concept_num_match:
+        concept_num = concept_num_match.group(1).zfill(3)  # Pad to 3 digits
+        concept_id = f"{book_name}_concept_{concept_num}"
+    else:
+        # Fallback: use incrementing counter
+        concept_id = f"{book_name}_concept_{len(concepts):03d}"
 
     # SURGICAL FIX: Map the standardized extractor format to MCP server expectations
-
-    # Map 'topic' -> 'title' (all extractors use 'topic')
     title = concept_data.get('topic', concept_data.get('title', concept_data.get('concept', 'Unknown Concept')))
-
-    # Map 'explanation' -> 'description' (all extractors use 'explanation' for main description)
     description = concept_data.get('explanation', concept_data.get('description', concept_data.get('summary', '')))
 
     # Combine 'explanation' and 'example_explanation' for full content
@@ -122,7 +125,6 @@ def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
     # Handle code examples: prefer existing 'syntax', fallback to formatted 'code_example'
     syntax = concept_data.get('syntax', '')
     if not syntax and concept_data.get('code_example'):
-        # Format code_example array into a proper code block
         code_lines = concept_data['code_example']
         if isinstance(code_lines, list):
             syntax = '\n'.join(code_lines)
@@ -130,19 +132,50 @@ def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
             syntax = str(code_lines)
 
     concept = {
-        'id': concept_id,
+        'id': concept_id,  # CLEAN ID
         'title': title,
         'description': description,
         'content': content,
         'syntax': syntax,
         'book': book_name,
-        'book_title': books_metadata[book_name],
+        'book_title': books_metadata.get(book_name, book_name),
         'source_file': filename,
         'raw_data': concept_data
     }
 
     concepts.append(concept)
 
+def find_concept_by_id_flexible(concept_id: str):
+    """Find concept by ID with flexible matching"""
+    # Try exact match first
+    for concept in concepts:
+        if concept['id'] == concept_id:
+            return concept
+    
+    # Try partial matches for backward compatibility
+    concept_id_lower = concept_id.lower()
+    for concept in concepts:
+        if concept_id_lower in concept['id'].lower():
+            return concept
+        # Also try matching without book prefix
+        if concept_id_lower.replace(concept['book'] + '_', '') in concept['id'].lower():
+            return concept
+    
+    return None
+
+def normalize_concept_id(raw_id: str) -> str:
+    """Normalize concept ID to clean format"""
+    # Extract book name and concept number
+    parts = raw_id.split('_')
+    if len(parts) >= 3 and 'concept' in parts:
+        book_name = parts[0]
+        concept_idx = parts.index('concept')
+        if concept_idx + 1 < len(parts):
+            concept_num = parts[concept_idx + 1]
+            if concept_num.isdigit():
+                return f"{book_name}_concept_{concept_num.zfill(3)}"
+    
+    return raw_id    
 
 def format_parameters(parameters):
     """Format parameter list for display"""
@@ -860,20 +893,14 @@ async def compare_concepts(concept1_id: str, concept2_id: str) -> str:
         concept1_id: ID of the first concept to compare
         concept2_id: ID of the second concept to compare
     """
-    # Find both concepts
-    concept1 = None
-    concept2 = None
-
-    for c in concepts:
-        if c['id'] == concept1_id:
-            concept1 = c
-        elif c['id'] == concept2_id:
-            concept2 = c
+    # FIXED: Use flexible ID matching
+    concept1 = find_concept_by_id_flexible(concept1_id)
+    concept2 = find_concept_by_id_flexible(concept2_id)
 
     if not concept1:
-        return f"First concept not found: {concept1_id}"
+        return f"First concept not found: {concept1_id}\nAvailable IDs: {[c['id'][:50] + '...' for c in concepts[:5]]}"
     if not concept2:
-        return f"Second concept not found: {concept2_id}"
+        return f"Second concept not found: {concept2_id}\nAvailable IDs: {[c['id'][:50] + '...' for c in concepts[:5]]}"
 
     # Format comparison
     result_text = f"# Concept Comparison\n\n"
@@ -1026,15 +1053,12 @@ async def get_concept_details(concept_id: str) -> str:
     Args:
         concept_id: The ID of the concept to retrieve
     """
-    # Find the concept
-    concept = None
-    for c in concepts:
-        if c['id'] == concept_id:
-            concept = c
-            break
+    # FIXED: Use flexible ID matching
+    concept = find_concept_by_id_flexible(concept_id)
 
     if not concept:
-        return f"Concept not found: {concept_id}"
+        available_ids = [c['id'] for c in concepts[:10]]
+        return f"Concept not found: {concept_id}\n\nAvailable concept IDs:\n" + "\n".join([f"- {id}" for id in available_ids])
 
     # Format detailed response
     concept_uri_id = concept_to_clean_uri_id(concept)
@@ -1042,6 +1066,7 @@ async def get_concept_details(concept_id: str) -> str:
     
     result_text = f"# {concept['title']}\n\n"
     result_text += f"**Source:** {concept['book_title']}\n"
+    result_text += f"**ID:** `{concept['id']}`\n"
     result_text += f"**URI:** `{uri}`\n\n"
 
     if concept['description']:
@@ -1061,6 +1086,32 @@ async def get_concept_details(concept_id: str) -> str:
             result_text += f"**{key.title()}:** {value}\n"
 
     return result_text
+
+@mcp.tool()
+async def debug_concept_ids(search_term: str = "") -> str:
+    """Debug tool to see concept IDs and help with tool integration.
+
+    Args:
+        search_term: Optional search term to filter concepts
+    """
+    if search_term:
+        matching_concepts = [c for c in concepts if search_term.lower() in c['title'].lower() or search_term.lower() in c['id'].lower()]
+    else:
+        matching_concepts = concepts[:20]  # Show first 20
+    
+    result = f"📋 **Concept ID Debug Information**\n\n"
+    result += f"Total concepts loaded: {len(concepts)}\n"
+    if search_term:
+        result += f"Filtering by: '{search_term}'\n"
+    result += f"Showing: {len(matching_concepts)} concepts\n\n"
+    
+    for i, concept in enumerate(matching_concepts, 1):
+        result += f"{i}. **{concept['title']}**\n"
+        result += f"   ID: `{concept['id']}`\n"
+        result += f"   Book: {concept['book']}\n"
+        result += f"   Source file: {concept['source_file']}\n\n"
+    
+    return result
 
 # ===============================
 # LEARNING AND STUDY TOOLS

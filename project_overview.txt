@@ -1,0 +1,186 @@
+# MCP Programming Concepts Server - Complete Project Guide
+
+## Overview
+A sophisticated Model Context Protocol (MCP) server system that provides intelligent access to programming concepts extracted from five classic computer science books. The system uses FastMCP framework with hierarchical architecture and intelligent routing capabilities.
+
+## Core Architecture
+
+### 1. Main Programming Concepts Server (`mcp_server.py`)
+**Central repository** providing unified access to all programming concepts across 5 books.
+
+**Key Features:**
+- Single searchable database across all books
+- Cross-book concept search and comparison
+- Study path generation and reference sheets
+- Code analysis using knowledge base
+
+**Essential Tools:**
+- `search_concepts(query, limit)` - Search across all books
+- `get_concept_details(concept_id)` - Detailed concept information
+- `compare_concepts(concept1_id, concept2_id)` - Side-by-side comparison
+- `generate_study_path(goal)` - Create learning sequences
+- `explain_my_code(code_snippet, language)` - Analyze code using knowledge base
+- `synthesize_concepts(topic, max_sources)` - AI-powered multi-book synthesis
+- `generate_custom_tutorial(topic, skill_level)` - Personalized tutorials
+- `create_best_practices_guide(topic)` - Generate best practices from patterns
+
+### 2. Master Orchestrator Server (`master_orchestrator_mcp.py`)
+**Intelligent routing coordinator** that dynamically manages book-specific micro-servers.
+
+**Key Features:**
+- Analyzes programming questions using topic detection
+- Spawns appropriate book servers on-demand
+- Manages server lifecycle and coordinates multi-server responses
+
+**Server Ports:**
+- Base Port: 8100
+- K&R Server: 8101, UNIX Environment: 8102
+- Linkers & Loaders: 8103, Operating Systems: 8104
+- Expert C Programming: 8105
+
+**Essential Tools:**
+- `analyze_and_route_question(programming_question)` - Main routing function
+- `list_active_servers()` - Show running servers
+- `spawn_specific_server(book_name)` / `kill_specific_server(book_name)` - Server management
+- `get_orchestrator_status()` - System status
+
+### 3. Topic Detection Server (`topic_detection_mcp.py`)
+**Question analysis engine** for intelligent server recommendation and routing.
+
+## Specialized GOT/PLT Educational Server
+
+### Phase 1: Static Analysis
+**Foundation layer** providing basic ELF binary analysis capabilities.
+- GOT/PLT structure analysis
+- Symbol table examination
+- Relocation information processing
+
+### Phase 2: Educational Framework
+**Theory-practice bridge** integrating knowledge base with binary analysis.
+
+**New Capabilities:**
+- **Concept Validation System** - Tests extracted concepts against real ELF binaries
+- **Knowledge Base Integration** - Loads concepts from `/outputs/linkers_loaders/`
+- **Enhanced Example Generation** - Knowledge-driven, compilable examples
+- **Theory vs Practice Comparison** - Side-by-side analysis with educational insights
+
+**Key Tools:**
+- `validate_concept(concept_name, binary_path)` - Test theory against practice
+- `list_available_concepts()` - Show loaded concepts
+- `find_related_concepts(search_term)` - Search by keyword
+- `compare_theory_vs_practice(concept_name, binary_path)` - Educational comparison
+- `create_interactive_example(concept_name)` - Generate complete projects
+
+### Phase 3: Runtime Analysis
+**Dynamic behavior analysis** using GDB integration for live symbol resolution tracing.
+
+**Advanced Capabilities:**
+- **Live Symbol Resolution Tracing** - Real-time resolution observation
+- **Lazy Binding Analysis** - First call vs subsequent calls comparison
+- **Runtime GOT Snapshots** - Execution point state capture
+- **Dynamic PLT Behavior** - PLT interaction monitoring
+
+**Runtime Tools:**
+- `trace_symbol_resolution(binary_path, symbol_name)` - Live tracing
+- Runtime GOT snapshot tools
+- Dynamic PLT behavior analysis
+
+## Quick Start
+
+### 1. Environment Setup
+```bash
+# Install dependencies
+pip install fastmcp
+
+# For Phase 3 runtime analysis
+sudo apt-get install gdb  # Ubuntu/Debian
+```
+
+### 2. Launch Main Server
+```bash
+cd scripts/
+python3 mcp_server.py
+```
+
+### 3. Test Core Functionality
+```python
+# Search concepts across all books
+search_concepts("memory management")
+
+# Generate study path
+generate_study_path("learn C programming")
+
+# Analyze your code
+explain_my_code("int *ptr = malloc(100);", "c")
+```
+
+### 4. Use Master Orchestrator
+```bash
+python3 master_orchestrator_mcp.py
+```
+
+## Configuration with Claude Code
+
+### Add MCP Server
+```bash
+# Local stdio server
+claude mcp add my-mcp-server -- python3 /path/to/mcp_server.py
+
+# With environment variables
+claude mcp add my-server -e API_KEY=123 -- /path/to/server
+
+# Remote HTTP server
+claude mcp add --transport http remote-server https://server-url
+```
+
+### Server Scopes
+- **Local** (default): Private to current project
+- **Project** (`--scope project`): Shared via `.mcp.json`
+- **User** (`--scope user`): Available across all projects
+
+## Best Practices
+
+### For Learning
+1. Start with `search_concepts()` to explore available topics
+2. Use `generate_study_path()` for structured learning
+3. Validate understanding with `compare_concepts()`
+4. Apply knowledge with `explain_my_code()`
+
+### For Development
+1. Use orchestrator for complex, multi-domain questions
+2. Leverage concept validation for theory verification
+3. Generate interactive examples for hands-on learning
+4. Use runtime analysis for deep understanding
+
+### For Team Collaboration
+1. Configure project-scope servers for shared knowledge
+2. Use environment variables for sensitive credentials
+3. Document server configurations in `.mcp.json`
+4. Reset project choices when needed: `claude mcp reset-project-choices`
+
+## Architecture Benefits
+
+- **Scalable**: Dynamic server spawning based on demand
+- **Educational**: Theory-practice integration with validation
+- **Comprehensive**: Multi-book knowledge synthesis
+- **Practical**: Code analysis and interactive examples
+- **Flexible**: Multiple transport types and deployment options
+
+## Troubleshooting
+
+### Server Issues
+```bash
+claude mcp list          # Check configured servers
+claude mcp get <name>    # Get server details
+/mcp                     # Check status in Claude Code
+```
+
+### Permission Issues
+- Ensure GDB permissions for runtime analysis
+- Check file permissions for concept databases
+- Verify network access for remote servers
+
+### Performance
+- Use server lifecycle management to free resources
+- Monitor active servers with orchestrator status
+- Cleanup unused servers regularly

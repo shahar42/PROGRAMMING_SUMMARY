@@ -1,0 +1,74 @@
+{
+  "name": "readv",
+  "synopsis": [
+    "#include <sys/uio.h>",
+    "ssize_t readv(int fd, const struct iovec *iov, int iovcnt);",
+    "ssize_t writev(int fd, const struct iovec *iov, int iovcnt);",
+    "ssize_t preadv(int fd, const struct iovec *iov, int iovcnt, off_t offset);",
+    "ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);",
+    "ssize_t preadv2(int fd, const struct iovec *iov, int iovcnt, off_t offset, int flags);",
+    "ssize_t pwritev2(int fd, const struct iovec *iov, int iovcnt, off_t offset, int flags);"
+  ],
+  "description": "The readv() system call reads data from a file descriptor into multiple buffers described by an array of iovec structures. It operates similarly to read(2) but scatters the input across the buffers. The data transfer is atomic, ensuring contiguous reading.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor from which to read data"
+    },
+    {
+      "name": "iov",
+      "type": "const struct iovec *",
+      "description": "Pointer to an array of iovec structures describing the buffers"
+    },
+    {
+      "name": "iovcnt",
+      "type": "int",
+      "description": "Number of elements in the iov array"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes read",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "The sum of the iov_len values overflows an ssize_t value"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The vector count iovcnt is less than zero or greater than the permitted maximum"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "An unknown flag is specified in flags"
+    }
+  ],
+  "bugs": "Linux 5.9 and Linux 5.10 have a bug where preadv2() with the RWF_NOWAIT flag may return 0 even when not at end of file.",
+  "versions": "readv: POSIX.1-2001, 4.4BSD; preadv, pwritev: Linux 2.6.30, glibc 2.10; preadv2, pwritev2: Linux 4.6, glibc 2.26",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "char *str0 = \"hello \";",
+    "char *str1 = \"world\\n\";",
+    "ssize_t nwritten;",
+    "struct iovec iov[2];",
+    "iov[0].iov_base = str0;",
+    "iov[0].iov_len = strlen(str0);",
+    "iov[1].iov_base = str1;",
+    "iov[1].iov_len = strlen(str1);",
+    "nwritten = writev(STDOUT_FILENO, iov, 2);"
+  ],
+  "related_calls": [
+    "pread",
+    "read",
+    "write"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "readv.pdf",
+    "extraction_date": "2025-07-29T18:17:17.041644",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

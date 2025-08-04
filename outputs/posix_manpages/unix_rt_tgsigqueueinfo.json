@@ -1,0 +1,79 @@
+{
+  "name": "rt_tgsigqueueinfo",
+  "synopsis": [
+    "#include <linux/signal.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_rt_tgsigqueueinfo, pid_t tgid, pid_t tid, int sig, siginfo_t *info);"
+  ],
+  "description": "The rt_tgsigqueueinfo() system call sends a signal and associated data to a specific thread in a thread group. It allows the sender to specify the thread group ID and thread ID, with the data provided via a siginfo_t structure. This call is intended for internal use to implement functions like pthread_sigqueue(3).",
+  "parameters": [
+    {
+      "name": "tgid",
+      "type": "pid_t",
+      "description": "Thread group ID (process ID) of the target"
+    },
+    {
+      "name": "tid",
+      "type": "pid_t",
+      "description": "Thread ID within the specified thread group"
+    },
+    {
+      "name": "sig",
+      "type": "int",
+      "description": "Signal number to send"
+    },
+    {
+      "name": "info",
+      "type": "siginfo_t *",
+      "description": "Pointer to a siginfo_t structure containing additional data for the signal"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "The limit of signals which may be queued has been reached."
+    },
+    {
+      "code": "EINVAL",
+      "description": "sig, tgid, or tid was invalid."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller does not have permission to send the signal to the target."
+    },
+    {
+      "code": "EPERM",
+      "description": "tgid specifies a process other than the caller and info->si_code is invalid."
+    },
+    {
+      "code": "ESRCH",
+      "description": "No thread matching tgid and tid was found."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.31",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "kill",
+    "pidfd_send_signal",
+    "sigaction",
+    "sigprocmask",
+    "tgkill",
+    "pthread_sigqueue",
+    "sigqueue",
+    "signal"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "rt_tgsigqueueinfo.pdf",
+    "extraction_date": "2025-07-30T23:05:49.847643",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

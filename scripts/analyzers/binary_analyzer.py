@@ -20,6 +20,7 @@ try:
     from elftools.elf.sections import SymbolTableSection
     from elftools.elf.relocation import RelocationSection
     from elftools.elf.descriptions import describe_reloc_type
+    from elftools.elf.relocation import RelocationSection
 except ImportError:
     raise ImportError("Please install pyelftools: pip install pyelftools")
 
@@ -233,11 +234,29 @@ class BinaryAnalyzer:
         return plt_stubs
     
     def _parse_x86_64_plt_stubs(self, disasm: List, plt_base: int) -> List[PLTStub]:
-        """Parse x86-64 specific PLT stubs"""
+        """Parse x86-64 specific PLT stubs with proper symbol resolution"""
         stubs = []
         
-        # Skip PLT[0] (resolver stub) and process individual entries
-        # x86-64 PLT entries are typically 16 bytes each
+        # First, build a mapping of PLT relocations to symbol names
+        plt_symbol_map = {}
+        
+        # Find PLT relocation section
+        reloc_sections = [s for s in self.elffile.iter_sections() 
+                         if isinstance(s, RelocationSection)]
+        
+        dynsym_section = self.elffile.get_section_by_name('.dynsym')
+        
+        if dynsym_section:
+            for reloc_section in reloc_sections:
+                if reloc_section.name in ['.rela.plt', '.rel.plt']:
+                    for i, relocation in enumerate(reloc_section.iter_relocations()):
+                        symbol = dynsym_section.get_symbol(relocation['r_info_sym'])
+                        if symbol and symbol.name:
+                            # Map PLT entry index to symbol name
+                            # PLT[0] is resolver, so PLT[1] is first function
+                            plt_symbol_map[i + 1] = symbol.name
+        
+        # Parse PLT stubs
         current_stub = []
         stub_start_addr = None
         stub_index = 0
@@ -250,8 +269,8 @@ class BinaryAnalyzer:
             
             # x86-64 PLT stub is typically 3 instructions
             if len(current_stub) == 3:
-                # Try to extract symbol name and GOT reference
-                symbol_name = f"unknown_symbol_{stub_index}"
+                # Get symbol name from our mapping
+                symbol_name = plt_symbol_map.get(stub_index + 1, f"unknown_symbol_{stub_index}")
                 got_reference = "0x0"
                 
                 # Look for GOT reference in first instruction (usually jmp *addr(%rip))
@@ -282,7 +301,7 @@ class BinaryAnalyzer:
                 stub_index += 1
         
         return stubs
-    
+
     def _parse_aarch64_plt_stubs(self, disasm: List, plt_base: int) -> List[PLTStub]:
         """Parse AArch64 specific PLT stubs"""
         # Implementation for ARM64 PLT parsing
