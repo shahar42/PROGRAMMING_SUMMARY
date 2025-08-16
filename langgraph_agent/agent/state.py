@@ -80,7 +80,7 @@ class StateUpdates:
     
     @staticmethod
     def update_validation_result(state: EducationalAgentState, 
-                                concept_id: str, status: str) -> Dict[str, Any]:
+                                 concept_id: str, status: str) -> Dict[str, Any]:
         """Update concept validation results"""
         validated = state.get("validated_concepts", {})
         validated[concept_id] = status
@@ -89,7 +89,7 @@ class StateUpdates:
     
     @staticmethod
     def reset_for_new_binary(state: EducationalAgentState, 
-                            binary_path: str) -> Dict[str, Any]:
+                             binary_path: str) -> Dict[str, Any]:
         """Reset state for new binary analysis"""
         return {
             "current_binary": binary_path,
@@ -98,3 +98,37 @@ class StateUpdates:
             "needs_concept_explanation": True,
             "ready_for_next_phase": False
         }
+
+def create_initial_state() -> EducationalAgentState:
+    """Creates a default initial state for a new session."""
+    return EducationalAgentState(
+        messages=[],
+        learning_goal=None,
+        explanation_level="intermediate",
+        session_id=None,
+        learned_concepts=[],
+        validated_concepts={},
+        concept_dependencies={},
+        analysis_phase="static",
+        current_binary=None,
+        binary_analysis_results={},
+        needs_concept_explanation=True,
+        needs_theory_validation=False,
+        needs_practical_example=False,
+        ready_for_next_phase=False,
+        preferred_servers=[],
+        last_tool_used=None,
+        tool_call_history=[],
+        learning_progress={},
+        user_feedback=[],
+        last_error=None,
+        retry_count=0,
+        fallback_mode=False,
+        selected_model=None
+    )
+
+def update_state_progress(state: EducationalAgentState, topic: str, progress: float) -> dict:
+    """Updates the learning progress for a specific topic and returns the delta."""
+    current_progress = state.get("learning_progress", {})
+    current_progress[topic] = progress
+    return {"learning_progress": current_progress}
