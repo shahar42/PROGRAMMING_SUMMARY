@@ -230,16 +230,16 @@ CONTENT TO PROCESS:
 Extract the {context_info['subject']} concept as JSON:"""
     
     def _get_book_context_info(self, book_context):
-        """Get context-specific information for different books including Expert C Programming"""
-        
+        """Get context-specific information for different books including C++ Standard"""
+    
         contexts = {
-            # Expert C Programming context
+            # ... existing contexts ...
             "expert_c_programming": {
                 "subject": "advanced C programming techniques",
                 "book_title": "Expert C Programming: Deep C Secrets",
                 "level": "expert-level",
                 "focus_instruction": "Focus EXCLUSIVELY on advanced C programming concepts, common pitfalls, expert techniques, and deep language insights. AVOID basic C syntax or elementary programming concepts.",
-                "concept_examples": """
+                "concept_examples": '''
 - Advanced pointer techniques and pointer arithmetic
 - C memory model and storage classes (auto, static, extern, register)
 - Complex declaration parsing and precedence rules
@@ -251,34 +251,33 @@ Extract the {context_info['subject']} concept as JSON:"""
 - C runtime environment and startup code
 - Expert debugging techniques and common pitfalls
 - Performance optimization techniques in C
-- Advanced array and string manipulation techniques""",
-                "avoid_concepts": """
+- Advanced array and string manipulation techniques''',
+                "avoid_concepts": '''
 - Basic C syntax (hello world, simple variables, basic loops)
 - Elementary programming concepts (if/else basics, simple functions)
 - Basic data types without advanced context
 - Simple arithmetic or basic I/O operations
 - Beginner-level programming tutorials
-- Basic control structures without expert insights""",
+- Basic control structures without expert insights''',
                 "example_type": "Advanced C code demonstrating expert techniques, pitfalls, or deep language features"
             },
             
-            # Other book contexts (copied from existing processors)
             "linkers_loaders": {
                 "subject": "linking and loading",
                 "book_title": "Linkers and Loaders by John Levine",
                 "level": "advanced system-level",
                 "focus_instruction": "Focus on concepts related to program linking, loading, object files, symbol resolution, dynamic libraries, and binary formats.",
-                "concept_examples": """
+                "concept_examples": '''
 - Object file formats (ELF, COFF, PE)
 - Symbol tables and symbol resolution
 - Relocation entries and address patching
 - Dynamic vs static linking
 - Shared libraries and DLLs
-- Loader architecture and program loading""",
-                "avoid_concepts": """
+- Loader architecture and program loading''',
+                "avoid_concepts": '''
 - Basic C programming concepts (variables, functions, loops)
 - Simple printf or scanf examples
-- Basic data types or operators""",
+- Basic data types or operators''',
                 "example_type": "Code demonstrating linking/loading concepts, object file analysis, or system-level examples"
             },
             
@@ -287,15 +286,15 @@ Extract the {context_info['subject']} concept as JSON:"""
                 "book_title": "Advanced Programming in the UNIX Environment",
                 "level": "system programming",
                 "focus_instruction": "Focus EXCLUSIVELY on UNIX system calls, APIs, process management, file operations, and system-level programming.",
-                "concept_examples": """
+                "concept_examples": '''
 - System calls (open, read, write, fork, exec)
 - Process management and IPC
 - File descriptors and file operations
-- Signal handling and process control""",
-                "avoid_concepts": """
+- Signal handling and process control''',
+                "avoid_concepts": '''
 - Basic C syntax or language features
 - Simple hello world programs
-- Elementary programming concepts""",
+- Elementary programming concepts''',
                 "example_type": "Code demonstrating UNIX system calls, process operations, or system-level functionality"
             },
             
@@ -304,14 +303,14 @@ Extract the {context_info['subject']} concept as JSON:"""
                 "book_title": "Operating Systems: Three Easy Pieces",
                 "level": "operating systems",
                 "focus_instruction": "Focus EXCLUSIVELY on operating system algorithms, data structures, and mechanisms.",
-                "concept_examples": """
+                "concept_examples": '''
 - Process and thread management
 - Memory management and virtual memory
 - File system implementation
-- CPU scheduling algorithms""",
-                "avoid_concepts": """
+- CPU scheduling algorithms''',
+                "avoid_concepts": '''
 - Basic C programming constructs
-- Elementary programming examples""",
+- Elementary programming examples''',
                 "example_type": "Code demonstrating OS concepts, system calls, or theoretical examples of OS mechanisms"
             },
             
@@ -320,17 +319,41 @@ Extract the {context_info['subject']} concept as JSON:"""
                 "book_title": "The C Programming Language by Kernighan & Ritchie",
                 "level": "programming language",
                 "focus_instruction": "Focus on C language features, syntax, standard library, and programming techniques.",
-                "concept_examples": """
+                "concept_examples": '''
 - C language syntax and features
 - Standard library functions
 - Memory management (malloc, free)
-- Pointer operations and arrays""",
-                "avoid_concepts": """
-- System-level concepts better suited for other books""",
+- Pointer operations and arrays''',
+                "avoid_concepts": '''
+- System-level concepts better suited for other books''',
                 "example_type": "Complete, compilable C program demonstrating the language concept"
-            }
-        }
+            },
         
+            # NEW: C++ Standard context  
+            "cpp_standard": {
+                "subject": "C++ programming language",
+                "book_title": "ISO/IEC 14882:2014 C++ Programming Language Standard",
+                "level": "comprehensive and modern",
+                "focus_instruction": "Focus EXCLUSIVELY on C++ language features, object-oriented programming, templates, STL, and modern C++ idioms (C++11/14 and beyond). AVOID basic C syntax.",
+                "concept_examples": '''
+- Object-oriented programming (classes, constructors, destructors, inheritance, virtual functions)
+- Template programming (function templates, class templates, template specialization, SFINAE)
+- Standard Template Library (std::vector, std::map, algorithms, iterators)
+- Modern C++ features (auto keyword, lambda expressions, move semantics, smart pointers)
+- Exception handling (try/catch blocks, RAII pattern)
+- Operator overloading and function overloading
+- Namespaces and scope resolution (std::, using declarations)
+- Advanced features (constexpr, decltype, variadic templates, perfect forwarding)''',
+                "avoid_concepts": '''
+- Basic C syntax without C++ context
+- Simple procedural programming
+- Elementary concepts better suited for C books''',
+                "example_type": "Complete, compilable C++ program using modern C++ features and best practices"
+            }
+        
+            # ... rest of existing contexts ...
+        }
+    
         return contexts.get(book_context, contexts["expert_c_programming"])
     
     def _parse_gpt4_response(self, response_text):

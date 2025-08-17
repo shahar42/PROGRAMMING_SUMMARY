@@ -37,6 +37,7 @@ class GrokAtomicProcessor(BaseAtomicProcessor):
 
     def process_concept(self, concept_data, book_name="unix_env"):
         """New main entry point that includes deduplication"""
+        self.current_book_name = book_name
         return self.process_concept_with_deduplication(concept_data, book_name)
     
     def _test_connection(self):
@@ -68,7 +69,8 @@ class GrokAtomicProcessor(BaseAtomicProcessor):
     def _extract_with_ai(self, concept_data):
         """Transform raw concept into atomic training format"""
         
-        prompt = self._build_atomic_extraction_prompt(concept_data["raw_content"])
+        book_context = getattr(self, 'current_book_name', 'c_programming')
+        prompt = self._build_atomic_extraction_prompt(concept_data["raw_content"], book_context)
         
         try:
             response_text = self._call_grok_api(prompt)
@@ -121,10 +123,67 @@ class GrokAtomicProcessor(BaseAtomicProcessor):
         response_data = response.json()
         return response_data["choices"][0]["message"]["content"]
     
-    def _build_atomic_extraction_prompt(self, raw_content):
-        """Build surgical prompt for atomic concept extraction"""
-        
-        return f"""You are a pedagogical knowledge architect creating atomic training data for AI models learning C programming.
+    def _build_atomic_extraction_prompt(self, raw_content, book_context="c_programming"):
+        """Build context-aware prompt for atomic concept extraction"""
+    
+        if book_context == "cpp_standard":
+            return f"""You are a pedagogical knowledge architect creating atomic training data for AI models learning modern C++ programming.
+
+**CRITICAL CONTEXT**: You are processing content from the ISO/IEC 14882:2014 C++ Programming Language Standard.
+
+Focus EXCLUSIVELY on C++ language features, object-oriented programming, templates, STL, and modern C++ idioms. AVOID basic C syntax that would be better covered in C-specific resources.
+
+**Expected C++ Concept Types:**
+- Object-oriented programming (classes, inheritance, polymorphism, encapsulation)
+- Template programming (function templates, class templates, specialization, metaprogramming)
+- Standard Template Library (containers, algorithms, iterators, function objects)
+- Modern C++ features (auto, lambdas, move semantics, smart pointers, range-based for)
+- Exception handling and RAII
+- Operator and function overloading
+- Advanced language features (constexpr, decltype, variadic templates, concepts)
+
+**What to AVOID extracting:**
+- Basic C syntax already covered in other books
+- Elementary programming concepts without C++ context
+- Simple procedural programming examples
+
+Your task: Extract this content into a SINGLE atomic C++ concept following this EXACT structure.
+
+An atomic C++ concept contains:
+1. **Concept Definition**: Clear explanation of what this C++ feature is and why it's used IN MODERN C++ PROGRAMMING
+2. **Syntax**: The generalized C++ code structure/pattern
+3. **Minimal Compilable Example**: Complete, runnable C++ program demonstrating ONLY this concept using modern C++ best practices
+4. **Example Explanation**: How the specific C++ code demonstrates the concept and its benefits
+
+CRITICAL REQUIREMENTS:
+- Extract only ONE atomic C++ concept (the most prominent one)
+- Example must be complete, compilable C++ code
+- Focus on C++ features, not basic C syntax
+- Use modern C++ style and best practices
+- Include relevant headers and namespace usage
+
+Return your response as valid JSON in this EXACT format:
+{{
+  "topic": "C++ Concept Name",
+  "explanation": "Clear definition of what this C++ concept is and why it's used in modern C++ programming...",
+  "syntax": "C++ syntax pattern - use modern C++ style",
+  "code_example": [
+    "#include <iostream>",
+    "#include <vector>",
+    "// modern C++ code lines...",
+    "..."
+  ],
+  "example_explanation": "Explanation of what this specific C++ example does and how it demonstrates the concept..."
+}}
+
+CONTENT TO PROCESS:
+{raw_content}
+
+Extract the C++ concept as JSON:"""
+    
+        else:
+            # Existing C programming prompt logic
+            return f"""You are a pedagogical knowledge architect creating atomic training data for AI models learning C programming.
 
 Your task: Extract this content into a SINGLE atomic concept following this EXACT structure.
 

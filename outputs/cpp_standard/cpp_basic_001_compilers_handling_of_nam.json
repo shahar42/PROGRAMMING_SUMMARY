@@ -1,0 +1,24 @@
+{
+  "topic": "Compiler's Handling of Name Conflicts in Typedefs and Class Declarations",
+  "explanation": "In C++, the compiler enforces strict name resolution rules to prevent ambiguities in scopes, particularly with typedefs and class declarations. Under the hood, during the compilation process, the compiler builds a symbol table for each scope (e.g., global, namespace, block) to track declarations. When a typedef is processed, the compiler adds an entry to the symbol table that maps the new name to an existing type, but it first checks for existing declarations in the same scope. If a name conflict is detected\u2014such as redefining a class name with a typedef to a different type\u2014the compiler halts compilation during the semantic analysis phase (after parsing but before code generation), issuing an error to maintain type safety and prevent undefined behavior. This is a compile-time mechanism, with no runtime implications, as the code won't generate object files. Performance-wise, these checks add negligible overhead to compilation time since they occur in memory during symbol table lookups, which are typically hash-based for O(1) average complexity. At the assembly level, no code is generated for conflicting declarations, as the compiler aborts early; however, in valid cases, typedefs are essentially aliases and do not alter memory layout, avoiding any runtime performance impact like additional indirections.",
+  "syntax": "typedef existing_type new_name;  // Compiler adds 'new_name' as an alias for 'existing_type' to the current scope's symbol table, checking for conflicts first.\nclass new_name { /* members */ };  // If 'new_name' is already in the symbol table as a typedef to a different type, the compiler errors out during semantic analysis.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class Complex {",
+    "public:",
+    "    double real;",
+    "    double imag;",
+    "    // Constructor and methods...",
+    "};",
+    "",
+    "typedef int Complex;  // This line causes a compilation error due to name conflict in the same scope"
+  ],
+  "example_explanation": "In this code, the compiler first processes the 'class Complex' declaration, adding an entry for 'Complex' as a user-defined type to the symbol table in the global scope. When it encounters the 'typedef int Complex;' line, it attempts to add a new entry for 'Complex' as an alias for 'int'. During this step, the compiler detects that 'Complex' is already declared as a class in the same scope and that the types differ (class vs. fundamental type). This conflict is identified in the semantic analysis phase of compilation, where the compiler compares symbol table entries\u2014likely using internal type descriptors or IDs\u2014to ensure no redefinition. As a result, compilation fails with an error (e.g., 'redefinition of 'Complex' as different kind of symbol'), preventing code generation. This behavior highlights compile-time enforcement, with no assembly output or runtime execution, and underscores how symbol tables maintain scope integrity without affecting memory layout or performance in successful compilations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-17T13:26:02.970692"
+  }
+}

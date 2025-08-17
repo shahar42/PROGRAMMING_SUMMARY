@@ -162,10 +162,10 @@ CONTENT TO PROCESS:
 Extract the {context_info['subject']} concept as JSON:"""
     
     def _get_book_context_info(self, book_context):
-        """Get context-specific information for different books including CSAPP"""
-        
+        """Get context-specific information for different books including C++ Standard"""
+    
         contexts = {
-            # NEW: CSAPP Computer Systems context
+            # ... existing contexts ...
             "csapp_systems": {
                 "subject": "computer systems and architecture",
                 "book_title": "Computer Systems: A Programmer's Perspective (CSAPP)",
@@ -191,7 +191,6 @@ Extract the {context_info['subject']} concept as JSON:"""
                 ]
             },
             
-            # Existing contexts
             "linkers_loaders": {
                 "subject": "linking and loading",
                 "book_title": "Linkers and Loaders by John Levine",
@@ -278,7 +277,30 @@ Extract the {context_info['subject']} concept as JSON:"""
                     "Operating system internals",
                     "Network programming specifics"
                 ]
+            },
+            # NEW: C++ Standard context
+            "cpp_standard": {
+                "subject": "C++ programming language",
+                "book_title": "ISO/IEC 14882:2014 C++ Programming Language Standard",
+                "level": "comprehensive language standard",
+                "focus_instruction": "Focus EXCLUSIVELY on C++ language features, syntax, semantics, standard library, and modern C++ idioms. AVOID basic C concepts that are better covered in C-specific books.",
+                "concept_examples": '''
+- Classes and object-oriented programming (constructors, destructors, inheritance)
+- Templates and generic programming (function templates, class templates, metaprogramming)
+- Standard Template Library (containers, algorithms, iterators)
+- Modern C++ features (auto, lambdas, move semantics, smart pointers)
+- Exception handling (try/catch/throw, RAII)
+- Operator overloading and function overloading
+- Namespaces and scope resolution
+- Advanced features (constexpr, decltype, variadic templates)''',
+                "avoid_concepts": '''
+- Basic C syntax already covered in K&R book
+- Simple procedural programming concepts
+- Basic pointer arithmetic without C++ context''',
+                "example_type": "Complete, compilable C++ program demonstrating modern C++ features and best practices"
             }
+            
+            # ... rest of existing contexts ...
         }
         
         return contexts.get(book_context, contexts["c_programming"])

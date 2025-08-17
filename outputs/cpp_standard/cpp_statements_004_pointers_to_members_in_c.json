@@ -1,0 +1,32 @@
+{
+  "topic": "Pointers to Members in C++",
+  "explanation": "Pointers to members in C++ are a compile-time construct that allows indirect access to non-static class members (data or functions) without directly referencing the object. The compiler implements this by generating a special pointer type that represents an offset for data members or a function signature bound to the class for member functions. For data members, the pointer is typically an offset value relative to the object's base address, stored as a constant in the binary. This offset is calculated at compile-time based on the class layout, which the compiler determines from the class definition. For member functions, it's a pointer that requires an object instance to invoke, often involving the virtual table for polymorphic classes, though the standard ensures it's not confused with regular function pointers.\n\nCompiler behavior: The compiler only forms a pointer to member when the explicit & operator is applied to a qualified-id (e.g., &Class::member) that is not enclosed in parentheses. This is a compile-time operation; if the conditions aren't met, the expression fails to compile. The compiler performs overload resolution and ensures the context uniquely identifies the member, avoiding ambiguities with overloaded functions. For mutable non-static data members, the pointer does not inherit the mutable qualifier, meaning it behaves as if the member is not mutable for pointer operations.\n\nMemory layout and performance implications: Pointers to members have a fixed size (typically the size of a pointer or an integer offset), but they don't point to a single memory location like regular pointers. Instead, for data members, they store an offset that must be added to the object's address at runtime, introducing an extra indirection. This can lead to performance overhead, as accessing a member via a pointer to member (e.g., obj.*ptr) involves additional instructions compared to direct access (e.g., obj.member). In terms of memory layout, the compiler aligns class members based on ABI rules, and the offset is derived from this layout. For example, in a class with inheritance, offsets account for base class subobjects. Assembly-level behavior often shows the offset being loaded into a register and added to the object's pointer before accessing memory, which can increase instruction count and affect cache performance. Runtime vs compile-time: The pointer itself is resolved at compile-time, but its dereferencing (e.g., via .* or ->*) occurs at runtime, potentially involving dynamic checks for valid objects.",
+  "syntax": "To form a pointer to a member, use the explicit & operator with a qualified-id:\n\nType Class::* pointer_name = &Class::member;\n\nImplementation notes: 'Type' is the member type (e.g., int for data, void(Class::)() for functions). The qualified-id must not be parenthesized; for example, &(Class::member) is invalid. If the member is overloaded, the context must resolve to a unique overload. The compiler generates a constant expression for the pointer, which is not a runtime-computed value. Usage: pointer_name can be dereferenced with an object using the .* operator for non-pointer objects or ->* for pointers, e.g., (obj.*pointer_name) for functions or (obj.*pointer_name = value) for data members.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "struct MyClass {",
+    "    int data;  // Non-static data member",
+    "    void memberFunction() { std::cout << \"Function called\"; }",
+    "};",
+    "",
+    "int main() {",
+    "    int MyClass::* dataPtr = &MyClass::data;  // Pointer to data member",
+    "    void (MyClass::*)(void) memberFuncPtr = &MyClass::memberFunction;  // Pointer to member function",
+    "    ",
+    "    MyClass obj;",
+    "    obj.*dataPtr = 42;  // Access and modify data member via pointer",
+    "    (obj.*memberFuncPtr)();  // Call member function via pointer",
+    "    ",
+    "    std::cout << obj.*dataPtr << std::endl;  // Output: 42",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this example, the compiler first resolves &MyClass::data and &MyClass::memberFunction at compile-time, producing pointers to members as constant offsets or signatures. For &MyClass::data, the compiler calculates an offset (e.g., 0 if it's the first member) based on the class layout, which might be represented in assembly as a immediate value or a relocatable symbol. When executing obj.*dataPtr = 42, the runtime behavior involves loading the offset into a register (e.g., in x86 assembly: mov eax, [obj + offset]), adding it to the object's address, and then storing the value, adding 1-2 extra instructions compared to direct access like obj.data. For (obj.*memberFuncPtr)(), the compiler generates code to pass the object's 'this' pointer implicitly, potentially involving a call through a virtual table if the function is virtual, though here it's not. Performance-wise, this introduces a slight overhead due to the indirection, as opposed to direct member access, which is optimized away. At compile-time, the pointers are verified for existence and type; runtime errors could occur if obj is invalid, but the pointer itself is not null-checkable like regular pointers. This demonstrates how compilers (e.g., GCC or Clang) ensure type safety while allowing flexible member access, with the trade-off of increased binary size for the offset constants.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-17T13:24:58.463475"
+  }
+}

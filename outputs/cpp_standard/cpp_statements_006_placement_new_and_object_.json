@@ -1,0 +1,35 @@
+{
+  "topic": "Placement New and Object Lifetime Management in Polymorphic Inheritance",
+  "explanation": "This example showcases the intricate interaction between placement `new`, object lifetime, and polymorphic inheritance.  The core issue lies in the manipulation of the object's memory layout and the implications for its lifetime.  When `new (this) D2;` is executed within the `B::mutate()` method,  a `D2` object is created in the memory already occupied by the `B` object. This *reuses* the memory, effectively destroying the original `B` object *before* its destructor is called, invoking undefined behavior. The subsequent calls to member functions (`f()`) or assignments (`... = this;`) operate on invalid memory because the original `B` object no longer has a guaranteed valid state. This behavior depends heavily on the compiler's implementation of object layout, especially the order of member variables in the inheritance hierarchy and the allocation strategy of the virtual function table (vtable). The exact behavior varies based on compiler, optimization level, and even the surrounding code, making this a fragile and unpredictable construct.",
+  "syntax": "Placement new: `new (address) type;`\nPolymorphic inheritance: class derivation using virtual functions and inheritance.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <typeinfo>",
+    "struct B {",
+    "  virtual void f() { std::cout << \"B::f()\\n\"; }",
+    "  virtual ~B() { std::cout << \"B::~B()\\n\"; }",
+    "  void mutate() {",
+    "    new (this) D2; // placement new, reuses 'this' memory",
+    "    f();           // undefined behavior: 'this' might point to D2 now",
+    "    // ... = this;  // Potentially undefined behavior depending on compiler",
+    "  }",
+    "};",
+    "struct D2 : public B {",
+    "  void f() override { std::cout << \"D2::f()\\n\"; }",
+    "  ~D2() { std::cout << \"D2::~D2()\\n\"; }",
+    "};",
+    "int main() {",
+    "  B* b = new B;",
+    "  b->mutate();",
+    "  delete b; // Danger!  The original B object might be destroyed already.",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler's implementation of the `new` operator is crucial here. Placement `new` bypasses the usual memory allocation; it simply constructs an object at a given address.  If the compiler's optimization aggressively reorders member variables or function calls, the program's behavior becomes unpredictable.  The assembly-level code would show the overwriting of the `B` object's memory with the `D2` object without the call to `B`'s destructor at the time of the `new (this) D2;` call. This undefined behavior can range from seemingly correct results to crashes or memory corruption. Runtime behavior becomes entirely dependent on the compiler's internal optimization decisions, making debugging extremely difficult.  At the runtime, if `this` still happens to point to the original start address of the object, some part of the original object data may still be accessible, yet it's not guaranteed and is a source of undefined behavior. This approach creates extreme runtime fragility and should be avoided.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-17T07:29:23.883006"
+  }
+}
