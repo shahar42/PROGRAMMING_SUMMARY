@@ -1,0 +1,27 @@
+{
+  "topic": "Expert C++ Implementation Concept:  SFINAE and its impact on template metaprogramming",
+  "explanation": "Substitution Failure Is Not An Error (SFINAE) is a powerful mechanism in C++ templates that allows the compiler to silently ignore template instantiations that fail to compile due to substitution errors.  This enables sophisticated compile-time polymorphism and conditional code generation based on the types provided to a template.  Understanding SFINAE deeply requires analyzing how the compiler performs name lookup, type deduction, and template instantiation. The compiler's behavior hinges on whether a substitution results in a valid expression or not, fundamentally impacting compile time and, by extension, runtime performance.  Inefficient use can lead to long compile times and excessive template instantiations.  Understanding how compilers perform overload resolution with SFINAE enables highly optimized, type-safe code.",
+  "syntax": "SFINAE is leveraged using `std::enable_if`, `std::is_integral`, `std::conditional` and other type traits from `<type_traits>`.  Function templates are often used to provide compile-time conditional behavior based on the presence or absence of member functions or types.  Overloaded functions might also utilize it, choosing the optimal implementation based on types.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "#include <vector>",
+    "template<typename T, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>",
+    "void processIntegral(const T& val) { std::cout << \"Integral: \" << val << std::endl; }",
+    "template<typename T, typename std::enable_if<!std::is_integral<T>::value>::type* = nullptr>",
+    "void processNotIntegral(const T& val) { std::cout << \"Not Integral: \" << val << std::endl; }",
+    "int main() {",
+    "  processIntegral(5);",
+    "  processNotIntegral(3.14);",
+    "  //processIntegral(3.14); //This would cause a compile-time error due to SFINAE",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler uses SFINAE to determine which `process` overload to select at compile time.  If `T` is an integral type, `std::enable_if<std::is_integral<T>::value>::type` evaluates to a valid type, enabling the first overload. Otherwise, the expression becomes ill-formed, but due to SFINAE, this overload is simply discarded, and the compiler proceeds to the next overload.  If both overloads fail SFINAE, then a compilation error occurs. The compiler's internal process involves checking the validity of each template instantiation during type deduction and name lookup.  The assembly code generated will reflect which version of `process` (integral or not integral) is used based on the input type provided during compile time. Memory layout remains unaffected as SFINAE only influences which code path is compiled and subsequently executed.  The performance impact is purely compile-time \u2013 the presence of an unused overload minimally impacts execution speed, but excessive template instantiation using SFINAE incorrectly can drastically inflate compile times.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T13:08:53.026915"
+  }
+}

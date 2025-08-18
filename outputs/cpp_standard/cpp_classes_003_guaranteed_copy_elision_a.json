@@ -1,0 +1,30 @@
+{
+  "topic": "Guaranteed Copy Elision and Return Value Optimization (RVO/NRVO)",
+  "explanation": "Guaranteed Copy Elision (since C++17) and its predecessor, Return Value Optimization (RVO) and Named Return Value Optimization (NRVO), are compiler optimizations that significantly impact performance and memory usage by eliminating unnecessary object copies.  The compiler analyzes the code and, if possible, constructs the object directly in the intended location, bypassing the creation and destruction of temporary objects.  This is not merely a 'hint' to the compiler; since C++17, it's guaranteed behavior under specific conditions.  The implementation varies between compilers, but generally involves sophisticated analysis of control flow and object lifetimes.  In cases where elision is not possible (e.g., due to complex return expressions or multiple return points), the compiler might still perform RVO/NRVO, which can still significantly improve efficiency compared to explicit copying.  Understanding how compilers implement this optimization is crucial for writing highly performant code. Failure to understand this can lead to unexpected performance bottlenecks or incorrect assumptions about object lifetimes.",
+  "syntax": "C++ Example demonstrating RVO/NRVO and its implications:\n\n```cpp\nclass MyClass {\npublic:\n  MyClass() { std::cout << \"Constructor called\\n\"; }\n  MyClass(const MyClass& other) { std::cout << \"Copy constructor called\\n\"; }\n  MyClass(MyClass&& other) { std::cout << \"Move constructor called\\n\"; }\n  ~MyClass() { std::cout << \"Destructor called\\n\"; }\n};\n\nMyClass createMyClass() {\n  MyClass obj;\n  return obj; // RVO/NRVO likely to occur here\n}\n\nint main() {\n  MyClass myObject = createMyClass();\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "class MyClass {",
+    "public:",
+    "  MyClass() { std::cout << \"Constructor called\\n\"; }",
+    "  MyClass(const MyClass& other) { std::cout << \"Copy constructor called\\n\"; }",
+    "  MyClass(MyClass&& other) noexcept { std::cout << \"Move constructor called\\n\"; }",
+    "  ~MyClass() { std::cout << \"Destructor called\\n\"; }",
+    "};",
+    "MyClass createMyClass() {",
+    "  MyClass obj;",
+    "  return obj; // RVO/NRVO likely to occur here",
+    "}",
+    "int main() {",
+    "  MyClass myObject = createMyClass();",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "Without RVO/NRVO, the `createMyClass` function would create a temporary `MyClass` object, then the copy constructor would be called to initialize `myObject`, finally the temporary object would be destroyed. With RVO/NRVO, the compiler optimizes away the temporary, directly constructing `myObject` in the return value's location.  Disassembling the compiled code (using gdb or similar) would reveal that the copy constructor and the destructor for the temporary object are likely absent in the optimized build. The memory layout is significantly improved as the unnecessary allocation and deallocation of the temporary object is avoided.  This greatly impacts performance, particularly with larger and more complex objects.  The compiler\u2019s ability to perform this optimization is dependent on several factors including the object's lifetime, the return statement's location,  and the complexity of the function's logic. The use of `noexcept` for the move constructor helps the compiler in performing this optimization.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T11:28:04.254995"
+  }
+}

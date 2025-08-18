@@ -1,0 +1,29 @@
+{
+  "topic": "Reverse Order of Destructor Calls for Array Elements in C++",
+  "explanation": "In C++, when an array of objects is destroyed, the compiler ensures that destructors for the array elements are invoked in the reverse order of their construction. This behavior is critical for maintaining resource management invariants, especially in scenarios involving RAII (Resource Acquisition Is Initialization). The compiler implements this by generating runtime code that iterates through the array in reverse, calling each object's destructor sequentially. For example, if an array is constructed from index 0 to N-1, destruction occurs from N-1 to 0. This is handled at runtime, as the exact order depends on dynamic factors like successful construction of all elements. Memory layout for arrays is contiguous, with each object allocated adjacently in memory (e.g., on the stack for automatic arrays), which allows the compiler to efficiently access and destroy elements without additional indirection. Performance implications include a minor overhead from the reverse iteration loop, potentially adding a few instructions in the generated assembly, but this ensures correctness and prevents issues like dangling pointers or resource leaks. At the assembly level, the compiler might produce code involving a loop that decrements an index register, loads the object address, and invokes the destructor function (e.g., via a CALL instruction to the vtable or direct call if known at compile time). This is purely runtime behavior, as compile-time optimizations might inline destructors for trivial types, but for non-trivial classes, it's executed dynamically to handle exceptions or partial constructions.",
+  "syntax": "To declare and initialize an array of class objects:\n\nT arr[N] = { initializer_list };  // Automatic array on stack\n\nImplementation notes: The compiler generates code to call constructors in forward order (0 to N-1) and destructors in reverse order (N-1 to 0). For dynamic arrays (e.g., new T[N]), the compiler ensures reverse destruction during array deletion. If construction fails midway (e.g., due to an exception), only successfully constructed elements' destructors are called in reverse order up to that point.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class MyClass {",
+    "public:",
+    "    MyClass(int id) : id_(id) { std::cout << \"Constructed: \" << id_ << std::endl; }",
+    "    ~MyClass() { std::cout << \"Destructed: \" << id_ << std::endl; }",
+    "private:",
+    "    int id_;",
+    "};",
+    "",
+    "int main() {",
+    "    MyClass arr[3] = { MyClass(1), MyClass(2), MyClass(3) };  // Construction: arr[0] to arr[2]",
+    "    // Array goes out of scope here, triggering destruction",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler first constructs the objects in the array from arr[0] (MyClass(1)) to arr[2] (MyClass(3)), outputting: 'Constructed: 1', 'Constructed: 2', 'Constructed: 3'. At the end of main, when the array is destroyed, the compiler generates assembly code to call the destructors in reverse order: first arr[2] (~MyClass for id=3), then arr[1] (id=2), and finally arr[0] (id=1), resulting in output: 'Destructed: 3', 'Destructed: 2', 'Destructed: 1'. This reverse order is implemented via a runtime loop in the assembly (e.g., using a DEC instruction on an index and CALL to the destructor), ensuring that resources are released in the opposite sequence of acquisition. Memory layout is contiguous, with arr[0], arr[1], and arr[2] stored sequentially, minimizing access overhead. Performance-wise, this adds negligible cost for small arrays but scales linearly for larger ones, and it's all runtime behavior since destruction depends on the program's control flow.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "special",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T11:28:17.066830"
+  }
+}

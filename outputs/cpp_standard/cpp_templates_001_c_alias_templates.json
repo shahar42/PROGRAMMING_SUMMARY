@@ -1,0 +1,26 @@
+{
+  "topic": "C++ Alias Templates",
+  "explanation": "Alias templates in C++ provide a way to define a family of type aliases using templates, as specified in [temp.alias]. The compiler implements this feature entirely at compile-time through template argument substitution. When a template-id refers to an alias template, the compiler substitutes the provided template arguments into the type-id of the alias template to resolve the associated type. For example, if you have `template<typename T> using MyAlias = std::vector<T>;`, the compiler treats `MyAlias<int>` as equivalent to `std::vector<int>` by performing substitution during the parsing and instantiation phase, without generating any additional code or runtime checks. This process leverages the compiler's template metaprogramming capabilities, where the substitution is handled by the front-end (e.g., in Clang or GCC, during semantic analysis), ensuring no runtime overhead. Memory layout implications are negligible since alias templates are purely syntactic; the resulting type (e.g., std::vector<int>) dictates the memory layout, which remains identical to the base type. Performance-wise, alias templates can improve code readability and reduce errors in complex templates, but they do not introduce any execution-time costs, as everything occurs at compile-time. In terms of assembly-level behavior, alias templates do not produce distinct assembly instructions; for instance, using `MyAlias<int>` will compile to the same assembly as `std::vector<int>`, as the substitution is resolved before code generation. This compile-time behavior contrasts with runtime polymorphism (e.g., virtual functions), emphasizing how alias templates enhance metaprogramming without affecting binary output.",
+  "syntax": "template <typename T> using AliasName = BaseType<T>;  // Declaration of an alias template. The compiler performs template argument substitution at compile-time when this alias is used, resolving it to the substituted BaseType without altering memory layout or generating runtime code.",
+  "code_example": [
+    "#include <vector>",
+    "#include <iostream>",
+    "",
+    "template<typename T>",
+    "using MyVector = std::vector<T>;  // Alias template for std::vector<T>",
+    "",
+    "int main() {",
+    "    MyVector<int> vec;  // Compiler substitutes T with int, equivalent to std::vector<int> vec;",
+    "    vec.push_back(42);  // Behaves exactly as if using std::vector<int>",
+    "    std::cout << vec[0] << std::endl;  // Outputs: 42",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler processes the alias template `MyVector` during the compilation phase. When it encounters `MyVector<int>`, it substitutes the template argument `int` for `T` in the type-id `std::vector<T>`, resulting in `std::vector<int>`. This substitution occurs at compile-time, typically during template instantiation in the compiler's front-end (e.g., in GCC, via the template parser). There are no runtime implications; the memory layout of `vec` is identical to that of a standard `std::vector<int>`, with the same internal array and capacity management. Performance is unaffected, as no extra instructions are generated\u2014assembly output for this code would mirror that of direct `std::vector<int>` usage, with operations like `push_back` translating to standard vector manipulation routines. This compile-time resolution avoids any ambiguity or overhead, unlike runtime type deduction, and ensures efficient binary code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T13:08:39.051810"
+  }
+}

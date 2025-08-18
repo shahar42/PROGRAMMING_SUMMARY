@@ -1,0 +1,27 @@
+{
+  "topic": "Compile-Time Polymorphism via `constexpr` and its Implications",
+  "explanation": "Compile-time polymorphism, unlike runtime polymorphism achieved through virtual functions, leverages `constexpr` functions and variables to perform computations and resolve function calls during compilation.  This dramatically impacts performance and memory layout. The compiler can often entirely eliminate the need for runtime function calls and data structures when `constexpr` is used appropriately.  The compiler's ability to perform such optimizations depends heavily on the complexity of the `constexpr` function's logic; complex functions might not be fully evaluated at compile time, resulting in less optimization. This is distinct from template metaprogramming, although the two can be combined effectively.  Memory layout can be significantly affected because compile-time evaluation may lead to the elimination of runtime memory allocations and potentially different data structure representations compared to runtime alternatives.",
+  "syntax": "```cpp\nconstexpr int square(int x) { return x * x; }\n\nint main() {\n  constexpr int x = 5;\n  constexpr int y = square(x); // Computation happens at compile time\n  std::cout << y << std::endl; // No runtime calculation\n  int z = square(10);  //May or may not be compile-time depending on compiler and optimization level.\n  std::cout << z << std::endl; //Potentially still a runtime calculation\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "constexpr int factorial(int n) {",
+    "  return (n == 0) ? 1 : n * factorial(n - 1);",
+    "}",
+    "int main() {",
+    "  constexpr std::array<int, 5> fact = {factorial(0), factorial(1), factorial(2), factorial(3), factorial(4)};",
+    "  for (int i : fact) {",
+    "    std::cout << i << \" \";",
+    "  }",
+    "  std::cout << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` function is `constexpr`. In the `main` function, `fact` is a `constexpr` array whose initialization uses the `constexpr` function.  A good compiler will calculate the factorials at compile time, initializing `fact` directly with the results.  This eliminates the need for runtime calculations and memory allocations for the factorial computations. The compiler's output will not contain code for runtime calculation of factorials; they'll be inlined and optimized. Observing the generated assembly would show direct initialization of the `fact` array with pre-computed values.  However, if `factorial` contained logic too complex for compile-time evaluation (e.g., extensive loops or external function calls), only parts or none of it might be evaluated at compile time, resulting in runtime calculation and negating the performance benefits.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T15:28:41.741212"
+  }
+}

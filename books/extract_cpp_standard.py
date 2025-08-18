@@ -258,33 +258,43 @@ Extract expert C++ concept as JSON:"""
     def _parse_grok_response(self, response_text):
         """Parse Grok response"""
         try:
-            # Simple JSON extraction
-            start = response_text.find('{')
-            end = response_text.rfind('}') + 1
-            if start >= 0 and end > start:
-                json_str = response_text[start:end]
+            # Use regex to find JSON block, robust against surrounding text
+            match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if match:
+                json_str = match.group(0)
                 concept = json.loads(json_str)
                 if 'topic' in concept:
                     print(f"✅ GROK extracted expert concept: {concept['topic']}")
                     return concept
+            print("❌ Failed to find a valid JSON object in the Grok response.")
             return None
-        except:
+        except json.JSONDecodeError as e:
+            print(f"❌ Failed to decode JSON from Grok: {e}")
+            print(f"   Response Text: {response_text[:500]}...")
             return None
-    
+        except Exception as e:
+            print(f"❌ An unexpected error occurred during Grok response parsing: {e}")
+            return None
+
     def _parse_gemini_response(self, response_text):
         """Parse Gemini response"""
         try:
-            # Simple JSON extraction
-            start = response_text.find('{')
-            end = response_text.rfind('}') + 1
-            if start >= 0 and end > start:
-                json_str = response_text[start:end]
+            # Use regex to find JSON block, robust against surrounding text
+            match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if match:
+                json_str = match.group(0)
                 concept = json.loads(json_str)
                 if 'topic' in concept:
                     print(f"✅ GEMINI extracted expert concept: {concept['topic']}")
                     return concept
+            print("❌ Failed to find a valid JSON object in the Gemini response.")
             return None
-        except:
+        except json.JSONDecodeError as e:
+            print(f"❌ Failed to decode JSON from Gemini: {e}")
+            print(f"   Response Text: {response_text[:500]}...")
+            return None
+        except Exception as e:
+            print(f"❌ An unexpected error occurred during Gemini response parsing: {e}")
             return None
     
     def _save_concept(self, concept, concept_number, chapter_prefix):

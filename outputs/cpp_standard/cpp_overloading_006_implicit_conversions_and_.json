@@ -1,0 +1,29 @@
+{
+  "topic": "Implicit Conversions and Overload Resolution with User-Defined Conversions",
+  "explanation": "This concept delves into the intricate details of how C++ compilers handle implicit type conversions, particularly when user-defined conversion functions (e.g., `operator type()`) are involved in overload resolution.  Understanding this requires a deep knowledge of the compiler's internal mechanisms for name lookup, type deduction, and the ranking of implicit conversion sequences.  The compiler's behavior isn't simply a matter of finding the 'best' match; it involves a complex scoring system based on the number and kind of conversions involved.  This can lead to subtle and unexpected behavior if not carefully considered.  Performance implications arise from the added computational overhead of performing implicit conversions and the potential impact on inlining and optimization opportunities.",
+  "syntax": "User-defined conversion functions are declared within a class using the `operator type()` syntax.  For example:\n\n```c++\nstruct MyType {\n  int value;\n  operator int() const { return value; }\n  operator float() const { return static_cast<float>(value); }\n};\n```\n\nOverload resolution then determines which version of a function is called based on the best match considering implicit conversions.",
+  "code_example": [
+    "#include <iostream>",
+    "struct MyType {",
+    "  int value;",
+    "  operator int() const { return value; }",
+    "  operator float() const { return static_cast<float>(value); }",
+    "};",
+    "int f(int x) { std::cout << \"int overload called\\n\"; return x * 2; }",
+    "int f(float x) { std::cout << \"float overload called\\n\"; return static_cast<int>(x * 10); }",
+    "int main() {",
+    "  MyType a{5};",
+    "  int i = f(a);  // Which overload is called?  (int)",
+    "  int j = f(static_cast<float>(a)); //Forces float overload",
+    "  std::cout << i << \" \" << j << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler performs overload resolution to determine which `f()` function to call.  It considers the implicit conversion sequences available to convert `MyType` to `int` and `float`.  The conversion `MyType` to `int` is considered a better match (a standard conversion ranked higher than a user-defined conversion) than the conversion `MyType` to `float`, thus the `int` overload is chosen.\n\nThe compiler will generate code that first calls `a.operator int()` to obtain an `int`, and then passes this value to `f(int)`. At the assembly level, this might involve a function call to the `operator int()` method and then subsequent passing of the return value to `f(int)`. The `static_cast` in the second example forces the `float` overload.  The performance impact is subtle but exists \u2013 the implicit conversion adds extra instructions (though usually the compiler will optimize if the conversion is simple). The absence of inlining could also slightly degrade performance, depending on compiler optimizations.  The choice between implicit conversions can profoundly impact performance, even though the difference might be negligible in this simple example; however, in complex scenarios with many conversions, the added instructions can become significant.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "overloading",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T11:29:57.439977"
+  }
+}

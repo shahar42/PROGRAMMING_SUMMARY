@@ -1,0 +1,20 @@
+{
+  "topic": "Advanced Dynamic Memory Allocation and Custom Allocators",
+  "explanation": "In advanced C programming, managing dynamic memory extends beyond simple malloc/free usage. It involves designing custom allocators, understanding memory fragmentation, and controlling memory layout for performance-critical applications. Mastery of these techniques allows developers to optimize memory usage, implement specialized memory pools, and avoid common pitfalls like leaks and fragmentation, which are crucial in high-performance or resource-constrained environments.",
+  "syntax": "void *custom_alloc(size_t size); // Custom allocator function\nvoid custom_free(void *ptr); // Corresponding deallocation\n\n// Usage pattern\nvoid *block = custom_alloc(requested_size);\n// ... use the memory ...\ncustom_free(block);",
+  "code_example": [
+    "typedef struct MemoryPool {\n    void *pool_start;\n    size_t block_size;\n    size_t total_blocks;\n    unsigned char *free_list;\n} MemoryPool;",
+    "void init_memory_pool(MemoryPool *mp, size_t block_size, size_t total_blocks) {\n    mp->pool_start = malloc(block_size * total_blocks);\n    mp->block_size = block_size;\n    mp->total_blocks = total_blocks;\n    mp->free_list = calloc(1, total_blocks); // 0 indicates free\n}\n\nvoid *custom_alloc(MemoryPool *mp) {\n    for (size_t i = 0; i < mp->total_blocks; ++i) {\n        if (mp->free_list[i] == 0) {\n            mp->free_list[i] = 1;\n            return (char*)mp->pool_start + i * mp->block_size;\n        }\n    }\n    return NULL; // No free blocks\n}\n\nvoid custom_free(MemoryPool *mp, void *ptr) {\n    size_t index = ((char*)ptr - (char*)mp->pool_start) / mp->block_size;\n    if (index < mp->total_blocks) {\n        mp->free_list[index] = 0;\n    }\n}\n\n// Usage\nMemoryPool myPool;\ninit_memory_pool(&myPool, 64, 100); // 100 blocks of 64 bytes\nvoid *block = custom_alloc(&myPool);\n// ... use the block ...\ncustom_free(&myPool, block);"
+  ],
+  "example_explanation": "This example demonstrates creating a simple custom memory pool allocator that manages fixed-size memory blocks. It shows how to initialize a memory pool, allocate and free blocks manually, and manage memory efficiently for performance-critical applications. This technique exemplifies advanced dynamic memory management by providing control over memory layout, reducing fragmentation, and avoiding overhead of standard malloc/free, which are essential skills in high-performance C programming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "441-441",
+    "extraction_date": "2025-08-18T15:29:02.632236",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "expert_c_programming",
+    "chapter": "basic",
+    "extraction_type": "expert_level"
+  }
+}

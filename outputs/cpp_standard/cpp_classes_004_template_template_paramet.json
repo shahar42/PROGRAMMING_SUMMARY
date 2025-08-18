@@ -1,0 +1,37 @@
+{
+  "topic": "Template Template Parameters in C++",
+  "explanation": "Template template parameters in C++ allow a template to accept another template as an argument, enabling advanced generic programming and metaprogramming. The compiler implements this feature during the template instantiation phase, which occurs at compile-time. When the compiler encounters a template template parameter, such as 'template<template<class> class TT>', it performs syntax and semantic analysis to ensure that the provided template argument matches the parameter's requirements exactly, including the number and kinds of template parameters. For instance, if TT expects a template that takes one class type, the compiler will only accept templates like std::vector (which takes one type parameter) and reject those that don't match, such as std::pair (which takes two). This matching is done via the compiler's template resolution mechanism, involving SFINAE (Substitution Failure Is Not An Error) for overload resolution.\n\nMemory layout implications are minimal since template template parameters are resolved entirely at compile-time, generating specialized code for each instantiation. However, excessive instantiations can lead to code bloat, increasing binary size and potentially affecting cache performance due to larger code segments in memory. Performance-wise, there's no runtime overhead because the instantiation is a compile-time operation, but it can indirectly impact build times and executable size.\n\nAt the assembly level, the compiler translates the instantiated templates into machine code. For example, if you instantiate a class with a template template parameter, the compiler generates assembly for the specific types used, such as calling constructors or member functions of the nested template. This results in duplicated code for different instantiations (e.g., MyContainer<std::vector> and MyContainer<std::list> will each have their own assembly blocks), which is a form of code explosion.\n\nThe behavior is strictly compile-time; there's no runtime involvement in template matching or instantiation. Errors like redefinition (as hinted in the provided content) occur if templates are not properly scoped or if there are multiple definitions, forcing the compiler to halt during compilation rather than at runtime.",
+  "syntax": "template<template<class T> class TT>  // TT is a template template parameter that expects a template taking one class type parameter\nclass MyClass {\n    TT<int> member;  // Instantiates TT with int, e.g., if TT is std::vector, this becomes std::vector<int>\n    // Implementation notes: The compiler checks that TT is a template with exactly one parameter of type 'class' (or equivalent). If mismatched, a compile-time error occurs due to template argument deduction failure.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <vector>",
+    "",
+    "template<template<class> class Container>",
+    "class MyWrapper {",
+    "    Container<int> data;  // Uses the template template parameter to hold a container of ints",
+    "public:",
+    "    void add(int value) { data.push_back(value); }  // Assumes Container has push_back",
+    "    void print() {",
+    "        for (const auto& elem : data) {",
+    "            std::cout << elem << \" \";",
+    "        }",
+    "        std::cout << std::endl;",
+    "    }",
+    "};",
+    "",
+    "int main() {",
+    "    MyWrapper<std::vector> wrapper;  // Instantiates with std::vector, which matches template<class> class",
+    "    wrapper.add(10);",
+    "    wrapper.add(20);",
+    "    wrapper.print();  // Outputs: 10 20",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this example, the compiler first parses the template<template<class> class Container> declaration and ensures that any argument for Container is a template that takes exactly one type parameter. When instantiating MyWrapper<std::vector>, the compiler performs template substitution at compile-time, generating a specialized version of MyWrapper where Container is std::vector. This results in assembly code that includes the std::vector<int> constructor, push_back method calls, and iteration logic, all inlined or referenced based on the compiler's optimization settings (e.g., using loops and memory accesses specific to std::vector's implementation).\n\nMemory layout involves the Container<int> object (e.g., std::vector<int>) being laid out according to its own rules, such as dynamic arrays on the heap for std::vector, but the overall MyWrapper class adds its own overhead (e.g., the size of the Container<int> member). Performance implications include no runtime checks for template matching\u2014attempting MyWrapper<std::pair> would fail at compile-time with an error like 'template argument for template template parameter must be a class template'.\n\nAssembly-level behavior: For the add() function, the compiler might generate code like a call to std::vector<int>::push_back, involving heap allocation checks and memory copies. In the print() function, a loop iterates over the container, translating to assembly instructions for array traversal or iterator dereferencing. This is all compile-time resolved, so the final binary has no runtime template logic, but multiple instantiations could bloat the executable, affecting load times.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-18T13:09:04.861919"
+  }
+}
