@@ -1,0 +1,36 @@
+{
+  "topic": "Use of Proxy Objects in Iterator Post-Increment Operations",
+  "explanation": "In advanced C programming, especially when implementing custom iterators, proxy objects are used to manage temporary states and facilitate complex behaviors during iterator operations. Specifically, in the context of input stream buffer iterators, a proxy object serves as a placeholder to hold the character pointed to before incrementing, enabling safe and flexible access patterns. This technique allows for sophisticated control over iterator semantics, such as deferred or conditional character retrieval, and is crucial for implementing efficient, standards-compliant iterator interfaces that handle complex input sources.",
+  "syntax": "class iterator_proxy {\n    // Holds temporary state during iterator post-increment\n};\n\n// In iterator class\nproxy operator++(int);\n\n// Usage\nauto temp = it++;\n// 'temp' holds the proxy object managing previous character state",
+  "code_example": [
+    "template<typename charT, typename traits = std::char_traits<charT>>",
+    "class istreambuf_iterator {",
+    "public:",
+    "    class proxy {",
+    "    public:",
+    "        charT _char;",
+    "        explicit proxy(charT c) : _char(c) {}",
+    "        operator charT() const { return _char; }",
+    "    };",
+    "    proxy operator++(int) {",
+    "        // Save current character in proxy before increment",
+    "        proxy temp(_current_char);",
+    "        // Advance the iterator to the next character",
+    "        _advance();",
+    "        return temp;",
+    "    }",
+    "private:",
+    "    charT _current_char;",
+    "    void _advance() { /* logic to move to next character */ }",
+    "};"
+  ],
+  "example_explanation": "This example demonstrates an advanced iterator pattern where the post-increment operator returns a proxy object that captures the current character before moving the iterator forward. The proxy acts as a temporary placeholder, enabling the user to access the character that was pointed to prior to incrementing, which is essential for complex input parsing, lookahead operations, or implementing custom iterator behaviors that require state preservation across operations. This technique exemplifies sophisticated iterator design in C, leveraging proxy objects to manage temporary states safely and efficiently.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "881-881",
+    "extraction_date": "2025-08-18T17:26:05.414349",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "expert_c_programming"
+  }
+}

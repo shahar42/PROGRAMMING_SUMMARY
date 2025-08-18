@@ -1,0 +1,35 @@
+{
+  "topic": "Advanced Use of Templates and Type Traits for Compile-Time Type Safety in Operator Overloading",
+  "explanation": "This concept involves leveraging C++ template metaprogramming techniques, specifically template specialization and type traits, to enforce compile-time constraints and ensure type safety when overloading operators in generic classes. In advanced C programming contexts, understanding how to utilize such techniques allows developers to create flexible yet safe abstractions that adapt based on type properties, reducing runtime errors and enabling more expressive APIs.",
+  "syntax": "template <typename U1, typename U2>\nclass ClassName {\n    ...\n    template <typename T = void>\n    typename std::enable_if<\n        (sizeof...(Types) == 2) &&\n        is_assignable<T &, const U1 &>::value &&\n        is_assignable<T &, const U2 &>::value,\n        ClassName&\n    >::type\n    operator=(const std::pair<U1, U2>& u);\n};",
+  "code_example": [
+    "template <typename U1, typename U2>",
+    "class PairContainer {",
+    "public:",
+    "    template <typename T = void>",
+    "    typename std::enable_if<",
+    "        (sizeof...(Types) == 2) &&",
+    "        is_assignable<T &, const U1 &>::value &&",
+    "        is_assignable<T &, const U2 &>::value,",
+    "        PairContainer&",
+    "    >::type",
+    "    operator=(const std::pair<U1, U2>& u) {",
+    "        this->first = u.first;",
+    "        this->second = u.second;",
+    "        return *this;",
+    "    }",
+    "private:",
+    "    T first;",
+    "    T second;",
+    "};"
+  ],
+  "example_explanation": "This example demonstrates an advanced template operator= overload that uses SFINAE (Substitution Failure Is Not An Error) via std::enable_if to enforce at compile time that the class's type T is assignable from the pair's U1 and U2 types, and that the number of template types is exactly two. This ensures type safety and correctness in generic code, preventing invalid assignments and enabling flexible, type-safe operator overloading based on complex compile-time conditions.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "521-521",
+    "extraction_date": "2025-08-18T15:58:29.847922",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "expert_c_programming"
+  }
+}

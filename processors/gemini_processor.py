@@ -11,6 +11,7 @@ import json
 import re
 import os
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 import google.generativeai as genai
@@ -38,6 +39,52 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
             raise
         super().__init__()
 
+    def _try_complete_json(self, partial_json):
+        """Try to salvage partial JSON responses"""
+        print(f"🔧 GEMINI JSON COMPLETION: Attempting to fix partial JSON...")
+        print(f"🔧 Input length: {len(partial_json)} chars")
+        print(f"🔧 Input preview: {partial_json[:100]}...")
+        
+        try:
+            # Remove any markdown formatting
+            cleaned = partial_json.replace('```json', '').replace('```', '').strip()
+            print(f"🔧 After markdown cleanup: {len(cleaned)} chars")
+            
+            # Try to find where it was cut off and add closing braces
+            if cleaned.strip().endswith(','):
+                cleaned = cleaned.strip()[:-1]  # Remove trailing comma
+                print(f"🔧 Removed trailing comma")
+            
+            # Count missing closing braces
+            open_braces = cleaned.count('{')
+            close_braces = cleaned.count('}')
+            missing_braces = open_braces - close_braces
+            print(f"🔧 Brace analysis: {open_braces} open, {close_braces} close, {missing_braces} missing")
+            
+            if missing_braces > 0:
+                completed_json = cleaned + '}' * missing_braces
+                print(f"🔧 Added {missing_braces} closing braces")
+                print(f"🔧 Completed JSON preview: {completed_json[:200]}...")
+                
+                # Try to parse it
+                concept = json.loads(completed_json)
+                print(f"🔧 JSON parsed successfully!")
+                
+                if concept.get('topic') and concept.get('explanation'):
+                    print(f"🔧 ✅ Successfully completed partial JSON from Gemini")
+                    return concept
+                else:
+                    print(f"🔧 ❌ Missing required fields: topic={bool(concept.get('topic'))}, explanation={bool(concept.get('explanation'))}")
+            else:
+                print(f"🔧 No missing braces detected")
+                
+        except Exception as e:
+            print(f"⚠️ Failed to complete Gemini JSON: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        return None
+
     def process_concept(self, concept_data, book_name="kernighan_ritchie"):
         """New main entry point that includes deduplication"""
         return self.process_concept_with_deduplication(concept_data, book_name)    
@@ -55,10 +102,90 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
         )
         
         try:
-            response = self.model.generate_content(prompt)
+            # Retry logic with exponential backoff
+            max_retries = 3
+            base_delay = 1
             
-            # Parse Gemini's response into structured format
-            parsed_concept = self._parse_gemini_response(response.text)
+            for attempt in range(max_retries):
+                try:
+                    print(f"🟢 GEMINI DEBUG: Attempt {attempt + 1}/{max_retries}")
+                    print(f"🟢 GEMINI DEBUG: Starting content generation...")
+                    print(f"🟢 GEMINI DEBUG: Prompt length: {len(prompt)} chars")
+                    print(f"🟢 GEMINI DEBUG: Model: {self.model.model_name}")
+                    print(f"🟢 GEMINI DEBUG: Generation config: max_tokens=2000, temp=0.1")
+                    
+                    response = self.model.generate_content(
+                        prompt,
+                        generation_config=genai.GenerationConfig(
+                            max_output_tokens=4000, 
+                            temperature=0.1,
+                        ),
+                        request_options={
+                            'timeout': 60  # 60 second timeout
+                        }
+                    )
+                    
+                    print(f"🟢 GEMINI DEBUG: Response received")
+                    print(f"🟢 GEMINI DEBUG: Response type: {type(response)}")
+                    
+                    # Check for safety filtering
+                    if hasattr(response, 'prompt_feedback'):
+                        print(f"🟢 GEMINI DEBUG: Prompt feedback: {response.prompt_feedback}")
+                        if response.prompt_feedback and hasattr(response.prompt_feedback, 'block_reason'):
+                            if response.prompt_feedback.block_reason:
+                                print(f"🚨 GEMINI SAFETY: Prompt blocked - {response.prompt_feedback.block_reason}")
+                                raise Exception(f"Gemini safety filter blocked prompt: {response.prompt_feedback.block_reason}")
+                    
+                    if hasattr(response, 'candidates') and response.candidates:
+                        candidate = response.candidates[0]
+                        print(f"🟢 GEMINI DEBUG: Candidate finish reason: {getattr(candidate, 'finish_reason', 'unknown')}")
+                        
+                        # Check for safety filtering on candidate
+                        if hasattr(candidate, 'safety_ratings'):
+                            print(f"🟢 GEMINI DEBUG: Safety ratings: {candidate.safety_ratings}")
+                            
+                        # Check finish reason for safety issues
+                        if hasattr(candidate, 'finish_reason'):
+                            if candidate.finish_reason and str(candidate.finish_reason) == 'SAFETY':
+                                print(f"🚨 GEMINI SAFETY: Response blocked for safety")
+                                raise Exception("Gemini response blocked for safety reasons")
+                            elif candidate.finish_reason and str(candidate.finish_reason) == 'RECITATION':
+                                print(f"🚨 GEMINI SAFETY: Response blocked for recitation")
+                                raise Exception("Gemini response blocked for recitation")
+                    
+                    if hasattr(response, 'text'):
+                        response_text = response.text
+                        print(f"🟢 GEMINI DEBUG: Response text length: {len(response_text)} chars")
+                        
+                        # Check if response appears truncated (doesn't end with proper punctuation or brace)
+                        if len(response_text) > 100 and not response_text.strip().endswith(('.', '!', '?', '}', '"')):
+                            print(f"🚨 GEMINI DEBUG: Response appears truncated (ends with: '{response_text[-20:]}')") 
+                            if attempt < max_retries - 1:
+                                print(f"🔄 GEMINI DEBUG: Retrying due to truncation...")
+                                delay = base_delay * (2 ** attempt)
+                                time.sleep(delay)
+                                continue
+                    else:
+                        print(f"🟢 GEMINI DEBUG: No 'text' attribute, full response: {response}")
+                        if hasattr(response, 'candidates') and response.candidates and hasattr(response.candidates[0], 'content'):
+                            response_text = response.candidates[0].content.parts[0].text
+                            print(f"🟢 GEMINI DEBUG: Extracted from candidate content: {len(response_text)} chars")
+                        else:
+                            response_text = str(response)
+                    
+                    # Parse Gemini's response into structured format
+                    parsed_concept = self._parse_gemini_response(response_text)
+                    break  # Success, exit retry loop
+                    
+                except Exception as e:
+                    print(f"🚨 GEMINI DEBUG: Attempt {attempt + 1} failed: {e}")
+                    if attempt < max_retries - 1:
+                        delay = base_delay * (2 ** attempt)
+                        print(f"🔄 GEMINI DEBUG: Retrying in {delay} seconds...")
+                        time.sleep(delay)
+                    else:
+                        print(f"💥 GEMINI DEBUG: All {max_retries} attempts failed")
+                        raise
             
             # Add metadata
             parsed_concept["extraction_metadata"] = {
@@ -306,16 +433,53 @@ Extract the {context_info['subject']} concept as JSON:"""
         return contexts.get(book_context, contexts["c_programming"])
     
     def _parse_gemini_response(self, response_text):
-        """Parse Gemini's JSON response"""
+        """Parse Gemini's JSON response with completion fallback"""
+        print(f"🔍 GEMINI RAW RESPONSE:")
+        print("=" * 50)
+        print(response_text)
+        print("=" * 50)
+        print(f"📏 Total length: {len(response_text)} characters")
+        print(f"🔍 First 100 chars: {repr(response_text[:100])}")
+        print(f"🔍 Last 100 chars: {repr(response_text[-100:])}")
+        print(f"🔍 Contains opening brace: {'{' in response_text}")
+        print(f"🔍 Contains closing brace: {'}' in response_text}")
+        print(f"🔍 Brace count - open: {response_text.count('{')} close: {response_text.count('}')}")
+        print(f"🔍 Ends with complete word: {response_text[-20:]}")
         try:
             # Extract JSON from response (handle potential markdown wrapping)
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            json_match = re.search(r'{.*}', response_text, re.DOTALL)
             if json_match:
                 json_str = json_match.group()
                 return json.loads(json_str)
-            else:
-                raise ValueError("No JSON found in response")
+            
+            # NEW: Try to complete partial JSON
+            print("⚠️ No complete JSON found, trying to complete partial...")
+            completed = self._try_complete_json(response_text)
+            if completed:
+                return completed
+                
+            raise ValueError("No JSON found in response")
+            
         except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON: {e}")
-            print(f"Response was: {response_text[:500]}...")
+            print(f"❌ GEMINI JSON decode failed: {e}")
+            print(f"🔍 JSON decode error position: {getattr(e, 'pos', 'unknown')}")
+            print(f"🔍 JSON decode error line: {getattr(e, 'lineno', 'unknown')}")
+            print(f"🔍 JSON decode error column: {getattr(e, 'colno', 'unknown')}")
+            
+            # NEW: Try to complete partial JSON on decode error
+            print("⚠️ Trying to complete partial GEMINI JSON after decode error...")
+            if 'json_match' in locals() and json_match:
+                print(f"🔍 Attempting to complete JSON match: {json_match.group()[:200]}...")
+                completed = self._try_complete_json(json_match.group())
+                if completed:
+                    return completed
+            
+            # Try the whole response
+            print(f"🔍 Attempting to complete full GEMINI response...")
+            completed = self._try_complete_json(response_text)
+            if completed:
+                return completed
+                
+            print(f"💥 ALL GEMINI PARSING FAILED")
+            print(f"Response excerpt: {response_text[:500]}...")
             return None

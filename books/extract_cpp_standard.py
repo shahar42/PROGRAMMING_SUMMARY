@@ -29,6 +29,8 @@ from core.concept_detector import ConceptBoundaryDetector
 from processors.grok_processor import GrokAtomicProcessor
 from processors.gpt4_nano_processor import GPT4NanoAtomicProcessor
 from processors.gemini_processor import GeminiAtomicProcessor
+# Add this import after existing imports
+from processors.concept_memory import ConceptMemoryManager
 
 
 class CppChapterMapper:
@@ -73,6 +75,9 @@ class MultiModelRotator:
         
         # Initialize Grok
         grok_key = os.getenv("GROK_API_KEY")
+        print(f"🔍 DEBUG: Raw GROK_API_KEY length: {len(grok_key) if grok_key else 0}")
+        print(f"🔍 DEBUG: GROK_API_KEY first 15: {grok_key[:15] if grok_key else 'None'}")
+        print(f"🔍 DEBUG: GROK_API_KEY last 15: {grok_key[-15:] if grok_key else 'None'}")
         if grok_key:
             self.processors["grok"] = GrokAtomicProcessor(grok_key)
             self.model_order.append("grok")
@@ -95,7 +100,7 @@ class MultiModelRotator:
         if not self.processors:
             raise ValueError("No API keys found!")
         
-        print(f"🔄 Round-robin order: {' → '.join(self.model_order)}")
+        print(f"🔄 Round-robin order: { ' → '.join(self.model_order)}")
     
     def get_processor_for_concept(self, concept_index):
         """Get processor using round-robin"""
@@ -117,6 +122,10 @@ class CppExpertExtractionEngine:
         self.progress_tracker = ProgressTracker(str(progress_file))
         self.model_rotator = MultiModelRotator()
         self.chapter_mapper = CppChapterMapper()
+        
+        # ADD THIS LINE - Initialize concept memory for deduplication
+        self.concept_memory = ConceptMemoryManager()
+        print("🧠 Concept memory system initialized for deduplication")
         
         print(f"🏛️  C++ Expert Extraction Engine Initialized")
         print(f"📚 Source: {pdf_path}")
@@ -153,19 +162,35 @@ class CppExpertExtractionEngine:
             for i, concept in enumerate(concepts[:max_concepts]):
                 print(f"\n⚡ Processing expert C++ concept {i+1}/{min(len(concepts), max_concepts)}...")
                 
-                # Get processor (round-robin)
-                processor, model_name = self.model_rotator.get_processor_for_concept(concepts_extracted)
-                print(f"🤖 Using {model_name.upper()} for expert concept {concepts_extracted + 1}")
+                # Get processor (round-robin) - FIXED
+                processor, model_name = self.model_rotator.get_processor_for_concept(i)  # ← FIXED
+                print(f"🤖 Using {model_name.upper()} for expert concept {i + 1}")      # ← FIXED
                 
                 # Process concept
                 processed_concept = self._process_concept(concept, processor, model_name)
                 
                 if processed_concept:
-                    # Determine chapter prefix
-                    chapter_prefix = self.chapter_mapper.get_chapter_prefix(concept["raw_content"])
+                    # CHECK FOR DUPLICATES BEFORE SAVING
+                    is_duplicate, similar_concepts, similarity_scores = self.concept_memory.check_for_duplicates(processed_concept)
                     
-                    # Save concept
+                    if is_duplicate:
+                        print(f"🚨 DUPLICATE DETECTED - Skipping concept: {processed_concept.get('topic', 'Unknown')}")
+                        print(f"   Similar to: {similar_concepts[0]['concept_data'].get('topic', 'Unknown')}")
+                        continue
+                    
+                    if similar_concepts:
+                        print(f"⚠️  Similar concept found (score: {similarity_scores[0]:.2f})")
+                        print(f"   Existing: {similar_concepts[0]['concept_data'].get('topic', 'Unknown')}")
+                        print(f"   Proceeding with extraction...")
+                    
+                    # SAVE THE CONCEPT
+                    chapter_prefix = self.chapter_mapper.get_chapter_prefix(concept["raw_content"])
                     filename = self._save_concept(processed_concept, concepts_extracted, chapter_prefix)
+                    
+                    # ADD TO MEMORY AFTER SAVING
+                    file_path = self.output_dir / filename
+                    self.concept_memory.add_concept_to_memory(processed_concept, str(file_path), "cpp_standard")
+                    
                     concepts_extracted += 1
                     model_stats[model_name] += 1
                     
@@ -259,7 +284,7 @@ Extract expert C++ concept as JSON:"""
         """Parse Grok response"""
         try:
             # Use regex to find JSON block, robust against surrounding text
-            match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            match = re.search(r'{{.*}}', response_text, re.DOTALL)
             if match:
                 json_str = match.group(0)
                 concept = json.loads(json_str)
@@ -280,7 +305,7 @@ Extract expert C++ concept as JSON:"""
         """Parse Gemini response"""
         try:
             # Use regex to find JSON block, robust against surrounding text
-            match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            match = re.search(r'{{.*}}', response_text, re.DOTALL)
             if match:
                 json_str = match.group(0)
                 concept = json.loads(json_str)
@@ -288,6 +313,11 @@ Extract expert C++ concept as JSON:"""
                     print(f"✅ GEMINI extracted expert concept: {concept['topic']}")
                     return concept
             print("❌ Failed to find a valid JSON object in the Gemini response.")
+            print(f"🔍 GEMINI RAW RESPONSE:")
+            print(f"{'='*50}")
+            print(response_text[:1000])  # Show first 1000 chars
+            print(f"{'='*50}")
+            print(f"📏 Total length: {len(response_text)} characters")
             return None
         except json.JSONDecodeError as e:
             print(f"❌ Failed to decode JSON from Gemini: {e}")
@@ -358,6 +388,71 @@ Extract expert C++ concept as JSON:"""
         
         print(f"📋 Expert summary saved: {summary_filename}")
 
+    def generate_duplicate_report(self):
+        """Generate and save a duplicate analysis report"""
+        print("\n📊 Generating duplicate analysis report for cpp_standard...")
+        
+        # FILTER TO ONLY CPP_STANDARD CONCEPTS
+        cpp_concept_ids = [concept_id for concept_id, concept_info in self.concept_memory.concept_index.items() 
+                          if concept_info['book'] == 'cpp_standard']
+        
+        print(f"🔍 Analyzing {len(cpp_concept_ids)} cpp_standard concepts (instead of {len(self.concept_memory.concept_index)} total)")
+        
+        # CUSTOM DUPLICATE DETECTION FOR CPP ONLY
+        duplicates_found = []
+        processed_ids = set()
+        
+        for i, concept_id_a in enumerate(cpp_concept_ids):
+            if concept_id_a in processed_ids:
+                continue
+            
+            print(f"📊 Checking concept {i+1}/{len(cpp_concept_ids)}", end='\r')
+            
+            concept_a = self.concept_memory.concept_index[concept_id_a]['data']
+            similar_group = [concept_id_a]
+            
+            for j, concept_id_b in enumerate(cpp_concept_ids[i+1:], i+1):
+                if concept_id_b in processed_ids:
+                    continue
+                    
+                concept_b = self.concept_memory.concept_index[concept_id_b]['data']
+                similarity = self.concept_memory._calculate_similarity(concept_a, concept_b)
+                
+                if similarity > self.concept_memory.DUPLICATE_THRESHOLD:
+                    similar_group.append(concept_id_b)
+                    processed_ids.add(concept_id_b)
+            
+            if len(similar_group) > 1:
+                duplicates_found.append(similar_group)
+                for concept_id in similar_group:
+                    processed_ids.add(concept_id)
+        
+        print(f"\n✅ Analysis complete!")
+        
+        if not duplicates_found:
+            print("✅ No duplicates found in cpp_standard concepts!")
+            return
+        
+        # Save duplicate report
+        report_path = self.output_dir / f"duplicate_report_{datetime.now().strftime('%Y-%m-%d')}.txt"
+        
+        with open(report_path, 'w') as f:
+            f.write("CPP Standard Duplicate Analysis Report\n")
+            f.write("=" * 50 + "\n\n")
+            f.write(f"Analyzed: {len(cpp_concept_ids)} cpp_standard concepts\n")
+            f.write(f"Found: {len(duplicates_found)} duplicate groups\n\n")
+            
+            for i, duplicate_group in enumerate(duplicates_found, 1):
+                f.write(f"Duplicate Group {i}:\n")
+                for concept_id in duplicate_group:
+                    concept_data = self.concept_memory.concept_index[concept_id]['data']
+                    file_path = self.concept_memory.concept_index[concept_id]['file_path']
+                    f.write(f"  - {concept_data.get('topic', 'Unknown')} ({file_path})\n")
+                f.write("\n")
+        
+        print(f"📋 Duplicate report saved: {report_path.name}")
+        print(f"🎯 Found {len(duplicates_found)} duplicate groups in cpp_standard")
+
 
 def main():
     """Main execution"""
@@ -374,6 +469,12 @@ def main():
     
     # Run extraction
     engine = CppExpertExtractionEngine(pdf_path, output_dir)
+    
+    # ADD THIS - Check for duplicates in existing concepts
+    print("\n🔍 Checking existing cpp_standard concepts for duplicates...")
+    engine.generate_duplicate_report()
+    
+    # Run normal extraction
     engine.run_extraction_session(max_concepts=6)
 
 
