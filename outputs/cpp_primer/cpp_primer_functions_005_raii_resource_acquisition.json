@@ -1,0 +1,31 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ programming technique that ties resource management to object lifetime.  It ensures resources (like memory, files, network connections) are automatically acquired when an object is created and released when the object goes out of scope. This prevents resource leaks and simplifies error handling.  It's a core principle of exception safety and contributes to writing more robust and maintainable code.  Best practice is to always leverage RAII where possible, preferring smart pointers over raw pointers for managing dynamically allocated memory.",
+  "syntax": "RAII is implemented using destructors (~) and constructors.  Smart pointers like `std::unique_ptr`, `std::shared_ptr`, and `std::weak_ptr` are excellent examples of RAII in action.  They automatically manage the lifetime of dynamically allocated objects.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "",
+    "class Resource {",
+    "public:",
+    "  Resource() { std::cout << \"Resource acquired\\n\"; }",
+    "  ~Resource() { std::cout << \"Resource released\\n\"; }",
+    "};",
+    "",
+    "int main() {",
+    "  { // Resource will be released when this scope ends",
+    "    std::unique_ptr<Resource> res(new Resource());  //RAII in action using unique_ptr",
+    "  }",
+    "",
+    "  //Here, the resource is automatically released thanks to unique_ptr's destructor",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates RAII using `std::unique_ptr`.  The `Resource` class simulates a resource.  The constructor simulates acquisition, and the destructor simulates release.  `std::unique_ptr` ensures that the `Resource` object's destructor is called when the `unique_ptr` goes out of scope, guaranteeing resource release even if exceptions occur.  This prevents memory leaks.  Using `std::unique_ptr` (or other smart pointers) is a best practice compared to manual `new` and `delete` for better safety and code clarity.  Failure to use RAII can lead to resource leaks and crashes, especially in complex applications or scenarios involving exceptions.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:06:53.493580"
+  }
+}

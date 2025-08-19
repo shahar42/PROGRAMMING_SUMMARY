@@ -71,7 +71,7 @@ class GPT4NanoAtomicProcessor(BaseAtomicProcessor):
         if response.status_code != 200:
             raise Exception(f"API test failed: {response.status_code} - {response.text}")
     
-    def _extract_with_ai(self, concept_data):
+    def _extract_with_ai(self, concept_data, book_name=None):
             """
             Transform raw concept into atomic training format
             
@@ -80,9 +80,12 @@ class GPT4NanoAtomicProcessor(BaseAtomicProcessor):
             Output: structured concept dict with standardized format
             """
             
-            # Detect book context (inherit from existing system)
-            source_title = concept_data.get("source_title", "")
-            book_context = self._detect_book_context(source_title, concept_data.get("raw_content", ""))
+            # Use explicit book_name if provided, otherwise detect from content
+            if book_name:
+                book_context = book_name
+            else:
+                source_title = concept_data.get("source_title", "")
+                book_context = self._detect_book_context(source_title, concept_data.get("raw_content", ""))
             
             # Build context-aware prompt
             prompt = self._build_atomic_extraction_prompt(

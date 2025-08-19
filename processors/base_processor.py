@@ -63,7 +63,7 @@ class BaseAtomicProcessor:
         
         # Step 1: Use AI to extract concept (call child class method)
         print("🤖 Extracting concept using AI...")
-        ai_extracted_concept = self._extract_with_ai(concept_data)
+        ai_extracted_concept = self._extract_with_ai(concept_data, book_name)
         
         if not ai_extracted_concept:
             print("❌ AI extraction failed")
@@ -121,7 +121,7 @@ class BaseAtomicProcessor:
         
         return ai_extracted_concept
     
-    def _extract_with_ai(self, concept_data):
+    def _extract_with_ai(self, concept_data, book_name=None):
         """
         This method should be overridden by child classes
         (GeminiAtomicProcessor, GrokAtomicProcessor, etc.)

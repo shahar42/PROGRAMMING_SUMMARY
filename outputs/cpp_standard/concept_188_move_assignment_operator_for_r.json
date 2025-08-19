@@ -1,0 +1,50 @@
+{
+  "topic": "Move Assignment Operator for rvalue References in C++",
+  "explanation": "In modern C++, move semantics enable efficient transfer of resources from temporary objects (rvalues) to existing objects, avoiding unnecessary copying. The move assignment operator, typically defined with an rvalue reference parameter (&&), allows an object to take ownership of resources from a temporary or soon-to-be-destroyed object, improving performance especially for resource-intensive classes like file streams, containers, or user-defined types. This operator is a key component of move semantics and enables the implementation of efficient transfer of resources in C++11 and beyond.\n\nIn modern C++, move semantics enable efficient transfer of resources from temporary objects (rvalues) to existing objects, avoiding unnecessary copying. The move assignment operator, typically declared as 'operator=(Type&& rhs)', allows an object to take ownership of resources from a temporary or movable object, improving performance especially for resource-intensive classes like file streams, containers, or user-defined types. It is a key component of move semantics introduced in C++11, facilitating resource management and optimizing program efficiency.",
+  "syntax": "ClassName& operator=(ClassName&& rhs) noexcept;\n// Moves resources from 'rhs' to '*this' and leaves 'rhs' in a valid but unspecified state.",
+  "code_example": [
+    "#include <fstream>",
+    "",
+    "class FileWrapper {",
+    "public:",
+    "    std::fstream file;",
+    "    // Move assignment operator",
+    "    FileWrapper& operator=(FileWrapper&& rhs) noexcept {",
+    "        if (this != &rhs) {",
+    "            file = std::move(rhs.file);",
+    "        }",
+    "        return *this;",
+    "    }",
+    "};",
+    "",
+    "int main() {",
+    "    FileWrapper fw1;",
+    "    fw1.file.open(\"example.txt\", std::ios::out);",
+    "    FileWrapper fw2;",
+    "    fw2 = std::move(fw1); // Move assignment transfers resource ownership",
+    "    // fw1.file is now in a valid but unspecified state",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example defines a class 'FileWrapper' with a move assignment operator that transfers ownership of its 'std::fstream' member from a temporary or movable object 'rhs' to '*this'. In 'main', 'fw2' takes ownership of the file resource from 'fw1' using 'std::move', demonstrating how move semantics optimize resource transfer without copying. This showcases the move assignment operator's role in efficient resource management in modern C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1096-1096",
+    "extraction_date": "2025-08-19T09:11:22.496895",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "merged_on": "2025-08-19T09:14:27.330066",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "1098-1098",
+      "extraction_date": "2025-08-19T09:14:23.538543",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8580402135848999
+  }
+}

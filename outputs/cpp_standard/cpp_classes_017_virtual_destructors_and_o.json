@@ -1,0 +1,29 @@
+{
+  "topic": "Virtual Destructors and Object Slicing in Inheritance",
+  "explanation": "Virtual destructors are crucial in inheritance hierarchies to prevent object slicing and ensure proper cleanup of polymorphic objects.  When a derived class object is deleted through a base class pointer, the compiler's implementation relies heavily on the virtual table (vtable).  If the destructor isn't virtual, only the base class destructor is called, leading to resource leaks and undefined behavior in derived classes.  The vtable, typically an array of function pointers, is populated during compile time and contains pointers to the virtual functions of the class.  The virtual destructor's address is stored in the vtable.  At runtime, when a delete operation is performed on a base class pointer pointing to a derived class object, the compiler uses the vtable to locate and invoke the correct destructor (derived class destructor in this case).  Failure to declare a virtual destructor in the base class results in object slicing\u2014the derived class's unique members are not destroyed during deletion via the base class pointer.\n\nMemory layout is affected significantly.  Each class containing virtual functions typically has a hidden vtable pointer as its first member. This adds overhead, but enables dynamic dispatch. Performance can be slightly impacted due to the indirection through the vtable, resulting in an extra memory access compared to non-virtual function calls. However, this cost is usually minimal compared to the benefits of polymorphism and correct cleanup.\n\nAssembly-level behavior involves the compiler generating code that accesses the vtable pointer, retrieves the appropriate destructor address, and calls that address using indirect function calls.  The compiler utilizes the vtable mechanism to implement the runtime polymorphism required for virtual functions.\n\nCompile-time behavior focuses on the generation of the vtable and its incorporation into the object's memory layout.  Runtime behavior involves the dynamic lookup and invocation of the appropriate destructor based on the object's actual type, not the pointer's static type.",
+  "syntax": "class Base {\npublic:\n  virtual ~Base() {} // Virtual destructor\n};\n\nclass Derived : public Base {\npublic:\n  ~Derived() override { /* Derived class cleanup */ }\n  int derivedMember; //Unique to derived\n};\n\nint main() {\n  Base* b = new Derived();\n  delete b; // Correctly calls Derived::~Derived() if Base::~Base() is virtual\n  return 0;\n}",
+  "code_example": [
+    "#include <iostream>",
+    "class Base {",
+    "public:",
+    "  virtual ~Base() { std::cout << \"Base destructor called\\n\"; }",
+    "};",
+    "class Derived : public Base {",
+    "public:",
+    "  ~Derived() override { std::cout << \"Derived destructor called\\n\"; }",
+    "  int data;",
+    "};",
+    "int main() {",
+    "  Base* ptr = new Derived();",
+    "  delete ptr; //Proper destruction due to virtual destructor in Base",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the proper usage of a virtual destructor. Without the `virtual` keyword in `~Base()`, only the `Base` destructor would be called when `delete ptr` is executed, leading to a memory leak and undefined behavior related to `Derived::data`. The compiler's role is to generate the vtable for Base, containing the address of `Base::~Base()`.  Derived's vtable will override this entry with the address of `Derived::~Derived()`.  The runtime environment uses this to call the correct destructor based on the object's actual type at runtime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:57:11.275084"
+  }
+}

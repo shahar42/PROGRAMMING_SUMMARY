@@ -1,0 +1,37 @@
+{
+  "topic": "C++ Compile-Time Polymorphism with `constexpr` and Template Metaprogramming",
+  "explanation": "This concept explores how `constexpr` functions and template metaprogramming enable compile-time computations and function selection, significantly impacting performance and code generation.  The compiler effectively transforms these features into highly optimized code at compile time, avoiding runtime overhead.  We'll examine how this impacts memory layout, specifically avoiding runtime polymorphism's virtual function table (vtable) and associated indirection. This contrasts sharply with runtime polymorphism achieved via virtual functions.",
+  "syntax": "```cpp\ntemplate <size_t N>\nconstexpr size_t factorial(size_t n) {\n  return n <= 1 ? 1 : n * factorial<N - 1>(n - 1); \n}\n\ntemplate <typename T>\nconstexpr T calculate_sum(const T arr[], size_t size) {\n  T sum = 0;\n  for (size_t i = 0; i < size; ++i) {\n     sum += arr[i];\n  }\n  return sum;\n}\n\nint main() {\n  constexpr size_t fact_5 = factorial<5>(5); //Evaluated at compile time\n  constexpr int data[] = {1, 2, 3, 4, 5};\n  constexpr int sum = calculate_sum(data, 5); //Evaluated at compile time\n  std::cout << \"Factorial of 5: \" << fact_5 << std::endl; // Output is known at compile time\n  std::cout << \"Sum of array: \" << sum << std::endl;     //Output is known at compile time\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "template <size_t N>",
+    "constexpr size_t factorial(size_t n) {",
+    "  return n <= 1 ? 1 : n * factorial<N - 1>(n - 1); ",
+    "}",
+    "",
+    "template <typename T>",
+    "constexpr T calculate_sum(const T arr[], size_t size) {",
+    "  T sum = 0;",
+    "  for (size_t i = 0; i < size; ++i) {",
+    "     sum += arr[i];",
+    "  }",
+    "  return sum;",
+    "}",
+    "",
+    "int main() {",
+    "  constexpr size_t fact_5 = factorial<5>(5);",
+    "  constexpr int data[] = {1, 2, 3, 4, 5};",
+    "  constexpr int sum = calculate_sum(data, 5);",
+    "  std::cout << \"Factorial of 5: \" << fact_5 << std::endl;",
+    "  std::cout << \"Sum of array: \" << sum << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler will perform the calculations for `factorial` and `calculate_sum` at compile time because they are declared `constexpr`.  The resulting values (`fact_5` and `sum`) are known at compile time and are directly embedded into the generated machine code. No runtime function calls or heap allocations are necessary.  Assembly code would show the direct values being used, not function calls. This contrasts with runtime polymorphism where a vtable lookup would be needed, resulting in extra instructions and potential cache misses. The memory layout benefits from this compile-time evaluation \u2013 no dynamic memory allocation or vtable is involved.  This leads to smaller executable size and faster execution, particularly noticeable in performance-critical sections of the code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:49:29.354351"
+  }
+}

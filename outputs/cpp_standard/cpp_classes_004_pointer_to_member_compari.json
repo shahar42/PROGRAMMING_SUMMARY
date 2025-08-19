@@ -1,0 +1,37 @@
+{
+  "topic": "Pointer to Member Comparison in Multiple Inheritance",
+  "explanation": "In C++, pointers to members are used to refer to non-static data members or member functions of a class. When dealing with multiple inheritance, comparing pointers to members requires understanding how they relate to the class hierarchy. Specifically, two pointers to members compare equal if they point to the same member of the same most derived object or subobject, considering the complex inheritance structure. This concept is crucial for correctly handling member pointers in polymorphic and multiple inheritance scenarios, ensuring accurate comparisons and object behavior.",
+  "syntax": "Pointer to member syntax:\n\n// Data member pointer\ntype ClassName::*pointerName;\n\n// Member function pointer\nreturnType (ClassName::*pointerName)(parameterTypes);",
+  "code_example": [
+    "#include <iostream>",
+    "struct B {",
+    "    int f() { return 1; }",
+    "};",
+    "struct L : B { };",
+    "struct R : B { };",
+    "struct D : L, R { };",
+    "int (B::*pb)() = &B::f;",
+    "int (L::*pl)() = pb;",
+    "int (R::*pr)() = pb;",
+    "int (D::*pdl)() = pl;",
+    "int (D::*pdr)() = pr;",
+    "bool x = (pdl == pdr); // false",
+    "bool y = (pb == pl); // true",
+    "int main() {",
+    "    std::cout << \"pdl == pdr: \" << x << \"\\n\";",
+    "    std::cout << \"pb == pl: \" << y << \"\\n\";",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates how pointers to member functions are compared in a multiple inheritance hierarchy. Despite both 'pdl' and 'pdr' pointing to the same member 'f' in 'B', their comparison yields false because they refer to different subobjects within 'D' due to multiple inheritance. Conversely, 'pb' and 'pl' compare equal because they point to the same member in the base class 'B'. This illustrates the rules for comparing member pointers in complex inheritance structures, emphasizing the importance of understanding object substructure in C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "137-138",
+    "extraction_date": "2025-08-19T02:14:14.375849",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level"
+  }
+}

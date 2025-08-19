@@ -1,0 +1,31 @@
+{
+  "topic": "constexpr and Compile-Time Evaluation in C++",
+  "explanation": "The `constexpr` keyword in C++ allows for compile-time evaluation of expressions.  This goes beyond simple constant expressions;  a `constexpr` function can perform computations at compile time *if* the compiler can determine all inputs at compile time.  This results in significant performance gains and enables metaprogramming techniques.  The compiler's implementation involves sophisticated constant propagation and expression folding during the compilation process.  If the arguments to a `constexpr` function are not known at compile time, the evaluation is deferred to runtime. This introduces a branch in the generated assembly code, conditional on whether the inputs are known at compile time or not.  The memory layout is impacted subtly:  if the result of a `constexpr` function is used to initialize a global variable, the compiler might place that variable in a read-only section of memory.  However, this is compiler-specific; the standard only guarantees compile-time evaluation if possible, not specific memory placement optimizations.",
+  "syntax": "```cpp\nconstexpr int square(int x) { return x * x; }\n\nint main() {\n  constexpr int a = 10;\n  constexpr int b = square(a); // Compile-time calculation\n  int c = square(15); // Runtime calculation\n  int d = square(some_runtime_variable); //Runtime calculation\n  std::cout << b << \" \" << c << \" \" << d << std::endl;\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "constexpr int square(int x) { return x * x; }",
+    "template <size_t N>",
+    "constexpr std::array<int, N> square_array(const std::array<int,N>& arr){",
+    "  std::array<int,N> result; ",
+    "  for(size_t i = 0; i < N; ++i){",
+    "    result[i] = square(arr[i]);",
+    "  }",
+    "  return result;",
+    "}",
+    "int main() {",
+    "  constexpr std::array<int, 3> input = {1, 2, 3};",
+    "  constexpr std::array<int, 3> output = square_array(input);",
+    "  for(int i : output) std::cout << i << \" \"; std::cout << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `square_array` function demonstrates compile-time computation on arrays.  If the input array (`input`) is `constexpr`, the entire `square_array` function is evaluated at compile time. The compiler generates code that directly initializes `output` with the pre-computed squared values.  No runtime loop is needed.  If `input` were not `constexpr`, the loop would be executed at runtime, with significantly different assembly instructions (looping, memory access, etc.). The compiler's optimization capabilities are crucial here;  a less sophisticated compiler might still perform the computation at runtime even with `constexpr` if it struggles to fully analyze the expression. The assembly code generated for the `constexpr` case would show direct initialization of `output` with the result, avoiding runtime overhead entirely.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:54:27.669424"
+  }
+}

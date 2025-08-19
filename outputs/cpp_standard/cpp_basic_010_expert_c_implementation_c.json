@@ -1,0 +1,33 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Non-Type Template Parameters and their Compiler Implementation",
+  "explanation": "Non-type template parameters, while seemingly simple, reveal intricate compiler behavior regarding their representation, instantiation, and impact on code generation.  Unlike type template parameters, which cause the compiler to generate distinct code for each type, non-type template parameters influence code generation through compile-time computations and specialization.  The compiler often uses these parameters to generate specialized code or perform compile-time computations, potentially leading to significant performance gains or enabling compile-time polymorphism.  Understanding their implementation reveals how the compiler manages compile-time constants within templates, and how this impacts memory layout, code size, and runtime performance.",
+  "syntax": "```cpp\ntemplate<int N> struct StaticArray {\n  int data[N];\n};\n\nint main() {\n  StaticArray<10> arr10;\n  StaticArray<100> arr100;\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template<int N> struct StaticArray {",
+    "  int data[N];",
+    "};",
+    "template<int Size> void printArray(const StaticArray<Size>& arr){",
+    "  for(int i=0; i<Size; ++i){",
+    "    std::cout << arr.data[i] << \" \";",
+    "  }",
+    "  std::cout << std::endl;",
+    "}",
+    "int main() {",
+    "  StaticArray<5> arr1; ",
+    "  for(int i=0; i<5; ++i) arr1.data[i] = i*i;",
+    "  printArray(arr1); // Compiler generates code specific to Size=5",
+    "  StaticArray<10> arr2;",
+    "  printArray(arr2); // Compiler generates code specific to Size=10",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler processes the `StaticArray` template. For each instantiation (e.g., `StaticArray<5>` and `StaticArray<10>`), it generates separate code.  `data[N]` becomes a fixed-size array on the stack. The `printArray` function is also instantiated for each size, resulting in specialized loop unrolling and potential optimization opportunities (compiler may eliminate bounds checking at compile time). This illustrates how non-type template parameters directly influence the size and layout of objects at compile-time, affecting stack usage and memory management. At the assembly level, each instantiation would lead to different stack frame allocations, and the loop in `printArray` might be unrolled to a specific number of instructions based on the `Size` parameter. The runtime behavior would be that of a fixed-size array, with no dynamic memory allocation involved.  Crucially,  incorrect usage (e.g., using a negative `N`) would be detected at compile-time, preventing runtime errors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:41:11.711203"
+  }
+}

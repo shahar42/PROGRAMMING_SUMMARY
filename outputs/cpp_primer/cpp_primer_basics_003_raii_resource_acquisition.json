@@ -1,0 +1,41 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ programming technique that ties the lifetime of a resource (like dynamically allocated memory, files, network connections, or mutexes) to the lifetime of an object.  When an object is created, the resource is acquired; when the object goes out of scope (destructor is called), the resource is automatically released. This eliminates resource leaks and simplifies error handling by ensuring resources are always cleaned up, even in exceptional cases like exceptions being thrown.",
+  "syntax": "RAII is implemented using classes whose constructors acquire resources and whose destructors release them.  Smart pointers (`unique_ptr`, `shared_ptr`, `weak_ptr`) are prime examples of RAII in action, managing dynamically allocated memory automatically.  Custom RAII classes can be created for other resource types.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <fstream>",
+    "#include <memory>",
+    "",
+    "class FileOpener {",
+    "public:",
+    "  FileOpener(const std::string& filename) : file_(filename) {",
+    "    if (!file_.is_open()) {",
+    "      throw std::runtime_error(\"Could not open file\");",
+    "    }",
+    "  }",
+    "  ~FileOpener() { file_.close(); }",
+    "  std::fstream& get_file() { return file_; }",
+    "private:",
+    "  std::fstream file_;",
+    "};",
+    "",
+    "int main() {",
+    "  try {",
+    "    FileOpener file(\"mydata.txt\"); // Resource (file) acquired",
+    "    file.get_file() << \"Hello, RAII!\\n\";",
+    "  } catch (const std::runtime_error& e) {",
+    "    std::cerr << \"Error: \" << e.what() << '\\n';",
+    "  }",
+    "  // File is automatically closed here (destructor called)",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `FileOpener` class demonstrates RAII. The constructor opens the file; the destructor closes it.  Even if an exception is thrown, the destructor will be called, guaranteeing the file is closed.  This prevents resource leaks and simplifies error handling. Using `std::fstream` directly would require explicit `file.close()` in multiple places (including error handling branches), making the code more complex and prone to errors. This example avoids the common pitfall of forgetting to release resources, making the code more robust and easier to maintain.  Smart pointers offer a similar benefit for dynamically allocated memory, further emphasizing the importance of RAII for managing resources effectively in real-world applications.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:06:26.118948"
+  }
+}

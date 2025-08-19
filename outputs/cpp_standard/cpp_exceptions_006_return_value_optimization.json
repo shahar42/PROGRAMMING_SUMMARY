@@ -1,0 +1,33 @@
+{
+  "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
+  "explanation": "Return Value Optimization (RVO) and its more specific variant, Named Return Value Optimization (NRVO), are compiler optimizations that significantly impact the performance and memory layout of C++ programs.  They avoid unnecessary copying of objects returned from functions.  The compiler analyzes the return statement and, if conditions are met, constructs the returned object directly in the memory location where the caller expects it.  This eliminates the overhead of creating a temporary object, copying its contents, and then destroying the temporary.  The conditions for RVO/NRVO are complex and compiler-dependent, but generally involve a direct return of a local object without intermediate copies or manipulations.",
+  "syntax": "Illustrative, not exhaustive; compiler behavior is crucial:\n\n```c++\nclass Expensive {\npublic:\n  Expensive() { std::cout << \"Constructor called\\n\"; }\n  Expensive(const Expensive& other) { std::cout << \"Copy constructor called\\n\"; }\n  ~Expensive() { std::cout << \"Destructor called\\n\"; }\n};\n\nExpensive createExpensiveObject() {\n  Expensive obj;\n  return obj; // RVO likely here\n}\n\nExpensive createExpensiveObjectNamed(Expensive obj) {\n  return obj; // NRVO likely here\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "class Expensive {",
+    "public:",
+    "  std::string data;",
+    "  Expensive(const std::string& d) : data(d) { std::cout << \"Expensive Constructor\\n\"; }",
+    "  Expensive(const Expensive& other) : data(other.data) { std::cout << \"Expensive Copy Constructor\\n\"; }",
+    "  ~Expensive() { std::cout << \"Expensive Destructor\\n\"; }",
+    "};",
+    "",
+    "Expensive createExpensiveObject() {",
+    "  Expensive obj(\"Hello\");",
+    "  return obj; // RVO candidate",
+    "}",
+    "",
+    "int main() {",
+    "  Expensive e = createExpensiveObject();",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "In the example, `createExpensiveObject()` returns an `Expensive` object. Without RVO, the constructor, copy constructor, and destructor would all be called. With RVO, the compiler might elide the copy constructor entirely by constructing the object directly in the `e`'s memory location in `main()`.  The compiler's choice depends on many factors, including optimization level and compiler implementation.  Disabling optimizations or using a debugger might show the temporary object creation and copy if the compiler doesn't perform RVO.  Analyzing the assembly code (using tools like gdb or objdump) for both optimized and unoptimized builds will reveal the presence or absence of these operations, confirming RVO\u2019s effect on memory management and performance.  NRVO is particularly effective when returning objects that are constructed as function parameters.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:55:01.684685"
+  }
+}

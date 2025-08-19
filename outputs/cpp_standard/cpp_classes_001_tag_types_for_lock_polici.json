@@ -1,0 +1,31 @@
+{
+  "topic": "Tag Types for Lock Policies in std::unique_lock",
+  "explanation": "Tag types, such as defer_lock_t, try_to_lock_t, and adopt_lock_t, are empty structs used in the C++ Standard Library to implement policy-based design for mutex locking in std::unique_lock. The compiler treats these as compile-time constants (often constexpr), enabling tag dispatching for overload resolution and template specialization. Internally, the compiler generates distinct code paths based on the tag provided to std::unique_lock's constructor. For instance, defer_lock_t instructs the compiler to defer lock acquisition, meaning no locking occurs in the constructor, while try_to_lock_t triggers an immediate attempt using mutex.try_lock(). Memory layout is minimal: these empty structs typically occupy no space (size of 1 byte in some implementations due to the empty base optimization or padding, but often optimized away in templates), avoiding runtime overhead. Performance implications include compile-time policy selection, which reduces branching at runtime; for example, defer_lock avoids immediate atomic operations, potentially improving startup performance in multi-threaded code. At the assembly level, the compiler might emit different instructions: defer_lock could skip lock calls in the constructor, whereas try_to_lock includes a call to an atomic try-lock function (e.g., x86's LOCK CMPXCHG). This behavior is primarily compile-time (template instantiation), but actual locking is runtime-dependent on thread scheduling and mutex state, making it a hybrid for efficiency.",
+  "syntax": "template <class Mutex>\nclass unique_lock {\npublic:\n    explicit unique_lock(Mutex& m, defer_lock_t t) noexcept;  // Defers locking; no lock acquired in constructor\n    explicit unique_lock(Mutex& m, try_to_lock_t t);  // Attempts to lock using try_lock()\n    explicit unique_lock(Mutex& m, adopt_lock_t t) noexcept;  // Assumes lock is already held\n    // Implementation notes: The compiler uses SFINAE or partial specialization to handle these tags, ensuring the correct constructor is selected at compile-time, with runtime effects only for actual locking operations.",
+  "code_example": [
+    "#include <mutex>",
+    "#include <iostream>",
+    "int main() {",
+    "    std::mutex mtx;",
+    "    std::unique_lock<std::mutex> lk1(mtx, std::defer_lock);  // Tag: defer_lock_t; lock not acquired",
+    "    lk1.lock();  // Manual lock call required",
+    "    std::cout << \"Lock acquired via defer_lock\" << std::endl;",
+    "    lk1.unlock();",
+    "",
+    "    std::unique_lock<std::mutex> lk2(mtx, std::try_to_lock);  // Tag: try_to_lock_t; attempts lock",
+    "    if (lk2.owns_lock()) {",
+    "        std::cout << \"Lock acquired via try_to_lock\" << std::endl;",
+    "    } else {",
+    "        std::cout << \"Failed to acquire lock\" << std::endl;",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler instantiates std::unique_lock with different tags, leading to specialized behavior. For lk1 with defer_lock_t, the constructor performs no locking (compile-time decision via template), so the assembly might omit any mutex-related instructions here, only generating code for the explicit lk1.lock() call, which invokes mutex.lock() at runtime (e.g., on x86, this could translate to a LOCK instruction for atomicity). For lk2 with try_to_lock_t, the constructor includes a call to mutex.try_lock(), resulting in assembly that checks and potentially acquires the lock immediately (e.g., using CMPXCHG without blocking), with runtime implications based on contention. This compile-time differentiation optimizes performance by avoiding unnecessary runtime checks, but introduces potential for deadlocks if not managed, as defer_lock requires explicit locking, contrasting with try_to_lock's non-blocking attempt.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:46:27.173841"
+  }
+}

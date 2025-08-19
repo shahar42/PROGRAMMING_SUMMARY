@@ -89,12 +89,15 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
         """New main entry point that includes deduplication"""
         return self.process_concept_with_deduplication(concept_data, book_name)    
     
-    def _extract_with_ai(self, concept_data):
+    def _extract_with_ai(self, concept_data, book_name=None):
         """Transform raw concept into atomic training format"""
         
-        # Detect book context from metadata
-        source_title = concept_data.get("source_title", "")
-        book_context = self._detect_book_context(source_title, concept_data.get("raw_content", ""))
+        # Use explicit book_name if provided, otherwise detect from content
+        if book_name:
+            book_context = book_name
+        else:
+            source_title = concept_data.get("source_title", "")
+            book_context = self._detect_book_context(source_title, concept_data.get("raw_content", ""))
         
         prompt = self._build_atomic_extraction_prompt(
             concept_data["raw_content"], 
@@ -117,7 +120,7 @@ class GeminiAtomicProcessor(BaseAtomicProcessor):
                     response = self.model.generate_content(
                         prompt,
                         generation_config=genai.GenerationConfig(
-                            max_output_tokens=4000, 
+                            max_output_tokens=2000, 
                             temperature=0.1,
                         ),
                         request_options={
@@ -447,7 +450,8 @@ Extract the {context_info['subject']} concept as JSON:"""
         print(f"🔍 Ends with complete word: {response_text[-20:]}")
         try:
             # Extract JSON from response (handle potential markdown wrapping)
-            json_match = re.search(r'{.*}', response_text, re.DOTALL)
+            cleaned = response_text.replace('```json', '').replace('```', '').strip()
+            match = re.search(r'{.*}', cleaned, re.DOTALL)
             if json_match:
                 json_str = json_match.group()
                 return json.loads(json_str)

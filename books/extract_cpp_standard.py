@@ -284,7 +284,7 @@ Extract expert C++ concept as JSON:"""
         """Parse Grok response"""
         try:
             # Use regex to find JSON block, robust against surrounding text
-            match = re.search(r'{{.*}}', response_text, re.DOTALL)
+            match = re.search(r'{.*}', response_text, re.DOTALL)
             if match:
                 json_str = match.group(0)
                 concept = json.loads(json_str)
@@ -305,7 +305,7 @@ Extract expert C++ concept as JSON:"""
         """Parse Gemini response"""
         try:
             # Use regex to find JSON block, robust against surrounding text
-            match = re.search(r'{{.*}}', response_text, re.DOTALL)
+            match = re.search(r'{.*}', response_text, re.DOTALL)
             if match:
                 json_str = match.group(0)
                 concept = json.loads(json_str)
@@ -470,12 +470,8 @@ def main():
     # Run extraction
     engine = CppExpertExtractionEngine(pdf_path, output_dir)
     
-    # ADD THIS - Check for duplicates in existing concepts
-    print("\n🔍 Checking existing cpp_standard concepts for duplicates...")
-    engine.generate_duplicate_report()
-    
     # Run normal extraction
-    engine.run_extraction_session(max_concepts=6)
+    engine.run_extraction_session(max_concepts=23)
 
 
 if __name__ == "__main__":

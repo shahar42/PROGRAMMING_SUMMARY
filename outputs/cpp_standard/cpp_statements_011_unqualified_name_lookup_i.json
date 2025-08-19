@@ -1,0 +1,31 @@
+{
+  "topic": "Unqualified Name Lookup in C++",
+  "explanation": "Unqualified name lookup is a compile-time process in C++ where the compiler searches for an unqualified identifier (e.g., a variable or function name without a scope resolution operator) in a specific order of scopes, as defined in the C++ standard (e.g., [basic.lookup.unqual]). The compiler maintains an internal symbol table or scope stack to track declarations. It begins searching from the innermost scope (e.g., local block) and moves outward to enclosing scopes (e.g., namespace, class, global), stopping at the first matching declaration to resolve ambiguities and ensure O(1) or near-linear lookup times in well-structured code. This behavior is implemented using data structures like hash maps for symbols in each scope, which the compiler populates during the parsing phase. Performance implications include potential compilation overhead in deeply nested scopes or with many using directives, as each lookup may traverse multiple scope levels, increasing parse time but having no direct runtime cost since it's resolved at compile-time. In terms of assembly-level behavior, once resolved, the compiler generates code that directly references the symbol (e.g., via labels or offsets), such as loading a global variable's address. For example, in assembly, an unqualified name might translate to a direct memory access instruction like 'mov eax, [var_address]', where 'var_address' is determined during linking. Memory layout is indirectly affected as the linker uses the resolved symbols to place objects in the binary's sections, potentially optimizing for cache locality in large programs. This is purely compile-time, contrasting with runtime behaviors like dynamic linking, where symbols might be resolved at load time in shared libraries.",
+  "syntax": "In C++, unqualified name lookup for an identifier 'id' occurs in the following order: local scope, then enclosing blocks, then namespace scopes via using directives. Example syntax with implementation notes:\n\nnamespace Outer {\n    int var = 10;  // Declared in Outer namespace\n    namespace Inner {\n        void func();  // Declared in Inner namespace\n    }  // Compiler adds this to the Inner scope in its symbol table\n    using namespace Inner;  // Using directive makes Inner's declarations visible in Outer\n}\n\nint main() {\n    int var = 20;  // Local scope declaration; shadows Outer::var\n    func();  // Unqualified lookup: Compiler searches local scope first, then Outer (due to using directive), resolving to Outer::Inner::func\n    return 0;\n}",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "namespace Outer {",
+    "    int globalVar = 100;  // Declaration in Outer namespace",
+    "    namespace Inner {",
+    "        int localVar = 200;  // Declaration in Inner namespace",
+    "    }",
+    "    using namespace Inner;  // Makes Inner's declarations visible in Outer",
+    "}",
+    "",
+    "int main() {",
+    "    int localVar = 300;  // Local declaration in main",
+    "    std::cout << localVar << std::endl;  // Refers to localVar in main",
+    "    std::cout << Outer::localVar << std::endl;  // Explicitly qualified, refers to Inner::localVar",
+    "    std::cout << globalVar << std::endl;  // Unqualified: Compiler looks in main (not found), then global (not found), then Outer via using (found)",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler performs unqualified name lookup for 'localVar' and 'globalVar' during the parsing phase. For 'std::cout << localVar << std::endl;', the compiler first checks the local scope of main(), finds the declaration 'int localVar = 300;', and resolves it there, avoiding further searches\u2014demonstrating scope prioritization and name hiding. For 'std::cout << globalVar << std::endl;', since 'globalVar' isn't in main()'s local scope, the compiler consults the enclosing namespaces; it encounters the using directive in Outer, adding Outer and Inner symbols to the lookup path, and resolves to Outer::globalVar. Internally, the compiler might use a scope resolution algorithm with a stack: pushing local, then Outer, then global scopes. This compile-time resolution means no runtime overhead; the generated assembly for 'std::cout << localVar << std::endl;' would involve loading the address of the local variable from the stack frame (e.g., 'mov eax, [ebp-4]' in x86 assembly), while 'globalVar' might reference a static data section. Performance-wise, excessive namespaces could slow compilation due to repeated traversals of the symbol table, but the final binary remains optimized.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:41:25.393576"
+  }
+}

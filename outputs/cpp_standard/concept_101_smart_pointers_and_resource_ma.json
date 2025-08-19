@@ -1,0 +1,40 @@
+{
+  "topic": "Smart Pointers and Resource Management in Modern C++",
+  "explanation": "In modern C++, smart pointers such as std::shared_ptr, std::unique_ptr, and std::weak_ptr are used to manage dynamic memory automatically and safely. They implement RAII (Resource Acquisition Is Initialization), ensuring resources are properly released when no longer needed, thus preventing memory leaks and dangling pointers. These smart pointers support ownership semantics, reference counting, and weak references, enabling safer and more expressive resource management patterns compared to raw pointers.",
+  "syntax": "template<class T> class std::shared_ptr;\n\n// Creating a shared_ptr\nauto ptr = std::make_shared<T>(constructor_args...);\n\n// Using unique_ptr\nstd::unique_ptr<T> uptr = std::make_unique<T>(constructor_args...);\n\n// Weak pointer to observe shared ownership\nstd::weak_ptr<T> wptr = ptr;",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "",
+    "class Widget {",
+    "public:",
+    "    Widget() { std::cout << \"Widget constructed\" << std::endl; }",
+    "    ~Widget() { std::cout << \"Widget destroyed\" << std::endl; }",
+    "    void display() { std::cout << \"Displaying Widget\" << std::endl; }",
+    "};",
+    "",
+    "int main() {",
+    "    // Create a shared_ptr managing a Widget object",
+    "    auto widgetPtr = std::make_shared<Widget>();",
+    "    {",
+    "        // Create a weak_ptr observing the shared_ptr",
+    "        std::weak_ptr<Widget> weakWidget = widgetPtr;",
+    "        if (auto shared = weakWidget.lock()) {",
+    "            shared->display();",
+    "        }",
+    "    }",
+    "    // Reset shared_ptr, Widget will be destroyed if no other owners",
+    "    widgetPtr.reset();",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of std::shared_ptr to manage a dynamically allocated Widget object, ensuring automatic deallocation when no longer in use. It also shows std::weak_ptr observing the shared ownership without affecting the lifetime of the object. The use of std::make_shared simplifies object creation and optimizes memory allocation. Overall, it exemplifies modern C++ resource management practices with smart pointers, RAII, and safe object lifetime handling.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "537-537",
+    "extraction_date": "2025-08-19T05:11:24.078729",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

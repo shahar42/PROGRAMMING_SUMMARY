@@ -1,0 +1,27 @@
+{
+  "topic": "Template Metaprogramming and Compile-Time Computation",
+  "explanation": "Template metaprogramming leverages the C++ compiler's ability to perform computations during compilation, rather than at runtime.  This is achieved through template instantiation and recursion. The compiler generates specialized code for each template instantiation, effectively creating code tailored to specific types at compile time.  This differs significantly from runtime polymorphism achieved with virtual functions.  The memory layout is impacted as the compiler generates distinct code for different template arguments, potentially leading to larger binary sizes but faster execution because the type-specific operations are resolved before the program runs.  The performance implications are significant: compile-time computation avoids the overhead of runtime branching and function calls.  However, excessive template metaprogramming can lead to excessively long compile times and increased code size due to code bloat from numerous instantiations.  Assembly-level behavior will show specialized instructions tailored to the instantiated type, eliminating the need for runtime type checking or function pointer dereferencing. The trade-off is compile-time versus runtime performance; compile-time operations are faster at runtime but can increase compilation time.",
+  "syntax": "```cpp\ntemplate <typename T, size_t N>\nconstexpr size_t array_size(const T (&)[N]) {\n  return N;\n}\n\nint main() {\n  int arr[10];\n  constexpr size_t size = array_size(arr); // Compile-time calculation\n  std::cout << size << std::endl; // Output: 10\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <typename T, size_t N>",
+    "constexpr T factorial(size_t n) {",
+    "  return (n == 0) ? 1 : n * factorial<T,N>(n - 1);",
+    "}",
+    "int main() {",
+    "  constexpr size_t size = 5;",
+    "  constexpr int result = factorial<int, 100>(size); // Compile-time factorial calculation",
+    "  std::cout << \"Factorial of \" << size << \" is \" << result << std::endl; // Output: 120",
+    "  std::array<int, factorial<int, 100>(size)> arr; // array size determined at compile time.",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` function is a recursive template function.  The compiler computes the factorial at compile time for the given `size`.  The `constexpr` keyword ensures that the factorial is evaluated at compile time.  The compiler generates specialized code for `factorial<int, 100>(5)`, and this value (120) is then directly used to declare the size of `arr`.  No runtime calculation happens.  A non-constexpr function would require runtime computation.  The assembly code for the `main` function would not contain instructions for calculating the factorial; the compiler would substitute the result (120) directly into the code. This example also highlights potential limitations: if the argument to factorial were very large, it could lead to compilation issues due to recursive template expansion exceeding compiler limits.  This illustrates the trade-offs inherent in template metaprogramming. ",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:23:12.083799"
+  }
+}

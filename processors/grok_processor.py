@@ -60,16 +60,16 @@ class GrokAtomicProcessor(BaseAtomicProcessor):
             f"{self.base_url}/chat/completions",
             headers=headers,
             json=test_payload,
-            timeout=10
+            timeout=30
         )
         
         if response.status_code != 200:
             raise Exception(f"API test failed: {response.status_code} - {response.text}")
     
-    def _extract_with_ai(self, concept_data):
+    def _extract_with_ai(self, concept_data, book_name=None):
         """Transform raw concept into atomic training format"""
         
-        book_context = getattr(self, 'current_book_name', 'c_programming')
+        book_context = book_name if book_name else getattr(self, 'current_book_name', 'c_programming')
         prompt = self._build_atomic_extraction_prompt(concept_data["raw_content"], book_context)
         
         try:
@@ -94,7 +94,9 @@ class GrokAtomicProcessor(BaseAtomicProcessor):
             return None
     
     def _call_grok_api(self, prompt):
-        """Make API call to Grok"""
+        """Make API call to Grok with retry logic for truncated responses"""
+        import time
+        
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
@@ -106,22 +108,48 @@ class GrokAtomicProcessor(BaseAtomicProcessor):
             ],
             "model": self.model,
             "max_tokens": 4000,
-            "temperature": 0.1,  # Low temperature for consistent structured output
+            "temperature": 0.1,
             "stream": False
         }
         
-        response = requests.post(
-            f"{self.base_url}/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=110
-        )
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                print(f"🔄 GROK: Attempt {attempt + 1}/{max_retries}")
+                
+                response = requests.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=headers,
+                    json=payload,
+                    timeout=110
+                )
+                
+                if response.status_code != 200:
+                    raise Exception(f"Grok API call failed: {response.status_code} - {response.text}")
+                
+                response_data = response.json()
+                content = response_data["choices"][0]["message"]["content"]
+                
+                # Check if response looks complete (basic truncation detection)
+                if len(content) > 100 and (content.strip().endswith('}') or content.strip().endswith('}')):
+                    print(f"✅ GROK: Response looks complete ({len(content)} chars)")
+                    return content
+                else:
+                    print(f"⚠️ GROK: Response appears truncated ({len(content)} chars), retrying...")
+                    if attempt < max_retries - 1:
+                        time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+                        continue
+                        
+            except Exception as e:
+                print(f"❌ GROK: Attempt {attempt + 1} failed: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(2 ** attempt)
+                    continue
+                raise
         
-        if response.status_code != 200:
-            raise Exception(f"Grok API call failed: {response.status_code} - {response.text}")
-        
-        response_data = response.json()
-        return response_data["choices"][0]["message"]["content"]
+        # If we get here, all retries failed
+        print(f"💥 GROK: All {max_retries} attempts failed")
+        return content  # Return the last attempt even if truncated
     
     def _build_atomic_extraction_prompt(self, raw_content, book_context="c_programming"):
         """Build context-aware prompt for atomic concept extraction"""
@@ -217,19 +245,70 @@ CONTENT TO PROCESS:
 
 Extract the atomic concept as JSON:"""
     
+    def _try_complete_json(self, partial_json):
+        """Try to salvage partial JSON responses"""
+        print(f"🔧 GROK JSON COMPLETION: Attempting to fix partial JSON...")
+        try:
+            # Remove any markdown formatting
+            cleaned = partial_json.replace('```json', '').replace('```', '').strip()
+            
+            # Try to find where it was cut off and add closing braces
+            if cleaned.strip().endswith(','):
+                cleaned = cleaned.strip()[:-1]  # Remove trailing comma
+            
+            # Count missing closing braces
+            open_braces = cleaned.count('{')
+            close_braces = cleaned.count('}')
+            missing_braces = open_braces - close_braces
+            
+            if missing_braces > 0:
+                completed_json = cleaned + '}' * missing_braces
+                
+                # Try to parse it
+                concept = json.loads(completed_json)
+                
+                if concept.get('topic') and concept.get('explanation'):
+                    print(f"🔧 ✅ Successfully completed partial JSON from Grok")
+                    return concept
+                    
+        except Exception as e:
+            print(f"⚠️ Failed to complete Grok JSON: {type(e).__name__}: {e}")
+        
+        return None
+
     def _parse_grok_response(self, response_text):
         """Parse Grok's JSON response"""
         print(f"Full Grok response: {response_text}")
         print(f"Response length: {len(response_text)}")
         try:
             # Extract JSON from response (handle potential markdown wrapping)
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            json_match = re.search(r'{.*}', response_text, re.DOTALL)
             if json_match:
                 json_str = json_match.group()
                 return json.loads(json_str)
-            else:
-                raise ValueError("No JSON found in response")
+            
+            # Try to complete partial JSON
+            print("⚠️ No complete JSON found, trying to complete partial...")
+            completed = self._try_complete_json(response_text)
+            if completed:
+                return completed
+                
+            raise ValueError("No JSON found in response")
+            
         except json.JSONDecodeError as e:
             print(f"Failed to parse JSON: {e}")
+            
+            # Try to complete partial JSON on decode error
+            print("⚠️ Trying to complete partial GROK JSON after decode error...")
+            if 'json_match' in locals() and json_match:
+                completed = self._try_complete_json(json_match.group())
+                if completed:
+                    return completed
+            
+            # Try the whole response
+            completed = self._try_complete_json(response_text)
+            if completed:
+                return completed
+                
             print(f"Response was: {response_text[:500]}...")
             return None

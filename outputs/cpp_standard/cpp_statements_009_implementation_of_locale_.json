@@ -1,0 +1,25 @@
+{
+  "topic": "Implementation of Locale Facets for Monetary Formatting in C++",
+  "explanation": "In C++, locale facets like std::moneypunct and std::ctype are part of the internationalization system in the standard library, enabling runtime-configurable formatting for output streams. The compiler implements these features by relying on the standard library's polymorphic facet classes, which derive from std::locale::facet. When a locale is imbued into an output stream (e.g., via std::ostream::imbue), the stream stores a pointer to a locale object, which in turn holds references to facet instances. These facets are typically managed through a reference-counted mechanism to handle copying and destruction efficiently.\n\nUnder the hood, the compiler generates code that performs virtual function dispatch to access facet methods. For instance, during monetary formatting (as in the provided content), std::money_put::put invokes virtual functions on the std::moneypunct facet to retrieve currency symbols, grouping rules, and other locale-specific data, while std::ctype is used for character mapping. This involves vtable lookups at runtime, where the compiler emits assembly instructions for indirect calls (e.g., via a vptr to the vtable), leading to potential branch prediction misses and cache inefficiencies.\n\nMemory layout-wise, a std::locale object contains an array or map of facet pointers, often with each facet allocated dynamically. This results in indirect memory access patterns, increasing the risk of cache misses and higher memory overhead compared to static formatting. Performance implications include runtime overhead from virtual calls, which can be 5-10 times slower than direct function calls, making locale-based formatting less suitable for high-performance code. However, this design allows for flexibility, as locales can be changed at runtime without recompilation.\n\nBehavior is predominantly runtime-based, as locale settings (e.g., from environment variables or explicit imbuing) determine the active facets. Compile-time aspects are limited to linking against the standard library and inlining trivial accessors, but the actual formatting logic resolves at runtime, contrasting with constexpr alternatives like std::format in C++20+ for static strings.",
+  "syntax": "template<class charT, class OutputIterator>\nOutputIterator money_put<charT>::put(OutputIterator s, std::ios_base& str, char_type fill, const string_type& digits) const;\n// Implementation notes: This member function of std::money_put facet uses virtual dispatch to call std::moneypunct::curr_symbol(), std::moneypunct::decimal_point(), etc., from the imbued locale. The compiler translates this into assembly with indirect calls to vtable entries, e.g., 'call [rax + offset]' for vptr-based dispatch, and handles character mapping via std::ctype. Memory layout involves the locale object pointing to a std::moneypunct instance, which may share memory with other facets in a reference-counted structure.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <locale>",
+    "#include <iomanip>",
+    "",
+    "int main() {",
+    "    std::locale loc(\"en_US.UTF-8\");  // Sets up a locale with US English formatting",
+    "    std::cout.imbue(loc);  // Imbues the stream with the locale, triggering facet lookup",
+    "    double amount = 1234.56;",
+    "    std::cout << std::showbase << std::put_money(amount) << std::endl;  // Uses money_put facet",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler first processes the std::locale constructor at runtime, which loads the 'en_US.UTF-8' locale and instantiates facets like std::moneypunct and std::ctype. When std::cout.imbue(loc) is called, the stream's locale pointer is updated, leading to assembly-level operations that store a pointer to the locale object in the stream's internal state (e.g., via a member variable in std::basic_ostream).\n\nDuring std::cout << std::put_money(amount), the money_put facet's put() function is invoked via virtual dispatch. The compiler emits code that dereferences the stream's locale pointer, locates the std::moneypunct facet (e.g., through a virtual 'get' method), and calls its virtual functions to format the output\u2014resulting in assembly like 'mov rax, [rdi + locale_offset]' followed by 'call [rax + vtable_index]'. This runtime behavior introduces indirection, potentially causing pipeline stalls if the vtable is not cached.\n\nPerformance-wise, each virtual call adds latency (e.g., 10-20 cycles on modern CPUs due to cache access), and memory layout of the locale object\u2014likely a struct with pointers to facets\u2014can lead to non-contiguous access, increasing TLB misses. In contrast, compile-time formatting (e.g., with string literals) would avoid this overhead, but here, the runtime flexibility for internationalization comes at the cost of efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:37:06.932022"
+  }
+}

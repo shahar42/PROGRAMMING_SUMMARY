@@ -1,0 +1,39 @@
+{
+  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its Implementation Details",
+  "explanation": "Template metaprogramming allows compile-time computations and code generation, leveraging the compiler's ability to perform complex operations during compilation rather than runtime. This significantly impacts memory layout, performance, and the generated assembly code.  The compiler essentially transforms the template code into specialized versions for each type used, avoiding the runtime overhead of virtual functions or dynamic dispatch.  Understanding how the compiler performs this substitution and the potential for increased code size is crucial for advanced C++ development.",
+  "syntax": "Utilizing templates to create compile-time functions and data structures.  This often involves recursion within templates to achieve complex logic.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T, size_t N>",
+    "constexpr size_t array_size(const T (&)[N]) { return N; }",
+    "",
+    "template <typename T, size_t Size>",
+    "class StaticArray {",
+    "public:",
+    "  constexpr StaticArray(const T(&data)[Size]) {",
+    "    for (size_t i = 0; i < Size; ++i) {",
+    "      arr[i] = data[i];",
+    "    }",
+    "  }",
+    "  constexpr T get(size_t index) const { return arr[index]; }",
+    "private:",
+    "  T arr[Size];",
+    "};",
+    "",
+    "int main() {",
+    "  constexpr int data[] = {1, 2, 3, 4, 5};",
+    "  constexpr StaticArray<int, array_size(data)> myArray(data);",
+    "  std::cout << myArray.get(2) << std::endl; // Output: 3",
+    "  static_assert(array_size(data) == 5, \"Array size check failed\");",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler generates different versions of `StaticArray` for each type and size used.  For `int` and size 5, the compiler essentially creates a struct with five integer members, directly inlining the initialization from the array.  The `constexpr` keyword ensures that the array size and `get` function calls are evaluated at compile-time. No runtime overhead for dynamic memory allocation or virtual function calls is present. The assembly code will directly contain the array data and the `get` function will resolve to a simple array access instruction.  However, the trade-off is that this approach can result in a larger binary due to code duplication for different template instantiations.  This is particularly noticeable with deeply recursive template metaprogramming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:17:12.766854"
+  }
+}

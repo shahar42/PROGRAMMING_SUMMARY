@@ -35,7 +35,9 @@ books_metadata = {
     "linkers_loaders": "Linkers and Loaders (Levine)",
     "os_three_pieces": "Operating Systems: Three Easy Pieces (Arpaci-Dusseau)",
     "expert_c_programming": "Expert C Programming Deep C Secrets (van der Linden)",
-    "csapp_2016": "Computer Systems: A Programmer's Perspective (3rd Edition)"
+    "csapp_2016": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "cpp_standard": "The C++ Standard Library (ISO/IEC 14882)",
+    "cpp_primer": "C++ Primer (5th Edition)"
 }
 
 

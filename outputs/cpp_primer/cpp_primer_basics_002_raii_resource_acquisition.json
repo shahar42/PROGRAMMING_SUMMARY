@@ -1,0 +1,43 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ programming technique that ensures resources (like memory, files, network connections, mutexes) are automatically managed and released when they are no longer needed.  It leverages constructors to acquire resources and destructors to release them, guaranteeing proper cleanup even in exceptional situations.  This prevents resource leaks, a common source of errors in C and other languages.  By tying resource management to object lifetime, RAII enhances code reliability and simplifies error handling.",
+  "syntax": "RAII is achieved through class design.  The constructor acquires the resource and the destructor releases it.  Consider using smart pointers (e.g., `unique_ptr`, `shared_ptr`, `weak_ptr`) from `<memory>` for automatic memory management.  Other resources can be managed by custom classes that follow the same principle.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <fstream>",
+    "#include <memory>",
+    "",
+    "class FileHandler {",
+    "public:",
+    "  FileHandler(const std::string& filename) : file_(filename.c_str(), std::ios::out) {",
+    "    if (!file_) {",
+    "      throw std::runtime_error(\"Could not open file.\");",
+    "    }",
+    "  }",
+    "  ~FileHandler() {",
+    "    file_.close();",
+    "  }",
+    "  std::ofstream& getFile() { return file_; }",
+    "private:",
+    "  std::ofstream file_;",
+    "};",
+    "",
+    "int main() {",
+    "  try {",
+    "    FileHandler file(\"my_data.txt\");",
+    "    file.getFile() << \"Hello, RAII!\\n\";",
+    "  } catch (const std::runtime_error& error) {",
+    "    std::cerr << \"Error: \" << error.what() << std::endl;",
+    "    return 1;",
+    "  }",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `FileHandler` class demonstrates RAII. The constructor opens the file; if it fails, an exception is thrown. The destructor ensures the file is closed, even if exceptions occur within the `main` function.  This prevents file handles from being leaked. Smart pointers offer a similar benefit for dynamically allocated memory, preventing memory leaks and simplifying memory management. RAII is a cornerstone of exception safety in C++, ensuring cleanup even when exceptions are thrown.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:40:13.885398"
+  }
+}

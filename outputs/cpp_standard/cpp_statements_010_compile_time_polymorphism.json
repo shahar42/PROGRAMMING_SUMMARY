@@ -1,0 +1,26 @@
+{
+  "topic": "Compile-Time Polymorphism with Template Metaprogramming and its Impact on Code Generation",
+  "explanation": "This explores how C++ templates, particularly template metaprogramming, enable compile-time polymorphism.  This differs significantly from runtime polymorphism achieved with virtual functions.  Compile-time polymorphism leverages the compiler to generate specialized code for different template arguments at compile time, avoiding runtime overhead associated with virtual function calls.  The compiler's behavior involves generating distinct functions or data structures for each template instantiation, leading to potential code bloat if many instantiations exist.  Understanding the compiler's template instantiation process\u2014including recursive template instantiations\u2014is crucial for performance tuning and avoiding unexpected behavior.  Memory layout depends entirely on the types used in the instantiation; no common base class exists to dictate layout as in runtime polymorphism. Assembly-level analysis would reveal distinct function bodies generated for different types.  We'll examine the trade-offs between compile-time versus runtime overhead, focusing on performance implications of increased code size and the potential for faster execution due to the absence of virtual function calls.",
+  "syntax": "Template functions and classes:\n```c++\ntemplate <typename T>\nT max(const T& a, const T& b) {\n  return (a > b) ? a : b;\n}\n\ntemplate <int N>\nstruct Factorial {\n  static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <> // Partial template specialization\nstruct Factorial<0> {\n  static const int value = 1;\n};\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T>\nconstexpr T max(const T& a, const T& b) { return (a > b) ? a : b; }",
+    "template <typename T>\nstruct IsEven : std::false_type {};",
+    "template <typename T>\nstruct IsEven<T> : std::integral_constant<bool, (std::is_integral_v<T> && (std::is_same_v<std::decay_t<T>, int> || std::is_same_v<std::decay_t<T>, long long>))> {};",
+    "int main() {",
+    "  std::cout << max(5, 10) << std::endl;  // Calls int version",
+    "  std::cout << max(5.5f, 10.1f) << std::endl; // Calls float version",
+    "  std::cout << IsEven<int>::value << std::endl; //Compile time evaluation",
+    "  std::cout << IsEven<double>::value << std::endl; //Compile time evaluation",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `max` function demonstrates compile-time polymorphism; separate function code is generated for each type used (int, float, etc.).  The compiler creates multiple instantiations based on the type argument. The `IsEven` example showcases compile-time boolean evaluation using template metaprogramming and `std::integral_constant` avoiding a runtime check. The compiler evaluates `IsEven<int>::value` at compile time; no code is generated at runtime to perform this check. Analyzing the generated assembly would reveal specialized code for each `max` instantiation and the absence of runtime code for evaluating `IsEven`.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:37:22.391471"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "topic": "Advanced Use of Standard I/O Stream Objects in C++",
+  "explanation": "In advanced C programming techniques, especially when interfacing with C++-style I/O streams, understanding the underlying implementation and customization of standard I/O objects (such as cin, cout, cerr, and clog) is crucial. These objects are instances of classes derived from stream classes, and their behavior can be customized or extended through advanced techniques like stream manipulators, custom stream buffers, and operator overloading. Mastery of these concepts allows for sophisticated control over input/output operations, enabling optimized, context-aware, or platform-specific I/O handling beyond basic usage.",
+  "syntax": "extern std::istream cin; // Standard input stream object\nextern std::ostream cout; // Standard output stream object\nextern std::ostream cerr; // Standard error stream object\nextern std::ostream clog; // Logging stream object\n// Custom stream buffer class for advanced control\nclass CustomStreamBuf : public std::streambuf { /* ... */ };\n// Assigning custom buffer to a stream\nstd::ostream custom_out(new CustomStreamBuf());",
+  "code_example": [
+    "// Custom stream buffer that prepends timestamp to each output",
+    "class TimestampBuf : public std::streambuf {",
+    "public:",
+    "    std::streambuf* original_buf;",
+    "    TimestampBuf(std::streambuf* buf) : original_buf(buf) {}",
+    "protected:",
+    "    virtual int overflow(int c) override {",
+    "        // Add timestamp before each character",
+    "        // For simplicity, assume timestamp is a fixed string",
+    "        static const char* timestamp = \"[2024-04-27 12:00:00] \";",
+    "        original_buf->sputn(timestamp, strlen(timestamp));",
+    "        return original_buf->sputc(c);",
+    "    }",
+    "};",
+    "",
+    "// Redirect std::cout to use custom timestamp buffer",
+    "TimestampBuf* ts_buf = new TimestampBuf(cout.rdbuf());",
+    "std::ostream timestamped_out(ts_buf);",
+    "int main() {",
+    "    timestamped_out << \"Advanced I/O with custom stream buffer\" << std::endl;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates advanced manipulation of the standard output stream by creating a custom stream buffer that prepends a timestamp to each output. It showcases how stream buffers can be extended and assigned to standard stream objects like cout, enabling sophisticated, context-aware I/O handling. This technique exemplifies deep control over C++ stream internals, a key aspect of advanced C programming for high-performance or specialized I/O operations.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "31-31",
+    "extraction_date": "2025-08-20T01:08:31.990284",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}
