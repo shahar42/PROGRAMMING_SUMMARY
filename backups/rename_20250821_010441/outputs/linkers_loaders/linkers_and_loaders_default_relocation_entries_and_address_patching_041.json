@@ -1,0 +1,43 @@
+{
+  "topic": "Relocation Entries and Address Patching",
+  "explanation": "Relocation is a crucial step in the linking and loading process.  During compilation, code and data often refer to addresses that are not yet known.  These references are marked as relocation entries in the object file.  The linker assigns final addresses to code and data segments. The loader then uses the relocation entries to patch the object file, replacing the temporary addresses with the actual memory addresses where the code and data reside.  This ensures that the program runs correctly in its assigned memory space.  Without relocation, the program would not work because all addresses would be incorrect.",
+  "syntax": "Relocation entries typically have the following structure:\n\n- Offset: The address within the section that needs patching.\n- Type: The type of relocation (e.g., absolute, relative).\n- Addend: A value added to the relocated address.",
+  "code_example": [
+    "# Assume a simplified relocation entry structure",
+    "struct RelocationEntry {",
+    "  unsigned int offset;",
+    "  unsigned int type;",
+    "  unsigned int addend;",
+    "};",
+    "",
+    "# Example relocation entry",
+    "struct RelocationEntry entry = { 0x1000, 1, 0x10 };",
+    "",
+    "# Assume a section of code",
+    "unsigned char code_section[] = {",
+    "  0x00, 0x00, 0x00, 0x00, // Placeholder for address",
+    "  0x00, 0x00, 0x00, 0x00, // ...more code...",
+    "};",
+    "",
+    "# Relocation process:",
+    "# 1. Identify the entry's offset (0x1000)",
+    "# 2. Determine the final address of the section (e.g., 0x400000)",
+    "# 3. Apply patching based on the type and addend:",
+    "# 4. Patching: 0x400000 + 0x10 = 0x400010",
+    "# 5. Write 0x400010 to the offset (0x1000)",
+    "unsigned int final_address = 0x400000;",
+    "code_section[entry.offset] = (final_address + entry.addend) & 0xFF;",
+    "code_section[entry.offset + 1] = ((final_address + entry.addend) >> 8) & 0xFF;",
+    "code_section[entry.offset + 2] = ((final_address + entry.addend) >> 16) & 0xFF;",
+    "code_section[entry.offset + 3] = ((final_address + entry.addend) >> 24) & 0xFF;"
+  ],
+  "example_explanation": "This example simulates the relocation process.  The `RelocationEntry` structure represents a relocation entry found in an object file.  The `code_section` simulates a section of code containing a placeholder for an address. The example shows how the loader uses the relocation entry to calculate the final address and patch it into the code section at the specified offset.  The process involves adding the final address of the section with the addend in the entry, which results in the corrected memory address.  The actual implementation of relocation is far more complex and depends on the specific operating system and object file format (ELF, PE, COFF), but this illustrates the fundamental principle.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "154-155",
+    "extraction_date": "2025-07-19T15:45:37.289084",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

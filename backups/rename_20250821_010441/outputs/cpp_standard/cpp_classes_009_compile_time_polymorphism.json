@@ -1,0 +1,25 @@
+{
+  "topic": "Compile-Time Polymorphism with `constexpr` and Template Metaprogramming",
+  "explanation": "This explores how `constexpr` functions and template metaprogramming enable compile-time computations and polymorphism, drastically impacting performance and code generation.  The compiler performs significant optimization by evaluating expressions at compile time, eliminating runtime overhead. This contrasts sharply with runtime polymorphism achieved through virtual functions and virtual function tables (vtables).  Understanding the compiler's ability to evaluate these expressions is crucial for performance-critical applications.  Failure to understand this can lead to unexpected runtime behavior or significant performance penalties where compile-time evaluation was intended.\n\nMemory layout is directly affected. Compile-time computations result in constant values embedded directly into the executable, avoiding heap allocations or dynamic memory management at runtime. The resulting assembly code will often be simpler and more efficient, with direct value access rather than indirect memory access through vtables. This directly influences cache performance and instruction pipeline efficiency.\n\nCompile-time errors are detected earlier in the build process, improving developer productivity.  However, overly complex compile-time computations can significantly increase compilation time and potentially lead to very large executable sizes if not carefully managed.",
+  "syntax": "```cpp\nconstexpr int factorial(int n) {\n  return (n == 0) ? 1 : n * factorial(n - 1);\n}\n\ntemplate <int N> \nconstexpr int fibonacci() {\n  return (N <= 1) ? N : fibonacci<N - 1>() + fibonacci<N - 2>();\n}\n\nint main() {\n  constexpr int fact_5 = factorial(5); // Computed at compile time\n  constexpr int fib_10 = fibonacci<10>(); // Computed at compile time\n  std::cout << \"Factorial of 5: \" << fact_5 << std::endl; \n  std::cout << \"Fibonacci(10): \" << fib_10 << std::endl;\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "constexpr int square(int x) { return x * x; }",
+    "template <int N> struct PowerOfTwo { static constexpr int value = 2 * PowerOfTwo<N-1>::value; };",
+    "template <> struct PowerOfTwo<0> { static constexpr int value = 1; };",
+    "int main() {",
+    "  constexpr int a = square(5); // compile time calculation",
+    "  constexpr int b = PowerOfTwo<10>::value; // compile time calculation",
+    "  std::cout << \"Square of 5: \" << a << std::endl;",
+    "  std::cout << \"2^10: \" << b << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `square` function is marked `constexpr`, allowing the compiler to evaluate `square(5)` at compile time. The result, 25, is directly embedded into the executable.  The `PowerOfTwo` template recursively calculates 2<sup>N</sup> at compile time. The compiler generates specific code for `PowerOfTwo<10>::value` without any runtime calculations.  The assembly code will not contain instructions for calculating these values at runtime; instead, the compiler will substitute the pre-calculated values directly.  This results in significantly faster execution compared to a runtime equivalent and avoids any runtime function calls or stack frame creation.  Improper use, such as attempting to use a `constexpr` function with runtime-only values, will result in compile-time errors, highlighting the importance of understanding compile-time evaluation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:11:15.347645"
+  }
+}

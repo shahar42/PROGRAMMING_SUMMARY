@@ -1,0 +1,25 @@
+{
+  "topic": "One Definition Rule (ODR) and Internal Linkage with Unnamed Namespaces",
+  "explanation": "The One Definition Rule (ODR) in C++ mandates that every variable, function, or class with external linkage must have exactly one definition across all translation units.  Violating this leads to linker errors.  Unnamed namespaces provide a powerful mechanism to achieve internal linkage without explicit `static` keywords, subtly impacting compiler behavior and memory layout.  The compiler treats entities within an unnamed namespace as if they were declared `static` within a specific translation unit. This means that even though they might appear to have external linkage (because they're not explicitly declared `static`), they are effectively given unique, anonymous names by the compiler. These names are unique to each translation unit, preventing any form of external linkage and avoiding ODR violations, even if multiple translation units have seemingly identical declarations within unnamed namespaces.\n\n**Compiler Implementation:** Compilers typically implement this by mangling the names of entities within unnamed namespaces, appending a unique identifier specific to the translation unit. This ensures that the linker treats these entities as distinct, preventing conflicts. This mangling happens at the compilation stage, before the linker sees the symbols. \n\n**Memory Layout and Performance Implications:** Because the entities are effectively given internal linkage, the compiler can make optimizations based on this knowledge. For example, it may perform inlining aggressively or optimize away unnecessary accesses if it can prove that the entity is only ever referenced within the same translation unit. There is no memory-layout difference compared to using `static` explicitly, but the implicit nature of unnamed namespaces can improve code readability while yielding the same benefits.\n\n**Assembly-level Behavior:** The assembly code will show the mangled names reflecting the internal linkage.  The absence of external symbols corresponding to entities declared within unnamed namespaces is key.  No inter-translation-unit references will be present in the final linked executable regarding these symbols.\n\n**Runtime vs. Compile-Time Behavior:** The behavior is mostly determined at compile time. The compiler's mangling and internal linkage implementation happen during compilation. Runtime behavior is not directly impacted\u2014it\u2019s all about the prevention of linker errors stemming from multiple definitions at the linkage stage.",
+  "syntax": "```c++\nnamespace {\n  int i = 0;\n  void func() { i++; }\n}\n\nint main() {\n  func();\n  std::cout << i << std::endl; // Access within the same translation unit\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "namespace {",
+    "  int counter = 0;",
+    "  void increment() { counter++; }",
+    "}",
+    "int main() {",
+    "  increment();",
+    "  increment();",
+    "  std::cout << \"Counter: \" << counter << std::endl; //This will work as expected.",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `counter` variable and `increment` function reside in an unnamed namespace.  The compiler will mangle their names to ensure uniqueness within the translation unit.  If another source file attempted to access `counter` or `increment`, it would not link because the compiler would generate unique internal names in both files.  This demonstrates how unnamed namespaces elegantly enforce the ODR without explicit `static` declarations. The compiler's internal mechanisms ensure that `counter` behaves exactly like a static variable but without using the potentially less readable `static` keyword. The assembly code would show unique symbols for `counter` (and potentially for `increment` if it's not inlined) within the translation unit and no external symbols with the same name or closely related ones.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:33:12.239694"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "topic": "Position Independent Code (PIC)",
+  "explanation": "Position Independent Code (PIC) is a code generation technique that produces executables or shared libraries whose addresses do not depend on their load address in memory. This is crucial for shared libraries (like .so files on Linux or .dll files on Windows) because multiple programs might load the same shared library concurrently, each into a different memory location. PIC ensures that the code works correctly regardless of where the loader places it in memory.",
+  "syntax": "PIC typically involves the use of relative addressing and a Global Offset Table (GOT) or Procedure Linkage Table (PLT).  Relative addressing uses offsets from a register (like the instruction pointer) instead of absolute memory addresses. The GOT/PLT contains pointers to global variables and functions, which are resolved at runtime.",
+  "code_example": [
+    "# This example is conceptual and simplified.  Actual PIC implementation is compiler and architecture-specific.",
+    "# Assume 'shared_function' is a function defined in a shared library.",
+    "section .text",
+    "  global my_function",
+    "my_function:",
+    "  # Accessing shared_function using PIC:",
+    "  mov r1, GOT(shared_function) ; Load address of shared_function from GOT into register r1",
+    "  call *r1                    ; Call the function whose address is in r1",
+    "  ret",
+    "section .data",
+    "  GOT(shared_function): .quad 0 ; Placeholder for the address of shared_function, resolved at runtime"
+  ],
+  "example_explanation": "This simplified example illustrates a key aspect of PIC. The `my_function` needs to call `shared_function` from a shared library. Instead of using an absolute address for `shared_function`, it uses a GOT entry. The linker initially places a placeholder address (0) in the GOT.  The dynamic linker resolves the actual address of `shared_function` at runtime and updates the GOT entry. When `my_function` runs, it fetches the correct address from the GOT and calls `shared_function` successfully, regardless of where the shared library is loaded into memory.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "49-49",
+    "extraction_date": "2025-07-14T01:36:28.162481",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

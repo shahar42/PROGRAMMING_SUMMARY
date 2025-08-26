@@ -1,0 +1,37 @@
+{
+  "topic": "Template Class Constructor with Forwarding Reference",
+  "explanation": "In modern C++, templates allow for generic programming by enabling classes and functions to operate with generic types. A template class constructor can accept forwarding references (also known as universal references) to perfectly forward arguments, preserving their value category (lvalue or rvalue). This technique is essential for implementing efficient, flexible, and generic resource management or initialization patterns, especially in conjunction with move semantics and perfect forwarding. It allows the constructor to initialize class members with arguments of various types without unnecessary copying or conversions.",
+  "syntax": "template<class T>\nclass ClassName {\npublic:\n    template<typename U>\n    ClassName(U&& arg); // Constructor template with forwarding reference\n};",
+  "code_example": [
+    "#include <utility>",
+    "template <typename Sseq>",
+    "class A {",
+    "public:",
+    "    template <typename Q>",
+    "    A(Q&& q) {",
+    "        // Initialize base engine with forwarded argument",
+    "        initialize(q);",
+    "    }",
+    "private:",
+    "    void initialize(Sseq& s) {",
+    "        // Implementation that uses s",
+    "    }",
+    "};",
+    "",
+    "int main() {",
+    "    std::string s = \"Engine Data\";",
+    "    A<std::string> a(s); // Instantiate A with a string lvalue",
+    "    A<std::string> a2(std::move(s)); // Instantiate A with an rvalue",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example defines a template class 'A' with a constructor template that accepts a forwarding reference 'Q&& q'. In 'main', the class is instantiated with both an lvalue ('s') and an rvalue ('std::move(s)'). The constructor uses perfect forwarding to pass the argument to the 'initialize' method, demonstrating how template constructors with forwarding references enable flexible, efficient initialization with various argument types while preserving their value categories. This pattern is fundamental in modern C++ for writing generic, high-performance code that interacts seamlessly with move semantics.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "942-943",
+    "extraction_date": "2025-08-19T08:04:45.653174",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

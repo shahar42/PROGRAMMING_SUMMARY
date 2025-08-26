@@ -1,0 +1,29 @@
+{
+  "topic": "Static Initialization Order Fiasco and its Solutions",
+  "explanation": "The order of initialization of global and static variables in C++ is not strictly defined across translation units, leading to potential runtime errors if one static object depends on another.  This is known as the Static Initialization Order Fiasco (SIOF). Compilers typically initialize these variables before `main()` execution, but the exact order between different translation units (`.cpp` files) is undefined.  This can manifest when one static object's constructor depends on another already being initialized.  The compiler's implementation details involve linking and the order in which object constructors are called during program startup.  Performance implications arise from potential runtime crashes or undefined behavior, resulting in unpredictable program outcomes. At the assembly level, you might observe unpredictable jumps or memory reads depending on the order of initialization decided by the linker. Runtime behavior is crucial, as the problem only surfaces at runtime, not during compilation. Several solutions mitigate this: the Meyers Singleton, static function initialization, and using the Curiously Recurring Template Pattern (CRTP).",
+  "syntax": "C++ syntax examples demonstrating SIOF and solutions:\n\n**Problem:**\n```c++\nclass A {\npublic:\n  static int x;\n  A() { x = 10; }\n};\nint A::x = 0;\n\nclass B {\npublic:\n  B() { std::cout << \"A::x = \" << A::x << \"\\n\"; }\n};\n\nB b;\n```\n**Meyers Singleton (Solution):**\n```c++\nclass Singleton {\nprivate:\n  static Singleton* instance;\n  Singleton() {}\npublic:\n  static Singleton& getInstance() {\n    static Singleton theInstance; // Initialized only once\n    return theInstance;\n  }\n};\nSingleton* Singleton::instance = nullptr;\n```\n**Static Function Initialization (Solution):**\n```c++\nclass A {\npublic:\n  static int x; \n  static int getX() { static int x = 10; return x; }\n};\nint A::x = 0;\nint main() { std::cout << A::getX() << std::endl; }\n```",
+  "code_example": [
+    "#include <iostream>",
+    "class A {",
+    "public:",
+    "  static int x;",
+    "  A() { x = 10; }",
+    "};",
+    "int A::x = 0;",
+    "",
+    "class B {",
+    "public:",
+    "  B() { std::cout << \"A::x = \" << A::x << \"\\n\"; }",
+    "};",
+    "",
+    "B b;",
+    "int main() { return 0;}"
+  ],
+  "example_explanation": "This example demonstrates the SIOF. The order of initialization of `A::x` and `b` is undefined. If `b`'s constructor is called *before* `A`'s constructor sets `x` to 10,  `A::x` will have an unpredictable value, likely 0, leading to unexpected output. The Meyers Singleton and static function initialization examples show how to avoid this issue by ensuring initialization happens in a controlled manner.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:48:48.056989"
+  }
+}

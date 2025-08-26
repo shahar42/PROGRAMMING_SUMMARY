@@ -1,0 +1,58 @@
+{
+  "name": "pivot_root",
+  "synopsis": [
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_pivot_root, const char *new_root, const char *put_old);"
+  ],
+  "description": "pivot_root changes the root mount in the mount namespace of the calling process by moving the current root mount to the specified put_old directory and setting new_root as the new root mount. It requires the CAP_SYS_ADMIN capability and has several restrictions, such as new_root and put_old not being on the same mount as the current root.",
+  "parameters": [
+    {
+      "name": "new_root",
+      "type": "const char *",
+      "description": "Path to the new root directory, which must be a mount point."
+    },
+    {
+      "name": "put_old",
+      "type": "const char *",
+      "description": "Path where the old root mount will be moved, which must be at or underneath new_root."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBUSY",
+      "description": "new_root or put_old is on the current root mount."
+    },
+    {
+      "code": "EINVAL",
+      "description": "new_root is not a mount point; or put_old is not at or underneath new_root; or the current root is not a mount point; or propagation types are invalid."
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "new_root or put_old is not a directory."
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling process does not have the CAP_SYS_ADMIN capability."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [
+    "static int pivot_root(const char *new_root, const char *put_old) { return syscall(SYS_pivot_root, new_root, put_old); }",
+    "if (pivot_root(new_root, path) == -1) err(EXIT_FAILURE, \"pivot_root\");"
+  ],
+  "related_calls": [],
+  "extraction_metadata": {
+    "syscall_file": "pivot_root.pdf",
+    "extraction_date": "2025-07-29T15:04:02.639370",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "topic": "Compile-Time Function Evaluation with constexpr and its Implications",
+  "explanation": "The `constexpr` specifier allows functions to be evaluated at compile time, if the compiler can determine all inputs at compile time. This leads to significant performance optimizations and allows for compile-time computation of values, potentially eliminating runtime overhead.  The compiler's implementation involves sophisticated constant folding and expression evaluation during the compilation process. If the compiler cannot determine the inputs at compile time, the function is evaluated at runtime as a normal function. The memory layout depends on whether the function is evaluated at compile time or runtime. Compile-time evaluation results in the value being directly embedded into the program's binary, requiring no runtime memory allocation. Runtime evaluation follows the standard function call mechanics, involving stack frame allocation and function execution.  The assembly-level behavior will differ substantially. Compile-time evaluation results in no corresponding assembly instructions for the function call itself; the result is already present. Runtime evaluation will show standard assembly instructions for function prologue, calculations, and epilogue.",
+  "syntax": "```c++\nconstexpr int factorial(int n) {\n  if (n == 0) return 1;\n  return n * factorial(n - 1); \n}\n\nint main() {\n  constexpr int result = factorial(5); // Compile-time evaluation\n  int runtimeResult = factorial(6);  // Runtime evaluation if 6 cannot be evaluated constexpr\n  static_assert(result == 120, \"Factorial calculation failed\");\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <stdexcept>",
+    "constexpr int factorial(int n) {",
+    "  if (n < 0) throw std::runtime_error(\"Negative factorial\");",
+    "  if (n == 0) return 1;",
+    "  return n * factorial(n - 1);",
+    "}",
+    "int main() {",
+    "  constexpr int fact5 = factorial(5);  // Compile-time if possible",
+    "  constexpr int fact10 = factorial(10); //Potentially compile-time, compiler dependent",
+    "  // constexpr int factLarge = factorial(10000);  // Likely runtime due to recursion depth",
+    "  std::cout << fact5 << '\\n';",
+    "  std::cout << fact10 << '\\n';",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` function demonstrates compile-time evaluation.  `fact5` will be computed at compile time, resulting in no runtime overhead. However, whether `fact10` is evaluated at compile time depends on the compiler's ability to handle the recursion depth and potential stack overflow during compilation.  A very large number passed to factorial (such as 10000, uncommented in example) will almost certainly be evaluated at runtime because the compiler would likely hit limits on compile-time recursion or constant expression size. The assembly for the `main` function will show the `fact5` value directly embedded (no function call), while `fact10` may or may not show a function call, depending on compiler optimization and evaluation.  The use of `static_assert` highlights that compile-time computations can also be used for compile-time error checking.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:52:25.266676"
+  }
+}

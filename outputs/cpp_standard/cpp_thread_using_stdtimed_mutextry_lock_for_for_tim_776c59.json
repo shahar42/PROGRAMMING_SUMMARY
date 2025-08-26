@@ -1,0 +1,41 @@
+{
+  "topic": "Using std::timed_mutex::try_lock_for for Time-Bound Lock Acquisition",
+  "explanation": "In modern C++, synchronization primitives like std::timed_mutex provide mechanisms to acquire locks with time constraints, enabling threads to attempt to lock a mutex for a specified duration. The try_lock_for member function attempts to acquire the lock within a given relative time span, returning true if successful before the timeout, and false otherwise. This feature is essential for writing responsive, deadlock-avoiding concurrent code that can proceed if a lock isn't acquired within a reasonable timeframe.",
+  "syntax": "bool try_lock_for(const std::chrono::duration<Rep, Period>& rel_time);",
+  "code_example": [
+    "#include <iostream>",
+    "#include <thread>",
+    "#include <mutex>",
+    "#include <chrono>",
+    "",
+    "std::timed_mutex mtx;",
+    "",
+    "void worker(int id) {",
+    "    if (mtx.try_lock_for(std::chrono::milliseconds(100))) {",
+    "        std::cout << \"Thread \" << id << \" acquired the lock.\" << std::endl;",
+    "        std::this_thread::sleep_for(std::chrono::milliseconds(200));",
+    "        mtx.unlock();",
+    "        std::cout << \"Thread \" << id << \" released the lock.\" << std::endl;",
+    "    } else {",
+    "        std::cout << \"Thread \" << id << \" could not acquire the lock within 100ms.\" << std::endl;",
+    "    }",
+    "}",
+    "",
+    "int main() {",
+    "    std::thread t1(worker, 1);",
+    "    std::thread t2(worker, 2);",
+    "    t1.join();",
+    "    t2.join();",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of std::timed_mutex::try_lock_for by having multiple threads attempt to acquire the same mutex within a 100-millisecond timeout. Thread 1 successfully acquires the lock, holds it for 200 milliseconds, and then releases it. Thread 2 tries to acquire the lock with try_lock_for; if it fails within 100 milliseconds, it reports failure. This illustrates how try_lock_for enables time-bounded lock attempts, allowing threads to avoid indefinite blocking and improve responsiveness in concurrent applications.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1183-1183",
+    "extraction_date": "2025-08-19T09:49:22.475768",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

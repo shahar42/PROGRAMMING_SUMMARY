@@ -1,0 +1,60 @@
+{
+  "name": "get_robust_list",
+  "synopsis": [
+    "#include <linux/futex.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_get_robust_list, int pid, struct robust_list_head **head_ptr, size_t *len_ptr);",
+    "long syscall(SYS_set_robust_list, struct robust_list_head *head, size_t len);"
+  ],
+  "description": "The get_robust_list() system call retrieves the head of the robust futex list for a specified thread. It allows the kernel to notify waiting threads if the owner of a futex terminates or executes a new program unexpectedly.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "int",
+      "description": "The thread ID of the thread whose robust futex list is to be retrieved; if 0, the calling thread's list is used."
+    },
+    {
+      "name": "head_ptr",
+      "type": "struct robust_list_head **",
+      "description": "Pointer to a location where the address of the robust futex list head will be stored."
+    },
+    {
+      "name": "len_ptr",
+      "type": "size_t *",
+      "description": "Pointer to a size_t where the size of the object pointed to by *head_ptr will be stored."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns an error code on failure"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "The head of the robust futex list can’t be stored at the location head."
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling process does not have permission to see the robust futex list of the thread with the thread ID pid, and does not have the CAP_SYS_PTRACE capability."
+    },
+    {
+      "code": "ESRCH",
+      "description": "No thread with the thread ID pid could be found."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.17",
+  "posix_compliance": null,
+  "related_calls": [
+    "futex",
+    "pthread_mutexattr_setrobust"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "get_robust_list.pdf",
+    "extraction_date": "2025-07-27T18:03:00.109859",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "topic": "Variadic Templates and Pack Expansion",
+  "explanation": "Variadic templates allow functions and classes to accept a variable number of arguments.  This is extremely useful for creating flexible and reusable code, especially in situations where the number of inputs isn't known at compile time. Pack expansion provides a mechanism to operate on each element of the variadic parameter pack individually.",
+  "syntax": "```c++\ntemplate <typename... Args>\nvoid print(const Args&... args) {\n  (std::cout << ... << args) << std::endl;\n}\n\n// Non-variadic overload (crucial for recursion termination)\nvoid print() { std::cout << std::endl; }\n```\n\n**Practical Usage Notes:**\n* The ellipsis (...) denotes a parameter pack.  `Args...` represents zero or more template arguments.\n* The `...` operator in `(std::cout << ... << args)` performs pack expansion, applying the `<<` operator to each argument in `args`.\n* A non-variadic overload (like `print()` above) is essential to provide a base case for recursive calls, preventing infinite recursion.  The compiler uses this overload when no arguments are provided.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "template <typename... Args>",
+    "void print(const Args&... args) {",
+    "  (std::cout << ... << args) << std::endl;",
+    "}",
+    "void print() { std::cout << std::endl; }",
+    "int main() {",
+    "  print();",
+    "  print(10, 3.14, \"hello\", true);",
+    "  print(10, 20);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the power of variadic templates. The `print` function can handle any number of arguments of any type (as long as they support the `<<` operator). The non-variadic version of `print` is critical.  Without it, a call with zero arguments would cause infinite recursion as the variadic version would recursively call itself with an empty pack without reaching a termination condition.  This showcases a common pitfall: forgetting the base case in recursive variadic templates.  Best practice involves always including a non-variadic overload to stop the recursion and make the code robust. The code uses fold expressions for concise output.  Alternative implementations might iterate explicitly over the parameter pack but this approach is more idiomatic and efficient in modern C++.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:49:54.392029"
+  }
+}

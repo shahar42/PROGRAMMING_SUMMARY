@@ -1,0 +1,63 @@
+{
+  "name": "arch_prctl",
+  "synopsis": [
+    "#include <asm/prctl.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_arch_prctl, int op, unsigned long addr);",
+    "int syscall(SYS_arch_prctl, int op, unsigned long *addr);",
+    "Note: glibc provides no wrapper for arch_prctl(), necessitating the use of syscall(2)."
+  ],
+  "description": "arch_prctl() sets or retrieves architecture-specific process or thread state on x86-64 systems. It uses an operation code 'op' to select the action and an argument 'addr' that varies based on whether it's a set or get operation.",
+  "parameters": [
+    {
+      "name": "op",
+      "type": "int",
+      "description": "The operation to perform, such as ARCH_SET_FS, ARCH_GET_FS, or others like ARCH_SET_CPUID."
+    },
+    {
+      "name": "addr",
+      "type": "unsigned long or unsigned long*",
+      "description": "The argument for the operation; an unsigned long for set operations or a pointer to unsigned long for get operations."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "addr points to an unmapped address or is outside the process address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "op is not a valid operation."
+    },
+    {
+      "code": "ENODEV",
+      "description": "ARCH_SET_CPUID was requested, but the underlying hardware does not support CPUID faulting."
+    },
+    {
+      "code": "EPERM",
+      "description": "addr is outside the process address space."
+    }
+  ],
+  "bugs": "ARCH_SET_GS is disabled in some kernels; context switches for 64-bit segment bases are expensive; using arch_prctl() with threading libraries or set_thread_area(2) may cause crashes or overwrite TLS entries.",
+  "versions": "Linux 4.12 and later for some features, specific to x86-64.",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "mmap",
+    "modify_ldt",
+    "prctl",
+    "set_thread_area"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "arch_prctl.pdf",
+    "extraction_date": "2025-07-26T00:05:51.614588",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

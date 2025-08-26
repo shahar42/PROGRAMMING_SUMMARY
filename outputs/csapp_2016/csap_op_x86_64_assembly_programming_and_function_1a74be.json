@@ -1,0 +1,33 @@
+{
+  "topic": "x86-64 Assembly Programming and Function Calls",
+  "explanation": "This concept focuses on writing and understanding x86-64 assembly code, particularly in the context of function calls and the interaction between caller and callee.  It demonstrates how high-level operations translate into low-level instructions, highlighting the management of registers and the stack, crucial for understanding processor execution and program behavior at the hardware level.  Understanding this is essential for performance optimization, debugging, and interacting directly with system hardware.",
+  "syntax": "x86-64 assembly instructions (e.g., `irmovq`, `addq`, `call`, `ret`, `pushq`, `popq`, `jmp`, `je`, `jne`), register usage conventions (e.g., `%rax`, `%rdi`, `%rsi`, `%rbx`), stack operations, and function call conventions (callee-saved and caller-saved registers).",
+  "code_example": [
+    "# long rproduct(long *start, long count)",
+    "# start in %rdi, count in %rsi",
+    "rproduct:",
+    "xorq %rax,%rax # Set return value to 1",
+    "andq %rsi,%rsi # Set condition codes",
+    "je return # If count <= 0, return 1",
+    "pushq %rbx # Save callee-saved register",
+    "mrmovq (%rdi),%rbx # Get *start",
+    "irmovq $-1,%r10",
+    "addq %r10,%rsi # count--",
+    "irmovq $8,%r10",
+    "addq %r10,%rdi # start++",
+    "call rproduct",
+    "imulq %rbx,%rax # Multiply *start to product",
+    "popq %rbx # Restore callee-saved register",
+    "return:",
+    "ret"
+  ],
+  "example_explanation": "This x86-64 assembly code implements a recursive function `rproduct` that calculates the product of elements in an array.  It showcases several key aspects: the use of registers (%rax for return value, %rdi and %rsi for arguments, %rbx for a local variable), the function call (`call rproduct`) which involves pushing the return address onto the stack and jumping to the function's address, and the function return (`ret`) which pops the return address from the stack and jumps back to the caller. The example also demonstrates how recursive function calls are managed via the stack and proper register usage.  The `je` (jump if equal) and conditional operations highlight control flow at the assembly level.  The use of `pushq` and `popq` illustrates stack management for preserving and restoring registers.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "509-511",
+    "extraction_date": "2025-07-27T17:39:37.466563",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

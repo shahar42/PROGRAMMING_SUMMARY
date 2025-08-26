@@ -1,0 +1,35 @@
+{
+  "topic": "Using std::unique_ptr for Exclusive Resource Ownership",
+  "explanation": "std::unique_ptr is a smart pointer in C++ that provides exclusive ownership of dynamically allocated objects, ensuring that only one pointer can own the resource at a time. This concept is crucial in real-world programming for managing resources like memory, file handles, or network connections, preventing issues such as double deletion or memory leaks. Best practices include using std::unique_ptr instead of raw pointers to enforce automatic resource cleanup via RAII (Resource Acquisition Is Initialization). A common pitfall is attempting to copy a std::unique_ptr, which is explicitly disabled to maintain exclusivity; instead, use move semantics to transfer ownership. In practical scenarios, this pattern is ideal for functions that return dynamically allocated objects or in classes where an object should have a single owner, promoting safer and more idiomatic C++ code.",
+  "syntax": "std::unique_ptr<T> ptr(new T(args));  // Creates a unique_ptr owning a new T object\n\nTo transfer ownership: std::unique_ptr<T> other = std::move(ptr);  // Moves ownership from ptr to other, leaving ptr empty\n\nPractical usage notes: Always include <memory> header. Avoid copying unique_ptr directly; use std::move() for transfers. This ensures resources are released when the unique_ptr goes out of scope, reducing manual memory management and potential errors.",
+  "code_example": [
+    "#include <memory>",
+    "#include <string>",
+    "#include <iostream>",
+    "",
+    "int main() {",
+    "    // Create a unique_ptr owning a dynamically allocated string",
+    "    std::unique_ptr<std::string> p1(new std::string(\"Stegosaurus\"));",
+    "",
+    "    // Attempting to copy would cause a compile-time error:",
+    "    // std::unique_ptr<std::string> p2 = p1;  // Error: no copy for unique_ptr",
+    "",
+    "    // Instead, use move to transfer ownership",
+    "    std::unique_ptr<std::string> p2 = std::move(p1);  // p2 now owns the string, p1 is nullptr",
+    "",
+    "    if (p2) {",
+    "        std::cout << *p2 << std::endl;  // Output: Stegosaurus",
+    "    }",
+    "",
+    "    // p2 goes out of scope here, deleting the string automatically",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates the use of std::unique_ptr to manage a dynamically allocated string, highlighting real-world best practices. By attempting to copy p1 (commented out), we see the compile-time error that prevents shared ownership, a common pitfall that could lead to undefined behavior in raw pointer scenarios. Instead, using std::move() to transfer ownership to p2 ensures exclusive control, which is idiomatic for patterns like returning resources from functions or passing ownership in multi-threaded environments. In practice, this technique prevents memory leaks by automatically deleting the object when p2 goes out of scope, making code more robust and maintainable for applications involving resource management, such as game development or server handling.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:57:11.832569"
+  }
+}

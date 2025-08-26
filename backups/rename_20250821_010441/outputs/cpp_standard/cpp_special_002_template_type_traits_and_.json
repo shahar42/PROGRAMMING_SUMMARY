@@ -1,0 +1,27 @@
+{
+  "topic": "Template Type Traits and Type Manipulation with remove_extent",
+  "explanation": "In modern C++, template type traits are used to perform compile-time type introspection and transformations. The 'remove_extent' type trait specifically removes the first extent (dimension) from an array type, enabling generic programming techniques that adapt to array types by stripping away their dimensions. This is useful for writing functions or classes that need to manipulate or analyze array types at compile time, facilitating type-safe and flexible code.",
+  "syntax": "template <class T> struct remove_extent; // removes the first array dimension from type T\n// Specializations for array types:\n// template <class U, std::size_t N> struct remove_extent<U[N]> { using type = U; };\n// template <class U> struct remove_extent<U[]> { using type = U; };\n// Helper alias:\ntemplate <class T> using remove_extent_t = typename remove_extent<T>::type;",
+  "code_example": [
+    "#include <type_traits>",
+    "#include <cassert>",
+    "",
+    "int main() {",
+    "    static_assert(std::is_same<remove_extent_t<int>, int>::value, \"Failed for int\");",
+    "    static_assert(std::is_same<remove_extent_t<int[2]>, int>::value, \"Failed for int[2]\");",
+    "    static_assert(std::is_same<remove_extent_t<int[2][3]>, int[3]>::value, \"Failed for int[2][3]\");",
+    "    static_assert(std::is_same<remove_extent_t<int[][3]>, int[3]>::value, \"Failed for int[][3]\");",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the 'remove_extent' type trait by applying it to various array types. It verifies at compile time that 'remove_extent_t' correctly strips the first array dimension, returning the underlying element type or the next dimension in multi-dimensional arrays. This showcases how C++ template metaprogramming can perform compile-time type transformations, enabling more flexible and type-safe generic code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "616-616",
+    "extraction_date": "2025-08-19T05:42:36.320654",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "special",
+    "extraction_type": "expert_level"
+  }
+}

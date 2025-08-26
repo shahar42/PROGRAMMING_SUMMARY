@@ -1,0 +1,63 @@
+{
+  "name": "delete_module",
+  "synopsis": [
+    "#include <fcntl.h> /* Definition of O_* constants */",
+    "#include <sys/syscall.h> /* Definition of SYS_* constants */",
+    "#include <unistd.h>",
+    "int syscall(SYS_delete_module, const char *name, unsigned int flags);"
+  ],
+  "description": "The delete_module() system call attempts to remove an unused loadable kernel module specified by name. If the module has an exit function, it is executed before unloading, and flags can modify the behavior. This call requires privilege and follows specific rules for dependencies and references.",
+  "parameters": [
+    {
+      "name": "name",
+      "type": "const char *",
+      "description": "The name of the module to delete."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags to modify behavior, such as O_NONBLOCK or O_TRUNC, affecting how module unloading handles references and dependencies."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBUSY",
+      "description": "The module is not 'live' or has an init function but no exit function, and O_TRUNC was not specified."
+    },
+    {
+      "code": "EFAULT",
+      "description": "name refers to a location outside the process's accessible address space."
+    },
+    {
+      "code": "ENOENT",
+      "description": "No module by that name exists."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller was not privileged or module unloading is disabled."
+    },
+    {
+      "code": "EWOULDBLOCK",
+      "description": "Other modules depend on this module, or O_NONBLOCK was specified but the reference count is nonzero and O_TRUNC was not specified."
+    }
+  ],
+  "bugs": "The uninterruptible sleep when O_NONBLOCK is not specified is undesirable and may become mandatory in future kernels; using O_TRUNC is dangerous as it can force unload modules and taint the kernel.",
+  "versions": "Linux 2.6 and later (with differences in Linux 2.4 and earlier)",
+  "posix_compliance": null,
+  "related_calls": [
+    "create_module",
+    "init_module",
+    "query_module"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "delete_module.pdf",
+    "extraction_date": "2025-07-26T21:47:54.205506",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

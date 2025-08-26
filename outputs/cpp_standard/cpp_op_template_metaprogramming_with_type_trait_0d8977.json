@@ -1,0 +1,42 @@
+{
+  "topic": "Template Metaprogramming with Type Traits and Compile-Time Computation",
+  "explanation": "Template metaprogramming in C++ allows compile-time computation and type introspection, enabling developers to write generic, efficient, and type-safe code. Using templates, type traits, and constexpr functions, C++ programmers can perform calculations, enforce constraints, and select implementations during compilation, which enhances performance and correctness. This approach is fundamental in modern C++ for creating flexible libraries like the Standard Template Library (STL) and for implementing advanced generic programming techniques.",
+  "syntax": "template<typename T>\nstruct TypeTrait {\n    static constexpr bool value = /* compile-time boolean expression */;\n};\n\n// Example of constexpr function for compile-time computation\nconstexpr int gcd(int a, int b) {\n    return b == 0 ? a : gcd(b, a % b);\n}\n\n// Usage in template specialization or static_assert\nstatic_assert(TypeTrait<int>::value, \"Type trait failed\");",
+  "code_example": [
+    "#include <type_traits>",
+    "#include <iostream>",
+    "",
+    "// Compile-time computation of GCD using constexpr",
+    "constexpr int gcd(int a, int b) {",
+    "    return b == 0 ? a : gcd(b, a % b);",
+    "}",
+    "",
+    "// Type trait to check if a type is integral",
+    "template<typename T>",
+    "struct IsIntegralType {",
+    "    static constexpr bool value = std::is_integral<T>::value;",
+    "};",
+    "",
+    "// Function template that only participates in overload resolution if T is integral",
+    "template<typename T>",
+    "auto process(T value) -> typename std::enable_if<IsIntegralType<T>::value, void>::type {",
+    "    std::cout << \"Processing integral type: \" << value << std::endl;",
+    "}",
+    "",
+    "int main() {",
+    "    static_assert(gcd(48, 18) == 6, \"GCD calculation failed\");",
+    "    process(42); // Valid: int is integral",
+    "    // process(3.14); // Error: double is not integral, SFINAE disables this overload",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates template metaprogramming by defining a compile-time function 'gcd' to compute the greatest common divisor, and a type trait 'IsIntegralType' to inspect types at compile time. The 'process' function uses SFINAE (Substitution Failure Is Not An Error) with 'enable_if' to only compile when the template argument is an integral type. The static_assert verifies the correctness of the compile-time GCD calculation. Overall, this showcases how C++ templates enable powerful compile-time logic, type safety, and generic programming in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "620-621",
+    "extraction_date": "2025-08-19T05:45:48.493155",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

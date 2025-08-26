@@ -1,0 +1,60 @@
+{
+  "name": "munlock",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "int munlock(const void *addr, size_t len);"
+  ],
+  "description": "munlock() unlocks pages in the specified address range of the calling process's virtual address space, allowing them to be swapped out by the kernel if necessary. It operates on whole pages that contain any part of the range.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "const void *",
+      "description": "Starting address of the memory range to unlock"
+    },
+    {
+      "name": "len",
+      "type": "size_t",
+      "description": "Length in bytes of the memory range to unlock"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, errno is set, and no changes are made to any locks"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "Some or all of the specified address range could not be unlocked"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The result of the addition addr+len was less than addr (e.g., overflow)"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Some of the specified address range does not correspond to mapped pages in the address space of the process"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Locking or unlocking a region would result in exceeding the allowed maximum number of mappings"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "The caller tried to lock more memory than the RLIMIT_MEMLOCK limit permitted"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller is not privileged and needs CAP_IPC_LOCK to perform the operation"
+    }
+  ],
+  "bugs": "In Linux 4.8 and earlier, a bug caused double accounting of locked memory for unprivileged processes, potentially causing munlock() to fail incorrectly. Additionally, in Linux 2.4 series up to 2.4.17, mlockall() with MCL_FUTURE was inherited across fork(), and since Linux 2.6.9, privileged processes dropping privileges could lead to failures in subsequent memory allocations.",
+  "versions": null,
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "munlock.pdf",
+    "extraction_date": "2025-07-29T11:57:16.635488",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

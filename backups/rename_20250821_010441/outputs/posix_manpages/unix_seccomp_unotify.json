@@ -1,0 +1,76 @@
+{
+  "name": "seccomp_unotify",
+  "synopsis": [
+    "#include <linux/seccomp.h>",
+    "#include <linux/filter.h>",
+    "#include <linux/audit.h>",
+    "int seccomp(unsigned int operation, unsigned int flags, void *args);",
+    "#include <sys/ioctl.h>",
+    "int ioctl(int fd, SECCOMP_IOCTL_NOTIF_RECV, struct seccomp_notif *req);",
+    "int ioctl(int fd, SECCOMP_IOCTL_NOTIF_SEND, struct seccomp_notif_resp *resp);",
+    "int ioctl(int fd, SECCOMP_IOCTL_NOTIF_ID_VALID, __u64 *id);",
+    "int ioctl(int fd, SECCOMP_IOCTL_NOTIF_ADDFD, struct seccomp_notif_addfd *addfd);"
+  ],
+  "description": "The seccomp user-space notification mechanism allows a seccomp filter to delegate system call handling to another process. It uses ioctls to receive notifications and send responses. This is not intended for implementing security policy.",
+  "parameters": [
+    {
+      "name": "operation",
+      "type": "unsigned int",
+      "description": "Operation to perform, such as SECCOMP_FILTER_FLAG_NEW_LISTENER"
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags for the operation"
+    },
+    {
+      "name": "args",
+      "type": "void *",
+      "description": "Pointer to arguments for the operation"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success for seccomp and ioctls",
+    "failure": "Returns -1 on error, errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "Invalid argument or flags specified"
+    },
+    {
+      "code": "ENOENT",
+      "description": "Target thread terminated or system call interrupted"
+    },
+    {
+      "code": "EINPROGRESS",
+      "description": "Notification already responded to or not fetched"
+    },
+    {
+      "code": "EBADF",
+      "description": "File descriptor limit exceeded"
+    },
+    {
+      "code": "EMFILE",
+      "description": "Process file descriptor limit reached"
+    }
+  ],
+  "bugs": "This mechanism is explicitly not intended for implementing security policy; it may have limitations in retrieving pointer arguments due to race conditions.",
+  "versions": "Linux 5.0 and later",
+  "posix_compliance": null,
+  "examples": [
+    "int fd, removeFd; fd = openat(req->data.args[0], path, req->data.args[2], req->data.args[3]); struct seccomp_notif_addfd addfd; addfd.id = req->id; addfd.srcfd = fd; addfd.newfd = 0; addfd.flags = 0; addfd.newfd_flags = O_CLOEXEC; targetFd = ioctl(notifyFd, SECCOMP_IOCTL_NOTIF_ADDFD, &addfd); close(fd); struct seccomp_notif_resp *resp; resp->id = req->id; resp->error = 0; resp->val = targetFd; resp->flags = 0; ioctl(notifyFd, SECCOMP_IOCTL_NOTIF_SEND, resp);"
+  ],
+  "related_calls": [
+    "seccomp",
+    "ioctl",
+    "pidfd_getfd"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "seccomp_unotify.pdf",
+    "extraction_date": "2025-07-30T23:51:29.099890",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

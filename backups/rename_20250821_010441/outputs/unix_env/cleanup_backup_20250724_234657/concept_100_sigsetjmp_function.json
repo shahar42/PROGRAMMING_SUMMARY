@@ -1,0 +1,28 @@
+{
+  "topic": "sigsetjmp Function",
+  "explanation": "The sigsetjmp function is used to save the current execution context in a sigjmp_buf object, allowing for non-local jumps via siglongjmp. It is primarily used in signal handling to preserve the signal mask, ensuring that signals are managed safely during jumps, which helps prevent issues like signal interference in multi-threaded or asynchronous environments.",
+  "syntax": "int sigsetjmp(sigjmp_buf env, int savemask);",
+  "code_example": [
+    "#include <setjmp.h>",
+    "#include <stdio.h>",
+    "int main() {",
+    "    sigjmp_buf env;",
+    "    int val = sigsetjmp(env, 1);",
+    "    if (val == 0) {",
+    "        printf(\"Called directly\\n\");",
+    "        siglongjmp(env, 1);",
+    "    } else {",
+    "        printf(\"Returned from siglongjmp with value %d\\n\", val);",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program calls sigsetjmp, which returns 0 on the first invocation, prints 'Called directly', and then uses siglongjmp to jump back. Upon returning from siglongjmp, sigsetjmp returns a nonzero value (1), allowing the program to print 'Returned from siglongjmp with value 1', demonstrating how sigsetjmp distinguishes between direct calls and returns from siglongjmp.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "390-390",
+    "extraction_date": "2025-07-23T00:26:18.123677",
+    "has_code": true,
+    "has_explanation": true
+  }
+}

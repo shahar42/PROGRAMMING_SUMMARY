@@ -1,0 +1,37 @@
+{
+  "topic": "Explicitly Defined vs. Implicitly Defined Virtual Functions and Their Impact on vtable Layout and Performance",
+  "explanation": "This concept explores the differences between explicitly defined and implicitly defined virtual functions in C++, focusing on how compilers implement them, their impact on the virtual function table (vtable) layout, and resulting performance implications.  Explicitly defined virtual functions allow for more compiler optimization opportunities and potentially smaller vtables, while implicitly defined ones may lead to larger vtables and potentially less efficient function calls, especially in inheritance hierarchies.",
+  "syntax": "  // Explicitly defined virtual function\nclass Base {\npublic:\n  virtual void draw() { std::cout << \"Base::draw()\" << std::endl; }\n};\n\n// Implicitly defined virtual function (compiler generates the vtable entry)\nclass Derived : public Base {\npublic:\n  // Inherited, implicitly defined virtual function\n};\n\nclass Derived2 : public Base {\npublic:\n    virtual void draw() override { std::cout << \"Derived2::draw()\" << std::endl; }\n};",
+  "code_example": [
+    "#include <iostream>",
+    "class Base {\npublic:",
+    "  virtual void draw() { std::cout << \"Base::draw()\\n\"; }",
+    "  virtual void rotate(int angle) = 0; //pure virtual function",
+    "};",
+    "class Derived : public Base {",
+    "public:",
+    "  void rotate(int angle) override { std::cout << \"Derived::rotate(\" << angle << \")\\n\"; }",
+    "  void draw() override { std::cout << \"Derived::draw()\\n\"; } // explicitly overriding draw()",
+    "};",
+    "class Derived2 : public Base {",
+    "public:",
+    "  void rotate(int angle) override { std::cout << \"Derived2::rotate(\" << angle << \")\\n\"; }",
+    "};",
+    "int main() {",
+    "  Base* b = new Derived();",
+    "  b->draw();",
+    "  b->rotate(90);",
+    "  Base* b2 = new Derived2();",
+    "  b2->draw();",
+    "  b2->rotate(180);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler generates a vtable for each class with virtual functions. For `Base`, it will include entries for `draw()` and `rotate()`. `Derived` explicitly overrides `draw()` and provides an implementation for `rotate()`. The compiler will place the addresses of `Derived::draw()` and `Derived::rotate()` in the vtable for `Derived`. `Derived2` only implements `rotate()`. The compiler will likely still generate an entry for `draw()` in the `Derived2` vtable, inheriting and potentially calling the `Base` version, unless it's overridden or marked `final`.  The `main()` function demonstrates polymorphism; the correct `draw()` and `rotate()` methods are called at runtime based on the object's actual type, through indirect calls via the vtable.  The difference in explicit vs implicit overrides affects vtable size (explicit overrides might allow for better optimization and smaller vtables) and the potential for compiler optimizations based on knowing the exact method at compile time. Examining the generated assembly would reveal the indirect function calls via the vtable pointer, showcasing the runtime polymorphism. The pure virtual function in Base will cause any attempt to create an instance of Base to fail at compile-time.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:07:19.656472"
+  }
+}

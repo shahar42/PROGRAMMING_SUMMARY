@@ -1,0 +1,57 @@
+{
+  "name": "s390_guarded_storage",
+  "synopsis": [
+    "#include <asm/guarded_storage.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_s390_guarded_storage, int command, struct gs_cb *gs_cb);"
+  ],
+  "description": "The s390_guarded_storage() system call enables the use of the Guarded Storage Facility on s390 architecture for user-space processes. It provides commands to manage features like enabling guarded storage, marking memory regions, and handling events via specific instructions.",
+  "parameters": [
+    {
+      "name": "command",
+      "type": "int",
+      "description": "Specifies the operation to perform, such as GS_ENABLE, GS_DISABLE, GS_SET_BC_CB, GS_CLEAR_BC_CB, or GS_BROADCAST."
+    },
+    {
+      "name": "gs_cb",
+      "type": "struct gs_cb *",
+      "description": "Pointer to a guarded storage control block structure, used by commands like GS_SET_BC_CB; ignored by others."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "command was GS_SET_BC_CB and the copying of the guarded storage control block structure pointed by gs_cb has failed."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The value provided in the command argument was not valid."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "command was one of GS_ENABLE or GS_SET_BC_CB, and the allocation of a new guarded storage control block has failed."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The guarded storage facility is not supported by the hardware."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.12",
+  "posix_compliance": null,
+  "related_calls": [
+    "syscall"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "s390_guarded_storage.pdf",
+    "extraction_date": "2025-07-30T23:22:10.040359",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

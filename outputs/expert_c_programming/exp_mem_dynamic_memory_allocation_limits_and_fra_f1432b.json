@@ -1,0 +1,37 @@
+{
+  "topic": "Dynamic Memory Allocation Limits and Fragmentation in C",
+  "explanation": "This concept explores the advanced understanding of how C programs allocate memory dynamically at runtime, including the limitations imposed by the system, fragmentation issues, and the behavior of large allocations. It emphasizes the importance of understanding the underlying memory model, how to test allocation boundaries, and the potential pitfalls such as fragmentation and over-allocation, which are critical for writing robust, high-performance C applications that manage memory efficiently.",
+  "syntax": "void* ptr = malloc(size_t size); // Allocate memory block of specified size\n// Check for success: if (ptr == NULL) handle error\n// Use the allocated memory\n// Free memory when done: free(ptr);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "int main() {",
+    "    size_t size = 1024 * 1024 * 1024; // 1 GB",
+    "    void *block = malloc(size);",
+    "    if (block == NULL) {",
+    "        printf(\"Memory allocation failed at 1 GB\\n\");",
+    "    } else {",
+    "        printf(\"Successfully allocated 1 GB of memory\\n\");",
+    "        free(block);",
+    "    }",
+    "    // Attempt to allocate increasingly larger blocks to find system limits",
+    "    size_t test_size = size;",
+    "    while ((block = malloc(test_size)) != NULL) {",
+    "        printf(\"Allocated %zu bytes\\n\", test_size);",
+    "        free(block);",
+    "        test_size *= 2; // Double the size each iteration",
+    "    }",
+    "    printf(\"Failed to allocate %zu bytes, system limit reached or fragmentation issue\\n\", test_size);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates testing the maximum allocatable memory by progressively doubling the size of memory blocks allocated via malloc. It highlights the system's memory limits, potential fragmentation, and how large allocations can fail, which are critical considerations in advanced C programming for high-performance or resource-constrained environments. The code also emphasizes the importance of checking for NULL pointers after malloc to handle allocation failures gracefully.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "152-153",
+    "extraction_date": "2025-07-21T20:57:23.911699",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "expert_c_programming"
+  }
+}

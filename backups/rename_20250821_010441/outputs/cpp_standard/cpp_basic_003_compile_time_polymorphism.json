@@ -1,0 +1,38 @@
+{
+  "topic": "Compile-Time Polymorphism with `constexpr` and `if constexpr`",
+  "explanation": "This explores compile-time polymorphism achieved through `constexpr` functions and `if constexpr` statements.  Unlike runtime polymorphism (virtual functions), this allows the compiler to select code paths and optimize aggressively at compile time, eliminating runtime overhead.  The compiler's implementation involves generating different code paths depending on the template argument or `constexpr` condition's value, resulting in smaller executable size and faster execution.  The memory layout is directly influenced by the chosen path \u2013 only the necessary data structures and function bodies are included in the final executable.  Assembly-level behavior reflects the static nature of the decision; no runtime branching or virtual function table (vtable) lookups occur.  This contrasts sharply with runtime polymorphism where a vtable lookup is required at runtime, increasing execution time.",
+  "syntax": "```cpp\nconstexpr int factorial(int n) {\n  return (n == 0) ? 1 : n * factorial(n - 1);\n}\n\ntemplate <typename T>\nconstexpr T max(T a, T b) {\n  return (a > b) ? a : b;\n}\n\ntemplate <typename T>\nvoid printMax(T a, T b) {\n  if constexpr (std::is_integral_v<T>) {\n    std::cout << \"Max (int): \" << max(a, b) << std::endl;\n  } else {\n    std::cout << \"Max (other): \" << max(a, b) << std::endl; \n  }\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "constexpr int factorial(int n) {",
+    "  return (n == 0) ? 1 : n * factorial(n - 1);",
+    "}",
+    "template <typename T>",
+    "constexpr T max(T a, T b) {",
+    "  return (a > b) ? a : b;",
+    "}",
+    "template <typename T>",
+    "void printMax(T a, T b) {",
+    "  if constexpr (std::is_integral_v<T>) {",
+    "    std::cout << \"Max (int): \" << max(a, b) << std::endl;",
+    "  } else {",
+    "    std::cout << \"Max (other): \" << max(a, b) << std::endl; ",
+    "  }",
+    "}",
+    "int main() {",
+    "  constexpr int fact5 = factorial(5); // Compile-time calculation",
+    "  std::cout << \"Factorial of 5: \" << fact5 << std::endl;",
+    "  printMax(5,10); // Integer path chosen at compile time",
+    "  printMax(5.5, 10.2); // Floating-point path chosen at compile time",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler evaluates `factorial(5)` at compile time. The `if constexpr` in `printMax` lets the compiler discard one of the code branches entirely depending on the type of `T`. This eliminates the runtime overhead of checking the type and conditional branching. The assembly code will directly contain the calculated `fact5` value and a single call to either the integer or floating-point version of `max`, resulting in optimized and smaller code compared to a runtime polymorphic implementation.  The memory layout will not contain code for the unused branch of `printMax`.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:30:57.556184"
+  }
+}

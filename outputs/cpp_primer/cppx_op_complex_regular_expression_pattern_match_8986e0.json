@@ -1,0 +1,31 @@
+{
+  "topic": "Complex Regular Expression Pattern Matching and Subexpression Extraction in C",
+  "explanation": "In advanced C programming, handling complex pattern matching with regular expressions often involves capturing subexpressions (groups) within a pattern to extract specific data segments. This technique is crucial when parsing intricate input formats, such as phone numbers, logs, or protocol messages, where precise subfield extraction is necessary. Mastering regex with subexpression handling enables developers to implement efficient, flexible parsers and data extractors directly in C, often interfacing with regex libraries like POSIX regex or PCRE, to perform sophisticated pattern analysis beyond simple string matching.",
+  "syntax": "Use POSIX regex functions (regcomp, regexec, regfree) with capturing groups in the pattern, and access subexpressions via regmatch_t arrays after a successful match.",
+  "code_example": [
+    "#include <regex.h>",
+    "const char *pattern = \"(\\\\()?(\\\\d{3})(\\\\))?([-. ])?(\\\\d{3})([-. ]?)(\\\\d{4})\";",
+    "regex_t regex;",
+    "regmatch_t matches[8]; // Array to hold full match and subexpressions",
+    "const char *text = \"(123) 456-7890\";",
+    "if (regcomp(&regex, pattern, REG_EXTENDED) == 0) {",
+    "    if (regexec(&regex, text, 8, matches, 0) == 0) {",
+    "        for (int i = 1; i < 8; i++) {",
+    "            if (matches[i].rm_so != -1) {",
+    "                printf(\"Subexpression %d: %.*s\\n\", i, matches[i].rm_eo - matches[i].rm_so, text + matches[i].rm_so);",
+    "            }",
+    "        }",
+    "    }",
+    "    regfree(&regex);",
+    "}"
+  ],
+  "example_explanation": "This example compiles a regex pattern designed to match US-style phone numbers with optional parentheses around the area code. It then executes the regex against a sample input string. The 'matches' array captures the entire match and each subexpression (groups within parentheses). By iterating over 'matches', the code extracts specific parts of the phone number, such as the area code, separator, and number segments. This demonstrates advanced pattern matching with subexpression extraction in C, enabling precise parsing of complex input formats using regex libraries, which is a key technique in high-level C data processing and protocol parsing tasks.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "909-909",
+    "extraction_date": "2025-08-20T07:08:17.691983",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}

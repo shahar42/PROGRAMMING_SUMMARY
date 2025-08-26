@@ -1,0 +1,34 @@
+{
+  "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
+  "explanation": "Return Value Optimization (RVO) and its extension, Named Return Value Optimization (NRVO), are compiler optimizations that eliminate the overhead of copying or moving objects when returning them from functions.  Instead of constructing the object on the stack within the function, and then copying or moving it to the caller's location, the compiler directly constructs the object in the caller's designated memory location. This significantly improves performance, especially for large or complex objects.  The compiler's ability to perform these optimizations depends heavily on the function's return type, the presence of named variables, and the complexity of the return expression. NRVO is specifically triggered when the returned object is explicitly named within the return statement.  Understanding when the compiler *can* and *cannot* apply RVO/NRVO is crucial for writing performant C++ code.  Failure to understand these optimizations can lead to unexpected performance bottlenecks and reliance on less efficient copy/move semantics.",
+  "syntax": "The simplest example demonstrating RVO/NRVO is returning a locally constructed object:\n\n```c++\nclass MyClass {\npublic:\n    MyClass(int val) : value(val) {}\n    int value;\n};\n\nMyClass createObject() {\n    MyClass obj(10); // Object created on the stack within the function\n    return obj;      // RVO/NRVO may eliminate the copy/move here\n}\n\nint main() {\n    MyClass myObj = createObject();\n    std::cout << myObj.value << std::endl; // Output: 10\n}\n```\n\nNote:  The compiler is *not* obligated to perform RVO/NRVO.  Certain circumstances, such as returning an object constructed from a complex expression or the presence of exceptions, might prevent it.  However, modern compilers are quite sophisticated in their optimization capabilities.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "struct LargeObject {",
+    "  std::string data;",
+    "  LargeObject(const std::string& d) : data(d) {}",
+    "};",
+    "LargeObject createLargeObject() {",
+    "  LargeObject obj(\"This is a large object.\");",
+    "  return obj; // NRVO likely here",
+    "}",
+    "LargeObject createLargeObject2() {",
+    "  return LargeObject(\"Another large object.\"); // RVO likely here",
+    "}",
+    "int main() {",
+    "  LargeObject obj1 = createLargeObject();",
+    "  LargeObject obj2 = createLargeObject2();",
+    "  std::cout << obj1.data << std::endl;",
+    "  std::cout << obj2.data << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "In this example, `createLargeObject()` and `createLargeObject2()` both return `LargeObject` instances.  A compiler supporting NRVO/RVO will avoid a copy/move constructor call.  Disassembling the compiled code would show (depending on the compiler and optimization level) the absence of instructions related to object construction at the `return` statement and instead, direct construction in `main()`'s stack frame.  The absence of copy/move constructor calls would be a clear indication of RVO/NRVO.  Without the optimization, the assembly would show the creation of the `LargeObject` on the stack within the function, followed by instructions to copy/move it to `main()`'s stack.  Analyzing the assembly reveals the compiler's runtime behavior and confirms the presence or absence of the optimization.  Performance differences can be significant when dealing with large objects, particularly with multiple function calls.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:27:56.170511"
+  }
+}

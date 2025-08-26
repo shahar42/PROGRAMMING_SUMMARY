@@ -1,0 +1,34 @@
+{
+  "topic": "Implicit Generation and Deletion of Move Operations in C++ Classes",
+  "explanation": "In advanced C programming techniques, understanding how compilers synthesize move constructors and move assignment operators is crucial for optimizing resource management and avoiding subtle bugs. When a class does not explicitly define its own copy-control members, the compiler automatically generates move operations if all data members support move semantics. However, if certain members prevent move operations from being synthesized—such as having user-defined copy constructors without corresponding move constructors, or members with deleted or inaccessible move operations—the compiler will delete the move functions. Recognizing these rules allows developers to control object transfer semantics precisely, optimize performance, and prevent unintended deletions of move capabilities.",
+  "syntax": "In C++, move constructor and move assignment operator are implicitly generated if:\n\n- The class has no user-declared copy constructor, copy assignment, move constructor, or move assignment.\n- All data members are movable (support move semantics).\n\nExplicitly defaulting a move operation:\n\nClassName() = default;\n\nMove constructor example:\n\nClassName(ClassName&&) = default;\n\nMove assignment example:\n\nClassName& operator=(ClassName&&) = default;",
+  "code_example": [
+    "struct MyClass {",
+    "    std::vector<int> data;",
+    "    // No user-defined copy or move constructors",
+    "};",
+    "",
+    "// Compiler synthesizes move constructor and move assignment",
+    "MyClass obj1;",
+    "MyClass obj2 = std::move(obj1);",
+    "",
+    "// If a member has a deleted move constructor, the class's move constructor is also deleted",
+    "struct Member {",
+    "    Member(const Member&) = delete;",
+    "    Member& operator=(const Member&) = delete;",
+    "};",
+    "struct Container {",
+    "    Member m;",
+    "};",
+    "// Container's move constructor is implicitly deleted because Member's move is deleted"
+  ],
+  "example_explanation": "This example demonstrates how the compiler automatically generates move constructors and move assignment operators for a class with movable members, such as std::vector. It also shows that if a member has its move operations explicitly deleted, the containing class's move operations are also implicitly deleted, preventing move semantics. Understanding these rules allows advanced C programmers to control object transfer behaviors, optimize resource management, and avoid subtle bugs related to move semantics.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "667-667",
+    "extraction_date": "2025-08-20T05:29:31.435083",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}

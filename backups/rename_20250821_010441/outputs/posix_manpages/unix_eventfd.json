@@ -1,0 +1,73 @@
+{
+  "name": "eventfd",
+  "synopsis": [
+    "#include <sys/eventfd.h>",
+    "int eventfd(unsigned int initval, int flags);"
+  ],
+  "description": "eventfd() creates an eventfd object for event notification between user-space applications and the kernel. It initializes a 64-bit unsigned integer counter with the specified initial value and returns a file descriptor to access it.",
+  "parameters": [
+    {
+      "name": "initval",
+      "type": "unsigned int",
+      "description": "Initial value for the 64-bit counter."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify behavior, such as EFD_CLOEXEC for close-on-exec, EFD_NONBLOCK for non-blocking operation, or EFD_SEMAPHORE for semaphore-like semantics."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new eventfd file descriptor",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "An unsupported value was specified in flags."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on the total number of open files has been reached."
+    },
+    {
+      "code": "ENODEV",
+      "description": "Could not mount (internal) anonymous inode device."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "There was insufficient memory to create a new eventfd file descriptor."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.22",
+  "posix_compliance": null,
+  "examples": [
+    "int efd = eventfd(0, 0);",
+    "if (efd == -1) err(EXIT_FAILURE, \"eventfd\");",
+    "switch (fork()) { case 0: /* Child process writes to efd */ for (...) { write(efd, &u, sizeof(uint64_t)); } exit(EXIT_SUCCESS); default: /* Parent reads from efd */ read(efd, &u, sizeof(uint64_t)); }"
+  ],
+  "related_calls": [
+    "futex",
+    "pipe",
+    "poll",
+    "read",
+    "select",
+    "signalfd",
+    "timerfd_create",
+    "write",
+    "epoll",
+    "sem_overview"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "eventfd.pdf",
+    "extraction_date": "2025-07-26T22:06:33.384403",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

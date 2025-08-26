@@ -1,0 +1,28 @@
+{
+  "topic": "Dependent Names and Two-Phase Name Lookup",
+  "explanation": "Two-phase name lookup (TPLS) is a crucial aspect of C++ that significantly impacts how the compiler resolves names, especially within templates and class definitions.  It's a critical concept often misunderstood, leading to subtle bugs and unexpected behavior.  The compiler's handling of dependent names (names whose meaning depends on a template parameter) during TPLS is particularly complex.\n\nPhase 1:  During the initial parsing of a template, the compiler does *not* fully resolve names that depend on template parameters.  It only performs basic syntactic checks. This means that if a name (like a type, variable, or function) inside a template is dependent on a template parameter, its meaning is deferred to Phase 2.\n\nPhase 2: When the template is instantiated with concrete types, the compiler then performs name lookup *within the scope* where the template is instantiated, as well as within the scope of the template itself.  This is crucial because it means the meaning of a dependent name can change based on the context of instantiation.  This behavior can lead to surprising results if not carefully considered.\n\nMemory layout and performance implications are subtle. The key impact is during template instantiation \u2013 the compiler needs to generate code for each unique instantiation. If the dependent names involve complex lookups or lead to significant differences in generated code, this can lead to code bloat (increased binary size) and potentially slower compilation times.  However, modern compilers aggressively optimize, including template metaprogramming techniques and partial template specialization to mitigate this.  The runtime performance is generally not directly affected, unless the resolved names affect algorithmic complexity or access patterns.\n\nAt the assembly level, the difference primarily lies in the generated code for the instantiated template. The code will reflect the resolution of the dependent names during the instantiation. Observing this requires deep assembly-level debugging and understanding of the compiler's optimization strategies.",
+  "syntax": "Template instantiation and dependent names:\n```c++\ntemplate <typename T>\nclass X {\npublic:\n  void foo() { T a; }\n};\n\nint main() {\n  X<int> x1; // T is resolved to int during instantiation\n  X<double> x2; // T is resolved to double during instantiation\n  return 0;\n}\n```\n\nExample of two-phase name lookup and potential ambiguity:\n```c++\nnamespace Y {\n  typedef double T;\n}\n\nclass D {\n  typedef long T; \npublic:\n  void foo() { T a; } // T refers to D::T (inner scope) \n};\n\nint main() {\n  D d; d.foo();\n  Y::T b; //explicitly use Y::T\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "namespace Y {",
+    "  typedef double T;",
+    "}",
+    "template <typename T>",
+    "class X {",
+    "public:",
+    "  void foo() { T a; }",
+    "};",
+    "int main() {",
+    "  X<int> x1; // T resolves to int",
+    "  X<Y::T> x2; // T resolves to double (from namespace Y)",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "In the example, `X<int>` instantiates `T` as `int`.  `X<Y::T>` instantiates `T` as `double` because of the explicit namespace qualification.  The compiler's two-phase lookup handles this resolution. Note that compiler optimizations might make detailed assembly-level analysis challenging,  but the key is understanding the *logical* resolution during instantiation.  The `main()` function shows that the compiler is able to distinguish the meaning of `T` based on the template argument supplied and uses the correct type during compilation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:40:13.142479"
+  }
+}

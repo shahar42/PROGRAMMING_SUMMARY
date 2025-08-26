@@ -1,0 +1,40 @@
+{
+  "topic": "Rule of Five (RAII and Copy Control)",
+  "explanation": "The Rule of Five dictates that when you define any of the following special member functions for a class, you should explicitly define all five to manage resource allocation and deallocation effectively, preventing resource leaks and undefined behavior.  These functions are crucial for ensuring correct object lifecycle management, especially when dealing with dynamically allocated resources.  Failing to properly define these can lead to double-deletion, memory leaks, and subtle bugs that are difficult to track down.  The five members are: destructor (~), copy constructor (copy constructor), copy assignment operator (=), move constructor, and move assignment operator.  The Rule of Zero (defaulting to compiler-generated versions) and Rule of One (defining a custom destructor and letting the compiler handle the rest) are also valuable considerations but often less applicable in complex scenarios.",
+  "syntax": "Example for a class managing a dynamically allocated array:\n\n```cpp\nclass MyData {\nprivate:\n  int *data;\n  size_t size;\npublic:\n  MyData(size_t s) : size(s), data(new int[s]){}\n  ~MyData() { delete[] data; }\n  MyData(const MyData& other) : size(other.size), data(new int[other.size]) {\n    std::copy(other.data, other.data + other.size, data);\n  }\n  MyData& operator=(const MyData& other) {\n    if (this != &other) {\n      delete[] data;\n      size = other.size;\n      data = new int[other.size];\n      std::copy(other.data, other.data + other.size, data);\n    }\n    return *this;\n  }\n  //Move constructor and move assignment operator would go here for efficiency\n  // ... other methods ...\n};\n```\n**Practical Usage Notes:**  Prioritize using smart pointers (e.g., `std::unique_ptr`, `std::shared_ptr`) to automatically manage dynamically allocated memory whenever possible.  This significantly reduces the chance of memory leaks and simplifies the code.  Explicitly defining the five members is often necessary only when dealing with raw pointers and custom resource management.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <algorithm>",
+    "#include <vector>",
+    "class MyClass {",
+    "private:",
+    "  int* ptr;",
+    "public:",
+    "  MyClass(int size) : ptr(new int[size]){}",
+    "  ~MyClass() { delete[] ptr; }",
+    "  MyClass(const MyClass& other) : ptr(new int[other.size]) { std::copy(other.ptr, other.ptr + other.size, ptr); }",
+    "  MyClass& operator=(const MyClass& other) {",
+    "    if (this != &other) {",
+    "      delete[] ptr;",
+    "      ptr = new int[other.size];",
+    "      std::copy(other.ptr, other.ptr + other.size, ptr);",
+    "    }",
+    "    return *this;",
+    "  }",
+    "  //Add move constructor and move assignment operator for efficiency",
+    "};",
+    "int main() {",
+    "  MyClass obj1(5);",
+    "  MyClass obj2 = obj1; // Copy constructor called",
+    "  obj1 = obj2; // Copy assignment called",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates a class `MyClass` managing a dynamically allocated array.  The copy constructor and copy assignment operator are explicitly defined to correctly copy the data.  Without these, shallow copies would occur leading to double deletion and undefined behavior upon destruction.  The destructor ensures proper deallocation of the dynamically allocated memory.  Adding the move constructor and move assignment operator would improve efficiency by avoiding unnecessary copying in cases of object moves instead of copies.  This example highlights the importance of carefully considering all five special member functions when managing resources within a class.  Real-world applications of this include managing network connections, file handles, or other external resources where proper resource management is crucial.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:12:32.330595"
+  }
+}

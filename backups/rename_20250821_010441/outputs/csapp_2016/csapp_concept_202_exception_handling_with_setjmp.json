@@ -1,0 +1,34 @@
+{
+  "topic": "Exception Handling with setjmp and longjmp",
+  "explanation": "setjmp and longjmp are functions that provide a nonlocal jump mechanism, enabling a program to transfer control from one point to another, even across function calls. This is crucial for handling exceptional conditions in system programming, such as errors, signals, or asynchronous events that require immediate action beyond the normal program flow.  It allows bypassing standard function call/return mechanisms, offering an efficient way to handle unexpected situations without relying solely on the stack.",
+  "syntax": "int setjmp(jmp_buf env);\nint longjmp(jmp_buf env, int val);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <setjmp.h>",
+    "jmp_buf env;",
+    "void handle_error() {",
+    "  printf(\"Error occurred!\\n\");",
+    "  longjmp(env, 1);",
+    "}",
+    "int main() {",
+    "  if (setjmp(env) == 0) {",
+    "    printf(\"Executing normal code...\\n\");",
+    "    // Simulate an error",
+    "    handle_error();",
+    "    printf(\"This won't print.\\n\");",
+    "  } else {",
+    "    printf(\"Error handled!\\n\");",
+    "  }",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates how `setjmp` and `longjmp` work. `setjmp` saves the current program state into `env`.  If an error occurs, `handle_error` is called, executing `longjmp(env, 1)`. This non-locally jumps back to the `setjmp` call in `main`.  The `setjmp` function returns a non-zero value (1 in this case), indicating that a `longjmp` has occurred. This allows the program to handle the error and continue execution from a different point, avoiding a potential crash or unexpected behavior.  The example showcases how these functions bypass the standard stack-based function return, offering a powerful mechanism for exception handling in a system-level context.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "809-809",
+    "extraction_date": "2025-07-28T12:33:36.361566",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

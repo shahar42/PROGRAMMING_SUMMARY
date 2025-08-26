@@ -1,0 +1,23 @@
+{
+  "topic": "Template Argument List Parsing and Syntax Rules",
+  "explanation": "In C++, template argument lists are enclosed within angle brackets '<' and '>' and are used to specify template parameters explicitly. Proper parsing of these lists is crucial because the '<' and '>' characters can also appear as comparison operators. The language standard defines specific rules to distinguish between the two, especially when nested templates are involved. These rules ensure correct interpretation of complex template expressions, enabling the compiler to correctly parse nested templates and avoid ambiguity between template argument delimiters and comparison operators.",
+  "syntax": "In template argument lists, the '<' character introduces the list, and the '>' character ends it. When parsing nested templates, consecutive '>>' tokens are treated as two separate '>' tokens, which can close multiple nested template argument lists. The parser must recognize non-nested '>' as the end of a template argument list, and '>>' as two separate delimiters, to correctly interpret nested templates.",
+  "code_example": [
+    "template<int i> class X { /* ... */ };",
+    "X< 1>2 > x1; // syntax error: ambiguous '>'",
+    "X<(1>2)> x2; // OK: '>' inside parentheses",
+    "template<class T> class Y { /* ... */ };",
+    "Y<X<1>> x3; // OK: nested templates, '>>' treated as two '>' tokens",
+    "Y<X<6>>1>> x4; // syntax error: ambiguous '>>'",
+    "Y<X<(6>>1)>> x5; // OK: nested templates with parentheses"
+  ],
+  "example_explanation": "This example demonstrates how C++ parses template argument lists, especially with nested templates and multiple '>' characters. It shows valid and invalid usages, highlighting the importance of the language rules that interpret '>>' as either two separate '>' tokens or as a single token closing multiple nested templates. The examples clarify how the compiler distinguishes between template delimiters and comparison operators, ensuring correct syntax interpretation in complex template scenarios.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "336-337",
+    "extraction_date": "2025-08-19T03:40:37.114485",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

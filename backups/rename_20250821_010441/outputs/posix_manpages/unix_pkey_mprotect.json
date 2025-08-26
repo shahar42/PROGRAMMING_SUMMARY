@@ -1,0 +1,75 @@
+{
+  "name": "pkey_mprotect",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "int pkey_mprotect(void *addr, size_t len, int prot, int pkey);"
+  ],
+  "description": "pkey_mprotect changes the protection on specified memory pages and assigns a protection key. It requires the protection key to be allocated via pkey_alloc beforehand. This allows for fine-grained access control using memory protection keys.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "void*",
+      "description": "Starting address of the memory region to protect; must be page-aligned"
+    },
+    {
+      "name": "len",
+      "type": "size_t",
+      "description": "Length of the memory region in bytes"
+    },
+    {
+      "name": "prot",
+      "type": "int",
+      "description": "Protection flags, such as PROT_READ, PROT_WRITE, or PROT_EXEC"
+    },
+    {
+      "name": "pkey",
+      "type": "int",
+      "description": "Protection key to assign to the memory; must be allocated with pkey_alloc"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The memory cannot be given the specified access, e.g., due to read-only file mapping"
+    },
+    {
+      "code": "EINVAL",
+      "description": "addr is not a valid pointer or not a multiple of the system page size"
+    },
+    {
+      "code": "EINVAL",
+      "description": "pkey has not been allocated with pkey_alloc(2)"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Both PROT_GROWSUP and PROT_GROWSDOWN were specified in prot"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flags specified in prot"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory, invalid addresses in the range, or exceeds mapping limits"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.9, glibc 2.27",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "mmap",
+    "pkey_alloc"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pkey_mprotect.pdf",
+    "extraction_date": "2025-07-29T15:42:42.843111",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

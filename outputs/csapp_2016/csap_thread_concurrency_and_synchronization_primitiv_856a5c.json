@@ -1,0 +1,49 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency involves multiple threads executing seemingly simultaneously.  In computer systems, this requires careful management to avoid race conditions (where the outcome depends on unpredictable thread interleaving) and ensure data consistency. Synchronization primitives are mechanisms that coordinate concurrent threads, allowing them to share resources safely and predictably.  They are crucial for building robust and efficient multithreaded applications within the context of a shared memory architecture.\n\nConcurrency involves multiple threads of execution within a program, running seemingly simultaneously.  In computer systems, this is crucial for improving performance and responsiveness. However, concurrency introduces challenges like race conditions, where multiple threads access and modify shared data concurrently, leading to unpredictable results. Synchronization primitives are mechanisms to coordinate concurrent execution and prevent race conditions, ensuring data consistency and program correctness.",
+  "syntax": "Various synchronization primitives exist, including mutexes (mutual exclusion locks), semaphores, condition variables, and barriers.  Each offers different mechanisms for controlling access to shared resources and coordinating thread behavior.  Typically, functions like `pthread_mutex_lock()`, `pthread_mutex_unlock()`, `sem_wait()`, `sem_post()`, etc., are used in conjunction with shared memory regions.",
+  "code_example": [
+    "#include <pthread.h>",
+    "#include <stdio.h>",
+    "pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;",
+    "int counter = 0;",
+    "void *thread_function(void *arg) {",
+    "  for (int i = 0; i < 10000; i++) {",
+    "    pthread_mutex_lock(&mutex);",
+    "    counter++;",
+    "    pthread_mutex_unlock(&mutex);",
+    "  }",
+    "  return NULL;",
+    "}",
+    "int main() {",
+    "  pthread_t threads[10];",
+    "  for (int i = 0; i < 10; i++) {",
+    "    pthread_create(&threads[i], NULL, thread_function, NULL);",
+    "  }",
+    "  for (int i = 0; i < 10; i++) {",
+    "    pthread_join(threads[i], NULL);",
+    "  }",
+    "  printf(\"Counter: %d\\n\", counter);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of a mutex to protect a shared counter variable (`counter`) from race conditions.  Multiple threads concurrently increment the counter.  The `pthread_mutex_lock()` function acquires the mutex before accessing the counter, ensuring exclusive access.  `pthread_mutex_unlock()` releases the mutex, allowing other threads to access the counter. Without the mutex, the final value of `counter` would be unpredictable due to interleaved accesses. This highlights how synchronization primitives are essential for correctly managing shared resources in concurrent programs, crucial for efficient and reliable computer systems.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:40:07.750575",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T16:27:29.179972",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1049-1049",
+      "extraction_date": "2025-07-29T16:27:25.024195",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8773403763771057
+  }
+}

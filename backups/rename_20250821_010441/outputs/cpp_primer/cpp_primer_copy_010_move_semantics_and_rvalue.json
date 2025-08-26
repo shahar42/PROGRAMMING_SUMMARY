@@ -1,0 +1,36 @@
+{
+  "topic": "Move Semantics and Rvalue References",
+  "explanation": "Move semantics are a powerful C++11 feature that allows efficient transfer of resources (like dynamically allocated memory) between objects, avoiding unnecessary copies.  This is crucial for performance optimization, especially with large objects or containers.  Rvalue references (&&) identify temporary objects or expressions, enabling the move operation.  Moving an object transfers ownership of its resources to another object, leaving the original object in a valid but typically empty state. This avoids the overhead of deep copying, which can be significantly expensive.",
+  "syntax": "Rvalue references are declared using `&&`.  The `std::move()` function casts an lvalue (an object with a name) to an rvalue, allowing it to be moved from.  Classes can define move constructors and move assignment operators to manage resource transfer during move operations.  Failure to define these can result in unnecessary copying which impacts efficiency.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "#include <vector>",
+    "class MyString {",
+    "public:",
+    "  MyString(const std::string& str) : data(str) { std::cout << \"Copy constructor called\\n\"; }",
+    "  MyString(std::string&& str) : data(std::move(str)) { std::cout << \"Move constructor called\\n\"; }",
+    "  MyString& operator=(const std::string& str) { data = str; std::cout << \"Copy assignment called\\n\"; return *this; }",
+    "  MyString& operator=(std::string&& str) { data = std::move(str); std::cout << \"Move assignment called\\n\"; return *this; }",
+    "  ~MyString() { std::cout << \"Destructor called\\n\"; }",
+    "private:",
+    "  std::string data;",
+    "};",
+    "int main() {",
+    "  MyString s1 = \"hello\";",
+    "  MyString s2 = std::move(s1); // Move s1's resources to s2",
+    "  MyString s3; ",
+    "  s3 = std::move(s2); //Move assignment",
+    "  std::vector<MyString> vec;",
+    "  vec.emplace_back(\"emplace_back\"); //Uses move constructor implicitly.",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the use of move constructor and move assignment operator within the `MyString` class. When `s2` is created using `std::move(s1)`, the move constructor is called, efficiently transferring the string data without a full copy.  Similarly, `s3 = std::move(s2)` uses the move assignment. Observe the output to see the distinct constructor and assignment calls. The `emplace_back` method in `std::vector` leverages move semantics for efficient insertion of elements.  Failing to define move semantics would result in deep copies being performed every time an object is moved, leading to considerable performance degradation, especially with larger, more complex objects, or when working with containers of these objects.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:29:16.673710"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "topic": "Symbol Resolution",
+  "explanation": "Symbol resolution is the process of associating symbolic references in an object file (like function or variable names) with their actual memory addresses during the linking and loading process.  This is crucial because object files are compiled independently, and the linker needs to connect references across multiple files.  Without symbol resolution, a program wouldn't know where to find the code or data it needs to execute.",
+  "syntax": "The precise syntax varies depending on the linker and operating system (e.g., ld in Unix-like systems).  Generally, the linker uses symbol tables within each object file to match up symbols.  The process involves matching up defined symbols (those with memory allocated) with undefined symbols (references to other modules). Conflicts (multiple definitions of the same symbol) are flagged as errors.",
+  "code_example": [
+    "/* File: libmath.c */",
+    "int add(int a, int b) {",
+    "  return a + b;",
+    "}",
+    "",
+    "/* File: main.c */",
+    "#include <stdio.h>",
+    "extern int add(int, int); // Declare function from libmath.c",
+    "int main() {",
+    "  int sum = add(5, 3);",
+    "  printf(\"Sum: %d\\n\", sum);",
+    "  return 0;",
+    "}",
+    "",
+    "/* Compile and Link (using GCC): */",
+    "gcc -c libmath.c -o libmath.o",
+    "gcc main.c libmath.o -o main"
+  ],
+  "example_explanation": "This example shows symbol resolution in action.  `libmath.c` defines the `add` function. `main.c` uses `add` but doesn't contain its implementation. The compiler creates `libmath.o` and `main.o` files (object files containing symbol tables). The linker (`gcc` in this case) resolves the undefined symbol `add` in `main.o` by finding its definition in `libmath.o`.  The linker then combines these object files to create the executable `main`, correctly mapping the call to `add` in `main.c` to the appropriate address in `libmath.o`.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "120-120",
+    "extraction_date": "2025-07-18T01:49:49.893510",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "name": "sched_setattr",
+  "synopsis": [
+    "#include <sched.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_sched_setattr, pid_t pid, struct sched_attr *attr, unsigned int flags);"
+  ],
+  "description": "The sched_setattr() system call sets the scheduling policy and associated attributes for the thread specified by pid. If pid is zero, it sets the attributes for the calling thread. It supports various scheduling policies like SCHED_OTHER, SCHED_FIFO, and SCHED_DEADLINE.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The ID of the thread to set attributes for; if 0, applies to the calling thread."
+    },
+    {
+      "name": "attr",
+      "type": "struct sched_attr *",
+      "description": "Pointer to a structure containing the new scheduling policy and attributes."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags for the operation; typically should be zero."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "attr is NULL; or pid is negative; or flags is not zero; or attr.sched_policy is invalid; or attr.sched_flags contains an invalid flag; or attr.sched_priority is invalid; or SCHED_DEADLINE parameters are invalid."
+    },
+    {
+      "code": "ESRCH",
+      "description": "The thread whose ID is pid could not be found."
+    },
+    {
+      "code": "E2BIG",
+      "description": "The buffer specified by size and attr is larger than the kernel structure, and one or more of the excess bytes is nonzero."
+    },
+    {
+      "code": "EBUSY",
+      "description": "SCHED_DEADLINE admission control failure."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller does not have appropriate privileges; or the CPU affinity mask of the thread specified by pid does not include all CPUs in the system."
+    }
+  ],
+  "bugs": "In Linux versions up to 3.15, sched_setattr() failed with the error EFAULT instead of E2BIG for the case described in ERRORS. Up to Linux 5.3, sched_getattr() failed with the error EFBIG if the in-kernel sched_attr structure was larger than the size passed by userspace.",
+  "versions": "Linux 3.14",
+  "posix_compliance": null,
+  "related_calls": [
+    "sched_getattr",
+    "sched_setscheduler",
+    "sched_setparam",
+    "sched_getscheduler"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sched_setattr.pdf",
+    "extraction_date": "2025-07-30T23:26:12.322402",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

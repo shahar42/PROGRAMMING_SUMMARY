@@ -1,0 +1,40 @@
+{
+  "topic": "linkat Function",
+  "explanation": "The linkat function is a POSIX system call in C that creates a new hard link to an existing file using file descriptors. It is used to link files in a way that supports atomic operations, avoids race conditions, and works with relative paths or directories, making it more secure and flexible than the basic link function for file system manipulations.",
+  "syntax": "int linkat(int efd, const char *existingpath, int nfd, const char *newpath, int flag);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "int main() {",
+    "    int efd = open(\"existingfile.txt\", O_RDONLY);",
+    "    if (efd == -1) {",
+    "        perror(\"Error opening existing file\");",
+    "        return 1;",
+    "    }",
+    "    int nfd = open(\".\", O_RDONLY | O_DIRECTORY);",
+    "    if (nfd == -1) {",
+    "        perror(\"Error opening current directory\");",
+    "        close(efd);",
+    "        return 1;",
+    "    }",
+    "    int result = linkat(efd, \"existingfile.txt\", nfd, \"newlink.txt\", 0);",
+    "    if (result == -1) {",
+    "        perror(\"linkat failed\");",
+    "    } else {",
+    "        printf(\"Hard link created successfully\\n\");",
+    "    }",
+    "    close(efd);",
+    "    close(nfd);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the linkat function by opening file descriptors for an existing file and the current directory, then calling linkat to create a hard link to the existing file. It checks the result to handle errors, showing how linkat uses file descriptors to perform the linking operation safely and atomically.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "150-150",
+    "extraction_date": "2025-07-18T01:48:43.404952",
+    "has_code": true,
+    "has_explanation": true
+  }
+}

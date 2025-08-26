@@ -1,0 +1,141 @@
+{
+  "name": "chown",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int chown(const char *pathname, uid_t owner, gid_t group);",
+    "int fchown(int fd, uid_t owner, gid_t group);",
+    "int lchown(const char *pathname, uid_t owner, gid_t group);",
+    "#include <fcntl.h> /* Definition of AT_* constants */",
+    "#include <unistd.h>",
+    "int fchownat(int dirfd, const char *pathname, uid_t owner, gid_t group, int flags);"
+  ],
+  "description": "The chown family of system calls changes the owner and group of a file. They differ in how the file is specified, such as by pathname, file descriptor, or with options for symbolic links. Only privileged processes can change ownership, and certain behaviors depend on the file system and kernel version.",
+  "parameters": [
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Path to the file for chown() and lchown()"
+    },
+    {
+      "name": "owner",
+      "type": "uid_t",
+      "description": "New owner ID, or -1 to leave unchanged"
+    },
+    {
+      "name": "group",
+      "type": "gid_t",
+      "description": "New group ID, or -1 to leave unchanged"
+    },
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor for fchown()"
+    },
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor for fchownat()"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags for fchownat(), such as AT_EMPTY_PATH or AT_SYMLINK_NOFOLLOW"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied on a component of the path prefix"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor (for fchown()), or dirfd is invalid (for fchownat())"
+    },
+    {
+      "code": "EFAULT",
+      "description": "pathname points outside accessible address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flag specified in flags (for fchownat())"
+    },
+    {
+      "code": "EIO",
+      "description": "A low-level I/O error occurred while modifying the inode (for fchown())"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in resolving pathname"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "The file does not exist"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix is not a directory, or dirfd refers to a non-directory (for fchownat())"
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling process did not have the required permissions, or the file is marked immutable"
+    },
+    {
+      "code": "EROFS",
+      "description": "The named file resides on a read-only filesystem"
+    }
+  ],
+  "bugs": "The behavior for root changing ownership of executable files depends on the kernel version; since Linux 2.2.13, root is treated like other users in clearing S_ISUID and S_ISGID bits.",
+  "versions": "The 4.4BSD version can be used only by the superuser; feature test macros like _POSIX_C_SOURCE >= 200809L are required for glibc versions.",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <pwd.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <unistd.h>",
+    "int main(int argc, char *argv[]) {",
+    "    char *endptr;",
+    "    uid_t uid;",
+    "    struct passwd *pwd;",
+    "    if (argc != 3 || argv[1][0] == '\\0') {",
+    "        fprintf(stderr, \"%s <owner> <file>\\n\", argv[0]);",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    uid = strtol(argv[1], &endptr, 10);",
+    "    if (*endptr != '\\0') {",
+    "        pwd = getpwnam(argv[1]);",
+    "        if (pwd == NULL) {",
+    "            perror(\"getpwnam\");",
+    "            exit(EXIT_FAILURE);",
+    "        }",
+    "        uid = pwd->pw_uid;",
+    "    }",
+    "    if (chown(argv[2], uid, -1) == -1) {",
+    "        perror(\"chown\");",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    exit(EXIT_SUCCESS);",
+    "}"
+  ],
+  "related_calls": [
+    "openat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "chown.pdf",
+    "extraction_date": "2025-07-26T00:12:32.522097",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

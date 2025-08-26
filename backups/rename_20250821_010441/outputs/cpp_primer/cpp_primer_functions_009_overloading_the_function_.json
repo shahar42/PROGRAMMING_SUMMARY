@@ -1,0 +1,28 @@
+{
+  "topic": "Overloading the Function Call Operator (Functors)",
+  "explanation": "Overloading the function call operator, operator(), allows objects of a class to behave like functions, enabling the creation of functors. This is a practical technique in C++ for scenarios where you need customizable, stateful callable objects, such as in STL algorithms (e.g., std::sort with a custom comparator) or event handling. Best practices include making functors const-correct, lightweight for performance, and copyable if they maintain state. In real-world usage, functors are preferred over plain functions for their flexibility, like capturing context or maintaining internal state across calls, but avoid overusing them when lambdas suffice to prevent unnecessary complexity.",
+  "syntax": "To overload the function call operator in a class, define a member function named operator() with the desired parameters and return type. For example:\n\nclass FunctorClass {\npublic:\n    return_type operator()(parameter_list) const {  // Use 'const' for immutability where possible\n        // Implementation code\n    }\n};  // Practical note: Make it const to allow use with const objects and in multi-threaded contexts.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class AbsInt {  // A simple functor to compute the absolute value of an integer",
+    "public:",
+    "    int operator()(int val) const {  // Overloaded operator() for function-like calls",
+    "        return val >= 0 ? val : -val;  // Basic implementation; note potential overflow for INT_MIN",
+    "    }",
+    "};",
+    "",
+    "int main() {",
+    "    AbsInt absObj;  // Create an instance of the functor",
+    "    std::cout << absObj(-10) << std::endl;  // Call the object like a function: outputs 10",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates a functor for computing absolute values, mimicking the 'absInt' concept from C++ Primer. In real-world scenarios, such functors are useful in STL algorithms like std::transform to apply custom operations on containers without writing separate functions, promoting code reusability and readability. Best practices here include using 'const' on operator() to ensure the functor can be called on const objects and to avoid unintended state modifications. A common pitfall is integer overflow (e.g., for INT_MIN on two's complement systems), which can be avoided by using std::abs from <cstdlib> or handling edge cases explicitly, ensuring robust and idiomatic C++ code for production environments.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:45:58.521033"
+  }
+}

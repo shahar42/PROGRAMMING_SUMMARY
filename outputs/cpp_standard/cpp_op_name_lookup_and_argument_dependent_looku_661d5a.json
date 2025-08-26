@@ -1,0 +1,30 @@
+{
+  "topic": "Name Lookup and Argument-Dependent Lookup (ADL) in C++",
+  "explanation": "Name lookup in C++ is a complex process significantly impacting compilation and runtime behavior.  It involves a sequence of steps, starting with the immediate scope and extending outwards.  Argument-Dependent Lookup (ADL), also known as Koenig lookup, is a crucial aspect, influencing function overload resolution based on the types of arguments provided.  Understanding ADL is essential for predicting which function overload will be selected, especially when dealing with templates and namespaces. The compiler uses sophisticated algorithms to perform this lookup, often involving symbol tables and intricate parsing of the code.  Memory layout is not directly affected, but the chosen function impacts the memory accessed during execution. Incorrect or ambiguous name lookup can result in compiler errors or runtime crashes.",
+  "syntax": "C++ name lookup involves several stages:\n1. **Unqualified name lookup:** Searches the scope where the name is used.\n2. **Qualified name lookup:** Searches specifically within namespaces specified by the :: operator.\n3. **Argument-Dependent Lookup (ADL):**  If an unqualified name is not found, the compiler searches namespaces associated with the argument types. \nTemplate argument deduction also contributes to this.\nExample: `namespace X { void func(int); } void test(X::func);`  will search X.",
+  "code_example": [
+    "#include <iostream>",
+    "namespace A {",
+    "  void func(int x) { std::cout << \"A::func(int)\" << std::endl; }",
+    "}",
+    "namespace B {",
+    "  void func(double x) { std::cout << \"B::func(double)\" << std::endl; }",
+    "}",
+    "void callFunc(int x) {",
+    "  A::func(x); // Qualified name lookup",
+    "  func(x);    // Unqualified name lookup (may be ambiguous)",
+    "}",
+    "int main() {",
+    "  callFunc(5);",
+    "  B::func(3.14); // Qualified name lookup",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `callFunc` function demonstrates both qualified and unqualified name lookup. `A::func(x)` uses qualified lookup, explicitly calling the `func` in namespace A. `func(x)` relies on unqualified lookup. If only one `func` with an `int` argument was in scope, ADL would not play a role.  However, depending on the compiler, the unqualified call `func(x)` in `callFunc` may or may not be ambiguous as it depends on the implementation and whether it takes into consideration ADL at this point (some compilers might issue a warning).  The compiler will usually generate code to call the appropriate function based on the lookup results (e.g., using function pointers in the machine code). The runtime behavior differs based on which overload is selected (the output changes). The compiler's implementation detail involves sophisticated symbol table management, name hashing, and algorithm design to resolve function calls efficiently.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:32:23.495143"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "name": "capset",
+  "synopsis": [
+    "#include <linux/capability.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_capset, cap_user_header_t hdrp, const cap_user_data_t datap);"
+  ],
+  "description": "capset is a Linux-specific system call used to set the capabilities of a thread. It operates on structures containing capability data and is subject to kernel API changes, making it non-portable; use portable interfaces like cap_set_proc(3) when possible.",
+  "parameters": [
+    {
+      "name": "hdrp",
+      "type": "cap_user_header_t",
+      "description": "Pointer to a structure containing the capability version and the process or thread ID (pid)"
+    },
+    {
+      "name": "datap",
+      "type": "const cap_user_data_t",
+      "description": "Pointer to a structure containing the effective, permitted, and inheritable capability sets"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "Bad memory address; hdrp must not be NULL, and datap may be NULL only when determining the preferred capability version."
+    },
+    {
+      "code": "EINVAL",
+      "description": "One of the arguments was invalid, such as an unsupported version value."
+    },
+    {
+      "code": "EPERM",
+      "description": "Insufficient privileges, such as attempting to add a capability without proper permissions or modifying another thread's capabilities without CAP_SETPCAP."
+    },
+    {
+      "code": "ESRCH",
+      "description": "No such thread specified."
+    }
+  ],
+  "bugs": "A bug in kernels before Linux 2.6.11 could cause EPERM errors if a thread without CAP_SETPCAP tried to change its own capabilities by specifying a nonzero pid value.",
+  "versions": "Linux, with significant changes in versions like 2.6.25 (introduced 64-bit capabilities) and 2.6.26 (introduced version 3).",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "clone",
+    "gettid"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "capset.pdf",
+    "extraction_date": "2025-07-26T00:10:43.051573",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

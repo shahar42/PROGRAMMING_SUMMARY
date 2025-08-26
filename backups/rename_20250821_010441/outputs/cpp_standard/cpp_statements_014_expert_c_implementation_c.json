@@ -1,0 +1,43 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Compile-Time Polymorphism with Template Metaprogramming and its Performance Implications",
+  "explanation": "This explores compile-time polymorphism achieved through template metaprogramming, focusing on how the compiler generates specialized code for different template arguments, impacting memory layout and runtime performance.  We'll examine the trade-offs between compile-time computation and runtime flexibility.",
+  "syntax": "C++ templates, template specialization, static_assert, constexpr functions, potentially using techniques like SFINAE (Substitution Failure Is Not An Error) for conditional compilation.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T>",
+    "constexpr T square(T x) { return x * x; }",
+    "",
+    "template <typename T>",
+    "struct MyCalculation {",
+    "  static constexpr T calculate(T value) {",
+    "    static_assert(std::is_arithmetic_v<T>, \"Type must be arithmetic\");",
+    "    return square(value) + value; ",
+    "  }",
+    "};",
+    "",
+    "template <typename T>",
+    "struct MyCalculation<std::complex<T>> {",
+    "  static constexpr std::complex<T> calculate(std::complex<T> value) {",
+    "    return value * value + value;",
+    "  }",
+    "};",
+    "",
+    "int main() {",
+    "  constexpr int resultInt = MyCalculation<int>::calculate(5);",
+    "  constexpr double resultDouble = MyCalculation<double>::calculate(2.5);",
+    "  constexpr std::complex<double> resultComplex = MyCalculation<std::complex<double>>::calculate({1.0, 2.0});",
+    "  std::cout << resultInt << std::endl; //Output: 30",
+    "  std::cout << resultDouble << std::endl; //Output: 8.25",
+    "  std::cout << resultComplex << std::endl; //Output: (2+5i)",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates compile-time polymorphism.  The compiler generates different versions of `MyCalculation::calculate` for `int`, `double`, and `std::complex<double>`.  `static_assert` ensures compile-time type checking.  `constexpr` indicates that the function can be evaluated at compile time, leading to potential performance gains. This avoids runtime overhead associated with virtual functions or other runtime polymorphism mechanisms.  The memory layout is determined at compile time, resulting in highly optimized code.  The generated assembly code will likely show different instructions for each type specialization, eliminating the runtime function call overhead. The absence of runtime branching improves predictability and potentially allows for better instruction-level parallelism.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:22:25.013910"
+  }
+}

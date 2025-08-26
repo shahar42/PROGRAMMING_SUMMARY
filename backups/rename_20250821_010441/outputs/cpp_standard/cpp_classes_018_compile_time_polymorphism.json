@@ -1,0 +1,38 @@
+{
+  "topic": "Compile-Time Polymorphism with `std::invoke` and its implications",
+  "explanation": "This example explores compile-time polymorphism achieved through `std::invoke` and its profound impact on compiler optimizations, memory layout, and runtime performance.  Unlike traditional runtime polymorphism (virtual functions), which relies on virtual function tables (vtables) and indirect function calls, `std::invoke` enables the compiler to select the appropriate function at compile time based on the argument types. This leads to significant performance gains by avoiding the overhead of runtime dispatch. We'll examine how different callable objects (functions, lambdas, functors) are handled and the resulting assembly code.",
+  "syntax": "std::invoke(callable_object, args...)",
+  "code_example": [
+    "#include <iostream>",
+    "#include <functional>",
+    "#include <random>",
+    "#include <chrono>",
+    "using namespace std;",
+    "struct MyFunctor {",
+    "  int operator()(int x, int y) const { return x + y; }",
+    "};",
+    "int add(int x, int y) { return x + y; }",
+    "int main() {",
+    "  auto lambda = [](int x, int y){ return x * y; };",
+    "  MyFunctor functor;",
+    "  ",
+    "  cout << \"Functor: \" << invoke(functor, 5, 3) << endl; // Compile-time dispatch",
+    "  cout << \"Function: \" << invoke(add, 5, 3) << endl;     // Compile-time dispatch",
+    "  cout << \"Lambda: \" << invoke(lambda, 5, 3) << endl;   // Compile-time dispatch",
+    "  ",
+    "  //Demonstrating with a random number generator (URNG) for context similarity to the prompt",
+    "  mt19937_64 gen(chrono::system_clock::now().time_since_epoch().count());",
+    "  auto uniform_dist = uniform_int_distribution<int>(1,10);",
+    "  cout << \"Random generated number (via invoke and lambda) : \" << invoke(lambda, uniform_dist(gen), 5) << endl; ",
+    "  return 0;",
+    "}",
+    "//Note: the compiler will inline these calls if optimization is enabled, leading to near-zero overhead."
+  ],
+  "example_explanation": "The compiler can perform significant optimizations with `std::invoke`.  For example, when the compiler encounters `invoke(functor, 5, 3)`, it doesn't need a vtable or indirect call. It directly substitutes the call with the functor's `operator()`. Similarly, with functions and lambdas, it inlines the call if possible.  The assembly code (assuming optimizations are enabled) would likely show direct calls to the respective functions, or even the code being inlined entirely, eliminating the function call overhead. The memory layout is unaffected because no dynamic dispatch mechanisms are involved. The runtime behavior is deterministic and extremely fast because the function selection is resolved at compile time.  The use of a random number generator in the example adds a layer of practical application, showcasing how `std::invoke` seamlessly integrates into scenarios where function calls with varying parameters are required. The performance benefit is amplified in cases where the invoked functions are computationally expensive; the elimination of runtime overhead becomes significant.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:23:34.600957"
+  }
+}

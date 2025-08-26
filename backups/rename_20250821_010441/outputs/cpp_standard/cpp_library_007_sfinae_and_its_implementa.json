@@ -1,0 +1,25 @@
+{
+  "topic": "SFINAE and its Implementation in Template Metaprogramming",
+  "explanation": "Substitution Failure Is Not An Error (SFINAE) is a powerful C++ template metaprogramming technique.  It allows the compiler to silently ignore template instantiations that fail to compile due to substitution failures, rather than generating a compile-time error. This enables writing highly generic code that gracefully handles different types and scenarios.  Understanding its implementation involves delving into how the compiler performs name lookup, type deduction, and template instantiation.  Crucially, SFINAE leverages the compiler's ability to 'try' different template instantiations, discarding those that fail without causing a full compilation halt.\n\nCompiler implementation details involve a multi-stage process. First, the compiler attempts to substitute the template parameters with the actual types provided.  If this substitution leads to a valid expression (after considering things like access specifiers, overload resolution, etc.), the instantiation proceeds.  If, however, the substitution yields a hard error (not just a warning) such as an invalid type or an undefined symbol, the instantiation is discarded.  The compiler then proceeds to check for other matching templates.  The key is that this 'discarding' happens without stopping the compilation. This selection of valid templates happens completely during compilation, thus offering a compile-time polymorphism.\n\nMemory layout and performance implications are largely dictated by what template gets chosen, therefore directly related to the types used.  Generally speaking, SFINAE itself doesn't incur runtime overhead, as the selection of which template to use is resolved at compile time.  Inefficient template implementations will, however, lead to runtime performance problems; SFINAE only influences which implementation is chosen. \n\nAt the assembly level, the effect of SFINAE is invisible. The generated assembly code reflects only the chosen template instantiation; there is no assembly code representing the rejected possibilities. \n\nRuntime behavior is entirely determined by the successfully instantiated template. There is no runtime branching based on the different template options. Hence, there is no performance penalty during execution, unlike runtime polymorphism.",
+  "syntax": "Several techniques enable SFINAE:\n\n1. Using `std::enable_if` to conditionally enable a template:\n```cpp\ntemplate <typename T, typename std::enable_if<std::is_integral<T>::value, bool>::type = true>\nvoid processIntegral(T value) { /* ... */ }\n```\n2. Utilizing `decltype` and expression-based conditional compilation:\n```cpp\ntemplate <typename T>\nauto processType(T value) -> decltype(value + 10) { /* ... */ }\n```\n3. Employing traits classes to check type properties:\n```cpp\ntemplate <typename T>\nstruct HasMethod {\n    template <typename U>\n    static auto check(U* ptr) -> decltype(ptr->method(), std::true_type{});\n    template <typename>\n    static auto check(...) -> std::false_type;\n\n    static const bool value = check<T>(nullptr); \n};\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T, typename std::enable_if<std::is_integral<T>::value, bool>::type = true>",
+    "void processIntegral(T value) { std::cout << \"Integral: \" << value << std::endl; }",
+    "template <typename T, typename std::enable_if<!std::is_integral<T>::value, bool>::type = true>",
+    "void processIntegral(T value) { std::cout << \"Not Integral\" << std::endl; }",
+    "int main() {",
+    "  processIntegral(5);",
+    "  processIntegral(5.5);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates `std::enable_if` to conditionally enable different template instantiations based on whether the input type is integral. If `T` is an integral type, the first version of `processIntegral` will be instantiated; otherwise, the second version is used. The compiler handles the substitution failure silently. Note that this example will only compile if the `std::enable_if` condition can be evaluated to either `true` or `false`.  A compiler error would occur if this condition was something the compiler couldn't evaluate (e.g., using a condition whose truth value depended on a function call with unknown return type, without utilizing `decltype` and expression SFINAE).  The successful compilation highlights SFINAE's ability to gracefully handle the type differences without explicit `if`/`else` branching.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:28:30.659049"
+  }
+}

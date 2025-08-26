@@ -1,0 +1,34 @@
+{
+  "topic": "Using std::istream::readsome() for Non-Blocking Input",
+  "explanation": "In modern C++, the `readsome()` member function of `std::istream` provides a way to extract available characters from the input buffer without blocking, making it useful for non-blocking or peek-like input operations. It attempts to read as many characters as are immediately available, storing them into a provided buffer, and updates stream state flags accordingly. This function is particularly useful when you want to process input data only if it is readily available, avoiding the potential blocking behavior of other input functions.",
+  "syntax": "std::streamsize readsome(char_type* s, std::streamsize n);",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "int main() {",
+    "    std::string input_buffer;",
+    "    std::cout << \"Type some input and press Enter: \";",
+    "    // Read available characters without blocking",
+    "    std::streamsize available = std::cin.rdbuf()->in_avail();",
+    "    if (available > 0) {",
+    "        char* buffer = new char[available];",
+    "        std::streamsize read_chars = std::cin.readsome(buffer, available);",
+    "        std::cout << \"Read \" << read_chars << \" characters: \"",
+    "                  << std::string(buffer, read_chars) << std::endl;",
+    "        delete[] buffer;",
+    "    } else {",
+    "        std::cout << \"No input available at this moment.\" << std::endl;",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of `readsome()` to extract characters from `std::cin`'s input buffer only if characters are immediately available. It first checks how many characters are available using `in_avail()`, then reads that many characters into a dynamically allocated buffer with `readsome()`. The program then outputs the number of characters read and their content. This showcases how `readsome()` can be used for non-blocking input operations in C++, aligning with modern input handling practices.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1057-1057",
+    "extraction_date": "2025-08-19T08:55:20.221940",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

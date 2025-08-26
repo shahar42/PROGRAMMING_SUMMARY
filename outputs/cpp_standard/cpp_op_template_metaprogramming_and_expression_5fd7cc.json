@@ -1,0 +1,27 @@
+{
+  "topic": "Template Metaprogramming and Expression Evaluation at Compile Time",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, leveraging the compiler to generate specialized code based on template parameters. This contrasts with runtime computations, offering significant performance gains in certain scenarios.  Understanding how the compiler handles template instantiation, including recursion and specialization, is crucial for effective use and optimization.  The compiler's behavior involves generating code for each specific template instantiation, potentially leading to code bloat if not managed carefully. Memory layout is affected as the compiler incorporates the results of compile-time computations directly into the generated code, eliminating runtime overhead associated with the same calculations. Assembly-level behavior shows the absence of instructions corresponding to the compile-time evaluated expressions. Runtime behavior simply utilizes the pre-computed results embedded by the compiler.",
+  "syntax": "C++ templates, `constexpr`, `static_assert`",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template<size_t N>",
+    "constexpr size_t factorial(size_t n) {",
+    "  return n == 0 ? 1 : n * factorial<N>(n - 1);",
+    "}",
+    "int main() {",
+    "  constexpr size_t fact_5 = factorial<5>(5); // Compile-time computation",
+    "  static_assert(fact_5 == 120, \"Factorial calculation incorrect\");",
+    "  std::array<int, fact_5> arr; // Array size determined at compile time",
+    "  std::cout << arr.size() << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` template function computes the factorial at compile time. The `constexpr` specifier ensures this. The `static_assert` verifies the result at compile time, preventing compilation if the calculation is wrong. The size of the `std::array` is determined by the compile-time result, demonstrating how compile-time computation affects runtime memory allocation. The compiler will likely generate code that directly uses the value 120 for the array size, without any runtime calculation.  At the assembly level, you would not see instructions calculating 5!. The compiler will replace the size expression with its pre-computed result. Incorrect use of recursion in templates can lead to excessively deep recursion and compiler errors or unacceptable compilation times.  Careful design using techniques such as recursion limits and partial specialization is crucial for managing complexity and avoiding unintended consequences.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:59:29.197874"
+  }
+}

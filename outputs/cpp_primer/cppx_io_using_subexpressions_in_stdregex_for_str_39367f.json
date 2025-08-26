@@ -1,0 +1,30 @@
+{
+  "topic": "Using Subexpressions in std::regex for String Parsing",
+  "explanation": "Subexpressions in std::regex allow you to capture specific parts of a string that match a pattern group, enabling precise string manipulation in real-world scenarios like parsing file names, URLs, or log entries. This technique is a practical pattern for data extraction and validation. Best practices include using raw string literals (R\"(...)\") to avoid escaping issues, compiling the regex once for reuse to improve performance, and always checking if a match is found to prevent exceptions or errors. Common pitfalls include overusing complex patterns that can lead to poor readability or incorrect captures; to avoid this, keep patterns simple and test them thoroughly with various inputs.",
+  "syntax": "std::regex pattern(R\"(subexpression_pattern)\");  // e.g., R\"((.+)\\.(.+))\" for capturing before and after a period\nstd::smatch matches;  // Container for match results\nif (std::regex_match(input_string, matches, pattern)) {  // Practical usage: Check for a full match\n    std::string submatch1 = matches[1];  // Access subexpression by index (1 for first group)\n    std::string submatch2 = matches[2];  // Index starts at 1 for subexpressions\n}  // Notes: Use std::regex_search for partial matches; compile regex outside loops for efficiency in repeated use.",
+  "code_example": [
+    "#include <regex>",
+    "#include <string>",
+    "#include <iostream>",
+    "",
+    "int main() {",
+    "    std::string filename = \"example.txt\";  // Real-world input, e.g., from file processing",
+    "    std::regex pattern(R\"((.+)\\.(.+))\");  // Pattern with two subexpressions: first for base name, second for extension",
+    "    std::smatch matches;  // Stores the match results",
+    "    if (std::regex_match(filename, matches, pattern)) {  // Ensure the entire string matches",
+    "        std::cout << \"Base name: \" << matches[1] << std::endl;  // First subexpression",
+    "        std::cout << \"Extension: \" << matches[2] << std::endl;  // Second subexpression",
+    "    } else {",
+    "        std::cout << \"No match found.\" << std::endl;  // Handle cases where input doesn't match",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates parsing a file name using subexpressions in std::regex, a common real-world pattern in applications like file managers or data processors. The regex R\"((.+)\\.(.+))\" captures the base name (e.g., \"example\") and extension (e.g., \"txt\"), showcasing how to extract meaningful parts from strings. Best practices here include using raw strings for the pattern to simplify escaping the period (which matches any character by default), and checking the match result to handle invalid inputs gracefully\u2014avoiding crashes in production code. In real-world usage, this technique improves code readability and maintainability by separating concerns (e.g., parsing logic from business logic), but a common pitfall is assuming all inputs will match; always add error handling to make the code robust against unexpected data.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:07:18.858873"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "name": "kcmp",
+  "synopsis": [
+    "#include <linux/kcmp.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_kcmp, pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2);"
+  ],
+  "description": "The kcmp() system call compares kernel resources between two processes to determine if they share resources such as virtual memory or file descriptors. It requires permissions governed by ptrace access mode. Note that for accurate results, processes should be stopped to avoid false positives.",
+  "parameters": [
+    {
+      "name": "pid1",
+      "type": "pid_t",
+      "description": "The process ID of the first process to compare."
+    },
+    {
+      "name": "pid2",
+      "type": "pid_t",
+      "description": "The process ID of the second process to compare."
+    },
+    {
+      "name": "type",
+      "type": "int",
+      "description": "The type of resource to compare, such as KCMP_FILE or KCMP_VM."
+    },
+    {
+      "name": "idx1",
+      "type": "unsigned long",
+      "description": "Index or file descriptor in the first process, depending on the type."
+    },
+    {
+      "name": "idx2",
+      "type": "unsigned long",
+      "description": "Index or file descriptor in the second process, depending on the type."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 if resources are equal, 1 if the first is less than the second, 2 if greater, or 3 if not equal but ordering unavailable.",
+    "failure": "Returns -1 on error, and errno is set."
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "type is KCMP_FILE and idx1 or idx2 is not an open file descriptor."
+    },
+    {
+      "code": "EFAULT",
+      "description": "The epoll slot addressed by idx2 is outside of the user’s address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "type is invalid."
+    },
+    {
+      "code": "ENOENT",
+      "description": "The target file is not present in epoll instance."
+    },
+    {
+      "code": "EPERM",
+      "description": "Insufficient permission to inspect process resources."
+    },
+    {
+      "code": "ESRCH",
+      "description": "Process pid1 or pid2 does not exist."
+    }
+  ],
+  "bugs": "kcmp() may produce false positives if processes are running; processes should be stopped with SIGSTOP for accurate results.",
+  "versions": "Linux 3.5",
+  "posix_compliance": null,
+  "examples": [
+    "int result = kcmp(pid1, pid2, KCMP_FILE, idx1, idx2);",
+    "if (result == 0) { printf(\"same\\n\"); }"
+  ],
+  "related_calls": [
+    "clone",
+    "unshare"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "kcmp.pdf",
+    "extraction_date": "2025-07-28T12:32:07.436168",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

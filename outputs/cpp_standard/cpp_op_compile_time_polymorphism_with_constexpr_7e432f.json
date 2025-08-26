@@ -1,0 +1,26 @@
+{
+  "topic": "Compile-Time Polymorphism with `constexpr` and its Impact on Memory Layout and Performance",
+  "explanation": "This concept delves into how `constexpr` functions and variables, introduced in C++11 and significantly enhanced in later standards, enable compile-time computations and their profound impact on memory layout, performance, and compiler optimization.  Unlike runtime polymorphism relying on virtual functions and vtables, `constexpr` allows the compiler to evaluate expressions at compile time, potentially eliminating runtime overhead and altering the program's structure. The compiler's ability to perform these optimizations hinges on the ability to fully evaluate expressions at compile time \u2013 any reliance on runtime information prevents compile-time evaluation.  This has significant implications for memory usage (especially with compile-time generated arrays or structs) and program speed.  The compiler's optimization strategies may include inlining the `constexpr` function's code, constant propagation, and eliminating branches dependent on compile-time known values. Assembly-level analysis might reveal the absence of function calls or runtime computations, replacing them with direct memory access or immediate values.",
+  "syntax": "```cpp\nconstexpr int factorial(int n) {\n  return (n == 0) ? 1 : n * factorial(n - 1);\n}\n\nint main() {\n  constexpr int result = factorial(5); // Compile-time calculation\n  int runtime_result = factorial(5); // Runtime calculation (though compiler may optimize)\n  constexpr int array[factorial(4)] = {}; // Compile-time array size\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "constexpr int fibonacci(int n) {",
+    "  return (n <= 1) ? n : fibonacci(n - 1) + fibonacci(n - 2);",
+    "}",
+    "int main() {",
+    "  constexpr int fib5 = fibonacci(5); // Compile-time computation",
+    "  constexpr std::array<int, fibonacci(6)> fibArray = {}; // Size determined at compile time",
+    "  std::cout << \"Fibonacci(5) = \" << fib5 << std::endl;",
+    "  std::cout << \"Fib Array size: \" << fibArray.size() << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `fibonacci` function, when declared `constexpr`, allows the compiler to compute `fib5` and the size of `fibArray` during compilation.  This means no runtime calculations are needed for these specific values. The assembly code will likely show these values directly embedded into the compiled program's data section.  For `runtime_result`, the compiler *might* optimize it away due to the calculation being trivially constant, but it's not guaranteed. The key is the compile-time guarantee.  The array `fibArray`'s size is known at compile time, enabling efficient memory allocation and potential optimization opportunities for accessing its elements compared to a dynamically sized array.  A runtime calculation of the fibonacci number would necessitate a stack frame, function call, return value handling, etc., whereas the compile-time approach completely avoids this overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "special",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:19:09.612050"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "topic": "Template Parameter Scope in C++",
+  "explanation": "Template parameter scope in C++ refers to the declarative region where template parameters are visible and usable, as defined in [basic.scope.temp]. The compiler treats template parameters as having a scope that begins at their declaration within the template-declaration and ends at the end of that declaration. This is a compile-time concept, meaning the scope is resolved during parsing and name lookup phases, not at runtime. Under the hood, compilers like GCC or Clang maintain a symbol table for each template instantiation, ensuring that template parameters do not leak into outer scopes or conflict with non-template names. This scoping mechanism prevents name collisions and enables metaprogramming. Performance implications include compile-time overhead due to template instantiation, which can lead to code bloat if multiple specializations are generated, as each instantiation creates separate code paths. At the assembly level, each template instantiation results in duplicated code for different types, increasing binary size but not affecting runtime memory layout directly, since templates are resolved before runtime. For example, if a template parameter is used in a function, the compiler generates specialized assembly for each type, optimizing for that type's size and alignment without runtime checks for the parameter itself.",
+  "syntax": "template<typename T> class MyTemplate { public: T value; // T is in scope here, used as a type }; // T is out of scope here",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "template<typename T>",
+    "class MyContainer {",
+    "public:",
+    "    T element;  // T is a template parameter in scope",
+    "    void display() {",
+    "        std::cout << sizeof(T) << std::endl;  // Compiler resolves T at instantiation",
+    "    }",
+    "};",
+    "",
+    "int main() {",
+    "    MyContainer<int> intContainer;  // Instantiates MyContainer<int>",
+    "    intContainer.display();  // Outputs size of int",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this example, the compiler first parses the template declaration and establishes the scope of 'T' within the MyContainer class. During instantiation (e.g., MyContainer<int>), the compiler performs name lookup for 'T' in the template parameter scope, replacing 'T' with 'int' in the generated code. This is a compile-time process, so no runtime overhead occurs for scope resolution. At the assembly level, the compiler generates a specialized version of MyContainer for 'int', which might look like a struct with an int member and a function that calls std::cout with the size of int (e.g., using x86 assembly instructions for output). If another instantiation like MyContainer<double> is used, the compiler creates separate assembly code, leading to potential code duplication and increased compilation time, but runtime performance remains efficient as each instance is type-specific without dynamic checks.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:40:30.519006"
+  }
+}

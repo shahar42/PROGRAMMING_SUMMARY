@@ -1,0 +1,36 @@
+{
+  "topic": "Template Partial Specialization and Compiler Instantiation",
+  "explanation": "Template partial specialization in C++ allows for customizing template behavior for specific subsets of template arguments, which is a compile-time mechanism. The compiler implements this by maintaining a set of template declarations and specializations, then selecting the most specialized match during instantiation based on partial ordering rules (as per C++ standard \u00a714.7.1). When the compiler encounters a template instantiation, it performs name lookup and overload resolution at compile-time to choose the appropriate specialization. For example, if multiple partial specializations exist, the compiler compares them using a partial ordering algorithm to determine which is more specialized; if no clear winner exists, it results in a compilation error.\n\nUnder the hood, the compiler generates code for each instantiated specialization as if it were a distinct class. This involves creating a new type for each unique set of template arguments, which affects memory layout: each specialization has its own layout based on its member definitions, potentially leading to different sizes and alignments. Performance implications include increased compilation time due to the need for multiple code paths, but runtime performance is unaffected since instantiation occurs at compile-time. In assembly, the compiler outputs separate code blocks for each instantiation (e.g., via mangled names like `_ZN5InnerIiEEC2Ev` for `Inner<int>`), which can increase binary size if many specializations are used. Runtime behavior is minimal, as templates are purely compile-time constructs, but if the specialized class has runtime members (e.g., constructors), those execute normally. Conflicts, like in the provided content, arise when specializations are ambiguous or invalid, causing the compiler to fail during instantiation.",
+  "syntax": "template<class X, class Y> struct Inner;  // Primary template declaration\n\ntemplate<class Y> struct Inner<T, Y>;  // Partial specialization declaration for X = T (note: T must be defined elsewhere, e.g., as a dependent type)\n\ntemplate<class Y> struct Inner<T, Y> { /* members */ };  // Valid redeclaration of the above\n\ntemplate<class Y> struct Inner<U, Y> { /* members */ };  // Another partial specialization, but may conflict if T and U are related\n\n// Implementation notes: The compiler requires that partial specializations are declared after the primary template and must be more specialized. During instantiation, e.g., Inner<int, int>, the compiler checks for the best match, leading to errors if ambiguities exist, as seen with the invalid Outer<int, int> reference.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "template<typename T, typename U>",
+    "struct Outer;  // Primary template",
+    "",
+    "template<typename Y>",
+    "struct Outer<int, Y> {  // Partial specialization for first argument as int",
+    "    void display() { std::cout << \"Specialized for int and Y\" << std::endl; }",
+    "};",
+    "",
+    "template<typename Y>",
+    "struct Outer<float, Y> {  // Another partial specialization for first argument as float",
+    "    void display() { std::cout << \"Specialized for float and Y\" << std::endl; }",
+    "};",
+    "",
+    "int main() {",
+    "    Outer<int, int> obj1;  // Instantiates the first specialization",
+    "    obj1.display();  // OK",
+    "    // Outer<float, int> obj2;  // Would instantiate the second, but uncommenting would work",
+    "    // The original content's error at #2 suggests a conflict, e.g., if another specialization overlaps ambiguously",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler instantiates partial specializations at compile-time during template resolution. For Outer<int, int>, the compiler selects the first specialization (for T = int) based on partial ordering, generating a specific class definition in the object file. Assembly output might show mangled symbols like _ZN5OuterIiiE7displayEv, indicating a unique instantiation. Memory layout for Outer<int, int> includes space for its members (e.g., the display function's implicit this pointer), differing from Outer<float, int>. Performance-wise, compilation time increases due to multiple specializations, but runtime is efficient as no dynamic checks occur. The commented line in the original content (error at #2) likely stems from an undefined or conflicting specialization, where the compiler fails to resolve the best match, halting compilation without generating assembly for that instantiation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:57:33.462424"
+  }
+}

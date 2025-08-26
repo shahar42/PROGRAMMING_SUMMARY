@@ -1,0 +1,27 @@
+{
+  "topic": "C++ Name Lookup and Declaration Order",
+  "explanation": "C++ name lookup is a compile-time process where the compiler resolves identifiers to their declarations based on scope rules, ensuring that names are declared before use. This mechanism is governed by the C++ standard (e.g., [basic.lookup] and [basic.scope]), and compilers like GCC or Clang implement it through symbol tables built during lexical and semantic analysis phases. For global scope, the compiler requires declarations before use to avoid undefined references, which translates to checking the translation unit's symbol table sequentially. In namespaces, the compiler performs unqualified or qualified lookup: unqualified lookup searches the current namespace and then enclosing ones, while qualified lookup (e.g., A::N::f) directly navigates the namespace hierarchy. Argument-dependent lookup (ADL) is only triggered for function calls, as noted in the content, and is not applicable here.\n\nImplementation-wise, compilers maintain a scope stack or symbol table hierarchy. During parsing, when an identifier is encountered, the compiler queries this structure; if not found, it propagates outward through enclosing scopes. This is purely compile-time, with no runtime overhead, but failures result in compilation errors rather than runtime exceptions, preventing issues like undefined behavior. Performance implications include increased compilation time for large codebases due to extensive scope traversal, potentially leading to O(n) lookups in nested namespaces. Memory layout is indirectly affected, as unresolved names can cause linker errors, impacting the final binary size and load time. Assembly-level behavior is not directly relevant, as name lookup occurs before code generation, but successful resolution ensures correct symbol references in the object file (e.g., via relocation entries).",
+  "syntax": "namespace Outer {\n    // Implementation note: Declarations must precede use in this namespace or enclosing ones.\n    namespace Inner {\n        int var;  // Declare before use\n        void func() {  // Compiler checks for 'var' in Inner, then Outer, then global scope\n            std::cout << var;  // 'var' must be declared before this line in the namespace\n        }\n    }\n}\n// Note: If 'var' were used before declaration, the compiler would error during semantic analysis.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "namespace A {",
+    "    namespace N {",
+    "        void f();  // Declaration in nested namespace",
+    "    }",
+    "}",
+    "",
+    "int main() {",
+    "    // Compiler performs qualified name lookup for A::N::f",
+    "    A::N::f();  // This is resolved at compile-time if declared as above",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler first builds the namespace hierarchy during parsing. When it encounters A::N::f() in main(), it conducts a qualified name lookup: starting from the global scope, it verifies the existence of namespace A, then namespace N within A, and finally the declaration of f(). If f() were not declared before its use (e.g., if this line appeared before the namespace definition), the compiler would emit an error during the semantic analysis phase, as per C++ rules for declaration order. This is a compile-time operation, leveraging the compiler's symbol table to avoid runtime lookups. Performance-wise, nested namespaces like this can slightly increase compilation time due to deeper scope searches, but it ensures efficient binary output by resolving all symbols early, preventing linker issues and maintaining a clean memory layout in the executable.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:41:52.912336"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "mremap",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sys/mman.h>",
+    "void *mremap(void *old_address, size_t old_size, size_t new_size, int flags, ... /* void *new_address */);"
+  ],
+  "description": "mremap() expands or shrinks an existing memory mapping, potentially relocating it based on flags and available virtual address space. It requires the original address and sizes, and can optionally specify a new address for relocation.",
+  "parameters": [
+    {
+      "name": "old_address",
+      "type": "void*",
+      "description": "The old address of the virtual memory block to expand or shrink; must be page-aligned."
+    },
+    {
+      "name": "old_size",
+      "type": "size_t",
+      "description": "The old size of the virtual memory block."
+    },
+    {
+      "name": "new_size",
+      "type": "size_t",
+      "description": "The requested new size of the virtual memory block after resizing."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "A bit-mask of flags, such as MREMAP_MAYMOVE, MREMAP_FIXED, or MREMAP_DONTUNMAP, to control behavior."
+    },
+    {
+      "name": "new_address",
+      "type": "void*",
+      "description": "Optional fifth argument; specifies a page-aligned address to move the mapping to, used with MREMAP_FIXED."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a pointer to the new virtual memory area",
+    "failure": "Returns MAP_FAILED (that is, (void*)-1) and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "The caller tried to expand a locked memory segment, but it exceeded the RLIMIT_MEMLOCK resource limit."
+    },
+    {
+      "code": "EFAULT",
+      "description": "An invalid virtual memory address exists in the range old_address to old_address + old_size."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An invalid argument was provided, such as non-page-aligned old_address, invalid flags, zero new_size, or other conditions like overlapping ranges."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Not enough memory was available to complete the operation, possibly due to inability to expand or relocate the mapping."
+    }
+  ],
+  "bugs": "Before Linux 4.14, if old_size was zero and the mapping was private, mremap() created a new private mapping unrelated to the original, which was unintended; since Linux 4.14, it fails with EINVAL in this scenario.",
+  "versions": "Available since Linux 2.3.31, with MREMAP_FIXED added in Linux 2.3.31 and MREMAP_DONTUNMAP in Linux 5.7; prior to glibc 2.4, glibc did not expose MREMAP_FIXED.",
+  "posix_compliance": null,
+  "related_calls": [
+    "brk",
+    "getpagesize",
+    "getrlimit",
+    "mlock",
+    "mmap",
+    "sbrk",
+    "malloc",
+    "realloc"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mremap.pdf",
+    "extraction_date": "2025-07-29T11:55:37.646757",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

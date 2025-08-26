@@ -1,0 +1,110 @@
+{
+  "name": "fstatat64",
+  "synopsis": [
+    "#include <sys/stat.h>",
+    "#include <fcntl.h>",
+    "int fstatat64(int dirfd, const char *restrict pathname, struct stat *restrict statbuf, int flags);"
+  ],
+  "description": "fstatat64 is the underlying system call for fstatat, which retrieves file status information for a specified path relative to a directory file descriptor. It provides a more general interface for accessing file information, allowing control via flags for behaviors like symbolic link handling.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor or AT_FDCWD for resolving relative paths"
+    },
+    {
+      "name": "pathname",
+      "type": "const char *restrict",
+      "description": "Path to the file for which to retrieve status"
+    },
+    {
+      "name": "statbuf",
+      "type": "struct stat *restrict",
+      "description": "Pointer to a stat structure to store the file information"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify behavior, such as AT_SYMLINK_NOFOLLOW"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied for one of the directories in the path prefix of pathname"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor"
+    },
+    {
+      "code": "EBADF",
+      "description": "pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flag specified in flags"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links encountered while traversing the path"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A component of pathname does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOENT",
+      "description": "pathname is an empty string and AT_EMPTY_PATH was not specified in flags"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix of pathname is not a directory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "pathname is relative and dirfd is a file descriptor referring to a file other than a directory"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "pathname or fd refers to a file whose size, inode number, or number of blocks cannot be represented in the respective types"
+    }
+  ],
+  "bugs": "Different fields in the stat structure may contain information from different moments during execution, potentially leading to inconsistencies in the returned data.",
+  "versions": "Linux 2.6.16, glibc 2.4",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "struct stat sb;",
+    "int ret = fstatat(dirfd, pathname, &sb, flags);",
+    "if (ret == -1) { perror(\"fstatat64\"); exit(EXIT_FAILURE); }"
+  ],
+  "related_calls": [
+    "stat",
+    "fstat",
+    "lstat",
+    "statx"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "fstatat64.pdf",
+    "extraction_date": "2025-07-27T17:40:55.206152",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

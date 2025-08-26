@@ -1,0 +1,33 @@
+{
+  "topic": "Memory-Mapped Files",
+  "explanation": "Memory-mapped files provide a mechanism to treat a file on disk as if it were part of the process's address space. This allows direct manipulation of file contents using pointers, improving performance compared to traditional read/write system calls for large files or frequent access.  It leverages the memory hierarchy and virtual memory system for efficient data transfer between disk and main memory.",
+  "syntax": "mmap(address, length, prot, flags, fd, offset)",
+  "code_example": [
+    "#include <sys/mman.h>",
+    "#include <sys/types.h>",
+    "#include <sys/stat.h>",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "#include <stdio.h>",
+    "int main() {",
+    "    int fd = open(\"my_file.txt\", O_RDWR | O_CREAT, 0666);",
+    "    if (fd == -1) return 1;",
+    "    ftruncate(fd, 1024); // Ensure file is at least 1KB",
+    "    char *map = mmap(NULL, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);",
+    "    if (map == MAP_FAILED) return 1;",
+    "    strcpy(map, \"Hello, world!\");",
+    "    munmap(map, 1024);",
+    "    close(fd);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This C code demonstrates memory-mapped files.  It opens a file, creates it if necessary, and truncates it to a fixed size. `mmap` maps the file into the process's address space.  The `map` pointer now acts like a regular array. After writing data (using `strcpy`), `munmap` unmaps the file from memory, and `close` closes the file descriptor. This avoids the overhead of multiple read/write system calls for large files.  The `MAP_SHARED` flag ensures that writes are visible to other processes sharing the same mapping.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "930-930",
+    "extraction_date": "2025-07-29T11:59:46.825227",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

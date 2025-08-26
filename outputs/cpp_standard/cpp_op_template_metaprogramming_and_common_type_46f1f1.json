@@ -1,0 +1,24 @@
+{
+  "topic": "Template Metaprogramming and `common_type` Implementation",
+  "explanation": "The `std::common_type` metafunction, crucial for generic programming, demonstrates advanced template metaprogramming.  Its implementation relies heavily on recursive template instantiation and type deduction at compile time.  Understanding its behavior requires grasping how the compiler performs template instantiation, recursively resolving types until a common type is found.  This process happens entirely at compile time, resulting in zero runtime overhead but potentially significant compile-time cost for deeply nested or complex type sets.  The memory layout impact is indirect; the existence of a `common_type` doesn't directly affect memory, but using the result may, depending on the underlying types involved.  Assembly-level behavior is nonexistent for `common_type` itself; the compiler resolves it completely before emitting any code.  The performance implication is purely compile-time; compilation time can increase significantly with complex type arguments.  Improper usage can lead to exceedingly long compilation times or even compiler errors due to recursion depth limitations.  The key is that the entire operation is performed during compilation; no runtime cost is incurred.",
+  "syntax": "The `common_type` is usually implemented (though implementation details might vary across compilers) using recursive template instantiation:\n\n```c++\ntemplate <class T> struct common_type<T> { typedef T type; }; // Base case\n\ntemplate <class T, class U> struct common_type {\n  typedef decltype(true ? std::declval<T>() : std::declval<U>()) type;\n};\n\ntemplate <class T, class U, class... V>\nstruct common_type<T, U, V...> {\n  typedef typename common_type<typename common_type<T, U>::type, V...>::type type;\n};\n```\n\nNote that `std::declval` is used to avoid creating actual objects; it's a compile-time mechanism for determining the type of an expression without object construction.\n\n`common_type_t` is simply an alias which makes using the `common_type` struct more convenient:",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "#include <string>",
+    "#include <vector>",
+    "int main() {",
+    "  std::cout << typeid(std::common_type_t<int, double, long long>).name() << std::endl; //Prints 'long long'",
+    "  std::cout << typeid(std::common_type_t<std::string, const char*>).name() << std::endl; //Prints 'std::string'",
+    "  std::cout << typeid(std::common_type_t<std::vector<int>, std::vector<double>>).name() << std::endl; //Implementation dependent (often same as the first vector)",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example showcases `common_type_t` with different types.  The compiler deduces a common type at compile time.  Observe that the compiler might need to do recursive calls to `common_type` to get to the correct result (as defined in the recursive template above). The assembly code generated will not contain any explicit code related to the `common_type` operation itself;  the compiler has already determined the common type, and will only produce code that operates on the determined common type.  The runtime code uses the already resolved type. Differences in compiler implementations might lead to different common types being chosen for complex input (like two vectors), showing a subtle implementation detail. The compilation time, however, will be noticeably longer for more complex type combinations in comparison to using simpler types.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:44:21.614450"
+  }
+}

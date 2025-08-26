@@ -1,0 +1,70 @@
+{
+  "name": "epoll_wait",
+  "synopsis": [
+    "#include <sys/epoll.h>",
+    "int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);",
+    "int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *_Nullable sigmask);",
+    "int epoll_pwait2(int epfd, struct epoll_event *events, int maxevents, const struct timespec *_Nullable timeout, const sigset_t *_Nullable sigmask);"
+  ],
+  "description": "The epoll_wait() system call waits for I/O events on the epoll instance referred to by the file descriptor epfd and returns them in a buffer up to maxevents. It blocks until an event occurs, is interrupted by a signal, or the timeout expires.",
+  "parameters": [
+    {
+      "name": "epfd",
+      "type": "int",
+      "description": "File descriptor of the epoll instance"
+    },
+    {
+      "name": "events",
+      "type": "struct epoll_event *",
+      "description": "Pointer to a buffer to store the returned events"
+    },
+    {
+      "name": "maxevents",
+      "type": "int",
+      "description": "Maximum number of events to return, must be greater than zero"
+    },
+    {
+      "name": "timeout",
+      "type": "int",
+      "description": "Timeout in milliseconds; -1 for indefinite blocking, 0 for non-blocking"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of file descriptors ready for I/O, or zero if the timeout expires",
+    "failure": "Returns -1 and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "epfd is not a valid file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The memory area pointed to by events is not accessible with write permissions"
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal handler before events occurred or timeout expired"
+    },
+    {
+      "code": "EINVAL",
+      "description": "epfd is not an epoll file descriptor, or maxevents is less than or equal to zero"
+    }
+  ],
+  "bugs": "Before Linux 2.6.37, a timeout value larger than approximately LONG_MAX / HZ milliseconds is treated as -1 (i.e., infinity).",
+  "versions": "Linux 2.6, glibc 2.3.2 for epoll_wait; Linux 2.6.19, glibc 2.6 for epoll_pwait; Linux 5.11 for epoll_pwait2",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "epoll_create",
+    "epoll_ctl",
+    "epoll"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "epoll_wait.pdf",
+    "extraction_date": "2025-07-26T22:06:22.092195",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

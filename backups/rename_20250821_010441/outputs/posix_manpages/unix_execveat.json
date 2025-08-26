@@ -1,0 +1,74 @@
+{
+  "name": "execveat",
+  "synopsis": [
+    "#include <linux/fcntl.h> /* Definition of AT_* constants */",
+    "#include <unistd.h>",
+    "int execveat(int dirfd, const char *pathname, char *const argv[], char *const envp[], int flags);"
+  ],
+  "description": "The execveat() system call executes a program relative to a directory file descriptor. It operates like execve(2) but allows interpreting relative paths based on the specified file descriptor.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor, or AT_FDCWD to use the current working directory"
+    },
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Path to the executable; relative paths are resolved relative to dirfd"
+    },
+    {
+      "name": "argv",
+      "type": "char *const argv[]",
+      "description": "Array of argument strings for the new program"
+    },
+    {
+      "name": "envp",
+      "type": "char *const envp[]",
+      "description": "Array of environment variable strings for the new program"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Bit mask of flags, such as AT_EMPTY_PATH or AT_SYMLINK_NOFOLLOW"
+    }
+  ],
+  "return_value": {
+    "success": "Does not return on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "Invalid flag specified in flags"
+    },
+    {
+      "code": "ELOOP",
+      "description": "flags includes AT_SYMLINK_NOFOLLOW and the file is a symbolic link"
+    },
+    {
+      "code": "ENOENT",
+      "description": "Program requires an interpreter but dirfd was opened with O_CLOEXEC, making it inaccessible"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "pathname is relative and dirfd is not a directory"
+    }
+  ],
+  "bugs": "It is not possible to set the close-on-exec flag on the file descriptor for calls with an empty pathname and AT_EMPTY_PATH, leading to file descriptor leaks and potential exhaustion in recursive scenarios.",
+  "versions": "Linux 3.19, glibc 2.34",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "execve",
+    "openat",
+    "fexecve"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "execveat.pdf",
+    "extraction_date": "2025-07-26T22:08:34.292789",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

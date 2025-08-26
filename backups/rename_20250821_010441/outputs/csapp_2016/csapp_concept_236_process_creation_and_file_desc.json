@@ -1,0 +1,36 @@
+{
+  "topic": "Process Creation and File Descriptor Inheritance",
+  "explanation": "Process creation is a fundamental operation in operating systems. When a process creates a child process (e.g., using fork()), the child inherits various resources from the parent, including open files represented by file descriptors. This inheritance mechanism allows efficient resource sharing between parent and child processes, simplifying inter-process communication and avoiding redundant file opening operations. Understanding this inheritance is crucial for writing correct and efficient concurrent programs and for analyzing system behavior.",
+  "syntax": "The exact syntax depends on the operating system's system call interface.  Commonly, a `fork()` system call creates a child process.  The child inherits file descriptors from the parent's process table.  The file descriptor numbers remain the same in both parent and child. Subsequent operations on the same file descriptor in both processes will access the same file.",
+  "code_example": [
+    "#include <unistd.h>",
+    "#include <fcntl.h>",
+    "#include <stdio.h>",
+    "",
+    "int main() {",
+    "  int fd = open(\"my_file.txt\", O_RDONLY);",
+    "  if (fd == -1) { perror(\"open\"); return 1; }",
+    "  printf(\"Parent: File descriptor: %d\\n\", fd);",
+    "",
+    "  pid_t pid = fork();",
+    "  if (pid < 0) { perror(\"fork\"); return 1; }",
+    "  else if (pid == 0) {",
+    "    printf(\"Child: File descriptor: %d\\n\", fd);",
+    "    //Child process reads from the file using the inherited fd",
+    "  } else {",
+    "    //Parent process continues...",
+    "  }",
+    "  close(fd); //Important: Parent should close the descriptor when done",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates file descriptor inheritance.  The parent process opens `my_file.txt`. The `fork()` system call creates a child process. The child inherits the open file descriptor `fd` from its parent. Both parent and child can then use `fd` to access the same file independently (unless one closes it). The example highlights the importance of proper file descriptor management to avoid resource leaks and race conditions.  The parent's closing of `fd` is crucial to prevent the child from accessing the file after the parent has finished with it.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "931-931",
+    "extraction_date": "2025-07-29T11:59:51.492007",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

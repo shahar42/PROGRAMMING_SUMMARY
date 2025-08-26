@@ -1,0 +1,30 @@
+{
+  "topic": "Regular Expressions: Searching and Extracting Subexpressions",
+  "explanation": "Regular expressions (regex) are essential for pattern matching and string manipulation in C++. The regex_search function performs a search for a regex pattern within a string and allows extraction of subexpressions (captured groups). In real-world scenarios, this is commonly used for tasks like input validation, data parsing (e.g., extracting parts of file names or log entries), and text processing. Best practices include using std::regex for pattern definitions, handling cases where no match is found to avoid runtime errors, and opting for raw string literals to simplify pattern writing and reduce escaping issues. Common pitfalls include overlooking performance impacts with complex patterns or failing to compile the regex correctly, which can be avoided by testing patterns separately and using try-catch blocks for exceptions.",
+  "syntax": "The basic syntax for regex_search is: std::regex_search(std::string subject, std::smatch& match_results, std::regex pattern); Here, 'subject' is the string to search, 'match_results' is a std::smatch object to store matches, and 'pattern' is the std::regex object. To access a subexpression, use: match_results.str(index); where 'index' is the subexpression number (e.g., 1 for the first captured group). Practical usage notes: Always include <regex> and <string> headers; use raw strings like R\"(pattern)\" for readability; and check if a match exists before accessing subexpressions to prevent out-of-range errors.",
+  "code_example": [
+    "#include <regex>",
+    "#include <string>",
+    "#include <iostream>",
+    "",
+    "int main() {",
+    "    std::string filename = \"example.txt\";",
+    "    std::regex r(R\"(([a-z]+)\\.txt)\");  // Pattern to match words followed by .txt",
+    "    std::smatch results;",
+    "    ",
+    "    if (std::regex_search(filename, results, r)) {",
+    "        std::cout << results.str(1) << std::endl;  // Extracts and prints the first subexpression, e.g., \"example\"",
+    "    } else {",
+    "        std::cout << \"No match found.\" << std::endl;  // Handle no match case",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates searching a string for a regex pattern and extracting the first subexpression, as inspired by C++ Primer. In a real-world context, such as file processing, it could validate and parse filenames in a directory listing. Practical analysis: The if statement ensures we only access results.str(1) if a match exists, avoiding common pitfalls like std::out_of_range exceptions. Best practices here include using a raw string for the regex to make it more readable and less error-prone, and adding error handling for no matches, which promotes robust code. This pattern is idiomatic in C++ for scenarios like log analysis or data extraction, where efficiency and safety are key\u2014always compile and test regex patterns separately to catch syntax errors early.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:07:49.882854"
+  }
+}

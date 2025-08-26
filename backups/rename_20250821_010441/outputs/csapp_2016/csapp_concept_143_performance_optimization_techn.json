@@ -1,0 +1,40 @@
+{
+  "topic": "Performance Optimization Techniques: Loop Unrolling and Reassociation",
+  "explanation": "Loop unrolling and reassociation are performance optimization techniques used to improve the efficiency of computations, especially in the context of vector processing and parallel architectures. Loop unrolling reduces loop overhead by replicating the loop body multiple times, while reassociation changes the order of operations to better utilize hardware resources, such as parallel functional units. Both techniques aim to increase instruction-level parallelism and reduce the number of cycles required for computation.",
+  "syntax": "Loop Unrolling:\n```c\nfor (i = 0; i < n; i += k) {\n  // Replicate loop body k times\n  body(data[i]);\n  body(data[i+1]);\n  ...\n  body(data[i+k-1]);\n}\n```\nReassociation:\nChanging the order of operations while maintaining the mathematical equivalence.  This often exploits the associative property of addition and multiplication.",
+  "code_example": [
+    "; Example illustrating the impact of loop unrolling (assembly-level representation would be highly architecture-specific)",
+    "; Assume vector addition of two arrays, a and b, into array c",
+    "; Standard loop",
+    "mov ecx, n",
+    "loop_start:",
+    "mov eax, [a + ecx*8]",
+    "add eax, [b + ecx*8]",
+    "mov [c + ecx*8], eax",
+    "loop loop_start",
+    "; Unrolled loop (k=2)",
+    "mov ecx, n",
+    "cmp ecx, 0",
+    "jle loop_end",
+    "loop_unrolled_start:",
+    "mov eax, [a + ecx*8]",
+    "add eax, [b + ecx*8]",
+    "mov [c + ecx*8], eax",
+    "sub ecx, 2",
+    "mov eax, [a + ecx*8 + 16]",
+    "add eax, [b + ecx*8 + 16]",
+    "mov [c + ecx*8 + 16], eax",
+    "cmp ecx, 0",
+    "jg loop_unrolled_start",
+    "loop_end:"
+  ],
+  "example_explanation": "The example shows a simplified illustration of loop unrolling. The unrolled version processes two elements per iteration instead of one, reducing loop overhead (loop instructions) and potentially increasing instruction-level parallelism.  This allows the processor to utilize multiple functional units concurrently, leading to a performance improvement.  While the assembly is illustrative, a real-world implementation would have architecture-specific instructions and might also incorporate reassociation to further enhance performance by optimizing the order of operations to match the processor's capabilities.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "572-573",
+    "extraction_date": "2025-07-27T18:13:11.855858",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "topic": "Expert C++ Implementation Concept: Recursive Mutexes",
+  "explanation": "Recursive mutexes allow a thread to acquire the same mutex multiple times without deadlocking.  This differs significantly from standard mutexes.  Understanding its implementation reveals intricacies of thread synchronization, memory management, and compiler optimizations.  The key is how the compiler and runtime manage the ownership counter and potential exception handling for exceeding the maximum recursion depth.",
+  "syntax": "```cpp\n#include <mutex>\n\nclass MyThreadsafeClass {\nprivate:\n  std::recursive_mutex myMutex;\n  int myData;\npublic:\n  void increment() {\n    myMutex.lock();\n    myData++;\n    myMutex.unlock();\n  }\n  int getData() {\n    myMutex.lock();\n    int temp = myData;\n    myMutex.unlock();\n    return temp;\n  }\n  void recursiveOperation() {\n    myMutex.lock(); // First acquire\n    // ... some code that might recursively call this function ...\n    recursiveOperation(); // Recursive call\n    // ... more code ...\n    myMutex.unlock(); // Release (must match lock calls)\n  }\n};\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <mutex>",
+    "#include <thread>",
+    "#include <stdexcept>",
+    "std::recursive_mutex m;",
+    "void myFunc() {",
+    "  for (int i = 0; i < 5; ++i) {",
+    "    m.lock();",
+    "    std::cout << \"Acquired mutex in myFunc() iteration \" << i << std::endl;",
+    "    // Simulate work",
+    "    m.unlock();",
+    "  }",
+    "}",
+    "int main() {",
+    "  std::thread t1(myFunc);",
+    "  std::thread t2(myFunc);",
+    "  t1.join();",
+    "  t2.join();",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler likely implements `recursive_mutex` using an internal counter alongside the mutex's locking mechanism.  The `lock()` method increments this counter, while `unlock()` decrements it.  If the counter is greater than zero, the mutex is considered locked.  Only when the counter reaches zero is the mutex truly unlocked for other threads. The `try_lock()` method will return `true` only if it can successfully acquire the mutex (counter is zero). If a thread attempts to acquire the mutex more times than the implementation's maximum recursion depth, it will throw a `system_error`.  At the assembly level, this involves atomic operations (like `lock inc` or equivalent) to manage the counter safely across threads and potentially platform-specific system calls for mutex management.  Failure to match `lock()` and `unlock()` calls results in undefined behavior (resource leak). The performance impact depends on the underlying operating system's mutex implementation and the frequency of recursion; excessive recursion can lead to performance degradation due to the overhead of managing the counter. Compile-time behavior is limited to ensuring correct class definition and linking to the standard library's mutex implementation. Runtime behavior is dominated by thread synchronization and potential exceptions related to recursion depth.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:47:46.337895"
+  }
+}

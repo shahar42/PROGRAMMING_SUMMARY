@@ -1,0 +1,26 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Template Metaprogramming and Compile-Time Computation",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code based on template parameters.  This avoids runtime overhead, potentially improving performance significantly.  The compiler's implementation involves recursively instantiating templates, expanding template expressions into code, and performing constant folding during compilation.  Memory layout is impacted as compile-time computations eliminate the need for runtime allocation and associated memory management. Assembly-level behavior shows direct computation within the generated code rather than function calls. The behavior is entirely compile-time; no runtime execution is involved for the metaprogrammed computations.",
+  "syntax": "C++ templates with recursive instantiation and compile-time computation.  Example using `constexpr` functions and `std::integral_constant` for compile-time checks and values.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <int N> ",
+    "constexpr int factorial() {",
+    "  return N <= 1 ? 1 : N * factorial<N - 1>();",
+    "}",
+    "int main() {",
+    "  constexpr int result = factorial<5>(); // Compile-time computation",
+    "  std::cout << result << std::endl;     // Output: 120",
+    "  static_assert(factorial<0>() == 1, \"Factorial of 0 should be 1\");",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` template function calculates the factorial at compile time.  The compiler recursively instantiates the template for each value of N down to 1.  The `constexpr` keyword ensures that the computation happens at compile time.  The compiler performs constant folding, reducing the expression `N * factorial<N - 1>()` to its final value (120 in this case) before the code is generated.  The `static_assert` demonstrates how compile-time computations can be used for compile-time checks. No runtime overhead occurs for the factorial calculation; the compiler directly substitutes the pre-computed value into the assembly code.  The generated assembly will not contain any instructions for the factorial calculation itself\u2014only the result (120) will be present.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:03:22.179007"
+  }
+}

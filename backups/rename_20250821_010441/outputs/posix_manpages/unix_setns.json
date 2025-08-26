@@ -1,0 +1,92 @@
+{
+  "name": "setns",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sched.h>",
+    "int setns(int fd, int nstype);"
+  ],
+  "description": "The setns() system call allows the calling thread to reassociate with a different namespace specified by a file descriptor. It changes the thread's namespace memberships based on the provided namespace type.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "A file descriptor referring to a namespace, such as from /proc/[pid]/ns/ or a PID file descriptor obtained via pidfd_open(2)."
+    },
+    {
+      "name": "nstype",
+      "type": "int",
+      "description": "Specifies the type of namespace to join; 0 for any type, or specific flags like CLONE_NEWIPC for particular namespaces."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid file descriptor."
+    },
+    {
+      "code": "EINVAL",
+      "description": "fd refers to a namespace whose type does not match that specified in nstype."
+    },
+    {
+      "code": "EINVAL",
+      "description": "There is a problem with reassociating the thread with the specified namespace."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The caller tried to join an ancestor PID namespace."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The caller attempted to join the user namespace in which it is already a member."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The caller shares filesystem (CLONE_FS) state with other processes and tried to join a new user namespace."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The caller is multithreaded and tried to join a new user namespace."
+    },
+    {
+      "code": "EINVAL",
+      "description": "fd is a PID file descriptor and nstype is invalid (e.g., it is 0)."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Cannot allocate sufficient memory to change the specified namespace."
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling thread did not have the required capability for this operation."
+    },
+    {
+      "code": "ESRCH",
+      "description": "fd is a PID file descriptor but the process it refers to no longer exists."
+    }
+  ],
+  "bugs": "Not all attributes that can be shared when creating a new thread with clone(2) can be changed using setns(). Additionally, there are restrictions for multithreaded processes, such as inability to change user namespaces, and specific namespace reassociation rules.",
+  "versions": "Linux 3.0, glibc 2.14",
+  "posix_compliance": null,
+  "examples": [
+    "int fd = open(argv[1], O_RDONLY | O_CLOEXEC);",
+    "if (setns(fd, 0) == -1) err(EXIT_FAILURE, \"setns\");",
+    "execvp(argv[2], &argv[2]);"
+  ],
+  "related_calls": [
+    "clone",
+    "fork",
+    "unshare",
+    "vfork"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "setns.pdf",
+    "extraction_date": "2025-08-03T10:54:46.814427",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

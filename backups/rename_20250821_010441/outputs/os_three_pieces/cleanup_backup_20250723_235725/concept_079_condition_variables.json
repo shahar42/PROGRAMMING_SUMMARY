@@ -1,0 +1,40 @@
+{
+  "topic": "Condition Variables",
+  "explanation": "A condition variable is a synchronization primitive in C used in multithreaded programming to allow threads to wait until a specific condition is met, avoiding busy-waiting and ensuring efficient coordination. It works with mutexes to prevent race conditions and signal events between threads.",
+  "syntax": "pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); pthread_cond_signal(pthread_cond_t *cond);",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <pthread.h>",
+    "#include <unistd.h>",
+    "",
+    "pthread_cond_t cond = PTHREAD_COND_INITIALIZER;",
+    "pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;",
+    "",
+    "void *wait_thread(void *arg) {",
+    "    pthread_mutex_lock(&mutex);",
+    "    pthread_cond_wait(&cond, &mutex);",
+    "    printf(\"Condition met!\\n\");",
+    "    pthread_mutex_unlock(&mutex);",
+    "    return NULL;",
+    "}",
+    "",
+    "int main() {",
+    "    pthread_t thread;",
+    "    pthread_create(&thread, NULL, wait_thread, NULL);",
+    "    sleep(1);  // Simulate some work before signaling",
+    "    pthread_mutex_lock(&mutex);",
+    "    pthread_cond_signal(&cond);",
+    "    pthread_mutex_unlock(&mutex);",
+    "    pthread_join(thread, NULL);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates condition variables by having one thread wait on 'cond' using pthread_cond_wait, which blocks until the main thread signals it with pthread_cond_signal after a delay. This shows how the condition variable synchronizes the threads, allowing the waiting thread to proceed only when the condition is signaled, while using a mutex to protect shared resources.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "346-346",
+    "extraction_date": "2025-07-23T00:06:25.450872",
+    "has_code": false,
+    "has_explanation": false
+  }
+}

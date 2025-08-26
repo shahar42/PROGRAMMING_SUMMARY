@@ -1,0 +1,31 @@
+{
+  "topic": "Custom Deleters and their Impact on `std::unique_ptr` Implementation",
+  "explanation": "The `std::unique_ptr` smart pointer, while seemingly simple, reveals intricate compiler and runtime behavior when coupled with custom deleters. Understanding this interaction is crucial for advanced C++ programming, impacting memory management, exception safety, and performance.  The compiler's role is not just managing the pointer itself, but also ensuring correct invocation of the deleter, potentially involving function pointer manipulation and careful stack unwinding in the face of exceptions.  The choice of deleter significantly affects memory layout (indirectly, via the object being managed) and performance because the deleter's execution overhead is directly added to the destructor's cost.   This contrasts with the simpler `delete` operation used in the default deleter, highlighting the differences between compile-time known behavior and runtime polymorphic behavior.",
+  "syntax": "template <class T, class Deleter = std::default_delete<T>>\nclass unique_ptr {\npublic:\n  // ... other members ...\n  ~unique_ptr() { if (get()) deleter_(ptr_); }\nprivate:\n  T* ptr_;\n  Deleter deleter_;\n};",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "struct MyResource {",
+    "  ~MyResource() { std::cout << \"MyResource destroyed\\n\"; }",
+    "};",
+    "struct MyDeleter {",
+    "  void operator()(MyResource* ptr) {",
+    "    std::cout << \"MyDeleter called\\n\";",
+    "    // Perform custom cleanup (e.g., file closing, network release)",
+    "    delete ptr; ",
+    "  }",
+    "};",
+    "int main() {",
+    "  std::unique_ptr<MyResource, MyDeleter> resource(new MyResource());",
+    "  // ... use resource ...",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler generates code for `unique_ptr`'s destructor that calls the `MyDeleter` object's `operator()`. This involves generating code to invoke a function pointer (the `deleter_` member). If an exception occurs before the `unique_ptr`'s destructor is called (e.g., in the `// ... use resource ...` section), the compiler's exception handling mechanism ensures the deleter is still invoked, maintaining RAII guarantees.  The performance impact depends on the complexity of `MyDeleter::operator()`.  A simple deleter will have minimal overhead, while a complex one may lead to significant performance penalties. Analyzing the assembly code (which would vary depending on the compiler and optimization level) would show function calls related to the deleter's invocation, illustrating the runtime behavior and potential call stack implications. The memory layout would not directly change except for the additional space allocated to store the `deleter_` object within the `unique_ptr` itself. The key aspect is the runtime polymorphism of the deleter, introducing potentially higher overhead compared to the `delete` call of the default deleter, whose behavior is fully known at compile time.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:09:59.518280"
+  }
+}

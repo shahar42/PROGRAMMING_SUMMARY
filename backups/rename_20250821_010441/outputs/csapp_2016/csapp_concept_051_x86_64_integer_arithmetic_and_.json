@@ -1,0 +1,26 @@
+{
+  "topic": "x86-64 Integer Arithmetic and Multiplication/Division Instructions",
+  "explanation": "This concept describes how the x86-64 architecture handles integer arithmetic, specifically focusing on multiplication and division operations at the assembly level. Understanding these instructions is crucial for systems programming because they directly impact performance and efficient memory usage, especially when dealing with large integers that exceed the native word size of the processor.  The example demonstrates the underlying hardware operations, illustrating how software interacts with the processor's capabilities.",
+  "syntax": "x86-64 Assembly Instructions:\n\n* `movq`: Move data between registers and memory.\n* `mulq`: Unsigned multiplication of 64-bit operands.  The result (128-bit) is stored in `%rdx` (high-order 64 bits) and `%rax` (low-order 64 bits).\n* `idivq`: Signed division of a 128-bit dividend (in `%rdx` and `%rax`) by a 64-bit divisor. The quotient is stored in `%rax`, the remainder in `%rdx`.\n* `cqto`: Converts a 64-bit signed integer in `%rax` to a 128-bit signed integer in `%rdx` and `%rax` (sign extension).",
+  "code_example": [
+    "void store_uprod(uint128_t *dest, uint64_t x, uint64_t y) {",
+    "  *dest = x * y; // C code",
+    "}",
+    "",
+    "store_uprod:",
+    "  movq %rsi, %rax          # Copy x to multiplicand",
+    "  mulq %rdx                # Multiply by y",
+    "  movq %rax, (%rdi)        # Store lower 8 bytes at dest",
+    "  movq %rdx, 8(%rdi)       # Store upper 8 bytes at dest+8",
+    "  ret"
+  ],
+  "example_explanation": "The `store_uprod` function demonstrates 64-bit unsigned integer multiplication. The C code performs a simple multiplication. The corresponding assembly shows that the `mulq` instruction performs the multiplication, resulting in a 128-bit product stored across `%rax` (lower 64 bits) and `%rdx` (upper 64 bits). Two `movq` instructions are then necessary to store this 128-bit result into memory. This illustrates the interaction between high-level language operations and their low-level assembly counterparts, showing the hardware limitations (64-bit registers) that necessitate handling larger values using multiple instructions and memory locations.  The example highlights the importance of understanding the underlying architecture to write efficient code.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "226-227",
+    "extraction_date": "2025-07-24T23:13:10.986349",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

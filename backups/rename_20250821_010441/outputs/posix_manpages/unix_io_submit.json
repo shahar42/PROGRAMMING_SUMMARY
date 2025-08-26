@@ -1,0 +1,72 @@
+{
+  "name": "io_submit",
+  "synopsis": [
+    "#include <linux/aio_abi.h>",
+    "int io_submit(aio_context_t ctx_id, long nr, struct iocb **iocbpp);"
+  ],
+  "description": "The io_submit system call queues asynchronous I/O requests in the specified AIO context. It submits an array of I/O control blocks for processing.",
+  "parameters": [
+    {
+      "name": "ctx_id",
+      "type": "aio_context_t",
+      "description": "The AIO context ID to which requests are submitted."
+    },
+    {
+      "name": "nr",
+      "type": "long",
+      "description": "The number of I/O requests to submit."
+    },
+    {
+      "name": "iocbpp",
+      "type": "struct iocb **",
+      "description": "An array of pointers to I/O control blocks containing the details of the I/O operations."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of iocbs submitted (which may be less than nr, or 0 if nr is zero)",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "Insufficient resources are available to queue any iocbs."
+    },
+    {
+      "code": "EBADF",
+      "description": "The file descriptor specified in the first iocb is invalid."
+    },
+    {
+      "code": "EFAULT",
+      "description": "One of the data structures points to invalid data."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The AIO context specified by ctx_id is invalid, nr is less than 0, or the iocb is not properly initialized."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "io_submit() is not implemented on this architecture."
+    },
+    {
+      "code": "EPERM",
+      "description": "The aio_reqprio field is set with the class IOPRIO_CLASS_RT, but the submitting context does not have the CAP_SYS_ADMIN capability."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.5",
+  "posix_compliance": null,
+  "related_calls": [
+    "io_cancel",
+    "io_destroy",
+    "io_getevents",
+    "io_setup",
+    "aio"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "io_submit.pdf",
+    "extraction_date": "2025-07-28T12:15:31.101024",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

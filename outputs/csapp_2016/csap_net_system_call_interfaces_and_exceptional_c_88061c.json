@@ -1,0 +1,51 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing hardware resources (network, disk, etc.), managing processes, or performing other privileged operations. Exceptional control flow refers to the mechanism by which the system handles events outside the normal flow of execution, such as interrupts, signals, and exceptions.  These mechanisms allow the OS to respond to asynchronous events and maintain system stability.  The interaction between system calls and exceptional control flow is crucial for robust and efficient systems programming.",
+  "syntax": "Generally, system calls are invoked using specific instructions (e.g., `syscall` on x86-64) with arguments passed through registers or the stack.  The kernel then handles the request, potentially changing the process state, and returns a result code indicating success or failure.  Exceptional control flow is managed using mechanisms like signal handlers or interrupt service routines.",
+  "code_example": [
+    "#include <sys/types.h>",
+    "#include <sys/socket.h>",
+    "#include <netinet/in.h>",
+    "#include <unistd.h>",
+    "#include <errno.h>",
+    "int main() {",
+    "  int listenfd, connfd;",
+    "  socklen_t clientlen;",
+    "  struct sockaddr_storage clientaddr;",
+    "  // ... socket creation and binding ...",
+    "  listenfd = socket(AF_INET, SOCK_STREAM, 0);",
+    "  // ... error handling ...",
+    "  listen(listenfd, 10);",
+    "  // ... error handling ...",
+    "  clientlen = sizeof(clientaddr);",
+    "  connfd = accept(listenfd, (struct sockaddr *)&clientaddr, &clientlen);",
+    "  if (connfd < 0) {",
+    "    perror(\"accept\");",
+    "    exit(1);",
+    "  }",
+    "  // ... handle client connection ...",
+    "  close(connfd);",
+    "  close(listenfd);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the `accept()` system call, which is part of the socket API.  `accept()` is used to accept a connection request on a listening socket. It's a blocking system call; the process waits until a connection is established. If an error occurs (e.g., no connection available within a timeout), then `accept()` will return an error code ( < 0), allowing the program to handle the exceptional control flow and prevent crashes. The error is explicitly handled with `perror()` in the example. The system call interacts with the network hardware through the kernel, showcasing the hardware-software interaction.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "959-959",
+    "extraction_date": "2025-07-29T14:00:23.922196",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T15:41:18.975083",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1004-1004",
+      "extraction_date": "2025-07-29T15:41:09.624117",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8798382878303528
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "name": "mq_timedsend",
+  "synopsis": [
+    "#include <mqueue.h>",
+    "int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned int msg_prio);",
+    "#include <time.h>",
+    "#include <mqueue.h>",
+    "int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec *abs_timeout);"
+  ],
+  "description": "mq_timedsend() adds a message to a message queue with a specified absolute timeout. If the queue is full and O_NONBLOCK is not set, it waits until space is available or the timeout expires. It operates similarly to mq_send() but includes timeout functionality.",
+  "parameters": [
+    {
+      "name": "mqdes",
+      "type": "mqd_t",
+      "description": "Message queue descriptor."
+    },
+    {
+      "name": "msg_ptr",
+      "type": "const char *",
+      "description": "Pointer to the message."
+    },
+    {
+      "name": "msg_len",
+      "type": "size_t",
+      "description": "Length of the message in bytes."
+    },
+    {
+      "name": "msg_prio",
+      "type": "unsigned int",
+      "description": "Priority of the message, with higher values indicating higher priority."
+    },
+    {
+      "name": "abs_timeout",
+      "type": "const struct timespec *",
+      "description": "Pointer to a timespec structure specifying the absolute timeout."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "The queue was full, and the O_NONBLOCK flag was set."
+    },
+    {
+      "code": "EBADF",
+      "description": "The descriptor specified in mqdes was invalid or not opened for writing."
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal handler."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The call would have blocked, and abs_timeout was invalid."
+    },
+    {
+      "code": "EMSGSIZE",
+      "description": "msg_len was greater than the mq_msgsize attribute of the message queue."
+    },
+    {
+      "code": "ETIMEDOUT",
+      "description": "The call timed out before a message could be transferred."
+    }
+  ],
+  "bugs": null,
+  "versions": "On Linux, mq_timedsend() is a system call.",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "mq_close",
+    "mq_getattr",
+    "mq_notify",
+    "mq_open",
+    "mq_receive",
+    "mq_unlink"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mq_timedsend.pdf",
+    "extraction_date": "2025-07-29T11:09:34.479965",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

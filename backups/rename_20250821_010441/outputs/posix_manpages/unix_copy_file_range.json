@@ -1,0 +1,116 @@
+{
+  "name": "copy_file_range",
+  "synopsis": [
+    "#define _GNU_SOURCE",
+    "#define _FILE_OFFSET_BITS 64",
+    "#include <unistd.h>",
+    "ssize_t copy_file_range(int fd_in, off_t *_Nullable off_in, int fd_out, off_t *_Nullable off_out, size_t len, unsigned int flags);"
+  ],
+  "description": "The copy_file_range() system call copies up to a specified number of bytes from one file to another in the kernel, avoiding user space data transfer. It uses file descriptors and optional offsets for the source and destination, and currently requires flags to be set to 0.",
+  "parameters": [
+    {
+      "name": "fd_in",
+      "type": "int",
+      "description": "Input file descriptor from which data is read."
+    },
+    {
+      "name": "off_in",
+      "type": "off_t *_Nullable",
+      "description": "Pointer to the offset in the input file; if NULL, uses and updates the file offset."
+    },
+    {
+      "name": "fd_out",
+      "type": "int",
+      "description": "Output file descriptor to which data is written."
+    },
+    {
+      "name": "off_out",
+      "type": "off_t *_Nullable",
+      "description": "Pointer to the offset in the output file; if NULL, uses and updates the file offset."
+    },
+    {
+      "name": "len",
+      "type": "size_t",
+      "description": "The number of bytes to copy."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags for future extensions; must be set to 0."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes copied, which may be less than requested.",
+    "failure": "Returns -1 on error, and sets errno to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "One or more file descriptors are not valid, fd_in is not open for reading, fd_out is not open for writing, or O_APPEND is set for fd_out."
+    },
+    {
+      "code": "EFBIG",
+      "description": "An attempt was made to write beyond the maximum file offset or size limits."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The flags argument is not 0, fd_in and fd_out refer to the same file with overlapping ranges, or either is not a regular file."
+    },
+    {
+      "code": "EIO",
+      "description": "A low-level I/O error occurred while copying."
+    },
+    {
+      "code": "EISDIR",
+      "description": "Either fd_in or fd_out refers to a directory."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "There is not enough space on the target filesystem."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support this operation."
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "The requested source or destination range is too large."
+    },
+    {
+      "code": "EPERM",
+      "description": "fd_out refers to an immutable file."
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "Either fd_in or fd_out refers to an active swap file."
+    },
+    {
+      "code": "EXDEV",
+      "description": "The files referred to by fd_in and fd_out are not on the same filesystem."
+    }
+  ],
+  "bugs": "In Linux 5.3 to 5.18, cross-filesystem copies were implemented by the kernel but could fail on some virtual filesystems while reporting success.",
+  "versions": "Linux 4.5; reworked in Linux 5.3; cross-filesystem support since Linux 5.19",
+  "posix_compliance": null,
+  "examples": [
+    "int fd_in = open(argv[1], O_RDONLY);",
+    "int fd_out = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0644);",
+    "do { ret = copy_file_range(fd_in, NULL, fd_out, NULL, len, 0); if (ret == -1) { perror(\"copy_file_range\"); exit(EXIT_FAILURE); } len -= ret; } while (len > 0 && ret > 0);"
+  ],
+  "related_calls": [
+    "lseek",
+    "sendfile",
+    "splice"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "copy_file_range.pdf",
+    "extraction_date": "2025-07-26T12:46:02.937397",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

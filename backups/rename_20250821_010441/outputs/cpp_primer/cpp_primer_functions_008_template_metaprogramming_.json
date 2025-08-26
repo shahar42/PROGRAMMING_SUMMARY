@@ -1,0 +1,26 @@
+{
+  "topic": "Template Metaprogramming with Function Objects (Functors)",
+  "explanation": "This concept demonstrates using template metaprogramming to create flexible and reusable functions.  By accepting a callable object (functor) as a template parameter, we can customize the behavior of our function at compile time without sacrificing performance. This is particularly useful for algorithms that depend on specific comparison or operation logic.  Best practice is to provide default arguments for both the template parameter and the function parameter to maximize usability and readability.",
+  "syntax": "```cpp\ntemplate <typename T, typename F = std::less<T>>\nbool compare(const T& a, const T& b, F f = F()){\n  return f(a, b);\n}\n```\n\n* **`template <typename T, typename F = std::less<T>>`**: This declares a function template that takes two template parameters: `T` for the data type being compared, and `F` for the comparison function object (functor), defaulting to `std::less<T>`. \n* **`F f = F()`**: This declares a function parameter `f` of type `F`, initialized with a default-constructed object of type `F`. This allows the function to be called without explicitly providing a comparison function.\n* **`return f(a, b);`**: This calls the provided functor `f` with the two input arguments `a` and `b`, allowing the user-defined comparison logic to be executed.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <functional>",
+    "template <typename T, typename F = std::less<T>>",
+    "bool compare(const T& a, const T& b, F f = F()){",
+    "  return f(a, b);",
+    "}",
+    "int main() {",
+    "  std::cout << compare(5, 10) << std::endl; // Uses std::less<int>",
+    "  auto greater = std::greater<int>();",
+    "  std::cout << compare(5, 10, greater) << std::endl; // Uses std::greater<int>",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example showcases the flexibility of this approach.  The `compare` function can work with different data types (`T`) and comparison logic (`F`). The first call uses the default `std::less`, resulting in `true` (5 < 10). The second call explicitly passes `std::greater`, demonstrating how easily the comparison behavior is changed, resulting in `false` (5 > 10).  This technique avoids writing multiple similar functions for different comparison needs, promoting code reuse and reducing redundancy.  The default arguments ensure the function is readily usable while still allowing advanced customization when required.  This is a key example of  Generic Programming, a cornerstone of modern C++.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:34:17.519153"
+  }
+}

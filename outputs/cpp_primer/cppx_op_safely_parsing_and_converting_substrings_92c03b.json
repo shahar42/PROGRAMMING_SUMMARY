@@ -1,0 +1,35 @@
+{
+  "topic": "Safely Parsing and Converting Substrings to Numeric Types",
+  "explanation": "In C++, parsing numbers from strings is a common task in real-world applications, such as processing user input, reading configuration files, or handling data from external sources. This concept focuses on using string manipulation functions like std::string::find_first_of and std::string::substr in combination with std::stod to extract and convert substrings to double-precision floating-point numbers. Best practices include always checking for the validity of the substring, handling potential exceptions (e.g., invalid_argument for malformed strings or out_of_range for numbers too large), and ensuring the code is robust against unexpected input. Common pitfalls include assuming the string always contains a valid number, which can lead to runtime errors; to avoid this, use try-catch blocks and validate positions before extraction. In real-world scenarios, this technique is useful in data parsing for applications like scientific computing, financial tools, or game development, where inputs may be mixed with non-numeric data.",
+  "syntax": "To parse a number from a string, use:\n- std::string::find_first_of(const std::string& chars) to locate the first character in a set (e.g., \"+-.0123456789\"), returning a size_t position or std::string::npos if not found.\n- std::string::substr(size_t pos = 0, size_t len = npos) to extract a substring starting at pos.\n- std::stod(const std::string& str) to convert a string to a double, which may throw std::invalid_argument if no conversion could be performed, or std::out_of_range if the number is out of range.\nPractical usage notes: Always check if find_first_of returns npos before calling substr to avoid exceptions. Wrap std::stod in a try-catch block to handle errors gracefully, and consider trimming whitespace or validating the full string for robustness.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "",
+    "int main() {",
+    "    std::string s2 = \"abc 123.45 def\";  // Example string with mixed content",
+    "    size_t pos = s2.find_first_of(\"+-.0123456789\");  // Find first potential number character",
+    "    if (pos != std::string::npos) {  // Check if a position was found",
+    "        std::string numStr = s2.substr(pos);  // Extract substring from that position",
+    "        try {",
+    "            double d = std::stod(numStr);  // Convert substring to double",
+    "            std::cout << \"Converted value: \" << d << std::endl;  // Output the result",
+    "        } catch (const std::invalid_argument& e) {",
+    "            std::cout << \"Error: Invalid argument - \" << e.what() << std::endl;  // Handle invalid input",
+    "        } catch (const std::out_of_range& e) {",
+    "            std::cout << \"Error: Number out of range - \" << e.what() << std::endl;  // Handle overflow",
+    "        }",
+    "    } else {",
+    "        std::cout << \"No potential number found in the string.\" << std::endl;  // Handle no match",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates a practical pattern for safely extracting and converting a numeric substring from a larger string, as inspired by C++ Primer. In real-world usage, such as parsing log files or user commands, it ensures that only valid numeric parts are processed while ignoring irrelevant text. Best practices here include: (1) using find_first_of to locate potential numbers without assuming the string's structure, (2) checking for npos to avoid substr exceptions, and (3) employing try-catch for std::stod to prevent crashes from malformed input\u2014e.g., if the substring isn't a valid number, it catches the exception and logs an error instead. This approach promotes idiomatic C++ by favoring the standard library for string handling, making the code more readable, maintainable, and resilient to common pitfalls like unhandled exceptions in production environments.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "strings",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:07:52.964223"
+  }
+}

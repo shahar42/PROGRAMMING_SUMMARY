@@ -1,0 +1,58 @@
+{
+  "name": "setrlimit",
+  "synopsis": [
+    "#include <sys/resource.h>",
+    "int setrlimit(int resource, const struct rlimit *rlim);"
+  ],
+  "description": "The setrlimit() system call sets resource limits for a process. It uses a structure to specify soft and hard limits for resources such as memory or CPU time. An unprivileged process can only lower limits or set soft limits up to the hard limit.",
+  "parameters": [
+    {
+      "name": "resource",
+      "type": "int",
+      "description": "The resource to set, such as RLIMIT_AS for address space or RLIMIT_CPU for CPU time."
+    },
+    {
+      "name": "rlim",
+      "type": "const struct rlimit *",
+      "description": "Pointer to a rlimit structure containing the new soft and hard limits for the resource."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "A pointer argument points to a location outside the accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The value specified in resource is not valid, or rlim->rlim_cur was greater than rlim->rlim_max."
+    },
+    {
+      "code": "EPERM",
+      "description": "An unprivileged process tried to raise the hard limit; or the caller tried to increase the hard RLIMIT_NOFILE limit above the maximum."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux",
+  "posix_compliance": null,
+  "examples": [
+    "pid_t pid = atoi(argv[1]);",
+    "struct rlimit new;",
+    "if (argc == 4) { new.rlim_cur = atoi(argv[2]); new.rlim_max = atoi(argv[3]); newp = &new; }",
+    "if (prlimit(pid, RLIMIT_CPU, newp, &old) == -1) err(EXIT_FAILURE, \"prlimit-1\");"
+  ],
+  "related_calls": [
+    "getrlimit",
+    "prlimit"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "setrlimit.pdf",
+    "extraction_date": "2025-08-03T18:00:10.894954",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

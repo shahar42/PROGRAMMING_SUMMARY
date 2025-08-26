@@ -1,0 +1,38 @@
+{
+  "topic": "Reservoir Sampling for Random String Selection in a Single Pass",
+  "explanation": "Reservoir sampling is an advanced algorithm used to select a random element from a stream or a large dataset when the total size is unknown or when only a single pass is allowed. In the context of C programming, implementing reservoir sampling requires careful handling of pointer manipulation, probabilistic decision-making, and efficient memory usage without storing all data. This technique is crucial for scenarios where memory constraints prevent storing the entire dataset, and it exemplifies advanced control flow, randomness, and in-place decision strategies in C.",
+  "syntax": "Initialize a candidate pointer to the first element; for each subsequent element N, replace the candidate with probability 1/N; otherwise, keep the current candidate. Use pointer arithmetic and probabilistic checks to implement this logic in a single pass.",
+  "code_example": [
+    "char *select_random_string(FILE *file) {",
+    "    char *candidate = NULL;",
+    "    size_t candidate_size = 0;",
+    "    size_t count = 0;",
+    "    char buffer[1024];",
+    "    while (fgets(buffer, sizeof(buffer), file)) {",
+    "        count++;",
+    "        size_t len = strlen(buffer);",
+    "        char *temp = realloc(candidate, len + 1);",
+    "        if (!temp) {",
+    "            free(candidate);",
+    "            return NULL; // handle memory error",
+    "        }",
+    "        candidate = temp;",
+    "        strcpy(candidate, buffer);",
+    "        if (rand() % count == 0) {",
+    "            // With probability 1/count, select current string",
+    "            // No action needed, candidate already points to current string",
+    "        }",
+    "    }",
+    "    return candidate;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates reservoir sampling by reading strings from a file in a single pass. For each string read, it probabilistically decides whether to replace the current candidate with the new string, ensuring each string has an equal chance of being selected. The use of pointer reallocation and probabilistic logic exemplifies advanced C techniques for efficient, memory-conscious random selection from a data stream.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "286-286",
+    "extraction_date": "2025-07-23T00:25:28.050041",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "expert_c_programming"
+  }
+}

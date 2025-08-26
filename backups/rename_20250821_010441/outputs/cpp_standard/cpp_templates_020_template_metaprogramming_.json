@@ -1,0 +1,28 @@
+{
+  "topic": "Template Metaprogramming and its Compile-Time Behavior",
+  "explanation": "Template metaprogramming (TMP) leverages C++ templates to perform computations at compile time, rather than runtime.  This involves the compiler generating specialized code for different template instantiations.  Understanding its implementation requires delving into how compilers handle template instantiation, recursion, and the creation of code during compilation.  The key is that the compiler performs significant optimization by evaluating expressions and generating optimized machine code before the program even runs. This contrasts sharply with runtime computations, which occur only when the program is executed.  The performance impact is substantial, especially for algorithms that can be fully resolved at compile time, eliminating runtime overhead and branching. Memory layout is also affected;  compile-time calculations often avoid heap allocations, resulting in a smaller memory footprint and reduced runtime allocation/deallocation costs.  Assembly-level behavior will vary greatly depending on the compiler and target architecture, but will generally show a lack of runtime instructions for tasks performed at compile time.  The difference between compile-time and runtime is profound; compile-time TMP often eliminates runtime loops and conditionals, translating into simpler, faster assembly instructions.",
+  "syntax": "```c++\ntemplate <int N>\nstruct Factorial {\n  static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static const int value = 1;\n};\n\nint main() {\n  constexpr int result = Factorial<5>::value; // Compile-time calculation\n  std::cout << result << std::endl; // Output: 120\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "template <typename T, size_t N>",
+    "class StaticArray {",
+    "public:",
+    "  T data[N];",
+    "};",
+    "int main() {",
+    "  StaticArray<int, 10> arr;",
+    "  for (size_t i = 0; i < 10; ++i) {",
+    "    arr.data[i] = i * 2;",
+    "  }",
+    "  std::cout << arr.data[5] << std::endl; // Output: 10",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example showcases TMP through the use of `StaticArray`.  The compiler generates a specific array size at compile time based on the template argument `N`. The compiler allocates the required memory on the stack for `data[N]` and avoids any dynamic memory allocation at runtime, leading to predictable memory layout and improved performance. The assembly would reveal that the array is allocated on the stack directly within the `main` function's stack frame. This eliminates any runtime calls to the heap manager such as `malloc` or `new`, leading to significant speed and stability improvements.  There's no runtime overhead for determining the array size, demonstrating a key benefit of compile-time computation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:42:52.217813"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "topic": "Memory Layout of Multi-Dimensional Arrays and Array Access",
+  "explanation": "Understanding how multi-dimensional arrays are laid out in memory is crucial for efficient systems programming and performance optimization.  The compiler generates code to calculate the memory offset of each array element based on the array's dimensions and the memory ordering (typically row-major). This calculation directly impacts memory access speed and efficiency, influencing cache utilization and overall program performance.  Efficient access patterns minimize cache misses and improve performance.",
+  "syntax": "For an array declared as `T D[R][C];`, where T is the data type, R is the number of rows, and C is the number of columns, element access is typically calculated as: `address(D[i][j]) = base_address(D) + i * (C * sizeof(T)) + j * sizeof(T)`  (row-major order).",
+  "code_example": [
+    "; Assume int is 4 bytes",
+    "section .data",
+    "A: times 60 db 0 ; 5 rows * 3 ints/row * 4 bytes/int = 60 bytes",
+    "section .text",
+    "global _start",
+    "_start:",
+    "; Access A[2][1] (3rd row, 2nd column)",
+    "mov rdi, A ; base address of A in rdi",
+    "mov rsi, 2 ; row index",
+    "mov rdx, 3 ; number of columns",
+    "mov rcx, 4 ; size of int",
+    "mul rdx ; rsi = rsi * rdx (row * cols)",
+    "mul rcx ; rsi = rsi * rcx (row * cols * sizeof(int))",
+    "add rdi, rsi ; rdi = base + offset for row",
+    "add rdi, rcx ; rdi += offset for column (1 * sizeof(int))",
+    "; rdi now points to A[2][1]",
+    "; Access and use the value at rdi (example omitted for brevity)",
+    "mov rax, 60 ; sys_exit",
+    "xor rdi, rdi ; exit code 0",
+    "syscall"
+  ],
+  "example_explanation": "The example demonstrates how to calculate the memory address of an element in a two-dimensional array using x86-64 assembly. The code first computes the offset of the desired element (`A[2][1]`) based on row-major ordering, and then adds this offset to the base address of the array to obtain the final memory address.  This illustrates the direct hardware-software interaction involved in accessing data structures in memory, highlighting the importance of understanding memory layout for performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "286-286",
+    "extraction_date": "2025-07-26T00:05:14.852209",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

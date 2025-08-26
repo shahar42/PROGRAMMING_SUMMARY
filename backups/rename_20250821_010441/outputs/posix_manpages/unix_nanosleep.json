@@ -1,0 +1,55 @@
+{
+  "name": "nanosleep",
+  "synopsis": [
+    "#include <time.h>",
+    "int nanosleep(const struct timespec *req, struct timespec *_Nullable rem);"
+  ],
+  "description": "nanosleep() suspends the execution of the calling thread for a specified duration with nanosecond precision. If interrupted by a signal, it returns the remaining time and can be restarted. It provides higher resolution than alternatives like sleep(3) and handles signals as per POSIX.",
+  "parameters": [
+    {
+      "name": "req",
+      "type": "const struct timespec *",
+      "description": "Specifies the sleep duration in seconds and nanoseconds."
+    },
+    {
+      "name": "rem",
+      "type": "struct timespec *_Nullable",
+      "description": "If not NULL, stores the remaining time if the call is interrupted."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on successful completion of the sleep",
+    "failure": "Returns -1 on error or interruption, and sets errno"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "Problem with copying information from user space."
+    },
+    {
+      "code": "EINTR",
+      "description": "The pause was interrupted by a signal."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The value in the tv_nsec field was not in the range [0, 999999999] or tv_sec was negative."
+    }
+  ],
+  "bugs": "If signals are received at a high rate, the remaining time may drift on successive calls; in Linux 2.4, time spent in stopped state is not counted against the interval.",
+  "versions": "POSIX.1-2001",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "clock_nanosleep",
+    "restart_syscall",
+    "sched_setscheduler",
+    "timer_create"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "nanosleep.pdf",
+    "extraction_date": "2025-07-29T12:01:13.843704",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

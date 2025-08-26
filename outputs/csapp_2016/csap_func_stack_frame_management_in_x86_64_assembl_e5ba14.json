@@ -1,0 +1,33 @@
+{
+  "topic": "Stack Frame Management in x86-64 Assembly and Buffer Overflow Protection",
+  "explanation": "Understanding how x86-64 manages the stack frame is crucial for writing safe and efficient system-level code.  The stack frame stores local variables, function arguments, and return addresses.  Improper management can lead to vulnerabilities like buffer overflow attacks.  Protection mechanisms like stack canaries help mitigate these risks.",
+  "syntax": "Stack frame structure generally involves:\n- Pushing function arguments onto the stack\n- Adjusting the stack pointer (%rsp) to allocate space for local variables\n- Storing the return address on the stack\n- Restoring the stack pointer and popping values upon function return\n- Stack canaries inserted between local variables and return address to detect stack buffer overflows.",
+  "code_example": [
+    "; Vulnerable code (simplified example)",
+    "mov %rdi, %rsi ; Copy buffer pointer",
+    "mov $24, %rdx ; Size of buffer",
+    "mov %rsi, %rdi ; Move buffer pointer to first argument",
+    "call unsafe_function ; Vulnerable function",
+    "; Protected code (simplified example)",
+    "pushq %rbp ; Save old base pointer",
+    "mov %rsp, %rbp ; Set up new base pointer",
+    "subq $48, %rsp ; Allocate space for canary and locals",
+    "mov $0xdeadbeef, -8(%rbp) ; Store canary",
+    "mov %rdi, -24(%rbp) ; Copy buffer pointer to local",
+    "mov $24, %rdx ; Size of buffer",
+    "mov -24(%rbp), %rdi ; Move local buffer pointer to first argument",
+    "call safe_function ; Safe function",
+    "mov -8(%rbp), %rax ; Retrieve canary",
+    "cmp $0xdeadbeef, %rax; Check for modification",
+    "jne canary_failure ; Failure if canary is modified"
+  ],
+  "example_explanation": "The example contrasts vulnerable and protected code. The vulnerable code directly manipulates a buffer without protection. If the function writing to the buffer (`unsafe_function`) exceeds its allocated space, it can overwrite the return address, leading to a crash or arbitrary code execution.  The protected code introduces a stack canary.  Before the function call, a unique value (canary) is placed on the stack. After the function, this canary is checked. If the canary has changed (due to a buffer overflow), it indicates a security violation, preventing exploitation.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "375-376",
+    "extraction_date": "2025-07-26T21:46:56.961334",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

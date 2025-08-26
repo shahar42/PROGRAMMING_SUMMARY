@@ -1,0 +1,38 @@
+{
+  "topic": "Using Smart Pointers to Manage Resources",
+  "explanation": "Smart pointers are crucial for modern C++ programming, offering automatic memory management and preventing memory leaks.  They act as wrappers around raw pointers, automatically deleting the pointed-to object when the smart pointer goes out of scope.  This eliminates the need for manual `delete` calls, reducing errors and making code safer and easier to maintain.  Choosing the right type of smart pointer (unique_ptr, shared_ptr, weak_ptr) depends on the ownership and sharing semantics required.",
+  "syntax": "Several smart pointer types exist:\n\n* `std::unique_ptr<T>`: Represents exclusive ownership of a dynamically allocated object.  The object is deleted when the `unique_ptr` goes out of scope.  Cannot be copied, only moved.\n* `std::shared_ptr<T>`: Enables shared ownership of a dynamically allocated object.  The object is deleted when the last `shared_ptr` pointing to it goes out of scope.  Uses reference counting internally.\n* `std::weak_ptr<T>`: A non-owning pointer that can be used to observe the lifetime of an object managed by a `shared_ptr`.  It doesn't participate in reference counting and avoids circular dependencies.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "",
+    "class MyClass {",
+    "public:",
+    "  MyClass() { std::cout << \"MyClass constructed\\n\"; }",
+    "  ~MyClass() { std::cout << \"MyClass destructed\\n\"; }",
+    "};",
+    "",
+    "int main() {",
+    "  // Using unique_ptr",
+    "  std::unique_ptr<MyClass> uniquePtr(new MyClass); //or std::make_unique<MyClass>();",
+    "",
+    "  // Using shared_ptr",
+    "  std::shared_ptr<MyClass> sharedPtr1 = std::make_shared<MyClass>();",
+    "  std::shared_ptr<MyClass> sharedPtr2 = sharedPtr1;",
+    "",
+    "  // Using weak_ptr (observe sharedPtr1)",
+    "  std::weak_ptr<MyClass> weakPtr = sharedPtr1;",
+    "  if (auto sp = weakPtr.lock()) {  //Check if shared_ptr still exists",
+    "      std::cout << \"Weak pointer still valid!\\n\";",
+    "  }",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the three main types of smart pointers. `unique_ptr` shows exclusive ownership; the object is deleted when `uniquePtr` goes out of scope. `shared_ptr` illustrates shared ownership; the object is deleted only when both `sharedPtr1` and `sharedPtr2` go out of scope.  `weak_ptr` is used to safely access the object managed by `sharedPtr1` without affecting its reference count, demonstrating how to avoid circular dependencies.  Using `std::make_unique` and `std::make_shared` is preferred over the `new` and explicit `shared_ptr` constructor for better exception safety.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:40:42.502200"
+  }
+}

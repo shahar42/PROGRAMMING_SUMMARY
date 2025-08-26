@@ -1,0 +1,35 @@
+{
+  "topic": "Relocation Entries and Address Patching",
+  "explanation": "Relocation is a crucial step in the linking and loading process, especially when programs cannot be loaded at a predetermined address.  It involves modifying addresses within a program's code and data segments after it has been loaded into memory. This is necessary because the program is compiled assuming a specific base address (often 0), but the actual load address may differ. Relocation entries identify the locations needing modification, enabling the loader to patch these addresses with the correct values based on the final load address.",
+  "syntax": "Relocation entries typically consist of a pair: (offset, type).  'offset' specifies the location within the program requiring modification (relative to the program's base address). 'type' indicates the type of address modification needed (e.g., adding the base address, adjusting segment selectors). The loader iterates through these entries and performs the necessary changes.",
+  "code_example": [
+    "/* Simplified representation of a relocation entry */",
+    "typedef struct {",
+    "  unsigned int offset;     /* Offset within the program */",
+    "  unsigned short type;      /* Type of relocation */",
+    "} relocation_entry;",
+    "",
+    "/* Example relocation entries for a hypothetical program */",
+    "relocation_entry relocations[] = {",
+    "  {0x1000, 1},  /* Modify address at offset 0x1000 */",
+    "  {0x2000, 1},  /* Modify address at offset 0x2000 */",
+    "  {0x3000, 2}   /* Modify address at offset 0x3000 (different type) */",
+    "};",
+    "",
+    "/* Loader would iterate through relocations[], using 'offset' and 'type'",
+    "to adjust addresses based on the actual load address */",
+    "unsigned int load_address = 0x8048000; /* Example load address */",
+    "for(int i = 0; i < sizeof(relocations)/sizeof(relocation_entry); i++){",
+    "  /* ... code to perform the actual relocation based on relocations[i].type ...*/",
+    "}"
+  ],
+  "example_explanation": "The code illustrates the basic structure of relocation entries.  Each entry specifies an offset within the program and a relocation type. A real-world loader would use this information along with the program's load address to perform the address patching.  Type 1 might indicate adding the load address to the existing value at the offset, while Type 2 might involve a different adjustment depending on the specific relocation type and architecture.  The loop simulates the loader's task of iterating through each entry and performing the necessary modifications to ensure the program functions correctly at its final load address.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "81-82",
+    "extraction_date": "2025-07-16T23:03:35.551348",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

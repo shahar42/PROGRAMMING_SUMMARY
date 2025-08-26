@@ -1,0 +1,71 @@
+{
+  "name": "getcwd",
+  "synopsis": [
+    "#include <unistd.h>",
+    "char *getcwd(char buf[.size], size_t size);",
+    "char *get_current_dir_name(void);",
+    "[[deprecated]] char *getwd(char buf[PATH_MAX]);"
+  ],
+  "description": "The getcwd function retrieves the absolute pathname of the current working directory and copies it to a provided buffer. If the buffer is NULL, it allocates one dynamically using malloc. Other variants like get_current_dir_name and getwd provide similar functionality but with different memory handling and are either GNU-specific or deprecated.",
+  "parameters": [
+    {
+      "name": "buf",
+      "type": "char*",
+      "description": "Buffer to hold the absolute pathname of the current working directory"
+    },
+    {
+      "name": "size",
+      "type": "size_t",
+      "description": "Size of the buffer; if less than required, returns NULL and sets errno to ERANGE"
+    }
+  ],
+  "return_value": {
+    "success": "Returns a pointer to a string containing the pathname of the current working directory",
+    "failure": "Returns NULL, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Permission to read or search a component of the filename was denied"
+    },
+    {
+      "code": "EFAULT",
+      "description": "buf points to a bad address"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The size argument is zero and buf is not a null pointer, or for getwd, buf is NULL"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "For getwd, the size of the pathname exceeds PATH_MAX bytes"
+    },
+    {
+      "code": "ENOENT",
+      "description": "The current working directory has been unlinked"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "ERANGE",
+      "description": "The size argument is less than the length of the pathname, including the null byte"
+    }
+  ],
+  "bugs": "Since Linux 2.6.36, glibc's getcwd() failed to return an absolute pathname in certain cases, violating POSIX; this was corrected in glibc 2.27, where it now fails with ENOENT instead.",
+  "versions": "POSIX.1-2001; Linux kernel since 2.1.92, with changes up to Linux 3.12 and beyond",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "chdir",
+    "fchdir"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "getcwd.pdf",
+    "extraction_date": "2025-07-27T18:11:49.996199",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

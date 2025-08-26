@@ -1,0 +1,95 @@
+{
+  "name": "readlinkat",
+  "synopsis": [
+    "#include <unistd.h>",
+    "#include <fcntl.h> /* Definition of AT_* constants */",
+    "ssize_t readlinkat(int dirfd, const char *restrict pathname, char *restrict buf, size_t bufsiz);"
+  ],
+  "description": "The readlinkat() system call reads the contents of a symbolic link into a buffer. It allows specifying a directory file descriptor for relative paths, which are resolved relative to that directory instead of the current working directory. It operates similarly to readlink() but with enhanced path resolution capabilities.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor; if pathname is relative, it is resolved relative to this descriptor; use AT_FDCWD for current working directory."
+    },
+    {
+      "name": "pathname",
+      "type": "const char *restrict",
+      "description": "Path to the symbolic link; can be relative or absolute."
+    },
+    {
+      "name": "buf",
+      "type": "char *restrict",
+      "description": "Buffer to store the contents of the symbolic link."
+    },
+    {
+      "name": "bufsiz",
+      "type": "size_t",
+      "description": "Size of the buffer; contents may be truncated if too small."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes placed in the buffer (may indicate truncation if equal to bufsiz)",
+    "failure": "Returns -1 on error, and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied for a component of the path prefix."
+    },
+    {
+      "code": "EBADF",
+      "description": "pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor."
+    },
+    {
+      "code": "EFAULT",
+      "description": "buf extends outside the process’s allocated address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "bufsiz is not positive, or the named file is not a symbolic link."
+    },
+    {
+      "code": "EIO",
+      "description": "An I/O error occurred while reading from the filesystem."
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in translating the pathname."
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "A pathname, or a component of a pathname, was too long."
+    },
+    {
+      "code": "ENOENT",
+      "description": "The named file does not exist."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available."
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix is not a directory, or (for readlinkat) pathname is relative and dirfd is not a directory."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.16, glibc 2.4",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <limits.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <sys/stat.h>\n#include <unistd.h>\n\nint main(int argc, char *argv[]) {\n    char *buf;\n    ssize_t nbytes, bufsiz;\n    struct stat sb;\n    if (argc != 2) {\n        fprintf(stderr, \"Usage: %s <pathname>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    if (lstat(argv[1], &sb) == -1) {\n        perror(\"lstat\");\n        exit(EXIT_FAILURE);\n    }\n    bufsiz = sb.st_size + 1;\n    if (sb.st_size == 0) bufsiz = PATH_MAX;\n    buf = malloc(bufsiz);\n    if (buf == NULL) {\n        perror(\"malloc\");\n        exit(EXIT_FAILURE);\n    }\n    nbytes = readlink(argv[1], buf, bufsiz);\n    if (nbytes == -1) {\n        perror(\"readlink\");\n        exit(EXIT_FAILURE);\n    }\n    printf(\"'%s' points to '%.*s'\\n\", argv[1], (int) nbytes, buf);\n    if (nbytes == bufsiz) printf(\"(Returned buffer may have been truncated)\\n\");\n    free(buf);\n    exit(EXIT_SUCCESS);\n}"
+  ],
+  "related_calls": [
+    "lstat",
+    "stat",
+    "symlink"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "readlinkat.pdf",
+    "extraction_date": "2025-07-29T18:16:58.521351",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

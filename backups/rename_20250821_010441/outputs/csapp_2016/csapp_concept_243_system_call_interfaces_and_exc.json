@@ -1,0 +1,29 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing hardware, managing files, or creating processes. Exceptional control flow refers to situations where the normal execution path of a program is interrupted, such as by a system call, an exception (like a divide-by-zero error), or a signal (like a keyboard interrupt).  Understanding how these mechanisms work is crucial for building robust and efficient systems-level applications, as they manage interactions between user space and kernel space, and deal with unexpected events that could affect program behaviour.",
+  "syntax": "Generally, a system call is invoked using a specific instruction (e.g., `syscall` on Linux) and passing arguments via registers or the stack. The system call number identifies the requested operation.  Upon completion (or failure), the kernel returns a status code and any results.",
+  "code_example": [
+    "; Example (Conceptual - System calls vary across OS and architecture)",
+    "; Assume 'accept' is a system call with arguments:",
+    ";  listenfd: file descriptor of the listening socket",
+    ";  addrlen: size of the client address structure",
+    ";  Returns: new connected file descriptor or -1 on error",
+    "mov rax, 33 ; syscall number for accept",
+    "mov rdi, listenfd ; first argument (listening socket)",
+    "mov rsi, addr ; second argument (client address)",
+    "mov rdx, addrlen; third argument (address length)",
+    "syscall",
+    "cmp rax, -1 ; Check for error",
+    "jl accept_error ; Handle error",
+    "mov clientfd, rax ; clientfd is the return value"
+  ],
+  "example_explanation": "This example demonstrates a conceptual system call, `accept`, used in network programming.  The `accept` system call is invoked using the `syscall` instruction (the specific instruction might vary). The arguments (listening socket descriptor, client address, and its length) are passed in registers.  The kernel performs the connection acceptance and returns a new file descriptor (`clientfd`) representing the client connection.  The `cmp` and `jl` instructions show how to handle potential errors by checking the return value from the system call. This illustrates exceptional control flow where the program execution is transferred to the kernel and back, and where error handling is essential in handling possible failure scenarios.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "959-959",
+    "extraction_date": "2025-07-29T13:59:24.373836",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

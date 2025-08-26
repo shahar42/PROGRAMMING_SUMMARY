@@ -1,0 +1,75 @@
+{
+  "name": "epoll_pwait2",
+  "synopsis": [
+    "#include <sys/epoll.h>",
+    "int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);",
+    "int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *_Nullable sigmask);",
+    "int epoll_pwait2(int epfd, struct epoll_event *events, int maxevents, const struct timespec *_Nullable timeout, const sigset_t *_Nullable sigmask);"
+  ],
+  "description": "epoll_pwait2 waits for I/O events on an epoll file descriptor, allowing specification of a timeout using a timespec structure and a signal mask to block signals during the wait. It is similar to epoll_pwait but provides more precise timeout handling.",
+  "parameters": [
+    {
+      "name": "epfd",
+      "type": "int",
+      "description": "The epoll file descriptor"
+    },
+    {
+      "name": "events",
+      "type": "struct epoll_event *",
+      "description": "Pointer to a buffer to store the events"
+    },
+    {
+      "name": "maxevents",
+      "type": "int",
+      "description": "The maximum number of events to return"
+    },
+    {
+      "name": "timeout",
+      "type": "const struct timespec *_Nullable",
+      "description": "Pointer to a timespec structure for the timeout, or NULL for indefinite"
+    },
+    {
+      "name": "sigmask",
+      "type": "const sigset_t *_Nullable",
+      "description": "Pointer to a signal set to block signals, or NULL"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of file descriptors ready for I/O, or zero if the timeout expires",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "epfd is not a valid file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The memory area pointed to by events is not accessible with write permissions"
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal handler before events occurred or timeout expired"
+    },
+    {
+      "code": "EINVAL",
+      "description": "epfd is not an epoll file descriptor, or maxevents is less than or equal to zero"
+    }
+  ],
+  "bugs": "Before Linux 2.6.37, a timeout value larger than approximately LONG_MAX / HZ milliseconds is treated as -1 (infinite).",
+  "versions": "Linux 5.11",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "epoll_create",
+    "epoll_ctl",
+    "epoll"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "epoll_pwait2.pdf",
+    "extraction_date": "2025-07-26T22:06:07.285494",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

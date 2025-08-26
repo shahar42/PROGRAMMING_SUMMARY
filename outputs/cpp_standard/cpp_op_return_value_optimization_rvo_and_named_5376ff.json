@@ -1,0 +1,31 @@
+{
+  "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
+  "explanation": "Return Value Optimization (RVO) and its more specific variant, Named Return Value Optimization (NRVO), are compiler optimizations that significantly impact the performance and memory management of functions returning objects by value.  Instead of creating a temporary object on the stack, copying it, and then destroying it, the compiler cleverly constructs the object directly in the memory location where the returned object is expected.  This avoids unnecessary copies and improves performance, especially for complex objects.  The effectiveness of RVO/NRVO depends heavily on the compiler, optimization flags used, and the function's structure.  A naive implementation might perform unnecessary copies, whereas a compiler employing these optimizations can remove them entirely.  Understanding when RVO/NRVO applies, and the potential for unexpected behavior when it doesn't, is crucial for writing efficient C++ code.",
+  "syntax": "Return Type function_name(arguments) {\n  Return Type object_to_return; // Object creation inside the function\n  // ... function body ... \n  return object_to_return; \n}",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "struct ExpensiveObject {",
+    "  std::string data; // could be something very memory intensive",
+    "  ExpensiveObject(const std::string& d) : data(d) { std::cout << \"ExpensiveObject constructor called\\n\"; }",
+    "  ExpensiveObject(const ExpensiveObject& other) : data(other.data) { std::cout << \"ExpensiveObject copy constructor called\\n\"; }",
+    "  ExpensiveObject(ExpensiveObject&& other) noexcept : data(std::move(other.data)) { std::cout << \"ExpensiveObject move constructor called\\n\"; }",
+    "  ~ExpensiveObject() { std::cout << \"ExpensiveObject destructor called\\n\"; }",
+    "};",
+    "ExpensiveObject createObject() {",
+    "  ExpensiveObject obj(\"some data\");",
+    "  return obj;",
+    "}",
+    "int main() {",
+    "  auto result = createObject();",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "Without RVO/NRVO, the `createObject` function would construct `obj` on the stack, then call the copy constructor to create a temporary copy for return, then destruct both objects.  With RVO/NRVO enabled, the compiler will construct `result` directly in `main`'s scope, eliminating the copy constructor and one destructor call.  Observe the output with and without compiler optimizations (-O0 vs -O2 or equivalent) to see the difference.  The assembly code (using a disassembler like objdump or similar) will show the absence of copy instructions in the optimized version, confirming the optimization's effect.  Failure of RVO/NRVO, e.g., due to the return of a local object by reference or returning from a function with multiple return statements that create different objects, may unexpectedly impact performance and may result in an extra copy or move construction.  Understanding these subtleties is essential for advanced C++ performance tuning.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:46:16.431737"
+  }
+}

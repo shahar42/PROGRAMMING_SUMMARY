@@ -1,0 +1,61 @@
+{
+  "name": "fanotify_init",
+  "synopsis": [
+    "#include <fcntl.h>",
+    "#include <sys/fanotify.h>",
+    "int fanotify_init(unsigned int flags, unsigned int event_flags);"
+  ],
+  "description": "fanotify_init() initializes a new fanotify group and returns a file descriptor for the event queue associated with the group. This descriptor is used to monitor specified filesystem objects and receive events via fanotify_mark(2).",
+  "parameters": [
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Defines the notification class (e.g., FAN_CLASS_PRE_CONTENT, FAN_CLASS_CONTENT, FAN_CLASS_NOTIF) and behavior flags (e.g., FAN_CLOEXEC) for the fanotify group."
+    },
+    {
+      "name": "event_flags",
+      "type": "unsigned int",
+      "description": "Additional flags for event reporting, such as FAN_REPORT_FID or FAN_REPORT_PIDFD, which modify the types of events generated."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new file descriptor",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "An invalid value was passed in flags or event_flags."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The number of fanotify groups for this user exceeds the limit, or the per-process limit on open file descriptors has been reached."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "The allocation of memory for the notification group failed."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "This kernel does not implement fanotify_init()."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller lacks a required capability."
+    }
+  ],
+  "bugs": "Bugs present before Linux 3.18: O_CLOEXEC is ignored in event_flags. Bugs present before Linux 3.14: event_flags argument is not checked for invalid flags, allowing unintended internal flags.",
+  "versions": "Available since Linux 2.6.37; prior to Linux 5.13, required CAP_SYS_ADMIN capability.",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "fanotify_mark"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "fanotify_init.pdf",
+    "extraction_date": "2025-07-26T23:45:00.946785",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

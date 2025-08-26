@@ -1,0 +1,84 @@
+{
+  "name": "mbind",
+  "synopsis": [
+    "#include <numaif.h>",
+    "long mbind(void *addr, unsigned long len, int mode, const unsigned long *nodemask, unsigned long maxnode, unsigned int flags);"
+  ],
+  "description": "The mbind() system call sets the NUMA memory policy for a specified memory range, defining from which nodes memory is allocated. It applies to new page allocations in that range and can be influenced by flags for behavior like moving existing pages.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "void *",
+      "description": "Starting address of the memory range"
+    },
+    {
+      "name": "len",
+      "type": "unsigned long",
+      "description": "Length of the memory range in bytes"
+    },
+    {
+      "name": "mode",
+      "type": "int",
+      "description": "Policy mode, such as MPOL_DEFAULT, MPOL_BIND, etc."
+    },
+    {
+      "name": "nodemask",
+      "type": "const unsigned long *",
+      "description": "Pointer to a bit mask specifying the nodes"
+    },
+    {
+      "name": "maxnode",
+      "type": "unsigned long",
+      "description": "Maximum node number in the nodemask"
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags to modify policy behavior, such as MPOL_MF_MOVE"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "Part or all of the memory range specified by nodemask and maxnode is inaccessible, or there is an unmapped hole in the range specified by addr and len"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid value for flags or mode; addr + len is less than addr; addr is not page-aligned; or other invalid conditions like empty nodemask for certain modes"
+    },
+    {
+      "code": "EIO",
+      "description": "MPOL_MF_STRICT was specified and an existing page violates the policy, or MPOL_MF_MOVE failed to relocate pages"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller lacks CAP_SYS_NICE privilege for MPOL_MF_MOVE_ALL"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.7",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "get_mempolicy",
+    "set_mempolicy",
+    "mmap",
+    "shmat",
+    "shmget"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mbind.pdf",
+    "extraction_date": "2025-07-28T16:49:43.551021",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

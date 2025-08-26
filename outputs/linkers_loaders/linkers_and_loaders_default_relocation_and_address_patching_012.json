@@ -1,0 +1,33 @@
+{
+  "topic": "Relocation and Address Patching",
+  "explanation": "Relocation is the process of adjusting addresses within a program's code and data segments after it has been linked.  This is necessary because the linker doesn't know the final memory addresses where the program's various parts will reside until load time.  Address patching is the act of modifying the instructions or data to reflect these adjusted addresses.  This ensures that code and data references within the program correctly point to their intended locations in memory after loading.",
+  "syntax": "Relocation entries typically contain:\n- Original address within the object file\n- Type of relocation (e.g., absolute, relative)\n- Offset or addend to be applied\n\nThe loader uses these entries to adjust addresses during the loading process.",
+  "code_example": [
+    "; Example illustrating relocation (conceptual, not specific to any assembler)",
+    "; Assume 'm.o' contains a function at address 0x100, and 'a.o' at 0x200",
+    "; Linker combines them, but doesn't know final load addresses yet.",
+    "; Relocations are needed to adjust addresses after loading at 0x10A4 and 0x10B4",
+    "",
+    "; In 'start-c'",
+    "call 0x100 ; Original call to 'm.o' (needs relocation)",
+    "",
+    "; In 'm.o'",
+    "call 0x200 ; Original call to 'a.o' (needs relocation)",
+    "",
+    "; Loader's tasks",
+    "; 1. Load 'start-c', 'm.o', 'a.o' into memory at 0x10A4, 0x10B4, etc",
+    "; 2. Apply relocations:",
+    ";     - Change 'call 0x100' in 'start-c' to 'call 0x10A4'",
+    ";     - Change 'call 0x200' in 'm.o' to 'call 0x10B4'",
+    ";     - Patch other references to addresses accordingly."
+  ],
+  "example_explanation": "The example demonstrates how relocation entries are necessary. The linker initially assigns addresses (0x100, 0x200) during linking. However, the operating system loads the program at different addresses (0x10A4, 0x10B4). The relocation process adjusts the addresses in the 'call' instructions to point to the correct loaded addresses. Without relocation, the program would fail because function calls would point to incorrect memory locations.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "34-34",
+    "extraction_date": "2025-07-13T23:46:02.909972",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

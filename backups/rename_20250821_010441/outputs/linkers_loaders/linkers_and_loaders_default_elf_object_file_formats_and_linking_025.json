@@ -1,0 +1,31 @@
+{
+  "topic": "ELF Object File Formats and Linking",
+  "explanation": "ELF (Executable and Linkable Format) is a common object file format used on Unix-like systems.  It's crucial for linking and loading because it provides a standardized structure for representing compiled code and data, allowing the linker to resolve symbols and the loader to map the program into memory for execution.  ELF files exist in three variants: relocatable (for linking), executable (ready to run), and shared object (dynamic libraries).  The linker uses the section header table to manipulate the file, while the loader uses the program header table to map segments into memory. This dual nature allows for efficient compilation, linking, and execution.",
+  "syntax": "ELF files contain:\n- Section Header Table: Describes logical sections (code, data, symbols) for the linker.\n- Program Header Table: Describes segments to be loaded into memory by the loader.\n- Symbol Table: Contains information about symbols (functions, variables) used for symbol resolution.\n- Relocation Entries: Indicate addresses that need to be adjusted during linking and loading.",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <elf.h>",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "#include <sys/mman.h>",
+    "",
+    "int main() {",
+    "  int fd = open(\"example\", O_RDONLY);",
+    "  if (fd == -1) return 1;",
+    "  Elf64_Ehdr header;",
+    "  read(fd, &header, sizeof(header));",
+    "  printf(\"ELF Magic: %x\\n\", header.e_ident[0] << 24 | header.e_ident[1] << 16 | header.e_ident[2] << 8 | header.e_ident[3]);",
+    "  close(fd);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This C code demonstrates basic ELF file analysis. It opens an ELF file (\"example\"), reads the ELF header, and prints the magic number (identifying it as an ELF file). This illustrates the interaction between a program (here for demonstration; a linker would use the header for actual linkage) and the ELF file structure, fundamental to both linking and loading.  A more complete example would involve parsing the section and program headers to demonstrate the dual nature of ELF files as viewed by the linker and loader.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "91-92",
+    "extraction_date": "2025-07-17T11:05:48.201590",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

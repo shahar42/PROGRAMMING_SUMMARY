@@ -1,0 +1,27 @@
+{
+  "topic": "Shared Libraries and Dynamic Linking for Performance Optimization",
+  "explanation": "Shared libraries are collections of compiled code that can be loaded into a program's address space at runtime.  This avoids redundant code duplication across multiple processes, saving memory and improving performance. Dynamic linking allows the operating system to load and link these libraries on demand, enabling efficient handling of requests for dynamically generated content, as opposed to using resource-intensive fork/exec for each request. This approach is crucial for improving the throughput of busy servers, especially web servers handling numerous requests.",
+  "syntax": "The exact syntax depends on the operating system and linker, but generally involves using system calls to load and link shared libraries (.so or .dll files) during program execution.  The program then uses function pointers or other mechanisms to call functions within the loaded library.",
+  "code_example": [
+    "# This is a simplified conceptual example and doesn't represent actual OS-specific system calls.",
+    "handle = dlopen(\"my_shared_library.so\", RTLD_LAZY); // Load the shared library",
+    "if (handle == NULL) {",
+    "  // Handle error",
+    "}",
+    "func_ptr = dlsym(handle, \"my_function\"); // Get address of function in the library",
+    "if (func_ptr == NULL) {",
+    "  // Handle error",
+    "}",
+    "result = ((int (*)(int))func_ptr)(argument); // Cast and call the function",
+    "dlclose(handle); // Close the library handle"
+  ],
+  "example_explanation": "The example demonstrates the key steps in using shared libraries for dynamic linking.  First, `dlopen` loads the shared library into memory. Then `dlsym` retrieves the address of a specific function within the library. The function is called via a function pointer, and finally, `dlclose` unloads the library when it is no longer needed. This avoids the overhead of creating a new process for each request, significantly improving performance by reusing the loaded library and functions across multiple requests. The use of function pointers allows for flexible handling of different functions without hardcoding them at compile time.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "728-728",
+    "extraction_date": "2025-07-28T12:12:14.823869",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

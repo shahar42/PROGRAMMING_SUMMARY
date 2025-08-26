@@ -1,0 +1,113 @@
+{
+  "name": "chown32",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int chown(const char *pathname, uid_t owner, gid_t group);",
+    "int fchown(int fd, uid_t owner, gid_t group);",
+    "int lchown(const char *pathname, uid_t owner, gid_t group);",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "int fchownat(int dirfd, const char *pathname, uid_t owner, gid_t group, int flags);"
+  ],
+  "description": "These system calls change the owner and group of a file. They differ in how the file is specified, such as by pathname, file descriptor, or with additional options. Only privileged processes can change the owner, and specific rules apply for group changes.",
+  "parameters": [
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Path to the file for chown and lchown"
+    },
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor for fchown"
+    },
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor for fchownat"
+    },
+    {
+      "name": "owner",
+      "type": "uid_t",
+      "description": "New owner user ID, or -1 to not change"
+    },
+    {
+      "name": "group",
+      "type": "gid_t",
+      "description": "New group ID, or -1 to not change"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Bit mask for fchownat, such as AT_SYMLINK_NOFOLLOW"
+    }
+  ],
+  "return_value": {
+    "success": "Zero is returned on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied on a component of the path prefix"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor, or dirfd is invalid for fchownat"
+    },
+    {
+      "code": "EFAULT",
+      "description": "pathname points outside accessible address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flag specified in flags for fchownat"
+    },
+    {
+      "code": "EIO",
+      "description": "A low-level I/O error occurred while modifying the inode"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in resolving pathname"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "The file does not exist"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix is not a directory, or dirfd is not a directory for fchownat"
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling process did not have the required permissions, or the file is marked immutable"
+    },
+    {
+      "code": "EROFS",
+      "description": "The named file resides on a read-only filesystem"
+    }
+  ],
+  "bugs": "In some kernel versions, the behavior for root changing ownership of executable files may vary regarding S_ISUID and S_ISGID bits; the 4.4BSD version can only be used by the superuser.",
+  "versions": "fchown() and lchown() since glibc 2.12 with _POSIX_C_SOURCE >= 200809L; fchownat() since glibc 2.10",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <pwd.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\nint main(int argc, char *argv[]) {\n    // Code to change ownership as described\n    uid_t uid;\n    // ... (rest of the example code)\n    if (chown(argv[2], uid, -1) == -1) {\n        perror(\"chown\");\n        exit(EXIT_FAILURE);\n    }\n    exit(EXIT_SUCCESS);\n}"
+  ],
+  "related_calls": [],
+  "extraction_metadata": {
+    "syscall_file": "chown32.pdf",
+    "extraction_date": "2025-07-26T00:12:47.676728",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide an interface between a process running in user mode and the operating system kernel, which runs in privileged mode.  They allow user-level programs to request services from the kernel, such as accessing hardware resources (like files), managing memory, or interacting with other processes. Exceptional control flow refers to situations where the normal flow of a program's execution is interrupted, such as by a system call, an exception (like a divide-by-zero), or a signal (like a Ctrl+C). Handling these exceptions correctly is crucial for system stability and robustness.",
+  "syntax": "int open(const char *filename, int flags, mode_t mode);",
+  "code_example": [
+    "#include <sys/types.h>",
+    "#include <sys/stat.h>",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "#include <stdio.h>",
+    "",
+    "int main() {",
+    "  int fd = open(\"my_file.txt\", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);",
+    "  if (fd == -1) {",
+    "    perror(\"open failed\");",
+    "    return 1;",
+    "  }",
+    "  const char *message = \"Hello, system call!\";",
+    "  ssize_t bytes_written = write(fd, message, sizeof(message) -1);",
+    "    if (bytes_written == -1) {",
+    "    perror(\"write failed\");",
+    "    return 1;",
+    "  }",
+    "  close(fd);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the `open` system call. The `open` function requests the operating system to open or create a file.  The first argument is the file path.  The second specifies flags like `O_CREAT` (create if it doesn't exist), `O_WRONLY` (open for writing only), and `O_TRUNC` (truncate the file if it exists). The third argument sets permissions. The function returns a file descriptor, an integer representing the file.  Error handling is shown via the `perror` function. The system call transitions from user mode to kernel mode for file operations and handles exceptional control flow (errors) by returning -1 and setting `errno`. The `write` system call shows another interaction with the OS kernel and demonstrates a typical sequence of system calls that involve interaction with a file on disk.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "916-916",
+    "extraction_date": "2025-07-29T11:55:02.763856",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

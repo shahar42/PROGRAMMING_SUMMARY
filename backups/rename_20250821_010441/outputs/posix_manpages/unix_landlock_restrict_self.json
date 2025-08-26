@@ -1,0 +1,66 @@
+{
+  "name": "landlock_restrict_self",
+  "synopsis": [
+    "#include <linux/landlock.h>",
+    "#include <sys/syscall.h>",
+    "int syscall(SYS_landlock_restrict_self, int ruleset_fd, uint32_t flags);"
+  ],
+  "description": "The landlock_restrict_self() system call enforces a Landlock ruleset on the calling thread, restricting its access based on the rules provided. It allows composing multiple rulesets to form the thread's Landlock domain, but most applications should use it once after populating the ruleset.",
+  "parameters": [
+    {
+      "name": "ruleset_fd",
+      "type": "int",
+      "description": "File descriptor of the Landlock ruleset obtained from landlock_create_ruleset(2) and populated with landlock_add_rule(2)."
+    },
+    {
+      "name": "flags",
+      "type": "uint32_t",
+      "description": "Must be set to 0."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno"
+  },
+  "errors": [
+    {
+      "code": "EOPNOTSUPP",
+      "description": "Landlock is supported by the kernel but disabled at boot time."
+    },
+    {
+      "code": "EINVAL",
+      "description": "flags is not 0."
+    },
+    {
+      "code": "EBADF",
+      "description": "ruleset_fd is not a file descriptor for the current thread."
+    },
+    {
+      "code": "EBADFD",
+      "description": "ruleset_fd is not a ruleset file descriptor."
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling thread lacks necessary permissions, such as no_new_privs or CAP_SYS_ADMIN in its user namespace."
+    },
+    {
+      "code": "E2BIG",
+      "description": "The maximum number of composed rulesets is reached for the calling thread."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.13",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "landlock_create_ruleset",
+    "landlock_add_rule"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "landlock_restrict_self.pdf",
+    "extraction_date": "2025-07-28T12:35:26.873829",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

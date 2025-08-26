@@ -1,0 +1,34 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow programs to request services from the OS, such as accessing files, creating processes, or managing network connections. Exceptional control flow refers to situations where the normal execution path of a program is interrupted due to events like signals (asynchronous notifications) or errors (e.g., EPIPE when writing to a closed socket). Handling these exceptions is crucial for writing robust and reliable system-level programs.",
+  "syntax": "Generally, system calls are invoked using specific functions (e.g., `write`, `read`, `open`, `close` in C) that are part of the standard system library.  Signal handling involves registering handlers for specific signals using functions like `signal()` (in C) to execute custom code when the signal is received.",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <unistd.h>",
+    "#include <signal.h>",
+    "#include <errno.h>",
+    "void handle_pipe(int sig) {",
+    "  fprintf(stderr, \"SIGPIPE received, continuing...\n\");",
+    "  errno = 0; //reset errno to avoid further issues",
+    "}",
+    "int main() {",
+    "  signal(SIGPIPE, handle_pipe);",
+    "  int fd = open(\"my_file.txt\", O_WRONLY | O_CREAT, 0644);",
+    "  if (fd == -1) { perror(\"open\"); return 1; }",
+    "  char *message = \"This is a test message\\n\";",
+    "  ssize_t bytes_written = write(fd, message, strlen(message));",
+    "  if (bytes_written == -1) { perror(\"write\"); }",
+    "  close(fd);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This C code demonstrates handling the SIGPIPE signal, which occurs when attempting to write to a closed socket or pipe.  The `signal()` system call registers the `handle_pipe` function to be executed when SIGPIPE is received. The handler logs an informative message and resets `errno`, preventing program termination.  This exemplifies how system calls interact with the OS to manage exceptional situations and the crucial role of signal handling in building robust applications. The `write()` system call demonstrates a common way to interact with files and other I/O streams.  Errors are handled using `perror` which interacts with the OS to get the error message.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "989-989",
+    "extraction_date": "2025-07-29T15:01:06.395171",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

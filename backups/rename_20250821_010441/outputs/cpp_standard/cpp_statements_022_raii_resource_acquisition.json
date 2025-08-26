@@ -1,0 +1,43 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) with std::lock_guard",
+  "explanation": "RAII is a C++ programming idiom where resource management (such as locking a mutex) is tied to object lifetime. In this context, std::lock_guard is a class template that acquires a lock on a mutex upon construction and releases it upon destruction, ensuring exception-safe and scope-bound resource management. This pattern simplifies concurrent programming by automatically managing lock acquisition and release, preventing deadlocks and resource leaks.",
+  "syntax": "template <typename Mutex>\nclass std::lock_guard {\npublic:\n    explicit lock_guard(Mutex& m); // Acquires lock\n    ~lock_guard(); // Releases lock\nprivate:\n    Mutex& m_mutex;\n};",
+  "code_example": [
+    "#include <mutex>",
+    "#include <thread>",
+    "#include <vector>",
+    "#include <iostream>",
+    "",
+    "std::mutex mtx;",
+    "int shared_counter = 0;",
+    "",
+    "void increment() {",
+    "    std::lock_guard<std::mutex> lock(mtx); // Lock acquired here",
+    "    ++shared_counter; // Critical section",
+    "    // Lock released automatically when lock goes out of scope",
+    "}",
+    "",
+    "int main() {",
+    "    std::vector<std::thread> threads;",
+    "    for (int i = 0; i < 10; ++i) {",
+    "        threads.emplace_back(increment);",
+    "    }",
+    "    for (auto& t : threads) {",
+    "        t.join();",
+    "    }",
+    "    std::cout << \"Shared counter value: \" << shared_counter << std::endl;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of std::lock_guard to manage mutex locking in a multithreaded context. Each thread creates a lock_guard object that acquires the mutex lock upon construction, ensuring exclusive access to the shared counter during increment. When the lock_guard object goes out of scope at the end of the function, it automatically releases the lock, exemplifying RAII. This pattern guarantees exception-safe, scope-bound resource management, preventing potential deadlocks or resource leaks in concurrent programming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1185-1185",
+    "extraction_date": "2025-08-19T09:50:24.278593",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level"
+  }
+}

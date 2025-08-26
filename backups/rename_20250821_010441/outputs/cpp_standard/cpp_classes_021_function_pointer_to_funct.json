@@ -1,0 +1,26 @@
+{
+  "topic": "Function Pointer to Functor Adaptation using std::ptr_fun",
+  "explanation": "In C++, std::ptr_fun is a template function from the <functional> header that adapts a pointer to a unary function into a function object (functor). This concept involves template metaprogramming and function object wrappers, where the compiler generates a specialized class to encapsulate the function pointer. Internally, the compiler instantiates the std::pointer_to_unary_function template, creating a class with a member function operator() that invokes the stored function pointer. This process occurs at compile-time through template instantiation, allowing for type-safe adaptation. Memory layout-wise, the functor object typically consists of a single member: a function pointer (e.g., Result (*)(Arg)), which occupies the size of a pointer (usually 8 bytes on 64-bit systems), plus any potential padding or vtable if derived from std::unary_function. Performance implications include a slight overhead due to indirection: calling the functor involves accessing the function pointer and performing an indirect call, which can increase instruction count and cache misses compared to a direct function call. At the assembly level, a direct call might use a 'call' instruction with an immediate address, while a functor call involves loading the pointer from memory (e.g., 'mov' to a register) followed by an indirect 'call' (e.g., 'call rax' on x86-64), potentially affecting branch prediction. Runtime behavior handles the actual function invocation, whereas compile-time behavior ensures type matching and code generation for the functor class.",
+  "syntax": "template <class Arg, class Result>\nstd::pointer_to_unary_function<Arg, Result> std::ptr_fun(Result (*f)(Arg));\n// Implementation notes: This template function returns an object of type std::pointer_to_unary_function<Arg, Result>, which is a struct derived from std::unary_function<Arg, Result>. The struct contains a private member: Result (*ptr_)(Arg); and a public operator(): Result operator()(Arg arg) const { return ptr_(arg); }. The compiler instantiates this template based on the types of Arg and Result, generating a new class for each unique combination, which can lead to code bloat if used extensively.",
+  "code_example": [
+    "#include <functional>",
+    "#include <iostream>",
+    "",
+    "int add_one(int x) {",
+    "    return x + 1;  // Simple unary function",
+    "}",
+    "",
+    "int main() {",
+    "    auto func_obj = std::ptr_fun(add_one);  // Adapts function pointer to functor",
+    "    std::cout << func_obj(5) << std::endl;  // Invokes the functor",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, std::ptr_fun instantiates std::pointer_to_unary_function<int, int> at compile-time, creating a functor object that wraps the address of add_one. The compiler generates code for a struct with a function pointer member and an operator() that performs the call. At runtime, func_obj(5) involves: 1) Accessing the function pointer stored in the functor object (e.g., in assembly: mov rax, [rbp-8] to load the pointer), 2) Passing the argument 5 to it via an indirect call (e.g., call rax), and 3) Executing add_one, which adds 1 and returns. This introduces runtime overhead compared to a direct call to add_one(5), as seen in assembly where a direct call might be 'call add_one' (immediate jump), versus the functor's 'mov' and 'call [address]'. Performance-wise, this can lead to slightly slower execution due to pointer indirection and potential cache effects, but it enables greater flexibility, such as use in standard algorithms. The compiler (e.g., GCC or Clang) might optimize this with inlining if the functor is simple, blending compile-time and runtime behaviors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:28:43.431916"
+  }
+}

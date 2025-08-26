@@ -1,0 +1,41 @@
+{
+  "topic": "Implementing Deep Copy Semantics with Function Pointers and Custom Copy Functions",
+  "explanation": "In advanced C programming, managing complex data structures that contain pointers requires implementing custom deep copy mechanisms to avoid shallow copying pitfalls. This involves designing functions that perform deep copies of nested data, often utilizing function pointers to allow flexible copying strategies, especially when dealing with polymorphic or variable data types within structures. Properly implementing these techniques ensures data integrity, prevents dangling pointers, and facilitates safe copying of complex objects in systems programming, libraries, or resource management scenarios.",
+  "syntax": "typedef struct {\n    void *data;\n    size_t size;\n    void (*copy_func)(void *dest, const void *src);\n} DeepCopyStruct;\n\n// Function to perform deep copy using function pointer\nvoid deep_copy(DeepCopyStruct *dest, const DeepCopyStruct *src) {\n    dest->data = malloc(src->size);\n    if (dest->data) {\n        src->copy_func(dest->data, src->data);\n    }\n    dest->size = src->size;\n    dest->copy_func = src->copy_func;\n}",
+  "code_example": [
+    "typedef struct {",
+    "    char *name;",
+    "    int *values;",
+    "    size_t count;",
+    "    void (*copy_func)(void *, const void *);",
+    "} Person;",
+    "",
+    "void copy_string(void *dest, const void *src) {",
+    "    strcpy((char *)dest, (const char *)src);",
+    "}",
+    "",
+    "void copy_int_array(void *dest, const void *src, size_t count) {",
+    "    memcpy(dest, src, count * sizeof(int));",
+    "}",
+    "",
+    "void deep_copy_person(Person *dest, const Person *src) {",
+    "    dest->name = malloc(strlen(src->name) + 1);",
+    "    src->copy_func(dest->name, src->name);",
+    "    dest->values = malloc(src->count * sizeof(int));",
+    "    copy_int_array(dest->values, src->values, src->count);",
+    "    dest->count = src->count;",
+    "    dest->copy_func = src->copy_func;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates an advanced deep copy technique where a 'Person' structure contains pointers to dynamically allocated data. The structure includes a function pointer 'copy_func' that specifies how to copy the data it points to, allowing flexible and type-safe deep copying. The 'deep_copy_person' function allocates new memory for the name and values, then uses the specified copy functions to perform deep copies of the nested data. This approach exemplifies how function pointers enable customizable, safe, and efficient deep copying of complex data structures in advanced C programming.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "627-627",
+    "extraction_date": "2025-08-20T05:13:26.826497",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "copy",
+    "extraction_type": "practical_programming"
+  }
+}

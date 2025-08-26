@@ -1,0 +1,64 @@
+{
+  "name": "flistxattr",
+  "synopsis": [
+    "#include <sys/xattr.h>",
+    "ssize_t flistxattr(int fd, char *_Nullable list, size_t size);"
+  ],
+  "description": "flistxattr() retrieves the list of extended attribute names associated with the file referred to by the file descriptor fd. It places the list of null-terminated names into the provided buffer and returns the size of the list on success. Names of extended attributes to which the process lacks access may be omitted.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the file to query for extended attributes."
+    },
+    {
+      "name": "list",
+      "type": "char *_Nullable",
+      "description": "Buffer to store the null-terminated list of extended attribute names."
+    },
+    {
+      "name": "size",
+      "type": "size_t",
+      "description": "Size of the buffer in bytes."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a nonnegative number indicating the size of the extended attribute name list.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "E2BIG",
+      "description": "The size of the list of extended attribute names is larger than the maximum size allowed."
+    },
+    {
+      "code": "ENOTSUP",
+      "description": "Extended attributes are not supported by the filesystem, or are disabled."
+    },
+    {
+      "code": "ERANGE",
+      "description": "The size of the list buffer is too small to hold the result."
+    }
+  ],
+  "bugs": "The VFS imposes a 64kB limit on the size of the extended attribute name list; if the total size of attribute names exceeds this, it is impossible to retrieve the full list.",
+  "versions": "Linux 2.4, glibc 2.3",
+  "posix_compliance": null,
+  "examples": [
+    "ssize_t buflen = listxattr(path, NULL, 0);",
+    "buflen = listxattr(path, buf, buflen);"
+  ],
+  "related_calls": [
+    "getxattr",
+    "open",
+    "removexattr",
+    "setxattr",
+    "stat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "flistxattr.pdf",
+    "extraction_date": "2025-07-27T17:07:13.989812",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

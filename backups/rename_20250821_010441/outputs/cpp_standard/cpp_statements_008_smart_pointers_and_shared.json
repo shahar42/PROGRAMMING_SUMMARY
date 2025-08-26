@@ -1,0 +1,42 @@
+{
+  "topic": "Smart Pointers and Shared Ownership",
+  "explanation": "In modern C++, smart pointers such as std::shared_ptr facilitate automatic memory management by maintaining shared ownership of dynamically allocated objects. They help prevent memory leaks and dangling pointers by ensuring that objects are destroyed when the last owner releases them. Shared ownership is managed through reference counting, allowing multiple smart pointers to co-own an object safely and efficiently, with thread-safe semantics if needed.",
+  "syntax": "std::shared_ptr<T> ptr1 = std::make_shared<T>(constructor_args); // create shared ownership\n// Copy or assign shared_ptrs to share ownership\nstd::shared_ptr<T> ptr2 = ptr1; // both share ownership\n// Access the managed object via * or ->\nptr1->member_function();\n// Reset or release ownership\nptr2.reset(); // decreases reference count, deletes object if count reaches zero",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "",
+    "class Widget {",
+    "public:",
+    "    Widget() { std::cout << \"Widget created\" << std::endl; }",
+    "    ~Widget() { std::cout << \"Widget destroyed\" << std::endl; }",
+    "    void display() { std::cout << \"Displaying Widget\" << std::endl; }",
+    "};",
+    "",
+    "int main() {",
+    "    // Create a shared_ptr managing a new Widget",
+    "    auto ptr1 = std::make_shared<Widget>();",
+    "    {",
+    "        // Share ownership with another shared_ptr",
+    "        auto ptr2 = ptr1;",
+    "        ptr2->display();",
+    "        std::cout << \"Reference count: \" << ptr1.use_count() << std::endl;",
+    "    } // ptr2 goes out of scope here, reference count decreases",
+    "    std::cout << \"Reference count after ptr2 scope: \" << ptr1.use_count() << std::endl;",
+    "    // Reset ptr1, destroying the Widget if no other owners",
+    "    ptr1.reset();",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of std::shared_ptr to manage shared ownership of a Widget object. It shows how multiple shared_ptr instances can co-own the same object, with reference counting automatically handling object lifetime. When ptr2 is created, the reference count increases; when it goes out of scope, the count decreases. Resetting ptr1 releases ownership, leading to the destruction of the Widget if no other shared_ptr owns it. This exemplifies modern C++'s approach to safe, automatic memory management using smart pointers.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "577-577",
+    "extraction_date": "2025-08-19T05:26:10.225318",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level"
+  }
+}

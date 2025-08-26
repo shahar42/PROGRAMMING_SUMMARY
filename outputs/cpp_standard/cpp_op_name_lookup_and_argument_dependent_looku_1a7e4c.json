@@ -1,0 +1,29 @@
+{
+  "topic": "Name Lookup and Argument-Dependent Lookup (ADL) in C++",
+  "explanation": "Argument-dependent lookup (ADL), also known as Koenig lookup, is a crucial aspect of C++ name resolution that significantly impacts how the compiler finds functions called within a function's body, particularly when dealing with unqualified function calls.  The compiler's implementation involves a two-phase process. First, it searches for names within the current scope (including namespaces and classes).  If the name is not found, ADL kicks in. This involves searching the namespaces of the argument types of the function call.  This mechanism is crucial for enabling generic programming and operator overloading.  The compiler's implementation might involve building a symbol table with nested scopes, and traversing it according to the name lookup rules.  The process can be significantly influenced by template instantiation, as the argument types of templates are only known at compile time.  This leads to variations in compile-time performance and possibly larger executable sizes due to the increase in code generated from different instantiations of template functions.  Understanding ADL's nuances is paramount for avoiding unexpected behavior or compiler errors.",
+  "syntax": "Unqualified function calls within a function body trigger ADL. Consider:\n\n```c++\nnamespace A {\n  struct X {};\n  void foo(X) { /* ... */ }\n}\n\nvoid bar(A::X x) {\n  foo(x); // ADL finds A::foo\n}\n```\n\nIn this example, `foo(x)` does not explicitly specify the namespace `A`. ADL helps the compiler find `A::foo` because `x`'s type (`A::X`) is considered.",
+  "code_example": [
+    "#include <iostream>",
+    "namespace MyNamespace {",
+    "  struct MyType {};",
+    "  void myFunction(MyType t) { std::cout << \"MyNamespace::myFunction called\" << std::endl; }",
+    "}",
+    "",
+    "void myOtherFunction(MyNamespace::MyType t) {",
+    "  myFunction(t); // ADL will find MyNamespace::myFunction",
+    "}",
+    "",
+    "int main() {",
+    "  MyNamespace::MyType obj;",
+    "  myOtherFunction(obj);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler, during compilation of `myOtherFunction`, will perform name lookup for `myFunction`.  It will initially search the current scope. Not finding it, it applies ADL and searches namespaces associated with the argument type `MyNamespace::MyType`. This results in finding `MyNamespace::myFunction`.  At runtime, the call resolves to `MyNamespace::myFunction`.  If `myFunction` were overloaded in multiple namespaces associated with `MyType`, the compiler would potentially issue an ambiguity error.  The implementation detail involves the compiler's internal symbol table management and intricate search algorithms related to scope and argument types.  In assembly, this translates into appropriate function calls based on the resolved name.  Performance mostly lies in compile time with the complexity of ADL and potential template instantiations.   Poorly designed use of ADL can increase compile time considerably, especially with large code bases or complex template metaprogramming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:42:08.433789"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "topic": "Template Template Parameters with Default Arguments",
+  "explanation": "Template template parameters allow a template to accept another template as an argument, enabling advanced generic programming in C++. In the given example, the compiler must handle default template arguments for both the template parameter itself and the template template parameter. Implementation-wise, the compiler performs template instantiation at compile-time using a process called template resolution. When a template like `A` is instantiated (e.g., `A<B>`), the compiler checks if the provided template argument (`B`) matches the requirements of the template template parameter (`T` must be a template that takes one type parameter with an optional default). If defaults are used, the compiler substitutes them during instantiation, generating a specialized version of the template. This is handled through the compiler's symbol table and AST (Abstract Syntax Tree) manipulation, where unresolved templates are deferred until all arguments are known.\n\nMemory layout implications are minimal at runtime since templates are resolved at compile-time. For instance, `struct B` with a default type `float` will instantiate with the layout of a struct containing a `float` member, typically 4 bytes on most platforms, aligned according to the ABI. However, excessive template instantiations can lead to code bloat, increasing binary size and potentially affecting cache performance. Performance-wise, this feature incurs compile-time overhead due to the need for multiple instantiations, but runtime performance is unaffected as the generated code is optimized like any other. Assembly-level behavior involves the compiler emitting code for each instantiation; for example, accessing a member of an instantiated `A<B>` might translate to simple memory loads, indistinguishable from non-template code. Overall, this is a compile-time feature, with no runtime behavior\u2014errors like mismatched template arguments are caught during compilation via the compiler's type checker.",
+  "syntax": "template <template <class TT = float> class T> struct A { /* members */ };  // Here, T is a template template parameter that expects a template taking one type parameter (TT) with a default value of float. Implementation note: The compiler verifies that the argument for T (e.g., B) is a template with exactly one parameter and handles the default during instantiation, potentially optimizing away unused defaults.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "template <class T = float> struct B {",
+    "    T value;  // Member with default type float",
+    "};",
+    "",
+    "template <template <class TT = float> class TemplateParam> struct A {",
+    "    TemplateParam<> member;  // Instantiates TemplateParam with its default (TT = float)",
+    "};",
+    "",
+    "int main() {",
+    "    A<B> a;  // Instantiates A with TemplateParam as B, which uses TT = float by default",
+    "    std::cout << sizeof(a) << std::endl;  // Outputs the size of the instantiated struct",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler first processes the template definitions at compile-time. When `A<B>` is instantiated in main(), the compiler resolves `B` as matching the template template parameter `TemplateParam`, which expects a template with one parameter. Since `B` has a default argument (`T = float`), and we're using `TemplateParam<>` (empty args), the compiler defaults `TT` to `float` inside `B`, resulting in `a.member` being an instance of `B<float>`. Memory layout: `B<float>` likely occupies sizeof(float) + padding (e.g., 4 bytes on x86-64), and `A<B>` contains this as a member, so sizeof(a) might be around 4 bytes plus any alignment. Assembly-level, the compiler might generate code like `mov eax, 4` for the sizeof output, as templates are expanded into concrete types. Performance implications include potential compile-time delays due to instantiation (e.g., Clang or GCC might create temporary compilation units for each variant), but runtime is efficient with no overhead, as the final binary has optimized, inline code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:39:29.040461"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "topic": "Performance Optimization through Multiplication by Constant",
+  "explanation": "Modern compilers employ optimization techniques to replace integer multiplication by a constant with a sequence of shifts, additions, and subtractions. This is advantageous because shift operations are often significantly faster than multiplication on many computer architectures. This optimization improves performance by reducing the number of clock cycles required for the computation.",
+  "syntax": "The compiler rewrites an expression of the form `x * K` where K is a constant, into an equivalent expression using bitwise shifts (`<<`), additions (`+`), and subtractions (`-`).  The specific transformation depends on the binary representation of K.  For a run of '1's in K's binary representation from bit position n down to m (n >= m), two forms are possible:\nForm A: (x << n) + (x << (n - 1)) + ... + (x << m)\nForm B: (x << (n + 1)) - (x << m)",
+  "code_example": [
+    "; Example: Compute x * 14 using shifts and additions",
+    "; 14 = 2^3 + 2^2 + 2^1",
+    "mov eax, x ; Load x into eax",
+    "lea eax, [eax+eax*2] ; eax = x + (x << 1)",
+    "lea eax, [eax+eax*4] ; eax = (x + (x << 1)) + ((x + (x << 1)) << 2) = x + (x << 1) + (x << 3)",
+    "; Equivalent to: x * 14"
+  ],
+  "example_explanation": "The code demonstrates the transformation of `x * 14` into a sequence of shift and addition operations.  The `lea` instruction (Load Effective Address) is often used for this as it efficiently performs calculations of the form (a << k) + b. First, `x + (x << 1)` calculates `x + 2x = 3x`. Then, adding `((x + (x << 1)) << 2)` is equivalent to adding `12x`, resulting in `15x`. This demonstrates how compilers can leverage the architecture's instruction set to replace computationally expensive instructions with faster alternatives, improving overall performance. Although this is not quite x*14 it is a simplified demonstration of the technique",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "131-132",
+    "extraction_date": "2025-07-23T01:15:34.767548",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "sched_setaffinity",
+  "synopsis": [
+    "#define _GNU_SOURCE",
+    "#include <sched.h>",
+    "int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask);"
+  ],
+  "description": "sched_setaffinity sets the CPU affinity mask for a specified thread, determining the set of CPUs on which it can run. This can improve performance on multiprocessor systems by dedicating CPUs and avoiding cache invalidation costs.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The ID of the thread to set affinity for; 0 for the calling thread."
+    },
+    {
+      "name": "cpusetsize",
+      "type": "size_t",
+      "description": "The length in bytes of the data pointed to by mask."
+    },
+    {
+      "name": "mask",
+      "type": "const cpu_set_t *",
+      "description": "Pointer to the CPU set structure representing the affinity mask."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "A supplied memory address was invalid."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The affinity bit mask contains no processors that are currently physically on the system and permitted to the thread."
+    },
+    {
+      "code": "EINVAL",
+      "description": "cpusetsize is smaller than the size of the affinity mask used by the kernel (for sched_setaffinity on kernels before Linux 2.6.9)."
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling thread does not have appropriate privileges."
+    },
+    {
+      "code": "ESRCH",
+      "description": "The thread whose ID is pid could not be found."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [
+    "CPU_SET(childCPU, &set);",
+    "if (sched_setaffinity(getpid(), sizeof(set), &set) == -1) err(EXIT_FAILURE, \"sched_setaffinity\");"
+  ],
+  "related_calls": [
+    "sched_getaffinity",
+    "CPU_SET"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sched_setaffinity.pdf",
+    "extraction_date": "2025-07-30T23:25:55.426158",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

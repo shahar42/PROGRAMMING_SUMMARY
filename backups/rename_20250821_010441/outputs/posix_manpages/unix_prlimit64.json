@@ -1,0 +1,70 @@
+{
+  "name": "prlimit64",
+  "synopsis": [
+    "#include <sys/resource.h>",
+    "int prlimit(pid_t pid, int resource, const struct rlimit *_Nullable new_limit, struct rlimit *_Nullable old_limit);"
+  ],
+  "description": "The prlimit() system call retrieves and sets resource limits for a specified process. It allows getting the current limits and optionally setting new ones, with soft and hard limits defined in the rlimit structure.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The process ID of the target process for which limits are to be retrieved or set."
+    },
+    {
+      "name": "resource",
+      "type": "int",
+      "description": "The resource to get or set, such as RLIMIT_AS or RLIMIT_CPU."
+    },
+    {
+      "name": "new_limit",
+      "type": "const struct rlimit *_Nullable",
+      "description": "Pointer to a new rlimit structure to set, or NULL if not setting limits."
+    },
+    {
+      "name": "old_limit",
+      "type": "struct rlimit *_Nullable",
+      "description": "Pointer to store the old rlimit structure, or NULL if not retrieving limits."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "A pointer argument points to a location outside the accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The value specified in resource is not valid, or for setting limits, rlim->rlim_cur was greater than rlim->rlim_max."
+    },
+    {
+      "code": "EPERM",
+      "description": "An unprivileged process tried to raise the hard limit, or the caller lacked permission for the target process."
+    },
+    {
+      "code": "ESRCH",
+      "description": "Could not find a process with the ID specified in pid."
+    }
+  ],
+  "bugs": null,
+  "versions": "Available in glibc with _GNU_SOURCE",
+  "posix_compliance": null,
+  "examples": [
+    "if (prlimit(pid, RLIMIT_CPU, newp, &old) == -1) err(EXIT_FAILURE, \"prlimit-1\");",
+    "printf(\"Previous limits: soft=%jd; hard=%jd\\n\", (intmax_t) old.rlim_cur, (intmax_t) old.rlim_max);"
+  ],
+  "related_calls": [
+    "getrlimit",
+    "setrlimit"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "prlimit64.pdf",
+    "extraction_date": "2025-07-29T16:11:40.011532",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

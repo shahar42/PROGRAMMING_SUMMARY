@@ -1,0 +1,57 @@
+{
+  "name": "kill",
+  "synopsis": [
+    "#include <signal.h>",
+    "int kill(pid_t pid, int sig);"
+  ],
+  "description": "The kill() system call sends a signal to a specified process or process group. If pid is positive, it sends the signal to that process; other values of pid target process groups or all processes. It can also be used to check for the existence of a process without sending a signal if sig is 0.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The process ID to send the signal to. Positive for a specific process, 0 for the process group of the caller, -1 for all processes (with permissions), or less than -1 for a specific process group."
+    },
+    {
+      "name": "sig",
+      "type": "int",
+      "description": "The signal number to send. If 0, no signal is sent, but checks for existence and permissions are performed."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero if at least one signal was sent",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "An invalid signal was specified"
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling process does not have permission to send the signal to any of the target processes"
+    },
+    {
+      "code": "ESRCH",
+      "description": "The target process or process group does not exist"
+    }
+  ],
+  "bugs": "In Linux 2.6 up to and including 2.6.7, when sending signals to a process group, kill() failed with EPERM if the caller lacked permission for any member, though the signal was still delivered to permissible processes.",
+  "versions": "POSIX.1-2001, SVr4, 4.3BSD; Linux with permission rules adopted in 1.3.78",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "_exit",
+    "pidfd_send_signal",
+    "signal",
+    "tkill",
+    "killpg",
+    "sigqueue"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "kill.pdf",
+    "extraction_date": "2025-07-28T12:34:48.677924",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

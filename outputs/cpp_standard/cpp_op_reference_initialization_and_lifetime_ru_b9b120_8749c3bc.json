@@ -1,0 +1,37 @@
+{
+  "topic": "Reference Initialization and Lifetime Rules in C++",
+  "explanation": "In C++, a reference must be initialized upon declaration and cannot be reseated. The language enforces specific rules about when a reference can be used, particularly concerning its initialization and lifetime. A reference expression refers to an object or variable of reference type, but certain conditions\u2014such as prior initialization, initialization with a constant expression, or being a non-static data member of an object with a valid lifetime\u2014must be met for the reference to be valid and usable. These rules ensure safe and predictable behavior of references, especially in complex expressions and object lifetimes, which are critical for resource management and const-correctness in modern C++.",
+  "syntax": "A reference expression `e` refers to a variable or data member of reference type, with the following conditions:\n\n- The reference has been initialized.\n- If used in an expression, it is either initialized with a constant expression or is a non-static data member of an object whose lifetime has begun within the evaluation of `e`.\n\nIn code:\n\n`&e` where `e` is a reference expression, must satisfy the above conditions for well-defined behavior.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "struct Data {",
+    "    int value;",
+    "};",
+    "",
+    "int main() {",
+    "    const int constant_value = 42;",
+    "    int x = 10;",
+    "    int& ref1 = x; // Valid: reference initialized with variable",
+    "    const int& ref2 = constant_value; // Valid: initialized with constant expression",
+    "    Data data_obj{5};",
+    "    // Non-static data member of an object with lifetime begun within evaluation",
+    "    int Data::*member_ptr = &Data::value;",
+    "    Data data_instance{7};",
+    "    int& ref3 = data_instance.*member_ptr; // Valid: reference to data member of an object with active lifetime",
+    "    std::cout << ref1 << ' ' << ref2 << ' ' << ref3 << std::endl;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates C++ rules for reference initialization and lifetime. `ref1` is a reference to a variable `x`, initialized directly. `ref2` is a reference to a constant, initialized with a constant expression, satisfying the condition for safe use. `ref3` is a reference to a data member of an object `data_instance`, which has an active lifetime at the point of reference initialization. The example shows how references must be properly initialized and how their validity depends on the lifetime and initialization context, aligning with the language's rules for safe and predictable reference usage.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "143-143",
+    "extraction_date": "2025-08-19T02:17:07.481411",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level"
+  }
+}

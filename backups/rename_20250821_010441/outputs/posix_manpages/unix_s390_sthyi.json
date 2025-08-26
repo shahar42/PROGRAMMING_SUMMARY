@@ -1,0 +1,68 @@
+{
+  "name": "s390_sthyi",
+  "synopsis": [
+    "#include <asm/sthyi.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_s390_sthyi, unsigned long function_code, void *resp_buffer, uint64_t *return_code, unsigned long flags);",
+    "Note: glibc provides no wrapper for s390_sthyi(), necessitating the use of syscall(2)."
+  ],
+  "description": "The s390_sthyi() system call emulates the STHYI instruction to provide hardware resource information for the machine and its virtualization levels, such as CPU type, capacity, and machine model. It uses a function code to specify the type of information to retrieve and stores results in a response buffer.",
+  "parameters": [
+    {
+      "name": "function_code",
+      "type": "unsigned long",
+      "description": "Indicates which function to perform, e.g., STHYI_FC_CP_IFL_CAP for CPU and IFL capacity information."
+    },
+    {
+      "name": "resp_buffer",
+      "type": "void *",
+      "description": "Address of the response buffer to store the results; must be one page (4K) for certain functions."
+    },
+    {
+      "name": "return_code",
+      "type": "uint64_t *",
+      "description": "Pointer to store the return code of the STHYI instruction, such as 0 for success or 4 for unsupported function."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned long",
+      "description": "Reserved for future extensions and must be set to 0."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a value in the range [0..3] indicating the condition code of the STHYI instruction; 0 means success with data in resp_buffer.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "The value specified in resp_buffer or return_code is not a valid address."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The value specified in flags is nonzero."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Allocating memory for handling the CPU capacity information failed."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The value specified in function_code is not valid."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.15",
+  "posix_compliance": null,
+  "related_calls": [
+    "syscall"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "s390_sthyi.pdf",
+    "extraction_date": "2025-07-30T23:22:55.006898",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

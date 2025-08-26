@@ -1,0 +1,132 @@
+{
+  "name": "linkat",
+  "synopsis": [
+    "#include <unistd.h>",
+    "#include <fcntl.h> /* Definition of AT_* constants */",
+    "int linkat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath, int flags);"
+  ],
+  "description": "The linkat() system call creates a new hard link to an existing file, similar to link(), but allows specifying directories via file descriptors and additional flags. It interprets paths relative to the provided directory file descriptors.",
+  "parameters": [
+    {
+      "name": "olddirfd",
+      "type": "int",
+      "description": "Directory file descriptor for oldpath, or AT_FDCWD for current working directory"
+    },
+    {
+      "name": "oldpath",
+      "type": "const char *",
+      "description": "Pathname of the existing file to link"
+    },
+    {
+      "name": "newdirfd",
+      "type": "int",
+      "description": "Directory file descriptor for newpath, or AT_FDCWD for current working directory"
+    },
+    {
+      "name": "newpath",
+      "type": "const char *",
+      "description": "New pathname for the link"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to control behavior, such as AT_SYMLINK_FOLLOW or AT_EMPTY_PATH"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Write access to the directory containing newpath is denied, or search permission is denied for one of the directories in the path prefix of oldpath or newpath"
+    },
+    {
+      "code": "EDQUOT",
+      "description": "The user’s quota of disk blocks on the filesystem has been exhausted"
+    },
+    {
+      "code": "EEXIST",
+      "description": "newpath already exists"
+    },
+    {
+      "code": "EFAULT",
+      "description": "oldpath or newpath points outside your accessible address space"
+    },
+    {
+      "code": "EIO",
+      "description": "An I/O error occurred"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in resolving oldpath or newpath"
+    },
+    {
+      "code": "EMLINK",
+      "description": "The file referred to by oldpath already has the maximum number of links to it"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "oldpath or newpath was too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A directory component in oldpath or newpath does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available"
+    },
+    {
+      "code": "ENOSPC",
+      "description": "The device containing the file has no room for the new directory entry"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component used as a directory in oldpath or newpath is not, in fact, a directory"
+    },
+    {
+      "code": "EPERM",
+      "description": "oldpath is a directory, or the filesystem does not support hard links, or other permission issues"
+    },
+    {
+      "code": "EROFS",
+      "description": "The file is on a read-only filesystem"
+    },
+    {
+      "code": "EXDEV",
+      "description": "oldpath and newpath are not on the same mounted filesystem"
+    },
+    {
+      "code": "EBADF",
+      "description": "oldpath or newpath is relative but the corresponding dirfd is neither AT_FDCWD nor a valid file descriptor"
+    },
+    {
+      "code": "EINVAL",
+      "description": "An invalid flag value was specified in flags"
+    },
+    {
+      "code": "ENOENT",
+      "description": "AT_EMPTY_PATH was specified but the caller lacks CAP_DAC_READ_SEARCH, or other path-related issues"
+    }
+  ],
+  "bugs": "On NFS filesystems, the return code may be wrong if the NFS server performs the link creation and dies before confirming it; use stat(2) to verify if the link was created.",
+  "versions": "Linux 2.6.18",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "open",
+    "rename",
+    "stat",
+    "symlink",
+    "unlink"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "linkat.pdf",
+    "extraction_date": "2025-07-28T12:41:40.408225",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

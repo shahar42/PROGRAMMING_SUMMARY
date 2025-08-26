@@ -1,0 +1,159 @@
+{
+  "name": "mount_setattr",
+  "synopsis": [
+    "#include <linux/fcntl.h>",
+    "#include <linux/mount.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_mount_setattr, int dirfd, const char *pathname, unsigned int flags, struct mount_attr *attr, size_t size);",
+    "Note: glibc provides no wrapper for mount_setattr(), necessitating the use of syscall(2)."
+  ],
+  "description": "The mount_setattr() system call changes the mount properties of a mount or an entire mount tree. It uses flags to alter pathname resolution and a structure to set or clear specific attributes such as read-only status or propagation type.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor for relative pathnames, or AT_FDCWD for current working directory."
+    },
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Pathname of the mount point; if empty and AT_EMPTY_PATH is set, operates on dirfd directly."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags to modify pathname resolution, such as AT_EMPTY_PATH, AT_RECURSIVE, AT_SYMLINK_NOFOLLOW, or AT_NO_AUTOMOUNT."
+    },
+    {
+      "name": "attr",
+      "type": "struct mount_attr *",
+      "description": "Pointer to a structure containing attributes to set, clear, propagation type, and user namespace file descriptor."
+    },
+    {
+      "name": "size",
+      "type": "size_t",
+      "description": "Size of the struct mount_attr structure, typically sizeof(struct mount_attr), to handle extensibility."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the cause"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor."
+    },
+    {
+      "code": "EBADF",
+      "description": "userns_fd is not a valid file descriptor."
+    },
+    {
+      "code": "EBUSY",
+      "description": "The caller tried to change the mount to MOUNT_ATTR_RDONLY, but the mount still holds files open for writing."
+    },
+    {
+      "code": "EBUSY",
+      "description": "The caller tried to create an ID-mapped mount raising MOUNT_ATTR_IDMAP and specifying userns_fd but the mount still holds files open for writing."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The pathname specified via the dirfd and pathname arguments to mount_setattr() isn’t a mount point."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An unsupported value was set in flags."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An unsupported value was specified in the attr_set field of mount_attr."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An unsupported value was specified in the attr_clr field of mount_attr."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An unsupported value was specified in the propagation field of mount_attr."
+    },
+    {
+      "code": "EINVAL",
+      "description": "More than one of MS_SHARED, MS_SLAVE, MS_PRIVATE, or MS_UNBINDABLE was set in the propagation field of mount_attr."
+    },
+    {
+      "code": "EINVAL",
+      "description": "An access-time setting was specified in the attr_set field without MOUNT_ATTR__ATIME being set in the attr_clr field."
+    },
+    {
+      "code": "EINVAL",
+      "description": "MOUNT_ATTR_IDMAP was specified in attr_clr."
+    },
+    {
+      "code": "EINVAL",
+      "description": "A file descriptor value was specified in userns_fd which exceeds INT_MAX."
+    },
+    {
+      "code": "EINVAL",
+      "description": "A valid file descriptor value was specified in userns_fd, but the file descriptor did not refer to a user namespace."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The underlying filesystem does not support ID-mapped mounts."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The mount that is to be ID mapped is not a detached mount."
+    },
+    {
+      "code": "EINVAL",
+      "description": "A partial access-time setting was specified in attr_clr instead of MOUNT_ATTR__ATIME being set."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The mount is located outside the caller’s mount namespace."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The underlying filesystem has been mounted in a mount namespace that is owned by a noninitial user namespace."
+    },
+    {
+      "code": "ENOENT",
+      "description": "A pathname was empty or had a nonexistent component."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "When changing mount propagation to MS_SHARED, a new peer group ID needs to be allocated for all mounts without a peer group ID set, but there was not enough memory."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "When changing mount propagation to MS_SHARED, a new peer group ID needs to be allocated, but the kernel has run out of IDs."
+    },
+    {
+      "code": "EPERM",
+      "description": "One of the mounts had at least one of the specified attributes set and the flag is locked."
+    },
+    {
+      "code": "EPERM",
+      "description": "A valid file descriptor value was specified in userns_fd, but the file descriptor refers to the initial user namespace."
+    },
+    {
+      "code": "EPERM",
+      "description": "An attempt was made to add an ID mapping to a mount that is already ID mapped."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller does not have CAP_SYS_ADMIN in the initial user namespace."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "mount_setattr.pdf",
+    "extraction_date": "2025-07-29T11:02:39.708308",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

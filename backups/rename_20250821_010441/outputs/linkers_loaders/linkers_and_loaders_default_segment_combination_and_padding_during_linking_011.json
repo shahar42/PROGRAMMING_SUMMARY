@@ -1,0 +1,27 @@
+{
+  "topic": "Segment Combination and Padding during Linking",
+  "explanation": "During the linking process, the linker combines corresponding segments (like .text, .data, .bss) from multiple object files into a single executable file.  This consolidation ensures that the program's code and data are arranged contiguously in memory.  To optimize memory management and alignment with hardware page sizes, the linker often pads these segments to multiples of a page size (e.g., 4KB on x86 systems). This padding ensures efficient memory allocation and access, improving performance.",
+  "syntax": "No specific syntax, but the process involves analyzing object file segment headers (e.g., ELF's program header table), calculating the combined size of corresponding segments, and adding padding to align segments to page boundaries.",
+  "code_example": [
+    "Idx Name Size VMA LMA File off Algn",
+    "0 .text 00000fe0 00001020 00001020 00000020 2**3",
+    "1 .data 00001000 00002000 00002000 00001000 2**3",
+    "2 .bss 00000000 00003000 00003000 00000000 2**3",
+    "...",
+    "The linker combined corresponding segments from each input file, so there",
+    "is one combined text segment, one combined data segment and one bss",
+    "segment (zero-initialized data, which the two input files didn\u2019t use). Each",
+    "segment is padded out to a 4K boundary to match the x86 page size, so the",
+    "text segment is 4K (minus a 20 byte a.out header present in the file but not",
+    "logically part of the segment), the data and bss segments are also each 4K."
+  ],
+  "example_explanation": "The example shows a segment table from an object file (likely an ELF file). The key point is the final statement describing how the linker combines .text, .data, and .bss segments from different object files.  It highlights that the resulting segments in the final executable are padded to 4KB boundaries (a common page size).  This padding isn't part of the code or data itself, but is crucial for efficient memory management by the operating system's memory allocator. The sizes (Size, VMA, LMA) before and after linking would show the effect of this padding.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "32-34",
+    "extraction_date": "2025-07-13T23:45:58.608767",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

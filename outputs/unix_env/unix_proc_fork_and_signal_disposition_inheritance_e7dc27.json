@@ -1,0 +1,35 @@
+{
+  "topic": "fork() and Signal Disposition Inheritance",
+  "explanation": "The fork() system call in C creates a new process by duplicating the calling process, known as the child process. It is used to enable multitasking and process creation in Unix-like systems. The child inherits the parent's signal dispositions, including any signal handlers, because it receives a copy of the parent's memory image, ensuring consistency and allowing the child to respond to signals in the same way as the parent until modified.",
+  "syntax": "pid_t fork();",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <unistd.h>",
+    "#include <signal.h>",
+    "",
+    "void handler(int sig) {",
+    "    printf(\"Signal caught\\n\");",
+    "}",
+    "",
+    "int main() {",
+    "    signal(SIGINT, handler);  // Set signal handler in parent",
+    "    pid_t pid = fork();  // Create child process",
+    "    if (pid == 0) {  // Child process",
+    "        printf(\"Child process: Inherited signal handler is set\\n\");",
+    "    } else if (pid > 0) {  // Parent process",
+    "        printf(\"Parent process\\n\");",
+    "    } else {",
+    "        printf(\"Fork failed\\n\");",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program sets a signal handler for SIGINT in the parent process before calling fork(). The child process, created by fork(), inherits this signal handler due to the memory copy. The output shows messages from both processes, demonstrating that the child's signal disposition matches the parent's, as the handler is effectively set in the child without redefinition.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "360-360",
+    "extraction_date": "2025-07-22T08:35:11.793290",
+    "has_code": false,
+    "has_explanation": true
+  }
+}

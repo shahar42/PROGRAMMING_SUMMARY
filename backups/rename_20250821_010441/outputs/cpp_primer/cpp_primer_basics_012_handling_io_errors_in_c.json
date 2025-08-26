@@ -1,0 +1,32 @@
+{
+  "topic": "Handling I/O Errors in C++",
+  "explanation": "Handling I/O errors is a fundamental practical concept in C++ for ensuring robust and reliable programs. In real-world scenarios, such as reading user input, processing files, or network operations, I/O operations can fail due to reasons like invalid data, end-of-file, or hardware issues. Best practices include immediately checking the state of streams after operations to avoid undefined behavior or crashes. Common patterns involve using stream state flags (e.g., good(), fail(), eof()) and handling errors gracefully, such as by logging messages or retrying operations. A common pitfall is assuming I/O always succeeds, which can lead to silent failures; to avoid this, always validate I/O results and use idiomatic C++ techniques like conditional checks on stream objects.",
+  "syntax": "After an I/O operation, check the stream's state: if (std::cin >> var) { /* Operation succeeded */ } else { /* Handle error, e.g., std::cin.clear() to reset state */ }. Use stream flags like std::cin.fail() for specific checks. For a boolean flag: bool io_success = (std::cin >> var); // Practical usage: This allows explicit error tracking in loops or functions.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "int main() {",
+    "    int value;",
+    "    bool io_success;  // Boolean to track I/O success",
+    "    std::cout << \"Enter an integer: \";",
+    "    io_success = static_cast<bool>(std::cin >> value);  // Perform input and check",
+    "    ",
+    "    if (!io_success) {",
+    "        std::cin.clear();  // Clear the error flag",
+    "        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\\n');  // Ignore bad input",
+    "        std::cerr << \"Error: Invalid input. Please enter a valid integer.\" << std::endl;",
+    "        return 1;  // Exit with error code",
+    "    }",
+    "    ",
+    "    std::cout << \"You entered: \" << value << std::endl;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code example illustrates a real-world usage scenario, such as in a command-line application where user input must be validated to prevent crashes. By using a boolean (io_success) to track the I/O operation's outcome, the program adheres to best practices for error handling, making it more idiomatic and resilient. In practice, this pattern avoids common pitfalls like ignoring failed inputs, which could corrupt data or cause infinite loops. Instead, it clears the stream state and ignores invalid input, allowing for user-friendly error messages and retries, as seen in tools like file parsers or interactive programs.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:37:01.072265"
+  }
+}

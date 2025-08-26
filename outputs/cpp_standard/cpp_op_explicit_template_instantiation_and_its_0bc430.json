@@ -1,0 +1,38 @@
+{
+  "topic": "Explicit Template Instantiation and its Impact on Compilation and Linking",
+  "explanation": "Explicit template instantiation offers fine-grained control over which template instantiations the compiler generates.  This significantly impacts compilation time, binary size, and potential link-time errors.  Understanding its intricacies is crucial for large-scale C++ projects. The compiler doesn't automatically instantiate every possible template specialization; it only generates code for the types explicitly used or implicitly required.  Implicit instantiation can lead to a cascading effect, instantiating many related specializations, potentially increasing compile time dramatically. Explicit instantiation prevents this cascade, allowing developers to precisely manage which templates are compiled and linked.",
+  "syntax": "```c++\ntemplate <typename T> class X { /* ... */ };\n\n// Explicit instantiation of X<int> and X<double>\ntemplate class X<int>;\ntemplate class X<double>;\n\n// Function template explicit instantiation\ntemplate <typename T> T max(T a, T b) { return (a > b) ? a : b; }\ntemplate int max<int>(int, int); //only int version instantiated\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <vector>",
+    "template <typename T>",
+    "class MyClass {",
+    "public:",
+    "  std::vector<T> data;",
+    "  MyClass(const std::vector<T>& d) : data(d) {}",
+    "  void print() {",
+    "    for (const auto& item : data) {",
+    "      std::cout << item << \" \";",
+    "    }",
+    "    std::cout << std::endl;",
+    "  }",
+    "};",
+    "// Explicit instantiation for int and double",
+    "template class MyClass<int>;",
+    "template class MyClass<double>;",
+    "int main() {",
+    "  std::vector<int> intData = {1, 2, 3};",
+    "  MyClass<int> intObj(intData);",
+    "  intObj.print(); //This will work because of explicit instantiation",
+    "  //MyClass<std::string> stringObj; //This will fail to compile unless explicitly instantiated",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates explicit instantiation of `MyClass` for `int` and `double`.  The compiler will generate code specifically for these types.  Attempting to use `MyClass<std::string>` (without explicit instantiation for `std::string`) will result in a compilation error because the compiler won't have generated the necessary code for that template specialization.  This showcases the control explicit instantiation offers, impacting both compile time (only necessary templates are instantiated) and link time (reduced potential for linker errors due to missing instantiations). The memory layout of `MyClass<int>` and `MyClass<double>` will differ based on the size of `int` and `double` affecting the size of the `std::vector<T> data;` member.  No assembly level analysis is strictly necessary here as the effect is primarily on the compilation and linking stages, impacting the final binary size and reducing the chance of link errors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:00:03.958880"
+  }
+}

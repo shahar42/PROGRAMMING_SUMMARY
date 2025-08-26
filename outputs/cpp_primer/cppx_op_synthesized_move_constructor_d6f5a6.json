@@ -1,0 +1,31 @@
+{
+  "topic": "Synthesized Move Constructor",
+  "explanation": "In C++, the synthesized move constructor is a compiler-generated feature that automatically creates a move constructor for a class when certain conditions are met, such as when the class has no user-declared copy operations and its data members support moving. This concept is crucial for real-world programming as it promotes efficiency by enabling resource transfer (e.g., ownership of memory or objects) without unnecessary copying, which is especially useful in scenarios like returning large objects from functions or using std::move. Best practices include allowing the compiler to synthesize the move constructor whenever possible to keep code simple and performant, but developers should be aware of pitfalls like declaring a custom copy constructor, which can suppress the synthesized move constructor. In practice, this pattern is common in classes managing resources (e.g., strings or vectors) to avoid performance bottlenecks, ensuring idiomatic C++ code that leverages modern features for better resource management.",
+  "syntax": "The synthesized move constructor is implicitly declared by the compiler and has the form: ClassName(ClassName&& other) noexcept; It is only generated if the class meets specific criteria: no user-declared copy constructor, copy assignment operator, move assignment operator, or destructor, and all non-static data members and base classes must be movable. Practical usage notes: Use std::move() to explicitly invoke the move constructor on an object, e.g., MyClass obj2 = std::move(obj1); This transfers resources efficiently, but avoid moving from objects that will be used afterward to prevent undefined behavior.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "",
+    "class MyString {",
+    "public:",
+    "    std::string data;  // std::string supports move semantics",
+    "    // No user-defined constructors, so move constructor is synthesized",
+    "};",
+    "",
+    "int main() {",
+    "    MyString s1;",
+    "    s1.data = \"Hello, World!\";  // Assign a value",
+    "    MyString s2 = std::move(s1);  // Synthesized move constructor transfers ownership",
+    "    std::cout << s2.data << std::endl;  // Outputs: Hello, World!",
+    "    // s1 is now in a valid but indeterminate state; avoid using it without reassignment",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates the synthesized move constructor in a real-world context, such as managing string resources in a class. When we use std::move(s1) to initialize s2, the compiler's synthesized move constructor efficiently transfers the internal string object from s1 to s2, avoiding a deep copy and improving performance\u2014critical for large objects in applications like data processing or game development. Best practices here include ensuring that moved-from objects (like s1) are not accessed unexpectedly, which could lead to pitfalls such as undefined behavior; always document or handle such cases. This pattern aligns with idiomatic C++ by embracing the Rule of Five/Zero, where classes rely on compiler-generated operations for simplicity and safety.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:29:05.035594"
+  }
+}

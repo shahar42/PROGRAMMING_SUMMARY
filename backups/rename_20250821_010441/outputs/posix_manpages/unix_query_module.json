@@ -1,0 +1,77 @@
+{
+  "name": "query_module",
+  "synopsis": [
+    "#include <linux/module.h>",
+    "int query_module(const char *name, int which, void *buf, size_t bufsize, size_t *ret);"
+  ],
+  "description": "query_module() requests information from the kernel about loadable modules. The returned information is placed in a user-provided buffer, and the caller must specify the buffer size. The exact nature of the information depends on the operation specified by the which parameter.",
+  "parameters": [
+    {
+      "name": "name",
+      "type": "const char *",
+      "description": "The name of the module to query, or NULL for the kernel proper."
+    },
+    {
+      "name": "which",
+      "type": "int",
+      "description": "Specifies the operation to perform, such as QM_MODULES or QM_INFO."
+    },
+    {
+      "name": "buf",
+      "type": "void *",
+      "description": "Buffer to hold the returned information."
+    },
+    {
+      "name": "bufsize",
+      "type": "size_t",
+      "description": "Size of the buffer pointed to by buf."
+    },
+    {
+      "name": "ret",
+      "type": "size_t *",
+      "description": "Pointer to return additional information, such as the number of items or minimum buffer size needed."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "At least one of name, buf, or ret was outside the program’s accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid which; or name is NULL, but this is not permitted with the specified value of which."
+    },
+    {
+      "code": "ENOENT",
+      "description": "No module by that name exists."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "The buffer size provided was too small; ret is set to the minimum size needed."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "query_module() is not supported in this version of the kernel (e.g., Linux 2.6 or later)."
+    }
+  ],
+  "bugs": "This system call is deprecated and removed in Linux 2.6 and later, making it unavailable in modern kernels.",
+  "versions": "Removed in Linux 2.6",
+  "posix_compliance": null,
+  "related_calls": [
+    "create_module",
+    "delete_module",
+    "get_kernel_syms",
+    "init_module"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "query_module.pdf",
+    "extraction_date": "2025-07-29T16:28:46.526158",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

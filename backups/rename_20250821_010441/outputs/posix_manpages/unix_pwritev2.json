@@ -1,0 +1,71 @@
+{
+  "name": "pwritev2",
+  "synopsis": [
+    "#include <sys/uio.h>",
+    "ssize_t pwritev2(int fd, const struct iovec *iov, int iovcnt, off_t offset, int flags);"
+  ],
+  "description": "The pwritev2() system call writes data from multiple buffers to a file descriptor at a specified offset, combining the functionality of writev() and pwrite(2). It supports additional flags to modify behavior, such as atomicity or non-blocking operations, and ensures the file offset is not changed.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor to write to"
+    },
+    {
+      "name": "iov",
+      "type": "const struct iovec *",
+      "description": "Array of iovec structures describing the buffers to write from"
+    },
+    {
+      "name": "iovcnt",
+      "type": "int",
+      "description": "Number of elements in the iov array"
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "File offset at which to perform the write"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify the write behavior, such as RWF_NOWAIT"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes written",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "The sum of the iov_len values overflows an ssize_t value, or iovcnt is less than zero or greater than the permitted maximum"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "An unknown flag is specified in flags"
+    },
+    {
+      "code": "Other",
+      "description": "Errors as per read(2), write(2), and lseek(2)"
+    }
+  ],
+  "bugs": "Linux 5.9 and Linux 5.10 have a bug where preadv2() with the RWF_NOWAIT flag may return 0 even when not at end of file; similar issues might affect pwritev2.",
+  "versions": "Linux 4.6, glibc 2.26",
+  "posix_compliance": null,
+  "examples": [
+    "char *str0 = \"hello \"; char *str1 = \"world\\n\"; struct iovec iov[2]; iov[0].iov_base = str0; iov[0].iov_len = strlen(str0); iov[1].iov_base = str1; iov[1].iov_len = strlen(str1); ssize_t nwritten = pwritev2(fd, iov, 2, offset, flags);"
+  ],
+  "related_calls": [
+    "pread",
+    "read",
+    "write"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pwritev2.pdf",
+    "extraction_date": "2025-07-29T16:28:35.188895",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}
