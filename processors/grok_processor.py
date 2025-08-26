@@ -208,6 +208,65 @@ CONTENT TO PROCESS:
 {raw_content}
 
 Extract the C++ concept as JSON:"""
+
+        elif book_context == "Inside_the_C++_Object_Model":
+            return f"""You are a systems programming expert creating atomic training data for advanced C++ object model implementation knowledge.
+
+**CRITICAL CONTEXT**: You are processing content from "Inside the C++ Object Model" by Stanley Lippman.
+
+Focus EXCLUSIVELY on C++ object model internals, compiler implementation details, memory layouts, and runtime mechanisms. AVOID surface-level C++ syntax or basic language features.
+
+**Expected Object Model Concept Types:**
+- Object memory layout and data member arrangement
+- Virtual function table (vtable) implementation and dispatch mechanisms
+- Constructor and destructor calling sequences and optimization
+- Virtual inheritance implementation and memory management overhead
+- Member function calling conventions and this pointer manipulation
+- Multiple inheritance models and diamond problem solutions
+- RTTI (Run-Time Type Information) implementation details
+- Template instantiation strategies and code generation
+- Exception handling implementation and stack unwinding
+- Copy semantics and assignment operator implementation details
+- Temporary object creation, lifetime, and optimization (RVO/NRVO)
+- Name mangling conventions and ABI considerations
+
+**What to AVOID extracting:**
+- Basic C++ syntax or language features without implementation details
+- Surface-level OOP concepts without memory layout discussion
+- Simple class examples without compiler behavior explanation
+- Template syntax without instantiation mechanics
+
+Your task: Extract this content into a SINGLE atomic C++ object model concept following this EXACT structure.
+
+An atomic object model concept contains:
+1. **Implementation Concept**: Clear explanation of how the compiler implements this feature and memory implications
+2. **Syntax**: C++ code pattern with implementation notes
+3. **Detailed Example**: Complete C++ code with analysis of memory layout, compiler behavior, or runtime mechanisms
+4. **Implementation Analysis**: Deep explanation of what happens at the implementation level
+
+CRITICAL REQUIREMENTS:
+- Extract only ONE atomic object model concept (the most implementation-focused one)
+- Example must include implementation details, not just working code
+- Focus on "under the hood" mechanisms and compiler behavior
+- Include analysis of memory layout or runtime characteristics
+
+Return your response as valid JSON in this EXACT format:
+{{
+  "topic": "C++ Object Model Implementation Concept",
+  "explanation": "Clear explanation of how the compiler implements this feature and why it matters for performance/memory...",
+  "syntax": "C++ syntax with implementation notes and memory implications",
+  "code_example": [
+    "#include <iostream>",
+    "// C++ code demonstrating object model internals",
+    "..."
+  ],
+  "example_explanation": "Detailed analysis of memory layout, vtable structure, compiler behavior, or runtime mechanics..."
+}}
+
+CONTENT TO PROCESS:
+{raw_content}
+
+Extract the C++ object model concept as JSON:"""
     
         else:
             # Existing C programming prompt logic
@@ -278,37 +337,56 @@ Extract the atomic concept as JSON:"""
 
     def _parse_grok_response(self, response_text):
         """Parse Grok's JSON response"""
-        print(f"Full Grok response: {response_text}")
-        print(f"Response length: {len(response_text)}")
+        print(f"🐛 DEBUG - Raw GROK response ({len(response_text)} chars): {response_text}")
         try:
-            # Extract JSON from response (handle potential markdown wrapping)
-            json_match = re.search(r'{.*}', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group()
+            # First try to find JSON wrapped in markdown code blocks
+            markdown_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+            if markdown_match:
+                json_str = markdown_match.group(1).strip()
+                print(f"🐛 DEBUG - Extracted from markdown ({len(json_str)} chars): {json_str[:200]}...")
                 return json.loads(json_str)
             
-            # Try to complete partial JSON
-            print("⚠️ No complete JSON found, trying to complete partial...")
-            completed = self._try_complete_json(response_text)
-            if completed:
-                return completed
-                
-            raise ValueError("No JSON found in response")
+            # Try to find a complete JSON object starting with { and ending with }
+            # Look for the outermost JSON structure
+            start_pos = response_text.find('{')
+            if start_pos == -1:
+                raise ValueError("No opening brace found in response")
             
+            # Count braces to find matching closing brace
+            brace_count = 0
+            end_pos = -1
+            for i, char in enumerate(response_text[start_pos:], start_pos):
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_pos = i
+                        break
+            
+            if end_pos != -1:
+                json_str = response_text[start_pos:end_pos + 1]
+                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:200]}...")
+                return json.loads(json_str)
+            else:
+                print("🐛 DEBUG - No matching closing brace found")
+                raise ValueError("No complete JSON object found")
+                
         except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON: {e}")
+            print(f"❌ Failed to decode JSON from Grok: {e}")
+            print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
             
             # Try to complete partial JSON on decode error
             print("⚠️ Trying to complete partial GROK JSON after decode error...")
-            if 'json_match' in locals() and json_match:
-                completed = self._try_complete_json(json_match.group())
-                if completed:
-                    return completed
-            
-            # Try the whole response
-            completed = self._try_complete_json(response_text)
+            completed = self._try_complete_json(json_str if 'json_str' in locals() else response_text)
             if completed:
                 return completed
                 
-            print(f"Response was: {response_text[:500]}...")
+            return None
+        except Exception as e:
+            print(f"❌ Error parsing GROK response: {e}")
+            # Try to complete partial JSON as last resort
+            completed = self._try_complete_json(response_text)
+            if completed:
+                return completed
             return None

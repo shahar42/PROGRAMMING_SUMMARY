@@ -428,6 +428,35 @@ Extract the {context_info['subject']} concept as JSON:"""
 - Simple procedural programming concepts
 - Basic pointer arithmetic without C++ context''',
                 "example_type": "Complete, compilable C++ program demonstrating modern C++ features and best practices"
+            },
+            
+            # NEW: Inside the C++ Object Model context
+            "Inside_the_C++_Object_Model": {
+                "subject": "C++ object model implementation",
+                "book_title": "Inside the C++ Object Model by Stanley Lippman",
+                "level": "expert implementation internals",
+                "focus_instruction": "Focus EXCLUSIVELY on C++ object model internals, compiler implementation details, memory layouts, and runtime mechanisms. AVOID surface-level C++ syntax.",
+                "concept_examples": [
+                    "Object memory layout and data member organization",
+                    "Virtual function table (vtable) structure and dispatch",
+                    "Constructor and destructor implementation sequences",
+                    "Virtual inheritance implementation and memory overhead",
+                    "Member function calling conventions and this pointer",
+                    "Multiple inheritance diamond problem solutions", 
+                    "RTTI implementation and dynamic_cast mechanics",
+                    "Template instantiation and code generation strategies",
+                    "Exception handling unwind mechanisms",
+                    "Copy semantics and assignment operator implementation",
+                    "Temporary object lifetime and optimization (RVO/NRVO)",
+                    "Name mangling and ABI considerations"
+                ],
+                "avoid_concepts": [
+                    "Basic C++ syntax without implementation details",
+                    "Surface-level OOP concepts",
+                    "Simple class declarations without memory layout",
+                    "Template syntax without instantiation mechanics"
+                ],
+                "example_type": "C++ code with detailed implementation analysis, memory diagrams, or compiler behavior explanation"
             }
             
             # ... rest of existing contexts ...
@@ -437,53 +466,55 @@ Extract the {context_info['subject']} concept as JSON:"""
     
     def _parse_gemini_response(self, response_text):
         """Parse Gemini's JSON response with completion fallback"""
-        print(f"🔍 GEMINI RAW RESPONSE:")
-        print("=" * 50)
-        print(response_text)
-        print("=" * 50)
-        print(f"📏 Total length: {len(response_text)} characters")
-        print(f"🔍 First 100 chars: {repr(response_text[:100])}")
-        print(f"🔍 Last 100 chars: {repr(response_text[-100:])}")
-        print(f"🔍 Contains opening brace: {'{' in response_text}")
-        print(f"🔍 Contains closing brace: {'}' in response_text}")
-        print(f"🔍 Brace count - open: {response_text.count('{')} close: {response_text.count('}')}")
-        print(f"🔍 Ends with complete word: {response_text[-20:]}")
+        print(f"🐛 DEBUG - Raw GEMINI response ({len(response_text)} chars): {response_text}")
         try:
-            # Extract JSON from response (handle potential markdown wrapping)
-            cleaned = response_text.replace('```json', '').replace('```', '').strip()
-            match = re.search(r'{.*}', cleaned, re.DOTALL)
-            if json_match:
-                json_str = json_match.group()
+            # First try to find JSON wrapped in markdown code blocks
+            markdown_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+            if markdown_match:
+                json_str = markdown_match.group(1).strip()
+                print(f"🐛 DEBUG - Extracted from markdown ({len(json_str)} chars): {json_str[:200]}...")
                 return json.loads(json_str)
             
-            # NEW: Try to complete partial JSON
-            print("⚠️ No complete JSON found, trying to complete partial...")
-            completed = self._try_complete_json(response_text)
-            if completed:
-                return completed
-                
-            raise ValueError("No JSON found in response")
+            # Try to find a complete JSON object starting with { and ending with }
+            start_pos = response_text.find('{')
+            if start_pos == -1:
+                raise ValueError("No opening brace found in response")
             
+            # Count braces to find matching closing brace
+            brace_count = 0
+            end_pos = -1
+            for i, char in enumerate(response_text[start_pos:], start_pos):
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_pos = i
+                        break
+            
+            if end_pos != -1:
+                json_str = response_text[start_pos:end_pos + 1]
+                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:200]}...")
+                return json.loads(json_str)
+            else:
+                print("🐛 DEBUG - No matching closing brace found")
+                raise ValueError("No complete JSON object found")
+                
         except json.JSONDecodeError as e:
-            print(f"❌ GEMINI JSON decode failed: {e}")
-            print(f"🔍 JSON decode error position: {getattr(e, 'pos', 'unknown')}")
-            print(f"🔍 JSON decode error line: {getattr(e, 'lineno', 'unknown')}")
-            print(f"🔍 JSON decode error column: {getattr(e, 'colno', 'unknown')}")
+            print(f"❌ Failed to decode JSON from Gemini: {e}")
+            print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
             
-            # NEW: Try to complete partial JSON on decode error
+            # Try to complete partial JSON on decode error
             print("⚠️ Trying to complete partial GEMINI JSON after decode error...")
-            if 'json_match' in locals() and json_match:
-                print(f"🔍 Attempting to complete JSON match: {json_match.group()[:200]}...")
-                completed = self._try_complete_json(json_match.group())
-                if completed:
-                    return completed
-            
-            # Try the whole response
-            print(f"🔍 Attempting to complete full GEMINI response...")
-            completed = self._try_complete_json(response_text)
+            completed = self._try_complete_json(json_str if 'json_str' in locals() else response_text)
             if completed:
                 return completed
                 
-            print(f"💥 ALL GEMINI PARSING FAILED")
-            print(f"Response excerpt: {response_text[:500]}...")
+            return None
+        except Exception as e:
+            print(f"❌ Error parsing GEMINI response: {e}")
+            # Try to complete partial JSON as last resort
+            completed = self._try_complete_json(response_text)
+            if completed:
+                return completed
             return None

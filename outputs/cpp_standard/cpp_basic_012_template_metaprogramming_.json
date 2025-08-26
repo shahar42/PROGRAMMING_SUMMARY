@@ -1,0 +1,18 @@
+{
+  "topic": "Template Metaprogramming with Compile-Time Polymorphism",
+  "explanation": "Template metaprogramming (TMP) allows for code generation at compile time, leveraging the compiler's ability to perform computations and generate specialized code based on template parameters.  This contrasts with runtime polymorphism, where decisions are made during program execution.  Compile-time polymorphism, achieved through TMP, offers significant performance advantages by eliminating runtime overhead associated with virtual function calls and dynamic dispatch.  The compiler's implementation involves recursive template instantiation, potentially resulting in substantial compile times for complex metaprograms. Memory layout is directly influenced by the generated code; there's no runtime overhead for choosing the correct implementation, leading to smaller and faster executables for well-designed TMP.  Assembly-level behavior reveals that the generated code directly implements the chosen specialization, eliminating branching and indirect calls. Runtime behavior is fully deterministic, as all decisions are resolved during compilation.  Understanding the compiler's process of substituting template parameters and generating specialized code is crucial to writing efficient and predictable TMP implementations.  Poorly designed TMP can lead to excessive compile times and code bloat.",
+  "syntax": "```cpp\ntemplate <typename T, size_t N>\nstruct StaticArray {\n  T data[N];\n  size_t size() const { return N; }\n};\n\ntemplate <typename T, size_t N>\nvoid printArray(const StaticArray<T, N>& arr) {\n  for (size_t i = 0; i < arr.size(); ++i) {\n    std::cout << arr.data[i] << \" \";\n  }\n  std::cout << std::endl;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <typename T, size_t N>\nstruct StaticArray {\n  T data[N];\n  size_t size() const { return N; }\n};\n\ntemplate <typename T, size_t N>\nvoid printArray(const StaticArray<T, N>& arr) {\n  for (size_t i = 0; i < arr.size(); ++i) {\n    std::cout << arr.data[i] << \" \";\n  }\n  std::cout << std::endl;\n}\n\nint main() {\n  StaticArray<int, 5> arr = {{1, 2, 3, 4, 5}};\n  printArray(arr);\n  StaticArray<double, 3> arr2 = {{1.1, 2.2, 3.3}};\n  printArray(arr2); \n  return 0;\n}",
+    "// Compile-time array size and type are determined.\n// The compiler generates specialized code for each instantiation of StaticArray."
+  ],
+  "example_explanation": "The compiler generates separate code for `StaticArray<int, 5>` and `StaticArray<double, 3>`.  There are no virtual functions or dynamic dispatch.  The `printArray` function is also instantiated twice, creating optimized loops for each array type and size. Examining the assembly would show distinct, specialized loops for each instantiation, lacking the indirection and branching associated with runtime polymorphism. The memory layout is straightforward, with the `data` member directly placed within the `StaticArray` instance, ensuring efficient access. Compile time might increase with larger and more complex instantiations, highlighting a trade-off between compile time and runtime performance.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:06:28.526765"
+  }
+}

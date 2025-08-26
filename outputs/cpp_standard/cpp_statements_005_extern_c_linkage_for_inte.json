@@ -1,0 +1,22 @@
+{
+  "topic": "Extern \"C\" Linkage for Integrating C Standard Library in C++",
+  "explanation": "In C++, when including headers from the C standard library (e.g., via <cstdio> instead of <stdio.h>), the compiler uses extern \"C\" linkage to ensure that C functions are not subject to C++'s name mangling. This is crucial for interoperability between C and C++ code. Under the hood, the compiler generates assembly code where function names remain unmangled, allowing the linker to resolve them correctly against C library symbols. For instance, a function like printf in <cstdio> is declared with extern \"C\" to match its C counterpart, preventing issues like symbol mismatches during linking. This affects performance by avoiding the overhead of name mangling for these functions, which is a compile-time process. Memory layout remains unaffected since C functions don't involve C++-specific features like classes or exceptions, but it ensures binary compatibility. Runtime behavior is standard for C functions, but compile-time checks in C++ (e.g., via overloaded versions) can enforce safer practices, as seen in the removal of unsafe functions like gets, which forces developers to use safer alternatives at compile time.",
+  "syntax": "extern \"C\" {\n    #include <stdio.h>  // Or use C++ equivalents like <cstdio>\n    // Implementation note: This prevents name mangling for functions inside this block.\n}",
+  "code_example": [
+    "#include <cstdio>",
+    "#include <iostream>",
+    "",
+    "int main() {",
+    "    // Using C function with extern \"C\" linkage implicitly",
+    "    std::printf(\"Hello, C++ world!\\n\");  // Calls the unmangled C function",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, std::printf from <cstdio> is implemented with extern \"C\" linkage by the compiler, meaning the assembly generated will directly reference the unmangled symbol for printf (e.g., in x86 assembly: call printf). This avoids C++ name mangling, which would otherwise alter the symbol name (e.g., _Z6printfPc for a mangled version). Performance-wise, this results in faster linking and no additional runtime overhead for demangling. At compile-time, the compiler resolves the function call without mangling, ensuring compatibility with the C library. The removal of gets in C++14 exemplifies how compilers enforce safer APIs; attempting to use gets would fail at compile-time, promoting runtime-safe alternatives like std::getline, which handles buffer management internally to prevent overflows.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:05:01.389159"
+  }
+}

@@ -38,7 +38,8 @@ books_metadata = {
     "csapp_2016": "Computer Systems: A Programmer's Perspective (3rd Edition)",
     "cpp_standard": "The C++ Standard Library (ISO/IEC 14882)",
     "cpp_primer": "C++ Primer (5th Edition)",
-    "cpp_knowledge": "C++ Knowledge Base (High Priority Concepts)"
+    "cpp_knowledge": "C++ Knowledge Base (High Priority Concepts)",
+    "Inside_the_C++_Object_Model": "Inside the C++ Object Model (Stanley Lippman)"
 }
 
 

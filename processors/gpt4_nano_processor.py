@@ -352,6 +352,33 @@ Extract the {context_info['subject']} concept as JSON:"""
 - Simple procedural programming
 - Elementary concepts better suited for C books''',
                 "example_type": "Complete, compilable C++ program using modern C++ features and best practices"
+            },
+            
+            # NEW: Inside the C++ Object Model context
+            "Inside_the_C++_Object_Model": {
+                "subject": "C++ object model internals",
+                "book_title": "Inside the C++ Object Model by Stanley Lippman",
+                "level": "expert implementation details",
+                "focus_instruction": "Focus EXCLUSIVELY on C++ object model internals, memory layout, vtable mechanisms, constructor/destructor implementation, and compiler behavior. AVOID surface-level language features.",
+                "concept_examples": '''
+- Object memory layout and data member arrangement
+- Virtual function table (vtable) implementation and dispatch
+- Constructor and destructor calling sequences and optimization
+- Virtual base class implementation and memory management
+- Member function call mechanisms (this pointer manipulation)
+- Inheritance models (single, multiple, virtual inheritance)
+- RTTI (Run-Time Type Information) implementation details
+- Template instantiation and code generation
+- Exception handling implementation mechanisms
+- Copy constructor and assignment operator implementation
+- Temporary object creation and optimization (RVO, NRVO)
+- Name mangling and linkage considerations''',
+                "avoid_concepts": '''
+- Basic C++ syntax or language features without implementation details
+- Surface-level OOP concepts without memory layout discussion
+- Simple class examples without internals explanation
+- Template syntax without instantiation mechanics''',
+                "example_type": "C++ code with detailed analysis of memory layout, compiler behavior, or runtime mechanisms"
             }
         
             # ... rest of existing contexts ...
@@ -361,15 +388,44 @@ Extract the {context_info['subject']} concept as JSON:"""
     
     def _parse_gpt4_response(self, response_text):
         """Parse GPT-4's JSON response - handles both JSON and markdown-wrapped responses"""
+        print(f"🐛 DEBUG - Raw GPT response ({len(response_text)} chars): {response_text}")
         try:
-            # Extract JSON from response (handle potential markdown wrapping)
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group()
+            # First try to find JSON wrapped in markdown code blocks
+            markdown_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+            if markdown_match:
+                json_str = markdown_match.group(1).strip()
+                print(f"🐛 DEBUG - Extracted from markdown ({len(json_str)} chars): {json_str[:200]}...")
+                return json.loads(json_str)
+            
+            # Try to find a complete JSON object starting with { and ending with }
+            start_pos = response_text.find('{')
+            if start_pos == -1:
+                raise ValueError("No opening brace found in response")
+            
+            # Count braces to find matching closing brace
+            brace_count = 0
+            end_pos = -1
+            for i, char in enumerate(response_text[start_pos:], start_pos):
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_pos = i
+                        break
+            
+            if end_pos != -1:
+                json_str = response_text[start_pos:end_pos + 1]
+                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:200]}...")
                 return json.loads(json_str)
             else:
-                raise ValueError("No JSON found in response")
+                print("🐛 DEBUG - No matching closing brace found")
+                raise ValueError("No complete JSON object found")
+                
         except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON: {e}")
-            print(f"Response was: {response_text[:500]}...")
+            print(f"❌ Failed to decode JSON from GPT: {e}")
+            print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
+            return None
+        except Exception as e:
+            print(f"❌ Error parsing GPT response: {e}")
             return None
