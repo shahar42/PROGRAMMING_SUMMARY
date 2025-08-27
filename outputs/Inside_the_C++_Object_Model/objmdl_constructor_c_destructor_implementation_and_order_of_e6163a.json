@@ -1,0 +1,41 @@
+{
+  "book_code": "CPPOM",
+  "category": "Object_Model",
+  "normalized_topic": "Destructor_Implementation_Details",
+  "uniqueid": "12345",
+  "topic": "C++ Destructor Implementation and Order of Destruction",
+  "explanation": "This section delves into the intricate details of destructor execution within the C++ object model, focusing on the order of destruction in inheritance hierarchies, including virtual and non-virtual base classes, and the role of the virtual function table (vtable) in this process.  It explores compiler optimizations and the strategies employed for efficient destructor implementation.",
+  "syntax": "C++ class definitions and destructor implementations.  Emphasis on inheritance (virtual and non-virtual) and the impact on destructor execution order.",
+  "code_example": [
+    "#include <iostream>",
+    "class Point3d {",
+    "public:",
+    "  Point3d(double x, double y, double z) : x_(x), y_(y), z_(z) {}",
+    "  ~Point3d() { std::cout << \"Point3d destructor called\\n\"; }",
+    "  double x_, y_, z_;",
+    "};",
+    "class Vertex {",
+    "public:",
+    "  Vertex() {}",
+    "  ~Vertex() { std::cout << \"Vertex destructor called\\n\"; }",
+    "  // ... member data and methods ...",
+    "};",
+    "class Vertex3d : public Point3d, public Vertex {",
+    "public:",
+    "  Vertex3d(double x, double y, double z) : Point3d(x,y,z), Vertex() {}",
+    "  ~Vertex3d() { std::cout << \"Vertex3d destructor called\\n\"; }",
+    "};",
+    "int main() {",
+    "  Vertex3d v(1, 2, 3);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the destruction order in a multiple inheritance scenario. The destructors are called in the reverse order of construction: first the `Vertex3d` destructor, then the `Vertex` destructor, and finally the `Point3d` destructor.  The compiler\u2019s handling of vptr reset in the presence of virtual inheritance will be discussed, showing how the destructor's implementation needs to handle the vptr(s) to ensure proper cleanup. The explanation would detail how the compiler generates code to handle the vptr resetting, and the differences in implementation between a complete object destructor and a base class subobject destructor to improve performance.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "constructor",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T14:05:16.777648",
+    "book_code": "objmdl"
+  }
+}

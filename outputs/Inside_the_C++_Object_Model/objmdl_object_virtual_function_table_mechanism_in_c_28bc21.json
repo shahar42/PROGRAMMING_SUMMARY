@@ -1,0 +1,35 @@
+{
+  "topic": "Virtual Function Table Mechanism in C++",
+  "explanation": "The Virtual Function Table (vtable) is a critical component of the C++ Object Model that enables runtime polymorphism. For classes with virtual functions, the compiler generates a vtable, which is an array of pointers to the virtual functions. Each object of a polymorphic class includes a hidden pointer, often called the vpointer, as its first member in memory layout. This vpointer points to the class's vtable. When a virtual function is called through a base class pointer or reference, the program uses the vpointer to access the correct vtable and invoke the appropriate function based on the actual derived class type. Memory layout typically places the vpointer at the beginning of the object, followed by non-static data members. For multiple inheritance, additional vtables and vpointers may be generated to handle virtual function resolution across base classes. Compiler optimization strategies, such as devirtualization, may inline calls if the exact type is known at compile time, reducing the overhead of vtable lookups. This mechanism also interacts with constructors and destructors: during object construction, the vpointer is initialized to point to the correct vtable for the most-derived class, ensuring proper polymorphic behavior even in multi-level inheritance scenarios.",
+  "syntax": "class Base {\n  public:\n    virtual void virtualFunc();  // Declares a virtual function, triggering vtable generation\n    int dataMember;  // Non-static data member follows vpointer in memory layout\n};\n\nclass Derived : public Base {\n  public:\n    void virtualFunc() override;  // Overrides the virtual function, updating the vtable\n};  // Implementation note: The compiler adds a vpointer as the first member for both classes.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class Base {",
+    "public:",
+    "    virtual void foo() { std::cout << \"Base::foo\" << std::endl; }",
+    "    int baseData;",
+    "};",
+    "",
+    "class Derived : public Base {",
+    "public:",
+    "    void foo() override { std::cout << \"Derived::foo\" << std::endl; }",
+    "    int derivedData;",
+    "};",
+    "",
+    "int main() {",
+    "    Base* ptr = new Derived();  // Pointer to Base, but points to Derived object",
+    "    ptr->foo();  // Uses vtable for dynamic dispatch",
+    "    delete ptr;  // Destructor calls via vtable if virtual",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the Base class has a virtual function foo(), so the compiler generates a vtable for Base containing a pointer to Base::foo(). The Derived class overrides foo(), resulting in its own vtable with a pointer to Derived::foo(). An object of Derived in memory starts with a vpointer pointing to Derived's vtable, followed by baseData and derivedData. When ptr (a Base*) points to a Derived object and calls ptr->foo(), the program accesses the vpointer, consults Derived's vtable, and invokes Derived::foo(), demonstrating polymorphism. Compiler optimizations might devirtualize this call if the type is known statically, but generally, it incurs a slight performance overhead due to the indirect function call. If a virtual destructor were added to Base, it would ensure proper destruction of Derived objects, updating the vtable during construction to maintain correct behavior in inheritance hierarchies.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "object",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T14:11:10.198979",
+    "book_code": "objmdl"
+  }
+}

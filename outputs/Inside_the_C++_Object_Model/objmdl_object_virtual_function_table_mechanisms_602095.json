@@ -1,0 +1,38 @@
+{
+  "topic": "Virtual Function Table Mechanisms",
+  "explanation": "In the C++ Object Model, virtual function tables (vtables) are a critical mechanism for implementing runtime polymorphism. When a class declares one or more virtual functions, the compiler generates a vtable for that class, which is essentially an array of pointers to the virtual functions' implementations. Each object of a class with virtual functions includes a hidden pointer, known as the virtual table pointer (vptr), typically as the first member in its memory layout. The vptr points to the appropriate vtable for the object's actual type. During runtime, when a virtual function is called through a base class pointer or reference, the program uses the vptr to index into the vtable and invoke the correct function based on the derived object's type. This supports dynamic dispatch but introduces overhead, such as additional memory for the vptr (usually 8 bytes on 64-bit systems) and an extra indirection for each virtual call. Memory layout considerations include that the vptr is placed at the beginning of the object to ensure proper alignment and access. In multiple inheritance scenarios, multiple vptrs may be added, one per base class with virtual functions, leading to increased object size and potential padding for alignment. Compiler optimization strategies, such as devirtualization, may inline or statically resolve virtual calls if the compiler can determine the exact type at compile time, reducing the runtime overhead. This mechanism ties into constructor/destructor details, as the vptr is initialized in the constructor to point to the correct vtable, and updated in destructors to handle proper cleanup in inheritance hierarchies.",
+  "syntax": "C++ syntax for a class with virtual functions includes the 'virtual' keyword: class Base { public: virtual void foo(); }; class Derived : public Base { public: void foo() override; }; // Implementation notes: The compiler adds a vptr to the object layout of Base and Derived. For example, sizeof(Base) might include the size of the vptr plus any data members. In code, virtual calls are made via pointers: Base* ptr = new Derived(); ptr->foo(); // Resolves via vtable.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class Base {",
+    "public:",
+    "    virtual void foo() {",
+    "        std::cout << \"Base::foo called\" << std::endl;",
+    "    }",
+    "    virtual ~Base() {}  // Virtual destructor for proper polymorphic deletion",
+    "};",
+    "",
+    "class Derived : public Base {",
+    "public:",
+    "    void foo() override {",
+    "        std::cout << \"Derived::foo called\" << std::endl;",
+    "    }",
+    "};",
+    "",
+    "int main() {",
+    "    Base* ptr = new Derived();  // Pointer to Base, but object is Derived",
+    "    ptr->foo();  // Virtual call: uses vtable to call Derived::foo()",
+    "    delete ptr;  // Calls Derived destructor via vtable",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates the virtual function table mechanism in action. When 'new Derived()' is executed, the object includes a vptr pointing to Derived's vtable. In main(), 'ptr->foo()' performs a virtual call: the program dereferences the vptr to access Derived's vtable, then jumps to the overridden foo() implementation, outputting 'Derived::foo called'. The delete statement ensures the correct destructor is called via the vtable, invoking Derived::~Derived() followed by Base::~Base(). From a memory layout perspective, the Derived object might consist of: [vptr (e.g., 8 bytes)] + [Base data members] + [Derived data members]. Compiler optimizations could include devirtualizing the call if the type is known, but here, it's dynamic due to the pointer. This highlights polymorphism internals, where runtime type information enables flexible inheritance hierarchies while managing object layout efficiently.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "object",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T14:12:15.929700",
+    "book_code": "objmdl"
+  }
+}

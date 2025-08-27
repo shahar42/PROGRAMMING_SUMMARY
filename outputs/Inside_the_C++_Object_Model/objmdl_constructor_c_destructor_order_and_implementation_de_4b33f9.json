@@ -1,0 +1,40 @@
+{
+  "book_code": "CMM",
+  "category": "ObjectModel",
+  "normalized_topic": "DestructorOrderAndImplementation",
+  "uniqueid": "12345",
+  "topic": "C++ Destructor Order and Implementation Details",
+  "explanation": "This section delves into the intricate details of C++ destructor execution order within inheritance hierarchies, especially focusing on virtual base classes and the compiler's role in generating and augmenting destructors.  It explores the optimization strategies employed by compilers to manage virtual function tables (vptrs) within destructors, including the use of separate destructor implementations for complete objects and base class subobjects. Understanding this is crucial for managing resources correctly, especially in complex inheritance scenarios and avoiding subtle memory leaks or undefined behavior.",
+  "syntax": "C++ class declarations and destructor implementations.  Focus on virtual base classes, virtual functions, and inheritance.",
+  "code_example": [
+    "#include <iostream>",
+    "class Base {",
+    "public:",
+    "  virtual ~Base() { std::cout << \"Base destructor\\n\"; }",
+    "};",
+    "class Derived1 : public virtual Base {",
+    "public:",
+    "  ~Derived1() { std::cout << \"Derived1 destructor\\n\"; }",
+    "};",
+    "class Derived2 : public virtual Base {",
+    "public:",
+    "  ~Derived2() { std::cout << \"Derived2 destructor\\n\"; }",
+    "};",
+    "class Derived3 : public Derived1, public Derived2 {",
+    "public:",
+    "  ~Derived3() { std::cout << \"Derived3 destructor\\n\"; }",
+    "};",
+    "int main() {",
+    "  Derived3 d3;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `main` function creates an object `d3` of type `Derived3`.  When `d3` goes out of scope, its destructor is called. The destructor call sequence will demonstrate the order of destructor execution:  `Derived3`, `Derived2`, `Derived1`, and finally `Base`. This order is influenced by the virtual inheritance in the example, where the virtual base class `Base`'s destructor is called only once (after its most derived class).  The compiler will generate the necessary code to reset the vptr (if present) in each destructor before executing the user-defined code and to correctly manage the destruction of virtual base classes.  The analysis should cover scenarios with and without user-defined destructors in derived classes to illustrate the compiler's augmentation strategies and how it ensures proper resource cleanup even in complex inheritance hierarchies. This includes explaining the optimization strategy of employing two destructor instances (one for complete objects and one for base class subobjects) and when each is used.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "constructor",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T14:10:12.796394",
+    "book_code": "objmdl"
+  }
+}

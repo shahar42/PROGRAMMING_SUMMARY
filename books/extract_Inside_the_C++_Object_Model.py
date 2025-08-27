@@ -376,7 +376,7 @@ class InsideObjectModelExtractionEngine:
         
         return f"""You are an expert C++ systems architect creating training data for advanced C++ object model knowledge.
 
-Extract ONE expert-level C++ Object Model concept focusing on internal implementation, memory layout, and compiler behavior.
+Extract ONE expert-level C++ Object Model concept focusing on high level intemidiate to expert skills
 
 FOCUS ON:
 - How objects are laid out in memory
@@ -384,7 +384,9 @@ FOCUS ON:
 - Constructor/destructor implementation details
 - Inheritance and polymorphism internals
 - Compiler optimization strategies
+- add more as you think is necessary
 
+super important:
 Return valid JSON using this format with naming convention {{"book_code"}}_{{category}}_{{normalized_topic}}_{{uniqueid}}.json:
 {{
   "topic": "C++ Object Model Implementation Concept",
@@ -414,42 +416,64 @@ Extract C++ Object Model concept as JSON:"""
             clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', response_text, flags=re.DOTALL | re.IGNORECASE)
             clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
 
-            # Find complete JSON objects with proper brace matching
-            brace_count = 0
-            start_pos = None
-            for i, char in enumerate(clean_text):
-                if char == '{':
-                    if brace_count == 0:
-                        start_pos = i
-                    brace_count += 1
-                elif char == '}':
-                    brace_count -= 1
-                    if brace_count == 0 and start_pos is not None:
-                        json_str = clean_text[start_pos:i+1]
-                        # Only accept if it contains "topic" and doesn't look like C++ code
-                        if '"topic"' in json_str and not re.search(r'b(class|public|private|virtual|#include)b', json_str):
-                            break
-            else:
-                json_str = None
+            # Try parsing the entire cleaned response first
+            try:
+                concept = json.loads(clean_text)
+                if 'topic' in concept:
+                    print("✅ GROK extracted concept directly")
+                    return concept
+                elif len(concept) == 1:
+                    nested_key = next(iter(concept.keys()))
+                    if isinstance(concept[nested_key], dict) and 'topic' in concept[nested_key]:
+                        concept = concept[nested_key]
+                        print("📋 GROK used nested structure, extracted inner concept")
+                        return concept
+            except json.JSONDecodeError:
+                pass
 
-            if json_str:
-                match = type('Match', (), {'group': lambda self, n: json_str})()
+            # Fallback: find the longest valid JSON
+            best_json = None
+            max_length = 0
+
+            for start in range(len(clean_text)):
+                if clean_text[start] == '{':
+                    for end in range(start + 50, len(clean_text) + 1):
+                        try:
+                            candidate = clean_text[start:end]
+                            parsed = json.loads(candidate)
+                            if isinstance(parsed, dict) and len(candidate) > max_length:
+                                if 'topic' in parsed or (len(parsed) == 1 and 'topic' in next(iter(parsed.values()))):
+                                    best_json = parsed
+                                    max_length = len(candidate)
+                        except:
+                            continue
+
+            if best_json:
+                concept = best_json
+                match = type('Match', (), {'group': lambda self, n: str(concept)})()
+                json_str = str(concept)
             else:
                 match = None
+                json_str = None
             
             if match:
                 json_str = match.group(0).strip()
-                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:400]}...")
+                print(f"🐛 DEBUG - Full JSON string ({len(json_str)} chars):")
+                print(json_str)
+                print("🐛 DEBUG - End of JSON string")
                 
-                # Validate JSON completeness before parsing
-                if not self._is_json_complete(json_str):
-                    print(f"❌ JSON appears incomplete, skipping")
-                    return None
-                
-                concept = json.loads(json_str)
-                if 'topic' in concept:
-                    print(f"✅ GROK extracted concept: {concept['topic']}")
-                    return concept
+                # best_json is already a parsed object, just validate and return it
+                if 'topic' in best_json:
+                    print(f"✅ GROK extracted concept: {best_json['topic']}")
+                    return best_json
+                elif len(best_json) == 1:
+                    nested_key = next(iter(best_json.keys()))
+                    if isinstance(best_json[nested_key], dict) and 'topic' in best_json[nested_key]:
+                        nested_concept = best_json[nested_key]
+                        print(f"✅ GROK extracted nested concept: {nested_concept['topic']}")
+                        return nested_concept
+                    else:
+                        print(f"❌ Nested structure missing 'topic' field")
                 else:
                     print(f"❌ JSON missing required 'topic' field")
                     
