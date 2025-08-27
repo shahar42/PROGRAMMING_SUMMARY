@@ -410,11 +410,32 @@ Extract C++ Object Model concept as JSON:"""
             if len(response_text) > 100 and not response_text.strip().endswith(('}', '"', ']')):
                 print(f"⚠️  GROK response appears truncated (ends with: '{response_text[-50:]}')")
             
-            # Look for JSON with quoted property names (real JSON, not C++ code)
-            match = re.search(r'\{[^{}]*"[^"]+"\s*:[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
-            if not match:
-                # Fallback: find any JSON object that contains "topic"
-                match = re.search(r'\{[^{}]*"topic"[^{}]*\}', response_text, re.DOTALL)
+            # Remove any markdown code blocks first
+            clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', response_text, flags=re.DOTALL | re.IGNORECASE)
+            clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
+
+            # Find complete JSON objects with proper brace matching
+            brace_count = 0
+            start_pos = None
+            for i, char in enumerate(clean_text):
+                if char == '{':
+                    if brace_count == 0:
+                        start_pos = i
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0 and start_pos is not None:
+                        json_str = clean_text[start_pos:i+1]
+                        # Only accept if it contains "topic" and doesn't look like C++ code
+                        if '"topic"' in json_str and not re.search(r'b(class|public|private|virtual|#include)b', json_str):
+                            break
+            else:
+                json_str = None
+
+            if json_str:
+                match = type('Match', (), {'group': lambda self, n: json_str})()
+            else:
+                match = None
             
             if match:
                 json_str = match.group(0).strip()
@@ -456,11 +477,30 @@ Extract C++ Object Model concept as JSON:"""
             if len(cleaned_response) > 100 and not cleaned_response.strip().endswith(('}', '"', ']')):
                 print(f"⚠️  GEMINI response appears truncated (ends with: '{cleaned_response[-50:]}')")
             
-            # Look for JSON with quoted property names (real JSON, not C++ code)
-            match = re.search(r'\{[^{}]*"[^"]+"\s*:[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', cleaned_response, re.DOTALL)
-            if not match:
-                # Fallback: find any JSON object that contains "topic"
-                match = re.search(r'\{[^{}]*"topic"[^{}]*\}', cleaned_response, re.DOTALL)
+            # Same robust extraction as others
+            clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', cleaned_response, flags=re.DOTALL | re.IGNORECASE)
+            clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
+
+            brace_count = 0
+            start_pos = None
+            for i, char in enumerate(clean_text):
+                if char == '{':
+                    if brace_count == 0:
+                        start_pos = i
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0 and start_pos is not None:
+                        json_str = clean_text[start_pos:i+1]
+                        if '"topic"' in json_str and not re.search(r'b(class|public|private|virtual|#include)b', json_str):
+                            break
+            else:
+                json_str = None
+
+            if json_str:
+                match = type('Match', (), {'group': lambda self, n: json_str})()
+            else:
+                match = None
             
             if match:
                 json_str = match.group(0).strip()
@@ -498,11 +538,30 @@ Extract C++ Object Model concept as JSON:"""
             if len(response_text) > 100 and not response_text.strip().endswith(('}', '"', ']')):
                 print(f"⚠️  GPT response appears truncated (ends with: '{response_text[-50:]}')")
             
-            # Look for JSON with quoted property names (real JSON, not C++ code)
-            match = re.search(r'\{[^{}]*"[^"]+"\s*:[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
-            if not match:
-                # Fallback: find any JSON object that contains "topic"
-                match = re.search(r'\{[^{}]*"topic"[^{}]*\}', response_text, re.DOTALL)
+            # Same robust extraction as Grok
+            clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', response_text, flags=re.DOTALL | re.IGNORECASE)
+            clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
+
+            brace_count = 0
+            start_pos = None
+            for i, char in enumerate(clean_text):
+                if char == '{':
+                    if brace_count == 0:
+                        start_pos = i
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0 and start_pos is not None:
+                        json_str = clean_text[start_pos:i+1]
+                        if '"topic"' in json_str and not re.search(r'b(class|public|private|virtual|#include)b', json_str):
+                            break
+            else:
+                json_str = None
+
+            if json_str:
+                match = type('Match', (), {'group': lambda self, n: json_str})()
+            else:
+                match = None
                 
             if match:
                 json_str = match.group(0).strip()

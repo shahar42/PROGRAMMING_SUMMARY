@@ -1,0 +1,33 @@
+{
+  "book_code": "CPP_OBJ_MODEL",
+  "category": "Advanced",
+  "normalized_topic": "EmptyClassSizeAndAlignment",
+  "uniqueid": "1",
+  "topic": "Empty Class Size and Compiler Padding",
+  "explanation": "Even an empty class in C++ occupies at least one byte in memory. This is not due to any member variables, but rather to ensure that each object has a unique address in memory.  Compilers often introduce padding bytes to satisfy alignment requirements.  Alignment ensures that data structures are placed at memory addresses that are multiples of their natural size (e.g., int on a 4-byte boundary, double on an 8-byte boundary). This improves performance by optimizing memory access and potentially reducing the number of memory accesses required.  The size of an empty class, therefore, reflects the minimum alignment imposed by the compiler for that specific architecture and compiler settings.  Inheritance further complicates this, as derived classes must maintain the alignment requirements of their base classes.  Understanding this subtle detail is crucial for accurate memory management and performance optimization.",
+  "syntax": "class X {}; // An empty class declaration\nsizeof(X); // Returns the size of the class, which is usually 1 due to alignment.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <cassert>",
+    "class X {};",
+    "class Y : public X {};",
+    "class Z { virtual void f() {} };",
+    "class A : public Y, public Z {};",
+    "int main() {",
+    "  assert(sizeof(X) == 1);",
+    "  std::cout << \"sizeof(X): \" << sizeof(X) << std::endl;",
+    "  std::cout << \"sizeof(Y): \" << sizeof(Y) << std::endl;",
+    "  std::cout << \"sizeof(Z): \" << sizeof(Z) << std::endl;",
+    "  std::cout << \"sizeof(A): \" << sizeof(A) << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the sizes of empty and inherited classes. `X` is 1 byte due to minimum alignment. `Y`, inheriting from `X`, will also have a minimum size reflecting alignment rules. `Z`, with a virtual function, will include the virtual function table (vtable) pointer, resulting in a larger size. `A`'s size reflects the combined effects of inheritance, alignment padding to accommodate the vtable pointer and alignment of base classes in multiple inheritance.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "inheritance",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T01:20:57.390301",
+    "book_code": "objmdl"
+  }
+}
