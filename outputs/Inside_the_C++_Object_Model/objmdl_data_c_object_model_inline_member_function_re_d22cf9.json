@@ -1,0 +1,34 @@
+{
+  "book_code": "CPPOM",
+  "category": "Advanced",
+  "normalized_topic": "InlineFunctionMemberResolution",
+  "uniqueid": "12345",
+  "topic": "C++ Object Model: Inline Member Function Resolution and the One-Definition Rule",
+  "explanation": "This example delves into the subtleties of inline member function resolution within the C++ object model, particularly concerning the One Definition Rule (ODR) and its implications for code generation and potential optimization strategies.  Understanding how the compiler handles inline functions within class definitions is crucial for avoiding unexpected behavior and optimizing performance, especially in complex inheritance hierarchies. The seemingly simple act of declaring a function `inline` has far-reaching consequences for how the compiler generates code and manages object layout. Incorrect usage can lead to ODR violations, resulting in linker errors or unpredictable runtime behavior.",
+  "syntax": "The `inline` keyword suggests to the compiler that a function should be expanded inline at the point of call rather than generating a separate function call. However, this is a *suggestion*, not a mandate. The compiler may still choose to generate a separate function if inlining would negatively impact code size or performance.  Crucially, even with `inline`, the One Definition Rule must be observed.  The compiler can only reliably inline the function's definition if only a single definition exists across all translation units.",
+  "code_example": [
+    "#include <iostream>",
+    "class MyClass {",
+    "public:",
+    "  inline int getValue() const { return value_; }",
+    "  void setValue(int val) { value_ = val; }",
+    "private:",
+    "  int value_;",
+    "};",
+    "",
+    "int main() {",
+    "  MyClass obj;",
+    "  obj.setValue(10);",
+    "  std::cout << obj.getValue() << std::endl; // Inlining may or may not occur here.",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `getValue()` function is declared `inline`. The compiler *might* expand its body directly at the point of call in `main()`, eliminating the overhead of a function call. However, if multiple definitions of `getValue()` with even slight variations exist across different compilation units (e.g., different header file inclusions), it violates the ODR, leading to linker errors.  The compiler's decision to inline is influenced by factors like optimization level, function complexity, and code size constraints. Understanding this behavior is crucial for managing code size, performance, and avoiding ODR violations, especially in large projects with multiple developers and separate compilation units.  Expert-level understanding involves predicting potential inlining behavior based on the compiler, optimization flags, and the function's context within the overall program.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "data",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T17:13:05.477861",
+    "book_code": "objmdl"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "topic": "C++ Object Model Implementation Concept",
+  "explanation": "This concept delves into how data members are bound within object memory layouts, emphasizing the distinction between non-static data members and static data members. It explains how non-static members are embedded within each object instance, with their offsets determined at compile time, and how static members are shared across all instances, stored separately from object instances. The explanation covers how the compiler calculates offsets, aligns data, and optimizes memory layout for cache efficiency, as well as how access to data members is resolved via pointer arithmetic at runtime. It also discusses the implications for inheritance, especially when multiple inheritance introduces complex memory layouts, and how compiler optimizations like member reordering and padding influence object size and access speed.",
+  "syntax": "class Point3d {\npublic:\n    float x;\n    float y;\n    float z;\n    // Data members are laid out sequentially in memory with possible padding for alignment.\n};\n\n// Static data member example\nextern float x; // Shared across all instances, stored separately from object instances.\n\n// Implementation notes:\n// - The compiler assigns fixed offsets for non-static members based on alignment rules.\n// - Static members are stored in a separate static storage area.\n// - In inheritance, base class subobjects are embedded within derived objects at specific offsets.\n// - Accessing a member involves pointer arithmetic based on the object's address and the member's offset.",
+  "code_example": [
+    "#include <iostream>",
+    "// Expert-level C++ Object Model example demonstrating data member layout",
+    "struct Base {",
+    "    int a;",
+    "    double b;",
+    "};",
+    "struct Derived : public Base {",
+    "    float c;",
+    "};",
+    "extern float shared_x; // static data member declaration",
+    "int main() {",
+    "    Derived d;",
+    "    std::cout << \"Offset of a: \" << offsetof(Derived, a) << std::endl;",
+    "    std::cout << \"Offset of b: \" << offsetof(Derived, b) << std::endl;",
+    "    std::cout << \"Offset of c: \" << offsetof(Derived, c) << std::endl;",
+    "    // Access static member",
+    "    shared_x = 3.14f;",
+    "    std::cout << \"Shared x: \" << shared_x << std::endl;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example illustrates how non-static data members are embedded within the object layout, with their offsets determined at compile time, and how static members are stored separately. It highlights the use of offsetof to determine member positions, reflecting the compiler's role in memory layout. The example also demonstrates inheritance's impact on memory layout, with base class subobjects embedded within derived objects. Understanding these internals is crucial for optimizing memory usage and performance in high-performance systems, as well as for debugging complex object layouts.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "data",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T17:11:03.360540",
+    "book_code": "objmdl"
+  }
+}

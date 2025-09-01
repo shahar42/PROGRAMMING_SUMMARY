@@ -1,0 +1,35 @@
+{
+  "topic": "Memory Layout in C++ Inheritance and Polymorphism",
+  "explanation": "In C++, the memory layout of objects in inheritance scenarios involves the derived class object containing a subobject of the base class, followed by its own members. For classes with virtual functions, a virtual table pointer (vptr) is typically added at the beginning of the object to enable dynamic dispatch. The compiler arranges base class members first, adhering to the order of declaration, and applies padding for alignment to ensure proper data access efficiency. In multiple inheritance, each base class may have its own vptr if it introduces virtual functions, leading to a layout that includes multiple vptrs and base subobjects. Constructor implementation details include initializing base class subobjects before derived members, often using the base class constructor. Destructors follow a reverse order, destroying derived members first. Compiler optimization strategies, such as the Empty Base Class Optimization (EBO), may eliminate space for base classes with no data members, while virtual function calls are optimized through vtable lookups, potentially inlining if the call is devirtualized. This layout supports polymorphism by allowing runtime resolution of function calls based on the actual object type, impacting performance through pointer indirection overhead.",
+  "syntax": "class Base { public: int baseMember; virtual void virtualFunc(); }; class Derived : public Base { public: int derivedMember; void virtualFunc() override; }; // Implementation notes: The vptr is compiler-specific, e.g., in GCC/MSVC, it's usually the first member. Constructors: Base() initializes baseMember and sets vptr; Derived() calls Base() first.",
+  "code_example": [
+    "#include <iostream>",
+    "class Base {",
+    "public:",
+    "    int baseMember;",
+    "    virtual void virtualFunc() { std::cout << \"Base virtual function\"; }",
+    "    Base(int val) : baseMember(val) {}  // Constructor initializes baseMember",
+    "    virtual ~Base() { std::cout << \"Base destructor\"; }  // Virtual for proper polymorphic destruction",
+    "};",
+    "class Derived : public Base {",
+    "public:",
+    "    int derivedMember;",
+    "    Derived(int baseVal, int derivedVal) : Base(baseVal), derivedMember(derivedVal) {}  // Calls Base constructor first",
+    "    void virtualFunc() override { std::cout << \"Derived virtual function\"; }  // Overrides for polymorphism",
+    "    ~Derived() override { std::cout << \"Derived destructor\"; }  // Destroy derived members first",
+    "};",
+    "int main() {",
+    "    Derived d(10, 20);  // Constructs Derived object",
+    "    d.virtualFunc();   // Demonstrates polymorphic call",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code illustrates the C++ object model for inheritance and polymorphism. A Derived object in memory typically starts with the vptr (pointing to Derived's vtable), followed by Base's baseMember, and then derivedMember. When d.virtualFunc() is called, the vptr directs to Derived's vtable entry, invoking the overridden function for runtime polymorphism. Constructors ensure base subobjects are initialized first, as seen in Derived's constructor calling Base's. Destructors follow reverse order to prevent resource leaks. Compiler optimizations might include devirtualization for known types or EBO if Base had no data, reducing object size. This layout affects performance, as virtual calls involve an extra indirection, but enables flexible, extensible designs.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "template",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T16:44:57.410988",
+    "book_code": "objmdl"
+  }
+}

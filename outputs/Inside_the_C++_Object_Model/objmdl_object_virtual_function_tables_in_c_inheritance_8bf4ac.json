@@ -1,0 +1,34 @@
+{
+  "topic": "Virtual Function Tables in C++ Inheritance",
+  "explanation": "Virtual Function Tables (vtables) are a core mechanism in C++ for implementing runtime polymorphism, particularly in scenarios involving inheritance. When a class defines one or more virtual functions, the compiler generates a vtable for that class, which is essentially an array of function pointers corresponding to the virtual functions. Each object of the class includes a hidden pointer, called the virtual table pointer (vptr), typically placed at the beginning of the object's memory layout. This vptr points to the appropriate vtable based on the object's actual dynamic type. In inheritance hierarchies, a derived class inherits the vtable from its base class but creates its own vtable that overrides entries for any overridden virtual functions, ensuring that calls through base pointers resolve to the derived implementations. For multiple inheritance, the compiler may generate multiple vptrs to handle the layout of base subobjects, ensuring correct function dispatch. Memory layout considerations include the vptr occupying space (usually the size of a pointer, e.g., 8 bytes on 64-bit systems) before the object's data members, which can impact object size and alignment. Compiler optimization strategies, such as devirtualization, may eliminate vtable lookups if the compiler can statically determine the function to call, improving performance by inlining or direct calls. Additionally, empty base optimization (EBO) might be applied in single inheritance to reduce object size if a base class is empty, though this doesn't directly affect vtables.",
+  "syntax": "class Base { public: virtual void virtualFunc(); // Declares a virtual function, triggering vtable generation }; class Derived : public Base { public: void virtualFunc() override; // Overrides the virtual function, updating the derived class's vtable }; // Implementation notes: The vptr is implicitly added by the compiler; constructors initialize the vptr to point to the correct vtable.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class Base {",
+    "public:",
+    "    virtual void speak() { std::cout << \"Base speaks\" << std::endl; }",
+    "    virtual ~Base() {}  // Virtual destructor for proper cleanup in inheritance",
+    "};",
+    "",
+    "class Derived : public Base {",
+    "public:",
+    "    void speak() override { std::cout << \"Derived speaks\" << std::endl; }",
+    "};",
+    "",
+    "int main() {",
+    "    Base* ptr = new Derived();  // Pointer to Base, but object is Derived",
+    "    ptr->speak();  // Runtime dispatch via vtable",
+    "    delete ptr;    // Calls Derived's destructor via vtable",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates vtable usage in inheritance and polymorphism. The Base class has a virtual speak() function, so its vtable includes a pointer to Base::speak(). The Derived class overrides speak(), resulting in its own vtable with a pointer to Derived::speak(). In main(), when a Derived object is created and assigned to a Base pointer, the object's vptr is set to point to Derived's vtable. The call ptr->speak() uses the vptr to access Derived's vtable, invoking Derived::speak() instead of Base::speak(), showcasing dynamic dispatch. Memory-wise, the Derived object layout includes the vptr (pointing to Derived's vtable), followed by Base's data members, then Derived's own members. The virtual destructor ensures that Derived's destructor is called first during deletion. Compiler optimizations might devirtualize the call if the type were known statically, but here, the vtable mechanism ensures correctness at runtime, with potential performance overhead due to indirect function calls.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "object",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T16:43:04.124965",
+    "book_code": "objmdl"
+  }
+}

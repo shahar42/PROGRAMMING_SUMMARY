@@ -1,0 +1,35 @@
+{
+  "topic": "Memory Layout in C++ Inheritance",
+  "explanation": "In C++, when dealing with inheritance, the memory layout of an object from a derived class includes the memory for the base class subobject followed by the derived class's additional members. For example, in a class hierarchy like Point and Point2d, the compiler typically places the base class (Point) members first in memory to ensure proper alignment and access. This layout supports polymorphism if virtual functions are involved, where a vtable pointer is added to the base class's layout. The vtable (virtual function table) is a hidden pointer that points to an array of function pointers for virtual functions, enabling dynamic dispatch. Constructors handle initialization by first calling the base class constructor to set up the base subobject, then initializing derived members. Destructors follow the reverse order to ensure proper cleanup. Compiler optimizations, such as empty base optimization (EBO), may reduce padding for classes with no data members, and the standard requires that the derived object can be treated as a base object pointer. This layout impacts performance through potential cache misses due to increased object size and pointer indirection in virtual calls.",
+  "syntax": "class Base { public: Base(float x = 0.0) : _x(x) {} private: float _x; }; class Derived : public Base { public: Derived(float x = 0.0, float y = 0.0) : Base(x), _y(y) {} private: float _y; }; // Notes: The derived class constructor chains to the base constructor. If virtual functions were added (e.g., virtual ~Base();), a vtable pointer would precede the base members.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class Point {",
+    "public:",
+    "    Point(float x = 0.0) : _x(x) {}",
+    "private:",
+    "    float _x;",
+    "};",
+    "",
+    "class Point2d : public Point {",
+    "public:",
+    "    Point2d(float x = 0.0, float y = 0.0) : Point(x), _y(y) {}",
+    "private:",
+    "    float _y;",
+    "};",
+    "",
+    "int main() {",
+    "    Point2d p2(1.0, 2.0);  // Creates an object with memory layout: base (Point's _x) followed by _y",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this example, an object of Point2d is laid out in memory with the base class Point's member _x first (e.g., at offset 0), followed by Point2d's _y (e.g., at offset sizeof(float)). If Point had a virtual destructor, a vtable pointer would be added at the beginning of Point's layout, shared by Point2d objects for polymorphic behavior. The constructor of Point2d first invokes Point's constructor to initialize _x, then initializes _y, demonstrating constructor chaining. Destructors would call in reverse order. Compiler optimizations might align members for performance, but without virtual functions, no vtable overhead is present, keeping the object compact. This setup enables slicing when passing derived objects as base references, but highlights potential inefficiencies in large inheritance hierarchies due to memory layout and access patterns.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "object",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T16:43:43.501872",
+    "book_code": "objmdl"
+  }
+}

@@ -338,55 +338,53 @@ Extract the atomic concept as JSON:"""
     def _parse_grok_response(self, response_text):
         """Parse Grok's JSON response"""
         print(f"🐛 DEBUG - Raw GROK response ({len(response_text)} chars): {response_text}")
-        try:
-            # First try to find JSON wrapped in markdown code blocks
-            markdown_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
-            if markdown_match:
-                json_str = markdown_match.group(1).strip()
-                print(f"🐛 DEBUG - Extracted from markdown ({len(json_str)} chars): {json_str[:200]}...")
-                return json.loads(json_str)
-            
+        
+        json_str = None
+        # First try to find JSON wrapped in markdown code blocks
+        markdown_match = re.search(r'''```json\s*(.*?)\s*```''', response_text, re.DOTALL)
+        if markdown_match:
+            json_str = markdown_match.group(1).strip()
+            print(f"🐛 DEBUG - Extracted from markdown ({len(json_str)} chars): {json_str[:200]}...")
+        else:
             # Try to find a complete JSON object starting with { and ending with }
-            # Look for the outermost JSON structure
             start_pos = response_text.find('{')
-            if start_pos == -1:
-                raise ValueError("No opening brace found in response")
-            
-            # Count braces to find matching closing brace
-            brace_count = 0
-            end_pos = -1
-            for i, char in enumerate(response_text[start_pos:], start_pos):
-                if char == '{':
-                    brace_count += 1
-                elif char == '}':
-                    brace_count -= 1
-                    if brace_count == 0:
-                        end_pos = i
-                        break
-            
-            if end_pos != -1:
-                json_str = response_text[start_pos:end_pos + 1]
-                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:200]}...")
-                return json.loads(json_str)
-            else:
-                print("🐛 DEBUG - No matching closing brace found")
-                raise ValueError("No complete JSON object found")
+            if start_pos != -1:
+                brace_count = 0
+                end_pos = -1
+                for i, char in enumerate(response_text[start_pos:], start_pos):
+                    if char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            end_pos = i
+                            break
                 
-        except json.JSONDecodeError as e:
-            print(f"❌ Failed to decode JSON from Grok: {e}")
-            print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
+                if end_pos != -1:
+                    json_str = response_text[start_pos:end_pos + 1]
+                    print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:200]}...")
+
+        if json_str:
+            try:
+                concept = json.loads(json_str)
+                if 'topic' in concept:
+                    print("✅ GROK extracted concept directly")
+                    return concept
+                elif len(concept) == 1:
+                    nested_key = next(iter(concept.keys()))
+                    if isinstance(concept[nested_key], dict) and 'topic' in concept[nested_key]:
+                        extracted_concept = concept[nested_key]
+                        print("📋 GROK used nested structure, extracted inner concept")
+                        return extracted_concept
+            except json.JSONDecodeError as e:
+                print(f"❌ Failed to decode JSON from Grok: {e}")
+                print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
+                # Fall through to the completion logic
+        
+        # If we are here, json_str is None or json.loads failed
+        print("⚠️ Trying to complete partial GROK JSON...")
+        completed = self._try_complete_json(json_str if json_str else response_text)
+        if completed:
+            return completed
             
-            # Try to complete partial JSON on decode error
-            print("⚠️ Trying to complete partial GROK JSON after decode error...")
-            completed = self._try_complete_json(json_str if 'json_str' in locals() else response_text)
-            if completed:
-                return completed
-                
-            return None
-        except Exception as e:
-            print(f"❌ Error parsing GROK response: {e}")
-            # Try to complete partial JSON as last resort
-            completed = self._try_complete_json(response_text)
-            if completed:
-                return completed
-            return None
+        return None

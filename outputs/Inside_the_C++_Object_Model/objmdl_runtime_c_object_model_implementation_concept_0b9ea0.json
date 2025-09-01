@@ -1,0 +1,28 @@
+{
+  "topic": "C++ Object Model Implementation Concept",
+  "explanation": "In multiple inheritance scenarios, when a derived class inherits from multiple base classes, each base subobject may reside at different offsets within the derived object in memory. To support correct polymorphic behavior, especially for virtual functions, the compiler must generate a mechanism to adjust the 'this' pointer at runtime. This is achieved by augmenting the virtual table (vtable) entries to include not only the function address but also the offset needed to convert a base class pointer to the derived class pointer. During a virtual function call through a base class pointer, the vtable entry provides both the function address and the necessary offset, allowing the call to correctly operate on the complete object, even when multiple inheritance introduces complex memory layouts. This design ensures that virtual function dispatch remains efficient and correct, while supporting intricate inheritance hierarchies.",
+  "syntax": "struct VTableEntry {\n    void (*fptr)(void*);\n    std::ptrdiff_t offset; // Offset to adjust 'this' pointer\n};\n\n// Example of a virtual table with offset-aware entries\nstruct VTable {\n    VTableEntry* entries;\n    // Additional vtable data\n};\n\n// During object layout, each base subobject may have an associated offset stored in the vtable.\n// When invoking a virtual function, the compiler retrieves the function pointer and offset,\n// adjusts the 'this' pointer accordingly, and calls the function.\n",
+  "code_example": [
+    "#include <iostream>",
+    "// Expert-level C++ Object Model example demonstrating vtable with offset",
+    "struct Base1 {",
+    "    virtual void foo() { std::cout << \"Base1::foo\" << std::endl; }",
+    "};",
+    "struct Base2 {",
+    "    virtual void bar() { std::cout << \"Base2::bar\" << std::endl; }",
+    "};",
+    "struct Derived : public Base1, public Base2 {",
+    "    virtual void foo() override { std::cout << \"Derived::foo\" << std::endl; }",
+    "    virtual void bar() override { std::cout << \"Derived::bar\" << std::endl; }",
+    "};",
+    "// Note: Actual compiler-generated vtables include offset info for multiple inheritance adjustments."
+  ],
+  "example_explanation": "This example illustrates how, in multiple inheritance, the compiler embeds offset information within the vtable entries. When a virtual function is called via a base class pointer, the runtime uses the stored offset to adjust the 'this' pointer, ensuring the correct subobject is targeted. This mechanism maintains polymorphic correctness across complex inheritance hierarchies and optimizes virtual dispatch by localizing offset adjustments within the vtable entries.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "runtime",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T17:18:03.225559",
+    "book_code": "objmdl"
+  }
+}

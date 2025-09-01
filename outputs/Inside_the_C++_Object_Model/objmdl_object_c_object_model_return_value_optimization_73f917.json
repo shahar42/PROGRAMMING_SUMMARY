@@ -1,0 +1,40 @@
+{
+  "book_code": "CPPOM",
+  "category": "Advanced",
+  "normalized_topic": "Return Value Optimization",
+  "uniqueid": "RVO_123",
+  "topic": "C++ Object Model: Return Value Optimization (RVO)",
+  "explanation": "Return Value Optimization (RVO) is a compiler optimization that eliminates the creation and copy construction of a temporary object when a function returns an object by value.  Instead of creating a temporary object on the stack, the compiler constructs the object directly in the memory location where the returned object is expected. This significantly impacts performance, especially when returning large or complex objects. Understanding RVO's nuances is critical for writing efficient C++ code and avoiding unnecessary overhead.  The compiler's ability to perform RVO depends on several factors, including the function's implementation, the type of the returned object, and the compiler's optimization settings. Failure to understand these factors can lead to unexpected performance bottlenecks.  RVO can interact with Named Return Value Optimization (NRVO) and copy elision, but NRVO is less likely to be applied.  A key difference is NRVO involves naming the return object, offering more control but also limiting the compiler's freedom in optimization.  The absence of RVO can result in considerable performance degradation, especially in loops where a large object is returned repeatedly. ",
+  "syntax": "Consider a simple class and a function returning an instance of that class by value:\n\nc++\nclass MyClass {\npublic:\n  int value;\n  MyClass(int val) : value(val) {}\n};\n\nMyClass createMyClass(int val) {\n  MyClass obj(val); \n  return obj; // Candidate for RVO\n}\n\nint main() {\n  MyClass xx = createMyClass(10);\n  return 0;\n}\n\nWithout RVO, the `createMyClass` function would create a temporary `MyClass` object on the stack, then create a second `MyClass` object ( `xx`) and copy construct it using the temporary.  With RVO, the compiler would construct `xx` directly. The compiler's decision to perform RVO is not guaranteed, and you should avoid code that relies on it implicitly. Disabling compiler optimization will typically prevent RVO.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <chrono>",
+    "class Data {",
+    "public:",
+    "  int* data; // Simulates large data",
+    "  int size;",
+    "  Data(int s) : size(s) { data = new int[size]; for (int i = 0; i < size; ++i) data[i] = i; }",
+    "  Data(const Data& other) : size(other.size) { data = new int[size]; for (int i = 0; i < size; ++i) data[i] = other.data[i]; }",
+    "  ~Data() { delete[] data; }",
+    "};",
+    "Data createData(int size) {",
+    "  return Data(size); // Candidate for RVO",
+    "}",
+    "int main() {",
+    "  auto start = std::chrono::high_resolution_clock::now();",
+    "  Data d = createData(1000000);",
+    "  auto end = std::chrono::high_resolution_clock::now();",
+    "  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);",
+    "  std::cout << \"Time taken: \" << duration.count() << \" ms\" << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The provided example demonstrates a `Data` class with a large integer array. The `createData` function returns this object by value.  Measuring the execution time with and without compiler optimization (e.g., using -O2 flag with g++) will clearly show the impact of RVO. With optimization, the construction time will be significantly lower, highlighting the effectiveness of RVO in avoiding the copy construction overhead. Without optimization, the time will significantly increase.  This highlights the performance difference. Observe that the copy constructor is deliberately included to demonstrate its impact when RVO is not performed.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "object",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-28T01:14:47.285362",
+    "book_code": "objmdl"
+  }
+}

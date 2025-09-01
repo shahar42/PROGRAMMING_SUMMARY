@@ -319,14 +319,20 @@ class InsideObjectModelExtractionEngine:
         
         # Update progress
         if content_blocks:
-            # Calculate the last page processed based on content blocks
-            last_page = max(block["page"] for block in content_blocks)
+            # Calculate the actual last page processed (start_page + max_pages)
+            # This ensures we don't reprocess pages even if they had no extractable content
+            actual_last_page = start_page + 40  # max_pages=40 from extract_structured_content call
+            highest_content_page = max(block["page"] for block in content_blocks)
+            
+            # Use the higher of the two to ensure we advance properly
+            last_page = max(actual_last_page, highest_content_page)
+            
             self.progress_tracker.progress["last_processed_page"] = last_page
             self.progress_tracker.progress["total_concepts_extracted"] = (
                 self.progress_tracker.progress.get("total_concepts_extracted", 0) + concepts_extracted
             )
             self.progress_tracker.save_progress()
-            print(f"📊 Progress updated: Last processed page {last_page}, Total concepts: {self.progress_tracker.progress['total_concepts_extracted']}")
+            print(f"📊 Progress updated: Last processed page {last_page} (content found up to page {highest_content_page}), Total concepts: {self.progress_tracker.progress['total_concepts_extracted']}")
         else:
             print("⚠️  No content blocks processed, progress not updated")
         
@@ -404,223 +410,143 @@ Content: {filtered_content}
 Extract C++ Object Model concept as JSON:"""
     
     def _parse_grok_response(self, response_text):
-        """Parse Grok response with enhanced error handling"""
+        """Parse Grok response with robust nested handling"""
         try:
-            print(f"🐛 DEBUG - Raw GROK response ({len(response_text)} chars): {response_text[:800]}...")
-            
-            # Check if response looks truncated (ends mid-sentence/mid-word)
-            if len(response_text) > 100 and not response_text.strip().endswith(('}', '"', ']')):
-                print(f"⚠️  GROK response appears truncated (ends with: '{response_text[-50:]}')")
-            
-            # Remove any markdown code blocks first
-            clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', response_text, flags=re.DOTALL | re.IGNORECASE)
-            clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
-
-            # Try parsing the entire cleaned response first
-            try:
-                concept = json.loads(clean_text)
-                if 'topic' in concept:
-                    print("✅ GROK extracted concept directly")
-                    return concept
-                elif len(concept) == 1:
-                    nested_key = next(iter(concept.keys()))
-                    if isinstance(concept[nested_key], dict) and 'topic' in concept[nested_key]:
-                        concept = concept[nested_key]
-                        print("📋 GROK used nested structure, extracted inner concept")
-                        return concept
-            except json.JSONDecodeError:
-                pass
-
-            # Fallback: find the longest valid JSON
-            best_json = None
-            max_length = 0
-
-            for start in range(len(clean_text)):
-                if clean_text[start] == '{':
-                    for end in range(start + 50, len(clean_text) + 1):
-                        try:
-                            candidate = clean_text[start:end]
-                            parsed = json.loads(candidate)
-                            if isinstance(parsed, dict) and len(candidate) > max_length:
-                                if 'topic' in parsed or (len(parsed) == 1 and 'topic' in next(iter(parsed.values()))):
-                                    best_json = parsed
-                                    max_length = len(candidate)
-                        except:
-                            continue
-
-            if best_json:
-                concept = best_json
-                match = type('Match', (), {'group': lambda self, n: str(concept)})()
-                json_str = str(concept)
-            else:
-                match = None
-                json_str = None
-            
-            if match:
-                json_str = match.group(0).strip()
-                print(f"🐛 DEBUG - Full JSON string ({len(json_str)} chars):")
-                print(json_str)
-                print("🐛 DEBUG - End of JSON string")
+            # Extract JSON block
+            match = re.search(r'{.*}', response_text, re.DOTALL)
+            if not match:
+                print("❌ No JSON found in response")
+                return None
                 
-                # best_json is already a parsed object, just validate and return it
-                if 'topic' in best_json:
-                    print(f"✅ GROK extracted concept: {best_json['topic']}")
-                    return best_json
-                elif len(best_json) == 1:
-                    nested_key = next(iter(best_json.keys()))
-                    if isinstance(best_json[nested_key], dict) and 'topic' in best_json[nested_key]:
-                        nested_concept = best_json[nested_key]
-                        print(f"✅ GROK extracted nested concept: {nested_concept['topic']}")
-                        return nested_concept
-                    else:
-                        print(f"❌ Nested structure missing 'topic' field")
-                else:
-                    print(f"❌ JSON missing required 'topic' field")
+            json_str = match.group(0)
+            concept = json.loads(json_str)
+            
+            # Handle direct format: {"topic": "...", ...}
+            if 'topic' in concept:
+                print(f"✅ GROK extracted direct concept: {concept['topic']}")
+                return concept
+                
+            # Handle nested format: {"filename": {"topic": "...", ...}}
+            if len(concept) == 1:
+                nested_key = next(iter(concept.keys()))
+                nested_concept = concept[nested_key]
+                if isinstance(nested_concept, dict) and 'topic' in nested_concept:
+                    print(f"✅ GROK extracted nested concept: {nested_concept['topic']}")
+                    return nested_concept
                     
-            print("❌ Failed to find a valid JSON object in the Grok response.")
+            print(f"❌ No valid concept found. Keys: {list(concept.keys())}")
             return None
+            
         except json.JSONDecodeError as e:
-            print(f"❌ Failed to decode JSON from Grok: {e}")
-            if 'json_str' in locals():
-                print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
+            print(f"❌ JSON decode error: {e}")
+            print(f"   Problematic JSON: {json_str[:200]}...")
             return None
         except Exception as e:
-            print(f"❌ An unexpected error occurred during Grok response parsing: {e}")
+            print(f"❌ Parse error: {e}")
             return None
 
+    def _sanitize_gemini_json(self, json_str):
+        """Fix common GEMINI JSON formatting issues"""
+        try:
+            # Fix double commas
+            sanitized = re.sub(r',,+', ',', json_str)
+            
+            # Fix trailing commas before closing brackets/braces  
+            sanitized = re.sub(r',(\s*[}\]])', r'\1', sanitized)
+            
+            # Fix C++ comments in JSON strings - move them inside the string
+            sanitized = re.sub(r'",\s*//([^\n]*?)(?=\s*[\n\],}])', r' //\1",', sanitized)
+            
+            # Fix standalone C++ comments that break JSON
+            sanitized = re.sub(r'",\s*//[^\n]*\n', '",\n', sanitized)
+            
+            return sanitized
+        except Exception as e:
+            print(f"⚠️ JSON sanitization failed: {e}")
+            return json_str  # Return original if sanitization fails
+        
     def _parse_gemini_response(self, response_text):
-        """Parse Gemini response with enhanced error handling"""
+        """Parse Gemini response with robust nested handling"""
         try:
-            print(f"🐛 DEBUG - Raw GEMINI response ({len(response_text)} chars): {response_text[:800]}...")
+            # Remove markdown blocks
+            cleaned = re.sub(r'```json\s*', '', response_text)
+            cleaned = re.sub(r'\s*```', '', cleaned)
             
-            # Remove markdown code blocks if present
-            cleaned_response = re.sub(r'```json\s*', '', response_text)
-            cleaned_response = re.sub(r'\s*```', '', cleaned_response)
-            
-            # Check if response looks truncated
-            if len(cleaned_response) > 100 and not cleaned_response.strip().endswith(('}', '"', ']')):
-                print(f"⚠️  GEMINI response appears truncated (ends with: '{cleaned_response[-50:]}')")
-            
-            # Same robust extraction as others
-            clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', cleaned_response, flags=re.DOTALL | re.IGNORECASE)
-            clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
-
-            brace_count = 0
-            start_pos = None
-            for i, char in enumerate(clean_text):
-                if char == '{':
-                    if brace_count == 0:
-                        start_pos = i
-                    brace_count += 1
-                elif char == '}':
-                    brace_count -= 1
-                    if brace_count == 0 and start_pos is not None:
-                        json_str = clean_text[start_pos:i+1]
-                        if '"topic"' in json_str and not re.search(r'b(class|public|private|virtual|#include)b', json_str):
-                            break
-            else:
-                json_str = None
-
-            if json_str:
-                match = type('Match', (), {'group': lambda self, n: json_str})()
-            else:
-                match = None
-            
-            if match:
-                json_str = match.group(0).strip()
-                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:400]}...")
+            # Extract JSON block
+            match = re.search(r'{.*}', cleaned, re.DOTALL)
+            if not match:
+                print("❌ No JSON found in response")
+                return None
                 
-                # Validate JSON completeness before parsing
-                if not self._is_json_complete(json_str):
-                    print(f"❌ JSON appears incomplete, skipping")
-                    return None
+            json_str = match.group(0)
+            
+            # Sanitize common issues
+            json_str = self._sanitize_gemini_json(json_str)
+            
+            concept = json.loads(json_str)
+            
+            # Handle direct format: {"topic": "...", ...}
+            if 'topic' in concept:
+                print(f"✅ GEMINI extracted direct concept: {concept['topic']}")
+                return concept
                 
-                concept = json.loads(json_str)
-                if 'topic' in concept:
-                    print(f"✅ GEMINI extracted concept: {concept['topic']}")
-                    return concept
-                else:
-                    print(f"❌ JSON missing required 'topic' field")
+            # Handle nested format: {"filename": {"topic": "...", ...}}
+            if len(concept) == 1:
+                nested_key = next(iter(concept.keys()))
+                nested_concept = concept[nested_key]
+                if isinstance(nested_concept, dict) and 'topic' in nested_concept:
+                    print(f"✅ GEMINI extracted nested concept: {nested_concept['topic']}")
+                    return nested_concept
                     
-            print("❌ Failed to find a valid JSON object in the Gemini response.")
+            print(f"❌ No valid concept found. Keys: {list(concept.keys())}")
             return None
+            
         except json.JSONDecodeError as e:
-            print(f"❌ Failed to decode JSON from Gemini: {e}")
-            if 'json_str' in locals():
-                print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
+            print(f"❌ JSON decode error: {e}")
+            print(f"   Problematic JSON: {json_str[:200]}...")
             return None
         except Exception as e:
-            print(f"❌ An unexpected error occurred during Gemini response parsing: {e}")
+            print(f"❌ Parse error: {e}")
             return None
     
     def _parse_gpt_response(self, response_text):
-        """Parse GPT response with enhanced error handling"""
+        """Parse GPT response with robust nested handling"""
         try:
-            print(f"🐛 DEBUG - Raw GPT response ({len(response_text)} chars): {response_text[:800]}...")
+            # Remove markdown blocks
+            cleaned = re.sub(r'```json\s*', '', response_text)
+            cleaned = re.sub(r'\s*```', '', cleaned)
             
-            # Check if response looks truncated
-            if len(response_text) > 100 and not response_text.strip().endswith(('}', '"', ']')):
-                print(f"⚠️  GPT response appears truncated (ends with: '{response_text[-50:]}')")
+            # Extract JSON block
+            match = re.search(r'{.*}', cleaned, re.DOTALL)
+            if not match:
+                print("❌ No JSON found in response")
+                return None
+                
+            json_str = match.group(0)
+            concept = json.loads(json_str)
             
-            # Same robust extraction as Grok
-            clean_text = re.sub(r'```jsons*(.*?)s*```', r'1', response_text, flags=re.DOTALL | re.IGNORECASE)
-            clean_text = re.sub(r'```s*(.*?)s*```', r'1', clean_text, flags=re.DOTALL | re.IGNORECASE)
-
-            brace_count = 0
-            start_pos = None
-            for i, char in enumerate(clean_text):
-                if char == '{':
-                    if brace_count == 0:
-                        start_pos = i
-                    brace_count += 1
-                elif char == '}':
-                    brace_count -= 1
-                    if brace_count == 0 and start_pos is not None:
-                        json_str = clean_text[start_pos:i+1]
-                        if '"topic"' in json_str and not re.search(r'b(class|public|private|virtual|#include)b', json_str):
-                            break
-            else:
-                json_str = None
-
-            if json_str:
-                match = type('Match', (), {'group': lambda self, n: json_str})()
-            else:
-                match = None
+            # Handle direct format: {"topic": "...", ...}
+            if 'topic' in concept:
+                print(f"✅ GPT extracted direct concept: {concept['topic']}")
+                return concept
                 
-            if match:
-                json_str = match.group(0).strip()
-                print(f"🐛 DEBUG - Extracted JSON string ({len(json_str)} chars): {json_str[:400]}...")
-                
-                # Validate JSON completeness before parsing
-                if not self._is_json_complete(json_str):
-                    print(f"❌ JSON appears incomplete, skipping")
-                    return None
-                
-                concept = json.loads(json_str)
-                
-                # Handle nested structure where GPT returns {filename: {actual_concept}}
-                if 'topic' not in concept and len(concept) == 1:
-                    # Extract the nested concept
-                    nested_key = next(iter(concept.keys()))
-                    if isinstance(concept[nested_key], dict) and 'topic' in concept[nested_key]:
-                        concept = concept[nested_key]
-                        print(f"📋 GPT used nested structure, extracted inner concept")
-                
-                if 'topic' in concept:
-                    print(f"✅ GPT extracted concept: {concept['topic']}")
-                    return concept
-                else:
-                    print(f"❌ JSON missing required 'topic' field")
+            # Handle nested format: {"filename": {"topic": "...", ...}}
+            if len(concept) == 1:
+                nested_key = next(iter(concept.keys()))
+                nested_concept = concept[nested_key]
+                if isinstance(nested_concept, dict) and 'topic' in nested_concept:
+                    print(f"✅ GPT extracted nested concept: {nested_concept['topic']}")
+                    return nested_concept
                     
-            print("❌ Failed to find a valid JSON object in the GPT response.")
+            print(f"❌ No valid concept found. Keys: {list(concept.keys())}")
             return None
+            
         except json.JSONDecodeError as e:
-            print(f"❌ Failed to decode JSON from GPT: {e}")
-            if 'json_str' in locals():
-                print(f"🐛 DEBUG - Problematic JSON string: {json_str[:200]}...")
+            print(f"❌ JSON decode error: {e}")
+            print(f"   Problematic JSON: {json_str[:200]}...")
             return None
         except Exception as e:
-            print(f"❌ An unexpected error occurred during GPT response parsing: {e}")
+            print(f"❌ Parse error: {e}")
             return None
     
     def _is_json_complete(self, json_str):

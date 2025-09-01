@@ -1,0 +1,32 @@
+{
+  "book_code": "CPPOM",
+  "category": "Advanced",
+  "normalized_topic": "EmptyClassSizeAndAlignment",
+  "uniqueid": "12345",
+  "topic": "Empty Class Size and Memory Alignment in C++",
+  "explanation": "Even empty classes in C++ occupy memory space due to compiler-imposed minimum size requirements and data alignment constraints.  This is crucial for understanding low-level object layout and potential performance implications.  The size isn't zero because the compiler needs to ensure proper alignment for accessing objects within a larger data structure, even if the class itself has no member variables.  The minimum size is often 1 byte, but can be larger depending on the compiler's alignment rules and the presence of inheritance.",
+  "syntax": "A seemingly empty class declaration:\n\nc++\nclass X {};\n\n\nSizeof operator to check the memory occupied:\n\nc++\nstd::cout << sizeof(X) << std::endl; // Output might be 1\n\n\nInheritance impacts size:\n\nc++\nclass Y : public X {};\nclass Z : virtual public X {};\n",
+  "code_example": [
+    "#include <iostream>",
+    "#include <cstddef> //For size_t",
+    "class X {};",
+    "class Y : public X {};",
+    "class Z : virtual public X {};",
+    "class A { virtual void f() {} };",
+    "int main() {",
+    "  std::cout << \"sizeof(X): \" << sizeof(X) << std::endl;",
+    "  std::cout << \"sizeof(Y): \" << sizeof(Y) << std::endl;",
+    "  std::cout << \"sizeof(Z): \" << sizeof(Z) << std::endl;",
+    "  std::cout << \"sizeof(A): \" << sizeof(A) << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The output of `sizeof` for `X`, `Y`, `Z`, and `A` will vary slightly depending on the compiler and its settings (e.g., packing).  `X` will likely be 1 byte (minimum size), `Y` might also be 1 byte (due to empty base optimization \u2013 EBO), but `Z` will be larger because of the virtual inheritance (virtual table pointer).  Class `A`, containing a virtual function, will always be larger because of the virtual function table pointer (vptr). These differences highlight the impact of empty classes, inheritance, and virtual functions on memory layout.  Understanding these nuances is crucial for performance optimization, particularly in memory-constrained environments or when dealing with large numbers of objects.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model",
+    "chapter": "inheritance",
+    "extraction_type": "object_model_internals",
+    "extraction_date": "2025-08-27T17:10:11.501329",
+    "book_code": "objmdl"
+  }
+}
