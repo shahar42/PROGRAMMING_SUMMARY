@@ -1,0 +1,128 @@
+ # MCP Server Endpoints Configuration
+ mcp_servers:
+   # Core orchestration
+   master_orchestrator: 
+     url: "http://localhost:8100"
+     description: "Main routing and server management"
+     tools: ["analyze_and_route_question", "spawn_specific_server", "get_orchestrator_status"]
+   
+   # Topic detection (part of orchestrator)
+   topic_detection:
+     url: "http://localhost:8100" 
+     description: "Intelligent question analysis and routing"
+     tools: ["detect_relevant_server", "analyze_topic_coverage"]
+   
+   # Specialized servers
+   got_plt_server:
+     url: "http://localhost:8108"
+     description: "GOT/PLT binary analysis and education"
+     tools: ["inspect_got_table", "analyze_plt_stubs", "validate_concept", "trace_symbol_resolution"]
+   
+   # Book-specific servers (spawned by orchestrator)
+   kernighan_ritchie:
+     url: "http://localhost:8101"
+     description: "K&R C Programming concepts"
+     tools: ["search_concepts", "get_concept_details"]
+   
+   unix_env:
+     url: "http://localhost:8102" 
+     description: "UNIX Environment programming"
+     tools: ["search_concepts", "get_concept_details"]
+   
+   linkers_loaders:
+     url: "http://localhost:8103"
+     description: "Linkers & Loaders concepts"
+     tools: ["search_concepts", "get_concept_details"]
+ 
+ # Educational Configuration
+ education:
+   explanation_levels: ["beginner", "intermediate", "advanced"]
+   max_concepts_per_session: 15
+   concept_database_path: "../outputs/linkers_loaders/"
+   learning_phases: ["static", "validation", "runtime"]
+   
+ # Agent Configuration - Multi-Model Support
+ agent:
+   default_model: "grok"  # Changed from gemini to grok since it's working
+   temperature: 0.1
+   max_iterations: 12
+   timeout_seconds: 30
+   
+ # Model Configurations
+ models:
+   gemini:
+     model_name: "gemini-2.0-flash-exp"
+     provider: "google"
+     use_for: ["general", "analysis", "explanation"]
+     
+   grok:
+     model_name: "grok-2-1212"  
+     provider: "openai_compatible"
+     base_url: "https://api.x.ai/v1"
+     use_for: ["reasoning", "technical", "validation"]
+     
+   chatgpt:
+     model_name: "gpt-4o-mini"
+     provider: "openai" 
+     use_for: ["quick_tasks", "summarization", "routing"]
+   
+ # Storage Configuration  
+ storage:
+   checkpointer_db: "educational_agent_memory.db"
+   conversation_ttl: 86400  # 24 hours
+   concept_cache_ttl: 3600  # 1 hour
+ 
+ # Logging
+ logging:
+   level: "INFO"
+   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+ # ADD THIS SECTION TO YOUR config/mcp_endpoints.yaml FILE
+ 
+ topology_analyzer:
+   url: "http://localhost:8109"
+   port: 8109
+   description: "Code structure and dependency analysis"
+   enabled: true
+   tools:
+     - name: "analyze_code_complexity"
+       description: "Analyze cyclomatic complexity and nesting depth"
+       parameters:
+         path: "string"
+         recursive: "boolean"
+     
+     - name: "map_function_dependencies"
+       description: "Map call graphs and module coupling"
+       parameters:
+         path: "string"
+     
+     - name: "detect_architecture_violations"
+       description: "Find layering issues and circular dependencies"
+       parameters:
+         path: "string"
+     
+     - name: "find_maintenance_hotspots"
+       description: "Identify high-risk code areas needing refactoring"
+       parameters:
+         path: "string"
+     
+     - name: "analyze_integration_points"
+       description: "Analyze MCP tool relationships and missing imports"
+       parameters:
+         path: "string"
+         focus_module: "string (optional)"
+     
+     - name: "generate_refactor_suggestions"
+       description: "Generate actionable improvement advice"
+       parameters:
+         path: "string"
+     
+     - name: "assess_code_health"
+       description: "Overall quality metrics and health score"
+       parameters:
+         path: "string"
+     
+     - name: "create_dependency_graph"
+       description: "Visual architecture mapping"
+       parameters:
+         path: "string"
+         output_format: "string (ascii/json/summary)"

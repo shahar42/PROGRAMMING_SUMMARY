@@ -44,17 +44,39 @@ books_metadata = {
 
 
 def build_concept_index():
-    """Build the concept index from outputs directory."""
+    """Build the concept index from outputs directory, using a cache for performance."""
     global concepts
-
-    logger.info("Building concept index from outputs")
-
+    
     PROJECT_ROOT = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
     outputs_dir = PROJECT_ROOT / "outputs"
+    cache_file = outputs_dir / "concept_cache.json"
+    
     if not outputs_dir.exists():
         logger.error("outputs directory not found")
         return
 
+    # Check if cache is valid
+    if cache_file.exists():
+        logger.info("Cache file found. Checking for modifications...")
+        cache_mod_time = cache_file.stat().st_mtime
+        
+        # Find the most recently modified concept file
+        latest_concept_mod_time = 0
+        for book_dir in outputs_dir.iterdir():
+            if book_dir.is_dir():
+                for concept_file in book_dir.glob("*.json"):
+                    if concept_file.name not in ["progress.json", "metadata.json", "summary.json", "concept_cache.json"]:
+                        latest_concept_mod_time = max(latest_concept_mod_time, concept_file.stat().st_mtime)
+
+        if cache_mod_time >= latest_concept_mod_time:
+            logger.info("Cache is up-to-date. Loading from cache.")
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                concepts = json.load(f)
+            logger.info(f"Successfully loaded {len(concepts)} concepts from cache.")
+            return
+
+    logger.info("Cache is outdated or not found. Rebuilding concept index.")
+    concepts = []
     total_concepts = 0
 
     for book_dir in outputs_dir.iterdir():
@@ -67,22 +89,16 @@ def build_concept_index():
 
         logger.info(f"Indexing book: {book_name}")
 
-        # Look for JSON files containing concepts - support both old and new naming
-        concept_files = list(book_dir.glob("*.json"))
-        # Filter to only concept files, exclude metadata files
-        concept_files = [f for f in concept_files
-                         if f.name not in ["progress.json", "metadata.json", "summary.json"]
-                         and not f.name.endswith("_summary.md")
-                         and f.suffix == ".json"]
+        concept_files = [f for f in book_dir.glob("*.json")
+                         if f.name not in ["progress.json", "metadata.json", "summary.json", "concept_cache.json"]
+                         and not f.name.endswith("_summary.md")]
+        
         book_concepts = 0
-
         for concept_file in concept_files:
-
             try:
                 with open(concept_file, 'r', encoding='utf-8') as f:
                     concept_data = json.load(f)
 
-                # Handle both single concept and list of concepts
                 if isinstance(concept_data, list):
                     for concept in concept_data:
                         add_concept(concept, book_name, concept_file.name)
@@ -90,17 +106,22 @@ def build_concept_index():
                 elif isinstance(concept_data, dict):
                     add_concept(concept_data, book_name, concept_file.name)
                     book_concepts += 1
-
             except (json.JSONDecodeError, IOError) as e:
                 logger.warning(f"Failed to load {concept_file}: {e}")
-                continue
 
         if book_concepts > 0:
             logger.info(f"Found {book_concepts} concepts in {book_name}")
             total_concepts += book_concepts
 
-    logger.info(
-        f"Successfully indexed {total_concepts} concepts across {len([k for k in books_metadata.keys() if any(Path('outputs').glob(f'{k}/*.json'))])} books")
+    logger.info(f"Successfully indexed {total_concepts} concepts.")
+    
+    # Save to cache
+    try:
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(concepts, f)
+        logger.info(f"Saved {len(concepts)} concepts to cache file: {cache_file}")
+    except IOError as e:
+        logger.error(f"Failed to write to cache file: {e}")
 
 
 def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
