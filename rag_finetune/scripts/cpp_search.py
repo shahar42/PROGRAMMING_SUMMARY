@@ -299,30 +299,73 @@ class ConceptSearch:
 
         return full_data
 
-    def show_manpage(self, concept: Dict) -> bool:
-        """Display POSIX manpage for system call"""
-        if concept.get('book') != "POSIX System Call Manual":
-            console.print("[yellow]⚠ Manpages only available for POSIX system calls[/yellow]")
-            return False
-
+    def _extract_syscall_name(self, concept: Dict) -> Optional[str]:
+        """Extract system call name from POSIX syscall concept ID"""
         concept_id = concept.get('id', '')
         match = re.search(r'posix_(?:sys_)?([a-z0-9_]+?)_[a-f0-9]+', concept_id)
+        return match.group(1) if match else None
 
-        if not match:
-            console.print("[red]✗ Could not extract system call name[/red]")
-            return False
+    def _extract_function_name(self, concept_data: Dict) -> Optional[str]:
+        """Extract function name from C Standard Library/POSIX API concept"""
+        extraction_meta = concept_data.get('extraction_metadata', {})
+        return extraction_meta.get('function_name')
 
-        syscall = match.group(1)
-        console.print(f"\n[cyan]Opening manpage: {syscall}(2)[/cyan]\n")
+    def _show_manpage_section(self, name: str, section: int) -> bool:
+        """Generic manpage display using man command"""
+        console.print(f"\n[cyan]Opening manpage: {name}({section})[/cyan]\n")
 
         try:
-            result = subprocess.run(['man', '2', syscall], check=False)
+            result = subprocess.run(['man', str(section), name], check=False)
             return result.returncode == 0
         except FileNotFoundError:
             console.print("[red]✗ 'man' command not found[/red]")
             return False
         except Exception as e:
             console.print(f"[red]✗ Error: {e}[/red]")
+            return False
+
+    def show_manpage(self, concept: Dict, concept_data: Optional[Dict] = None) -> bool:
+        """Display manpage for concept (polymorphic: handles both syscalls and C library functions)
+
+        Args:
+            concept: Concept metadata dict
+            concept_data: Full concept data (loaded from JSON if provided)
+
+        Returns:
+            bool: True if manpage was displayed successfully
+        """
+        book = concept.get('book', '')
+
+        # POSIX System Call Manual (section 2)
+        if book == "POSIX System Call Manual":
+            syscall = self._extract_syscall_name(concept)
+            if not syscall:
+                console.print("[red]✗ Could not extract system call name[/red]")
+                return False
+            return self._show_manpage_section(syscall, 2)
+
+        # C Standard Library and POSIX APIs (section 3)
+        elif book == "C Standard Library and POSIX APIs":
+            # If full data not provided, load it
+            if not concept_data:
+                file_path = Path(concept["file_path"])
+                if not file_path.is_absolute():
+                    file_path = BASE_DIR / file_path
+                try:
+                    with open(file_path, 'r') as f:
+                        concept_data = json.load(f)
+                except Exception as e:
+                    console.print(f"[red]✗ Could not load concept data: {e}[/red]")
+                    return False
+
+            function_name = self._extract_function_name(concept_data)
+            if not function_name:
+                console.print("[red]✗ Could not extract function name[/red]")
+                return False
+            return self._show_manpage_section(function_name, 3)
+
+        else:
+            console.print(f"[yellow]⚠ Manpages not available for {book}[/yellow]")
             return False
 
 
@@ -392,7 +435,7 @@ The student doesn't know you have this context loaded - answer naturally as an e
 
     # Initialize chat model with system instruction
     model = genai.GenerativeModel(
-        'gemini-2.0-flash-exp',
+        'Google: Gemini 2.5 Flash Preview 09-2025',
         system_instruction=system_context
     )
     chat = model.start_chat(history=[])
@@ -464,7 +507,8 @@ def show_concept_detail(searcher: ConceptSearch, concept: Dict, score: float) ->
     """Show concept detail and return action"""
     full_data = searcher.display_concept_full(concept, score, show_code=False)
 
-    is_posix = concept.get('book') == "POSIX System Call Manual"
+    book = concept.get('book', '')
+    has_manpage = book in ["POSIX System Call Manual", "C Standard Library and POSIX APIs"]
     has_code = full_data.get('code_example') or full_data.get('practical_example')
 
     # Build action choices
@@ -472,7 +516,7 @@ def show_concept_detail(searcher: ConceptSearch, concept: Dict, score: float) ->
     actions.append(Choice("Chat about this concept", value="chat"))
     if has_code:
         actions.append(Choice("View Code Example", value="code"))
-    if is_posix:
+    if has_manpage:
         actions.append(Choice("Open Manpage", value="manpage"))
     actions.extend([
         Choice("← Back to Results", value="back"),
@@ -495,7 +539,7 @@ def show_concept_detail(searcher: ConceptSearch, concept: Dict, score: float) ->
         console.input("\n[dim]Press Enter to continue...[/dim]")
         return show_concept_detail(searcher, concept, score)
     elif action == "manpage":
-        searcher.show_manpage(concept)
+        searcher.show_manpage(concept, full_data)
         console.input("\n[dim]Press Enter to continue...[/dim]")
         return show_concept_detail(searcher, concept, score)
     else:
