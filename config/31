@@ -1,0 +1,164 @@
+[4mshmget[24m(2)                                                                        System Calls Manual                                                                       [4mshmget[24m(2)
+
+[1mNAME[0m
+       shmget - allocates a System V shared memory segment
+
+[1mLIBRARY[0m
+       Standard C library ([4mlibc[24m, [4m-lc[24m)
+
+[1mSYNOPSIS[0m
+       [1m#include <sys/shm.h>[0m
+
+       [1mint shmget(key_t [4m[22mkey[24m[1m, size_t [4m[22msize[24m[1m, int [4m[22mshmflg[24m[1m);[0m
+
+[1mDESCRIPTION[0m
+       [1mshmget[22m()  returns  the  identifier  of the System V shared memory segment associated with the value of the argument [4mkey[24m.  It may be used either to obtain the identifier of a
+       previously created shared memory segment (when [4mshmflg[24m is zero and [4mkey[24m does not have the value [1mIPC_PRIVATE[22m), or to create a new set.
+
+       A new shared memory segment, with size equal to the value of [4msize[24m rounded up to a multiple of [1mPAGE_SIZE[22m, is created if [4mkey[24m has the value [1mIPC_PRIVATE [22mor  [4mkey[24m  isn't  [1mIPC_PRI‐[0m
+       [1mVATE[22m, no shared memory segment corresponding to [4mkey[24m exists, and [1mIPC_CREAT [22mis specified in [4mshmflg[24m.
+
+       If  [4mshmflg[24m specifies both [1mIPC_CREAT [22mand [1mIPC_EXCL [22mand a shared memory segment already exists for [4mkey[24m, then [1mshmget[22m() fails with [4merrno[24m set to [1mEEXIST[22m.  (This is analogous to the
+       effect of the combination [1mO_CREAT | O_EXCL [22mfor [1mopen[22m(2).)
+
+       The value [4mshmflg[24m is composed of:
+
+       [1mIPC_CREAT[0m
+              Create a new segment.  If this flag is not used, then [1mshmget[22m() will find the segment associated with [4mkey[24m and check to see if the user has  permission  to  access  the
+              segment.
+
+       [1mIPC_EXCL[0m
+              This flag is used with [1mIPC_CREAT [22mto ensure that this call creates the segment.  If the segment already exists, the call fails.
+
+       [1mSHM_HUGETLB [22m(since Linux 2.6)
+              Allocate the segment using "huge" pages.  See the Linux kernel source file [4mDocumentation/admin-guide/mm/hugetlbpage.rst[24m for further information.
+
+       [1mSHM_HUGE_2MB[0m
+       [1mSHM_HUGE_1GB [22m(since Linux 3.8)
+              Used in conjunction with [1mSHM_HUGETLB [22mto select alternative hugetlb page sizes (respectively, 2 MB and 1 GB) on systems that support multiple hugetlb page sizes.
+
+              More  generally,  the desired huge page size can be configured by encoding the base-2 logarithm of the desired page size in the six bits at the offset [1mSHM_HUGE_SHIFT[22m.
+              Thus, the above two constants are defined as:
+
+                  #define SHM_HUGE_2MB    (21 << SHM_HUGE_SHIFT)
+                  #define SHM_HUGE_1GB    (30 << SHM_HUGE_SHIFT)
+
+              For some additional details, see the discussion of the similarly named constants in [1mmmap[22m(2).
+
+       [1mSHM_NORESERVE [22m(since Linux 2.6.15)
+              This flag serves the same purpose as the [1mmmap[22m(2) [1mMAP_NORESERVE [22mflag.  Do not reserve swap space for this segment.  When swap space is reserved, one has the  guarantee
+              that  it is possible to modify the segment.  When swap space is not reserved one might get [1mSIGSEGV [22mupon a write if no physical memory is available.  See also the dis‐
+              cussion of the file [4m/proc/sys/vm/overcommit_memory[24m in [1mproc[22m(5).
+
+       In addition to the above flags, the least significant 9 bits of [4mshmflg[24m specify the permissions granted to the owner, group, and others.  These bits have the same format, and
+       the same meaning, as the [4mmode[24m argument of [1mopen[22m(2).  Presently, execute permissions are not used by the system.
+
+       When a new shared memory segment is created, its contents are initialized to zero values, and its associated data structure, [4mshmid_ds[24m (see [1mshmctl[22m(2)), is initialized as fol‐
+       lows:
+
+       •  [4mshm_perm.cuid[24m and [4mshm_perm.uid[24m are set to the effective user ID of the calling process.
+
+       •  [4mshm_perm.cgid[24m and [4mshm_perm.gid[24m are set to the effective group ID of the calling process.
+
+       •  The least significant 9 bits of [4mshm_perm.mode[24m are set to the least significant 9 bit of [4mshmflg[24m.
+
+       •  [4mshm_segsz[24m is set to the value of [4msize[24m.
+
+       •  [4mshm_lpid[24m, [4mshm_nattch[24m, [4mshm_atime[24m, and [4mshm_dtime[24m are set to 0.
+
+       •  [4mshm_ctime[24m is set to the current time.
+
+       If the shared memory segment already exists, the permissions are verified, and a check is made to see if it is marked for destruction.
+
+[1mRETURN VALUE[0m
+       On success, a valid shared memory identifier is returned.  On error, -1 is returned, and [4merrno[24m is set to indicate the error.
+
+[1mERRORS[0m
+       [1mEACCES [22mThe user does not have permission to access the shared memory segment, and does not have the [1mCAP_IPC_OWNER [22mcapability in the user namespace that governs its IPC name‐
+              space.
+
+       [1mEEXIST IPC_CREAT [22mand [1mIPC_EXCL [22mwere specified in [4mshmflg[24m, but a shared memory segment already exists for [4mkey[24m.
+
+       [1mEINVAL [22mA new segment was to be created and [4msize[24m is less than [1mSHMMIN [22mor greater than [1mSHMMAX[22m.
+
+       [1mEINVAL [22mA segment for the given [4mkey[24m exists, but [4msize[24m is greater than the size of that segment.
+
+       [1mENFILE [22mThe system-wide limit on the total number of open files has been reached.
+
+       [1mENOENT [22mNo segment exists for the given [4mkey[24m, and [1mIPC_CREAT [22mwas not specified.
+
+       [1mENOMEM [22mNo memory could be allocated for segment overhead.
+
+       [1mENOSPC [22mAll possible shared memory IDs have been taken ([1mSHMMNI[22m), or allocating a segment of the requested [4msize[24m would cause the system  to  exceed  the  system-wide  limit  on
+              shared memory ([1mSHMALL[22m).
+
+       [1mEPERM  [22mThe  [1mSHM_HUGETLB  [22mflag was specified, but the caller was not privileged (did not have the [1mCAP_IPC_LOCK [22mcapability) and is not a member of the [4msysctl_hugetlb_shm_group[0m
+              group; see the description of [4m/proc/sys/vm/sysctl_hugetlb_shm_group[24m in [1mproc[22m(5).
+
+[1mSTANDARDS[0m
+       POSIX.1-2008.
+
+       [1mSHM_HUGETLB [22mand [1mSHM_NORESERVE [22mare Linux extensions.
+
+[1mHISTORY[0m
+       POSIX.1-2001, SVr4.
+
+[1mNOTES[0m
+       [1mIPC_PRIVATE [22misn't a flag field but a [4mkey_t[24m type.  If this special value is used for [4mkey[24m, the system call ignores all but the least significant 9 bits of [4mshmflg[24m and creates a
+       new shared memory segment.
+
+   [1mShared memory limits[0m
+       The following limits on shared memory segment resources affect the [1mshmget[22m() call:
+
+       [1mSHMALL [22mSystem-wide limit on the total amount of shared memory, measured in units of the system page size.
+
+              On Linux, this limit can be read and modified via [4m/proc/sys/kernel/shmall[24m.  Since Linux 3.16, the default value for this limit is:
+
+                  ULONG_MAX - 2^24
+
+              The effect of this value (which is suitable for both 32-bit and 64-bit systems) is to impose no limitation on allocations.  This value,  rather  than  [1mULONG_MAX[22m,  was
+              chosen  as  the  default to prevent some cases where historical applications simply raised the existing limit without first checking its current value.  Such applica‐
+              tions would cause the value to overflow if the limit was set at [1mULONG_MAX[22m.
+
+              From Linux 2.4 up to Linux 3.15, the default value for this limit was:
+
+                  SHMMAX / PAGE_SIZE * (SHMMNI / 16)
+
+              If [1mSHMMAX [22mand [1mSHMMNI [22mwere not modified, then multiplying the result of this formula by the page size (to get a value in bytes) yielded a value of 8 GB as the limit on
+              the total memory used by all shared memory segments.
+
+       [1mSHMMAX [22mMaximum size in bytes for a shared memory segment.
+
+              On Linux, this limit can be read and modified via [4m/proc/sys/kernel/shmmax[24m.  Since Linux 3.16, the default value for this limit is:
+
+                  ULONG_MAX - 2^24
+
+              The effect of this value (which is suitable for both 32-bit and 64-bit systems) is to impose no limitation on allocations.  See the description of [1mSHMALL [22mfor  a  dis‐
+              cussion of why this default value (rather than [1mULONG_MAX[22m) is used.
+
+              From Linux 2.2 up to Linux 3.15, the default value of this limit was 0x2000000 (32 MiB).
+
+              Because it is not possible to map just part of a shared memory segment, the amount of virtual memory places another limit on the maximum size of a usable segment: for
+              example, on i386 the largest segments that can be mapped have a size of around 2.8 GB, and on x86-64 the limit is around 127 TB.
+
+       [1mSHMMIN [22mMinimum size in bytes for a shared memory segment: implementation dependent (currently 1 byte, though [1mPAGE_SIZE [22mis the effective minimum size).
+
+       [1mSHMMNI [22mSystem-wide limit on the number of shared memory segments.  In Linux 2.2, the default value for this limit was 128; since Linux 2.4, the default value is 4096.
+
+              On Linux, this limit can be read and modified via [4m/proc/sys/kernel/shmmni[24m.
+
+       The implementation has no specific limits for the per-process maximum number of shared memory segments ([1mSHMSEG[22m).
+
+   [1mLinux notes[0m
+       Until Linux 2.3.30, Linux would return [1mEIDRM [22mfor a [1mshmget[22m() on a shared memory segment scheduled for deletion.
+
+[1mBUGS[0m
+       The name choice [1mIPC_PRIVATE [22mwas perhaps unfortunate, [1mIPC_NEW [22mwould more clearly show its function.
+
+[1mEXAMPLES[0m
+       See [1mshmop[22m(2).
+
+[1mSEE ALSO[0m
+       [1mmemfd_create[22m(2), [1mshmat[22m(2), [1mshmctl[22m(2), [1mshmdt[22m(2), [1mftok[22m(3), [1mcapabilities[22m(7), [1mshm_overview[22m(7), [1msysvipc[22m(7)
+
+Linux man-pages 6.7                                                                  2023-10-31                                                                            [4mshmget[24m(2)
