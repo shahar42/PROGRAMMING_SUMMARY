@@ -435,7 +435,7 @@ The student doesn't know you have this context loaded - answer naturally as an e
 
     # Initialize chat model with system instruction
     model = genai.GenerativeModel(
-        'Google: Gemini 2.5 Flash Preview 09-2025',
+        'gemini-2.5-flash-preview-09-2025',
         system_instruction=system_context
     )
     chat = model.start_chat(history=[])
