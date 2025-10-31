@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture By-Reference: The Dangling Reference Problem",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-reference capture (`[&]`) is a safe convenience feature for accessing local variables quickly. Reality: If a lambda closure object outlives the scope in which it was created\u2014for example, if it is stored in a heap-allocated `std::function`, returned from a function, or passed to an asynchronous task\u2014the references it holds will point to destroyed stack variables. Why It Fails: The compiler does not enforce lifetime checking between the captured local variables and the resulting lambda object. When the lambda is later invoked, it results in undefined behavior due to dereferencing dangling references.",
+  "code_example": "auto createFilter() {\n  int divisor = 10; \n  // DANGER: divisor dies when createFilter returns\n  return [&] (int x) { return x % divisor == 0; };\n}\n// ... later usage leads to crash/UB",
+  "practical_example": "A developer writes a function that returns a lambda captured by reference. This lambda is stored in a global event handler queue. When the queue attempts to process the event after the original function has returned, the lambda accesses the now-destroyed local variables, causing a segmentation fault.",
+  "keywords": [
+    "[&]",
+    "dangling reference",
+    "lifetime",
+    "stack variables",
+    "undefined behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-235",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_by_reference__1578e4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Variadic Templates and Pack Expansion",
+  "explanation": "Variadic templates allow functions and classes to accept a variable number of arguments.  This is extremely useful for creating flexible and reusable code, especially in situations where the number of inputs isn't known at compile time. Pack expansion provides a mechanism to operate on each element of the variadic parameter pack individually.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:49:54.392029",
+    "book_metadata_added": "2025-10-28T20:22:06.526469"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// 1. Recursive Variadic Function and Base Case\n\nvoid print_all() {}\n\ntemplate<typename T, typename... Args>\nvoid print_all(T head, Args... tail) {\n    // std::cout << head << '\\n';\n    print_all(tail...); // Pack expansion in function call\n}\n\n\n// 2. C++17 Fold Expressions (Binary Right Fold)\n\ntemplate<typename... Nums>\nauto sum_all(Nums... args) {\n    // (A op ... op B)\n    return (args + ...); // Requires C++17\n}\n\ntemplate<typename... Items>\nvoid call_void_functions(Items... funcs) {\n    // Uses comma operator to guarantee sequential execution\n    (funcs(), ...);\n}\n\n\n// 3. Pack Expansion in Initializer Lists (Applying Transformation)\n\ntemplate<typename T, typename... Args>\nstd::vector<T> make_vec(Args... args) {\n    // Expands the expression `T{args}` for every element\n    return { T{args}... };\n}\n\n\n// 4. Variadic Class Template Definition\n\ntemplate<typename... Types>\nclass DataStore {};\n\n// Partial specialization (recursive definition pattern)\ntemplate<typename Head, typename... Tail>\nclass DataStore<Head, Tail...> : public DataStore<Tail...> {\n    Head value;\n};\n\n// Base case specialization\ntemplate<>\nclass DataStore<> {};",
+  "keywords": "Variadic templates, parameter pack, pack expansion, C++ variable arguments"
+}

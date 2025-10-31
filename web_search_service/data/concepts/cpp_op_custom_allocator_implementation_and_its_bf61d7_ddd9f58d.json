@@ -1,0 +1,13 @@
+{
+  "topic": "Custom Allocator Implementation and its Impact on `std::deque`",
+  "explanation": "This explores the expert-level implementation details of a custom allocator for `std::deque`, focusing on how the compiler handles memory allocation, the resulting memory layout, and performance implications.  We'll delve into the runtime and compile-time aspects, examining how the choice of allocator affects the deque's behavior and efficiency. The standard library's `std::allocator` provides a default, but using a custom allocator allows fine-grained control over memory management, potentially leading to significant performance gains in specific scenarios (e.g., specialized memory pools, custom memory alignment).  However, improper allocator implementation can lead to subtle bugs and performance degradation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:55:02.117094",
+    "book_metadata_added": "2025-10-28T20:22:06.809690"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\nstruct ChunkAlloc {\n    using value_type = T;\n    // std::deque allocates arrays (chunks) of size N*sizeof(T).\n    T* allocate(size_t n) { /* Custom strategy (e.g., Fixed Pool) */\n        return static_cast<T*>(malloc(n * sizeof(T)));\n    }\n    void deallocate(T* p, size_t n) { free(p); }\n    // Required comparison for statefulness/propagation\n    bool operator==(const ChunkAlloc&) const { return true; }\n};\n\n// Deque memory layout (multiple discontiguous chunks)\nusing PoolDeque = std::deque<long, ChunkAlloc<long>>;\n\nPoolDeque d;\nd.push_back(10); // Allocates first chunk via ChunkAlloc<long>."
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time vs. Runtime Polymorphism and the Impact on Memory Layout and Performance",
+  "explanation": "This focuses on the difference between static polymorphism (achieved through function overloading and templates) and dynamic polymorphism (achieved through virtual functions and inheritance).  We'll examine how compilers implement these, their impact on memory layout (e.g., virtual function tables (vtables)), and performance implications (e.g., function call overhead, branching, and memory access patterns).  Static polymorphism often leads to better performance due to compile-time resolution, while dynamic polymorphism offers flexibility but incurs runtime overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:34:28.279662",
+    "book_metadata_added": "2025-10-28T20:22:06.991758"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// 1. Dynamic Polymorphism (Runtime)\n// High overhead due to vtable (vptr + array of function pointers)\n\nclass Shape {\n    // Adds hidden vptr (Virtual Pointer) to object layout\n    virtual void draw() const = 0;\n};\n\nclass Circle : public Shape {\n    void draw() const override { /* Indirect call via vtable */ }\n};\n\n// Cost: Runtime lookup, cache misses (vtable access), memory overhead (vptr)\n// Performance: Slower function resolution\n\n// ---\n\n// 2. Static Polymorphism (Compile-Time via Templates)\n// Zero overhead, specialization resolved at compile time\n\ntemplate <typename T>\nT max_val(T a, T b) {\n    return (a > b) ? a : b;\n}\n// Usage: max_val(5, 10); // Instantiates max_val<int>\n// Usage: max_val(5.0, 10.0); // Instantiates max_val<double>\n\n// Cost: Binary size (code bloat)\n// Performance: Faster function resolution, often inlined\n\n// ---\n\n// 3. Static Polymorphism (Compile-Time via CRTP)\n// Achieves inheritance-like structure without dynamic dispatch\n\ntemplate <class Derived>\nstruct BaseCRTP {\n    void operation() {\n        // Static cast forces compile-time binding\n        static_cast<Derived*>(this)->impl();\n    }\n};\nstruct ConcreteCRTP : BaseCRTP<ConcreteCRTP> {\n    void impl() { /* Direct, fast call */ }\n};\n// Resolution: Compile-time (No vtable, direct branch)\n// Memory: No vptr overhead",
+  "keywords": "C++ static vs dynamic polymorphism, virtual function overhead, compile-time vs runtime binding, vtable performance"
+}

@@ -1,22 +1,12 @@
 {
-  "topic": "Compile-Time Rational Arithmetic with `std::ratio`",
+  "topic": "Compile-Time Rational Arithmetic with `std::ratio` Avoiding Floating-Point",
   "explanation": "The C++ standard library provides `std::ratio`, a template class that performs rational arithmetic at compile time.  This allows for calculations involving fractions to be resolved during compilation, eliminating runtime overhead and potential for runtime errors associated with floating-point arithmetic.  The compiler uses template metaprogramming to perform these calculations, generating highly optimized code.  This differs significantly from runtime fraction handling, which would involve dynamic memory allocation and function calls, resulting in a performance penalty.",
-  "syntax": "```cpp\n#include <ratio>\n\n// Define ratios\nusing my_ratio = std::ratio<3, 4>; // Represents 3/4\nusing another_ratio = std::ratio<1, 2>; // Represents 1/2\n\n// Perform compile-time arithmetic\nusing added_ratio = std::ratio_add<my_ratio, another_ratio>; // 3/4 + 1/2 = 5/4\nusing multiplied_ratio = std::ratio_multiply<my_ratio, another_ratio>; // 3/4 * 1/2 = 3/8\n\n// Access numerator and denominator\nconstexpr long long num = added_ratio::num; // num == 5\nconstexpr long long den = added_ratio::den; // den == 4\n\n// Use in constexpr functions\nconstexpr double ratio_to_double(std::ratio<long long, long long> r) {\n  return static_cast<double>(r.num) / r.den;\n}\n\nint main() {\n  constexpr double result = ratio_to_double(added_ratio); // Calculation at compile-time\n  std::cout << result << std::endl; // Output: 1.25\n  return 0;\n}\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <ratio>",
-    "int main() {",
-    "  using my_ratio = std::ratio<3, 4>;",
-    "  using doubled_ratio = std::ratio_multiply<my_ratio, std::ratio<2,1>>;",
-    "  std::cout << doubled_ratio::num << \"/\" << doubled_ratio::den << std::endl; // Output: 6/4",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The compiler uses template instantiation to evaluate `std::ratio_multiply`. It calculates the greatest common divisor (GCD) of the resulting numerator (6) and denominator (4) at compile time, potentially using algorithms like Euclid's algorithm. This simplification reduces the size of the resulting ratio.  The final output is directly embedded into the compiled executable, eliminating any runtime calculation.  The assembly code would show no explicit division instructions; the result (6/4) would likely be pre-computed and stored as a constant.  Any attempt to use `std::ratio` in a way that would result in an overflow would result in a compile-time error. The compile-time nature guarantees precision and avoids potential runtime exceptions associated with floating-point divisions or integer overflow.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:45:25.272569"
-  }
+    "extraction_date": "2025-08-19T05:45:25.272569",
+    "book_metadata_added": "2025-10-28T20:22:06.890123"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

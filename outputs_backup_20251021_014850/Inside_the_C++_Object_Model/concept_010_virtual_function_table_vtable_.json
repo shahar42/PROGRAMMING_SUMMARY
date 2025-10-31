@@ -1,0 +1,25 @@
+{
+  "topic": "Virtual Function Table (vtable) Implementation and Dispatch Mechanism",
+  "explanation": "In C++, when a class contains virtual functions, the compiler creates a virtual function table (vtable) for that class to enable dynamic dispatch at runtime. The vtable is an array of pointers to virtual functions, and each object of such a class contains an implicit pointer (vptr) to its class's vtable. This mechanism allows the program to determine, at runtime, which function implementation to invoke based on the actual object type, supporting polymorphism. Internally, the compiler arranges the vtable and vptr, manages their initialization during object construction, and ensures correct function dispatch even across inheritance hierarchies.",
+  "syntax": "For a class with virtual functions:\n\n// Class declaration\nclass ClassName {\npublic:\n    virtual void functionName();\n    // ... other members\n};\n\n// Compiler-generated internal structures\n// Each class with virtual functions has a vtable:\n// vtable for ClassName: array of function pointers\n// Each object of ClassName contains a hidden pointer to its vtable\n\n// During object creation, the constructor sets the vtable pointer\n// Virtual function calls are dispatched via the vtable pointer\n\n// Example of a virtual function call:\n// objectPtr->functionName(); // internally: *(objectPtr->vptr)[index]()",
+  "code_example": "class Base {\npublic:\n    virtual void foo() { /* base implementation */ }\n};\nclass Derived : public Base {\npublic:\n    void foo() override { /* derived implementation */ }\n};\n\nint main() {\n    Base* p = new Derived();\n    p->foo(); // invokes Derived::foo via vtable dispatch\n    delete p;\n}",
+  "example_explanation": "In this example, the pointer 'p' is of type Base*, but it points to an object of Derived. When 'p->foo()' is called, the program uses the vptr stored within the object to locate the vtable for Derived (since the object is of Derived type). The vtable contains a pointer to Derived's implementation of 'foo'. The call is then dispatched indirectly through the vtable entry, ensuring the correct overridden function executes at runtime. This demonstrates how the compiler internally manages vtable creation, vptr placement within objects, and dynamic dispatch mechanics to support polymorphism in C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "102-103",
+    "extraction_date": "2025-09-17T15:08:17.614526",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "merged_on": "2025-09-17T15:13:20.773142",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "152-152",
+      "extraction_date": "2025-09-17T15:13:20.347585",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "Inside_the_C++_Object_Model"
+    },
+    "merge_similarity_score": 0.8899656534194946
+  }
+}

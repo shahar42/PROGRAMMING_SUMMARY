@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture Scoping: Closure Member vs. Local Variable",
+  "category": "capture",
+  "explanation": "When using generalized capture syntax `[ lhs = rhs ]`, the scoping rules are crucial: the identifier on the left-hand side (`lhs`) refers to a data member of the compiler-generated closure class, while the expression on the right-hand side (`rhs`) is evaluated in the scope where the lambda is defined (the outer scope). This separation allows for effective resource transfer, even when the data member is given the same name as the local variable (e.g., `[ pw = std::move(pw) ]`), where the left `pw` is the closure member and the right `pw` is the local variable.",
+  "code_example": "// Left 'pw' is the closure member; Right 'pw' is the local variable\nauto pw = std::make_unique<Widget>();\nauto func = [ pw = std::move(pw) ] \n            { /* uses closure member pw */ };",
+  "practical_example": "A developer attempts to capture a local variable by value using generalized capture but mistakenly assumes the `rhs` is evaluated in the closure scope, leading to confusion about when the initialization occurs and which variable name is being referenced inside the lambda body.",
+  "keywords": [
+    "scoping",
+    "init capture",
+    "closure scope",
+    "local scope",
+    "renaming"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "241-243",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_scoping__closure_019096",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

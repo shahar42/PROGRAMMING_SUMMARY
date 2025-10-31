@@ -1,0 +1,19 @@
+{
+  "topic": "Overloading Universal References [Problem]: Type Disparity Filtering",
+  "category": "type",
+  "explanation": "Overloading a universal reference constructor, $C(T\\&\\&)$, necessitates precise type filtering to prevent it from acting as a hidden copy constructor when an lvalue of type $C$ is provided. Direct SFINAE checks comparing the deduced type $T$ against the class type $C$ fail because template argument deduction dictates that $T$ is deduced as an lvalue reference, $C\\&$, for lvalue inputs. This type disparity causes $\\text{std::is\\_same}<T, C>$ to evaluate false, permitting unintended instantiation. To correctly filter out lvalues of the containing class, the programmer must normalize the deduced type using $\\text{std::decay\\_t}<T>$ before comparison. This normalization strips reference and cv-qualifiers, ensuring the check accurately identifies the base type $C$ and prevents the universal reference from capturing self-lvalues.",
+  "code_example": "// Failure to use decay for type comparison\nclass C {\npublic:\n  template<typename T>\n  C(T&& t) requires (!std::is_same<T, C>::value) { /* ... */ } // Inadequate filter\n};\n\nC c1;\nC c2(c1); // Still calls the template because T is C&, not C.",
+  "practical_example": "A class template designed to handle arbitrary wrapped types fails its explicit move constructor logic because the universal reference constructor's simple type filter incorrectly allows the class's own type (wrapped in a reference) to instantiate the forwarding logic, causing unexpected runtime errors during resource transfer.",
+  "keywords": [
+    "SFINAE decay",
+    "type filtering failure",
+    "reference stripping",
+    "self-reference detection"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "203-205",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_type_overloading_universal_references__problem_ef5195",
+  "book": "Effective Modern C++ by Scott Meyers",
+  "extraction_metadata": {}
+}

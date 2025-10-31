@@ -1,0 +1,16 @@
+{
+  "topic": "Machine-Level Programming with x86-64 Assembly",
+  "explanation": "Understanding x86-64 assembly language is crucial for systems programming because it allows direct manipulation of hardware resources and optimization at the lowest level.  This provides insight into how high-level languages interact with the underlying architecture, enabling better performance tuning and debugging of system-level code. It also reveals the intricacies of memory management and processor operations, critical for writing efficient and secure systems software.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "194-194",
+    "extraction_date": "2025-07-23T23:53:03.111380",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.699721"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": ".text\n    # Standard SysV ABI (Function Call)\n.globl my_func\nmy_func:\n    # Arguments: RDI (arg1), RSI (arg2)\n    # Return value: RAX\n    mov rax, rdi        # Move arg1 to result register\n    add rax, rsi        # Add arg2 (RAX = arg1 + arg2)\n\n    # Use IMUL for signed multiplication\n    mov rdx, 8\n    imul rdx            # RDX:RAX = RAX * RDX\n\n    ret\n\n.text\n    # Addressing Modes (Load/Store)\n.data\nmy_array: .quad 1, 2, 3, 4 # Array of Qwords (8 bytes each)\n\n.text\n    mov rdi, my_array   # Base address RDI\n    \n    # Load 4th element (Index 3 * size 8)\n    mov rax, [rdi + 3*8] \n\n    # Load 4 bytes (Doubleword)\n    movzx rbx, BYTE [rdi] # Zero-extend byte load\n    \n    # Store Qword at [Base + Index*Scale + Displacement]\n    mov rcx, 5          # Index\n    mov rsi, 0xDEADBEEF\n    mov [rdi + rcx*8 + 16], rsi \n\n\n.text\n    # Control Flow and Flags (CF, ZF, SF, OF)\n    mov rax, 10\n    mov rbx, 5\n    \n    cmp rax, rbx        # Compare RAX and RBX (Sets Flags)\n    \n    je  equal_label     # Jump if Equal (ZF=1)\n    jl  less_label      # Jump if Less (Signed comparison)\n    ja  greater_label   # Jump if Above (Unsigned comparison)\n\n    jmp end_label\n\ngreater_label:\n    mov rdx, 1          # True branch\n    \nend_label:\n    nop\n\n\n.text\n    # Stack Frame Setup (Prolog/Epilog)\n.globl my_frame_func\nmy_frame_func:\n    push rbp            # Save old base pointer\n    mov rbp, rsp        # Establish new frame base\n\n    push r12            # Save callee-saved register\n    sub rsp, 48         # Allocate local variables (48 bytes)\n\n    # ... Function Body ...\n\n    mov rax, [rbp - 8]  # Access local variable\n    \n    add rsp, 48         # Deallocate stack space\n    pop r12             # Restore callee-saved register\n    \n    leave               # mov rsp, rbp; pop rbp\n    ret",
+  "keywords": "x86-64 assembly, systems programming, low-level optimization, assembly language"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Delay-Loaded DLLs and Lazy Symbol Binding",
+  "explanation": "Delay-loaded DLLs are a technique used to improve the startup performance of applications that depend on multiple DLLs. Unlike traditional DLL loading, where all dependencies are resolved and loaded during program initialization, delay-loaded DLLs are loaded only when their functions are first called. This lazy binding reduces startup time and memory consumption, especially beneficial for applications using numerous optional libraries. This mechanism involves a dedicated import address table, a helper routine, and a mechanism to restore the table if the DLL is unloaded.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "270-271",
+    "extraction_date": "2025-07-21T22:29:23.029351",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.760712"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Linker option: /DELAYLOAD:External.dll\n\n// Delayed function signature\nextern void Delayed_API_Call();\n\n// Custom error/notification hook setup\nFARPROC WINAPI DelayLoadHook(unsigned dliNotify, PDelayLoadInfo pdli)\n{\n    // dliNotify: dliFailLoadLib, dliNotePreLoadLibrary, etc.\n    if (dliNotify == dliFailLoadLib) {\n        // Error handling during LoadLibrary() failure\n        // Return replacement function address if possible\n        return (FARPROC)NULL;\n    }\n    return (FARPROC)NULL;\n}\n\n// Global CRT pointer must be set for hook to activate\nPfnDliHook __pfnDliFailureHook2 = DelayLoadHook;\n\nvoid application_usage() {\n    // DLL is loaded (and symbols bound) the first time this executes\n    Delayed_API_Call();\n}",
+  "keywords": "Delay-Loaded DLLs, delay load, lazy DLL loading"
+}

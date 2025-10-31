@@ -1,0 +1,15 @@
+{
+  "topic": "execveat() System Call",
+  "explanation": "The execveat() system call executes a program relative to a directory file descriptor. It operates like execve(2) but allows interpreting relative paths based on the specified file descriptor.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor, or AT_FDCWD to use the current working directory\n- `pathname` (const char *): Path to the executable; relative paths are resolved relative to dirfd\n- `argv` (char *const argv[]): Array of argument strings for the new program\n- `envp` (char *const envp[]): Array of environment variable strings for the new program\n- `flags` (int): Bit mask of flags, such as AT_EMPTY_PATH or AT_SYMLINK_NOFOLLOW\n\n**Common Errors:**\n- `EINVAL`: Invalid flag specified in flags\n- `ELOOP`: flags includes AT_SYMLINK_NOFOLLOW and the file is a symbolic link\n- `ENOENT`: Program requires an interpreter but dirfd was opened with O_CLOEXEC, making it inaccessible\n- `ENOTDIR`: pathname is relative and dirfd is not a directory\n\n**Related System Calls:** `execve()`, `openat()`, `fexecve()`",
+  "syntax": "int execveat(int dirfd, const char *pathname, char *const argv[], char *const envp[], int flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = execveat(...);  // Call the system call\nif (result == -1) {\n    perror(\"execveat\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the execveat() system call. The function takes 5 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.242454",
+    "syscall_name": "execveat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_execveat.json",
+    "concept_id": "posix_sys_execveat_6ce928"
+  }
+}

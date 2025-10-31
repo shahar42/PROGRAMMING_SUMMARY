@@ -1,0 +1,36 @@
+{
+  "topic": "Deleted and Defaulted Special Member Functions in C++",
+  "explanation": "In modern C++, special member functions such as constructors, destructors, copy constructors, and assignment operators can be explicitly defaulted or deleted to control object semantics. Deleting a function prevents its use, enforcing non-copyability or non-moveability, which is essential for resource management and class invariants. Defaulting a function explicitly indicates that the compiler-generated implementation is appropriate, improving code clarity and correctness.",
+  "syntax": "Class declaration with special member functions:\n\n// Delete a function\nClassName(const ClassName&) = delete;\nClassName& operator=(const ClassName&) = delete;\n\n// Default a function\nClassName() = default;\n~ClassName() = default;",
+  "code_example": [
+    "#include <mutex>",
+    "",
+    "class ResourceManager {",
+    "public:",
+    "    ResourceManager() = default; // Use compiler-generated default constructor",
+    "    ~ResourceManager() = default; // Use compiler-generated destructor",
+    "    ResourceManager(const ResourceManager&) = delete; // Prevent copying",
+    "    ResourceManager& operator=(const ResourceManager&) = delete; // Prevent assignment",
+    "",
+    "private:",
+    "    std::recursive_mutex mutex_;",
+    "};",
+    "",
+    "int main() {",
+    "    ResourceManager rm1;",
+    "    // ResourceManager rm2 = rm1; // Error: copy constructor is deleted",
+    "    // ResourceManager rm3;",
+    "    // rm3 = rm1; // Error: copy assignment is deleted",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example defines a class 'ResourceManager' that explicitly defaults its constructor and destructor, indicating standard behavior. It deletes the copy constructor and copy assignment operator to prevent copying instances of the class, which is common when managing resources like mutexes. The main function demonstrates that copying or assigning 'ResourceManager' objects results in compile-time errors, enforcing correct usage and resource safety. This showcases how deleted and defaulted special member functions control object semantics in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1178-1178",
+    "extraction_date": "2025-08-19T09:47:36.210450",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

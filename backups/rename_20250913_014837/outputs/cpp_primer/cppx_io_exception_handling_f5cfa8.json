@@ -1,0 +1,40 @@
+{
+  "topic": "Exception Handling",
+  "explanation": "Exception handling is a crucial mechanism in C++ for managing runtime errors gracefully.  Instead of letting errors cause program crashes, exceptions allow us to handle them in a structured and controlled manner. This improves program robustness and maintainability, particularly in complex applications where various unforeseen situations might arise. Best practice dictates using exceptions for exceptional conditions, not for normal program flow control.  Prefer specific exception types over a generic `exception` base class to provide better context for handling.",
+  "syntax": "Exceptions are thrown using the `throw` keyword, and caught using `try-catch` blocks.  Different `catch` blocks can handle different exception types.\n\n```c++\n//Basic Syntax\ntry {\n  // Code that might throw an exception\n} catch (const std::exception& e) {\n  // Handle any exception inherited from std::exception\n  std::cerr << \"Exception caught: \" << e.what() << '\\n';\n} catch (int errNum) {\n  // Handle integer error codes\n  std::cerr << \"Error number: \" << errNum << '\\n';\n} catch (...) {\n  // Catch any other exception type (use cautiously)\n  std::cerr << \"An unknown exception occurred.\\n\";\n}\n```\n\n**Note:** The `...` catch-all should be used sparingly and as the last resort, as it can mask unexpected errors.  It's generally better to catch specific exception types.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <exception>",
+    "#include <stdexcept>",
+    "#include <fstream>",
+    "",
+    "void processFile(const std::string& filename) {",
+    "  std::ifstream inputFile(filename);",
+    "  if (!inputFile.is_open()) {",
+    "    throw std::runtime_error(\"Could not open file: \" + filename);",
+    "  }",
+    "  // Process the file contents...",
+    "  inputFile.close();",
+    "}",
+    "",
+    "int main() {",
+    "  try {",
+    "    processFile(\"my_file.txt\");",
+    "  } catch (const std::runtime_error& error) {",
+    "    std::cerr << \"Error: \" << error.what() << std::endl;",
+    "    return 1; // Indicate failure",
+    "  } catch (const std::exception& e) {",
+    "    std::cerr << \"An unexpected error occurred: \" << e.what() << std::endl;",
+    "    return 1;",
+    "  }",
+    "  return 0; // Indicate success",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates exception handling when working with files. If the file cannot be opened, a `std::runtime_error` is thrown, providing context about the failure.  The `main` function uses a `try-catch` block to handle this exception, preventing program termination and printing an informative error message. The `catch (const std::exception& e)` block catches other potential `std::exception`-derived errors for more robust error handling.  This illustrates best practices by using specific exception types and avoiding a generic `catch (...)` unless absolutely necessary.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "specialized",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:22:19.203454"
+  }
+}

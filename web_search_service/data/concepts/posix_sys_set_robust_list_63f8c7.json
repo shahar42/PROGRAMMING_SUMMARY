@@ -1,0 +1,16 @@
+{
+  "topic": "set_robust_list() System Call",
+  "explanation": "The set_robust_list() system call informs the kernel of the head of the list of robust futexes owned by the calling thread. It is used to handle scenarios where a thread terminates without unlocking a futex, ensuring waiting threads are notified.\n\n**Parameters:**\n- `head` (struct robust_list_head *): Pointer to the head of the robust futex list\n- `len` (size_t): Size of the structure pointed to by head, should be sizeof(*head)\n\n**Common Errors:**\n- `EINVAL`: len does not equal sizeof(struct robust_list_head)\n\n**Related System Calls:** `futex()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.065531",
+    "syscall_name": "set_robust_list",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_set_robust_list.json",
+    "concept_id": "posix_sys_set_robust_list_63f8c7",
+    "book_metadata_added": "2025-10-28T20:22:06.589797"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct robust_list_head *head; // Assume definition\nsize_t head_size;\n\n// Dynamically allocate and initialize the head\nhead = calloc(1, sizeof(struct robust_list_head)); \nhead_size = sizeof(struct robust_list_head);\n\n// Register the robust list head for the current thread\nint result = set_robust_list(\n    head,\n    head_size\n);\n\n// Returns 0 on success, -1 on failure (e.g., EINVAL if head_size is incorrect)\nif (result != 0) {\n    perror(\"set_robust_list failed\");\n}\n\nfree(head);\n// Note: Robust list registration persists until thread termination or reset.",
+  "keywords": "set_robust_list, robust futex, robust list"
+}

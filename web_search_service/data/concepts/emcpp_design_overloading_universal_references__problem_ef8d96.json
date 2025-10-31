@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References [Problem]: Hidden Constructor Conflicts",
+  "category": "design",
+  "explanation": "Assumption: Using a universal reference constructor (`template<typename T> C(T&&)`) is the ideal way to implement a forwarding constructor, minimizing boilerplate for copy and move construction. Reality: A universal reference constructor is highly dangerous because it acts as a sink for *almost any type*, including types that are conceptually intended to be copied or moved implicitly, such as the class itself or derived classes. Why It Fails: The universal reference constructor template is often a better match than the copy constructor (`C(const C&)`). When an object of type `C` is passed as an lvalue, the universal reference template deduces `T` as `C&`, resulting in the instantiation `C(C&)`. This instantiation is non-const and therefore often a better match than the standard const copy constructor `C(const C&)`. If the template body contains logic intended for forwarding arbitrary types, calling it with a `C&` often results in infinite recursion or an incorrect operation if the template body eventually calls a copy/move function itself, or it hides the user's intent to simply copy the object. This is a subtle yet devastating design flaw.",
+  "code_example": "// Failure leading to recursion/incorrect match\nclass C {\npublic:\n  C(const C&); // Copy Ctor\n\n  template<typename T>\n  C(T&& t) { C(std::forward<T>(t)); } // Universal ref Ctor (BAD)\n};\n\nC c1;\nC c2(c1); // May call the template C(C&), leading to recursion if not careful.",
+  "practical_example": "A developer implements a logging class with a forwarding constructor to accept arbitrary message types. Later, when attempting to copy an instance of the logging class itself, the copy operation unexpectedly calls the forwarding template, bypassing critical resource management logic in the explicit copy constructor, leading to double-free errors.",
+  "keywords": [
+    "constructor conflicts",
+    "universal reference constructor",
+    "hiding copy constructor",
+    "template sink"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "200-202",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_overloading_universal_references__problem_ef8d96",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

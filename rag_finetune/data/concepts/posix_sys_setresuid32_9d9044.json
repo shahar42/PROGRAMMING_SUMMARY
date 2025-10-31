@@ -1,0 +1,16 @@
+{
+  "topic": "setresuid32() System Call",
+  "explanation": "setresuid32 sets the real user ID, effective user ID, and saved set-user-ID of the calling process for 32-bit IDs. An unprivileged process can only change these to specific values like the current real, effective, or saved IDs, while a privileged process can set them arbitrarily. If any argument is -1, the corresponding ID is not changed.\n\n**Parameters:**\n- `ruid` (uid_t): The new real user ID, or -1 to leave unchanged\n- `euid` (uid_t): The new effective user ID, or -1 to leave unchanged\n- `suid` (uid_t): The new saved set-user-ID, or -1 to leave unchanged\n\n**Common Errors:**\n- `EAGAIN`: The call would change the caller’s real UID, but there was a temporary failure allocating kernel data structures or a resource limit issue\n- `EINVAL`: One or more of the target user IDs is not valid in this user namespace\n- `EPERM`: The calling process is not privileged and tried to change the IDs to values that are not permitted\n\n**Related System Calls:** `getresuid()`, `getuid()`, `setfsgid()`, `setfsuid()`, `setreuid()`, `setuid()`, `capabilities()`, `credentials()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.217195",
+    "syscall_name": "setresuid32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setresuid32.json",
+    "concept_id": "posix_sys_setresuid32_9d9044",
+    "book_metadata_added": "2025-10-28T20:22:06.624870"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "uid_t keep = (uid_t)-1;       // Sentinel: Do not change this ID\nuid_t new_euid = 1000;\n\n// Change only the effective ID (EUID). RUID and SUID remain\n// unchanged (due to '-1' sentinel value).\n// Requires CAP_SETUID if new_euid is not one of the current IDs.\nint status = setresuid32(keep, new_euid, keep);\n\n// Fully set all IDs to 'target_uid' (Requires privilege):\n// status = setresuid32(100, 100, 100);\n// Checks: (status == 0) on success.",
+  "keywords": "setresuid32, setresuid, change process UIDs, real effective saved UIDs"
+}

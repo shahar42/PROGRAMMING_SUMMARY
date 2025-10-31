@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism vs Runtime Virtual Functions",
+  "explanation": "This explores compile-time polymorphism achieved through `constexpr` functions and template metaprogramming.  Unlike runtime polymorphism (virtual functions), this happens entirely during compilation, resulting in significant performance benefits by eliminating runtime overhead.  The compiler generates specialized code for each template instantiation, effectively performing 'function specialization' at compile time. This avoids the virtual function table (vtable) lookup and function pointer dereference inherent in runtime polymorphism.\n\nMemory layout is impacted as no vtable is needed.  The compiler directly inlines the appropriate code based on the template arguments. Performance is drastically improved due to the absence of runtime branching and indirection.  Assembly-level behavior shows direct calls to the specialized functions, rather than the function pointer indirection of runtime polymorphism.\n\nThe key distinction is that the behavior is fully determined at compile time, leading to smaller, faster executables but limiting flexibility compared to runtime polymorphism.  If the template argument types are unknown at compile time, template instantiation can't occur, which requires runtime polymorphism.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:13:53.122754",
+    "book_metadata_added": "2025-10-28T20:22:06.983947"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template<typename T>\nstruct Policy {\n    static constexpr int calculate(int x) { return x * 10; }\n};\n\n// Compile-Time Polymorphism: Specialization\n// Compiler creates a unique, optimized function body for this type\ntemplate<>\nstruct Policy<double> {\n    static constexpr int calculate(int x) { return x + 50; }\n};\n\n// Usage avoids runtime VTable lookup entirely\nconstexpr int v1 = Policy<int>::calculate(2);      // Instantiation 1: 20\nconstexpr int v2 = Policy<double>::calculate(2);   // Instantiation 2: 52\n\n// Result: Zero runtime overhead / Dynamic Dispatch eliminated\n// Contrast: Requires static knowledge of types\n// (vs virtual functions: types known only at runtime)",
+  "keywords": "Static polymorphism, Compile-time polymorphism, Static dispatch, Template Metaprogramming"
+}

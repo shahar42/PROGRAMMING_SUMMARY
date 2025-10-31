@@ -1,31 +1,12 @@
 {
   "topic": "Pimpl Idiom and its Impact on Compilation and Linking",
   "explanation": "The Pimpl (Pointer to Implementation) idiom is a powerful technique for reducing compilation dependencies and improving build times in large C++ projects.  It achieves this by hiding the implementation details of a class behind a pointer to an opaque structure. This prevents header files from exposing the internal structure of the class, thereby limiting recompilation cascades when internal changes are made.  The compiler's role is crucial in managing the pointer and the separate compilation units.\n\n**Compiler Behavior:** The compiler treats the `pimpl` pointer as an opaque type.  The definition of the actual implementation struct is hidden in a separate compilation unit (.cpp file),  reducing the need for header file inclusion dependencies. This leads to separate compilation and linking of the implementation details.\n\n**Memory Layout and Performance Implications:** The main memory overhead is the size of the pointer to the implementation structure (typically 4 or 8 bytes depending on architecture).  There's a slight performance cost due to the extra pointer dereference needed to access member variables. However, this overhead is usually negligible compared to the improved build times and reduced compile-time dependencies, especially in large projects.\n\n**Assembly-Level Behavior (Illustrative):**  At the assembly level, accessing a member through the `pimpl` involves loading the pointer from the object's memory, dereferencing it to get the address of the implementation structure, and then accessing the member variable's offset within that structure.  The exact instructions will vary depending on the architecture and compiler, but it will involve pointer arithmetic and memory load/store instructions.\n\n**Runtime vs. Compile-Time Behavior:** The structure of the implementation is completely hidden at compile time except for the size of the pointer.  The actual code for managing the implementation is only linked at runtime.  This leads to reduced compile-time dependencies and faster build times, but the actual instantiation of the implementation is delayed until runtime.",
-  "syntax": "class MyClass {\nprivate:\n  struct Impl;\n  Impl* pimpl;\npublic:\n  MyClass();\n  ~MyClass();\n  // ... other methods ...\n};\n\nstruct MyClass::Impl {\n  // ... actual implementation details ...\n};\n\nMyClass::MyClass() : pimpl(new Impl) {}\nMyClass::~MyClass() { delete pimpl; }",
-  "code_example": [
-    "#include <iostream>",
-    "class MyClass {",
-    "private:",
-    "  struct Impl {",
-    "    int data;",
-    "  };",
-    "  Impl* pimpl;",
-    "public:",
-    "  MyClass() : pimpl(new Impl){pimpl->data = 10;};",
-    "  ~MyClass() { delete pimpl; }",
-    "  int getData() { return pimpl->data; }",
-    "};",
-    "int main() {",
-    "  MyClass obj;",
-    "  std::cout << obj.getData() << std::endl; // Outputs 10",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The example demonstrates the basic structure of the Pimpl idiom. The `Impl` structure contains the actual implementation details.  The `MyClass` class only contains a pointer to `Impl`. The constructor allocates memory for `Impl` and the destructor deallocates it. Access to the member variable `data` happens through the `pimpl` pointer.  The compiler separately compiles `MyClass` and `MyClass::Impl`, reducing compilation dependencies.  If the `Impl` structure changes, only the compilation unit containing `Impl` needs to be recompiled, significantly improving build times in larger projects.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "declarators",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T08:39:27.168163"
-  }
+    "extraction_date": "2025-08-19T08:39:27.168163",
+    "book_metadata_added": "2025-10-28T20:22:06.905506"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

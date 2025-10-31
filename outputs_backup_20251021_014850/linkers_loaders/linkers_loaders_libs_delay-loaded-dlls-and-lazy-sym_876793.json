@@ -1,0 +1,15 @@
+{
+  "topic": "Delay-Loaded DLLs and Lazy Symbol Binding",
+  "explanation": "Delay-loaded DLLs are a technique used to improve the startup performance of applications that depend on multiple DLLs. Unlike traditional DLL loading, where all dependencies are resolved and loaded during program initialization, delay-loaded DLLs are loaded only when their functions are first called. This lazy binding reduces startup time and memory consumption, especially beneficial for applications using numerous optional libraries. This mechanism involves a dedicated import address table, a helper routine, and a mechanism to restore the table if the DLL is unloaded.",
+  "syntax": "No specific syntax, but involves:\n1. Import Address Table (IAT):  Contains pointers to DLL functions. Initially, these point to a helper routine.\n2. Helper Routine: Responsible for loading the DLL when a function is first called and updating IAT entries with the actual addresses.\n3. Delay-Loaded Directory Table: Stores original IAT contents for potential DLL unloading and restoration.",
+  "code_example": "; Example illustrating the concept (conceptual, not actual Windows implementation)\n; Assume a function 'MyDLLFunction' in a delay-loaded DLL\nsection .data\n  iat_MyDLLFunction dd helper_routine ; Initial entry in the IAT points to helper\nsection .text\nglobal _start\n_start:\n  ; ... some code ...\n  call [iat_MyDLLFunction] ; Calling the function triggers DLL loading\n  ; ... rest of the program ...\nhelper_routine:\n  ; Load the DLL\n  ; Resolve 'MyDLLFunction'\n  ; Update iat_MyDLLFunction with the actual address\n  ; Jump to 'MyDLLFunction' (or return)\n  ret",
+  "example_explanation": "This conceptual example demonstrates the core idea. The IAT initially points to a helper routine.  When `MyDLLFunction` is called, control goes to the helper, which loads the DLL, resolves the symbol `MyDLLFunction`, updates the IAT with the actual address, and then jumps to the function's real location.  This illustrates lazy binding; the DLL isn't loaded until needed.  The code omits the details of DLL loading and symbol resolution for brevity, focusing on the IAT update and the helper's role in delay loading.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "270-271",
+    "extraction_date": "2025-07-21T22:29:23.029351",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

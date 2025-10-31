@@ -1,0 +1,15 @@
+{
+  "topic": "prlimit64() System Call",
+  "explanation": "The prlimit() system call retrieves and sets resource limits for a specified process. It allows getting the current limits and optionally setting new ones, with soft and hard limits defined in the rlimit structure.\n\n**Parameters:**\n- `pid` (pid_t): The process ID of the target process for which limits are to be retrieved or set.\n- `resource` (int): The resource to get or set, such as RLIMIT_AS or RLIMIT_CPU.\n- `new_limit` (const struct rlimit *_Nullable): Pointer to a new rlimit structure to set, or NULL if not setting limits.\n- `old_limit` (struct rlimit *_Nullable): Pointer to store the old rlimit structure, or NULL if not retrieving limits.\n\n**Common Errors:**\n- `EFAULT`: A pointer argument points to a location outside the accessible address space.\n- `EINVAL`: The value specified in resource is not valid, or for setting limits, rlim->rlim_cur was greater than rlim->rlim_max.\n- `EPERM`: An unprivileged process tried to raise the hard limit, or the caller lacked permission for the target process.\n- `ESRCH`: Could not find a process with the ID specified in pid.\n\n**Related System Calls:** `getrlimit()`, `setrlimit()`",
+  "syntax": "#include <sys/resource.h>",
+  "code_example": "if (prlimit(pid, RLIMIT_CPU, newp, &old) == -1) err(EXIT_FAILURE, \"prlimit-1\");\nprintf(\"Previous limits: soft=%jd; hard=%jd\\n\", (intmax_t) old.rlim_cur, (intmax_t) old.rlim_max);",
+  "example_explanation": "This example demonstrates the basic usage of the prlimit64() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.139840",
+    "syscall_name": "prlimit64",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_prlimit64.json",
+    "concept_id": "posix_sys_prlimit64_414339"
+  }
+}

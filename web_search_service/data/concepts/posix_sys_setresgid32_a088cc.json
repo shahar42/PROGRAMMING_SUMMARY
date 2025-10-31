@@ -1,0 +1,16 @@
+{
+  "topic": "setresgid32() System Call",
+  "explanation": "Sets the real group ID, effective group ID, and saved set-group-ID of the calling process. An unprivileged process can only set these to the current real GID, effective GID, or saved set-group-ID, while a privileged process can set them to arbitrary values. If an argument is -1, the corresponding ID is not changed, and the filesystem GID is always set to the effective GID.\n\n**Parameters:**\n- `rgid` (gid_t): The new real group ID, or -1 to leave unchanged\n- `egid` (gid_t): The new effective group ID, or -1 to leave unchanged\n- `sgid` (gid_t): The new saved set-group-ID, or -1 to leave unchanged\n\n**Common Errors:**\n- `EAGAIN`: The call would change the caller’s real GID (i.e., rgid does not match the caller’s real GID), but there was a temporary failure allocating kernel data structures or it would exceed the RLIMIT_NPROC resource limit.\n- `EINVAL`: One or more of the target group IDs is not valid in this user namespace.\n- `EPERM`: The calling process is not privileged (lacking the CAP_SETGID capability in its user namespace) and tried to change the IDs to values that are not permitted.\n\n**Related System Calls:** `getresuid()`, `getuid()`, `setfsgid()`, `setfsuid()`, `setreuid()`, `setuid()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.117972",
+    "syscall_name": "setresgid32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setresgid32.json",
+    "concept_id": "posix_sys_setresgid32_a088cc",
+    "book_metadata_added": "2025-10-28T20:22:06.649325"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "gid_t new_gid = 1000;\n\n// Set R, E, S GIDs to 1000 (Requires CAP_SETGID)\nint status = setresgid32(new_gid, new_gid, new_gid);\n\n// Set effective GID to 500, leaving Real and Saved GIDs unchanged\nsetresgid32(-1, 500, -1);\n\n// Filesystem GID (fsgid) is always set to the new effective GID",
+  "keywords": "setresgid, Real Effective Saved GID, change process group ID"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Braced Initialization with Non-Viable std::initializer_list",
+  "category": "core",
+  "explanation": "Braced initialization exhibits a strong preference for constructors that accept a standard initializer list. However, this preference is not absolute; it only applies if the arguments within the braces can be used to construct a valid initializer list. If the types of the arguments are incompatible with the element type of the initializer list constructor, the compiler removes that constructor from consideration and proceeds with normal overload resolution using the remaining constructors.\n\nScott Meyers' key insight here is that the 'hijacking' of braced initialization by initializer list constructors is conditional. It's a common misconception that the mere presence of such a constructor forces all braced initializations to match it. This rule ensures that overload resolution behaves more predictably, preventing compile errors when a programmer uses braces with arguments that clearly match a different, non-initializer-list constructor. It allows different construction syntaxes to coexist harmoniously.\n\nThe mechanics of this process are part of the overload resolution rules. When the compiler encounters an object being constructed with a braced initializer, it first scans for any constructors taking a standard initializer list. It then checks if the elements inside the braces can be implicitly converted to the type held by the initializer list. If a conversion path exists, that constructor is chosen. If no such conversion is possible, the compiler discards the initializer list constructor from the set of candidates and re-evaluates the braced initializer list against the remaining constructors as if it were a normal argument list.\n\nThis behavior is practically important for designing flexible class interfaces. A class can offer a constructor taking, for example, a width and height for geometric setup, while also offering an initializer list constructor for populating it with a set of points. A call using braces with two integers will correctly resolve to the width and height constructor, because two integers cannot be converted to a list of point objects. This avoids forcing users into parenthesis-based construction just to access the non-list constructor.\n\nA common pitfall is to believe that once an initializer list constructor is added, all braced initializations must conform to it, leading to confusion when the compiler unexpectedly calls a different constructor. Developers might not realize that the compiler's fallback to normal overload resolution can sometimes select a constructor they did not intend if the argument types happen to match another overload.",
+  "code_example": "class Widget {\npublic:\n  // Constructor for a pair of values\n  Widget(int i, bool b) {}\n\n  // Constructor for a list of strings\n  Widget(std::initializer_list<std::string> il) {}\n};\n\n// uses braces, but types don't match std::initializer_list<std::string>\n// The compiler falls back to normal overload resolution.\nWidget w1{10, true}; // Calls Widget(int, bool)\n\n// uses braces, and the types are compatible\nWidget w2{\"hello\", \"world\"}; // Calls Widget(std::initializer_list<std::string>)\n",
+  "practical_example": "A Matrix class can be designed with a `Matrix(rows, cols)` constructor and a `Matrix(std::initializer_list<std::initializer_list<double>>)` constructor. A user calling `Matrix m{4, 4}` will correctly invoke the dimensions constructor, as the compiler recognizes that two integers cannot be converted into a list of lists of doubles and falls back to normal overload resolution.",
+  "keywords": [
+    "braced initialization",
+    "uniform initialization",
+    "std::initializer_list",
+    "overload resolution",
+    "constructor",
+    "type conversion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "54",
+  "chapter": "Item 7: Distinguish between () and {} when creating objects",
+  "id": "emcpp_core_braced_initialization_with_non_viable_7c97f2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Template Deduction: Value Parameter Type Stripping",
+  "category": "template",
+  "explanation": "When a template function parameter is a pass-by-value type, the compiler performs a type deduction process often described as 'decay'. The core concept is that the argument passed to the function is copied, and this act of copying influences the deduced type. Specifically, any reference, const, or volatile qualifiers on the argument expression itself are disregarded during type deduction.\n\nScott Meyers' key insight is to focus on the semantics of pass-by-value: the function parameter is a completely new object, initialized from the argument. The fact that the original argument might be const or a reference says nothing about whether its copy should be. This mental model clarifies why top-level const and volatile qualifiers are stripped away\u2014they are properties of the argument object, not intrinsic parts of its type that must be carried over to an independent copy.\n\nThe mechanics of this deduction are straightforward. The compiler first determines the argument's type. If the type is a reference, the reference part is ignored. Then, if the remaining type has top-level const or volatile qualifiers, those are also ignored. The resulting, stripped-down type is what is deduced for the template parameter. For example, if an argument is of type 'const int reference', the compiler first ignores the reference, leaving 'const int', and then ignores the top-level const, leaving 'int'. The deduced type for the template parameter will be 'int'.\n\nThis behavior has significant practical implications. It allows a single function template to accept a wide variety of arguments\u2014lvalues, rvalues, const objects, and non-const objects\u2014and treat them all as simple, modifiable local copies. This simplifies the implementation of generic functions that need to operate on a local copy of data without affecting the original argument. It is the C++ equivalent of saying, 'Give me a copy of your value, I don't care how you store it'.\n\nThe most common pitfall is incorrectly assuming that passing a const object to a by-value template parameter will result in a const-qualified deduced type. Programmers are sometimes surprised that the const-ness 'disappears' inside the template. Understanding that the parameter is a fresh, independent object whose const-ness is unrelated to the argument's is crucial to avoiding this confusion.",
+  "code_example": "template<typename T>\nvoid f(T param); // param is passed by value\n\nint x = 27;\nconst int cx = x;\nconst int& rx = x;\n\nf(x);   // T is deduced as int, param's type is int\nf(cx);  // T is deduced as int, param's type is int\nf(rx);  // T is deduced as int, param's type is int",
+  "practical_example": "A generic serialization function that takes an object by value to write it to a stream. The function can accept a const object from a data model or a temporary object, and in both cases, it gets a local copy to work with, ensuring the original data is never modified by the serialization logic.",
+  "keywords": [
+    "template",
+    "type deduction",
+    "value parameters",
+    "pass-by-value",
+    "decay",
+    "const",
+    "volatile"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "14",
+  "chapter": "Item 1: Understand template type deduction",
+  "id": "emcpp_template_template_type_deduction_for_value_0a09f7",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

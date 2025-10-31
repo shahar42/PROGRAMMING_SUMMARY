@@ -1,0 +1,13 @@
+{
+  "topic": "Volatile Prevents Optimization, Lacks Thread Safety",
+  "category": "thread",
+  "explanation": "Assumption: Because `volatile` forces the compiler to reload the variable from memory every time it is accessed, it must be sufficient for ensuring thread-safe access in concurrent environments. Reality: `volatile` is only a mechanism to suppress compiler optimizations (specifically, caching and instruction reordering) for special memory access (e.g., hardware registers, shared memory segments, signal handlers). It provides zero guarantees regarding thread atomicity, mutual exclusion, or memory visibility across different CPU cores. Why It Fails: A compound operation on a `volatile` variable (e.g., `volatile int i; i++`) is not atomic, leading to race conditions. Furthermore, `volatile` doesn't provide the memory fences necessary to guarantee that changes made by one thread are immediately visible to others, leading to synchronization failures.",
+  "code_example": "// i++ is compiled into read, increment, write (3 ops)\nvolatile int i = 0;\n// If two threads execute this concurrently, a race condition occurs.\ni++; ",
+  "practical_example": "A developer uses `volatile` on a counter shared between two threads, believing this prevents optimization and ensures safety. Since the increment operation is not atomic, the final count is often incorrect due to lost updates, demonstrating that `volatile` is useless for general concurrency.",
+  "keywords": "volatile thread safety, volatile atomicity, volatile optimization",
+  "difficulty": "beginner",
+  "page_reference": "296",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread_volatile_prevents_optimization__lacks_c74cf1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

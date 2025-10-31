@@ -1,0 +1,14 @@
+{
+  "topic": "Rule of Three in C++",
+  "explanation": "The Rule of Three is a guideline in C++ that states if a class defines a destructor to manage resources (like dynamic memory or file handles), it should also define a copy constructor and a copy-assignment operator to handle copying of those resources correctly. This ensures proper resource management and prevents issues like memory leaks, double deletions, or undefined behavior. In real-world scenarios, such as classes managing exclusive resources (e.g., database connections or file streams), following this rule promotes idiomatic C++ code by enforcing deep copies instead of shallow ones. Best practices include using smart pointers (in modern C++) to automate this, but for raw pointers or custom resources, manually implementing these members is essential. Common pitfalls include forgetting to define copy operations, leading to slicing or resource corruption—avoid this by always checking if your class owns resources.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:12:49.845598",
+    "book_metadata_added": "2025-10-28T20:22:06.524403"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceOwner {\n    int* data;\npublic:\n    ResourceOwner(int v) : data(new int(v)) {}\n\n    // 1. Destructor (Manages resource lifetime)\n    ~ResourceOwner() { delete data; }\n\n    // 2. Copy Constructor (Performs deep copy)\n    ResourceOwner(const ResourceOwner& other)\n        : data(other.data ? new int(*other.data) : nullptr) {}\n\n    // 3. Copy Assignment Operator (Handles self-assign, cleanup, deep copy)\n    ResourceOwner& operator=(const ResourceOwner& other) {\n        if (this == &other) return *this;\n        delete data;\n        data = other.data ? new int(*other.data) : nullptr;\n        return *this;\n    }\n};",
+  "keywords": "Rule of Three C++, Big Three C++, Special Member Functions, Destructor Copy Assignment"
+}

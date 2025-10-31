@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture Limitation: C++11 Cannot Move Objects into Closures",
+  "category": "capture",
+  "explanation": "Assumption: C++11 capture mechanisms (`=` or `&`) can handle any resource-owning object required by the lambda. Reality: C++11 only supports capture by copy or reference. Why It Fails: This prevents non-copyable types (like `std::unique_ptr` or `std::future`) from being used effectively within asynchronous contexts, and forces expensive copying of large, move-efficient containers (like `std::vector` or `std::string`). This lack of move support was a significant limitation requiring complex workarounds in C++11.",
+  "code_example": "// C++11 error: unique_ptr is non-copyable\nstd::unique_ptr<int> up(new int(10));\n// auto lambda = [up] { ... }; // ERROR\n",
+  "practical_example": "A developer attempts to launch an asynchronous task using a lambda, needing to pass ownership of a network resource held by a `std::unique_ptr`. Since the lambda cannot capture the `unique_ptr` by copy, they are forced to restructure the code or rely on dangerous shared pointers.",
+  "keywords": [
+    "C++11",
+    "move capture",
+    "unique_ptr",
+    "non-copyable",
+    "performance"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "241",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_capture_lambda_capture_limitation__c_7207c9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

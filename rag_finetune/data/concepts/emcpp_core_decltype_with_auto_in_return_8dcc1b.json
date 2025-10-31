@@ -1,0 +1,20 @@
+{
+  "topic": "Trailing Return Syntax: Decltype Parameter Access",
+  "category": "core",
+  "explanation": "C++11 introduced a powerful syntax for declaring function return types, known as the trailing return type. This syntax uses the 'auto' keyword as a placeholder where the return type would normally go, and specifies the actual type after the parameter list, introduced by an arrow. This mechanism is primarily used with decltype to define return types that depend on the function's parameters.\n\nScott Meyers' key insight is that this syntax is not merely a stylistic alternative; it is a solution to a fundamental scoping problem. In a traditional function declaration, the return type is specified before the parameters are in scope. Therefore, the parameters cannot be used to compute the return type. The trailing return type syntax elegantly solves this by moving the type declaration to a point after the parameters have been declared, making them available for use in a decltype expression.\n\nThe mechanics are simple: the compiler encounters 'auto' in the return type position and understands it as a signal to look for a trailing return type specification. It then parses the parameter list and finds the arrow followed by a type expression. This expression, typically a call to decltype using the function's parameters, is evaluated to determine the true return type. In this context, 'auto' does not perform any type deduction itself; it is purely a syntactic marker for the trailing return type feature.\n\nThis feature is a cornerstone of modern generic programming. It allows for the creation of function templates that can perfectly adapt their return signature based on their inputs. For example, a function that forwards its arguments to another function or operator can use a trailing return type with decltype to ensure its return type exactly matches what the underlying operation produces. This is critical for preserving value categories (lvalue vs. rvalue) and const-correctness in generic wrappers, factory functions, and delegates, avoiding both unnecessary copies and compilation errors.\n\nA common point of confusion for programmers new to this feature is the role of 'auto'. They might mistakenly believe it performs type deduction like it does for variable declarations. It's essential to remember that in this specific syntax, 'auto' is just a placeholder, and all type determination is handled by the expression that follows the arrow.",
+  "code_example": "// The return type of authAndAccess depends on its parameters, c and i.\n// 'auto' is a placeholder for the trailing return type specified after '->'.\ntemplate<typename Container, typename Index>\nauto authAndAccess(Container& c, Index i)\n  -> decltype(c[i])\n{\n  // authenticateUser();\n  return c[i];\n}\n\n// For a vector of ints, c[i] returns an int&.\n// The return type of authAndAccess(v, 0) is deduced as int&.\nstd::vector<int> v = {10};\nint& result = authAndAccess(v, 0);",
+  "practical_example": "This syntax is essential for generic factory functions that need to deduce the type of object to create based on their arguments. For example, a `make_wrapper` function's return type could be determined by a `decltype` expression involving its parameters, allowing it to return different wrapper specializations.",
+  "keywords": [
+    "trailing return type",
+    "decltype",
+    "auto",
+    "function templates",
+    "generic programming",
+    "C++11"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "24",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_core_decltype_with_auto_in_return_8dcc1b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

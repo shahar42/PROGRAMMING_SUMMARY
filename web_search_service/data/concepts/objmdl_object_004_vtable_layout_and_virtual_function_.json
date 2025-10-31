@@ -1,0 +1,19 @@
+{
+  "topic": "Virtual Function Dispatch Mechanism",
+  "explanation": "In C++, when a class declares or inherits virtual functions, the compiler creates a virtual table (vtable) for each polymorphic class. The vtable is a runtime data structure that enables dynamic dispatch of virtual functions. Internally, each object of such a class contains a pointer to its class's vtable, which the compiler initializes during object construction. The vtable layout and the associated mechanism allow the program to determine, at runtime, which function implementation to invoke, supporting polymorphism. Understanding the internal structure of vtables and how they are referenced within objects is crucial for grasping how C++ achieves dynamic dispatch and runtime type identification.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "2-2",
+    "extraction_date": "2025-09-17T14:59:17.694591",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "book_metadata_added": "2025-10-28T20:22:06.687730"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class Base {\n    // Object structure begins with VPtr (pointer to VTable)\npublic:\n    // VTable entry 0\n    virtual void step1() = 0;\n    // VTable entry 1\n    virtual void step2();\n    virtual ~Base() {}\n};\n\nclass Derived : public Base {\npublic:\n    // VPtr updated to point to Derived's VTable\n    void step1() override {}\n    void step2() override {}\n};\n\n// Dispatch Mechanism (Runtime Lookup):\nBase* p = new Derived();\n\n// 1. Read p's VPtr.\n// 2. Index VTable (e.g., step1() is index 0).\n// 3. Call function pointed to by VTable[0].\np->step1();\n\ndelete p;",
+  "keywords": "vtable, dynamic dispatch, vptr, virtual functions"
+}

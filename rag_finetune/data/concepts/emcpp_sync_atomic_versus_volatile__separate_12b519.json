@@ -1,0 +1,20 @@
+{
+  "topic": "Atomic versus Volatile: Separate Mechanisms for Concurrency and Optimization",
+  "category": "sync",
+  "explanation": "Assumption: `volatile` is used to prevent the compiler from optimizing away memory accesses, and therefore it is the correct tool for ensuring thread-safe access to shared data. Reality: `volatile` is designed solely to interact with special memory (like memory-mapped I/O) by suppressing compiler optimizations (e.g., keeping variables in registers or reordering memory access). It has absolutely no mechanism for synchronization or mutual exclusion between threads. `std::atomic` is the correct tool for concurrent access, as it uses underlying hardware instructions (like CAS) and memory fences to ensure operations are indivisible and correctly ordered across threads. Why It Fails: Using `volatile` for concurrency leads to data races and undefined behavior because multiple threads can interleave reads and writes without synchronization, regardless of how often the compiler accesses memory. They solve entirely different problems.",
+  "code_example": "// Concurrent access using volatile is UNSAFE:\nvolatile int counter = 0; \ncounter++; // Data race\n\n// Correct concurrent access:\nstd::atomic<int> safe_counter = 0;\nsafe_counter++; // Safe",
+  "practical_example": "A developer tries to implement a simple shared counter between two threads using `volatile int`. Although the compiler won't cache the counter value, the `++` operation (which is read-modify-write) is still non-atomic at the CPU level, resulting in lost updates.",
+  "keywords": [
+    "std::atomic",
+    "volatile",
+    "concurrency",
+    "optimization suppression",
+    "memory fences",
+    "data race"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "289-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_sync_atomic_versus_volatile__separate_12b519",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

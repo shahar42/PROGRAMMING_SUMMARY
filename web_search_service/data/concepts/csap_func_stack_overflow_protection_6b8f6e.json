@@ -1,0 +1,16 @@
+{
+  "topic": "Stack Overflow Protection",
+  "explanation": "Stack overflow protection is a security mechanism implemented in modern systems to prevent buffer overflow attacks.  It works by placing a 'canary' value (a random number) on the stack before allocating space for local variables.  Before returning from a function, the canary is checked to ensure it hasn't been overwritten, indicating a potential stack overflow. This mechanism enhances the system's security by detecting and handling buffer overflow vulnerabilities, which are frequently exploited by malicious code.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "315-316",
+    "extraction_date": "2025-07-26T00:09:51.950944",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.702925"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Enabled by compiler flags: -fstack-protector\n\nvoid protected_stack_op(const char *input) {\n    // 1. Canary value is pushed onto the stack\n    // (Between saved RBP/return addr and local variables)\n\n    char local_buffer[16];\n    int local_index = 0;\n\n    // 2. Buffer overflow attempt overwrites stack data\n    //    and potentially the Canary value\n    if (strlen(input) > 16) {\n        strcpy(local_buffer, input);\n    }\n\n    local_index = 1; // Example local variable use\n\n    // 3. Epilogue: Canary check (pre-return instruction)\n    //    if (canary != original_canary) {\n    //        __stack_chk_fail(); // Calls abort()\n    //    }\n\n    // Return proceeds only if check passes\n}",
+  "keywords": "Stack Canary, Buffer Overflow Protection, Stack Smashing Protection, SSP"
+}

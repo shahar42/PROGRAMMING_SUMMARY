@@ -1,0 +1,19 @@
+{
+  "topic": "Atomic Guarantees vs. Volatile: The Data Race Danger",
+  "category": "thread",
+  "explanation": "Assumption: Declaring a simple variable (like an integer) as `volatile` is sufficient to ensure concurrent access is safe and visible across threads, especially for basic operations like incrementing (RMW).\nReality: `volatile` only instructs the compiler to suppress aggressive optimization (i.e., always read/write from memory), but it provides absolutely no guarantees regarding atomicity or visibility across CPU cores, which is necessary for thread synchronization.\nWhy It Fails: Simultaneous readers and writers accessing a `volatile` variable constitute a data race, resulting in undefined behavior. Operations like `++vc` are non-atomic (Read, Modify, Write steps), allowing threads to interfere, leading to corrupted values (e.g., a counter incremented twice may end up being 1 instead of 2). `std::atomic` is required to guarantee that RMW operations are seen by other threads as indivisible.",
+  "code_example": "std::atomic<int> ac(0); \nvolatile int vc(0); \n// Thread 1: ++ac; ++vc;\n// Thread 2: ++ac; ++vc;\n// ac is guaranteed 2. vc is unpredictable (UB).",
+  "practical_example": "A developer attempts to implement a quick, lock-free counter using `volatile int count = 0;` across multiple worker threads. Due to the data race, the final count is consistently less than the expected total number of increments, leading to silent calculation errors.",
+  "keywords": [
+    "data race",
+    "undefined behavior",
+    "std::atomic",
+    "volatile",
+    "RMW"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "291-293",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread_atomic_guarantees_vs__volatile_2883c8",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

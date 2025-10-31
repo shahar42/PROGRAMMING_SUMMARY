@@ -1,0 +1,16 @@
+{
+  "topic": "keyctl() System Call",
+  "explanation": "keyctl() allows user-space programs to manipulate the kernel's key management facility. It performs various operations based on the 'operation' argument, such as managing keyrings or computing cryptographic keys.\n\n**Parameters:**\n- `operation` (int): The operation to perform, determining the action taken.\n- `arg2` (unsigned long): Second argument, varies by operation (e.g., key ID or parameters).\n- `arg3` (unsigned long): Third argument, varies by operation (e.g., flags or buffer pointers).\n- `arg4` (unsigned long): Fourth argument, varies by operation (e.g., sizes or strings).\n- `arg5` (unsigned long): Fifth argument, varies by operation (e.g., additional parameters).\n\n**Common Errors:**\n- `EACCES`: The requested operation wasn’t permitted.\n- `EAGAIN`: Operation was KEYCTL_DH_COMPUTE and there was an error during crypto module initialization.\n- `EDEADLK`: Operation was KEYCTL_LINK and the requested link would result in a cycle.\n- `EDEADLK`: Operation was KEYCTL_RESTRICT_KEYRING and the requested keyring restriction would result in a cycle.\n- `EDQUOT`: The key quota for the caller’s user would be exceeded.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.206202",
+    "syscall_name": "keyctl",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_keyctl.json",
+    "concept_id": "posix_sys_keyctl_e9bca3",
+    "book_metadata_added": "2025-10-28T20:22:06.595256"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "/* Syscall Definition */\nlong keyctl(int operation, unsigned long arg2,\n            unsigned long arg3, unsigned long arg4,\n            unsigned long arg5);\n\n/* Common Operations (Defined in <keyutils.h>) */\n#define KEYCTL_GET_THREAD_KEYRING  1\n#define KEYCTL_ADD                 2\n#define KEYCTL_LINK               14\n\n/* Get the calling thread's default keyring ID */\nlong keyring_id = keyctl(KEYCTL_GET_THREAD_KEYRING);\n\n/* Add a key: (Type, Desc, Value Ptr, Len, Keyring ID) */\nchar data[] = \"my_secret_payload\";\nlong new_key_id = keyctl(KEYCTL_ADD, (unsigned long)\"user\",\n    (unsigned long)\"session.data\", (unsigned long)data,\n    sizeof(data), keyring_id);\n\n/* Link key 1234 to keyring 5678 */\nlong status = keyctl(KEYCTL_LINK, 1234UL, 5678UL);\n<ctrl63>",
+  "keywords": "keyctl, Linux key management, kernel key management, keyring"
+}

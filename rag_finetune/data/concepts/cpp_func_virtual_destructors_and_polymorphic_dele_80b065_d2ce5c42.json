@@ -1,0 +1,14 @@
+{
+  "topic": "Virtual Destructors and Polymorphic Deletion",
+  "explanation": "Virtual destructors are crucial for correct polymorphic object deletion.  Without a virtual destructor in a base class with virtual functions, deleting a derived class object through a base class pointer leads to undefined behavior, typically memory corruption or leaks. This is because the base class destructor is called directly, not the derived class destructor.  The compiler implements this through a virtual function table (vtable). Each object inheriting from a class with virtual functions has a hidden pointer to its vtable. This vtable contains pointers to the virtual functions, including the virtual destructor. When a polymorphic object is deleted, the compiler uses the vtable pointer to locate and call the correct destructor at runtime.  Performance implications are minimal in terms of runtime execution if virtual functions are already used.  The vtable itself adds a small fixed memory overhead (pointer size). However, failure to use a virtual destructor carries a huge performance cost: program crashes or unpredictable behavior. Compile-time behavior consists of the compiler generating the vtable and inserting calls to the correct destructor using vtable pointers.  At runtime, this involves the indirect function call to the appropriate destructor, adding a small overhead, but guaranteeing correct object cleanup.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:51:12.662005",
+    "book_metadata_added": "2025-10-28T20:22:06.925782"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\npublic:\n    // CRUCIAL: Enables correct Derived cleanup via vtable\n    virtual ~Base() = default;\n};\n\nclass Derived : public Base {\n    void* resource = new char;\npublic:\n    // Must be called for proper memory release\n    ~Derived() override { delete (char*)resource; }\n};\n\n// Polymorphic deletion:\n// If ~Base() is NOT virtual, only Base's destructor runs.\nBase* ptr = new Derived();\ndelete ptr;\n// Correct (virtual) path: Derived::~Derived() -> Base::~Base()\n// Incorrect (non-virtual): Base::~Base() only (memory leak)",
+  "keywords": "virtual destructor, polymorphic deletion, delete base pointer derived, base class destructor not virtual"
+}

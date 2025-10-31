@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References [Problem]: Rvalue-Specific Overload Ambiguity",
+  "category": "template",
+  "explanation": "Assumption: If a specific rvalue overload, like `void f(Widget&&)`, is provided alongside a universal reference template, the specific rvalue overload will be consistently preferred for rvalue arguments. Reality: If the specific rvalue overload is templated (e.g., a member function of a class template), or if the universal reference template's instantiated signature is an equally good match, the compiler may declare the call ambiguous. Why It Fails: When an rvalue of type `Widget` is passed, both `void f(Widget&&)` and the universal reference instantiation `template<T> void f(T&&)` (where `T` is deduced as `Widget`) result in the signature `void f(Widget&&)`. According to overload resolution rules, if two viable functions have identical argument types, the non-template function is generally preferred over a primary template. However, if the universal reference resides in a specialization or if the specific rvalue overload is also templated or generated, the tie-breaking rules become complex and lead to ambiguity, forcing the programmer to use explicit SFINAE or tag dispatching to resolve the conflict, undermining the simplicity intended by offering both options.",
+  "code_example": "// Failure due to template ambiguity\ntemplate<typename T>\nvoid f(T&& t); // Universal ref\n\ntemplate<typename T>\nvoid f(std::vector<T>&& v); // Specialized rvalue ref\n\nf(std::vector<int>{1}); // Potential ambiguity depending on compiler implementation of specialization matching.",
+  "practical_example": "A utility class has both a forwarding constructor (universal reference) and a specific move constructor (rvalue reference). When constructing an object using a temporary, the compiler flags the choice between the two as ambiguous, halting compilation despite the clear intention of moving the temporary.",
+  "keywords": [
+    "ambiguous overload",
+    "rvalue preference",
+    "template collision",
+    "overload resolution complexity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "197-200",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_universal_references__problem_21b480",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

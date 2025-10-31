@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Type: Generic Lambdas for Templated Call Operators",
+  "category": "lambda",
+  "explanation": "Problem: Prior to C++14, binding a function object that contains a templated function call operator (e.g., `template<typename T> void operator()(const T& param)`) required using `std::bind` because C++11 lambdas were limited to explicitly typed parameters. Solution: C++14 introduced generic lambdas using `auto` parameters. This feature allows the lambda's closure type to possess a templated function call operator itself, enabling perfect forwarding and acceptance of arguments of any type, thus replicating the last remaining unique capability of `std::bind` in a more compact and intuitive syntax.",
+  "code_example": "// Class with templated operator()\nclass PolyWidget { /*...*/ };\nPolyWidget pw;\n\n// C++14 generic lambda replacement for bind:\nauto boundPW = [pw](const auto& param) \n               { pw(param); };\n\nboundPW(1930); // Works for int\nboundPW(\"text\"); // Works for string literal",
+  "practical_example": "When creating a generic event handler that must accept diverse input types (e.g., handling JSON objects where the value type is determined at runtime), a generic lambda is used to forward the unknown type directly to the internal processing object, eliminating the need for `std::bind` and manual template specification.",
+  "keywords": [
+    "generic lambda",
+    "auto parameter",
+    "templated operator()",
+    "std::bind replacement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "256-257",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_lambda_lambda_type__generic_lambdas_e42e04",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

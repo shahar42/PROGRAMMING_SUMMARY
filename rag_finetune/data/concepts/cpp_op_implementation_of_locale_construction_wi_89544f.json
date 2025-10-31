@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Locale Construction with Category Overrides in C++",
+  "explanation": "In C++, the locale class is part of the standard library for internationalization and localization, managing facets that handle aspects like character classification, numeric formatting, and date/time representation. The specific constructor locale(const locale& other, const char* std_name, category) creates a new locale by copying an existing one (other) and overriding facets for a specified category to match those of a named locale (std_name). Under the hood, compilers like GCC or Clang implement this by leveraging the C++ Standard Library's locale framework, which typically involves dynamic memory allocation for facet objects. The compiler generates code that calls into the library's internal functions (e.g., __gnu_cxx::__locale_data or similar in libstdc++), where facets are stored in a hierarchy or vector-like structure within the locale object. Memory layout-wise, a locale object often includes a pointer to a facet array or a base class with virtual functions for facet access, leading to potential overhead from virtual function calls and dynamic allocation, which can fragment memory and increase runtime costs. Performance implications include runtime overhead for facet lookup and copying, as this constructor may trigger locale data loading from system resources (e.g., via OS APIs like setlocale), making it slower than compile-time constants. Assembly-level behavior involves function calls to standard library routines, such as _ZdlPv for memory deallocation if facets are replaced, and potential exception handling code for runtime_error throws, which adds branching and stack unwinding. This is purely runtime behavior, as locale construction depends on dynamic inputs like std_name validity, contrasting with compile-time localization via constexpr where possible, but here it's not applicable due to runtime dependencies.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:17:56.568348",
+    "book_metadata_added": "2025-10-28T20:22:06.911132"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Merging Locales: Copy base_loc, override facets for specified category (CAT) \n// using facets found in the named locale \"de_DE.UTF-8\".\n\nstd::locale base_loc(\"C\");\nstd::locale::category CAT = std::locale::numeric;\n\nstd::locale merged_loc(\n    base_loc, \n    \"de_DE.UTF-8\", \n    CAT\n);\n\n// merged_loc now uses \"C\" locale settings, except for \n// numeric formatting (thousands separators, decimal point) \n// which follow German conventions.",
+  "keywords": "std::locale category override, C++ locale merge, locale(other, name, category)"
+}

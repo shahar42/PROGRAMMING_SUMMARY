@@ -1,0 +1,16 @@
+{
+  "topic": "Control Disruptions in Data Hazards",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, this introduces hazards: data hazards (when an instruction depends on the result of a previous instruction still in the pipeline), control hazards (when the pipeline's flow is disrupted by branches or jumps), and structural hazards (when multiple instructions require the same hardware resource simultaneously). Hazard handling techniques ensure correct program execution despite these overlaps.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "449-449",
+    "extraction_date": "2025-07-27T00:36:05.002097",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.729263"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Pipeline Flush (Handling Misprediction)\n// Invalidates instructions upon detected control hazard\n\nenum PipelineStage { IF, ID, EX };\nInstruction IF_IR, ID_IR;\nbool branch_taken = true;\nbool prediction = false;\n\nif (branch_taken != prediction) {\n    // Flush the pipeline stages\n    IF_IR = NOP;\n    ID_IR = NOP;\n    PC = Target_Address; // Redirect Program Counter\n}\n\n\n// 2. Static Branch Prediction (Assume Not Taken)\n\n#define PREDICT_NOT_TAKEN 0\n\nint branch_predictor_state = PREDICT_NOT_TAKEN;\nbool actual_outcome = true; // Misprediction occurred\n\nif (actual_outcome && branch_predictor_state == PREDICT_NOT_TAKEN) {\n    // Misprediction penalty (latency cost)\n    Stall_Cycles += 3;\n    Pipeline.flush_stages();\n    PC = Target_Address;\n}\n\n// 3. Delayed Branching (Compiler Technique)\n\n// Code Structure: [Instruction 1, Branch, Delay Slot, Target]\n\nINST branch_instruction;\nINST delay_slot_inst;\n\n// The instruction in the delay slot executes \n// before the branch result affects PC flow.\nExecute(delay_slot_inst);\n\nif (branch_instruction.condition_met) {\n    PC = branch_instruction.target;\n} else {\n    PC += 2; // Skips both branch and delay slot\n}",
+  "keywords": "Pipeline hazards, Data hazard, Control hazard, Processor pipelining"
+}

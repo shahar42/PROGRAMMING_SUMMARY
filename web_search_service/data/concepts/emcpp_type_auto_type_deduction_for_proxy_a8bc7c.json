@@ -1,0 +1,22 @@
+{
+  "topic": "Auto Deduction: Proxy Type Reference Trap",
+  "category": "type",
+  "explanation": "The auto keyword deduces the type of a variable directly from its initializing expression. However, some expressions, particularly in highly optimized libraries, do not return a simple value type. Instead, they return an intermediate 'proxy' object that represents the result and can be implicitly converted to the final value. When auto is used with such an expression, it deduces the type of the variable to be the proxy class itself, not the value type the programmer likely intended.\n\nScott Meyers' key insight is that this behavior, while technically correct, creates a dangerous trap. Proxy objects are often designed to be ephemeral, existing only for the duration of a single statement. They may hold pointers or references to internal data structures that are only valid temporarily. By using auto to create a named variable of the proxy type, you extend its lifetime beyond its design, which can easily lead to dangling references and undefined behavior when the underlying resources are modified or destroyed.\n\nThe mechanics are straightforward from the compiler's perspective: the function or operator overload returns a specific type (the proxy), and auto simply adopts that type. For example, the indexing operator on the standard library's specialized boolean vector returns a proxy reference object, not a boolean value. This proxy object contains information, like a pointer to the vector's internal buffer and a bit offset, allowing it to emulate a true reference to a single bit. If you initialize an auto variable with this proxy, the variable becomes an instance of that proxy class.\n\nThis has significant practical implications. It's a common pattern in expression template libraries for scientific computing, where an expression like the sum of several matrices might return a single proxy object encoding the entire operation, only performing the calculation when the result is assigned to an actual matrix. Storing this intermediate proxy object with auto is a design violation. If the original matrices in the expression are modified before the proxy is used, the final result can be incorrect or the program may crash.\n\nThe most common pitfall is being completely unaware that a proxy object is involved, as they are often designed to be 'invisible'. This leads to subtle, hard-to-debug errors rooted in undefined behavior. Meyers advises that programmers must be aware of the design of the libraries they use, by reading documentation or inspecting function signatures in header files, to recognize when a proxy might be returned. The solution to this problem is to intentionally guide auto by explicitly casting the initializing expression to the desired value type, forcing the proxy's conversion operator to be called and ensuring auto deduces the correct, non-proxy type.",
+  "code_example": "// A matrix class using expression templates (a proxy pattern)\ntemplate<typename T> class Matrix { /* ... */ };\n\n// Proxy class representing the sum of two matrices\ntemplate<typename T1, typename T2>\nclass SumProxy { /* ... */ };\n\n// operator+ returns a proxy, not a Matrix\nSumProxy<Matrix<int>, Matrix<int>>\noperator+(const Matrix<int>&, const Matrix<int>&);\n\nMatrix<int> m1, m2, m3, m4;\n\n// Deduces the proxy type, which might be dangerous if m1 or m2 change\nauto proxy = m1 + m2; // type is SumProxy<Matrix<int>, Matrix<int>>\n\n// Correct approach: Force the conversion to the desired value type\nauto sum = static_cast<Matrix<int>>(m1 + m2);\n// or using an explicitly typed initializer (C++11 and later)\nMatrix<int> sum2 = m1 + m2; ",
+  "practical_example": "The most famous standard library example is `std::vector<bool>`. Its `operator[]` does not return a `bool&` but a `std::vector<bool>::reference` proxy object. Storing this proxy with `auto v = my_vec[i];` can lead to undefined behavior if `my_vec` is resized or destroyed, as the proxy's internal pointer to the vector's data buffer would become invalid.",
+  "keywords": [
+    "proxy types",
+    "auto",
+    "type deduction",
+    "expression templates",
+    "dangling reference",
+    "undefined behavior",
+    "std::vector<bool>",
+    "lifetime extension"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "45-46",
+  "chapter": "Item 6: Use the explicitly typed initializer idiom when auto deduces unwanted types",
+  "id": "emcpp_type_auto_type_deduction_for_proxy_a8bc7c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

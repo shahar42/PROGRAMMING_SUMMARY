@@ -1,0 +1,16 @@
+{
+  "topic": "outl_p() System Call",
+  "explanation": "outl_p performs a low-level output of a 32-bit value to the specified I/O port and pauses until the I/O operation completes. It is primarily intended for internal kernel use but can be accessed from user space with proper permissions.\n\n**Parameters:**\n- `value` (unsigned int): The 32-bit value to be written to the specified port\n- `port` (unsigned short): The I/O port address to which the value is written\n\n**Related System Calls:** `ioperm()`, `iopl()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.057729",
+    "syscall_name": "outl_p",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_outl_p.json",
+    "concept_id": "posix_sys_outl_p_5d8021",
+    "book_metadata_added": "2025-10-28T20:22:06.666346"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "unsigned short COM1_PORT = 0x3F8;\nunsigned int CONFIG_VALUE = 0xDEADBEEF;\n\n// Grant I/O access (e.g., 4 bytes starting at port 0x3F8)\n// Needs CAP_SYS_RAWIO capability\nioperm(COM1_PORT, 4, 1);\n\n// Write 32-bit value and wait for completion\noutl_p(CONFIG_VALUE, COM1_PORT);\n\n// Optionally revoke access\nioperm(COM1_PORT, 4, 0);\n\n// Alternative high privilege setup:\n// iopl(3); // Sets CPL to 0 for all I/O\n// outl_p(0x12345678, 0x1000);\n<ctrl63>",
+  "keywords": "outl_p, x86 port I/O, delayed port output, OUTL instruction"
+}

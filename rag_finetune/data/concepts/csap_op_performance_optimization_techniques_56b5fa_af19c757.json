@@ -1,0 +1,15 @@
+{
+  "topic": "Performance Optimization: Bottleneck Elimination",
+  "explanation": "Performance optimization in computer systems involves identifying and eliminating bottlenecks to improve the efficiency and speed of program execution. This often requires understanding the hardware-software interaction and leveraging the memory hierarchy effectively. Inefficient algorithms or code structures can significantly impact performance, necessitating careful optimization strategies.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "539-539",
+    "extraction_date": "2025-07-27T18:01:49.133353",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.731512"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Bottleneck 1: Poor Spatial Locality (Array of Structures)\nstruct Particle { float x, y, mass; };\nParticle p[1000];\n\n// Optimization: Structure of Arrays (SoA) for better cache use\nfloat X[1000], Y[1000], Mass[1000];\n\n// Bottleneck 2: Excessive Dynamic Memory Allocation\n// Avoid repeated heap management in hot loops\n// Instead of: T* obj = new T();\n\n// Optimization: Use Placement New on pre-allocated buffer\nchar arena[1024];\nT* obj_ptr = new (arena) T();\n// Manual destructor call needed for complex objects\n\n// Bottleneck 3: Function Call Overhead (Small functions)\n// Use compiler optimization hints\ninline int squared(int x) {\n    return x * x;\n}\n\n// Bottleneck 4: Thread Synchronization Contention\n// Bottleneck: Heavy Mutex locking for simple updates\n// std::lock_guard<std::mutex> lock(m); counter++;\n\n// Optimization: Use lock-free atomic primitives\nstd::atomic<int> thread_counter{0};\nthread_counter.fetch_add(1);\n\n// Bottleneck 5: Vectorization Hinting (SIMD potential)\n// Inform the compiler loop is safe for parallel execution\n#pragma GCC optimize(\"O3\")\n#pragma GCC ivdep // Ignore vector dependency\nfor (int i = 0; i < N; ++i) {\n    C[i] = A[i] * 2.0f;\n}"
+}

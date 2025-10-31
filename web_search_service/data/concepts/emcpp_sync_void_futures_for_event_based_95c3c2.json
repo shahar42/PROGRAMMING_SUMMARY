@@ -1,0 +1,13 @@
+{
+  "topic": "Void Futures for Event-Based Synchronization",
+  "category": "sync",
+  "explanation": "Assumption: `std::promise` and `std::future` are strictly for transferring data or results between concurrent tasks. Reality: These utilities are powerful synchronization primitives. When a task needs only to signal that a specific event has occurred, and no data needs to be transferred, the `void` type should be used as the template parameter (`std::promise<void>`, `std::future<void>`). Why It Works: The communications channel provided by the future mechanism permits the reacting task to detect *when* the detecting task has fulfilled its promise, even if the 'data' written is void. This turns the future into a lightweight, one-shot event barrier.",
+  "code_example": "std::promise<void> p;\n// Detecting task:\n// ... event detected\np.set_value();\n// Reacting task:\n// ... prepares to react\np.get_future().wait();",
+  "practical_example": "A main thread needs to wait until an initialization task running on a separate thread has completed certain setup steps. By having the initialization task use `std::promise<void>::set_value()` upon completion, the main thread can block efficiently using `future<void>::wait()` without incurring overhead related to return value handling.",
+  "keywords": "std::future<void>, Void future synchronization, Future event signaling",
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 38: Be mindful of the assumptions in std::future's continuations",
+  "id": "emcpp_sync_void_futures_for_event_based_95c3c2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

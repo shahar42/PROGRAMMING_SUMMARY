@@ -1,0 +1,13 @@
+{
+  "topic": "Efficiently Adding Elements to a std::vector",
+  "explanation": "In C++, std::vector is a dynamic array that allows for efficient addition of elements, but improper usage can lead to performance issues due to reallocations. A key practical concept is efficiently adding elements using methods like push_back() or emplace_back(), combined with reserve() to preallocate memory. This technique is essential in real-world scenarios, such as processing large datasets or building collections where the approximate size is known upfront. Best practices include using reserve() to minimize reallocations, which can invalidate iterators or pointers, and preferring emplace_back() for in-place construction to avoid unnecessary copies. Common pitfalls to avoid include repeatedly adding elements without reserving space, leading to O(1) amortized time complexity becoming inefficient in loops; always profile and reserve when possible for idiomatic C++ code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "strings",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:58:36.628222",
+    "book_metadata_added": "2025-10-28T20:22:06.570523"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "std::vector<int> data;\nconst size_t COUNT = 5000;\n\n// Best Practice 1: Use reserve() to preallocate memory\n// Prevents costly internal reallocations/copies during additions\ndata.reserve(COUNT);\n\nfor (size_t i = 0; i < COUNT; ++i) {\n    // Best Practice 2: Use push_back or emplace_back\n    // emplace_back avoids temporary object creation/copy if complex type\n    data.push_back(i);\n}\n\n// Alternative for range insertion (already reserved)\nstd::vector<int> temp = {10, 20};\ndata.insert(data.end(), temp.begin(), temp.end());\ndata.shrink_to_fit(); // Optional: reclaim excess capacity\ndata.clear();\ndata.capacity(); // Current allocated size\ndata.size();     // Current element count"
+}

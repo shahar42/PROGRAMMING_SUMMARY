@@ -1,0 +1,16 @@
+{
+  "topic": "kexec_file_load() System Call",
+  "explanation": "The kexec_file_load() system call loads a new kernel for later execution using file descriptors. It requires specifying the kernel image, optional initrd image, command line, and flags to control the loading process.\n\n**Parameters:**\n- `kernel_fd` (int): File descriptor for the kernel image file.\n- `initrd_fd` (int): File descriptor for the initrd image file, or -1 if not used.\n- `cmdline_len` (unsigned long): Length of the command line string.\n- `cmdline` (const char *): Pointer to the command line string for the new kernel.\n- `flags` (unsigned long): Bit mask of flags to control the operation, such as architecture or other options.\n\n**Common Errors:**\n- `EADDRNOTAVAIL`: The specified region lies outside the reserved memory for the crash kernel or is not page-aligned.\n- `EBADF`: kernel_fd or initrd_fd is not a valid file descriptor.\n- `EBUSY`: Another crash kernel is already being loaded or in use.\n- `EINVAL`: Invalid flags, mismatched buffer sizes, overlapping buffers, or other invalid arguments.\n- `ENOEXEC`: The kernel file is not loadable, such as not being a valid bzImage.\n\n**Related System Calls:** `reboot()`, `syscall()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.068076",
+    "syscall_name": "kexec_file_load",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_kexec_file_load.json",
+    "concept_id": "posix_sys_kexec_file_load_97276b",
+    "book_metadata_added": "2025-10-28T20:22:06.652385"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "const char *cmdline = \"reboot=kexec\";\nunsigned long cmd_len = 13;\nunsigned long flags = KEXEC_FILE_ON_CRASH;\nint kernel_fd = 3;\nint initrd_fd = 4; // Use -1 if no initrd\n\nlong ret = syscall(SYS_kexec_file_load,\n                   kernel_fd,       // Kernel image file descriptor\n                   initrd_fd,       // Initrd file descriptor\n                   cmd_len,         // Length of cmdline string\n                   cmdline,         // Command line pointer\n                   flags);          // Control flags\n// Returns 0 on success, -1 on failure (errno set)",
+  "keywords": "kexec_file_load, kexec syscall, kexec mechanism"
+}

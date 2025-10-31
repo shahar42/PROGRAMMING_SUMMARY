@@ -1,0 +1,16 @@
+{
+  "topic": "readlink() System Call",
+  "explanation": "The readlink() function reads the contents of a symbolic link specified by pathname into the buffer buf of size bufsiz, without appending a null terminator and truncating if necessary. The readlinkat() variant performs the same operation but interprets relative pathnames relative to the directory referred to by dirfd.\n\n**Parameters:**\n- `pathname` (const char *restrict): Path to the symbolic link\n- `buf` (char *restrict): Buffer to store the contents of the symbolic link\n- `bufsiz` (size_t): Size of the buffer\n- `dirfd` (int): Directory file descriptor for relative paths (applies to readlinkat)\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for a component of the path prefix\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor (for readlinkat)\n- `EFAULT`: buf extends outside the process’s allocated address space\n- `EINVAL`: bufsiz is not positive or the named file is not a symbolic link\n- `EIO`: An I/O error occurred while reading from the filesystem\n\n**Related System Calls:** `lstat()`, `stat()`, `symlink()`, `realpath()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.226105",
+    "syscall_name": "readlink",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_readlink.json",
+    "concept_id": "posix_sys_readlink_dc2c69",
+    "book_metadata_added": "2025-10-28T20:22:06.662054"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define BUF_SZ 256\nchar target[BUF_SZ];\nconst char *link_path = \"/proc/self/exe\";\nssize_t len;\n\n// Function signature: ssize_t readlink(path, buf, bufsiz)\nlen = readlink(link_path, target, BUF_SZ);\n\nif (len == -1) {\n    /* Handle error (e.g., ENOENT, EINVAL) */\n    return;\n}\n\n// Result is NOT null-terminated; len is the exact size written\nif ((size_t)len < BUF_SZ) {\n    target[len] = '\\0'; // Manual termination\n} else {\n    /* Link target was truncated */\n}\n\n// readlinkat variant\n// len = readlinkat(AT_FDCWD, \"symlink_name\", target, BUF_SZ);",
+  "keywords": "readlink, symbolic link, symlink target, readlinkat"
+}

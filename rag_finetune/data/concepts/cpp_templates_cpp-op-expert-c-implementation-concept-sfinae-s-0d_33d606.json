@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  SFINAE (Substitution Failure Is Not An Error)",
+  "explanation": "SFINAE is a powerful C++ mechanism that allows the compiler to silently ignore template instantiations that fail due to substitution errors. This enables compile-time polymorphism and conditional compilation based on the types of template arguments.  Understanding SFINAE involves a deep dive into how the compiler performs template argument deduction, name lookup, and overload resolution during template instantiation.  The compiler's behavior is crucial, as the success or failure of substitution determines whether a template is used or discarded without causing a compilation error.  This impacts compile-time code generation and potentially runtime performance by enabling the selection of the most efficient implementation based on the input types.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:43:08.542712",
+    "book_metadata_added": "2025-10-28T20:22:06.839558"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\ntypename std::enable_if<std::is_integral<T>::value, void>::type\ndispatch(T t) { /* Substitutes only if T is integral */ }\n\ntemplate <typename T>\ntypename std::enable_if<!std::is_integral<T>::value, void>::type\ndispatch(T t) { /* Substitutes only if T is NOT integral */ }\n\n// If T=int: First overload succeeds, second fails substitution.\n// If T=double: First overload fails substitution, second succeeds.\n\nstruct Tag {};\ntemplate <typename T, typename = decltype(std::declval<T>().method())>\nstd::true_type has_method_test(int); // Only selected if T::method() exists\n\ntemplate <typename>\nstd::false_type has_method_test(...);\n\n// Type detection logic relies on the substitution failure of the `decltype` usage."
+}

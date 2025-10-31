@@ -1,0 +1,14 @@
+{
+  "topic": "Trivial Types in C++",
+  "explanation": "Trivial types in C++ are those that have a trivial default constructor, copy constructor, copy assignment operator, and destructor, as defined in the C++ standard (e.g., ISO/IEC 14882:2014). The compiler implements trivial types by recognizing them at compile-time through type traits like std::is_trivial, allowing for aggressive optimizations. Internally, the compiler treats operations on trivial types as bitwise copies (e.g., using memcpy-like instructions) rather than generating calls to constructor or destructor functions, which reduces overhead. Memory layout for trivial types is straightforward: they are stored contiguously in memory without any padding or additional metadata beyond their members, similar to C-style structs, enabling efficient alignment and access. Performance implications include faster copy and initialization operations, as the compiler can inline these as simple memory moves, potentially eliminating function call overhead and improving cache locality. At the assembly level, copying a trivial type might translate to a single 'mov' or 'rep movs' instruction, depending on the architecture, rather than jumps to user-defined functions. This behavior is determined entirely at compile-time via constexpr evaluations in type traits, with no runtime checks, making it ideal for performance-critical code; however, non-trivial types introduce runtime function calls, increasing execution time and binary size.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:14:45.167174",
+    "book_metadata_added": "2025-10-28T20:22:06.889918"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct TrivialPOD {\n    int a;\n    double b;\n};\n\nstruct NotTrivial {\n    int c;\n    NotTrivial() = default;\n    // User-defined destructor makes type non-trivial\n    ~NotTrivial() { /* cleanup */ }\n};\n\n// Compile-time checks define the trivial property\nstatic_assert(std::is_trivial_v<int>);\nstatic_assert(std::is_trivial_v<TrivialPOD>);\nstatic_assert(!std::is_trivial_v<NotTrivial>);\n\n// Optimization: Trivial copy uses bitwise copy (e.g., memcpy)\nvoid copy_data(TrivialPOD& dest, const TrivialPOD& src) {\n    dest = src; // Highly optimized\n}",
+  "keywords": "std::is_trivial, bitwise copyable, C++ POD type, trivial special members"
+}

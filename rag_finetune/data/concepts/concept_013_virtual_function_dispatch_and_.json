@@ -1,0 +1,16 @@
+{
+  "topic": "Virtual Function Dispatch and Destructor Calls in Arrays of Polymorphic Objects",
+  "explanation": "This concept explains how C++ manages destructor invocation for objects stored in contiguous memory, particularly when deleting elements of an array of polymorphic types. It highlights how the compiler uses the object’s vtable to perform dynamic dispatch, ensuring the correct destructor (base or derived) is called at runtime. Internally, each object contains a pointer to its vtable, which directs the call to the appropriate destructor implementation, enabling proper cleanup in polymorphic hierarchies. This mechanism is crucial for resource management and correct object destruction semantics in complex inheritance models.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "151-151",
+    "extraction_date": "2025-09-17T15:12:06.760737",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "book_metadata_added": "2025-10-28T20:22:06.683148"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class Base {\npublic: virtual ~Base() = default;\n};\n\nclass Derived : public Base {\npublic: ~Derived() override {}\n};\n\n// VTABLE Dispatch for Arrays\nBase* poly_array = new Derived[5];\n\n// Crucial: Virtual destructor allows 'delete[]'\n// to look up derived destructors in the vtable\n// and call them for every element (5 times).\ndelete[] poly_array;\n// If ~Base() were not virtual, only Base destructors\n// would run, leading to resource leaks/UB.",
+  "keywords": "virtual destructor, delete[] polymorphism, polymorphic array deletion, vtable destructor"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Vtable Mechanism: Per-Class Static Array",
+  "explanation": "In C++, when a class contains virtual functions, the compiler implements a vtable (virtual table) to enable dynamic dispatch at runtime. The vtable is a per-class static array of function pointers, and each object of such a class contains a hidden pointer to its class's vtable. During a virtual function call, the program uses the object's vtable pointer to locate the correct function implementation, supporting polymorphism. This mechanism allows the program to determine at runtime which function to invoke, based on the actual object's type, enabling dynamic method dispatch essential for runtime polymorphism in C++.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "1-1",
+    "extraction_date": "2025-09-17T14:54:52.307687",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "book_metadata_added": "2025-10-28T20:22:06.684562"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class VtableBase {\npublic:\n    // Virtual functions trigger vtable creation\n    virtual void func1() = 0;\n    virtual void func2() { /* Base impl */ }\n    virtual ~VtableBase() = default;\n};\n\nclass VtableDerived : public VtableBase {\npublic:\n    // Overrides map to new pointers in Derived's vtable\n    void func1() override { /* D1 */ }\n    void func2() override { /* D2 */ }\n};\n\n// Object p contains a vptr pointing to VtableDerived's static array\nVtableBase* p = new VtableDerived();\np->func1(); // Runtime dispatch via p->vptr[0]\ndelete p;"
+}

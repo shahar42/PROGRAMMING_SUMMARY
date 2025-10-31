@@ -1,0 +1,25 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide the interface between a process running in user mode and the operating system kernel. They allow user-level programs to request services from the kernel, such as accessing files, managing memory, or creating new processes.  Exceptional control flow refers to situations where the normal flow of execution is interrupted, such as by a system call, signal, or exception.  Understanding how these mechanisms work is crucial for writing robust and efficient systems-level programs that interact correctly with the operating system and handle unexpected events.",
+  "syntax": "System calls typically follow a convention where a specific register (e.g., `rax` on x86-64) holds the system call number, and other registers hold arguments. The kernel executes the requested operation and returns a result (or error code) in a register (often `rax`). Signals are asynchronous events that interrupt program execution; handlers are registered to catch these signals and perform cleanup or other actions.  This interaction between hardware interrupts and software handlers is a key aspect of the system.",
+  "code_example": "#include <unistd.h>\n#include <stdio.h>\nint main() {\n    char *message = \"Hello, world!\\n\";\n    ssize_t bytes_written = write(STDOUT_FILENO, message, 14);\n    if (bytes_written == -1) {\n        perror(\"write failed\");\n        return 1;  // Indicate failure\n    }\n    return 0; // Indicate success\n}",
+  "example_explanation": "This C code uses the `write()` system call to print a message to the standard output.  `write()` takes three arguments: the file descriptor (STDOUT_FILENO for standard output), a pointer to the message, and the length of the message. The system call transfers control to the kernel, which handles the output operation. The return value indicates whether the write was successful.  If it fails (returns -1), `perror()` is used to print a system-specific error message, showcasing how exceptional control flow handles errors. The program demonstrates the hardware-software interaction:  user-space code invokes a kernel service to interact with hardware (the screen).",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "764-764",
+    "extraction_date": "2025-07-28T12:21:38.565981",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-28T12:31:05.420771",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "794-794",
+      "extraction_date": "2025-07-28T12:31:04.536089",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8789173364639282
+  }
+}

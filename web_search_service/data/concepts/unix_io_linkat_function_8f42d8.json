@@ -1,0 +1,14 @@
+{
+  "topic": "linkat Function: With File Descriptors",
+  "explanation": "The linkat function is a POSIX system call in C that creates a new hard link to an existing file using file descriptors. It is used to link files in a way that supports atomic operations, avoids race conditions, and works with relative paths or directories, making it more secure and flexible than the basic link function for file system manipulations.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "150-150",
+    "extraction_date": "2025-07-18T01:48:43.404952",
+    "has_code": true,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.963938"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "int old_dir_fd; // File Descriptor for source directory\nint new_dir_fd; // File Descriptor for destination directory\nconst char *old_rel_path = \"source_file\";\nconst char *new_rel_path = \"new_link\";\nint flags = 0;\n\n// Set up directory descriptors (e.g., via open() or AT_FDCWD)\nold_dir_fd = open(\"dir_a\", O_RDONLY | O_DIRECTORY);\nnew_dir_fd = AT_FDCWD; // Use current working directory\n\n// Atomically create a hard link\nint status = linkat(\n    old_dir_fd,\n    old_rel_path,\n    new_dir_fd,\n    new_rel_path,\n    flags // Usually 0 for hard links\n);\n\n// Check status, then close FDs\nif (status == 0) {\n    close(old_dir_fd);\n}\n<ctrl63>"
+}

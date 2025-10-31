@@ -1,0 +1,13 @@
+{
+  "topic": "Perfect Forwarding and Universal References: Preserving Categories and Qualifiers",
+  "explanation": "Perfect forwarding allows a function template to forward its arguments to another function without unnecessary copies or conversions, preserving the original value categories (lvalue or rvalue) and cv-qualifiers.  This is achieved using universal references (T&&). The compiler's implementation relies heavily on reference collapsing rules and its ability to distinguish between lvalues and rvalues at compile time.  This impacts memory layout by avoiding unnecessary copies and improves performance, particularly when dealing with large objects or expensive operations.  Assembly-level behavior will show fewer memory operations compared to a naive forwarding approach. At compile time, the compiler generates specialized versions of the function for different argument types and value categories, performing the appropriate forwarding mechanism (lvalue reference, rvalue reference, or by value). Runtime behavior depends on the actual arguments passed to the function; perfect forwarding only optimizes how those arguments are handled internally.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:03:55.873174",
+    "book_metadata_added": "2025-10-28T20:22:06.896607"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Mechanism: Universal References + Reference Collapsing\n\nstruct Data {};\n\n// Target function observes value category\ntemplate <typename T>\nvoid sink(T&& arg) {\n    // T will be either X& (lvalue) or X (rvalue)\n}\n\n// Forwarding Function (Universal Reference T&&)\ntemplate <typename T>\nvoid wrapper(T&& arg) {\n    // std::forward preserves the original value category of arg\n    sink(std::forward<T>(arg));\n}\n\n// Usage examples\nData d;\nwrapper(d);       // T deduced as Data& (lvalue forwarded)\nwrapper(Data{});  // T deduced as Data (rvalue forwarded)"
+}

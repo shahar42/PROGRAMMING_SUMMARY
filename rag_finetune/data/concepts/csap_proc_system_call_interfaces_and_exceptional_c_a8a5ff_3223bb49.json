@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Privileged Hardware Access",
+  "explanation": "System calls provide the interface between a process running in user mode and the operating system kernel, which runs in privileged mode.  They allow user-level programs to request services from the kernel, such as accessing hardware, managing processes, or performing I/O operations.  Exceptional control flow refers to the mechanism by which the operating system handles events outside the normal program execution path, such as system calls, interrupts, and exceptions. These events trigger a transfer of control from the user program to the kernel, allowing the OS to manage resources and maintain system stability.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "764-765",
+    "extraction_date": "2025-07-28T12:21:43.316766",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.694242"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// User Level Code (x86_64 Linux)\n// Requesting Privileged H/W Access (I/O)\n\n// Syscall convention (ECF Entry Point):\n// RAX: Syscall ID (0=read, 1=write)\n// RDI, RSI, RDX: Args 1-3\n\nconst long SYS_WRITE = 1;\nchar buffer[] = \"data\";\nlong bytes_written;\n\n__asm__ volatile (\n    \"mov %3, %%rax\\n\"  // Set SYS_WRITE (ID)\n    \"mov $1, %%rdi\\n\"  // Arg 1: FD=1 (STDOUT)\n    \"mov %1, %%rsi\\n\"  // Arg 2: Buffer Address\n    \"mov %2, %%rdx\\n\"  // Arg 3: Length\n    \"syscall\\n\"        // ECF Trigger: User -> Kernel (Privileged Mode)\n    : \"=a\" (bytes_written)\n    : \"g\" (buffer), \"g\" (sizeof(buffer)), \"i\" (SYS_WRITE)\n    : \"rdi\", \"rsi\", \"rdx\", \"rcx\", \"r11\"\n);\n// ECF Exit: Kernel returns to user mode, result in RAX (bytes_written)"
+}

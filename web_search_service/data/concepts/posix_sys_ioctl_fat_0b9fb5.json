@@ -1,0 +1,16 @@
+{
+  "topic": "ioctl_fat() System Call",
+  "explanation": "The ioctl system call manipulates metadata on FAT filesystems, such as file attributes, volume IDs, and directory entries, which are not accessible through standard system calls. It allows reading and writing of FAT-specific attributes and directory information using a file descriptor.\n\n**Parameters:**\n- `fd` (int): File descriptor for a file, directory, or filesystem object\n- `request` (int): The ioctl command, such as FAT_IOCTL_GET_ATTRIBUTES or VFAT_IOCTL_READDIR_BOTH\n- `arg` (void*): Pointer to argument data, which varies by request (e.g., uint32_t * for attributes, struct __fat_dirent for directory entries)\n\n**Common Errors:**\n- `ENOENT`: The file descriptor refers to a removed, but still open directory\n- `ENOTDIR`: The file descriptor does not refer to a directory\n- `ENOTTY`: The file descriptor does not refer to an object in a FAT filesystem\n\n**Related System Calls:** `ioctl()`, `open()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.202652",
+    "syscall_name": "ioctl_fat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_fat.json",
+    "concept_id": "posix_sys_ioctl_fat_0b9fb5",
+    "book_metadata_added": "2025-10-28T20:22:06.641241"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct fat_attr_data {\n    __u8 attributes;\n    __le16 creation_date;\n    // ... size and cluster fields\n};\n\nint fd; // Existing file descriptor\nstruct fat_attr_data attrs;\nint status;\n\n// Retrieve FAT attributes for the file\nstatus = ioctl(fd, FAT_IOCTL_GET_ATTRIBUTES, &attrs);\n\n// Set Volume Label (requires specific command and data)\nconst char* new_label = \"MY_VOL_ID\";\nioctl(fd, FAT_IOCTL_SET_VOLUME_ID, (void*)new_label);\n\n// Read directory entry data\nstruct vfat_dir_entry dir_data;\nioctl(fd, VFAT_IOCTL_READDIR_BOTH, &dir_data);",
+  "keywords": "ioctl FAT, FAT file attributes, VFAT ioctl, FAT metadata"
+}

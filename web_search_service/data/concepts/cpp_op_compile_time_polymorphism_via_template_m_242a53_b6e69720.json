@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism via Specialization and Recursion",
+  "explanation": "This focuses on how template metaprogramming, specifically using template specialization and recursion, allows for compile-time polymorphism, drastically impacting code generation and runtime performance.  Unlike runtime polymorphism (virtual functions), template metaprogramming performs all the type-specific computations during compilation. This eliminates the runtime overhead of virtual function calls but introduces increased compile times and potentially larger binary sizes for a wider range of template instantiations. The compiler generates distinct, optimized code for each specific type used with the template, potentially leading to better performance but demanding significant compiler resources.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:20:19.144788",
+    "book_metadata_added": "2025-10-28T20:22:06.833875"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <int N>\nstruct Factorial {\n    // Recursive step\n    static constexpr long value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n    // Base case specialization\n    static constexpr long value = 1;\n};\n\n// Compile-time usage: No runtime calculation overhead\nconstexpr long result_5 = Factorial<5>::value; // 120\n\n// Template parameter drives \"function\" selection\ntemplate <typename T>\nstruct SizeOfHelper {\n    static constexpr size_t size = sizeof(T);\n};\n\n// Polymorphism via specialization for void*\ntemplate <>\nstruct SizeOfHelper<void*> {\n    static constexpr size_t size = 8; // Assume 64-bit platform\n};\n\nconstexpr size_t s_int = SizeOfHelper<int>::size;\nconstexpr size_t s_void = SizeOfHelper<void*>::size;\n<ctrl63>",
+  "keywords": "Static Polymorphism, Template Metaprogramming, Compile-Time Polymorphism, Template Specialization"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Decltype(auto) Return: Dangling Reference Hazard",
+  "category": "type",
+  "explanation": "The C++14 feature `decltype(auto)` allows a function's return type to be deduced from its `return` statement, but using the rules of `decltype` rather than `auto`. This is a powerful tool for perfect forwarding of return values, but it carries a significant risk: a minor syntactic change in the `return` statement can cause the function to return a reference to a local variable.\n\nScott Meyers' crucial warning is to be extremely cautious with this feature. He demonstrates that returning a local variable `x` with `return x;` correctly deduces a value type, while `return (x);` deduces a reference type. This seemingly trivial addition of parentheses changes the function's behavior from safe to immediate undefined behavior, as it returns a dangling reference to a variable that is destroyed upon function exit.\n\nThe mechanics combine `auto`'s type deduction from an initializer with `decltype`'s rules. For a function declared with `decltype(auto)`, the compiler looks at the expression in the `return` statement. If the statement is `return expr;`, the function's return type becomes `decltype(expr)`. As per `decltype`'s rules, if `expr` is the name of a local variable `x`, the type is `x`'s declared type (a value). If `expr` is `(x)`, it's an lvalue expression, and the type becomes a reference to `x`'s type.\n\nIn practice, `decltype(auto)` is intended for generic code, particularly function wrappers that need to perfectly preserve the return type of a function they call. If the wrapped function returns by value, the wrapper should too. If it returns by reference, the wrapper must also return by reference. `decltype(auto)` combined with a forwarding `return` statement achieves this perfectly. It is not generally recommended for functions that return local variables.\n\nThe primary pitfall is the one Meyers highlights: accidentally returning a reference to a local variable. This can happen not just with parentheses but with any `return` statement whose expression evaluates to an lvalue. This creates a dangling reference, leading to unpredictable crashes or data corruption that can be very difficult to track down.",
+  "code_example": "// C++14 is required for decltype(auto)\n\ndecltype(auto) f1() {\n  int x = 0;\n  return x;       // Returns a copy of x. decltype(x) is int.\n                  // f1's return type is int.\n}\n\ndecltype(auto) f2() {\n  int x = 0;\n  return (x);     // DANGER: Returns a reference to x.\n                  // decltype((x)) is int&.\n                  // f2's return type is int&.\n                  // This is undefined behavior.\n}",
+  "practical_example": "When writing a generic logging decorator that wraps a function call, `decltype(auto)` allows the decorator to return the exact same type (value, lvalue-ref, or rvalue-ref) as the original function, preserving the API contract perfectly without needing to know the function's signature in advance.",
+  "keywords": [
+    "decltype(auto)",
+    "c++14",
+    "return type deduction",
+    "dangling reference",
+    "undefined behavior",
+    "perfect forwarding"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "28-29",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_type_decltype_with_auto_in_return_6da23c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

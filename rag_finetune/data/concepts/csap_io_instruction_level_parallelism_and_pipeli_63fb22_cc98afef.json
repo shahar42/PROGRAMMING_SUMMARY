@@ -1,0 +1,16 @@
+{
+  "topic": "Instruction-Level Parallelism and Pipelining",
+  "explanation": "Modern processors utilize pipelining to execute multiple instructions concurrently, overlapping the execution stages (fetch, decode, execute, memory access, write-back) of different instructions.  This significantly increases instruction throughput.  Instruction-level parallelism (ILP) exploits opportunities to execute multiple instructions simultaneously,  improving performance beyond what a single, sequential pipeline could achieve.  Understanding the pipeline stages and potential hazards (like data dependencies) is crucial for optimizing code for performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "435-435",
+    "extraction_date": "2025-07-26T23:43:40.845475",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.706621"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// MIPS 5-Stage Pipeline Conceptual Flow\n// Optimal throughput: 1 instruction per clock cycle (IPC=1)\nI1: Fetch | Decode | Execute | Memory | WriteBack\nI2:       | Fetch | Decode | Execute | Memory | WriteBack\nI3:       |       | Fetch | Decode | Execute | Memory | WriteBack\n\n// Data Hazard (Read After Write - RAW)\n// I2 needs R1 before I1 writes it back (WB)\nADD R1, R2, R3    // R1 written (Cycle 5)\nSUB R4, R1, R5    // R1 read (Cycle 3)\n\n// Hazard Solution: Forwarding (Bypassing)\n// Result of I1's EX stage feeds directly into I2's EX stage input\nI1: ... | EX(R1=X) | MEM | WB\nI2: ... | ID(Read R1) | EX(Uses X) | MEM | WB\n\n// Control Hazard Mitigation\n// Branch Prediction (Predict Taken/Not Taken)\nif (R1 == R2) {\n    JUMP target;\n}\n// Misprediction penalty = Pipeline flush (N cycles)\n\n// Instruction-Level Parallelism (Superscalar Execution)\n// Dispatching multiple independent instructions simultaneously (IPC > 1)\n// Cycle 1: Dispatch I1 (ALU) & I2 (LSU)\nI1: ADD R1, R2, R3  // Functional Unit A\nI2: LW  R4, 8(R5)   // Functional Unit B",
+  "keywords": "Instruction Pipelining, ILP, Pipeline Hazards, CPU pipeline"
+}

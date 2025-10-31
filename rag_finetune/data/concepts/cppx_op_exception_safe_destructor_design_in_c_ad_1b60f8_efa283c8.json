@@ -1,0 +1,16 @@
+{
+  "topic": "Exception-Safe Destructor Design in C++ (Advanced C Techniques)",
+  "explanation": "In advanced C programming, particularly when interfacing with C++ features or designing resource management routines, understanding how destructors behave during stack unwinding is crucial. Destructors are invoked automatically during exception propagation, and if they throw exceptions themselves, it can lead to program termination. Therefore, destructors must be written to handle potential errors internally, ensuring exception safety and program stability during complex control flows such as stack unwinding. This concept emphasizes designing destructors that are robust against exceptions, a critical aspect of advanced resource management and error handling in C++-style C programming.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "949-949",
+    "extraction_date": "2025-08-20T07:23:28.144086",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.562442"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// C++ Standard Practice: Never throw from a destructor (C.37)\nclass FileHandle {\n    FILE* fp;\npublic:\n    // Destructor must internally handle closing errors\n    ~FileHandle() {\n        if (fp) {\n            // Using non-throwing internal logic (e.g., C APIs)\n            if (fclose(fp) != 0) {\n                // Log or swallow error; DO NOT throw.\n                std::cerr << \"Error closing file.\" << std::endl;\n            }\n        }\n    }\n};\n\n// C++11 Default: Destructors are implicitly noexcept(true)\nstruct Socket {\n    int s;\n    ~Socket() noexcept { // Explicit declaration (Good practice)\n        if (s > 0) {\n            // Internal error handling ensures no throw\n            // close(s); // Assuming close() is non-throwing or handled\n        }\n    }\n};",
+  "keywords": "noexcept destructor, exception safe destructor, throwing destructor, destructor stack unwinding"
+}

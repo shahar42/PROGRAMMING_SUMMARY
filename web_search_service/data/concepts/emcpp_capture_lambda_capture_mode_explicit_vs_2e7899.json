@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Mode Explicit vs `std::bind` Implicit Forwarding",
+  "category": "capture",
+  "explanation": "Assumption: The method of passing arguments to a function object (whether created by lambda or `std::bind`) is always explicit or easily derivable. Reality: While lambdas explicitly define how parameters are passed (e.g., by value), the function call operator of an object resulting from `std::bind` uses perfect forwarding, meaning all arguments are implicitly passed by reference. Why It Fails: This implicit pass-by-reference behavior in `std::bind` can hide potential lifetime issues, especially if temporary objects are bound, leading to dangling references, which contrasts sharply with the explicit and safer syntax of lambdas.",
+  "code_example": "compressRate L(CompLevel::High); // Parameter passing is explicit\ncompressRate B(CompLevel::High); // Parameter passing is implicit reference (via perfect forwarding)",
+  "practical_example": "A developer uses `std::bind` to create a delayed task that captures a local variable. If the local variable goes out of scope before the task executes, the task object holds a dangling reference because `std::bind` implicitly captured the argument by reference via perfect forwarding.",
+  "keywords": [
+    "perfect forwarding",
+    "implicit reference",
+    "argument passing",
+    "dangling reference"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "238",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_capture_lambda_capture_mode_explicit_vs_2e7899",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

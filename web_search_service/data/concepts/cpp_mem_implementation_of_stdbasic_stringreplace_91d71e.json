@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::basic_string::replace and Dynamic Buffer Management",
+  "explanation": "The std::basic_string::replace function is part of the C++ Standard Library's string class, which manages a dynamic array of characters. Under the hood, compilers like GCC or Clang implement this via the library's source code (e.g., libstdc++ or libc++), typically involving checks for buffer capacity, potential reallocation, and data copying. When replace is called, it first verifies if the replacement string fits within the existing capacity; if not, it triggers a reallocation using the string's allocator (defaulting to std::allocator), which may involve calling malloc or new under the hood. This process includes: 1) Calculating the new size and checking against capacity. 2) If reallocation is needed, allocating a new buffer (e.g., via operator new[]), copying the unaffected portions of the string, inserting the new substring, and deallocating the old buffer. Memory layout involves a typical structure with a pointer to the character array, a size field, and a capacity field, often optimized with Small String Optimization (SSO) for short strings to avoid heap allocation. Performance implications include O(n) time complexity due to potential full-string copies during reallocation, leading to cache misses and increased runtime overhead. Assembly-level behavior might show calls to memory allocation routines (e.g., malloc in assembly) and string manipulation loops, as seen in disassembled code. This is primarily a runtime operation, as decisions like reallocation depend on dynamic factors (e.g., current string size), though constexpr contexts in C++20+ might allow some compile-time evaluation for static strings.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:02:49.569368",
+    "book_metadata_added": "2025-10-28T20:22:06.876683"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::string s = \"data to be replaced\";\ns.reserve(30); // Pre-set capacity (e.g., 30)\n\nstd::string huge_input(1000, 'A');\nsize_t old_cap = s.capacity();\n\n// s.replace(pos, count, replacement_str)\n// Check: (s.size() - count + huge_input.size()) > old_cap\n// If true: Internal dynamic buffer management triggers:\n// 1. Allocate new storage (larger capacity)\n// 2. Copy existing prefix/suffix data\n// 3. Copy replacement data\n// 4. Deallocate old storage\ns.replace(5, 4, huge_input); // Replacing \"to b\" (4 chars) with 1000 'A's\n\nsize_t new_cap = s.capacity(); // new_cap > old_cap\n// Buffer successfully resized and copied"
+}

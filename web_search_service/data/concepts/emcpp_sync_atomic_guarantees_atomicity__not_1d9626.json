@@ -1,0 +1,13 @@
+{
+  "topic": "Atomic Guarantees Atomicity, Not Optimization Suppression",
+  "category": "sync",
+  "explanation": "Assumption: Since `std::atomic` ensures operations like `load()` and `store()` are indivisible and visible across threads, it must also prevent the compiler from optimizing sequential reads. Reality: `std::atomic` is designed for concurrent programming synchronization, not for handling special memory. It does not prevent the compiler from optimizing multiple sequential reads within a single thread (e.g., reading the value once into a register and reusing that register value for subsequent operations or initializations). Why It Fails: If the atomic variable represents special memory (like a memory-mapped I/O register), reusing a cached register value instead of performing a fresh memory read (via `load()`) leads to incorrect behavior, as the external memory state may have changed between accesses. `std::atomic` is useful for concurrency but insufficient for special memory access.",
+  "code_example": "std::atomic<int> x, y;\n// Compiler may optimize this by reading x.load() only once into a register\nstd::atomic<int> y1( x.load() );\ny.store( x.load() ); ",
+  "practical_example": "A driver developer uses `std::atomic` for a hardware register address, expecting every `load()` to hit the physical memory location. The compiler optimizes sequential reads by caching the value, causing the system to miss critical updates written to the register by the hardware.",
+  "keywords": "std::atomic vs volatile, atomic register reuse, atomic compiler optimization",
+  "difficulty": "advanced",
+  "page_reference": "295-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_sync_atomic_guarantees_atomicity__not_1d9626",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

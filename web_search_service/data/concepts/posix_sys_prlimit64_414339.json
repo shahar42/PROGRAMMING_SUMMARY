@@ -1,0 +1,16 @@
+{
+  "topic": "prlimit64() System Call",
+  "explanation": "The prlimit() system call retrieves and sets resource limits for a specified process. It allows getting the current limits and optionally setting new ones, with soft and hard limits defined in the rlimit structure.\n\n**Parameters:**\n- `pid` (pid_t): The process ID of the target process for which limits are to be retrieved or set.\n- `resource` (int): The resource to get or set, such as RLIMIT_AS or RLIMIT_CPU.\n- `new_limit` (const struct rlimit *_Nullable): Pointer to a new rlimit structure to set, or NULL if not setting limits.\n- `old_limit` (struct rlimit *_Nullable): Pointer to store the old rlimit structure, or NULL if not retrieving limits.\n\n**Common Errors:**\n- `EFAULT`: A pointer argument points to a location outside the accessible address space.\n- `EINVAL`: The value specified in resource is not valid, or for setting limits, rlim->rlim_cur was greater than rlim->rlim_max.\n- `EPERM`: An unprivileged process tried to raise the hard limit, or the caller lacked permission for the target process.\n- `ESRCH`: Could not find a process with the ID specified in pid.\n\n**Related System Calls:** `getrlimit()`, `setrlimit()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.139840",
+    "syscall_name": "prlimit64",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_prlimit64.json",
+    "concept_id": "posix_sys_prlimit64_414339",
+    "book_metadata_added": "2025-10-28T20:22:06.602049"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct rlimit old_lim, new_lim;\npid_t target_pid = 0; // 0 refers to the calling process\n\n// 1. Retrieve current limits for CPU time (RLIMIT_CPU)\nint ret = prlimit(target_pid, RLIMIT_CPU, NULL, &old_lim);\n\n// 2. Define new limits\n// Set soft limit to 60 seconds\nnew_lim.rlim_cur = 60;\n// Retain the existing hard limit\nnew_lim.rlim_max = old_lim.rlim_max;\n\n// 3. Set the new limits\nret = prlimit(target_pid, RLIMIT_CPU, &new_lim, NULL);\n\nif (ret != 0) {\n    // Handle error (e.g., EPERM if trying to increase hard limit)\n}\n<ctrl63>",
+  "keywords": "prlimit64, process resource limits, rlimit pid"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Virtual Memory: Extending Physical Memory",
+  "explanation": "Virtual memory is a memory management technique that provides each process with its own private address space, independent of the physical memory.  This allows processes to access more memory than is physically available and enhances memory protection. Address translation is the process of mapping virtual addresses (used by processes) to physical addresses (used by the hardware). This mapping is crucial for isolating processes and enabling efficient memory usage.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "839-839",
+    "extraction_date": "2025-07-28T12:50:23.480569",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.706830"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define PAGE_SIZE 4096\ntypedef unsigned long ADDR;\n\n// Conceptual Page Table Entry (PTE)\nstruct PTE {\n    ADDR frame_num : 20; // Frame Address\n    unsigned int present : 1;    // Resides in RAM\n    unsigned int writable : 1;\n    unsigned int referenced : 1;\n    // ... protection bits\n};\n\n// Virtual Address (VA) -> Physical Address (PA)\nADDR translate(ADDR va, struct PTE* page_table) {\n    ADDR page_num = va / PAGE_SIZE;\n    ADDR offset = va % PAGE_SIZE;\n\n    struct PTE entry = page_table[page_num];\n\n    if (!entry.present) {\n        // Handle Page Fault (Swap required)\n        return 0; // Invalid address indicator\n    }\n\n    return (entry.frame_num * PAGE_SIZE) + offset;\n}"
+}

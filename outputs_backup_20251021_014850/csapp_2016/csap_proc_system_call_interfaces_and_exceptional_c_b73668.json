@@ -1,0 +1,25 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing files, managing memory, or creating processes. Exceptional control flow refers to the mechanisms by which the operating system handles unexpected events, such as interrupts or exceptions, transferring control to appropriate kernel handlers. Understanding system calls and exceptional control flow is crucial for building robust and efficient systems-level programs that interact properly with the underlying hardware and operating system.\n\nSystem calls provide the interface between user-level processes and the operating system kernel.  They allow applications to request services from the OS, such as file I/O, network communication, and process management. Exceptional control flow refers to the mechanism by which the CPU transfers control to a special exception handler in response to events like interrupts, exceptions, or system calls, enabling the OS to manage hardware and software interactions effectively. This is crucial for building robust and secure systems.\n\nSystem calls provide the interface between user-level processes and the operating system kernel. They allow programs to request services from the kernel, such as accessing hardware, managing files, or creating processes. Exceptional control flow refers to the unexpected changes in a program's execution path due to events like interrupts, exceptions, or signals.  Understanding this interaction is critical for building robust and reliable systems programs that can handle errors and interact effectively with the underlying hardware.",
+  "syntax": "Generally, a system call involves placing arguments in registers or on the stack, then executing a special instruction (e.g., `syscall` on x86-64) to trigger the call.  The OS kernel handles the request and returns a result or error code.  Exceptional control flow involves a change in program execution triggered by hardware or software events, causing the CPU to execute a specific handler.",
+  "code_example": "#include <unistd.h>\n#include <stdio.h>\n#include <stdlib.h>\nint main() {\n    pid_t pid = fork();\n    if (pid < 0) {\n        fprintf(stderr, \"Fork failed\\n\");\n        exit(1);\n    }\n    else if (pid == 0) {\n        // Child process\n        execve(\"/bin/ls\", (char *[]){\"ls\", \"-l\", NULL}, NULL);\n        perror(\"execve failed\"); // Should only reach here if execve fails\n        exit(1);\n    } else {\n        // Parent process\n        printf(\"Child process created with PID: %d\\n\", pid);\n        wait(NULL); // Wait for child process to finish\n        printf(\"Child process finished\\n\");\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the `fork` and `execve` system calls. `fork` creates a child process, which is an exact copy of the parent process.  The `execve` system call replaces the child process's image with the `/bin/ls` program. The parent process uses `wait` to wait for the child to finish.  This showcases exceptional control flow; the kernel handles the context switching between the parent and child processes, and error handling using `perror` demonstrates how the system responds to potential failures in `execve`. The interaction between the user-level C code and the kernel's system call handling illustrates a fundamental aspect of hardware-software interaction in computer systems.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "749-749",
+    "extraction_date": "2025-07-28T12:16:57.484756",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T15:01:41.925891",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "990-990",
+      "extraction_date": "2025-07-29T15:01:35.564272",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8680412769317627
+  }
+}

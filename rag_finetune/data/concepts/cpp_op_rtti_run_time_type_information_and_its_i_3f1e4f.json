@@ -1,0 +1,14 @@
+{
+  "topic": "RTTI (Run-Time Type Information) and its Implementation Details",
+  "explanation": "RTTI, enabled by the `<typeinfo>` header, allows querying the dynamic type of an object at runtime.  This contrasts with static type checking performed by the compiler.  The implementation varies significantly between compilers, but generally involves generating a table (or similar data structure) containing type information during compilation. This table is accessed at runtime using the `typeid` operator. The compiler generates code that searches this table based on the object's address or a virtual function table pointer (vtable pointer, if the object is polymorphic).  The performance cost can be significant, particularly if type identification is performed within frequently executed code paths, as it involves an indirect memory access and potentially a search operation within the type information table.  The memory overhead depends on the number of types used and the complexity of the generated type information.  Improper use can lead to performance bottlenecks or unexpected behavior if not carefully considered.  Furthermore, exception handling may be involved to deal with situations where type identification fails.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:34:06.665084",
+    "book_metadata_added": "2025-10-28T20:22:06.905691"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Base {\n    virtual ~Base() = default;\n};\nstruct Derived : Base {};\n\nBase* ptr = new Derived;\n\n// Static type check (Compile time)\nconst std::type_info& t_static = typeid(Base);\n\n// Dynamic type check (Requires VTable lookup via typeid(*ptr))\nconst std::type_info& t_dynamic = typeid(*ptr);\n\n// Runtime comparison\nbool check = (t_dynamic == typeid(Derived));\n\n// Standard library features\nconst char* type_name = t_dynamic.name();\nsize_t type_hash = t_dynamic.hash_code();\n\n// Ordering (implementation specific)\nbool relative = t_static.before(t_dynamic);\n<ctrl63>",
+  "keywords": "RTTI, typeid operator, Run-Time Type Information, Dynamic type checking"
+}

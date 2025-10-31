@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Clarity for Complex Function Composition",
+  "category": "design",
+  "explanation": "Assumption: `std::bind` is the primary tool for currying and composing complex function objects, especially when integrating with standard library functions. Reality: While `std::bind` is powerful, its use often leads to deeply nested calls where the intent is obscured by explicit template type arguments (in C++11) and the 'magic' of placeholders like `_1`. Why It Fails: Lambdas achieve the same composition using standard C++ syntax (operators and variable scope), resulting in code that is significantly shorter, more comprehensible, and easier to maintain than the equivalent `std::bind` expression.",
+  "code_example": "// Lambda (C++14):\nauto betweenL = [low, high](auto val) { return low <= val && val <= high; };\n\n// std::bind equivalent (C++11):\nauto betweenB = std::bind(std::logical_and<bool>(),\n                          std::bind(std::less_equal<int>(), low, _1),\n                          std::bind(std::less_equal<int>(), _1, high));",
+  "practical_example": "A developer needs to create a predicate that checks if an input value is within a dynamic range. Using `std::bind` requires multiple levels of nesting and explicit type specification for `std::logical_and` and `std::less_equal`, whereas a lambda expresses the logic directly in a single line.",
+  "keywords": "std::bind vs lambda, C++ function composition, std::bind complexity, lambda currying",
+  "difficulty": "intermediate",
+  "page_reference": "236-237",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_design_lambda_clarity_for_complex_function_58e57b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Combining Atomic and Volatile for Special Concurrent Memory",
+  "category": "design",
+  "explanation": "Since `std::atomic` addresses concurrency (atomicity) and `volatile` addresses compiler optimization suppression (special memory access), they are orthogonal concepts serving different masters. If a variable represents special memory (meaning its value can change externally, requiring suppressed optimization) AND it is accessed concurrently by multiple threads (requiring atomic operations), both keywords must be applied. The correct usage is `volatile std::atomic<T>`. This ensures that operations on the variable are atomic, AND the compiler is prohibited from caching reads or reordering writes, guaranteeing correct interaction with the external environment.",
+  "code_example": "volatile std::atomic<int> vai;    // Operations are atomic AND\n                                  // cannot be optimized away by caching",
+  "practical_example": "Developing a high-performance, multi-threaded driver that interacts with a memory-mapped hardware status register. The register must be accessed atomically to avoid race conditions between driver threads, and the access must be volatile to ensure the hardware's latest state is read immediately, not a cached CPU value.",
+  "keywords": "volatile std::atomic, atomic volatile combination, MMIO thread safety, hardware register concurrency",
+  "difficulty": "advanced",
+  "page_reference": "297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_design_combining_atomic_and_volatile_for_1c4cb3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

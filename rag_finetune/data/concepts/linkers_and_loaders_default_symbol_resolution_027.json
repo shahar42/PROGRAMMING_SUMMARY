@@ -1,0 +1,16 @@
+{
+  "topic": "Symbol Resolution Across Compilation Units",
+  "explanation": "Symbol resolution is the process of associating symbolic names (like function or variable names) used in a program's source code with their actual memory addresses during the linking and loading process.  This is crucial because different compilation units (object files) may define or reference the same symbols. The linker resolves these references by matching up the definitions and uses, ensuring that all parts of the program can communicate correctly.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "105-105",
+    "extraction_date": "2025-07-18T00:57:49.568795",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.746702"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Snippet 1: Basic External Linkage (Default behavior)\n// Requires definition in one compilation unit (A)\n// and declaration (using extern) in another (B).\n// --- Unit A (Definition) ---\nint application_status = 0;\nvoid start_engine() { /* ... */ }\n\n// --- Unit B (Reference) ---\nextern int application_status; // Declaration for the linker\nextern void start_engine();     // Matches Unit A's definition\n\nvoid init() {\n    application_status = 1;\n    start_engine();\n}\n\n// Snippet 2: Internal Linkage (Hiding Symbols)\n// Prevents symbol definition from being resolved externally.\n// --- Unit A ---\nstatic int local_counter = 5; // C style internal linkage\n\nnamespace {\n    // C++ style internal linkage (via anonymous namespace)\n    void private_utility() { /* ... */ }\n}\n\n// --- Unit B ---\n// extern int local_counter; // Linker error: cannot resolve\n// Cannot reference symbols defined internally in Unit A\n\n// Snippet 3: `extern \"C\"` (Resolving C++/C Conflicts)\n// Forces non-mangled symbol names for cross-language linking.\nextern \"C\" {\n    // Defines an external symbol using C linkage conventions\n    void shared_interface_call(int x);\n\n    int shared_config = 10;\n}\n\n// In a C source file, these are referenced simply:\nextern void shared_interface_call(int x);",
+  "keywords": "Linker Resolution, C/C++ Linkage, External Linkage"
+}

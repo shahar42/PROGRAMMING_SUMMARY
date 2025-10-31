@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism through Compiler Execution",
+  "explanation": "This concept explores how `constexpr` functions and template metaprogramming enable compile-time computation and polymorphism, eliminating runtime overhead.  The compiler effectively executes these functions during compilation, generating optimized code based on the known inputs.  This differs significantly from runtime polymorphism, which relies on virtual function tables (vtables) and indirect function calls.  Understanding the compiler's implementation involves analyzing how it performs constant folding, template instantiation, and potentially recursion during compilation, avoiding the need for runtime mechanisms. Memory layout is dramatically impacted; the generated code may not even include function calls associated with the metaprogrammed computation, leading to smaller executables and faster execution.  Assembly-level analysis would show the absence of runtime function calls and the presence of inlined code resulting from the compile-time evaluation.  The critical difference between runtime and compile-time behavior is the absence of any runtime overhead – the computations are performed before the program even runs.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:38:51.385078",
+    "book_metadata_added": "2025-10-28T20:22:06.978217"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// CTP via Const Expression Evaluation\nconstexpr int power(int base, int exp) {\n    int res = 1;\n    for (int i = 0; i < exp; ++i) res *= base;\n    return res;\n}\n// Compiler performs full execution here, result is hardcoded:\nconst int COMPILED_VAL = power(2, 8); // 256\n\n// CTP via Type Specialization (if constexpr, C++17)\ntemplate <typename T>\nauto execute_ctp(T arg) {\n    // Compiler selects branch based on known type, eliminating runtime dispatch\n    if constexpr (std::is_integral_v<T>) {\n        return arg * 2; // Path 1 selected\n    } else {\n        return arg.calculate(); // Path 2 selected\n    }\n}\nint result = execute_ctp(5);\n// Runtime overhead (vtable lookup) is avoided.",
+  "keywords": "Compile-time polymorphism, constexpr evaluation, Static polymorphism, Template Metaprogramming"
+}

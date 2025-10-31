@@ -1,0 +1,18 @@
+{
+  "topic": "Default `std::async` Policy Allows Synchronous Deferred Execution",
+  "category": "async",
+  "explanation": "Assumption: Calling `std::async(f)` guarantees that the function `f` will execute concurrently on a separate thread immediately or shortly after the call. Reality: `std::async` uses the default launch policy `std::launch::async | std::launch::deferred`. This policy permits the implementation to defer execution until the resultant `std::future`'s `get()` or `wait()` member function is called. In the deferred case, the function executes synchronously in the thread that waits for the result. Why It Fails: If asynchronous execution is required (e.g., for time-sensitive tasks or UI responsiveness), relying on the default policy is dangerous because execution might be deferred. To guarantee concurrency, the policy must be explicitly specified as `std::launch::async` (e.g., `std::async(std::launch::async, f)`).",
+  "code_example": "// Default policy may run func synchronously when future.get() is called.\nauto future = std::async(func);\n\n// Guarantee async execution:\nauto future_guaranteed = std::async(std::launch::async, func);",
+  "practical_example": "A program uses `std::async` to launch a long computation, intending to perform other work while waiting. Because the system is under load, the implementation chooses `deferred` execution. When the main thread calls `future.get()`, the entire long computation runs synchronously, freezing the application.",
+  "keywords": [
+    "std::launch::async",
+    "std::launch::deferred",
+    "synchronous execution",
+    "future"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 36: Specify std::launch::async if asynchronous execution is necessary",
+  "id": "emcpp_async_default__std__async_8f734b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Promoting Exception Safety",
+  "explanation": "RAII is a C++ idiom that ties resource management to object lifetime, ensuring resources like memory, files, or locks are acquired during object construction and released during destruction. This technique promotes exception safety and prevents resource leaks, which is crucial in real-world applications where programs handle multiple resources simultaneously. Best practices include using RAII with smart pointers (e.g., std::unique_ptr) or custom classes to manage non-memory resources, avoiding manual resource management that can lead to errors like dangling pointers or forgotten releases. Common pitfalls include forgetting to handle exceptions during acquisition or misusing RAII in multi-threaded environments; to avoid these, always ensure destructors are exception-safe and use std::lock_guard for mutexes.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:40:21.777571",
+    "book_metadata_added": "2025-10-28T20:22:06.550944"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class FileCloser {\n    FileHandle handle_;\npublic:\n    // Resource Acquisition Is Initialization (RAII)\n    explicit FileCloser(const char* filename)\n        : handle_(open_file(filename)) {}\n\n    // Resource released upon scope exit/exception\n    ~FileCloser() {\n        if (handle_.is_valid()) {\n            close_file(handle_);\n        }\n    }\n    // Rule of Zero/Five: Must manage ownership transfer\n    FileCloser(const FileCloser&) = delete;\n    FileCloser& operator=(const FileCloser&) = delete;\n};\n\nvoid process_data() {\n    FileCloser safe_file(\"data.txt\");\n    // ... potentially throwing code\n} // handle_ is guaranteed to close"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Decltype: Lvalue Expressions Yielding Reference Types",
+  "category": "type",
+  "explanation": "Decltype is a C++ compile-time operator that inspects and reports the exact declared type of a name or an expression, without evaluating it. Unlike template and auto type deduction, which may decay types by dropping references and const qualifiers, decltype provides a precise, unfiltered reflection of the type system.\n\nScott Meyers introduces decltype as a mechanism that, in its basic usage, behaves exactly as one would predict. It's a high-fidelity tool for type inspection. The key insight is its role as a counterpoint to the simplifying deductions of auto and templates. Where they are designed for convenience and often modify types, decltype is designed for precision and preservation of type details.\n\nThe mechanics of decltype are direct. When given the name of an entity (like a variable or function), it yields the declared type of that entity. For a variable declared as a const integer reference, decltype on its name yields const integer reference. When applied to an expression, decltype reports the type that the expression would yield. For a function call, this is the function's return type. Crucially, for expressions that yield lvalues, such as the result of the subscript operator on a standard container, decltype correctly deduces an lvalue reference type.\n\nThis precise type-querying capability is fundamental to advanced generic programming. In C++11, its primary use was in trailing return type syntax, enabling function return types to be expressed in terms of their parameters. This is essential when the return type depends on an expression involving template parameters. It's the foundation for perfectly forwarding return types and is a building block for more complex metaprogramming constructs and library facilities like the standard forward function.\n\nA common point of confusion, which Meyers alludes to as a source of surprises, is the subtle but critical difference between applying decltype to a name versus an expression that looks like a name. For instance, applying decltype to a variable name yields its declared type, but applying it to the same name enclosed in parentheses causes it to be treated as an expression, which typically results in a reference type. This distinction is a classic pitfall for those new to the feature.",
+  "code_example": "// decltype reports the exact type of a name\nconst int i = 0;\nconst int& j = i;\n\n// decltype(i) is 'const int'\n// decltype(j) is 'const int&'\n\n// decltype on an expression yields the expression's type\nstruct Point { int x, y; };\nPoint p;\n// decltype(p.x) is 'int'\n\nstd::vector<int> v(1);\n// decltype(v[0]) is 'int&', because operator[] returns a reference\n\nbool f(const Point& w);\n// decltype(f(p)) is 'bool'\n",
+  "practical_example": "When writing a generic wrapper function that calls another function, you can use decltype on the call expression to ensure your wrapper has the exact same return type, including whether it's a value, a reference, or a const reference. This is essential for perfect forwarding of return values.",
+  "keywords": [
+    "decltype",
+    "type deduction",
+    "declared type",
+    "expression type",
+    "reference types",
+    "const correctness",
+    "generic programming"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "23-24",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_type_decltype_for_names_versus_expressions_67bafb",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

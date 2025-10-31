@@ -1,0 +1,13 @@
+{
+  "topic": "Move Operations Failure on Const Objects",
+  "category": "move",
+  "explanation": "A critical anti-pattern arises when perfect forwarding attempts to move resources from a `const` object. Programmers often assume that if they use `std::forward` correctly within a templated function, they will automatically achieve the best possible performance, be it a copy or a move. However, `std::forward` simply casts the argument back to its original deduced value category and const-ness. If the template function receives an lvalue reference to a constant object (`const T&`), the deduced type `T` will be `const Type`. When `std::forward<T>(param)` is executed, the resulting expression is a `const Type&&` (an rvalue reference to a constant object). Move operations are overwhelmingly designed to steal resources from a non-const object, as stealing implies modifying the source (leaving it in a valid, unspecified state). Because the resulting rvalue reference is `const`, the compiler cannot find a suitable *const* move constructor (which rarely exists and would violate the principle of moving) and is forced to fall back to the copy constructor that accepts a `const` lvalue reference. This failure means that even though the programmer used perfect forwarding syntax, the result is still a full copy, leading to unexpected performance degradation. The assumption that 'if it looks like a move, it is a move' breaks down entirely in the presence of const qualification, forcing the expensive fallback behavior. This anti-pattern is difficult to spot because `std::forward` successfully casts to an rvalue reference, but the presence of `const` prevents the semantic move from occurring.",
+  "code_example": "template<typename T>\nvoid sink(T&& val) { \n    // If const X is passed, T is const X&. forward returns const X&&.\n    Container c(std::forward<T>(val)); // Calls copy constructor, not move!\n}",
+  "practical_example": "A system uses a high-performance cache built on a perfect forwarding function. When developers pass objects retrieved from a constant cache iterator (which returns a `const&`), they expect a fast transfer, but instead trigger unnecessary deep copies for every cached object, dramatically increasing latency and memory churn.",
+  "keywords": "std::forward const, Move from const, Perfect forwarding const reference, Const lvalue move",
+  "difficulty": "intermediate",
+  "page_reference": "189-191",
+  "chapter": "Item 25: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_operations_failure_on_const_860371",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

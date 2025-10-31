@@ -1,0 +1,14 @@
+{
+  "topic": "TMP via Template Parameters",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code based on template parameters.  This contrasts sharply with runtime computations.  The compiler effectively acts as a sophisticated code generator, creating highly optimized code before the program even executes.  Understanding how the compiler handles TMP involves grasping its recursive instantiation capabilities, the implications for code size (potentially larger but faster), and the potential for compile-time errors that might not surface until compilation is complete.  Memory layout is less directly affected by TMP itself but the generated code's memory usage will depend on its optimized nature.  Assembly-level behavior is often highly specialized; analysis requires examining the compiler's output, which is heavily influenced by optimization flags and compiler-specific behavior. Runtime performance benefits hugely as calculations that would normally take place at runtime are pre-calculated, resulting in faster execution.  However, complex TMP can lead to extremely long compile times and potential stack overflow issues during recursive template instantiation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:47:41.844834",
+    "book_metadata_added": "2025-10-28T20:22:06.855673"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <int N>\nstruct Factorial {\n    // Compile-time recursion via instantiation\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\n// Base Case Specialization (Stops recursion)\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\n// Example Usage\nconstexpr int F5 = Factorial<5>::value; // F5 is 120\n                                       // Calculated entirely at compile time.\n\n// Using dependent types (Type computation)\ntemplate <typename T, int N>\nstruct ArrayWrapper {\n    using Type = T[N];\n};\nusing Int5 = ArrayWrapper<int, 5>::Type; // Equivalent to int[5]",
+  "keywords": "Template metaprogramming, TMP, compile-time computation, C++ templates"
+}

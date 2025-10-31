@@ -1,0 +1,16 @@
+{
+  "topic": "futex() System Call",
+  "explanation": "The futex() system call provides a method for user-space programs to wait on a shared memory value until a condition is met, typically for synchronization purposes. It allows most operations in user space with kernel involvement only when blocking is necessary. Futexes are commonly used for implementing locks and other primitives in shared memory.\n\n**Parameters:**\n- `uaddr` (uint32_t *): Address of the futex word in shared memory\n- `futex_op` (int): The operation to perform, such as FUTEX_WAIT or FUTEX_WAKE\n- `val` (uint32_t): A value used for comparison or other purposes in the operation\n- `timeout` (const struct timespec *): Optional timeout for waiting operations\n- `uaddr2` (uint32_t *): Second address for operations like requeueing\n- `val3` (uint32_t): Third value used in specific operations, such as bit masks\n\n**Common Errors:**\n- `EACCES`: No read access to the memory of a futex word.\n- `EAGAIN`: The value pointed to by uaddr was not equal to the expected value.\n- `EAGAIN`: For FUTEX_CMP_REQUEUE, the value pointed to by uaddr is not equal to the expected value.\n- `EAGAIN`: For FUTEX_LOCK_PI operations, the futex owner thread ID issue.\n- `EDEADLK`: The futex word at uaddr is already locked by the caller.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.219098",
+    "syscall_name": "futex",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_futex.json",
+    "concept_id": "posix_sys_futex_c444b0",
+    "book_metadata_added": "2025-10-28T20:22:06.667015"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "uint32_t *uaddr;\nlong result;\n\n// Operation constants (FUTEX_WAIT, FUTEX_WAKE, etc.)\n// Timeout structure pointer (NULL for infinite wait)\nstruct timespec *tmo = NULL;\n\n// FUTEX_WAIT: Block if *uaddr == 1\n// Expects value 1, blocks until woken or timeout\nresult = syscall(SYS_futex,\n                 uaddr,\n                 FUTEX_WAIT,\n                 1,             /* val: expected value */\n                 tmo,\n                 NULL, 0);\n\n// FUTEX_WAKE: Wake up 3 waiting threads\nresult = syscall(SYS_futex,\n                 uaddr,\n                 FUTEX_WAKE,\n                 3,             /* val: max number to wake */\n                 NULL, NULL, 0);\n<ctrl63>",
+  "keywords": "futex, user space mutex, Linux synchronization primitive"
+}

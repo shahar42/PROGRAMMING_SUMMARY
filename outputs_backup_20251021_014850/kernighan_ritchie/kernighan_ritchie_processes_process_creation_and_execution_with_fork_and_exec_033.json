@@ -1,0 +1,15 @@
+{
+  "topic": "Process Creation and Execution with fork() and exec()",
+  "explanation": "In UNIX system programming, creating and managing processes is fundamental.  `fork()` duplicates the current process, creating a child process that's an almost exact copy.  `exec()` family of functions replaces the current process's image with a new program, effectively running a different executable within the same process ID.  These are crucial for building complex applications that leverage multiple processes for concurrency or running external commands.",
+  "syntax": "pid_t fork(void);\nint execl(const char *path, const char *arg0, ... , NULL);\nint execlp(const char *file, const char *arg0, ... , NULL); // other exec variants exist",
+  "code_example": "#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n#include <sys/wait.h>\nint main() {\n    pid_t pid = fork();\n    if (pid < 0) {\n        perror(\"fork failed\");\n        exit(1);\n    }\n    else if (pid == 0) {\n        // Child process\n        execlp(\"date\", \"date\", NULL);\n        perror(\"execlp failed\"); // only reached if execlp fails\n        exit(1);\n    } else {\n        // Parent process\n        wait(NULL); // Wait for child to finish\n        printf(\"Child process completed\\n\");\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates `fork()` and `execlp()`. `fork()` creates a child process. The child process executes `execlp(\"date\", \"date\", NULL)`, replacing its image with the `/bin/date` program.  The parent process waits for the child using `wait(NULL)`.  If `execlp` fails (for example, if the `/bin/date` program is not found),  the error handling in the child process will print an error message.  This showcases the fundamental process creation and execution mechanisms crucial in UNIX system programming.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "136-136",
+    "extraction_date": "2025-07-18T01:47:58.448515",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "unix_programming"
+  }
+}

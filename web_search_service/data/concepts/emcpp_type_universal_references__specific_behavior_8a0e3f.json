@@ -1,0 +1,18 @@
+{
+  "topic": "Universal References [Specific Behavior]: Type Deduction Inconsistency",
+  "category": "type",
+  "explanation": "Assumption: When using a universal reference (`T&&`), the deduced type `T` will consistently reflect the underlying type of the argument provided by the caller, simplifying internal logic. Reality: The type deduced for `T` differs radically depending on whether an lvalue or an rvalue is passed, creating type inconsistency that must be handled manually. Why It Fails: If an rvalue of type `Widget` is passed, `T` deduces to `Widget`. If an lvalue of type `Widget` is passed, `T` deduces to `Widget&` (an lvalue reference). This inconsistent deduction is precisely what enables reference collapsing to distinguish between lvalues and rvalues, but it means that the programmer cannot treat `T` uniformly inside the template body. For instance, checks relying on `std::is_const<T>` or size calculations based on `sizeof(T)` will yield different results depending on the value category of the input, requiring the use of `std::remove_reference_t<T>` or `std::decay_t<T>` to stabilize the type before performing type traits analysis. Failure to handle this inconsistency leads to template logic that breaks based on the caller's value category.",
+  "code_example": "// Failure of inconsistent T deduction\ntemplate<typename T>\nvoid f(T&& t) {\n  // If passed rvalue Widget, T is Widget.\n  // If passed lvalue Widget, T is Widget&.\n  // std::is_reference<T>::value returns true for lvalue input, false for rvalue input.\n}",
+  "practical_example": "A template attempts to use `T` to determine the underlying data alignment requirements. When passed an lvalue, `T` includes the reference qualifier, causing the alignment check to incorrectly fail or rely on reference-specific properties, leading to suboptimal memory layout or runtime errors.",
+  "keywords": [
+    "type deduction inconsistency",
+    "template parameter T",
+    "value category distinction",
+    "std::remove_reference"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "182-186",
+  "chapter": "Item 24: Distinguish universal references from rvalue references",
+  "id": "emcpp_type_universal_references__specific_behavior_8a0e3f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

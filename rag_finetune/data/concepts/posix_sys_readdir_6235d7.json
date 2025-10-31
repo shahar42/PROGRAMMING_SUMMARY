@@ -1,0 +1,16 @@
+{
+  "topic": "readdir() System Call",
+  "explanation": "The readdir system call reads a directory entry from the file descriptor into a buffer. It is part of the Linux kernel interface and is superseded by getdents(2), with the POSIX-compliant version available as readdir(3).\n\n**Parameters:**\n- `fd` (unsigned int): File descriptor of the directory to read from\n- `dirp` (struct old_linux_dirent *): Pointer to the buffer to store the directory entry structure\n- `count` (unsigned int): Ignored; at most one directory entry is read\n\n**Common Errors:**\n- `EBADF`: Invalid file descriptor fd\n- `EFAULT`: Argument points outside the calling process’s address space\n- `EINVAL`: Result buffer is too small\n- `ENOENT`: No such directory\n- `ENOTDIR`: File descriptor does not refer to a directory\n\n**Related System Calls:** `getdents()`, `readdir()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.167808",
+    "syscall_name": "readdir",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_readdir.json",
+    "concept_id": "posix_sys_readdir_6235d7",
+    "book_metadata_added": "2025-10-28T20:22:06.624275"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Linux kernel interface: readdir(2) (Deprecated)\n\nstruct old_linux_dirent {\n    long d_ino;\n    long d_offset;\n    unsigned short d_reclen;\n    char d_name[256];\n};\n\nunsigned int fd; // Directory file descriptor\nstruct old_linux_dirent dirp;\nssize_t ret;\n\n// Assume SYS_readdir is defined (e.g., 141 on x86_64)\n// int readdir(fd, dirp, count)\nret = syscall(SYS_readdir, fd, &dirp, 1);\n\n// Note: 'count' (3rd argument) is ignored; only one entry is read.\n\nif (ret > 0) {\n    // Successfully read directory entry into dirp\n}\n<ctrl63>",
+  "keywords": "readdir syscall, old_linux_dirent, readdir kernel, readdir obsolete"
+}

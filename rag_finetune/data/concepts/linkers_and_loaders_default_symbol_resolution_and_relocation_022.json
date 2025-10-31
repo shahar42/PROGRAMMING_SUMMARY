@@ -1,0 +1,16 @@
+{
+  "topic": "Symbol Resolution and Relocation in Single Object File",
+  "explanation": "Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up symbolic references (like function and variable names) in an object file to their actual memory addresses.  Relocation then adjusts the addresses within the object file to reflect their final positions in memory after linking. This ensures that the program's code and data can correctly access each other, regardless of where they are loaded into memory.  This is essential because different object files might be compiled separately and their memory addresses won't be known until the final link stage.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "81-81",
+    "extraction_date": "2025-07-16T23:03:15.952847",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.749165"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "typedef struct {\n    uint32_t name_index;   // String table offset\n    uint8_t  type_binding; // STT_FUNC, STT_OBJECT, STB_GLOBAL, STB_WEAK\n    uint16_t section_idx;  // SHN_UNDEF (reference) or defined section\n    uintptr_t value;       // Address relative to section start\n    uintptr_t size;        // Size of object/function\n} SymEntry; // Symbol Table Entry (Resolution Source)\n\ntypedef struct {\n    uintptr_t offset;      // Location (address) to patch\n    uint32_t info;         // (sym_index << 8) | type (R_X86_64_PC32)\n} RelocEntry; // Relocation Table Entry (Fixup Instruction)\n\n// Process:\n// 1. Find target symbol in SymEntry via info->sym_index.\n// 2. Calculate needed address 'A'.\n// 3. Patch code at RelocEntry->offset with 'A'.",
+  "keywords": "Symbol Resolution, Relocation, Linker Process, Object File Linking"
+}

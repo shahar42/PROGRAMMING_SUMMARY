@@ -1,0 +1,18 @@
+{
+  "topic": "Advanced Resource Management with Custom Cleanup Functions",
+  "explanation": "This concept involves designing and utilizing custom cleanup mechanisms, such as smart pointers or resource management wrappers, to ensure deterministic and exception-safe release of resources in C. Unlike manual free calls, these techniques embed cleanup logic within object lifetimes, preventing resource leaks even in complex control flows or error conditions. They are crucial for writing robust, maintainable, and efficient C code that manages resources like connections, memory, or file handles reliably.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "586-586",
+    "extraction_date": "2025-08-20T04:56:28.530925",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.559869"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "void fclose_wrapper(FILE **fp) {\n    if (*fp) {\n        fclose(*fp);\n    }\n    *fp = NULL;\n}\n\n// Resource allocated on the stack (local scope)\n__attribute__((cleanup(fclose_wrapper)))\nFILE *cfg_handle = NULL;\n\ncfg_handle = fopen(\"config.ini\", \"r\");\n\nif (cfg_handle == NULL) {\n    // Handle error (cleanup routine is skipped if stack unwinds)\n    return;\n}\n\n// Resource (cfg_handle) is automatically closed\n// when the current function scope exits.\n// Exception-safe cleanup mechanism.\n<ctrl63>",
+  "keywords": "RAII Pattern, Scope Guard, C Resource Management, Custom Cleanup"
+}

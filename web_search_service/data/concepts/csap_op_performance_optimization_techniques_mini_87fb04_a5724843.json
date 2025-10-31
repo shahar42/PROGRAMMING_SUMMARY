@@ -1,0 +1,15 @@
+{
+  "topic": "Performance Optimization Techniques: Minimizing Cycles Per Element (CPE)",
+  "explanation": "Minimizing Cycles Per Element (CPE) is a crucial performance optimization technique in computer systems architecture.  CPE represents the average number of clock cycles required to process a single data element in an algorithm. Reducing CPE directly improves the performance of computationally intensive operations. This is achieved by understanding and exploiting the underlying hardware, such as optimizing memory access patterns, using efficient algorithms, and leveraging instruction-level parallelism.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "601-601",
+    "extraction_date": "2025-07-28T11:03:40.356231",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.742962"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Technique: Loop Unrolling (Increasing Instruction-Level Parallelism - ILP)\n\nint sum = 0;\nint s0=0, s1=0, s2=0, s3=0;\n\n// Original (High CPE due to loop overhead and dependencies)\n// for (int i = 0; i < N; i++) { sum += A[i]; }\n\n// Optimized: 4-way Unrolling\nfor (int i = 0; i < N; i += 4) {\n    s0 += A[i];\n    s1 += A[i+1];\n    s2 += A[i+2];\n    s3 += A[i+3];\n}\nsum = s0 + s1 + s2 + s3; // Final reduction step\n// CPE reduced by factor of ~4 (ignoring cleanup)\n\n// Technique: SIMD Vectorization (Maximizing Throughput per Cycle)\n// Using SSE/AVX intrinsics to process multiple elements simultaneously\n\n#include <immintrin.h>\n\n// Vector Addition (Float, 4 elements per instruction)\nvoid vec_add(float* A, float* B, float* C, int N) {\n    for (int i = 0; i < N; i += 4) {\n        __m128 vA = _mm_loadu_ps(&A[i]);\n        __m128 vB = _mm_loadu_ps(&B[i]);\n        __m128 vC = _mm_add_ps(vA, vB);\n        _mm_storeu_ps(&C[i], vC);\n    }\n}\n// Theoretical CPE for add instruction approaches 1/4 or 1/8\n// (depending on vector width used, e.g., SSE vs AVX)"
+}

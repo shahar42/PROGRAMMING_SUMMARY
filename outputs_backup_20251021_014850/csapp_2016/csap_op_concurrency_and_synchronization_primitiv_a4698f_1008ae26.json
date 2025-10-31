@@ -1,0 +1,15 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency allows multiple tasks to proceed seemingly at the same time, improving performance.  However, shared resources require synchronization to prevent race conditions (unpredictable behavior due to unsynchronized access). Synchronization primitives, like mutexes (mutual exclusion locks), coordinate access to shared resources, ensuring data consistency and program correctness within a computer system.",
+  "syntax": "A mutex is a synchronization primitive implemented using functions like `sem_init()`, `sem_wait()`, and `sem_post()`.  `sem_wait()` acquires the lock (blocking if unavailable), `sem_post()` releases the lock.  The code block protected by a mutex is a critical section.",
+  "code_example": "#include \"csapp.h\"\n\nstatic int byte_cnt; /* Byte counter */\nstatic sem_t mutex; /* Mutex to protect byte_cnt */\n\nstatic void init_echo_cnt(void)\n{\n  Sem_init(&mutex, 0, 1); /* Initialize mutex to 1 (unlocked) */\n}\n\nvoid echo_cnt(int cnt)\n{\n  Sem_wait(&mutex); /* Acquire the mutex */\n  byte_cnt += cnt;\n  Sem_post(&mutex); /* Release the mutex */\n}",
+  "example_explanation": "This example demonstrates a simple counter protected by a mutex.  `init_echo_cnt` initializes the mutex to an unlocked state (1). `echo_cnt` uses `sem_wait` to acquire the mutex before updating `byte_cnt`. This prevents multiple threads from simultaneously modifying `byte_cnt`, thus avoiding race conditions.  After the update, `sem_post` releases the mutex, allowing other threads to access it.  The mutex ensures that `byte_cnt` is updated atomically and consistently, even with concurrent access.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1034-1034",
+    "extraction_date": "2025-07-29T16:15:07.635736",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

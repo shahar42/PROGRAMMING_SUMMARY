@@ -1,0 +1,25 @@
+{
+  "topic": "Modern C++ shared_ptr: Shared Ownership",
+  "explanation": "Smart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idioms, providing safer and more expressive memory management compared to raw pointers. Modern C++ emphasizes the use of smart pointers to handle ownership semantics explicitly, with std::unique_ptr for exclusive ownership and std::shared_ptr for shared ownership scenarios.\n\nModern C++ introduces smart pointers, such as std::unique_ptr and std::shared_ptr, to manage dynamic memory automatically and safely. They implement RAII (Resource Acquisition Is Initialization), ensuring that resources are released appropriately when the smart pointer goes out of scope, thus preventing memory leaks and dangling pointers. These smart pointers are essential for writing exception-safe code and for adhering to modern C++ best practices in resource management.\n\nSmart pointers in C++ provide automatic and exception-safe memory management by encapsulating raw pointers. They help prevent memory leaks and dangling pointers, especially in complex object-oriented and resource management scenarios. Modern C++ introduces std::unique_ptr for exclusive ownership and std::shared_ptr for shared ownership, enabling safer and more expressive resource handling aligned with RAII principles.\n\nSmart pointers in C++ provide automatic memory management by encapsulating raw pointers, ensuring proper resource deallocation when objects go out of scope. They help prevent memory leaks and dangling pointers, especially in complex object-oriented and template-based code. Modern C++ emphasizes the use of smart pointers such as std::unique_ptr and std::shared_ptr to manage dynamic resources safely and efficiently, adhering to RAII (Resource Acquisition Is Initialization) principles.\n\nSmart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idioms, providing safer and more expressive memory management compared to raw pointers. Modern C++ emphasizes the use of smart pointers such as std::unique_ptr and std::shared_ptr to handle ownership semantics explicitly, improving code safety and clarity.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "300-300",
+    "extraction_date": "2025-08-19T03:25:24.406840",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "merged_on": "2025-08-19T08:40:19.770043",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "1019-1019",
+      "extraction_date": "2025-08-19T08:40:19.189654",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8982111215591431,
+    "book_metadata_added": "2025-10-28T20:22:06.913564"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Resource { int value; };\n\n// Preferred creation: Atomically allocates control block and object\nauto p1 = std::make_shared<Resource>(42);\n\n// Establish shared ownership\nstd::shared_ptr<Resource> p2 = p1;\n\np1->value = 10; // Access via operator->\n(*p2).value = 20; // Access via operator*\n\nsize_t count = p1.use_count(); // count == 2\n\n// p1 releases ownership (count becomes 1)\np1.reset(); \n\n// Resource is destroyed when p2 goes out of scope (count hits 0)\n\n\n// --- Custom Deleter Example ---\n\n// Use raw pointer initializer for custom deleters\nstd::shared_ptr<int> p3(\n    new int[10], \n    [](int* raw_ptr) { \n        delete[] raw_ptr; \n    } \n);\n\n// Manages a C-style file handle\nFILE* f = fopen(\"log.txt\", \"r\");\nauto close_file = [](FILE* fp) { if (fp) fclose(fp); };\nstd::shared_ptr<FILE> file_ptr(f, close_file);\n// Resource automatically closed on destruction."
+}

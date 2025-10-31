@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Process Creation Privileges",
+  "explanation": "System calls provide the interface between a process running in user space and the operating system kernel.  They allow user-level programs to request services from the kernel (e.g., I/O, memory allocation, process creation) which are privileged operations that cannot be performed directly by the user program. Exceptional control flow, manifested through signals, allows the kernel to interrupt the normal execution of a program to handle events such as hardware interrupts or software signals. This interaction is crucial for managing asynchronous events and maintaining system stability.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "795-795",
+    "extraction_date": "2025-07-28T12:31:09.255247",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.723059"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// System Call: Requesting process creation (Privileged operation)\n// Kernel handles allocating resources and setting up state.\npid_t pid = fork();\n\nif (pid == 0) {\n    // Child context: Call execve (another syscall)\n    // Kernel must load new code and reset process memory layout.\n    char *const argv[] = {\"/bin/date\", NULL};\n    execve(\"/bin/date\", argv, NULL);\n    _exit(1); // Only executed if execve fails\n}\n\nif (pid > 0) {\n    // Parent context: Wait for child termination (waitpid syscall)\n    int status;\n    waitpid(pid, &status, 0);\n}\n\n// ECF (Exceptional Control Flow): Syscall errors or signals\n// are kernel-driven interruptions of normal user execution."
+}

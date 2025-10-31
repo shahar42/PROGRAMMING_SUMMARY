@@ -1,0 +1,16 @@
+{
+  "topic": "getunwind() System Call",
+  "explanation": "The getunwind() system call copies the kernel’s call frame unwind data into the buffer pointed to by buf and returns the size of the unwind data. It is specific to IA-64 architecture and describes the gate page.\n\n**Parameters:**\n- `buf` (void*): Pointer to the buffer where the unwind data is copied; data is only copied if buf_size is sufficient\n- `buf_size` (size_t): Size of the buffer; if greater than or equal to the unwind data size, data is copied; otherwise, no data is copied\n\n**Common Errors:**\n- `EFAULT`: The unwind info can’t be stored in the space specified by buf\n\n**Related System Calls:** `getauxval()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.236696",
+    "syscall_name": "getunwind",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getunwind.json",
+    "concept_id": "posix_sys_getunwind_2455b4",
+    "book_metadata_added": "2025-10-28T20:22:06.607693"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// IA-64 Specific System Call\n// Copies gate page kernel unwind data\nsize_t BUF_SIZE = 512;\nchar buf[BUF_SIZE];\nlong needed_size;\n\n// Returns required size (or < 0 on error)\nneeded_size = getunwind(buf, BUF_SIZE);\n\nif (needed_size < 0) {\n    // Handle error (e.g., ENOSYS on non-IA64)\n}\n\n// Common Error: Data is copied ONLY IF buf_size >= needed_size\nif (needed_size > BUF_SIZE) {\n    // Buffer too small. Data was NOT copied.\n    // Retry with malloc(needed_size)\n} else {\n    // Data copied successfully\n    // Data size is needed_size bytes\n}",
+  "keywords": "getunwind IA-64, IA-64 unwind data, Itanium stack unwinding"
+}

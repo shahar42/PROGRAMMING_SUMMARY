@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Decltype: Dangers in Perfect Forwarding Type Deduction",
+  "category": "type",
+  "explanation": "Assumption: When dealing with generic parameters (like those in C++14 lambdas using `auto&&`), using `decltype(param)` provides the exact type argument needed for `std::forward` to perfectly forward the value.\nReality: If a universal reference parameter `x` binds to an rvalue (e.g., a temporary `Widget`), `decltype(x)` yields an rvalue reference type (e.g., `Widget&&`).\nWhy It Fails: The conventional usage of `std::forward<T>` expects a non-reference type `T` when forwarding an rvalue. Using the resulting rvalue reference type (e.g., `Widget&&`) as the template argument `T` for `std::forward` causes complex template instantiation and reference collapsing rules to apply, potentially leading to incorrect forwarding behavior or violating the standard conventions for `std::forward`'s expected template argument.",
+  "code_example": "// Generic lambda parameter 'x'\nauto lambda = [](auto&& x) {\n  // Problematic attempt to use decltype for forwarding type\n  // process(std::forward<decltype(x)>(x)); \n  // Correct usage relies on the parameter type deduction (T)\n  // process(std::forward<decltype(x)>(x));\n};",
+  "practical_example": "A developer attempts to create a generic wrapper lambda that perfectly forwards its arguments to an internal function. By using `decltype(param)` directly as the template argument to `std::forward`, they inadvertently introduce reference collapsing issues when rvalues are passed, resulting in unexpected copies or compilation errors in specific contexts.",
+  "keywords": [
+    "decltype",
+    "perfect forwarding",
+    "rvalue reference",
+    "std::forward",
+    "universal reference"
+  ],
+  "difficulty": "expert",
+  "page_reference": "247-250",
+  "chapter": "Item 33: Understand std::forwarding reference and universal reference",
+  "id": "emcpp_type_lambda_decltype__dangers_in_5d3107",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

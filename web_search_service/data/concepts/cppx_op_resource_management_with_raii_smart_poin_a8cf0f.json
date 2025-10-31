@@ -1,0 +1,13 @@
+{
+  "topic": "Resource Management with RAII: Smart Pointers and Destructors",
+  "explanation": "Resource Acquisition Is Initialization (RAII) is a cornerstone of modern C++ design.  It dictates that resources (memory, files, network connections, etc.) should be managed by objects whose destructors automatically release those resources. This prevents resource leaks and simplifies error handling. Smart pointers, like `std::shared_ptr` and `std::unique_ptr`, embody this principle, providing automatic resource management and avoiding the pitfalls of manual memory management with `new` and `delete`.  The `std::unique_ptr` represents exclusive ownership; when it goes out of scope, the managed resource is automatically deleted. `std::shared_ptr` allows shared ownership; the resource is deleted only when the last `shared_ptr` pointing to it is destroyed. Using smart pointers significantly reduces the risk of memory leaks and dangling pointers, making code more robust and easier to maintain.  This is especially crucial when dealing with complex data structures or exceptions, ensuring consistent resource cleanup regardless of how the code execution path ends.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:11:32.757555",
+    "book_metadata_added": "2025-10-28T20:22:06.571034"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class FileHandle {\n    FILE* file;\npublic:\n    explicit FileHandle(const char* path, const char* mode)\n        : file(fopen(path, mode)) {}\n    ~FileHandle() { if (file) fclose(file); }\n    FileHandle(const FileHandle&) = delete;\n    FileHandle& operator=(const FileHandle&) = delete;\n};\n\nstruct HeavyData { int x; };\nstd::unique_ptr<HeavyData> uptr1 = std::make_unique<HeavyData>(10);\n// uptr1 is moved, uptr2 takes ownership\nstd::unique_ptr<HeavyData> uptr2 = std::move(uptr1);\n// Resource automatically freed when uptr2 goes out of scope.\n\nstruct Widget { void action() {} };\nstd::shared_ptr<Widget> sptr1 = std::make_shared<Widget>();\nstd::shared_ptr<Widget> sptr2 = sptr1;\n// Reference count (2) automatically managed.\nsptr1->action();\n// Resource freed only after both sptr1 and sptr2 are destroyed."
+}

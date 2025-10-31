@@ -1,0 +1,16 @@
+{
+  "topic": "Complex Pointer Manipulation and Memory Aliasing in Linked Data Structures",
+  "explanation": "This concept involves advanced techniques for manipulating pointers to create efficient, flexible linked data structures in C. It emphasizes understanding pointer aliasing, pointer arithmetic, and the implications for memory layout and data integrity. Mastery of these techniques allows for optimized traversal, modification, and dynamic restructuring of complex data structures without unnecessary copying or overhead, which is crucial in high-performance or resource-constrained environments.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "507-507",
+    "extraction_date": "2025-08-20T04:23:58.423368",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.564608"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "typedef struct Node {\n    int val;\n    struct Node *next;\n} Node;\n\n// Delete function using pointer-to-pointer (indirect pointer)\n// Allows uniform deletion of head, middle, or tail.\nvoid list_delete_key(Node **head, int key) {\n    Node **pp = head; // Pointer to the 'next' field pointer\n    while (*pp) {\n        if ((*pp)->val == key) {\n            Node *tmp = *pp;\n            *pp = tmp->next; // Pointer aliasing/re-linking\n            free(tmp);\n            return;\n        }\n        pp = &(*pp)->next; // Advance pp to point to the next node's 'next' field\n    }\n}\n//----------------------------------------------------------\n#define offsetof(T, M) ((size_t)&(((T*)0)->M))\n#define container_of(ptr, type, member) \\\n    (type *)((char *)(ptr) - offsetof(type, member))\n\n// Memory aliasing: Recovering base structure from internal field pointer\nstruct ListItem { struct ListItem *next; };\n\nstruct DataBlock {\n    int id;\n    int payload[10];\n    struct ListItem node; // Field used for linking\n};\n\nvoid process_node(struct ListItem *ln) {\n    // Calculate the address of the parent struct DataBlock\n    struct DataBlock *parent = container_of(ln, struct DataBlock, node);\n    parent->id = 42; // Modify data through the recovered pointer\n}",
+  "keywords": "Pointer aliasing, C pointer arithmetic, Linked list optimization, Complex pointer manipulation"
+}

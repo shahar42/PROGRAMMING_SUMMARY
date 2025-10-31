@@ -1,0 +1,14 @@
+{
+  "topic": "Explicitly Defined vs. Implicitly Defined Virtual Functions and Their Impact on vtable Layout and Performance",
+  "explanation": "This concept explores the differences between explicitly defined and implicitly defined virtual functions in C++, focusing on how compilers implement them, their impact on the virtual function table (vtable) layout, and resulting performance implications.  Explicitly defined virtual functions allow for more compiler optimization opportunities and potentially smaller vtables, while implicitly defined ones may lead to larger vtables and potentially less efficient function calls, especially in inheritance hierarchies.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:07:19.656472",
+    "book_metadata_added": "2025-10-28T20:22:06.838302"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\npublic:\n    virtual void op_req() = 0; // Slot 0 (Pure virtual)\n    virtual void op_opt() {}   // Slot 1 (Base implementation)\n};\n\n// Explicitly Defined (Optimization focus)\nclass Explicit : public Base {\n    void op_req() override;\n    void op_opt() override;\n}; // Tighter vtable, clear compiler dispatch path.\n\n// Implicitly Defined (Inherited default)\nclass Implicit : public Base {\n    void op_req() override;\n    // op_opt inherited. Vtable slot 1 must still exist,\n    // pointing back to Base::op_opt definition.\n}; // Potential vtable bloat/redundant indirection.",
+  "keywords": "vtable layout optimization, explicit virtual override, implicit virtual overhead"
+}

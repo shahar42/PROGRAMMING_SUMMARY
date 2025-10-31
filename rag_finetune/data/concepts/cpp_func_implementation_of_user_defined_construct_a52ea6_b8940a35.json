@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of User-Defined Constructors in C++",
+  "explanation": "In C++, user-defined constructors are special member functions that control object initialization. When a constructor like B2(double) is defined, the compiler treats it as a regular function but integrates it into the class's object creation process. The compiler does not generate a default constructor if any constructor is user-defined, meaning objects of this type cannot be default-initialized without arguments. Under the hood, the compiler generates code to invoke the constructor during object allocation, typically as part of the 'new' expression or automatic variable initialization. For memory layout, since struct B2 has no data members, its size is implementation-defined but often 1 byte to ensure it has a unique address (as per the C++ standard, empty objects must have non-zero size). This minimal layout avoids unnecessary padding or storage. Performance-wise, even an empty constructor incurs overhead from the function call, though modern compilers (e.g., GCC or Clang) may inline it if it's trivial, reducing runtime cost. At the assembly level, the constructor might translate to a simple prologue and epilogue (e.g., pushing registers and returning), with no actual operations if the body is empty. This behavior is runtime, as constructors execute when objects are created, but the compiler can perform optimizations like inlining during compilation. Overall, this feature highlights trade-offs in code generation: user-defined constructors provide flexibility but can introduce runtime penalties if not optimized.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:24:18.313565",
+    "book_metadata_added": "2025-10-28T20:22:06.892661"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Matrix {\n    int rows, cols;\npublic:\n    // User-defined non-default constructor\n    Matrix(int r, int c) : rows(r), cols(c) {}\n\n    // Key Implication:\n    // Compiler suppresses generation of Matrix()\n    // Matrix m1; // ERROR: Requires default constructor\n};\n\nMatrix m2(3, 3); // OK: Uses defined constructor",
+  "keywords": "user defined constructor, default constructor suppression, constructor overloading, C++ initialization rules"
+}

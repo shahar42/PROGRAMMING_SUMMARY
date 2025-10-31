@@ -1,0 +1,15 @@
+{
+  "topic": "Move Semantics and Rvalue References in C++",
+  "explanation": "Move semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying. Rvalue references (denoted by &&) allow functions to distinguish between lvalues and rvalues, facilitating resource transfer and optimization. This feature is essential for modern C++ programming to improve performance, especially when dealing with resource-intensive objects like containers, smart pointers, and user-defined types.",
+  "syntax": "template <typename T>\nT&& get_rvalue();\n\n// Function accepting an rvalue reference\nvoid process(T&& obj);",
+  "code_example": "#include <iostream>\n#include <vector>\nclass Buffer {\npublic:\n    std::vector<int> data;\n    Buffer() = default;\n    Buffer(const Buffer& other) : data(other.data) {\n        std::cout << \"Copy constructor\" << std::endl;\n    }\n    Buffer(Buffer&& other) noexcept : data(std::move(other.data)) {\n        std::cout << \"Move constructor\" << std::endl;\n    }\n};\n\nvoid processBuffer(Buffer&& buf) {\n    // Use move semantics to take ownership of buf's resources\n    Buffer localBuffer = std::move(buf);\n    std::cout << \"Processing buffer\" << std::endl;\n}\n\nint main() {\n    Buffer buf1;\n    processBuffer(std::move(buf1)); // Passing an rvalue to invoke move semantics\n    return 0;\n}",
+  "example_explanation": "This example demonstrates move semantics by defining a Buffer class with copy and move constructors. The function processBuffer accepts an rvalue reference to a Buffer object, allowing it to efficiently transfer resources using std::move. In main(), std::move(buf1) converts buf1 into an rvalue, enabling processBuffer to invoke the move constructor instead of copying. This showcases how rvalue references and move semantics optimize resource management in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1060-1060",
+    "extraction_date": "2025-08-19T08:57:28.540931",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "std::async Default Policy: Delegating Thread Management",
+  "category": "async",
+  "explanation": "Assumption: Calling `std::async(f)` guarantees that the function `f` will immediately run on a separate, concurrent thread. Reality: The default launch policy is `std::launch::async | std::launch::deferred`. This means the task may run asynchronously immediately, or its execution may be postponed (deferred) until the program calls `wait()` or `get()` on the returned `std::future`. Why It Works: This flexibility allows the C++ Standard Library to assume responsibility for crucial thread management tasks, including load balancing, preventing oversubscription, and optimizing thread creation/destruction overhead.",
+  "code_example": "auto fut1 = std::async(f); // Uses default policy\n// fut1 might run immediately, or it might wait until fut1.get() is called.",
+  "practical_example": "A developer expects a function to start heavy computation immediately upon calling `std::async`. If the system is highly loaded, the Standard Library might choose deferred execution, causing the computation to block the main thread later when results are requested via `get()`.",
+  "keywords": [
+    "std::async",
+    "default launch policy",
+    "deferred",
+    "load balancing",
+    "oversubscription"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-264",
+  "chapter": "Item 36: Understand std::async behavior under default launch policy",
+  "id": "emcpp_async_std__async_default_policy_5d2e67",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

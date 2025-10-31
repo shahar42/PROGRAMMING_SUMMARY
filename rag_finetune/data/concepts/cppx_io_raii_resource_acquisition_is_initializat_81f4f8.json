@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Preventing Resource Leaks",
+  "explanation": "RAII is a fundamental C++ programming technique that tightly couples resource management with object lifetime.  It ensures resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object goes out of scope. This prevents resource leaks and simplifies error handling.  Best practice dictates that you should almost always prefer RAII to manual resource management.  Common pitfalls include forgetting to handle exceptions properly, which might prevent destructors from running and releasing resources, leading to leaks.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:38:47.128080",
+    "book_metadata_added": "2025-10-28T20:22:06.546453"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ArrayResource {\n    int* data;\npublic:\n    explicit ArrayResource(size_t s) : data(new int[s]) {}\n\n    // RAII Core: Destructor releases resource\n    ~ArrayResource() { delete[] data; }\n\n    // Disable copying (Rule of Three/Five implication)\n    ArrayResource(const ArrayResource&) = delete;\n    ArrayResource& operator=(const ArrayResource&) = delete;\n};\n// Scope exit guarantees cleanup.\n\n\nstruct HeavyObject {};\n\n// Preferred RAII method for heap memory:\nstd::unique_ptr<HeavyObject> p1(new HeavyObject());\n\n// Alternative modern initialization:\nauto p2 = std::make_unique<int>(100);\n\n// No manual delete required; cleanup is automatic.\n// unique_ptr enforces move semantics (non-copyable ownership).\n\n\nstd::mutex mtx;\n\nvoid access_resource() {\n    // RAII for synchronization: Lock acquired\n    std::lock_guard<std::mutex> lock(mtx);\n\n    // Critical section code...\n\n    // If an exception is thrown, the destructor\n    // of lock_guard is executed, releasing the mutex.\n    // Lock released here (scope exit).\n}"
+}

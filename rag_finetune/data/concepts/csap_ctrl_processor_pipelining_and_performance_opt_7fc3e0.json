@@ -1,0 +1,16 @@
+{
+  "topic": "Processor Pipelining and Performance Optimization",
+  "explanation": "Modern processors utilize pipelining to execute multiple instructions concurrently, overlapping different stages of instruction processing.  Understanding pipelining is crucial for performance optimization because it allows for significant speed improvements, but also introduces hazards (data, control, structural) that can limit performance if not carefully managed. Optimizing code for pipelined processors involves minimizing these hazards and maximizing instruction-level parallelism.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "524-526",
+    "extraction_date": "2025-07-27T17:46:58.571571",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.705560"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Pipeline Optimization: Loop Unrolling (4x)\n// Reduces control hazards (branches), enables instruction scheduling\n// Uses Register Renaming (s0-s3) to break Write-After-Write hazards\nvoid vectorized_sum(float* data, int N) {\n    float s0=0.0f, s1=0.0f, s2=0.0f, s3=0.0f;\n    int i;\n    for (i = 0; i < N - 3; i += 4) {\n        s0 += data[i];\n        s1 += data[i+1]; // Independent dependency chains\n        s2 += data[i+2]; // Allows multiple ALU ops to execute concurrently\n        s3 += data[i+3];\n    }\n    // Cleanup loop omitted\n    // Final result: s0 + s1 + s2 + s3\n}\n\n// Data Hazard (RAW - Read After Write) Example\nint a = load_val();\nint b = a + 1; // Pipeline stall likely: b cannot read 'a' until 'a' is written back\n\n// Optimization: Instruction Scheduling\nint c = load_other_val();\nint d = c * 2; // Independent instruction fills load latency slot\n// b = a + 1;",
+  "keywords": "Instruction Pipelining, Pipeline Hazards, CPU Pipelining"
+}

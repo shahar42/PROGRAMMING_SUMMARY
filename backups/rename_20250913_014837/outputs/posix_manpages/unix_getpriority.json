@@ -1,0 +1,57 @@
+{
+  "name": "getpriority",
+  "synopsis": [
+    "#include <sys/resource.h>",
+    "int getpriority(int which, id_t who);",
+    "int setpriority(int which, id_t who, int prio);"
+  ],
+  "description": "getpriority() retrieves the scheduling priority (nice value) of a specified process, process group, or user. setpriority() sets the scheduling priority for the specified entities. The nice value affects process scheduling, with lower values indicating higher priority.",
+  "parameters": [
+    {
+      "name": "which",
+      "type": "int",
+      "description": "Specifies the type of entity: PRIO_PROCESS for a process, PRIO_PGRP for a process group, or PRIO_USER for a user"
+    },
+    {
+      "name": "who",
+      "type": "id_t",
+      "description": "The identifier for the entity; 0 denotes the calling process, process group, or real user ID depending on which"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the nice value (which may be negative) on success",
+    "failure": "Returns -1 on error and sets errno"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The caller attempted to set a lower nice value without required privilege"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The which value is not one of PRIO_PROCESS, PRIO_PGRP, or PRIO_USER"
+    },
+    {
+      "code": "EPERM",
+      "description": "The effective user ID does not match and the caller lacks privilege"
+    },
+    {
+      "code": "ESRCH",
+      "description": "No process was found matching the which and who values"
+    }
+  ],
+  "bugs": "According to POSIX, the nice value is a per-process setting, but under Linux/NPTL, it is a per-thread attribute, allowing different threads in the same process to have different nice values.",
+  "versions": "First appeared in 4.2BSD; variations in Linux kernels, such as changes from Linux 2.6.12",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "fork"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "getpriority.pdf",
+    "extraction_date": "2025-07-28T11:14:15.401667",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

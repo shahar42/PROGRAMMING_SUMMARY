@@ -1,0 +1,13 @@
+{
+  "topic": "Move Operations Failure due to Compiler Constraints (Noexcept)",
+  "category": "perf",
+  "explanation": "Assumption: If a type has a move constructor, the compiler will use it, especially within standard library containers like `std::vector` or `std::string`. Reality: Standard library containers will only utilize the move constructor if it is guaranteed not to throw an exception (i.e., it is marked `noexcept`). Why It Fails: When a `std::vector` needs to grow and reallocate its storage, it must copy or move existing elements to the new memory location. If the move constructor could throw, the container could end up in an inconsistent, corrupt state (some objects moved, some not) if the exception occurs midway through the relocation. To maintain strong exception guarantees, if the move constructor is not marked `noexcept`, the standard library silently falls back to using the copy constructor. This failure results in a massive performance penalty during container resizing and manipulation, simply because the programmer neglected the `noexcept` keyword, despite the move operation being logically safe and non-throwing.",
+  "code_example": "// Failure to declare move operation noexcept\nclass Widget { \n  // Requires deep copy if not declared noexcept for vector reallocations\npublic:\n  Widget(Widget&&) { /* safe code */ }\n};\n\nstd::vector<Widget> v(100); \nv.reserve(200); // Calls the copy constructor 100 times, not the move ctor!",
+  "practical_example": "A high-frequency trading platform uses `std::vector<Order>` where the `Order` class has a fast but non-`noexcept` move constructor. During peak load, vector reallocations occur, causing the system to copy massive amounts of data instead of moving pointers, leading directly to latency spikes and missed trade opportunities.",
+  "keywords": "noexcept move constructor, std::vector move failure, move constructor not used, move fallback to copy",
+  "difficulty": "intermediate",
+  "page_reference": "227-229",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_move_operations_failure_due_to_8a94a6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

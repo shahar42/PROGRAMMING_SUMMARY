@@ -1,0 +1,18 @@
+{
+  "topic": "std::bind Capture Mode Issue: Mandatory Argument Copying",
+  "category": "capture",
+  "explanation": "Pitfall: When using `std::bind`, the arguments provided to `std::bind` itself (the bound arguments, not the placeholders) are always copied into the resulting function object (closure). This behavior contrasts sharply with lambdas, which allow capture by reference or by value, and crucially, allow moving resources into the closure using C++14 init capture. Why It Matters: This mandatory copying in `std::bind` can introduce significant, unnecessary runtime overhead for large objects, or it can prevent `std::bind` from working correctly with move-only types (e.g., `std::unique_ptr`) unless explicit wrappers like `std::ref` or `std::move` are manually applied, complicating the syntax further.",
+  "code_example": "Widget w; // Assume Widget is large\n\n// Copies w into the closure object:\nauto f = std::bind(process, w, _1);\n\n// Lambda allows capture by reference or explicit move (C++14):\nauto g = [&w](int x) { process(w, x); };",
+  "practical_example": "A developer uses `std::bind` to schedule a deferred task that requires access to a large data structure (e.g., a massive `std::vector`). Since `std::bind` unconditionally copies the vector into the task object, the program suffers unexpected memory usage spikes and performance degradation that would be avoided if a lambda were used to capture the vector by reference (if safe) or moved (using init capture).",
+  "keywords": [
+    "std::bind",
+    "copying",
+    "mandatory copy",
+    "performance overhead"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "237 (footnote 1)",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_capture_std__bind_capture_mode_dbe4bc",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

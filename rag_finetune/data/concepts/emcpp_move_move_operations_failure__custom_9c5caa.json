@@ -1,0 +1,20 @@
+{
+  "topic": "Move Operations Failure: Custom Implementation Suppresses Default Generation",
+  "category": "move",
+  "explanation": "A core anti-pattern related to performance and correctness in C++ involves relying on implicit generation of move operations when custom resource management logic is already defined. The assumption underlying the 'Rule of Zero' is that if a class manages resources via standard library containers or smart pointers, the compiler will correctly synthesize the move constructor and move assignment operator. However, this relies on two primary failure mechanisms related to custom code. Firstly, if a class explicitly declares any of the 'Big Three' (destructor, copy constructor, copy assignment operator) pre-C++11, the compiler will *not* automatically generate the move constructor or move assignment operator. This behavior is designed to prevent incorrect move semantics for classes managing raw pointers or non-RAII resources manually. Consequently, the absence of move operations means that any attempt to utilize `std::move` on an object of this class will fall back entirely to copying, severely degrading performance or even leading to compilation errors if the copy operations are deleted. Secondly, the presence of a custom destructor is a common source of silent performance degradation. If a user defines a custom destructor (often necessary for logging, cleanup, or interfacing with C APIs), the compiler will automatically suppress the implicit generation of both the move constructor and the move assignment operator. This is a crucial failure point: the programmer assumes that because they are only managing cleanup (a destructor), the compiler will still provide efficient move operations, but the reality is that the custom destructor signifies non-trivial resource management, forcing the compiler to be conservative and suppress moves. Therefore, if a custom destructor is implemented, the programmer must explicitly define or explicitly default the move constructor and move assignment operator to restore efficient resource transfer. The failure to do so results in a class that syntactically supports moves (by accepting rvalue references) but semantically executes expensive copies, undermining the entire rationale for adopting move semantics.",
+  "code_example": "// Custom destructor suppresses default move ops, forcing copies.\nclass AntiPattern {\n    Resource* ptr;\npublic:\n    ~AntiPattern() { delete ptr; }\n    // Error: Move ops must be explicitly defined or defaulted.\n};\nAntiPattern p1;\nAntiPattern p2 = std::move(p1); // Hidden copy!",
+  "practical_example": "A developer writes a small wrapper around a legacy C library resource handle, requiring a custom destructor to call the C cleanup function. They forget to explicitly default the move operations. When this wrapper is used inside a `std::vector` and the vector is resized, the element transfers result in thousands of hidden copies instead of cheap pointer swaps, causing massive spikes in runtime during vector modifications.",
+  "keywords": [
+    "move generation",
+    "destructor",
+    "copy fallback",
+    "Rule of Five",
+    "anti-pattern",
+    "design"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "222-226",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_operations_failure__custom_9c5caa",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

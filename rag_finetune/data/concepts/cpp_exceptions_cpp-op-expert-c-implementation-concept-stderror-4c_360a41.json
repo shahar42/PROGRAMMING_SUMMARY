@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  std::error_code and std::error_condition",
+  "explanation": "This focuses on the implementation of `std::error_code` and `std::error_condition`, emphasizing how the compiler handles their interaction with error codes from the operating system and the C standard library (`errno`). We'll explore how these classes manage different error categories, their memory layout, and performance implications of comparisons and hashing.  The analysis will touch upon compile-time versus runtime aspects, particularly in regards to error category registration and the potential for optimization by the compiler.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:50:40.096806",
+    "book_metadata_added": "2025-10-28T20:22:06.820690"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class error_code {\n    int val_;\n    const error_category* cat_; // Pointer overhead (8 bytes typical)\n\npublic:\n    error_code(int v, const error_category& c) noexcept\n        : val_(v), cat_(&c) {}\n\n    const error_category& category() const noexcept { return *cat_; }\n    int value() const noexcept { return val_; }\n\n    // Fast check: category pointer equality + value comparison\n    bool operator==(const error_code& other) const noexcept {\n        return val_ == other.val_ && cat_ == other.cat_;\n    }\n    // Hashing combines val_ and cat_ address for lookup efficiency.\n};\n\n// ---\n\nclass error_category {\npublic:\n    // Virtual call overhead for cross-category comparison\n    virtual bool equivalent(int code,\n                            const error_condition& condition) const noexcept = 0;\n\n    // Default implementations rely on system/generic singletons\n    static const error_category& generic_category() noexcept;\n\n    // OS/C errno mapping uses category-specific equivalent logic\n    error_condition make_error_condition(int ev) const {\n        return error_condition(ev, *this);\n    }\n};"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Function Overloading and const-correctness",
+  "explanation": "Function overloading allows defining multiple functions with the same name but different parameter lists.  Const-correctness ensures that member functions don't modify the object's state when called on a const object. Combining these enhances code clarity, prevents unintended modifications, and improves code maintainability.  A common pitfall is forgetting to handle `const` correctly, leading to compilation errors or unexpected behavior.",
+  "syntax": "Multiple function declarations with the same name but differing parameter types (including `const`-qualified parameters).  Member functions should be declared `const` if they don't modify the object's state.\n\nExample:\n```c++\nclass MyClass {\npublic:\n  void myFunction(int x) { /* Modifies object state */ }\n  void myFunction(int x) const { /* Does not modify object state */ }\n};\n```",
+  "code_example": "#include <iostream>\n#include <string>\nstd::string shorterString(const std::string& s1, const std::string& s2) {\n  return s1.length() <= s2.length() ? s1 : s2;\n}\nstd::string shorterString(std::string& s1, std::string& s2) {\n  //Could modify s1 or s2 here if needed.  But in this example, we don't need to\n  return s1.length() <= s2.length() ? s1 : s2;\n}\nint main() {\n  std::string str1 = \"hello\";\n  std::string str2 = \"world\";\n  std::string result1 = shorterString(str1, str2); // Calls the non-const version if available; otherwise const version.\n  const std::string str3 = \"test\";\n  const std::string str4 = \"example\";\n  std::string result2 = shorterString(str3, str4); // Calls the const version only.\n  std::cout << result1 << \"\\n\" << result2 << std::endl;\n  return 0;\n}",
+  "example_explanation": "The `shorterString` function is overloaded to accept both `const` and non-`const` string references. The compiler chooses the appropriate version based on whether the arguments are `const` or not.  Using `const` correctly prevents accidental modification of constant strings and enhances code safety. The non-const version could be used when you need to modify the strings within the function (though this example doesn't).  This demonstrates that the compiler will prefer the non-const overload if possible, but will use the const overload when it's appropriate (i.e., when passed const strings).  This is a powerful technique in creating flexible and safe functions.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:02:57.936786"
+  }
+}

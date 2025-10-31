@@ -1,0 +1,25 @@
+{
+  "topic": "Template Class Specialization and SFINAE for Conditional Compilation",
+  "explanation": "In C++, template specialization allows developers to define custom implementations of a template for specific types or conditions, enabling tailored behavior. Substitution Failure Is Not An Error (SFINAE) is a technique that leverages template specialization and overload resolution to enable or disable template instantiations based on compile-time conditions. Together, these features facilitate writing highly generic, efficient, and type-safe code that adapts to different types or traits without runtime overhead.\n\nIn C++, template specialization and SFINAE (Substitution Failure Is Not An Error) enable developers to create flexible, type-dependent behaviors within template classes and functions. This allows the compiler to select the most appropriate implementation based on template parameters, facilitating compile-time polymorphism, type traits, and optimized code paths. These features are essential for writing generic, efficient, and type-safe code in modern C++.",
+  "syntax": "template <typename T>\nstruct Trait {\n    static constexpr bool value = false;\n};\n\n// Specialization for integral types\ntemplate <typename T>\nstruct Trait<T, typename std::enable_if<std::is_integral<T>::value>::type> {\n    static constexpr bool value = true;\n};\n\n// Function enabled only if T is integral\ntemplate <typename T>\nauto process(T t) -> typename std::enable_if<Trait<T>::value, void>::type {\n    // Implementation for integral types\n}\n\n// Function disabled if T is not integral\ntemplate <typename T>\nauto process(T t) -> typename std::enable_if<!Trait<T>::value, void>::type {\n    // Implementation for non-integral types\n}",
+  "code_example": "#include <iostream>\n#include <type_traits>\n\ntemplate<typename T>\nstruct TypeBehavior {\n    static void info() {\n        std::cout << \"Generic type\" << std::endl;\n    }\n};\n\n// Specialization for integral types\ntemplate<typename T>\nstruct TypeBehavior<T, typename std::enable_if<std::is_integral<T>::value>::type> {\n    static void info() {\n        std::cout << \"Integral type\" << std::endl;\n    }\n};\n\n// Specialization for floating-point types\ntemplate<typename T>\nstruct TypeBehavior<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {\n    static void info() {\n        std::cout << \"Floating-point type\" << std::endl;\n    }\n};\n\nint main() {\n    TypeBehavior<int>::info(); // Outputs: Integral type\n    TypeBehavior<double>::info(); // Outputs: Floating-point type\n    TypeBehavior<std::string>::info(); // Outputs: Generic type\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how template specialization combined with SFINAE (via std::enable_if and type traits) allows the program to select different implementations based on the type of the template parameter. The 'TypeBehavior' struct has specializations for integral and floating-point types, enabling compile-time decision-making. When calling 'TypeBehavior<T>::info()', the compiler chooses the appropriate specialization, illustrating modern C++ techniques for type-dependent behavior and generic programming.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "618-618",
+    "extraction_date": "2025-08-19T05:43:29.720933",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "merged_on": "2025-08-19T08:23:25.816171",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "978-978",
+      "extraction_date": "2025-08-19T08:23:23.057886",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8591068983078003
+  }
+}

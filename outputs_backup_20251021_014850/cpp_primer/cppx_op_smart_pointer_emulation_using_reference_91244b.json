@@ -1,0 +1,15 @@
+{
+  "topic": "Smart Pointer Emulation Using Reference Counting in C",
+  "explanation": "In advanced C programming, managing dynamic memory safely and efficiently often requires techniques similar to smart pointers in C++. Since C lacks built-in support for smart pointers, developers can emulate their behavior using reference counting mechanisms. This approach ensures that shared resources are automatically released when no longer in use, preventing memory leaks and dangling pointers. Implementing reference counting in C involves careful manipulation of counters and custom cleanup functions, enabling safer shared resource management in complex systems.",
+  "syntax": "typedef struct {\n    void *resource;\n    int *ref_count;\n    void (*release)(void *);\n} SharedResource;\n\n// Functions to initialize, increment, decrement, and release the resource",
+  "code_example": "typedef struct {\n    void *resource;\n    int *ref_count;\n    void (*release)(void *);\n} SharedResource;\n\nSharedResource *shared_create(void *res, void (*release_func)(void *)) {\n    SharedResource *sr = malloc(sizeof(SharedResource));\n    sr->resource = res;\n    sr->ref_count = malloc(sizeof(int));\n    *(sr->ref_count) = 1;\n    sr->release = release_func;\n    return sr;\n}\n\nvoid shared_acquire(SharedResource *sr) {\n    (*(sr->ref_count))++;\n}\n\nvoid shared_release(SharedResource *sr) {\n    if (--(*(sr->ref_count)) == 0) {\n        sr->release(sr->resource);\n        free(sr->ref_count);\n        free(sr);\n    }\n}",
+  "example_explanation": "This example demonstrates a manual implementation of reference counting to emulate smart pointer behavior in C. The 'SharedResource' struct holds a resource pointer, a reference count, and a release function. 'shared_create' initializes the shared resource with a reference count of one. 'shared_acquire' increments the count when a new owner is added, and 'shared_release' decrements the count, freeing the resource automatically when the count reaches zero. This pattern ensures proper resource management and prevents memory leaks in complex C programs, showcasing advanced techniques for safe shared resource handling.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "586-586",
+    "extraction_date": "2025-08-20T04:55:34.000017",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}

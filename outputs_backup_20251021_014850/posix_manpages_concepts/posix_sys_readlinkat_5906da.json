@@ -1,0 +1,15 @@
+{
+  "topic": "readlinkat() System Call",
+  "explanation": "The readlinkat() system call reads the contents of a symbolic link into a buffer. It allows specifying a directory file descriptor for relative paths, which are resolved relative to that directory instead of the current working directory. It operates similarly to readlink() but with enhanced path resolution capabilities.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor; if pathname is relative, it is resolved relative to this descriptor; use AT_FDCWD for current working directory.\n- `pathname` (const char *restrict): Path to the symbolic link; can be relative or absolute.\n- `buf` (char *restrict): Buffer to store the contents of the symbolic link.\n- `bufsiz` (size_t): Size of the buffer; contents may be truncated if too small.\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for a component of the path prefix.\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor.\n- `EFAULT`: buf extends outside the process\u2019s allocated address space.\n- `EINVAL`: bufsiz is not positive, or the named file is not a symbolic link.\n- `EIO`: An I/O error occurred while reading from the filesystem.\n\n**Related System Calls:** `lstat()`, `stat()`, `symlink()`",
+  "syntax": "ssize_t readlinkat(int dirfd, const char *restrict pathname, char *restrict buf, size_t bufsiz);",
+  "code_example": "#include <limits.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <sys/stat.h>\n#include <unistd.h>\n\nint main(int argc, char *argv[]) {\n    char *buf;\n    ssize_t nbytes, bufsiz;\n    struct stat sb;\n    if (argc != 2) {\n        fprintf(stderr, \"Usage: %s <pathname>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    if (lstat(argv[1], &sb) == -1) {\n        perror(\"lstat\");\n        exit(EXIT_FAILURE);\n    }\n    bufsiz = sb.st_size + 1;\n    if (sb.st_size == 0) bufsiz = PATH_MAX;\n    buf = malloc(bufsiz);\n    if (buf == NULL) {\n        perror(\"malloc\");\n        exit(EXIT_FAILURE);\n    }\n    nbytes = readlink(argv[1], buf, bufsiz);\n    if (nbytes == -1) {\n        perror(\"readlink\");\n        exit(EXIT_FAILURE);\n    }\n    printf(\"'%s' points to '%.*s'\\n\", argv[1], (int) nbytes, buf);\n    if (nbytes == bufsiz) printf(\"(Returned buffer may have been truncated)\\n\");\n    free(buf);\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the readlinkat() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.061110",
+    "syscall_name": "readlinkat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_readlinkat.json",
+    "concept_id": "posix_sys_readlinkat_5906da"
+  }
+}

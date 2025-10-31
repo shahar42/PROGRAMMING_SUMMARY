@@ -1,0 +1,17 @@
+{
+  "topic": "Type-safe Bitwise Flag Operations Using Enum Classes",
+  "explanation": "In modern C++, enum classes (scoped enumerations) are used to define strongly typed, scoped constants, including flags for bitwise operations. Unlike traditional enums, enum classes prevent implicit conversions to integers, enhancing type safety. When representing multiple options or flags (such as file open modes), combining enum class values with bitwise operators requires explicit operator overloading to ensure clarity and correctness. This approach improves code safety and readability by avoiding accidental misuse of bitwise operations on unrelated types.",
+  "syntax": "enum class EnumName : underlying_type {\n    Option1 = value1,\n    Option2 = value2,\n    // ...\n};\n\n// Overload bitwise operators for enum class\ninline EnumName operator|(EnumName lhs, EnumName rhs) {\n    return static_cast<EnumName>(\n        static_cast<std::underlying_type<EnumName>::type>(lhs) |\n        static_cast<std::underlying_type<EnumName>::type>(rhs)\n    );\n}\n\n// Usage: EnumName combined_flags = EnumName::Option1 | EnumName::Option2;",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <string>\nenum class FileMode : std::ios_base::openmode {\n    Read = std::ios_base::in,\n    Write = std::ios_base::out,\n    Append = std::ios_base::app\n};\n\ninline FileMode operator|(FileMode lhs, FileMode rhs) {\n    return static_cast<FileMode>(\n        static_cast<std::underlying_type<FileMode>::type>(lhs) |\n        static_cast<std::underlying_type<FileMode>::type>(rhs)\n    );\n}\n\nint main() {\n    FileMode mode = FileMode::Read | FileMode::Write;\n    std::fstream file;\n    file.open(\"example.txt\", static_cast<std::ios_base::openmode>(mode));\n    if (file.is_open()) {\n        file << \"Hello, C++!\";\n        file.close();\n    }\n    return 0;\n}",
+  "example_explanation": "This example defines a scoped enum class 'FileMode' to represent file open modes with strong type safety. The bitwise OR operator is overloaded to allow combining multiple flags explicitly. In 'main', the combined flags are used to open a file with both read and write permissions, demonstrating how enum classes with operator overloading facilitate safe and clear bitwise flag operations in modern C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1097-1097",
+    "extraction_date": "2025-08-19T09:12:59.196321",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level"
+  }
+}

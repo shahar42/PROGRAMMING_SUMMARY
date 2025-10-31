@@ -1,0 +1,27 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Compile-Time Polymorphism with `constexpr` and Template Metaprogramming",
+  "explanation": "This explores compile-time polymorphism achieved through `constexpr` functions and template metaprogramming.  Unlike runtime polymorphism (virtual functions), this happens entirely during compilation, leading to significant performance gains and potential code size reductions. The compiler generates specialized code for each instantiation of the template, eliminating the overhead of virtual function calls.  Memory layout depends entirely on the specific instantiation; there's no virtual table involved.  Assembly-level behavior will show direct function calls to the specialized code generated for that type, not indirect jumps through a vtable.",
+  "syntax": "```c++\ntemplate <typename T>\nconstexpr T square(T x) { return x * x; }\n\nint main() {\n  constexpr int sq_4 = square<int>(4); // Compile-time calculation\n  int sq_5 = square<int>(5); // Compile-time if possible, otherwise runtime\n  double sq_6_5 = square<double>(6.5); // Compile-time if possible, otherwise runtime\n  //The compiler may optimize away the runtime calculation if the argument is a constant expression\n  std::cout << sq_4 << ' ' << sq_5 << ' ' << sq_6_5 << '\\n';\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "template <typename T>",
+    "constexpr T factorial(T n) {",
+    "  return (n == 1 || n == 0) ? 1 : n * factorial(n - 1);",
+    "}",
+    "int main() {",
+    "  constexpr int fact_5 = factorial<int>(5); // Compile-time factorial",
+    "  std::cout << \"Factorial of 5 (compile time): \" << fact_5 << std::endl;",
+    "  int n = 6; ",
+    "  int fact_6 = factorial<int>(n); // Runtime if n is not a compile-time constant",
+    "  std::cout << \"Factorial of 6 (runtime): \" << fact_6 << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` example showcases compile-time vs. runtime behavior.  `fact_5` is computed entirely during compilation; the compiler substitutes its value directly into the code.  `fact_6`, however, may require runtime calculation if the compiler cannot determine `n`'s value at compile time. The assembly for `fact_5` will likely show the direct value (120) embedded in the code. For `fact_6`, it depends on the compiler's optimization level - it *might* still optimize it to compile-time calculation if it can deduce `n` at compile time or it might generate code for recursive function calls.  Note the critical role of `constexpr` in enabling compile-time evaluation. Without it, the compiler would treat `factorial` as a regular function, always executing it at runtime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:57:13.300880"
+  }
+}

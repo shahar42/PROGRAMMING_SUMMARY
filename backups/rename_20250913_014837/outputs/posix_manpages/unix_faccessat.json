@@ -1,0 +1,107 @@
+{
+  "name": "faccessat",
+  "synopsis": [
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "int faccessat(int dirfd, const char *pathname, int mode, int flags);"
+  ],
+  "description": "faccessat() checks the calling process's permissions for a file, similar to access(), but interprets relative paths relative to a specified directory file descriptor. It uses the process's real UID and GID for the checks.",
+  "parameters": [
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor; AT_FDCWD for current working directory"
+    },
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "Path to the file to check"
+    },
+    {
+      "name": "mode",
+      "type": "int",
+      "description": "Specifies accessibility checks (e.g., F_OK, R_OK, W_OK, X_OK)"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify behavior (e.g., AT_EACCESS, AT_SYMLINK_NOFOLLOW)"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 if all requested permissions are granted or the file exists",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The requested access would be denied, or search permission is denied for a directory in the path"
+    },
+    {
+      "code": "EBADF",
+      "description": "pathname is relative and dirfd is neither AT_FDCWD nor a valid file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "pathname points outside accessible address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode was incorrectly specified or invalid flag in flags"
+    },
+    {
+      "code": "EIO",
+      "description": "An I/O error occurred"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links encountered"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A component of pathname does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of pathname is not a directory, or pathname is relative and dirfd is not a directory"
+    },
+    {
+      "code": "EPERM",
+      "description": "Write permission requested for an immutable file"
+    },
+    {
+      "code": "EROFS",
+      "description": "Write permission requested on a read-only filesystem"
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "Write access requested to an executable being executed"
+    }
+  ],
+  "bugs": "The glibc wrapper for faccessat() in versions before 2.33 does not handle ACLs correctly and may not reflect actual permissions; it uses faccessat2() starting from glibc 2.33 to avoid this.",
+  "versions": "Linux 2.6.16, glibc 2.4",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "access",
+    "chmod",
+    "chown",
+    "open",
+    "stat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "faccessat.pdf",
+    "extraction_date": "2025-07-26T22:09:06.037397",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Init Capture Emulation using std::bind (C++11)",
+  "category": "capture",
+  "explanation": "Assumption: C++11 lambdas cannot capture move-only types by value. Reality: While direct value capture fails for move-only types, this limitation can be circumvented using `std::bind`. Why It Works: The object is moved into the `std::bind` object itself during the creation of the bind expression. The resulting `std::bind` object (which acts like the closure) then passes the internal copy/reference of that object to the actual C++11 lambda body as an argument. This technique is verbose but necessary for moving resources like `std::unique_ptr` into asynchronous contexts prior to C++14.",
+  "code_example": "// C++11 emulation of move capture:\nauto func = std::bind(\n  [](const std::unique_ptr<Widget>& pw) { ... },\n  std::make_unique<Widget>()\n);",
+  "practical_example": "Maintaining a legacy C++11 codebase that requires passing a `std::thread` object into a callable object that outlives the current scope. Since `std::thread` is move-only, `std::bind` must be used as an intermediary to facilitate the transfer of ownership.",
+  "keywords": [
+    "std::bind",
+    "C++11 workaround",
+    "move-only types",
+    "emulation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "228, 233",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_capture_lambda_init_capture_emulation_using_d375b1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

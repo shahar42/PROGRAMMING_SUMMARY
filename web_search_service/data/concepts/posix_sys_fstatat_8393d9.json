@@ -1,0 +1,16 @@
+{
+  "topic": "fstatat() System Call",
+  "explanation": "The fstatat() system call retrieves file status information for a specified path, which can be relative to a given directory file descriptor. It provides a flexible interface similar to stat(), lstat(), and fstat(), with options to control behavior via flags.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor, or AT_FDCWD for current working directory\n- `pathname` (const char *restrict): Path to the file or symbolic link\n- `statbuf` (struct stat *restrict): Pointer to a stat structure to store file information\n- `flags` (int): Flags to modify behavior, such as AT_SYMLINK_NOFOLLOW\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for one of the directories in the path prefix of pathname\n- `EBADF`: dirfd is not a valid file descriptor, or pathname is relative and dirfd is neither AT_FDCWD nor valid\n- `EFAULT`: Bad address\n- `EINVAL`: Invalid flag specified in flags\n- `ELOOP`: Too many symbolic links encountered while traversing the path\n\n**Related System Calls:** `stat()`, `fstat()`, `lstat()`, `statx()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.067230",
+    "syscall_name": "fstatat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fstatat.json",
+    "concept_id": "posix_sys_fstatat_8393d9",
+    "book_metadata_added": "2025-10-28T20:22:06.650500"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct stat sb;\nint dirfd = AT_FDCWD; // Search relative to CWD\nconst char *path = \"path/to/file\";\nint flags = AT_SYMLINK_NOFOLLOW; // or 0 to follow links\n\n// Use AT_FDCWD for standard stat() behavior\n// Retrieve status without following symlinks\nint result = fstatat(dirfd, path, &sb, flags);\n\nif (result == 0) {\n    // Status retrieved successfully\n    // sb.st_mode, sb.st_size, etc. available\n} else {\n    // Error: file not found (errno set)\n}\n<ctrl63>",
+  "keywords": "fstatat, statat, dirfd, file status"
+}

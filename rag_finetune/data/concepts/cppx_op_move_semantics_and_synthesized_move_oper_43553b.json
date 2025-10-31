@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics and Synthesized Move Operations",
+  "explanation": "Move semantics provide an efficient way to transfer resources (like dynamically allocated memory) between objects, avoiding unnecessary copies.  Instead of copying data, move semantics transfer ownership. This is crucial for performance, especially with large objects or containers. The compiler can *synthesize* (automatically generate) move constructors and move assignment operators, but only under specific conditions. Understanding these conditions is key to writing efficient and correct C++ code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:28:32.573330",
+    "book_metadata_added": "2025-10-28T20:22:06.540973"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct ImpliedMoveSuccess {\n    int x;\n    double y;\n\n    // Class has no user-defined:\n    // 1. Destructor\n    // 2. Copy Constructor\n    // 3. Copy Assignment Operator\n    // 4. Move Constructor\n    // 5. Move Assignment Operator\n\n    // Result: Move Ctor and Move Assignment are synthesized.\n};\n\nstruct BlockingDtor {\n    int* data;\n    BlockingDtor(int s) : data(new int[s]) {}\n    ~BlockingDtor() { delete[] data; }\n\n    // User-defined destructor exists.\n    // Result: Synthesis of Move Ctor/Assignment is blocked (C++11/14).\n    // Compiler still synthesizes Copy Ctor/Assignment (deprecated behavior).\n};\n\nstruct ForcedSynthesis {\n    int* data;\n    ForcedSynthesis(int s) : data(new int[s]) {}\n    ~ForcedSynthesis() { delete[] data; } // Blocks implicit synthesis\n\n    // Explicitly request the default generation:\n    ForcedSynthesis(ForcedSynthesis&&) = default;\n    ForcedSynthesis& operator=(ForcedSynthesis&&) = default;\n\n    // This is often insufficient for resources; \n    // manual move logic or Rule of Zero should be preferred.\n};\n\nstruct MoveDeletedByCopy {\n    MoveDeletedByCopy(const MoveDeletedByCopy&) {} // User-defined Copy Ctor\n\n    // Result: Move Ctor/Assignment are implicitly deleted \n    // (Synthesis fails because a Copy operation was defined).\n};",
+  "keywords": "Synthesized move operations, Defaulted move, Move constructor generation, C++ move semantics"
+}

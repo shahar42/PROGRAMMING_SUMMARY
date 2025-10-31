@@ -1,0 +1,13 @@
+{
+  "topic": "Void Futures for One-Shot Thread Suspension",
+  "category": "sync",
+  "explanation": "When the goal of synchronization is not to transmit a result value, but merely to signal the occurrence of an event (a one-shot notification), `std::future<void>` and `std::promise<void>` are effective. This pattern is particularly useful for creating a thread in a conceptually 'suspended' state (or a waiting state) immediately after creation. The thread function waits on the `void` future, and the creator thread fulfills the promise when it is ready for the working thread to execute. This mechanism is simpler than condition variables for single-event signaling.",
+  "code_example": "std::promise<void> p;\nstd::thread t([]() {\n  p.get_future().wait(); // Wait until promise is fulfilled\n  // ... execute task ...\n});",
+  "practical_example": "A high-performance application needs to ensure a critical worker thread has its priority configured before it starts processing data. The main thread creates the worker, configures its characteristics using `native_handle()`, and only then fulfills the `std::promise<void>`, releasing the worker thread to begin its specialized task.",
+  "keywords": "future void synchronization, thread startup wait, one-shot event, promise void signaling",
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 38: Be aware of the limitations of void futures",
+  "id": "emcpp_sync_void_futures_for_one_shot_bda786",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

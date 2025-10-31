@@ -1,0 +1,16 @@
+{
+  "topic": "Dependency Violations and Pipeline Stalls",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, this introduces hazards – situations where the pipeline's assumptions about instruction dependencies are violated.  Hazards can stall the pipeline, reducing performance.  Understanding and handling hazards is crucial for efficient processor design and maximizing performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "419-420",
+    "extraction_date": "2025-07-26T22:07:56.924358",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.703770"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// --------------------------------------------------\n// DATA HAZARD (RAW: Read After Write)\n// --------------------------------------------------\nI1: ADD R1, R2, R3  // R1 Written in WB (C5)\nI2: SUB R4, R1, R5  // R1 Needed in ID (C2)\n\n// Pipeline Timeline (Stall/Interlock Required)\n// C1: I1(IF)\n// C2: I1(ID), I2(IF)\n// C3: I1(EX), I2(STALL)\n// C4: I1(MEM), I2(STALL)\n// C5: I1(WB), I2(ID)\n\n// Mitigation: Data Forwarding/Bypassing\n// Result of I1 EX or MEM stage is piped\n// directly to I2 EX stage input.\n\n\n// --------------------------------------------------\n// STRUCTURAL HAZARD (Resource Conflict)\n// --------------------------------------------------\n// Single-ported Memory Unit (MEM)\nI1: LW R1, 0(R2)\nI2: SW R3, 4(R4)\nI3: LW R5, 8(R6)\n\n// C4: I1 (MEM), I2 (EX), I3 (ID)\n// C5: I1 (WB), I2 (MEM), I3 (EX)\n// C6: I2 (WB), I3 (MEM)\n\n// Conflict occurs if I1(MEM) and I3(IF) need the\n// same physical memory port simultaneously.\n// Solution: Duplicate the conflicted hardware unit\n// (e.g., Separate Instruction/Data Caches).\n\n\n// --------------------------------------------------\n// CONTROL HAZARD (Branch Delay)\n// --------------------------------------------------\nI_B: BEQ R1, R2, Target // Resolved in EX Stage (C3)\n\nI_F1: Next sequential instruction (Fetched C2)\nI_F2: Next sequential instruction (Fetched C3)\n\n// Assumption: Not Taken prediction fails\n// Pipeline must flush I_F1 and I_F2.\n// Penalty: (Pipeline depth - BRS stage index)\n// Mitigations: Branch Prediction, Delayed Slot\n//             (Executing useful instruction after I_B)",
+  "keywords": "Pipeline hazards, Pipeline stalls, Data hazards, Instruction pipelining"
+}

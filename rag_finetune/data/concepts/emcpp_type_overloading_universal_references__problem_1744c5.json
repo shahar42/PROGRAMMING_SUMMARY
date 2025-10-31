@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References [Problem]: Constrained T Failure",
+  "category": "type",
+  "explanation": "Assumption: If a universal reference template parameter (`T&&`) needs to be constrained to handle only non-const types (i.e., mutable lvalues or true rvalues), standard C++ features like `const T` in the template parameter or simple type checks can filter unwanted matches. Reality: The nature of universal reference deduction means that `T` *always* deduces to a non-reference type or an lvalue reference type that is inherently non-const. Attempting to constrain or filter the template by checking for `const` on `T` fails because the `const` property of the argument is encoded *outside* of `T` itself (e.g., the reference type is `const T&`). Why It Fails: If an lvalue `const Widget` is passed, `T` deduces to `const Widget`. If a mutable lvalue `Widget` is passed, `T` deduces to `Widget&` (and the reference collapses to `Widget&`). You cannot prevent `T` from being deduced as a `const` type when a `const` lvalue is passed. Therefore, simple template constraints that rely on `T` being non-const (e.g., SFINAE checks relying on `std::is_const<T>`) are misleading or incomplete. Effectively constraining universal references requires analyzing the *deduced type* (`T`) and the *resulting parameter type* to truly filter lvalue/rvalue categories, making the constraint logic unexpectedly complex.",
+  "code_example": "// Failure to use T to filter constness\ntemplate<typename T>\ntypename std::enable_if<!std::is_const<T>::value, void>::type \nf(T&& t) { /* ... */ }\n\nconst Widget cw; \nf(cw); // Fails compilation, T is deduced as const Widget, constraint is met (incorrectly).",
+  "practical_example": "A developer tries to restrict a move operation only to non-const rvalues using SFINAE on `T`, but fails to account for the fact that when a const lvalue is passed, `T` includes the const qualifier, bypassing the intended filter and leading to unexpected behavior.",
+  "keywords": [
+    "SFINAE failure",
+    "const constraint",
+    "deduction rules",
+    "template filtering"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "202-203",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_type_overloading_universal_references__problem_1744c5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

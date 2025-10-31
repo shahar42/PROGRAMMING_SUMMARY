@@ -1,0 +1,15 @@
+{
+  "topic": "Procedure Linkage Table (PLT) and Global Offset Table (GOT)",
+  "explanation": "The Procedure Linkage Table (PLT) and Global Offset Table (GOT) are crucial mechanisms for implementing dynamic linking in position-independent code (PIC).  They allow a program to call functions from shared libraries without knowing their exact memory addresses at compile time.  The PLT acts as an intermediary, resolving function addresses at runtime, while the GOT stores these resolved addresses. This is essential for shared libraries, allowing multiple programs to use the same library code in memory without conflicts.",
+  "syntax": "While the exact syntax varies across systems (e.g., ELF on Linux, Mach-O on macOS), the general principle is that the PLT contains jump instructions to the GOT.  The GOT initially contains placeholder addresses (often pointing to a resolution routine). When a function from a shared library is first called, the resolution routine is executed to find the function's actual address, which is then written into the GOT. Subsequent calls use the updated GOT entry.",
+  "code_example": "# This example is a conceptual illustration and will not compile directly.\n# It represents the core idea of PLT and GOT interaction.\n\n/* PLT entry for function 'my_shared_function' */\nplt_my_shared_function:\n  jmp *(got_my_shared_function);  # Jump to address in GOT\n\n/* GOT entry for function 'my_shared_function' */\ngot_my_shared_function: .quad resolver_routine; # Initially points to resolver\n\n/* Resolver routine (called once to get the real address) */\nresolver_routine:\n  # ...code to find the address of my_shared_function...\n  # ...update got_my_shared_function with the real address...\n  ret\n\n/* Call to the shared library function */\ncall plt_my_shared_function",
+  "example_explanation": "The code example simulates a simplified PLT and GOT.  Initially, the GOT entry for `my_shared_function` points to a `resolver_routine`.  When `plt_my_shared_function` is called (the first time), it jumps to this resolver. The resolver locates the true address of `my_shared_function` (e.g., from the shared library's symbol table) and updates the GOT entry.  Subsequent calls to `plt_my_shared_function` will directly jump to the correct address stored in the GOT, improving efficiency. This illustrates how PLT and GOT facilitate dynamic linking and address resolution at runtime, crucial for shared libraries.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "212-213",
+    "extraction_date": "2025-07-21T17:30:36.163058",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

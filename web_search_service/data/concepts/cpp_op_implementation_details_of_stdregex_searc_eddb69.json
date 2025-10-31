@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation Details of std::regex_search in C++",
+  "explanation": "std::regex_search is a C++ Standard Library function that performs a substring search for a regular expression pattern within a given sequence. Under the hood, the implementation typically involves compiling the regular expression pattern into a nondeterministic finite automaton (NFA) or, in some optimized libraries, a deterministic finite automaton (DFA). When a basic_regex object is constructed, the pattern is parsed at runtime (not at compile-time), and the compiler's standard library (e.g., libstdc++ or libc++) translates it into an internal representation, such as a state machine graph stored in memory. This graph consists of nodes (states) and edges (transitions based on input characters or conditions like Kleene star). Memory layout involves dynamic allocation for the NFA/DFA structure, including arrays or linked lists for states and transitions, which can lead to heap fragmentation and increased memory overhead. Performance implications are significant: NFA-based implementations often use backtracking, which can result in exponential time complexity for complex patterns (e.g., pathological cases like 'a?a?a?...a?'), whereas DFA optimizations reduce this but increase upfront compilation time. At the assembly level, regex_search translates to a series of loops and conditional jumps that iterate through the input sequence, evaluating state transitions\u2014e.g., comparing characters and branching based on match success. This is purely runtime behavior, as regex compilation and searching occur during program execution, not at compile-time, making it sensitive to input size and pattern complexity.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:30:17.319570",
+    "book_metadata_added": "2025-10-28T20:22:06.940415"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// REGEX CONSTRUCTION: NFA/DFA Compilation (Runtime Cost)\n// Pattern parsing and state machine generation happens here.\nstd::regex compiled_pattern(\"([A-Z]+)(\\\\d+)\"); \n\nstd::string sequence = \"START123_END\";\nstd::smatch match_results;\n\n// REGEX_SEARCH: NFA/DFA Traversal\n// Sequence is fed to the state machine defined by compiled_pattern.\nbool success = std::regex_search(sequence.cbegin(), \n                                 sequence.cend(), \n                                 match_results, \n                                 compiled_pattern);\n\n// match_results[0] is the full matched substring\n// match_results[1] holds the first capture group\n// Backtracking cost depends on NFA structure and input size."
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Design: Explicit Capture for Lifetime Awareness",
+  "category": "design",
+  "explanation": "Assumption: Using default reference capture (`[&]`) is acceptable for brevity, as the developer knows what is being captured. Reality: While `[&]` is concise, it masks the specific lifetime dependencies of the variables involved. Why It Fails: Explicitly naming variables captured by reference (e.g., `[&divisor]`) serves as a vital mnemonic device, forcing the developer to consciously consider whether the captured variable will live long enough for the closure to be safely invoked. This clarity significantly reduces the chance of accidentally creating dangling references compared to the general 'everything by reference' promise of `[&]`. ",
+  "code_example": "// Easier to spot the danger (requires thinking about 'divisor's lifetime):\nfilters.emplace_back([&divisor](int v) { return v % divisor == 0; });",
+  "practical_example": "In complex nested lambda scenarios, an implicit `[&]` capture quickly makes code unmaintainable and unreviewable, as reviewers must manually trace all variables used inside the lambda back to the surrounding scope to confirm their lifetime validity.",
+  "keywords": [
+    "explicit capture",
+    "design choice",
+    "lifetime awareness",
+    "default capture"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "234",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_design_lambda_design__explicit_capture_7da46f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

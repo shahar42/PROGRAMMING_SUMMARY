@@ -1,0 +1,16 @@
+{
+  "topic": "Object Member Initialization Order and Memory Layout in C++",
+  "explanation": "In C++, the memory layout of class objects is determined by the declaration order of non-static data members within the class, not by the order in which they are initialized in constructors' initializer lists. This internal ordering affects how objects are laid out in memory and can influence constructor behavior, especially when dealing with inheritance and member initialization dependencies. Understanding this internal mechanism is crucial for predicting object memory layout, avoiding subtle bugs, and optimizing constructor implementations.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "52-52",
+    "extraction_date": "2025-09-17T15:03:45.780070",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "book_metadata_added": "2025-10-28T20:22:06.683576"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class MemLayout {\n    int A; // Declared first: Lowest memory address\n    int B; // Declared second: Higher memory address\npublic:\n    // Initialization order (A then B) follows declaration order,\n    // REGARDLESS of initializer list order (B then A).\n\n    // A is initialized first (A=10).\n    // B is initialized second (B=10+1=11).\n    MemLayout() : B(A + 1), A(10) {}\n};\n// Memory Layout determined by declaration order: [A] [B]\n// Warning: Initializing B using A when A is uninitialized/defaulted\n// (if A was initialized later in the list) is UB in complex cases.",
+  "keywords": "C++ member initialization order, member declaration order, C++ object memory layout, initializer list order"
+}

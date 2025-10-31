@@ -1,0 +1,116 @@
+{
+  "name": "mknod",
+  "synopsis": [
+    "#include <sys/stat.h>",
+    "int mknod(const char *pathname, mode_t mode, dev_t dev);",
+    "#include <fcntl.h> /* Definition of AT_* constants */",
+    "#include <sys/stat.h>",
+    "int mknodat(int dirfd, const char *pathname, mode_t mode, dev_t dev);"
+  ],
+  "description": "The mknod() system call creates a filesystem node such as a regular file, device special file, or named pipe with the specified mode and device number. It sets the ownership and permissions based on the process's effective IDs and umask. The mknodat() variant allows specifying a directory file descriptor for relative paths.",
+  "parameters": [
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "The name of the node to create"
+    },
+    {
+      "name": "mode",
+      "type": "mode_t",
+      "description": "Specifies the file type and mode, combined with file mode bits"
+    },
+    {
+      "name": "dev",
+      "type": "dev_t",
+      "description": "Specifies major and minor numbers for device special files"
+    },
+    {
+      "name": "dirfd",
+      "type": "int",
+      "description": "Directory file descriptor for relative paths (mknodat only)"
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The parent directory does not allow write permission, or a directory in the path prefix does not allow search permission"
+    },
+    {
+      "code": "EBADF",
+      "description": "pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor (mknodat only)"
+    },
+    {
+      "code": "EDQUOT",
+      "description": "The user’s quota of disk blocks or inodes on the filesystem has been exhausted"
+    },
+    {
+      "code": "EEXIST",
+      "description": "pathname already exists or is a symbolic link"
+    },
+    {
+      "code": "EFAULT",
+      "description": "pathname points outside the accessible address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode requested creation of an invalid file type"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links were encountered in resolving pathname"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname was too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A directory component in pathname does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available"
+    },
+    {
+      "code": "ENOSPC",
+      "description": "The device containing pathname has no room for the new node"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component used as a directory in pathname is not a directory"
+    },
+    {
+      "code": "EPERM",
+      "description": "mode requested creation of an unauthorized file type and the caller lacks necessary privileges"
+    },
+    {
+      "code": "EROFS",
+      "description": "pathname refers to a file on a read-only filesystem"
+    }
+  ],
+  "bugs": "There are many infelicities in the protocol underlying NFS that affect mknod() and mknodat().",
+  "versions": "SVr4, 4.4BSD, POSIX.1-2001",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "chmod",
+    "chown",
+    "mkdir",
+    "mount",
+    "socket",
+    "stat",
+    "umask",
+    "unlink"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mknod.pdf",
+    "extraction_date": "2025-07-28T16:59:53.205486",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

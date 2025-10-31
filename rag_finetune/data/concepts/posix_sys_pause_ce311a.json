@@ -1,0 +1,16 @@
+{
+  "topic": "pause() System Call",
+  "explanation": "The pause() system call causes the calling process to sleep until a signal is delivered that either terminates the process or invokes a signal-catching function.\n\n**Common Errors:**\n- `EINTR`: A signal was caught and the signal-catching function returned\n\n**Related System Calls:** `kill()`, `select()`, `signal()`, `sigsuspend()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.087223",
+    "syscall_name": "pause",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pause.json",
+    "concept_id": "posix_sys_pause_ce311a",
+    "book_metadata_added": "2025-10-28T20:22:06.587678"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "void signal_handler(int sig) {\n    // Process woke up due to signal delivery (e.g., SIGALRM, SIGUSR1)\n}\n\nstruct sigaction sa = {0};\nsa.sa_handler = signal_handler;\nsigaction(SIGALRM, &sa, NULL);\n\n// Suspends execution until a signal is caught.\n// Return value is always -1 if it returns, as EINTR is the standard flow.\nint ret = pause();\n\nif (ret == -1 && errno == EINTR) {\n    // Expected behavior: signal caught, handler executed.\n}\n\n/* Related: sigsuspend() blocks specific signals */",
+  "keywords": "wait for signal, pause syscall, process suspend signal"
+}

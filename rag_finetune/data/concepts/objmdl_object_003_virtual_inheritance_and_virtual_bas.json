@@ -1,0 +1,14 @@
+{
+  "topic": "Virtual Inheritance: Resolving Diamond Problem",
+  "explanation": "Virtual inheritance in C++ addresses the 'diamond problem'\u2014the ambiguity that arises when a class inherits from two classes that share a common ancestor.  A naive implementation would lead to multiple copies of the common ancestor's data, violating the is-a relationship.  Virtual inheritance ensures only one copy of the virtual base class exists in the derived class's object. This is achieved through a sophisticated mechanism involving virtual base pointers and adjustments to member offsets.\n\nCompilers typically implement this using a combination of techniques. One common approach is to introduce a virtual base pointer (vbptr) within the derived class's object representation.  This pointer points to a shared instance of the virtual base class.  The offset of each member relative to the vbptr is calculated at compile time, accounting for the size and alignment of all preceding members and the virtual base class. During access to a member of the virtual base class, the compiler generates code to dereference the vbptr and add the appropriate offset to obtain the member's address.  The specific arrangement varies across compilers, and optimization strategies significantly affect the resulting memory layout.\n\nMultiple inheritance with virtual inheritance adds complexity. The compiler must carefully manage multiple virtual base pointers and maintain consistent member access regardless of the inheritance path.  The organization of the virtual function tables (vtables) also becomes more intricate, potentially requiring multiple vtables and sophisticated pointer adjustments for virtual function calls.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "extraction_date": "2025-09-17T14:58:49.674002",
+    "book_metadata_added": "2025-10-28T20:22:06.681243"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class Common {\npublic:\n    int data;\n    Common(int d) : data(d) {}\n};\n\nclass Left : virtual public Common {\npublic: Left() : Common(1) {}\n};\n\nclass Right : virtual public Common {\npublic: Right() : Common(2) {}\n};\n\n// The most derived class (Derived) is responsible\n// for constructing the virtual base (Common).\nclass Derived : public Left, public Right {\npublic:\n    Derived() : Common(3) {} // Initializes the single Common instance\n};\n\n// Derived obj; // obj.data == 3\n// sizeof(Derived) includes Common only once."
+}

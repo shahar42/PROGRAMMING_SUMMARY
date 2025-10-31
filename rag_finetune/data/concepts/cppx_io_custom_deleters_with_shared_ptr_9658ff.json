@@ -1,0 +1,14 @@
+{
+  "topic": "Custom Deleters with `shared_ptr`",
+  "explanation": "The `std::shared_ptr` manages the lifetime of dynamically allocated objects, automatically deleting them when the last `shared_ptr` pointing to them goes out of scope. However, sometimes the default deletion mechanism (using `delete`) isn't sufficient.  This is particularly true when dealing with resources that require more complex cleanup, such as closing files, releasing network connections, or unregistering from event systems.  Custom deleters provide a way to specify how a managed object should be deleted, allowing for more precise control over resource management.  This is a crucial aspect of RAII (Resource Acquisition Is Initialization), a fundamental C++ principle ensuring proper resource cleanup even in the face of exceptions.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:55:43.761108",
+    "book_metadata_added": "2025-10-28T20:22:06.536415"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Resource requiring delete[] cleanup, not default delete\nint* raw_array = new int[10];\n\n// Custom deleter (lambda) passed as the second argument\nstd::shared_ptr<int> array_manager(\n    raw_array,\n    [](int* p) { delete[] p; }\n);\n\n// Function Pointer Deleter Example\nvoid file_closer(FILE* f) { if (f) fclose(f); }\nstd::shared_ptr<FILE> log_file(\n    fopen(\"log.txt\", \"w\"),\n    file_closer\n);\n\n// Deleter stored as part of the shared_ptr type (Stateful/Functor)\nstruct SocketCloser {\n    void operator()(int* sock) const { close_socket(*sock); delete sock; }\n};\nstd::shared_ptr<int> socket_handle(new int(123), SocketCloser{});",
+  "keywords": "shared_ptr custom deleter, smart pointer cleanup function, shared_ptr specialized deletion"
+}

@@ -1,0 +1,66 @@
+{
+  "name": "msgctl",
+  "synopsis": [
+    "#include <sys/msg.h>",
+    "int msgctl(int msqid, int op, struct msqid_ds *buf);"
+  ],
+  "description": "msgctl() performs the control operation specified by op on the System V message queue identified by msqid. It can retrieve or set attributes of the message queue using a msqid_ds structure.",
+  "parameters": [
+    {
+      "name": "msqid",
+      "type": "int",
+      "description": "Identifier of the message queue"
+    },
+    {
+      "name": "op",
+      "type": "int",
+      "description": "Operation to perform, such as IPC_STAT, IPC_SET, or IPC_RMID"
+    },
+    {
+      "name": "buf",
+      "type": "struct msqid_ds *",
+      "description": "Pointer to a msqid_ds structure for data exchange, depending on the operation"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 for IPC_STAT, IPC_SET, and IPC_RMID; returns the index for IPC_INFO or MSG_INFO; returns the queue identifier for MSG_STAT or MSG_STAT_ANY",
+    "failure": "Returns -1 and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The operation requires read permission but the caller lacks it"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The address pointed to by buf is not accessible for IPC_SET or IPC_STAT"
+    },
+    {
+      "code": "EIDRM",
+      "description": "The message queue was removed"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid value for op or msqid, or the index in msqid is unused for MSG_STAT"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller lacks permission for IPC_SET or IPC_RMID, or attempts to increase msg_qbytes beyond limits without privileges"
+    }
+  ],
+  "bugs": "Various fields in the struct msqid_ds changed types between Linux versions (e.g., short to long from Linux 2.2 to 2.4), and some fields are Linux-specific extensions not in POSIX.",
+  "versions": "POSIX.1-2001, SVr4; Linux 2.4 and later for certain features",
+  "posix_compliance": "POSIX.1-2008",
+  "related_calls": [
+    "msgget",
+    "msgrcv",
+    "msgsnd"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "msgctl.pdf",
+    "extraction_date": "2025-07-29T11:55:51.116917",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

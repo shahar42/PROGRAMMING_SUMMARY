@@ -1,0 +1,15 @@
+{
+  "topic": "Atomicity Violation",
+  "explanation": "An atomicity violation is a concurrency bug in which a sequence of instructions intended to execute as a single, indivisible unit is interrupted by another thread, leading to inconsistent program states. It is important to understand this concept to identify and prevent errors in multi-threaded C programs, ensuring data integrity and reliability in concurrent environments.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "391-391",
+    "extraction_date": "2025-07-23T01:14:44.285089",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.779404"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "int shared_counter = 0;\n\n// Atomicity Violation: Read-Modify-Write is interrupted.\n// If two threads call this simultaneously, expected result 2, actual result 1.\nvoid* increment_unsafe(void* arg) {\n    // 1. READ (Load value into CPU register/local variable)\n    int temp = shared_counter;\n\n    // *** CONTEXT SWITCH/INTERRUPTION HERE ***\n\n    // 2. MODIFY (Compute new value)\n    temp = temp + 1;\n\n    // 3. WRITE (Store computed value back)\n    shared_counter = temp;\n    return NULL;\n}\n\n// Fix: Requires synchronization (e.g., mutex lock around the three steps)\n// or use of atomic types.",
+  "keywords": "Race condition, non-atomic operation, data race"
+}

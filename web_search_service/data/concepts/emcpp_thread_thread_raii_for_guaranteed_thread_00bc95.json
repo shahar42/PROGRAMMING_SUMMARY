@@ -1,0 +1,13 @@
+{
+  "topic": "Thread RAII for Guaranteed Thread Cleanup",
+  "category": "thread",
+  "explanation": "Assumption: Developers must manually manage every possible execution path to ensure a `std::thread` is either joined or detached before its managing variable goes out of scope. Reality: If a `std::thread` object is destroyed while still representing an active, joinable thread, the program terminates via `std::terminate`. Why It Fails: Manual management is error-prone, especially with exceptions. The RAII pattern solves this by wrapping the `std::thread` in a helper class (like `ThreadRAII`) whose destructor guarantees that the appropriate action (join or detach, defined by policy) is taken if the thread is still joinable. This prevents resource leaks and unexpected termination.",
+  "code_example": "class ThreadRAII { \npublic:\n ~ThreadRAII() {\n    if (t.joinable()) { /* join or detach based on policy */ }\n  }\nprivate:\n  std::thread t;\n};",
+  "practical_example": "A function starts a background thread and then throws an exception. Without RAII, the stack unwinds, the `std::thread` object is destroyed, and the program crashes. Using `ThreadRAII` ensures the thread is cleaned up (e.g., joined or detached) during stack unwinding.",
+  "keywords": "Thread RAII, Automatic thread cleanup, RAII thread wrapper, std::thread destructor terminate",
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Make std::thread Objects Unjoinable on All Paths",
+  "id": "emcpp_thread_thread_raii_for_guaranteed_thread_00bc95",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

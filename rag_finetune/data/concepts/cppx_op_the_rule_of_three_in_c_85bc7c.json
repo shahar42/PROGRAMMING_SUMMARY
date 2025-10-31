@@ -1,0 +1,14 @@
+{
+  "topic": "The Rule of Three in C++",
+  "explanation": "The Rule of Three is a fundamental C++ best practice for classes that manage resources, such as dynamically allocated memory. It states that if a class defines any one of a destructor, a copy constructor, or a copy assignment operator, it should probably define all three to ensure proper resource management and avoid issues like double deletion or resource leaks. In real-world scenarios, this is crucial for classes that own pointers or other exclusive resources, as the default compiler-generated versions perform shallow copies, which can lead to undefined behavior. Best practices include using the Rule of Three to enforce the principle of least surprise, ensuring objects behave as values (deep copies) or as unique owners (like smart pointers in modern C++). Common pitfalls include forgetting to implement these when a class has a pointer member, resulting in crashes or leaks; to avoid this, always check if your class manages resources and implement the necessary operations. This concept is particularly relevant in performance-critical or long-running applications, such as game engines or servers, where efficient memory handling prevents bugs.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:11:50.155036",
+    "book_metadata_added": "2025-10-28T20:22:06.553040"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class DynamicArray {\n    int* data;\n    size_t len;\npublic:\n    // Ctor (Rule of Three applies because of 'new')\n    DynamicArray(size_t l) : len(l), data(new int[l]) {}\n\n    // 1. Destructor: MUST clean up dynamic resource\n    ~DynamicArray() { delete[] data; }\n\n    // 2. Copy Constructor: MUST perform deep copy\n    DynamicArray(const DynamicArray& other)\n        : len(other.len), data(new int[other.len]) {\n        for (size_t i = 0; i < len; ++i) data[i] = other.data[i];\n    }\n\n    // 3. Copy Assignment Operator: Handle self-assignment, cleanup, deep copy\n    DynamicArray& operator=(const DynamicArray& other) {\n        if (this != &other) {\n            delete[] data;\n            len = other.len;\n            data = new int[len];\n            for (size_t i = 0; i < len; ++i) data[i] = other.data[i];\n        }\n        return *this;\n    }\n};",
+  "keywords": "Rule of Three, The Big Three, C++ copy control, resource management"
+}

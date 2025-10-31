@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Design: Ensuring Unjoinability on All Scope Exits",
+  "category": "design",
+  "explanation": "Because destroying a joinable thread terminates the program, the developer must ensure that every possible path out of the scope where a `std::thread` object is defined\u2014including normal flow, `return`, `continue`, `break`, `goto`, and exceptions\u2014results in the thread being made unjoinable (via `join()` or `detach`). This requirement puts a significant onus on the programmer and is best solved by utilizing the RAII idiom, typically through a custom thread guard class (or `std::jthread` in C++20) that automatically calls `join()` or `detach()` in its destructor.",
+  "code_example": "// Must cover every path:\nvoid complexFunc() {\n  std::thread t(...);\n  if (error) return; // Must join/detach before returning\n  // ...\n  t.join();\n}",
+  "practical_example": "In a function with complex branching logic, a developer uses `std::thread` but only calls `join()` at the very end of the function body. If an early `return` or `goto` statement is introduced later during maintenance, the thread skips the join call, leading to termination when the thread object is destroyed.",
+  "keywords": [
+    "RAII",
+    "scope exit",
+    "join",
+    "detach",
+    "thread guard"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "271-273",
+  "chapter": "Item 37: Remember to make std::threads unjoinable on all paths",
+  "id": "emcpp_design_thread_design__ensuring_unjoinability_a1ba9d",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

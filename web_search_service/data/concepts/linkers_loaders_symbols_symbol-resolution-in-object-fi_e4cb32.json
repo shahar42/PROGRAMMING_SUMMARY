@@ -1,0 +1,16 @@
+{
+  "topic": "Symbol Resolution in Object Files",
+  "explanation": "Symbol resolution is the process of matching up symbolic references in a program (like function or variable names) with their actual addresses in memory during the linking and loading process.  This is crucial because object files contain symbolic references rather than absolute memory addresses.  The linker and loader resolve these symbols, ensuring that calls to functions or accesses to variables are correctly directed. Different object file formats (like COFF and ELF) have their own mechanisms for storing and accessing symbol information.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "180-180",
+    "extraction_date": "2025-07-21T01:46:31.164469",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.750364"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Symbol Definition (ELF st_info contains binding and type)\ntypedef struct {\n    uint32_t st_name;   // Index into String Table\n    uint8_t  st_info;   // Binding (GLOBAL/LOCAL) | Type (FUNC/OBJECT)\n    uint16_t st_shndx;  // Section index of definition\n    Elf64_Addr st_value; // Final/Resolved address (or section offset)\n} Elf64_Sym;\n\n// Symbol Reference Requiring Resolution (ELF Relocation Entry)\ntypedef struct {\n    Elf64_Addr r_offset; // Location in object file needing fixup\n    Elf64_Xword r_info;  // Symbol Index (S) + Type of relocation (T)\n} Elf64_Rel;\n\n// Linker Resolution Logic (Simplified Rela type):\n// Target_Addr = SymbolTable[S].st_value + Addend + r_offset\n// Patch memory at r_offset with calculated Target_Addr\n// (Ensures cross-object file calls are valid)",
+  "keywords": "Symbol resolution, Linker symbols, Object file symbols, Relocation"
+}

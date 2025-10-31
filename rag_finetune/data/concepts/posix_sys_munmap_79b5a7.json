@@ -1,0 +1,16 @@
+{
+  "topic": "munmap() System Call",
+  "explanation": "munmap() removes a mapping in the virtual address space of the calling process that was previously created by mmap(). It unmaps a region starting at the specified address for the given length.\n\n**Parameters:**\n- `addr` (void *): The starting address of the mapped region to unmap.\n- `length` (size_t): The length of the mapped region to unmap, which must be greater than 0.\n\n**Common Errors:**\n- `EINVAL`: The addr or length parameters are invalid (e.g., they are too large or not aligned on a page boundary).\n- `ENOMEM`: The process’s maximum number of mappings would have been exceeded, such as when unmapping a region in the middle of an existing mapping.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.183910",
+    "syscall_name": "munmap",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_munmap.json",
+    "concept_id": "posix_sys_munmap_79b5a7",
+    "book_metadata_added": "2025-10-28T20:22:06.582547"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define PAGE_SIZE 4096\n\nvoid *addr;\nsize_t length = PAGE_SIZE * 10;\n\n// 1. Create a region to unmap\naddr = mmap(NULL, length, PROT_READ | PROT_WRITE, \n            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);\n\nif (addr == MAP_FAILED) { /* handle error */ }\n\n// 2. Remove the virtual memory mapping\nint status = munmap(addr, length);\n\nif (status == -1) {\n    // EINVAL: addr not page aligned or length is zero/invalid.\n    // EFAULT: Internal kernel error.\n    perror(\"munmap failed\");\n}\n\n// addr is now an invalid pointer.",
+  "keywords": "munmap, unmap memory region, mmap cleanup, deallocate mmap"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Type Deduction Inspection: Triggering Incomplete Template Errors",
+  "category": "debug",
+  "explanation": "A powerful and reliable technique for determining a type deduced by the compiler is to intentionally trigger a compilation error. This is achieved by attempting to instantiate an undefined class template with the type expression you wish to inspect. The compiler, unable to find a definition for the template, will issue an error message that almost invariably includes the exact, fully-qualified type it was trying to instantiate.\n\nScott Meyers presents this as a superior alternative to runtime methods for understanding the compiler's type deduction process. The key insight is that this technique operates purely at compile-time, providing a direct and unfiltered view of the type system. It avoids the runtime-related type modifications, such as reference and const stripping, that can obscure the true deduced type. This method reveals precisely what the compiler knows, when it knows it.\n\nThe mechanics are straightforward: you declare a class template without providing a definition. In the code where you want to inspect a type, such as one deduced by 'auto' or a template parameter, you declare a variable of this incomplete template, using the variable or type expression in question as the template argument. The compiler must first determine the type of the argument to instantiate the template. When it then fails to find a definition for that instantiation, it reports an error, helpfully naming the type it couldn't create.\n\nIn practice, this is an invaluable tool for debugging complex templates, 'auto' declarations, and 'decltype' specifiers. It allows a developer to quickly verify assumptions about how types are being deduced, especially when dealing with forwarding references, const-correctness, and value categories. It provides immediate feedback within the build process, without needing to run the program or link it. This is especially critical in library development where the exact deduced type has significant semantic implications.\n\nThe primary thing to be aware of is that the format of the error message is entirely compiler-dependent. While all major compilers provide the necessary information, the output can be verbose or use 'mangled' names that might require some experience to interpret. This is a debugging-only technique; the code causing the error must be removed to produce a successful build.",
+  "code_example": "// A class template declared but not defined.\n// Its purpose is to trigger a compiler error.\ntemplate<typename T> \nclass TD; // TD stands for Type Displayer\n\nconst int theAnswer = 42;\nauto x = theAnswer;\nauto y = &theAnswer;\n\n// To see the types of x and y, declare variables\n// of the TD template with those types.\n// The compiler error will reveal the deduced types.\nTD<decltype(x)> xType;\nTD<decltype(y)> yType;",
+  "practical_example": "When debugging a factory function that uses `auto` for its return type with a complex trailing return type expression, instantiating an undefined template with that `auto` variable can instantly confirm if the compiler deduced a value, a reference, or a const reference, which is crucial for correctness and performance.",
+  "keywords": [
+    "debug",
+    "type deduction",
+    "compiler error",
+    "diagnostics",
+    "template metaprogramming",
+    "static analysis"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "30-31",
+  "chapter": "Item 4: Know how to view deduced types",
+  "id": "emcpp_debug_viewing_deduced_types_via_compiler_85e89a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

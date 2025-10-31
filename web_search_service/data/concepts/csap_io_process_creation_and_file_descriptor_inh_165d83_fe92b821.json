@@ -1,0 +1,16 @@
+{
+  "topic": "Process Creation and File Descriptor Inheritance",
+  "explanation": "Process creation is a fundamental operation in operating systems. When a process creates a child process (e.g., using fork()), the child inherits various resources from the parent, including open files represented by file descriptors. This inheritance mechanism allows efficient resource sharing between parent and child processes, simplifying inter-process communication and avoiding redundant file opening operations. Understanding this inheritance is crucial for writing correct and efficient concurrent programs and for analyzing system behavior.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "931-931",
+    "extraction_date": "2025-07-29T11:59:51.492007",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.726315"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "c\n// Parent process before fork()\nint fd = open(\"log.txt\", O_RDWR | O_CREAT);\n\n// After fork():\npid_t pid = fork();\n\nif (pid == 0) {\n    // Child: fd still refers to the same open file description\n    write(fd, \"Child data\\n\", 11);\n    close(fd);\n} else {\n    // Parent: fd is also available\n    write(fd, \"Parent data\\n\", 12);\n    // Crucial: Must close fd in parent too, or file remains open\n    wait(NULL);\n    close(fd);\n}",
+  "keywords": "fork file descriptor inheritance, file descriptor inheritance, fork() file sharing, child process inherits files"
+}

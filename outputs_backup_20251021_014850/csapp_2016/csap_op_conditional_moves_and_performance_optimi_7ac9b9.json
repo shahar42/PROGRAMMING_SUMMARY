@@ -1,0 +1,15 @@
+{
+  "topic": "Conditional Moves and Performance Optimization",
+  "explanation": "Conditional moves are instructions that allow a processor to select between two values based on a condition without branching.  This is crucial for performance optimization in computer architecture because it avoids the potential performance penalties associated with branch mispredictions in the processor pipeline.  Branch mispredictions can lead to pipeline stalls and significant performance degradation, whereas conditional moves allow for efficient execution by keeping the pipeline full.",
+  "syntax": "cmovXX src, dst\nwhere XX represents a condition code (e.g., ns for not signed, s for signed, etc.) and src and dst are source and destination registers.",
+  "code_example": "short arith(short x)\nx in %rdi\narith:\nleaq 15(%rdi), %rbx ; temp = x+15\ntestq %rdi, %rdi ; Test x\ncmovns %rdi, %rbx ; If x>= 0, temp = x\nsarq $4, %rbx ; result = temp >> 4 (= x/16)\nret",
+  "example_explanation": "This assembly code demonstrates conditional move to optimize integer division by a power of 2.  Instead of using a branch instruction (which could cause a pipeline stall if mispredicted), it uses `cmovns`.  First, it adds a bias (15) to handle potential negative inputs.  `cmovns` then conditionally replaces the biased value with the original value if the input `x` is non-negative. Finally, a right shift divides by 16.  This approach avoids branching, potentially leading to faster execution by preventing pipeline stalls due to branch prediction misses.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "360-361",
+    "extraction_date": "2025-07-26T12:44:36.713696",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

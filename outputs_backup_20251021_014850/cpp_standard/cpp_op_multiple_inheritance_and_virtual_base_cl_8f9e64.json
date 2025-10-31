@@ -1,0 +1,15 @@
+{
+  "topic": "Multiple Inheritance and Virtual Base Classes in C++",
+  "explanation": "Multiple inheritance in C++ allows a class to inherit from more than one base class, enabling the combination of functionalities. When multiple base classes share common ancestors, virtual inheritance is used to prevent ambiguity and the 'diamond problem' by ensuring that only one instance of the shared base class exists within the derived class hierarchy. This feature is essential for designing flexible and reusable object-oriented systems in C++.",
+  "syntax": "class Derived : [virtual] public Base1, [virtual] public Base2 { /* class body */ };",
+  "code_example": "#include <iostream>\n\nstruct VB1 {\n    void display() { std::cout << \"VB1\" << std::endl; }\n};\n\nstruct VB2 : virtual VB1 {\n    void show() { std::cout << \"VB2\" << std::endl; }\n};\n\nstruct Error : VB1, VB2 { // ill-formed due to ambiguity\n    void test() {\n        display(); // ambiguous: which display() to call?\n    }\n};\n\nstruct Okay : VB2 {\n    void test() {\n        display(); // unambiguous due to virtual inheritance\n    }\n};\n\nint main() {\n    Okay obj;\n    obj.test(); // calls display() from VB1 via virtual inheritance\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how virtual inheritance resolves ambiguity when multiple base classes share a common ancestor. The 'VB2' class virtually inherits from 'VB1', ensuring that 'Okay' has only one 'VB1' subobject. The 'Error' class attempts multiple inheritance without virtual inheritance, leading to ambiguity when calling 'display()'. The 'Okay' class correctly uses virtual inheritance, allowing 'display()' to be called unambiguously, illustrating the importance of virtual base classes in complex inheritance hierarchies.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "256-256",
+    "extraction_date": "2025-08-19T03:05:10.020822",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

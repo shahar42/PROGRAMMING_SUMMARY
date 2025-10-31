@@ -1,0 +1,16 @@
+{
+  "topic": "faccessat() System Call",
+  "explanation": "faccessat() checks the calling process's permissions for a file, similar to access(), but interprets relative paths relative to a specified directory file descriptor. It uses the process's real UID and GID for the checks.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor; AT_FDCWD for current working directory\n- `pathname` (const char *): Path to the file to check\n- `mode` (int): Specifies accessibility checks (e.g., F_OK, R_OK, W_OK, X_OK)\n- `flags` (int): Flags to modify behavior (e.g., AT_EACCESS, AT_SYMLINK_NOFOLLOW)\n\n**Common Errors:**\n- `EACCES`: The requested access would be denied, or search permission is denied for a directory in the path\n- `EBADF`: pathname is relative and dirfd is neither AT_FDCWD nor a valid file descriptor\n- `EFAULT`: pathname points outside accessible address space\n- `EINVAL`: mode was incorrectly specified or invalid flag in flags\n- `EIO`: An I/O error occurred\n\n**Related System Calls:** `access()`, `chmod()`, `chown()`, `open()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.222863",
+    "syscall_name": "faccessat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_faccessat.json",
+    "concept_id": "posix_sys_faccessat_e9f6c1",
+    "book_metadata_added": "2025-10-28T20:22:06.635008"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Check if 'data.txt' is readable/writable\n// relative to a directory identified by 'dirfd'.\nint dirfd = open(\"config_dir\", O_RDONLY | O_DIRECTORY);\nconst char *file = \"data.txt\";\nint result;\n\nif (dirfd != -1) {\n    result = faccessat(dirfd,\n                       file,\n                       R_OK | W_OK,\n                       0); // Flags usually 0\n\n    close(dirfd);\n}\n\n// Check existence relative to CWD, ignoring symlinks\nresult = faccessat(AT_FDCWD,\n                   \"link_file\",\n                   F_OK,\n                   AT_SYMLINK_NOFOLLOW);\n\n// Returns 0 on success (access granted)\nif (result == -1) { /* Check errno */ }",
+  "keywords": "faccessat, accessat, check file permissions dirfd"
+}

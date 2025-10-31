@@ -1,0 +1,14 @@
+{
+  "topic": "Compiler Implementation of Virtual Functions in Abstract Classes",
+  "explanation": "Virtual functions in C++ enable runtime polymorphism, allowing derived classes to override base class methods. In the context of abstract classes like std::error_category, the compiler implements virtual functions using a mechanism called the virtual table (vtable). For each class with virtual functions, the compiler generates a vtable, which is an array of pointers to the virtual functions' implementations. Each object of a class with virtual functions includes a hidden pointer (vpointer) as its first member, pointing to the appropriate vtable. This vpointer is typically added by the compiler during object layout, increasing the object's size by the size of a pointer (e.g., 8 bytes on 64-bit systems). Performance implications include runtime overhead: when a virtual function is called, the program must dereference the vpointer to access the vtable and then invoke the function pointer, resulting in indirect calls that are slower than direct calls to non-virtual functions. This can lead to cache misses and increased instruction cycles. Assembly-level behavior involves instructions like loading the vpointer from the object (e.g., 'mov rax, [rdi]' in x86-64 assembly for the 'this' pointer), indexing into the vtable, and jumping to the function address (e.g., 'call qword [rax + offset]'). Regarding runtime vs compile-time behavior, virtual function calls are resolved at runtime, enabling dynamic dispatch based on the actual object type, whereas non-virtual calls are resolved at compile-time for efficiency. In the case of pure virtual functions like std::error_category::name(), the compiler enforces that derived classes must provide an implementation, and attempting to instantiate an abstract class results in a compile-time error.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:53:06.193806",
+    "book_metadata_added": "2025-10-28T20:22:06.907238"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class AbstractBase {\npublic:\n    // Hidden vptr added to object instance by compiler\n\n    // Pure Virtual: Vtable entry points to null/runtime error thunk\n    virtual const char* description() const = 0;\n\n    // Virtual: Vtable entry points to base implementation\n    virtual int default_value() const { return 0; }\n\n    // Required for proper derived class cleanup\n    virtual ~AbstractBase() {}\n};\n\n// Implied Compiler Artifacts:\n// 1. Vtable (static array of function pointers)\n// 2. Vptr (pointer in object instance, points to Vtable)",
+  "keywords": "vtable, vpointer, dynamic dispatch, virtual functions implementation"
+}

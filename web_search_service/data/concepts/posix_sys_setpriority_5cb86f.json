@@ -1,0 +1,16 @@
+{
+  "topic": "setpriority() System Call",
+  "explanation": "The setpriority() system call sets the scheduling priority (nice value) of a process, process group, or user as specified by the parameters. It adjusts the priority to influence CPU scheduling, with values clamped between -20 (highest) and 19 (lowest).\n\n**Parameters:**\n- `which` (int): Specifies the type of entity to set priority for: PRIO_PROCESS, PRIO_PGRP, or PRIO_USER\n- `who` (id_t): The identifier for the entity, interpreted relative to 'which' (e.g., process ID, process group ID, or user ID)\n- `prio` (int): The new priority value, ranging from -20 (highest priority) to 19 (lowest priority)\n\n**Common Errors:**\n- `EACCES`: The caller attempted to set a higher priority (lower nice value) without the required capability (CAP_SYS_NICE)\n- `EINVAL`: The 'which' argument is not one of the valid values (PRIO_PROCESS, PRIO_PGRP, or PRIO_USER)\n- `EPERM`: A process was located, but the effective user ID does not match and the caller lacks the required capability\n- `ESRCH`: No process could be located using the given 'which' and 'who' values\n\n**Related System Calls:** `fork()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.190298",
+    "syscall_name": "setpriority",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setpriority.json",
+    "concept_id": "posix_sys_setpriority_5cb86f",
+    "book_metadata_added": "2025-10-28T20:22:06.651848"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "id_t target_pid = 1234;  // Example PID\nint high_nice_value = -10;  // Range: -20 (highest) to 19 (lowest)\nint result;\n\n// Set priority for a specific process (PID 1234)\nresult = setpriority(PRIO_PROCESS, target_pid, high_nice_value);\n\n// Set priority for the calling process (PID 0) to standard (nice 0)\nresult = setpriority(PRIO_PROCESS, 0, 0);\n\n// Set priority for all processes owned by the current effective user\nresult = setpriority(PRIO_USER, 0, 5); // ID 0 means current user\n\n// Error check: result == -1 indicates failure (e.g., EPERM)\n// Must be root/CAP_SYS_NICE to set nice_value < 0.",
+  "keywords": "setpriority, nice value, process priority C, scheduling priority"
+}

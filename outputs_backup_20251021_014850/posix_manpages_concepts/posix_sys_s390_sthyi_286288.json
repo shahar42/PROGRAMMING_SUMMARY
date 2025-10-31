@@ -1,0 +1,15 @@
+{
+  "topic": "s390_sthyi() System Call",
+  "explanation": "The s390_sthyi() system call emulates the STHYI instruction to provide hardware resource information for the machine and its virtualization levels, such as CPU type, capacity, and machine model. It uses a function code to specify the type of information to retrieve and stores results in a response buffer.\n\n**Parameters:**\n- `function_code` (unsigned long): Indicates which function to perform, e.g., STHYI_FC_CP_IFL_CAP for CPU and IFL capacity information.\n- `resp_buffer` (void *): Address of the response buffer to store the results; must be one page (4K) for certain functions.\n- `return_code` (uint64_t *): Pointer to store the return code of the STHYI instruction, such as 0 for success or 4 for unsupported function.\n- `flags` (unsigned long): Reserved for future extensions and must be set to 0.\n\n**Common Errors:**\n- `EFAULT`: The value specified in resp_buffer or return_code is not a valid address.\n- `EINVAL`: The value specified in flags is nonzero.\n- `ENOMEM`: Allocating memory for handling the CPU capacity information failed.\n- `EOPNOTSUPP`: The value specified in function_code is not valid.\n\n**Related System Calls:** `syscall()`",
+  "syntax": "int syscall(SYS_s390_sthyi, unsigned long function_code, void *resp_buffer, uint64_t *return_code, unsigned long flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = s390_sthyi(...);  // Call the system call\nif (result == -1) {\n    perror(\"s390_sthyi\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the s390_sthyi() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.084592",
+    "syscall_name": "s390_sthyi",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_s390_sthyi.json",
+    "concept_id": "posix_sys_s390_sthyi_286288"
+  }
+}

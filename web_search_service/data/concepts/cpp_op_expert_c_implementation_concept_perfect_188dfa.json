@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Perfect Forwarding",
+  "explanation": "Perfect forwarding efficiently passes arguments to a function template or another function without unnecessary copies or implicit type conversions.  This involves leveraging rvalue references and universal references to achieve optimal performance and preserve the original value category (lvalue or rvalue) of the arguments.  Compiler behavior is crucial here, as it determines how the forwarding is implemented, impacting memory usage and potential overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:14:25.246827",
+    "book_metadata_added": "2025-10-28T20:22:06.945159"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Payload {};\n\nvoid sink(Payload& p) {}\nvoid sink(Payload&& p) {}\n\n// Universal Reference required for T&&\ntemplate <typename T>\nvoid perfect_forward(T&& arg) {\n    // std::forward maintains the original value category (lvalue or rvalue)\n    sink(std::forward<T>(arg));\n}\n\nPayload p;\nperfect_forward(p);     // T deduced as Payload& (lvalue)\nperfect_forward(Payload{}); // T deduced as Payload (rvalue)"
+}

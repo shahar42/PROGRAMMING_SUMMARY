@@ -1,0 +1,16 @@
+{
+  "topic": "brk() System Call",
+  "explanation": "brk() and sbrk() change the location of the program break, which defines the end of the process's data segment. brk() sets the end to a specified address, allocating or deallocating memory if possible. sbrk() increments the data space by a given amount, which can be used to allocate memory or query the current break.\n\n**Parameters:**\n- `addr` (void *): The desired new end of the data segment for brk()\n- `increment` (intptr_t): The number of bytes to increment the data space by for sbrk()\n\n**Common Errors:**\n- `ENOMEM`: The process would exceed its maximum data size or there is not enough memory\n\n**Related System Calls:** `execve()`, `getrlimit()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.135840",
+    "syscall_name": "brk",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_brk.json",
+    "concept_id": "posix_sys_brk_53bd51",
+    "book_metadata_added": "2025-10-28T20:22:06.666824"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Query current break position\nvoid *current_break = sbrk(0);\n\n// Allocate 1024 bytes (previous break is returned)\nintptr_t alloc_size = 1024;\nvoid *allocation_start = sbrk(alloc_size);\n\n// Check for sbrk() failure\nif (allocation_start == (void*)-1) {\n    // Handle error\n}\n\n// Calculate explicit target address\nvoid *new_addr = current_break + 2048;\n\n// Set break point explicitly using brk()\nif (brk(new_addr) == 0) {\n    // Success: data segment end is now new_addr\n}\n\n// Deallocate all memory (resetting break)\nbrk(current_break);",
+  "keywords": "brk, sbrk, Program break, Data segment growth"
+}

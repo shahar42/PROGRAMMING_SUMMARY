@@ -1,0 +1,15 @@
+{
+  "topic": "Ownership of New Files",
+  "explanation": "Ownership of new files in C programming on Unix-like systems refers to the assignment of user ID and group ID when a file is created using functions like open or creat. The user ID is set to the effective user ID of the process for security and access control, ensuring the file belongs to the user running the program. The group ID follows system-specific rules, such as using the effective group ID of the process or the group ID of the parent directory, to manage group-based permissions effectively.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "135-136",
+    "extraction_date": "2025-07-18T00:55:53.321110",
+    "has_code": true,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.955544"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "struct stat sb;\n\n// File creation implicitly sets ownership\nint fd = open(\"new_file\", O_CREAT | O_WRONLY, 0644); \n\nif (fd != -1) {\n    fstat(fd, &sb);\n    close(fd);\n}\n\n/* Resulting UID: */\nuid_t file_uid = sb.st_uid;\n// Always equals the effective user ID (geteuid())\n\n/* Resulting GID: */\ngid_t file_gid = sb.st_gid;\n// Varies: Often effective group ID (getegid())\n// OR parent directory GID (if parent has S_ISGID set)\n\nuid_t current_euid = geteuid();\ngid_t current_egid = getegid();",
+  "keywords": "C file ownership, Unix new file UID GID, creat() ownership rules"
+}

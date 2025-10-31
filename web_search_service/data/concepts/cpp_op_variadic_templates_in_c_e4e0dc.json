@@ -1,0 +1,16 @@
+{
+  "topic": "Variadic Templates for Functions and Classes",
+  "explanation": "Variadic templates are a powerful feature introduced in C++11 that allow functions and classes to accept an arbitrary number of template parameters. They enable generic programming by providing a way to write flexible and reusable code that can operate on multiple types or values without overloading functions for each specific number of arguments. Variadic templates are essential for implementing advanced patterns such as tuple manipulation, perfect forwarding, and recursive template instantiation, thereby enhancing the expressiveness and efficiency of modern C++ code.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1176-1176",
+    "extraction_date": "2025-08-19T09:46:31.358717",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.932295"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template<typename... Args>\nvoid function_caller(Args... args) {\n    // Size of parameter pack (value)\n    constexpr size_t count = sizeof...(Args);\n    // Unpacking into initializer list (C++11 trick)\n    int expansion[] = { ( (std::cout << args << ' '), 0)... };\n}\n\n// --------------------------------------------------\n\n// Base case (end of recursion)\nvoid print_r() {}\n\n// Recursive variadic function\ntemplate<typename T, typename... Rest>\nvoid print_r(T head, Rest... tail) {\n    std::cout << head << ' ';\n    print_r(tail...);\n}\n\n// --------------------------------------------------\n\n// C++17 Fold Expression Example\ntemplate<typename... Nums>\nauto sum_fold(Nums... nums) {\n    // Right fold (starts with 0)\n    return (0 + ... + nums);\n}\n\n// Using fold for side effects\ntemplate<typename... Fns>\nvoid execute_all(Fns... f) {\n    // Comma fold expression (guaranteed order C++17)\n    (f(), ...);\n}\n\n// --------------------------------------------------\n\n// Variadic Class Template Definition\ntemplate<typename... Types>\nclass TypeList {};\n\n// Specialization (Recursive structure)\ntemplate<typename T, typename... Rest>\nclass TypeList<T, Rest...> : public TypeList<Rest...> {\npublic:\n    using HeadType = T;\n    // Parameter pack size\n    static constexpr size_t N = sizeof...(Rest) + 1;\n};\n\n// --------------------------------------------------\n\n// Forwarding perfect arguments\ntemplate<typename F, typename... Args>\ndecltype(auto) call_fwd(F&& f, Args&&... args) {\n    // Perfect forwarding pack expansion\n    return std::forward<F>(f)(std::forward<Args>(args)...);\n}",
+  "keywords": "Variadic templates, C++ parameter pack, template ellipsis, variadic arguments"
+}

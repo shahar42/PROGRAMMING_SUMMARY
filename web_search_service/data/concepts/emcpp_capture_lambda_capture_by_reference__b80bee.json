@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture By-Reference: The Dangling Reference Trap",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-reference capture (`[&]`) is a safe shortcut for lambdas used immediately within the current scope. Reality: While default capture is safe *if* the closure executes before the captured variables go out of scope, this assumption fails instantly upon refactoring or storing the lambda. Why It Fails: If a closure object created with `[&]` outlives the local variables it references (e.g., if it is stored in a container, returned, or passed to an asynchronous function), the captured references become dangling, leading to catastrophic undefined behavior upon execution. This is referred to as 'dangle-city' in the text.",
+  "code_example": "int divisor = 5;\n// DANGER: If filters outlives the function scope\nfilters.emplace_back([&](int value) { \n  return value % divisor == 0; \n}); ",
+  "practical_example": "A developer places a lambda using `[&]` into a global event queue or a persistent container (`filters`). When the queue processes the lambda much later, the local stack variable (`divisor`) has been destroyed, and the reference is invalid.",
+  "keywords": [
+    "default capture",
+    "by-reference",
+    "dangling reference",
+    "lifetime analysis"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-235",
+  "chapter": "Item 31: Avoid Default Capture Modes",
+  "id": "emcpp_capture_lambda_capture_by_reference__b80bee",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

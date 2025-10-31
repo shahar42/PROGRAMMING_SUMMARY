@@ -1,0 +1,13 @@
+{
+  "topic": "Array Deletion Mechanism for Classes with Virtual Destructors",
+  "explanation": "In C++, when deleting an array of objects that involve polymorphic classes (i.e., classes with virtual destructors), the compiler synthesizes code to ensure proper destructor invocation and memory deallocation. This is typically handled through an internal function like vec_delete(), which the compiler generates. For a base class like Point with a virtual destructor, and a derived class like Point3d, deleting an array of Point3d objects requires the compiler to: (1) iterate through the array elements, (2) invoke the correct destructor for each object via the virtual function table (vtable), and (3) deallocate the memory block. The vtable pointer (vptr) is used for dynamic dispatch, ensuring that Point3d::~Point3d() is called before Point::~Point(). Memory layout involves the array as a contiguous block of objects, each with its own vptr pointing to the appropriate vtable. Runtime behavior includes looping through the array (e.g., using a counter derived from the array's size), calling destructors, and then invoking operator delete[]. Performance implications include the overhead of virtual calls, which involve indirect function calls through the vptr, potentially adding latency compared to non-virtual destructors. Compiler strategies vary: some (like GCC) might optimize by inlining non-virtual parts, while others (like MSVC) handle vptr adjustments in multiple inheritance scenarios. Cross-platform differences arise in how vtables are laid out—e.g., GCC places the vptr at the beginning of the object, while some compilers might add padding for alignment, affecting array size calculations.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "chapter": "inheritance",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "extraction_date": "2025-09-17T15:11:22.392657",
+    "book_metadata_added": "2025-10-28T20:22:06.681806"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman"
+}

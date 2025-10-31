@@ -1,0 +1,19 @@
+{
+  "topic": "std::async Deferred Task Detection Workaround",
+  "category": "async",
+  "explanation": "Assumption: A `std::future` object corresponding to a task launched via `std::async` provides a direct method (e.g., `is_deferred()`) to check if the task is currently deferred (not running concurrently). Reality: No such direct query exists in the standard library. Why It Fails: When using the default launch policy, a task might be deferred until a wait function is called on the future. If a developer uses a timeout loop (e.g., `wait_for(100ms)`) assuming the task is running, they may experience incorrect behavior if the task has not been started yet. The required solution is a circumlocution: calling `fut.wait_for(0s)` and inspecting the return value for `std::future_status::deferred`. If deferred, the program must explicitly trigger synchronous execution (usually by calling `wait()` or `get()`).",
+  "code_example": "auto fut = std::async(f);\nif (fut.wait_for(0s) == std::future_status::deferred)\n{\n  // Task is deferred, handle synchronously\n} else {\n  // Task is running concurrently\n}",
+  "practical_example": "A system monitoring utility uses `std::async` to launch a remote resource check and then enters a tight `wait_for` loop to display progress updates. If the task is deferred, the loop runs indefinitely or incorrectly because the task never starts until the monitoring utility calls `wait()` or `get()` implicitly, leading to a race condition between progress tracking and actual task execution.",
+  "keywords": [
+    "std::async",
+    "deferred",
+    "std::future_status::deferred",
+    "wait_for(0s)",
+    "launch policy"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268",
+  "chapter": "Item 36: Understand std::async behavior",
+  "id": "emcpp_async_std__async_deferred_task_3dc33e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

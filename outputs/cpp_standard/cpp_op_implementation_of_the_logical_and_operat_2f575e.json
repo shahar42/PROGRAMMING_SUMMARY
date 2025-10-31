@@ -1,26 +1,12 @@
 {
   "topic": "Implementation of the Logical AND Operator (&&)",
   "explanation": "The Logical AND operator (&&) in C++ is a short-circuiting operator that evaluates two expressions and returns true only if both are true. From an implementation perspective, compilers translate && into machine code that ensures left-to-right evaluation, meaning the second operand is only evaluated if the first evaluates to true. This short-circuiting behavior is crucial for performance and correctness, especially with expressions that have side effects. \n\nCompiler implementation: When compiling an expression like 'expr1 && expr2', the compiler generates code that first evaluates expr1. If expr1 converts to false (after contextual conversion to bool), the evaluation stops, and the result is false without touching expr2. If expr1 is true, then expr2 is evaluated. This is typically implemented using conditional jumps in assembly (e.g., a JZ or JE instruction after evaluating expr1 to skip expr2). The C++ standard (as per [expr.log.and]) mandates sequencing: all side effects of expr1 are completed before expr2 begins, ensuring no overlap in execution.\n\nMemory layout and performance implications: && does not directly alter memory layout, but its short-circuiting can prevent unnecessary memory accesses or computations, reducing CPU cycles and potentially avoiding exceptions (e.g., null pointer dereferences). For instance, in 'ptr != nullptr && *ptr > 0', if ptr is nullptr, the second part isn't evaluated, avoiding a segmentation fault. Performance-wise, this operator can lead to optimized code paths, as compilers might inline evaluations or use branch prediction, though mispredictions could introduce pipeline stalls in high-performance scenarios.\n\nAssembly-level behavior: In generated assembly (e.g., using GCC or Clang), && often results in sequences like: evaluate expr1, compare to zero, jump if zero to the end (skipping expr2), otherwise evaluate expr2, and then compute the final bool result. For example, on x86-64, you might see CMP, TEST, JZ instructions.\n\nRuntime vs compile-time behavior: The evaluation of && is primarily a runtime operation, as it depends on the values of the operands. However, if both operands are known at compile-time (e.g., constexpr contexts), the compiler can perform constant folding, evaluating the expression during compilation and potentially eliminating code altogether. This interplay allows for optimizations like dead code elimination if the first operand is a constant false.",
-  "syntax": "logical-and-expression && inclusive-or-expression\nImplementation notes: The left operand (logical-and-expression) is evaluated first. If it contextually converts to bool and is true, the right operand (inclusive-or-expression) is evaluated. The result is always a bool type. Sequencing rules ensure that side effects of the left operand are fully realized before the right operand is touched, preventing issues like uninitialized variables or concurrent modifications.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "int main() {",
-    "    bool condition1 = true;  // First operand",
-    "    int value = 0;          // Used in second operand with side effect",
-    "    if (condition1 && (value++ > 0)) {  // Logical AND with potential side effect",
-    "        std::cout << \"Both true, value is now: \" << value << std::endl;",
-    "    } else {",
-    "        std::cout << \"Not both true, value unchanged: \" << value << std::endl;",
-    "    }",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, the expression 'condition1 && (value++ > 0)' demonstrates short-circuiting. The compiler first evaluates 'condition1', which is true, so it proceeds to evaluate '(value++ > 0)'. If 'condition1' were false, '(value++ > 0)' would be skipped, leaving 'value' at 0. At the assembly level, the compiler might generate code like: load condition1, test it, jump if zero to the else block, otherwise increment value and compare it. This results in runtime sequencing where the increment of 'value' only occurs if 'condition1' is true, improving performance by avoiding unnecessary operations. If compiled with optimizations (e.g., -O2 in GCC), the compiler might further inline the checks or predict branches, but the short-circuit behavior remains intact.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T02:14:58.870990"
-  }
+    "extraction_date": "2025-08-19T02:14:58.870990",
+    "book_metadata_added": "2025-10-28T20:22:06.885901"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

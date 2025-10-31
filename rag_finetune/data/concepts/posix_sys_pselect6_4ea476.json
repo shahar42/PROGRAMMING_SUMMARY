@@ -1,0 +1,16 @@
+{
+  "topic": "pselect6() System Call",
+  "explanation": "pselect() allows a program to monitor multiple file descriptors for I/O readiness while atomically modifying the signal mask to prevent race conditions. It is similar to select() but uses a timespec structure for timeout and includes a sigmask parameter for signal handling.\n\n**Parameters:**\n- `nfds` (int): The highest-numbered file descriptor in any of the sets, plus 1.\n- `readfds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for readability.\n- `writefds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for writability.\n- `exceptfds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for exceptions.\n- `timeout` (const struct timespec *_Nullable restrict): Timeout period for the wait, or NULL for no timeout.\n- `sigmask` (const sigset_t *_Nullable restrict): Signal mask to be atomically installed during the call.\n\n**Common Errors:**\n- `EBADF`: An invalid file descriptor was given in one of the sets.\n- `EINTR`: A signal was caught.\n- `EINVAL`: nfds is negative or exceeds the RLIMIT_NOFILE resource limit, or the value in timeout is invalid.\n- `ENOMEM`: Unable to allocate memory for internal tables.\n\n**Related System Calls:** `select()`, `poll()`, `epoll_wait()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.226545",
+    "syscall_name": "pselect6",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pselect6.json",
+    "concept_id": "posix_sys_pselect6_4ea476",
+    "book_metadata_added": "2025-10-28T20:22:06.667920"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "fd_set rfds;\nstruct timespec ts;\nsigset_t mask;\nint res;\n\nFD_ZERO(&rfds);\nFD_SET(STDIN_FILENO, &rfds);\n\nts.tv_sec = 5;\nts.tv_nsec = 0; // 5 second timeout\n\nsigemptyset(&mask);\nsigaddset(&mask, SIGINT);\n\nres = pselect(STDIN_FILENO + 1,\n             &rfds, NULL, NULL,\n             &ts, &mask);\n\n// Check FD_ISSET() if res > 0",
+  "keywords": "pselect, pselect6, atomic signal mask, select replacement"
+}

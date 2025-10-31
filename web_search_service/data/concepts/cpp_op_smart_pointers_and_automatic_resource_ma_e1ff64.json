@@ -1,0 +1,18 @@
+{
+  "topic": "Smart Pointers and Automatic Resource Management",
+  "explanation": "In modern C++, smart pointers such as std::unique_ptr and std::shared_ptr are used to manage dynamic resources automatically, ensuring proper cleanup and preventing memory leaks. They follow the RAII (Resource Acquisition Is Initialization) idiom, which ties resource lifetime to object lifetime. This approach simplifies resource management, especially in the presence of exceptions, by automatically releasing resources when the smart pointer goes out of scope, eliminating the need for manual delete calls.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "44-45",
+    "extraction_date": "2025-09-11T09:51:26.500179",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.981230"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// std::unique_ptr (Exclusive Ownership)\nstd::unique_ptr<int> up1(new int(10));\nauto up2 = std::make_unique<float>(3.14f);\n\n// Ownership transfer\nauto up3 = std::move(up1);\n// up1 is now null\n\n// Custom deleter (e.g., file handle)\nstruct FileCloser { void operator()(FILE* f) const { fclose(f); } };\nstd::unique_ptr<FILE, FileCloser> log;\n\n// std::shared_ptr (Shared Ownership, Reference Counting)\nstd::shared_ptr<int> sp1 = std::make_shared<int>(42);\nstd::shared_ptr<int> sp2 = sp1; // Increment ref count\n\n// Get raw pointer (use sparingly)\nint* raw_ptr = sp1.get();\n\n// Reference count check\nlong count = sp1.use_count(); // 2\n\n// std::weak_ptr (Non-owning observer, break cycles)\nstd::weak_ptr<int> wp = sp1;\n\n// Access resource safely\nif (auto shared = wp.lock()) {\n    // Resource still exists\n} else {\n    // Resource freed\n}",
+  "keywords": "C++ smart pointers, RAII, unique_ptr shared_ptr, Automatic resource management"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Design: Implicit Join Leads to Performance Anomalies",
+  "category": "perf",
+  "explanation": "The standard rejected an implicit join mechanism in the `std::thread` destructor because it would introduce unpredictable and hard-to-track performance issues. If the thread object waited for its asynchronous task to complete before its destruction, a function intended to return quickly (e.g., after determining the work is unnecessary) would block indefinitely on the join, potentially stalling the entire application. The explicit nature of joining ensures that developers are aware of and control synchronization points.",
+  "code_example": "void doWork() {\n  std::thread t(long_running_task);\n  if (early_condition_met) return;\n  // If implicit join were used, the return statement would block\n  // until long_running_task completes, defeating async purpose.\n}",
+  "practical_example": "A GUI application launches a computationally intensive task in a thread but finds an error immediately after launch. If the thread destructed via implicit join, the GUI thread would freeze until the intensive computation finally finishes, even though the result is no longer needed.",
+  "keywords": [
+    "implicit join",
+    "blocking",
+    "performance",
+    "synchronization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "252, 269",
+  "chapter": "Item 37: Remember that std::threads are not joinable upon destruction",
+  "id": "emcpp_perf_thread_design__implicit_join_38e4e0",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

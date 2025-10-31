@@ -1,0 +1,16 @@
+{
+  "topic": "Undefined Behavior Due to Improper Type Casting and Pointer Usage",
+  "explanation": "In advanced C programming, improper type casting or misusing pointers—such as casting a pointer to a different type without proper alignment or violating strict aliasing rules—can lead to undefined behavior. This can cause unpredictable runtime results, subtle bugs, or security vulnerabilities. Understanding how the C memory model and type aliasing rules interact is crucial for writing robust, portable, and efficient code, especially when dealing with low-level memory manipulations or performance-critical applications.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "226-226",
+    "extraction_date": "2025-08-20T02:28:42.421207",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.556103"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct S { long l; };\nfloat f = 1.0f;\n\n// Strict Aliasing Violation (UB)\n// Accessing data written via float* using S*\nstruct S* s_ptr = (struct S*)&f;\ns_ptr->l = 0; // Compiler assumes f is still 1.0f\n\n// Use volatile to attempt to mitigate optimization hazard\n// volatile struct S* vs_ptr = (volatile struct S*)&f;\n// vs_ptr->l = 0; // Still technically UB by C standard\n\nchar raw_bytes[5] = {0};\n// Assuming standard int alignment (e.g., 4 bytes)\n// &raw_bytes[1] is misaligned for int\nint* misaligned_ptr = (int*)&raw_bytes[1];\n\n// UB: Accessing memory through a misaligned pointer\n*misaligned_ptr = 12345;\n<ctrl63>",
+  "keywords": "Strict aliasing, Undefined behavior UB, Type punning, Pointer casting issues"
+}

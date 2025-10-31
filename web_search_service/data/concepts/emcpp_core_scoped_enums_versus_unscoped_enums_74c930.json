@@ -1,0 +1,21 @@
+{
+  "topic": "Scoped Enums: Enhanced Type Safety and Encapsulation",
+  "category": "core",
+  "explanation": "C++11 introduced `enum class`, known as scoped enums, as a modern, type-safe alternative to traditional C++98 enums, now referred to as unscoped enums. The core improvements are that enumerators are locally scoped within the enum's name and they do not implicitly convert to integer or other types, eliminating common sources of bugs.\n\nScott Meyers emphasizes that scoped enums directly address the major design flaws of their predecessors. The two primary problems solved are namespace pollution, where enumerators from traditional enums leak into the surrounding scope, and unintended implicit conversions, which could lead to nonsensical comparisons or arithmetic operations between unrelated enum types. Using `enum class` makes code more robust, readable, and less error-prone.\n\nThe mechanics behind these improvements are straightforward. First, enumerators of a scoped enum must be qualified by the enum's name, preventing name clashes. For example, if you have two enums defining an enumerator named `Good`, you must specify which one you mean. Second, scoped enums are not convertible to integers without an explicit cast. This enforces type safety and makes the programmer's intent clear. Additionally, scoped enums allow for the explicit specification of an underlying type and are always forward-declarable, which is a significant advantage over unscoped enums, which can only be forward-declared if their underlying type is specified.\n\nIn practice, this means you should almost always prefer `enum class` in modern C++ code. They are essential for defining states, options, or flags in a way that is both self-documenting and safe from accidental misuse. The ability to specify the underlying type is also valuable for controlling memory layout for objects, which is important in systems programming, serialization, and for ensuring ABI compatibility across different builds or platforms.\n\nA common pitfall with unscoped enums is the subtle bugs that arise from implicit conversions. For instance, comparing an enumerator from a `Color` enum with one from an `AlertLevel` enum is possible with unscoped enums but is a compile-time error with scoped enums. Developers transitioning to `enum class` sometimes find the need for explicit casts cumbersome when interacting with older APIs, but this friction is a feature, as it forces a conscious decision about the type conversion.",
+  "code_example": "enum class Color { Red, Green, Blue };   // Scoped enum\nenum Alert { Green, Yellow, Red };     // Unscoped enum\n\nvoid run_checks() {\n  Color c = Color::Red; // Must be qualified\n  Alert a = Red;        // Unscoped enumerator is in the global scope (potential clash)\n\n  // if (c == a) {}      // Compile Error: No implicit conversion between different enum types\n  // int c_val = c;     // Compile Error: No implicit conversion to int\n  int a_val = a;        // OK: Unscoped enum implicitly converts to int\n\n  int c_val_explicit = static_cast<int>(c); // OK: Explicit cast is required\n}",
+  "practical_example": "When implementing a finite state machine, using a scoped enum like `enum class State { Idle, Running, Suspended };` prevents accidental comparisons with other unrelated integer-based constants or enums in the system, ensuring that state transitions are handled in a type-safe manner.",
+  "keywords": [
+    "enum class",
+    "scoped enums",
+    "unscoped enums",
+    "type safety",
+    "scoping",
+    "forward declaration",
+    "underlying type"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "74",
+  "chapter": "Item 10: Prefer scoped enums to unscoped enums",
+  "id": "emcpp_core_scoped_enums_versus_unscoped_enums_74c930",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

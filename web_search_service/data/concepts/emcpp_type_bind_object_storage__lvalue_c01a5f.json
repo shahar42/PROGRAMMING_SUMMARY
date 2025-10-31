@@ -1,0 +1,19 @@
+{
+  "topic": "Bind Object Storage: Lvalue Copy vs Rvalue Move",
+  "category": "type",
+  "explanation": "The efficiency of resource transfer when using `std::bind` depends entirely on the value category of the arguments passed to it. Arguments that are lvalues are stored inside the resulting bind object using copy construction. Arguments that are rvalues (including results of `std::move`) are stored using move construction. This rule is crucial because it dictates whether binding a parameter results in an expensive copy or an efficient move, forming the basis of C++11 move capture emulation when combined with `std::move`.",
+  "code_example": "int x = 5; \nstd::string s = \"large\";\n// bind object copies x (lvalue) and moves s (rvalue)\nauto b = std::bind(f, x, std::move(s));",
+  "practical_example": "A function takes a parameter by value and uses `std::bind` to defer its execution. If the developer forgets to use `std::move` on the input parameter before passing it to `std::bind`, the parameter is treated as an lvalue and unnecessarily copied into the bind object, doubling the overhead.",
+  "keywords": [
+    "std::bind",
+    "argument storage",
+    "lvalue copy",
+    "rvalue move",
+    "bind object mechanics"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "250-257",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_type_bind_object_storage__lvalue_c01a5f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

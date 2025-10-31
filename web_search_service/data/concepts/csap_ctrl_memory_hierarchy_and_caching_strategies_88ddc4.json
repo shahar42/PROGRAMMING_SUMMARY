@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Data Movement",
+  "explanation": "The memory hierarchy structures storage tiers (registers, L1/L2/L3 cache, main memory) to optimize the trade-off between access speed and capacity. Caching strategies govern the movement of data blocks, known as cache lines, between these levels. Data movement is primarily initiated by a CPU request; a cache miss triggers a block transfer from the slower, lower level to the faster, higher level. This transfer mechanism exploits spatial and temporal locality to ensure subsequent accesses hit the cache. Write policies, such as write-through or write-back, dictate when modified data is propagated down the hierarchy, maintaining coherence and minimizing effective memory access time.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "210-210",
+    "extraction_date": "2025-07-24T19:56:04.916443",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.737634",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:21:22",
+    "original_length": 421,
+    "refined_length": 687
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Temporal Locality: High reuse of 'sum'\n// Data remains hot in L1 cache across iterations\nint data[1024];\nlong sum = 0;\nfor (int i = 0; i < 1024; i++) {\n    sum += data[i];\n}\n\n\n// Spatial Locality: Cache-friendly row-major traversal (C/C++)\n#define N 64\nint matrix[N][N];\nfor (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) {\n        matrix[i][j] = i + j; // Stride 1 access\n    }\n}\n\n\n// Poor Spatial Locality: High stride access (Column-major traversal)\n// Causes frequent cache misses (cache line thrashing)\nfor (int j = 0; j < N; j++) {\n    for (int i = 0; i < N; i++) {\n        matrix[i][j] = i + j; // Stride N access\n    }\n}\n\n\n// Cache Line Awareness: Preventing False Sharing in multi-threading\n// Ensures Thread A's data and Thread B's data live on separate lines\nstruct alignas(64) ThreadSafeCounter {\n    long thread_A_data;\n    // Automatic padding inserted by alignas to fill cache line\n    long thread_B_data;\n};"
+}

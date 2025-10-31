@@ -1,0 +1,21 @@
+{
+  "topic": "T&& Deduction: Lvalue Reference T Inference",
+  "category": "template",
+  "explanation": "Universal references, also known as forwarding references, represent a special case in template type deduction. They arise when a function template parameter is declared as an rvalue reference to a deduced type, using the syntax 'T&&'. Despite the syntax, these are not ordinary rvalue references; they can bind to both lvalues and rvalues, enabling perfect forwarding.\n\nScott Meyers' crucial insight is that this is the only scenario in template type deduction where the template parameter 'T' can itself be deduced as a reference type. This unique behavior is the core mechanism that allows a universal reference to preserve the value category (lvalue or rvalue) of the argument passed to it. Recognizing the 'type&&' syntax in a context of type deduction is the key to identifying a universal reference.\n\nThe mechanics depend entirely on the value category of the argument. If an lvalue expression is passed, 'T' is deduced as an lvalue reference type. For example, passing an 'int' lvalue to 'T&&' deduces 'T' as 'int&'. The compiler then uses reference-collapsing rules: an rvalue reference to an lvalue reference ('int& &&') collapses into a single lvalue reference ('int&'). If an rvalue expression is passed, 'T' is deduced as a non-reference type (e.g., 'int'), and the parameter becomes a standard rvalue reference ('int&&').\n\nThis powerful mechanism is the foundation of perfect forwarding in modern C++. It allows generic functions, such as factory functions like 'make_unique' or container 'emplace' methods, to accept arguments of any value category and forward them to another function (like a constructor) while preserving their original properties. This prevents unnecessary copies of rvalues and ensures that lvalues are passed on as lvalues, achieving maximum efficiency and correctness.\n\nThe most significant pitfall is misinterpreting 'T&&' as always meaning an rvalue reference. The special deduction rules only apply when type deduction for 'T' is actually occurring. If the type 'T' is already known, as in a member function of a class template, then 'T&&' is just a plain rvalue reference and will not bind to lvalues. This distinction between a deduced 'T&&' and a specified 'T&&' is a frequent source of confusion.",
+  "code_example": "template<typename T>\nvoid f(T&& param); // param is a universal reference\n\nint x = 27;\nconst int cx = x;\n\n// Argument is an lvalue\nf(x);  // T is deduced as int&. After reference collapsing, param's type is int&.\n\n// Argument is a const lvalue\nf(cx); // T is deduced as const int&. param's type is const int&.\n\n// Argument is an rvalue\nf(27); // T is deduced as int. param's type is int&&.",
+  "practical_example": "The `std::vector::emplace_back` method uses universal references to perfectly forward its arguments to the constructor of the element type. This allows you to construct objects directly in place within the vector, avoiding any intermediate copies or moves, regardless of the constructor's arguments.",
+  "keywords": [
+    "universal references",
+    "forwarding references",
+    "perfect forwarding",
+    "rvalue references",
+    "lvalue references",
+    "reference collapsing",
+    "type deduction"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "13",
+  "chapter": "Item 1: Understand template type deduction",
+  "id": "emcpp_template_template_type_deduction_for_universal_2c3643",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

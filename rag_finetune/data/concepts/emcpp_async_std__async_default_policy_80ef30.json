@@ -1,0 +1,19 @@
+{
+  "topic": "std::async Default Policy Danger: Infinite Loops When Waiting For Deferred Tasks",
+  "category": "async",
+  "explanation": "Assumption: A task launched via the default `std::async` policy will eventually run asynchronously and reach `std::future_status::ready`. Reality: The default launch policy is implementation-defined (a combination of `std::launch::async | std::launch::deferred`). If the runtime system decides to defer execution (often under heavy load or resource exhaustion), `fut.wait_for()` will *always* return `std::future_status::deferred` because the task has not started running asynchronously. Why It Fails: If a waiting loop only checks for `ready` status (e.g., `while (fut.wait_for(...) != std::future_status::ready)`), and the task is deferred, the loop condition is never met, resulting in an infinite loop. This bug is dangerous because it often only appears under stress conditions when deferral is most likely.",
+  "code_example": "auto fut = std::async(f);\nwhile (fut.wait_for(100ms) != std::future_status::ready) {\n  // If f is deferred, this loop is infinite!\n}",
+  "practical_example": "A server process uses `std::async` to handle non-critical background processing. During peak load, the OS defers these tasks. The main thread, which relies on a timeout loop to wait for the background task, hangs indefinitely, leading to system deadlock or resource exhaustion when the loop fails to terminate.",
+  "keywords": [
+    "std::async",
+    "std::launch::deferred",
+    "wait_for",
+    "infinite loop",
+    "implementation-defined policy"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_async_std__async_default_policy_80ef30",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

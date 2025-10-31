@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Tying Resources to Scope",
+  "explanation": "RAII is a fundamental C++ programming technique that ties the lifetime of a resource (like dynamically allocated memory, files, network connections, or mutexes) to the lifetime of an object.  When an object is created, the resource is acquired; when the object goes out of scope (destructor is called), the resource is automatically released. This eliminates resource leaks and simplifies error handling by ensuring resources are always cleaned up, even in exceptional cases like exceptions being thrown.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:06:26.118948",
+    "book_metadata_added": "2025-10-28T20:22:06.577171"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Custom RAII wrapper for dynamic allocation\nclass ArrayGuard {\n    int* ptr_;\npublic:\n    explicit ArrayGuard(size_t s) : ptr_(new int[s]) {}\n    ~ArrayGuard() { delete[] ptr_; }\n    \n    // Disable copying (essential for resource ownership)\n    ArrayGuard(const ArrayGuard&) = delete;\n    ArrayGuard& operator=(const ArrayGuard&) = delete;\n};\n\n// Standard Library RAII (Memory Management)\nstruct HeavyObject {};\n\nvoid use_smart_ptr() {\n    // Acquisition (Constructor)\n    std::unique_ptr<HeavyObject> p = std::make_unique<HeavyObject>();\n    // ...\n} // Release (Destructor called when scope exits)\n\n// Standard Library RAII (Synchronization)\nstd::mutex m;\n\nvoid access_shared_data() {\n    // Acquires lock on 'm'\n    std::lock_guard<std::mutex> lock(m); \n\n    // Critical section here\n    \n    // Lock automatically released on scope exit\n}\n<ctrl63>"
+}

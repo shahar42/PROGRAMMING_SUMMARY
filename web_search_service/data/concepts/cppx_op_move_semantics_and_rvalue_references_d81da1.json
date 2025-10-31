@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics and Rvalue References in Containers",
+  "explanation": "Move semantics are a powerful C++11 feature that allows efficient transfer of resources (like dynamically allocated memory) between objects, avoiding unnecessary copies.  This is crucial for performance optimization, especially with large objects or containers.  Rvalue references (&&) identify temporary objects or expressions, enabling the move operation.  Moving an object transfers ownership of its resources to another object, leaving the original object in a valid but typically empty state. This avoids the overhead of deep copying, which can be significantly expensive.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:29:16.673710",
+    "book_metadata_added": "2025-10-28T20:22:06.543986"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourcePtr {\n    int* ptr;\npublic:\n    ResourcePtr() : ptr(new int[10]) {}\n    ~ResourcePtr() { delete[] ptr; }\n\n    // 1. Move Constructor\n    ResourcePtr(ResourcePtr&& other) noexcept\n        : ptr(other.ptr) {\n        other.ptr = nullptr; // Steal resource, neutralize source\n    }\n\n    // 2. Move Assignment Operator\n    ResourcePtr& operator=(ResourcePtr&& other) noexcept {\n        delete[] ptr;\n        ptr = other.ptr;\n        other.ptr = nullptr;\n        return *this;\n    }\n};\n\nResourcePtr R1;\n\n// 3. Explicitly convert Lvalue (R1) to Xvalue (rvalue reference)\nResourcePtr R2 = std::move(R1); // Triggers Move Ctor\n\n// 4. Function taking rvalue reference\nvoid sink(ResourcePtr&& temp);\n<ctrl63>",
+  "keywords": "Move semantics, Rvalue references, std::move, C++11 optimization"
+}

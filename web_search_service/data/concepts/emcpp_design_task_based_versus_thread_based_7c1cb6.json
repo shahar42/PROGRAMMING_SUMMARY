@@ -1,0 +1,13 @@
+{
+  "topic": "Task-Based versus Thread-Based Concurrency Design",
+  "category": "design",
+  "explanation": "Assumption: `std::thread` is the primary and most flexible tool for writing concurrent code in Modern C++. Reality: While `std::thread` is fundamental, directly managing raw threads is low-level and error-prone (requiring manual handling of joining, exceptions, resource limits, and thread pool management). Task-based concurrency using `std::async` is generally preferred. Why It Fails: `std::async` abstracts away thread management by returning a `std::future`. It handles thread allocation, thread pool utilization (if available), exception propagation, and ensuring termination/joining (via the future's destructor), resulting in safer, higher-level concurrency that is less likely to leak resources or block. Using raw `std::thread` forces the developer to manually implement these safety measures.",
+  "code_example": "// Task-based (preferred)\nauto f = std::async(func);\n// Thread-based (lower-level)\nstd::thread t(func); t.detach(); // Requires manual management",
+  "practical_example": "A developer uses `std::thread` to launch a computation but forgets to wrap the thread management in RAII or ensure the thread is joined before exiting the scope, leading to `std::terminate` when the thread object is destroyed while still joinable.",
+  "keywords": "std::thread vs std::async, Task-based concurrency, Thread-based concurrency",
+  "difficulty": "intermediate",
+  "page_reference": "259-263",
+  "chapter": "Item 35: Prefer task-based programming to thread-based",
+  "id": "emcpp_design_task_based_versus_thread_based_7c1cb6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

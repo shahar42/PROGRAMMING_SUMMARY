@@ -1,0 +1,15 @@
+{
+  "id": "cppx_func_inline_odr_and_multiple_definitions_1855c6",
+  "topic": "ODR Violations and How Inline Prevents Multiple Definition Errors",
+  "explanation": "The One Definition Rule (ODR) states that every entity in a C++ program must have exactly one definition across all translation units. For non-inline functions, this means if you define a function in a header and include it in multiple source files, the linker will encounter multiple strong symbol definitions and fail with a 'multiple definition' error. The `inline` keyword specifically exists to relax this rule by marking function definitions as weak symbols. When the linker encounters multiple weak definitions of the same symbol, it keeps one arbitrarily and discards the rest, making it legal to have the same function defined in multiple translation units. This is the low-level machinery that enables header-only libraries and allows functions to be defined in headers without causing linker errors. Without this weak symbol behavior, every function would need to be declared in headers and defined in exactly one source file, severely limiting code organization and reuse patterns.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "chapter": "linking",
+    "extraction_type": "technical_deep_dive",
+    "extraction_date": "2025-10-29T00:00:00.000000",
+    "book_metadata_added": "2025-10-29T00:00:00.000000"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// utils.h - WITHOUT inline (WRONG)\nint add(int a, int b) {\n    return a + b;  // Strong symbol T\n}\n\n// main.cpp\n#include \"utils.h\"\nint x = add(1, 2);\n\n// other.cpp\n#include \"utils.h\"  \nint y = add(3, 4);\n\n// Linker error:\n// multiple definition of `add(int, int)'\n\n// ─────────────────────────────────────\n\n// utils.h - WITH inline (CORRECT)\ninline int add(int a, int b) {\n    return a + b;  // Weak symbol W\n}\n\n// main.cpp\n#include \"utils.h\"\nint x = add(1, 2);  // Weak symbol\n\n// other.cpp\n#include \"utils.h\"\nint y = add(3, 4);  // Weak symbol\n\n// Links successfully: linker keeps one copy",
+  "keywords": "ODR violation, multiple definition error, inline weak symbol, function definition header"
+}

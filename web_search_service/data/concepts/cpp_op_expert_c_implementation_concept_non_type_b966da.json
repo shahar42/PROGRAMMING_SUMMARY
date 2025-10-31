@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Non-Type Template Parameters and their Compiler Implementation",
+  "explanation": "Non-type template parameters, while seemingly simple, reveal intricate compiler behavior regarding their representation, instantiation, and impact on code generation.  Unlike type template parameters, which cause the compiler to generate distinct code for each type, non-type template parameters influence code generation through compile-time computations and specialization.  The compiler often uses these parameters to generate specialized code or perform compile-time computations, potentially leading to significant performance gains or enabling compile-time polymorphism.  Understanding their implementation reveals how the compiler manages compile-time constants within templates, and how this impacts memory layout, code size, and runtime performance.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:41:11.711203",
+    "book_metadata_added": "2025-10-28T20:22:06.932980"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <int Flags>\nstruct Configuration {\n    // NTTP used for compile-time logic and branch elimination\n    static constexpr bool IsOptimized = (Flags & 0x1);\n};\n\n// C++20: Literal Class Type as NTTP\nstruct CompileTimeId {\n    int value;\n    constexpr CompileTimeId(int v) : value(v) {}\n};\n\ntemplate <CompileTimeId ID>\nclass Processor {\n    // Compiler generates distinct code per ID.value\n    static_assert(ID.value > 0);\n};\n\nconstexpr CompileTimeId KeyA{100};\nconstexpr CompileTimeId KeyB{200};\n\nProcessor<KeyA> p1;\nProcessor<KeyB> p2; // Separate instantiation\nConfiguration<3> c; // IsOptimized = true\nConfiguration<2> d; // IsOptimized = false"
+}

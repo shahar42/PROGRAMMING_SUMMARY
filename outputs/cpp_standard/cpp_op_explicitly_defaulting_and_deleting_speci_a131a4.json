@@ -1,33 +1,12 @@
 {
   "topic": "Explicitly Defaulting and Deleting Special Member Functions: Impact on Compiler Optimization and Memory Layout",
   "explanation": "This concept delves into the intricate details of how compilers handle special member functions (constructors, destructors, assignment operators, etc.) when explicitly defaulted or deleted.  Understanding this allows for fine-grained control over object lifetime, memory management, and optimization opportunities.  Explicitly defining these functions, even as defaults, can drastically affect compiler optimization strategies compared to relying on implicit generation.  Deleted functions prevent unwanted object creation or copying, leading to improved type safety and potentially reduced code bloat.  The compiler's ability to perform return value optimization (RVO) and copy elision is significantly affected by the presence and nature of these functions.",
-  "syntax": "C++ syntax demonstrating explicit definition and deletion of special member functions:\n\n```c++\nstruct A {\n  A() = default; // Explicitly defaulted constructor\n  A(const A&) = delete; // Deleted copy constructor\n  A& operator=(const A&) = delete; // Deleted assignment operator\n  ~A() = default; // Explicitly defaulted destructor\n};\n\nstruct B {\n  B() {} // Implicitly generated constructor\n  B(const B&) {} // Implicitly generated copy constructor\n  B& operator=(const B&) {} // Implicitly generated assignment operator\n  ~B() {} // Implicitly generated destructor\n};\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <memory>",
-    "struct A {",
-    "  A() = default;",
-    "  A(const A&) = delete;",
-    "  A& operator=(const A&) = delete;",
-    "  ~A() = default;",
-    "};",
-    "struct B {",
-    "  B() {}",
-    "  ~B() {}",
-    "};",
-    "int main() {",
-    "  A a1;  //OK",
-    "  //A a2 = a1; //Compile-time error: deleted copy constructor",
-    "  //a1 = a2; //Compile-time error: deleted assignment operator",
-    "  std::unique_ptr<B> b1 = std::make_unique<B>(); //implicit generated functions will be used here",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "In the example, `struct A` explicitly defaults and deletes special member functions. This gives the compiler precise instructions, impacting the generated assembly code.  The compiler cannot perform certain optimizations (like copy elision) because it's explicitly told not to create a copy constructor or assignment operator.  In contrast, `struct B` relies on compiler-generated defaults, potentially allowing for more aggressive optimization depending on how `B` is used within the program. The memory layout is the same (assuming no virtual functions), but compiler behavior diverges significantly, affecting potential performance (e.g., fewer copies made for A vs possible copies for B depending on usage).  Observing the assembly output for scenarios involving function calls, object creation, and destruction will clearly illustrate the differences in code generated for A and B.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "basic",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T03:23:02.989123"
-  }
+    "extraction_date": "2025-08-19T03:23:02.989123",
+    "book_metadata_added": "2025-10-28T20:22:06.936544"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

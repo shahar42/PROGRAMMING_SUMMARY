@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Function Result Type Deduction with `std::result_of` (and its implications)",
+  "explanation": "This concept explores `std::result_of` (or its C++20 equivalent `std::invoke_result`), focusing on how compilers deduce the return type of a function or function object at compile time, impacting memory layout, performance, and potential runtime errors.  Crucially, understanding this involves grasping how the compiler handles function pointers, member function pointers, and function objects (functors) with varying argument types and cv-qualifications. The compiler's ability to perform this deduction avoids runtime type checking, leading to significant performance gains, but incorrect usage can lead to subtle, hard-to-debug errors.\n\nAt a lower level, the compiler employs template metaprogramming techniques to inspect the function signature and potentially generate specialized code for each specific function call type.  The actual implementation details vary across compilers (GCC, Clang, MSVC), but the general approach involves sophisticated template instantiation and type deduction rules. Failure to properly account for these rules can result in unexpected return types or even compilation failures.  This is further complicated by the handling of rvalue and lvalue references, as well as const-correctness, impacting whether the compiler generates code that creates temporary objects or directly accesses existing memory locations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:44:54.869799",
+    "book_metadata_added": "2025-10-28T20:22:06.830426"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Calculator {\n    int add(int a, int b) const { return a + b; }\n    float operator()(double d) { return (float)d; }\n};\n\n// 1. Functor deduction (C++17/20 preferred)\nusing R1 = std::invoke_result_t<Calculator, double>;\n// R1 is float\n\n// 2. Member function pointer deduction\nusing MemFnPtr = decltype(&Calculator::add);\nusing R2 = std::invoke_result_t<MemFnPtr, Calculator const&, int, int>;\n// R2 is int\n\n// C++14/17 alternative (deprecated)\n// using R3 = std::result_of<Calculator(double)>::type;\n// R3 is float"
+}

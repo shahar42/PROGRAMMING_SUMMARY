@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming and `common_type` Implementation",
+  "explanation": "The `std::common_type` metafunction, crucial for generic programming, demonstrates advanced template metaprogramming.  Its implementation relies heavily on recursive template instantiation and type deduction at compile time.  Understanding its behavior requires grasping how the compiler performs template instantiation, recursively resolving types until a common type is found.  This process happens entirely at compile time, resulting in zero runtime overhead but potentially significant compile-time cost for deeply nested or complex type sets.  The memory layout impact is indirect; the existence of a `common_type` doesn't directly affect memory, but using the result may, depending on the underlying types involved.  Assembly-level behavior is nonexistent for `common_type` itself; the compiler resolves it completely before emitting any code.  The performance implication is purely compile-time; compilation time can increase significantly with complex type arguments.  Improper usage can lead to exceedingly long compilation times or even compiler errors due to recursion depth limitations.  The key is that the entire operation is performed during compilation; no runtime cost is incurred.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:44:21.614450",
+    "book_metadata_added": "2025-10-28T20:22:06.864790"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T1, typename T2>\nstruct CommonTypeConcept {\n    // Requires std::declval to simulate operation result\n    // The ternary operator forces compile-time type promotion rules\n    using type = decltype(\n        true ? std::declval<T1>() : std::declval<T2>()\n    );\n};\n\n// Standard Usage (Alias Template C++14)\ntemplate <typename... T>\nusing common_type_t = typename std::common_type<T...>::type;\n\nusing R1 = common_type_t<int, float>;    // float\nusing R2 = common_type_t<const long&, int>; // long\n\n// Recursive definition needed for > 2 types\n// common_type<T1, T2, T3> == common_type<common_type<T1, T2>, T3>\n\nusing R3 = common_type_t<char, short, double>; // double",
+  "keywords": "std::common_type, Template Metaprogramming, Common type metafunction, type trait"
+}

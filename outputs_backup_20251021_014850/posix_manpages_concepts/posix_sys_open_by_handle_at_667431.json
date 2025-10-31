@@ -1,0 +1,15 @@
+{
+  "topic": "open_by_handle_at() System Call",
+  "explanation": "The open_by_handle_at() system call opens the file corresponding to a handle returned by a previous call to name_to_handle_at() and returns an open file descriptor. It uses a mount file descriptor, the file handle, and flags to perform the operation.\n\n**Parameters:**\n- `mount_fd` (int): File descriptor for the mount point.\n- `handle` (struct file_handle *): Pointer to the file handle structure obtained from name_to_handle_at().\n- `flags` (int): Flags for opening the file, such as O_RDONLY or O_WRONLY.\n\n**Common Errors:**\n- `EBADF`: mount_fd is not an open file descriptor.\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor (though this may not directly apply).\n- `EFAULT`: handle points outside your accessible address space.\n- `EINVAL`: handle->handle_bytes is greater than MAX_HANDLE_SZ or is equal to zero.\n- `ELOOP`: handle refers to a symbolic link, but O_PATH was not specified in flags.",
+  "syntax": "int open_by_handle_at(int mount_fd, struct file_handle *handle, int flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = open_by_handle_at(...);  // Call the system call\nif (result == -1) {\n    perror(\"open_by_handle_at\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the open_by_handle_at() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.224157",
+    "syscall_name": "open_by_handle_at",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_open_by_handle_at.json",
+    "concept_id": "posix_sys_open_by_handle_at_667431"
+  }
+}

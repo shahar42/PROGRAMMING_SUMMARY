@@ -1,0 +1,18 @@
+{
+  "topic": "Virtual Function Table (vtable) Mechanism and Dispatch",
+  "explanation": "In C++, when a class contains virtual functions, the compiler implements a vtable (virtual table) to enable dynamic dispatch at runtime. The vtable is an array of pointers to virtual functions, associated with each polymorphic object. Each object of such a class contains an implicit pointer (vptr) to its class's vtable, which the compiler initializes during object construction. When a virtual function is called through a base class pointer or reference, the program uses the vptr to locate the correct function in the vtable, ensuring the appropriate derived class implementation executes. This mechanism allows C++ to support runtime polymorphism efficiently, with the vtable acting as an internal lookup table for virtual function calls.",
+  "syntax": "For a class with virtual functions:\n\nclass ClassName {\npublic:\n    virtual ReturnType FunctionName(Parameters);\n    // ...\n};\n\n// Compiler-generated internal structure:\n// Each object contains an implicit vptr pointing to the class's vtable.\n// The vtable is an array of function pointers:\n// vtable for ClassName:\n//   [0] pointer to ClassName::FunctionName\n//   [1] pointer to other virtual functions...\n\n// Virtual function call via pointer/reference:\n//   object->vptr[function_index]()",
+  "code_example": "class Base {\npublic:\n    virtual void foo() { /* Base implementation */ }\n};\nclass Derived : public Base {\npublic:\n    void foo() override { /* Derived implementation */ }\n};\n\n// Memory layout analysis:\n// Suppose we create an object of Derived:\nDerived d;\n// The compiler generates a vtable for Derived:\n// vtable_Derived: [ pointer to Derived::foo ]\n// The object 'd' contains an implicit vptr pointing to vtable_Derived.\n// When calling d.foo():\n//   the program uses d's vptr to locate vtable_Derived,\n//   then calls the function pointer at index 0, which points to Derived::foo.",
+  "example_explanation": "This example demonstrates how the compiler implements virtual functions using a vtable. The object 'd' of class Derived contains an implicit vptr pointing to Derived's vtable. When 'd.foo()' is invoked, the runtime uses the vptr to access the correct function pointer in the vtable, ensuring the Derived implementation executes even when called through a Base class pointer or reference. This internal mechanism exemplifies the core of C++'s dynamic dispatch system, highlighting how vtables enable runtime polymorphism at the object model level.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "1-1",
+    "extraction_date": "2025-09-17T14:44:40.789033",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout"
+  }
+}

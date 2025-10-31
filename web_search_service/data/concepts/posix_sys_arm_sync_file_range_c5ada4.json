@@ -1,0 +1,16 @@
+{
+  "topic": "arm_sync_file_range() System Call",
+  "explanation": "arm_sync_file_range() provides fine control for synchronizing a specified range of an open file with disk on ARM architectures. It synchronizes the range starting from offset for nbytes bytes, with behavior controlled by flags. This call is architecture-specific and should be used cautiously due to potential data integrity risks.\n\n**Parameters:**\n- `fd` (int): File descriptor of the open file to synchronize.\n- `offset` (off_t): Starting byte of the file range to synchronize; rounded down to a page boundary.\n- `nbytes` (off_t): Length of the range to synchronize; if zero, synchronizes from offset to the end of the file.\n- `flags` (unsigned int): Bit-mask of flags, such as SYNC_FILE_RANGE_WAIT_BEFORE, SYNC_FILE_RANGE_WRITE, or SYNC_FILE_RANGE_WAIT_AFTER, to control the synchronization behavior.\n\n**Common Errors:**\n- `EBADF`: fd is not a valid file descriptor.\n- `EINVAL`: flags specifies an invalid bit; or offset or nbytes is invalid.\n- `EIO`: I/O error.\n- `ENOMEM`: Out of memory.\n- `ENOSPC`: Out of disk space.\n\n**Related System Calls:** `fdatasync()`, `fsync()`, `msync()`, `sync()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.152145",
+    "syscall_name": "arm_sync_file_range",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_arm_sync_file_range.json",
+    "concept_id": "posix_sys_arm_sync_file_range_c5ada4",
+    "book_metadata_added": "2025-10-28T20:22:06.660614"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define FILE_FD 3\n#define SYNC_OFFSET 4096\n#define SYNC_BYTES 8192\nint ret_val;\n\n/* Write dirty pages immediately (non-blocking wait) */\nunsigned int F_WRITE = SYNC_FILE_RANGE_WRITE;\n\n/* Wait for currently committed IO to complete */\nunsigned int F_WAIT_B = SYNC_FILE_RANGE_WAIT_BEFORE;\n\n/* Full sync: Wait, Write, Wait again */\nunsigned int F_FULL = F_WAIT_B\n                    | F_WRITE\n                    | SYNC_FILE_RANGE_WAIT_AFTER;\n\n/* Call structure: ARM architecture specific */\nret_val = arm_sync_file_range(\n    FILE_FD,\n    (off_t)SYNC_OFFSET,\n    (off_t)SYNC_BYTES,\n    F_FULL\n);\n\n/* Sync entire file (nbytes=0) */\nret_val = arm_sync_file_range(FILE_FD, 0, 0, F_WRITE);",
+  "keywords": "arm_sync_file_range, sync_file_range ARM, ARM file synchronization, file range flush"
+}

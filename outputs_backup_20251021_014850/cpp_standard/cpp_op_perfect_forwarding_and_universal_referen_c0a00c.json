@@ -1,0 +1,13 @@
+{
+  "topic": "Perfect Forwarding and Universal References in C++",
+  "explanation": "Perfect forwarding allows a function template to forward its arguments to another function without unnecessary copies or conversions, preserving the original value categories (lvalue or rvalue) and cv-qualifiers.  This is achieved using universal references (T&&). The compiler's implementation relies heavily on reference collapsing rules and its ability to distinguish between lvalues and rvalues at compile time.  This impacts memory layout by avoiding unnecessary copies and improves performance, particularly when dealing with large objects or expensive operations.  Assembly-level behavior will show fewer memory operations compared to a naive forwarding approach. At compile time, the compiler generates specialized versions of the function for different argument types and value categories, performing the appropriate forwarding mechanism (lvalue reference, rvalue reference, or by value). Runtime behavior depends on the actual arguments passed to the function; perfect forwarding only optimizes how those arguments are handled internally.",
+  "syntax": "template <typename T>\nvoid forward_argument(T&& arg) {\n  // Use std::forward<T>(arg) to preserve value category\n  some_function(std::forward<T>(arg));\n}\n\n// Example showcasing reference collapsing\ntemplate<typename T> void foo(T&& t) { \n    //t is a universal reference, its type depends on the type of the argument\n}",
+  "code_example": "#include <iostream>\n#include <utility>\ntemplate <typename T>\nvoid perfectForward(T&& arg) {\n  std::cout << \"Forwarding argument: \";\n  std::cout << std::forward<T>(arg) << std::endl;\n}\nint main() {\n  int a = 10;\n  perfectForward(a); //Forwards lvalue\n  perfectForward(20); //Forwards rvalue\n  return 0;\n}",
+  "example_explanation": "The compiler generates separate instantiations of `perfectForward` for `int&` and `int&&` based on the argument type.  When `perfectForward(a)` is called, it creates a function accepting `int&` and forwards `a` as an lvalue reference. When `perfectForward(20)` is called, a function accepting `int&&` is instantiated, forwarding the temporary as an rvalue reference.  The use of `std::forward` ensures this distinction is maintained throughout the forwarding process.  The assembly code generated will reflect this; `a` might not be copied, while the temporary `20` might be moved, showcasing the compile-time optimization and the resulting runtime behavior.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:03:55.873174"
+  }
+}

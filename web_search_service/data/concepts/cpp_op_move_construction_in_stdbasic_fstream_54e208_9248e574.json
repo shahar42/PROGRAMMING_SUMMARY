@@ -1,0 +1,12 @@
+{
+  "topic": "Move Construction in std::basic_fstream",
+  "explanation": "Move construction in std::basic_fstream is an expert-level C++ concept that, the compiler translates the move constructor into a sequence of operations that leverage C++'s move semantics to avoid unnecessary copies, particularly for the internal buffer managed by std::basic_filebuf. When the move constructor is invoked, the compiler generates code to perform a member-wise move of the base class (typically std::basic_iostream) and the contained std::basic_filebuf object. This involves calling the move constructors of these subobjects, which often means transferring ownership of resources like file descriptors or memory buffers without deep copying. Memory layout-wise, std::basic_fstream typically inherits from std::basic_iostream and contains a std::basic_filebuf member, so the moved object reuses the existing buffer's memory, reducing allocation overhead. Performance implications are significant: move construction is O(1) time complexity in most cases, as it primarily involves pointer assignments and flag updates, compared to O(n) for copying large buffers. At the assembly level, this manifests as efficient operations like register-based moves or calls to low-level functions (e.g., via libstdc++ or libc++ implementations), minimizing runtime overhead. The behavior is primarily runtime, as move construction occurs during object initialization, but the compiler optimizes it at compile-time by inlining move constructors where possible, potentially eliminating function calls entirely in release builds.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "special",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:14:17.091075",
+    "book_metadata_added": "2025-10-28T20:22:06.804190"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

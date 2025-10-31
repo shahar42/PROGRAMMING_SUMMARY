@@ -1,0 +1,13 @@
+{
+  "topic": "Universal References Behavior Versus Rvalue Reference Assumption",
+  "category": "type",
+  "explanation": "The fundamental anti-pattern surrounding universal references (sometimes called forwarding references) is the assumption that the syntax `T&&` always denotes an rvalue reference. This assumption is deeply misleading and often leads to incorrect implementation decisions within templates. The reality is that `T&&` only acts as an rvalue reference when `T` is a specific, non-deduced type (e.g., when used as a standard type member or a specific function return type). When `T&&` appears in a template function parameter list and `T` is subject to type deduction, it becomes a universal reference. This distinction is critical because universal references exhibit special behavior: if an lvalue is passed to the function, `T` is deduced as an lvalue reference (e.g., `Type&`), and due to reference collapsing rules, the parameter type `T&&` collapses to an lvalue reference (`Type& &&` becomes `Type&`). Conversely, if an rvalue is passed, `T` is deduced as a non-reference type, and the parameter remains an rvalue reference. The failure arises when programmers rely on the `&&` syntax to mean 'rvalue' in *all* contexts. This mistake means they often misuse or omit `std::forward` within the function body, failing to recognize that when an lvalue is passed, the universal reference parameter itself is bound to that lvalue, and without `std::forward`, subsequent operations within the function will always treat the parameter as an lvalue, forcing copies instead of moves, or accidentally applying move semantics to objects the caller intended to keep.",
+  "code_example": "template<typename T>\nvoid logAndProcess(T&& param) { // Universal Ref\n    // If lvalue passed, param is lvalue. If rvalue, param is rvalue.\n    process(param); // ANTI-PATTERN: Always calls copy if T is lvalue reference\n}",
+  "practical_example": "A library writer defines a templated setter using `T&&` intending to optimize for temporaries. A consumer of the library passes an lvalue variable to this setter. Because the library writer failed to use `std::forward`, the setter performs a deep copy of the lvalue object instead of utilizing its optimized move semantics, resulting in unnecessary resource duplication and slower execution than expected for lvalue inputs.",
+  "keywords": "Universal reference, Forwarding reference, T&& template, Reference collapsing",
+  "difficulty": "advanced",
+  "page_reference": "182-186",
+  "chapter": "Item 24: Distinguish universal references from rvalue references",
+  "id": "emcpp_type_universal_references_behavior_versus_rvalue_8ca21a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

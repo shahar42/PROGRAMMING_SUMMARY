@@ -1,0 +1,18 @@
+{
+  "topic": "Future Design: Void Futures for One-Shot Event Communication",
+  "category": "design",
+  "explanation": "Purpose: To provide a clean, simple synchronization mechanism where one task needs to signal a specific event (not a result value) to another asynchronously running task. Pattern: A `std::promise<void>` is used by the producer task. Once the event occurs, the producer calls `p.set_value()` (or `p.set_exception()`). The consumer task retrieves the corresponding `std::future<void>` and calls `f.wait()` or `f.get()` to block until the signal is received. Benefit: This avoids the complexity of using condition variables and mutexes for simple one-shot signaling, making the intent clearer and reducing the risk of deadlocks associated with manual locking primitives.",
+  "code_example": "// Producer signals event completion:\nstd::promise<void> p;\np.set_value();\n\n// Consumer waits for event:\nstd::future<void> f = p.get_future();\nf.wait(); // Blocks until set_value() is called",
+  "practical_example": "In a concurrent processing pipeline, the setup task must signal the execution task that all necessary input files have been loaded and validated. A `std::future<void>` is used as the 'ready' signal, allowing the execution task to efficiently wait without busy-looping or relying on complex atomic flags.",
+  "keywords": [
+    "void future",
+    "std::promise",
+    "event communication",
+    "synchronization primitive"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 39",
+  "id": "emcpp_design_future_design__void_futures_febf08",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

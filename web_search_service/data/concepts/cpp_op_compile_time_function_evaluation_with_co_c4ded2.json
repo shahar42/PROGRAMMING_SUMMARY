@@ -1,0 +1,13 @@
+{
+  "topic": "constexpr Evaluation: Performance and Memory Impacts",
+  "explanation": "The `constexpr` specifier allows functions to be evaluated at compile time, if possible.  This dramatically impacts performance and memory layout.  The compiler's ability to perform compile-time evaluation depends heavily on the complexity of the function and the arguments provided. If the compiler can determine the result at compile time, the function call is essentially replaced with the computed value; otherwise, it behaves like a regular function evaluated at runtime. This decision is often affected by template instantiation where arguments are known only at the template instantiation time and not at the function definition time. The compiler's implementation involves sophisticated constant folding and expression analysis.  Failure to perform compile-time evaluation can lead to significant performance penalties, particularly in performance-critical loops or algorithms.  Memory layout benefits are evident in embedded systems or when dealing with large constant arrays initialized with `constexpr` functions, avoiding runtime initialization overhead.  Assembly-level behavior will show direct substitution of the evaluated value in the case of successful compile-time evaluation; otherwise, it will resemble a typical function call with the associated stack operations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:34:36.752485",
+    "book_metadata_added": "2025-10-28T20:22:06.894204"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "constexpr int fib(int n) {\n    return (n <= 1) ? n : fib(n - 1) + fib(n - 2);\n}\n\n// Compile-Time: Function call replaced by value (6765).\n// Zero runtime overhead.\nconstexpr int fast_result = fib(20);\n\n\nint runtime_input(); // Value unknown until execution\n\n// Runtime Fallback: Evaluated at runtime like a standard function.\n// Standard function call overhead generated.\nint slow_result = fib(runtime_input());\n\n\n// Memory/Initialization Impact (Guarantees Static Storage)\nclass Settings { int id; };\n\nconstexpr Settings make_settings() { return Settings{42}; }\n\n// Forces static initialization (zero/constant init).\n// Guarantees zero memory initialization overhead at runtime.\nconstinit const Settings default_set = make_settings();"
+}

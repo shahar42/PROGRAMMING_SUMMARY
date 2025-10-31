@@ -1,0 +1,16 @@
+{
+  "topic": "Parallelism with Stalling and Forwarding",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the execution stages of multiple instructions.  However, hazards (data, control, and structural) can disrupt this parallelism.  Hazard handling techniques, such as stalling and forwarding, are crucial for maintaining pipeline efficiency and preventing incorrect results. Understanding pipeline performance is essential for optimizing program execution speed.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "494-495",
+    "extraction_date": "2025-07-27T17:09:34.606213",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.745054"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Hazard Detection Unit (ID stage)\nstruct PReg { int Rd; bool MemRead; int Rs, Rt; };\nPReg ID_EX, IF_ID; // Pipeline Register Contents\n\n// Load-Use Hazard check (RAW)\nbool StallCondition = (ID_EX.MemRead) && (\n    (ID_EX.Rd == IF_ID.Rs) ||\n    (ID_EX.Rd == IF_ID.Rt)\n);\n\nif (StallCondition) {\n    PC_Write_Enable = 0; // Stop IF progression\n    IF_ID_Write_Enable = 0;\n    ID_EX.Control = NOP_CNTRL; // Insert Bubble (stall cycle)\n}\n\n// Forwarding Unit Logic (EX stage input bypass)\nPReg EX_MEM, MEM_WB;\n\n// Forward M -> E (EX/MEM result used in current EX)\nif (EX_MEM.RegWrite && EX_MEM.Rd == ID_EX.Rs)\n    ALU_InputA = EX_MEM.ALU_Result;\n\n// Forward W -> E (MEM/WB result used in current EX)\nelse if (MEM_WB.RegWrite && MEM_WB.Rd == ID_EX.Rs)\n    ALU_InputA = MEM_WB.WriteData;\n<ctrl63>",
+  "keywords": "Data forwarding, Pipeline stalling, Pipeline hazards, Instruction pipelining"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Guaranteed Copy Elision and Return Value Optimization (RVO) in C++",
+  "explanation": "Copy elision, particularly RVO, is a compiler optimization that avoids unnecessary copies of objects.  While seemingly simple, understanding its nuances and limitations is crucial for writing performant and predictable C++ code.  The compiler's implementation relies on sophisticated analysis of the program's control flow and object lifetimes.  Failure to understand this can lead to unexpected performance bottlenecks or subtle bugs related to object ownership and lifetime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:09:33.865596",
+    "book_metadata_added": "2025-10-28T20:22:06.809194"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct BigObject {\n    BigObject() = default;\n    // Copy/Move operations are typically elided in these cases\n    BigObject(const BigObject&) = delete; \n};\n\n// --- Guaranteed Elision 1: Initialization from a temporary (C++17) ---\nBigObject make_object() {\n    return BigObject{}; // Prvalue return\n}\n\nvoid scope1() {\n    BigObject a = make_object(); // Guaranteed elision of copy/move\n}\n\n// --- Guaranteed Elision 2: Prvalue return (C++17) ---\nBigObject factory() {\n    return BigObject(); // Direct construction into return slot\n}\n\n// --- Scenario NOT Guaranteed (Named Return Value) ---\nBigObject complex_factory(bool condition) {\n    BigObject result;\n    if (condition) {\n        // NRVO likely happens, but is NOT mandated by standard\n        return result; \n    }\n    return result; \n}\n\n// --- Defeating NRVO via explicit move ---\nBigObject move_factory() {\n    BigObject local;\n    // Explicitly forces a move construction instead of relying on NRVO/Elision\n    return std::move(local); \n}",
+  "keywords": "RVO, Copy Elision, Mandatory Copy Elision, NRVO"
+}

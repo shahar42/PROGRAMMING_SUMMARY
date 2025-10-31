@@ -1,0 +1,63 @@
+{
+  "name": "ioctl_iflags",
+  "synopsis": [
+    "#include <sys/ioctl.h>",
+    "int ioctl(int fd, unsigned long request, void *arg);"
+  ],
+  "description": "Retrieves and modifies inode flags for files and directories on Linux filesystems. These flags alter file semantics and can be accessed using specific ioctl operations like FS_IOC_GETFLAGS and FS_IOC_SETFLAGS.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the file or directory to operate on"
+    },
+    {
+      "name": "request",
+      "type": "unsigned long",
+      "description": "The ioctl request code, such as FS_IOC_GETFLAGS or FS_IOC_SETFLAGS"
+    },
+    {
+      "name": "arg",
+      "type": "void*",
+      "description": "Pointer to the argument, typically a pointer to an int for storing or retrieving flags"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno"
+  },
+  "errors": [
+    {
+      "code": "EPERM",
+      "description": "Operation not permitted, such as when the caller lacks necessary capabilities or ownership"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address, if the argument pointer is invalid"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid argument, if the request or flags are not supported"
+    }
+  ],
+  "bugs": "The argument for FS_IOC_GETFLAGS and FS_IOC_SETFLAGS is specified as int*, but the kernel source implies it should be long*, which may lead to inconsistencies.",
+  "versions": "Linux, with some flags introduced as early as Linux 2.6.0 and others in later versions like 2.6.39.",
+  "posix_compliance": null,
+  "examples": [
+    "int attr;",
+    "int fd = open(\"pathname\", O_RDONLY);",
+    "ioctl(fd, FS_IOC_GETFLAGS, &attr);  /* Retrieve flags */",
+    "attr |= FS_NOATIME_FL;  /* Modify flags */",
+    "ioctl(fd, FS_IOC_SETFLAGS, &attr);  /* Set flags */"
+  ],
+  "related_calls": [
+    "mount"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ioctl_iflags.pdf",
+    "extraction_date": "2025-07-28T12:22:41.769479",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

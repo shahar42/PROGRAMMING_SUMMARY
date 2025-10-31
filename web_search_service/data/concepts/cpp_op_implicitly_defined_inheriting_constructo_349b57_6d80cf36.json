@@ -1,0 +1,14 @@
+{
+  "topic": "Implicitly Defined Inheriting Constructors and Compiler Optimization",
+  "explanation": "C++ allows inheriting constructors, implicitly defined when a class's constructor is odr-used.  The compiler's implementation heavily influences performance.  A naive implementation might involve creating a temporary base class object, copying its members, and then constructing the derived class members.  However, optimizing compilers can drastically reduce this overhead.  Understanding how the compiler optimizes inheriting constructors is crucial for performance-critical applications.  The compiler might perform copy elision, return value optimization (RVO), or even generate code that directly initializes the base class members within the derived class's memory allocation, avoiding unnecessary copies altogether.  This behavior is highly dependent on compiler flags (e.g., -O2, -O3), inlining, and the complexity of the base and derived classes.  Assembly-level analysis reveals whether the compiler has successfully eliminated temporary objects and copy operations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:24:04.106409",
+    "book_metadata_added": "2025-10-28T20:22:06.909097"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\nprotected:\n    int data;\npublic:\n    Base(int x) : data(x) {}\n    // Virtual destructor hints at complex state,\n    // demanding optimization of derived construction.\n    virtual ~Base() = default;\n};\n\nclass Derived : public Base {\npublic:\n    // Compiler generates forwarding constructors (C++11/14).\n    // e.g., Derived(int x) : Base(x) {}\n    using Base::Base; \n};\n\n// Optimized Construction: Derived d(10);\n// No temporary Base object is created and copied/moved;\n// Base construction occurs directly within the Derived object memory.",
+  "keywords": "inheriting constructors performance, using Base::Base optimization, constructor inheritance overhead, C++ constructor forwarding"
+}

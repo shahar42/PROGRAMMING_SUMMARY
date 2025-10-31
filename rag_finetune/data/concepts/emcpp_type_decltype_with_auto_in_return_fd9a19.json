@@ -1,0 +1,21 @@
+{
+  "topic": "Decltype Trailing Return: Dynamic Return Type Specification",
+  "category": "type",
+  "explanation": "The combination of the `auto` keyword as a return-type placeholder and a trailing `decltype` specifier provides a C++11 mechanism for declaring a function whose return type depends on the types of its parameters. This syntax, often called a 'trailing return type', is essential for writing advanced generic functions where the precise return type cannot be known in advance and must be computed from an expression involving the function's arguments.\n\nScott Meyers highlights this feature as a solution to a fundamental scoping problem in C++. A function's return type is normally declared before its parameters, but if the return type depends on those parameters, they are not yet in scope. The trailing return type syntax elegantly resolves this by moving the type computation to a point after the parameters have been declared, making them available for use within the `decltype` expression.\n\nThe mechanics are straightforward for the compiler. When it encounters `auto` in the return type position of a function declaration, it knows not to perform type deduction there. Instead, it parses the function name and parameter list as usual. After the parameter list, the `->` token signals the start of the trailing return type. The compiler then inspects the expression within the `decltype` specifier, determines its type without evaluating the expression, and substitutes that type for `auto` as the function's official return type.\n\nIn practice, this is a cornerstone of modern generic programming, especially in C++11. For instance, when implementing a generic `cbegin` function, the exact type of the `const_iterator` is unknown; it could be a class type for a standard container or a raw pointer for a C-style array. By using `decltype` on an expression that yields the desired iterator, the function can correctly declare its return type for any compatible container-like object. While C++14's `decltype(auto)` return type deduction can sometimes offer a more concise alternative, the explicit trailing return type syntax remains a clear and powerful tool.\n\nA common pitfall for developers new to this syntax is attempting to use a parameter within a leading `decltype` specifier, which results in a compile error because the parameter is not yet in scope. Another point of confusion is misinterpreting the role of `auto`; in this context, it is not performing type deduction itself but is merely a syntactic placeholder for the type that will be specified by the trailing `decltype` clause.",
+  "code_example": "// A generic C++11 function whose return type depends on its parameter.\n// The trailing return type is necessary because the expression inside decltype\n// uses the 'container' parameter, which is only in scope after the parameter list.\ntemplate <class C>\nauto cbegin(const C& container) -> decltype(std::begin(container))\n{\n  // By passing a const container to std::begin, we get back a const_iterator.\n  // The decltype expression correctly deduces this specific iterator type.\n  return std::begin(container);\n}\n\n// Example: For a std::vector<int>, the return type becomes\n// std::vector<int>::const_iterator.\n// For an int[10], the return type becomes const int*.",
+  "practical_example": "When backporting a C++14 library feature like non-member `cbegin` to a C++11 codebase, the trailing return type with `decltype` is the idiomatic way to ensure your implementation is maximally generic, correctly handling both standard containers and built-in arrays without requiring complex SFINAE or manual specializations.",
+  "keywords": [
+    "decltype",
+    "trailing return type",
+    "auto",
+    "c++11",
+    "generic programming",
+    "template meta-programming",
+    "type deduction"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "88-89",
+  "chapter": "Item 13: Prefer const_iterators to iterators",
+  "id": "emcpp_type_decltype_with_auto_in_return_fd9a19",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

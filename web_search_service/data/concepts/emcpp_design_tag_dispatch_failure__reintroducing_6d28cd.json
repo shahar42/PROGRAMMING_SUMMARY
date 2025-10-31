@@ -1,0 +1,19 @@
+{
+  "topic": "Tag Dispatch Failure: Reintroducing Code Duplication",
+  "category": "design",
+  "explanation": "When dealing with conflicting universal reference overloads (Item 26), tag dispatch is offered as a workaround where the user explicitly separates lvalue and rvalue handling into private implementation functions. The anti-pattern arises from the failure of this solution to maintain code conciseness and adhere to the DRY (Don't Repeat Yourself) principle. While tag dispatch successfully resolves the ambiguity problems of universal references, it forces the user to manually categorize and dispatch between lvalue and rvalue arguments, essentially duplicating the front-end logic and often duplicating the backend implementation logic as well. For every function, the developer must write a public interface that accepts the argument, and then two or more private helper functions (e.g., `impl(T, is_lvalue_tag)` and `impl(T, is_rvalue_tag)`). This boilerplate significantly increases complexity, verbosity, and maintenance overhead. The failure of tag dispatch is that it solves the compiler's overload resolution problem by making the programmer manually manage the value category distinction that perfect forwarding was intended to automate. If the core logic of the move and copy pathways is very similar, this approach forces the divergence into separate functions, resulting in brittle, hard-to-maintain code that violates the principle of minimizing implementation duplication.",
+  "code_example": "void process(int& i) { /* lvalue logic */ }\nvoid process(int&& i) { /* rvalue logic */ }\n// Tag dispatch requires: process_impl(int, LvalueTag) and process_impl(int, RvalueTag)",
+  "practical_example": "A utility library implements tag dispatch for fifteen different functions to avoid universal reference conflicts. When a small bugfix is needed in the core logic, the developer must meticulously apply the fix to both the lvalue and rvalue private implementation functions for all fifteen public interfaces, greatly increasing the risk of introducing inconsistencies or new bugs.",
+  "keywords": [
+    "tag dispatch",
+    "DRY violation",
+    "code duplication",
+    "maintenance overhead",
+    "template complexity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "208-212",
+  "chapter": "Item 27: Use std::forwarding references to distinguish overloads for rvalue and lvalue arguments",
+  "id": "emcpp_design_tag_dispatch_failure__reintroducing_6d28cd",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

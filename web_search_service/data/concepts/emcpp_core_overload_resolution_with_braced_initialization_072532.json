@@ -1,0 +1,21 @@
+{
+  "topic": "Initializer List Constructor: Braced Initialization Overload Priority",
+  "category": "core",
+  "explanation": "Braced initialization, using curly braces, has a profound impact on constructor overload resolution. If a class has one or more constructors that accept a standard initializer list, those constructors are given overwhelming priority when an object is created using braced syntax. The compiler will strongly prefer to match the braced initializer with an initializer list constructor, even if other non-initializer-list constructors provide a more direct match for the argument types and quantities.\n\nScott Meyers' crucial insight is that adding an initializer list constructor to a class is not a routine change; it's a significant design decision that can alter the meaning of existing client code. He warns that these constructors don't just participate in overload resolution\u2014they effectively hijack it for braced initialization calls. Code that previously resolved to a different constructor can suddenly, and silently, be rerouted to the new initializer list overload, potentially introducing bugs.\n\nThe mechanics behind this are a special rule in the language. When the compiler sees an object being constructed with a braced initializer, it first scans for any constructors taking a standard initializer list. If it finds one where the types in the brace-enclosed list can be implicitly converted to the list's element type, that constructor is chosen. Only if this process fails does the compiler fall back to treating the arguments as inputs for regular, non-initializer-list constructors.\n\nThis has major practical implications for class design. It explains why creating a standard vector with `{10, 20}` results in a two-element vector, while using `(10, 20)` results in a vector with ten elements, each initialized to twenty. When designing your own classes, you must carefully consider whether a braced list of arguments should logically represent a collection of initial values. If not, you should avoid providing an initializer list constructor to prevent surprising behavior for your users.\n\nThe most common pitfall is underestimating this rule's power. A programmer might add an initializer list constructor for convenience, not realizing it will now greedily capture all braced initialization calls, even those that were perfectly matched to other constructors before the change. This can lead to subtle and hard-to-diagnose changes in program behavior.",
+  "code_example": "class Widget {\npublic:\n  // Overload 1: Regular constructor\n  Widget(int i, bool b) { /* ... */ }\n  \n  // Overload 2: Initializer-list constructor\n  Widget(std::initializer_list<long double> il) { /* ... */ }\n};\n\nWidget w1(10, true); // Calls regular constructor\n\nWidget w2{10, true}; // Calls initializer-list constructor!\n                     // 10 and true are converted to long double\n\nWidget w3(10, 5.0);  // Error: no matching regular constructor\n\nWidget w4{10, 5.0};  // Calls initializer-list constructor\n                     // 10 and 5.0 are converted to long double",
+  "practical_example": "When designing a 2D Point class, providing a `Point(double x, double y)` constructor makes sense. Adding a `Point(std::initializer_list<double>)` constructor would be a poor design choice, as it could cause `Point p{1.0, 2.0}` to unexpectedly call the list constructor instead of the more direct two-argument version, potentially with different semantics.",
+  "keywords": [
+    "initializer list",
+    "braced initialization",
+    "uniform initialization",
+    "overload resolution",
+    "constructor",
+    "class design",
+    "greedy overload"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "56",
+  "chapter": "Item 7: Distinguish between () and {} when creating objects",
+  "id": "emcpp_core_overload_resolution_with_braced_initialization_072532",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

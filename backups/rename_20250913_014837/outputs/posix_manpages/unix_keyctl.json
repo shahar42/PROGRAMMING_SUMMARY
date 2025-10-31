@@ -1,0 +1,134 @@
+{
+  "name": "keyctl",
+  "synopsis": [
+    "#include <linux/keyctl.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "long syscall(SYS_keyctl, int operation, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);",
+    "Note: glibc provides no wrapper for keyctl(), necessitating the use of syscall(2)."
+  ],
+  "description": "keyctl() allows user-space programs to manipulate the kernel's key management facility. It performs various operations based on the 'operation' argument, such as managing keyrings or computing cryptographic keys.",
+  "parameters": [
+    {
+      "name": "operation",
+      "type": "int",
+      "description": "The operation to perform, determining the action taken."
+    },
+    {
+      "name": "arg2",
+      "type": "unsigned long",
+      "description": "Second argument, varies by operation (e.g., key ID or parameters)."
+    },
+    {
+      "name": "arg3",
+      "type": "unsigned long",
+      "description": "Third argument, varies by operation (e.g., flags or buffer pointers)."
+    },
+    {
+      "name": "arg4",
+      "type": "unsigned long",
+      "description": "Fourth argument, varies by operation (e.g., sizes or strings)."
+    },
+    {
+      "name": "arg5",
+      "type": "unsigned long",
+      "description": "Fifth argument, varies by operation (e.g., additional parameters)."
+    }
+  ],
+  "return_value": {
+    "success": "Depends on the operation; for example, returns key ID for KEYCTL_GET_KEYRING_ID or the number of bytes copied for KEYCTL_DH_COMPUTE.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The requested operation wasn’t permitted."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "Operation was KEYCTL_DH_COMPUTE and there was an error during crypto module initialization."
+    },
+    {
+      "code": "EDEADLK",
+      "description": "Operation was KEYCTL_LINK and the requested link would result in a cycle."
+    },
+    {
+      "code": "EDEADLK",
+      "description": "Operation was KEYCTL_RESTRICT_KEYRING and the requested keyring restriction would result in a cycle."
+    },
+    {
+      "code": "EDQUOT",
+      "description": "The key quota for the caller’s user would be exceeded."
+    },
+    {
+      "code": "EEXIST",
+      "description": "Operation was KEYCTL_RESTRICT_KEYRING and keyring already has a restriction set."
+    },
+    {
+      "code": "EFAULT",
+      "description": "Operation was KEYCTL_DH_COMPUTE and data copying failed."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid argument or parameter, such as invalid permissions or buffer size."
+    },
+    {
+      "code": "EKEYEXPIRED",
+      "description": "An expired key was found or specified."
+    },
+    {
+      "code": "EKEYREJECTED",
+      "description": "A rejected key was found or specified."
+    },
+    {
+      "code": "EKEYREVOKED",
+      "description": "A revoked key was found or specified."
+    },
+    {
+      "code": "ELOOP",
+      "description": "Operation was KEYCTL_LINK and the link would exceed maximum nesting depth."
+    },
+    {
+      "code": "EMSGSIZE",
+      "description": "Operation was KEYCTL_DH_COMPUTE and buffer length exceeds limits."
+    },
+    {
+      "code": "ENFILE",
+      "description": "Operation was KEYCTL_LINK and the keyring is full (pre-Linux 3.13)."
+    },
+    {
+      "code": "ENOENT",
+      "description": "No matching key was found or invalid key specified."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Kernel memory allocation failed."
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A keyring was expected but a different key type was provided."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "Operation not supported for the key type."
+    },
+    {
+      "code": "EPERM",
+      "description": "Operation requires insufficient permissions."
+    },
+    {
+      "code": "ETIMEDOUT",
+      "description": "Operation was KEYCTL_DH_COMPUTE and crypto initialization timed out."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.10 and later",
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "keyctl.pdf",
+    "extraction_date": "2025-07-28T12:34:37.348887",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

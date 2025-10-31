@@ -1,0 +1,18 @@
+{
+  "topic": "Reference Collapsing [Problem]: Dangling Reference Return",
+  "category": "design",
+  "explanation": "Assumption: If a function returns `T&&` where `T` is a deduced type (often via reference collapsing in forwarding contexts), this is a safe way to return a value that may be an rvalue reference. Reality: Attempting to return a universal reference (or any reference that relies on reference collapsing) from a function is extremely dangerous and almost always results in returning a dangling reference to a local variable or a temporary that is about to be destroyed. Why It Fails: Reference collapsing rules dictate how `T&` and `T&&` combine, but they do not alter the fundamental lifetime rules of C++. If a local variable is moved into (via `std::move`) and then returned, the variable is destroyed at the end of the function scope. Returning a reference (`T&&`) to that destroyed variable is catastrophic. While the compiler can perform Named Return Value Optimization (NRVO) for local variables returned by value, returning by reference bypasses NRVO and guarantees the reference points to garbage memory once the stack unwinds, regardless of how the reference was deduced via collapsing rules.",
+  "code_example": "// Failure: Returning a reference to a local variable (dangling)\ntemplate<typename T>\nT&& create_and_return() {\n  T local_obj; // Local object on stack\n  return std::move(local_obj); // Returns T&&, but local_obj is destroyed instantly\n}",
+  "practical_example": "A templated factory function is designed to return a perfectly forwarded type, but mistakenly returns `T&&` instead of `T`. Callers receive a dangling reference, leading to severe memory corruption and instability in subsequent operations utilizing the returned object.",
+  "keywords": [
+    "reference collapsing",
+    "dangling reference",
+    "lifetime violation",
+    "NRVO bypass"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "215-217",
+  "chapter": "Item 28: Understand reference collapsing",
+  "id": "emcpp_design_reference_collapsing__problem__ae1a86",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

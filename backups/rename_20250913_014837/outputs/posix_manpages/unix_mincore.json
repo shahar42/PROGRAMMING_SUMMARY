@@ -1,0 +1,64 @@
+{
+  "name": "mincore",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "int mincore(void *addr, size_t length, unsigned char *vec);"
+  ],
+  "description": "mincore() returns a vector indicating whether pages of the calling process's virtual memory are resident in core, avoiding page faults if referenced. It provides residency information for pages starting at addr for length bytes. The returned information is a snapshot and may be stale immediately.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "void*",
+      "description": "Starting address of the memory region to query; must be a multiple of the system page size."
+    },
+    {
+      "name": "length",
+      "type": "size_t",
+      "description": "Length in bytes of the memory region; effectively rounded up to the next multiple of the page size."
+    },
+    {
+      "name": "vec",
+      "type": "unsigned char*",
+      "description": "Pointer to an array that will store residency information, with at least ((length + PAGE_SIZE - 1) / PAGE_SIZE) bytes."
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "Kernel is temporarily out of resources."
+    },
+    {
+      "code": "EFAULT",
+      "description": "vec points to an invalid address."
+    },
+    {
+      "code": "EINVAL",
+      "description": "addr is not a multiple of the page size."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "length is greater than (TASK_SIZE - addr), or the address range contains unmapped memory."
+    }
+  ],
+  "bugs": "Before Linux 2.6.21, mincore() did not return correct information for MAP_PRIVATE mappings or nonlinear mappings established using remap_file_pages(2).",
+  "versions": "Linux 2.3.99pre1, glibc 2.2",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "madvise",
+    "mlock",
+    "mmap",
+    "posix_fadvise"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mincore.pdf",
+    "extraction_date": "2025-07-28T16:59:06.008530",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

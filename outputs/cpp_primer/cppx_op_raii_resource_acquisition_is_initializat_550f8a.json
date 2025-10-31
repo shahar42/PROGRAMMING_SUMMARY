@@ -1,41 +1,12 @@
 {
-  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "topic": "RAII: Eliminating Manual Management",
   "explanation": "RAII is a fundamental C++ programming technique that tightly couples resource management with object lifetime.  It ensures resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object goes out of scope. This eliminates resource leaks and simplifies error handling by leveraging the destructor.  It's a cornerstone of C++'s exception safety and promotes more robust and maintainable code.",
-  "syntax": "RAII is implemented by managing resources within a class's constructor (acquisition) and destructor (release).  Consider using smart pointers (`std::unique_ptr`, `std::shared_ptr`, `std::weak_ptr`) for automatic memory management.  For other resources, create custom classes that manage acquisition and release in their constructors and destructors respectively. ",
-  "code_example": [
-    "#include <iostream>",
-    "#include <fstream>",
-    "#include <memory>",
-    "",
-    "class FileHandler {",
-    "public:",
-    "  FileHandler(const std::string& filename) : file_(filename.c_str(), std::ios::out) {",
-    "    if (!file_) {",
-    "      throw std::runtime_error(\"Could not open file\");",
-    "    }",
-    "  }",
-    "  ~FileHandler() { file_.close(); } // Resource released in destructor",
-    "  std::ofstream& get_file() { return file_; }",
-    "private:",
-    "  std::ofstream file_;",
-    "};",
-    "",
-    "int main() {",
-    "  try {",
-    "    FileHandler file(\"mydata.txt\");",
-    "    file.get_file() << \"This is some data\\n\";",
-    "  } catch (const std::runtime_error& e) {",
-    "    std::cerr << \"Error: \" << e.what() << std::endl;",
-    "    return 1;",
-    "  }",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The `FileHandler` class demonstrates RAII. The constructor opens the file; if it fails, an exception is thrown.  Crucially, the destructor `~FileHandler()` ensures the file is closed, even if exceptions occur. This prevents resource leaks. Using `std::ofstream` internally allows for exception-safe file handling.  If an exception happens before the closing brace of the `try` block, the `FileHandler` object's destructor is called automatically, closing the file. This contrasts with manual resource management (e.g., using `fopen` and `fclose`), where forgetting to close the file would lead to a resource leak.  Using smart pointers similarly guarantees automatic resource deallocation, avoiding `delete` and associated memory management errors.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "basics",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T06:01:10.222210"
-  }
+    "extraction_date": "2025-08-20T06:01:10.222210",
+    "book_metadata_added": "2025-10-28T20:22:06.529687"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

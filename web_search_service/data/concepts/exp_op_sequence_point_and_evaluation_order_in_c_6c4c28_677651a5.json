@@ -1,0 +1,16 @@
+{
+  "topic": "Sequence Point and Evaluation Order in C",
+  "explanation": "In advanced C programming, understanding sequence points and evaluation order is crucial because they determine how expressions are evaluated and how side effects occur. Misunderstanding these can lead to undefined or implementation-defined behavior, especially in complex expressions involving multiple modifications of the same object. Recognizing that certain expressions are evaluated in a specific order, and that side effects are only guaranteed to occur at sequence points, allows developers to write correct, portable, and predictable code. This concept is fundamental when dealing with complex expressions, macro expansions, or compiler-specific optimizations that can produce subtle bugs if evaluation order assumptions are incorrect.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "46-46",
+    "extraction_date": "2025-07-21T10:26:13.022974",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "expert_c_programming",
+    "book_metadata_added": "2025-10-28T20:22:07.017957"
+  },
+  "book": "Expert C Programming: Deep C Secrets",
+  "code_example": "// 1. Core Sequence Points (SP)\n// SP guarantee all prior side effects are complete.\n;                 // End of full expression statement\n,                 // Comma operator (not separator)\n&&, ||, ?:        // Logical and Conditional operators\nfunction(arg1, arg2); // After arg evaluation/before call\nreturn;           // Before control returns\n\n// 2. Undefined Behavior (UB) - Multiple Modification\n// Modifying the same object twice between SPs is UB.\nint i = 5;\ni = i++ + ++i;    // UB: i modified 3 times between ';'\n\nint f(int);\ni = f(i++) + i;   // UB: i modified and read post-modification\n                  // without an intervening SP\n\n// 3. Guaranteed Evaluation Order (Implied SP)\nint a = 10;\n(a > 5) && (a++); // If (a>5) is true, 'a++' is evaluated.\n                  // SP occurs after (a > 5) evaluation.\n\nint b = (a=1, a+1); // Comma operator sequences:\n                    // 1. (a=1) completes (SP).\n                    // 2. (a+1) evaluates (b=2).",
+  "keywords": "Sequence Point, Evaluation Order, Undefined Behavior C++, Side Effect Ordering"
+}

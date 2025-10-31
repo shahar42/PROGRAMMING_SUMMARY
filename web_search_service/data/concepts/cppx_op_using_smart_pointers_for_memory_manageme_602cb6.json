@@ -1,0 +1,14 @@
+{
+  "topic": "Using Smart Pointers for Memory Management",
+  "explanation": "Smart pointers in C++ are a practical technique for automatic memory management, replacing raw pointers to prevent common issues like memory leaks and dangling pointers. They encapsulate a pointer and manage its lifecycle using RAII (Resource Acquisition Is Initialization), ensuring resources are released when they go out of scope. In real-world scenarios, such as building robust applications, smart pointers promote safer code by handling ownership and sharing semantics. Best practices include using std::unique_ptr for exclusive ownership to avoid unnecessary overhead, and std::shared_ptr for shared ownership when multiple parts of the code need access to the same resource. Common pitfalls to avoid include overusing std::shared_ptr due to its reference counting overhead, which can lead to circular references and memory leaks if not managed with std::weak_ptr; always prefer std::unique_ptr by default for simplicity and efficiency.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:24:06.236159",
+    "book_metadata_added": "2025-10-28T20:22:06.542402"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct Resource { void cleanup(); };\n\n// 1. Unique Ownership (Exclusive)\nstd::unique_ptr<Resource> u_ptr = std::make_unique<Resource>();\nu_ptr->cleanup();\n// Transfer ownership (no copy allowed)\nauto u_ptr_2 = std::move(u_ptr);\n\n// 2. Shared Ownership (Reference Counted)\nstd::shared_ptr<Resource> s_ptr = std::make_shared<Resource>();\nstd::shared_ptr<Resource> s_ptr_copy = s_ptr; // Ref count increments\n\n// 3. Observer (Breaks cyclic dependencies)\nstd::weak_ptr<Resource> w_ptr = s_ptr;\n// Access requires locking\nif (auto locked = w_ptr.lock()) {\n    locked->cleanup();\n}\n// Checking validity\nbool expired = w_ptr.expired();\n<ctrl63>",
+  "keywords": "C++ smart pointers, automatic memory management, RAII C++, unique_ptr shared_ptr"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "link_sym_weak_symbols_default_implementations_f4be4b",
+  "topic": "Weak Symbols for Default Implementations and Override Patterns",
+  "explanation": "Weak symbols are extensively used in frameworks and libraries to provide default implementations that developers can override without modifying library code. This pattern is particularly common in embedded systems, operating systems, and middleware. For example, STM32 microcontroller startup code uses weak symbols for all interrupt handlers, assigning them to a generic Default_Handler unless the developer provides their own strong implementation. This eliminates the need for developers to explicitly define every possible interrupt handler (which could be dozens or hundreds) while still allowing full customization when needed. The linker automatically selects the developer's strong symbol over the library's weak default. This pattern also appears in testing frameworks (weak test fixtures), plugin systems (weak default plugins), and callback mechanisms. The key advantage is that it provides sensible defaults without forcing users to write boilerplate code, yet allows complete override capability simply by defining a function with the same name. Common use cases include: interrupt service routines in embedded systems, memory allocation hooks (weak malloc/free wrappers), assertion handlers, logging callbacks, and hardware abstraction layer (HAL) implementations.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "chapter": "symbol_resolution",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-10-29T00:00:00.000000",
+    "book_metadata_added": "2025-10-29T00:00:00.000000"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// STM32 startup code pattern (startup_stm32.c)\nvoid Default_Handler() {\n    while(1);  // Infinite loop trap\n}\n\n// Weak aliases for all interrupt handlers\nvoid __attribute__((weak, alias(\"Default_Handler\")))\n    USART1_IRQHandler(void);\n\nvoid __attribute__((weak, alias(\"Default_Handler\")))\n    TIM2_IRQHandler(void);\n\n// User code (main.c) - overrides with strong symbol\nvoid USART1_IRQHandler(void) {\n    // Custom UART interrupt handling\n    // This strong symbol replaces the weak default\n}\n\n// Memory hook example\n__attribute__((weak))\nvoid* malloc_hook(size_t size) {\n    return NULL;  // Default: no hook\n}\n\nvoid* malloc(size_t size) {\n    void *result = malloc_hook(size);\n    if (result) return result;\n    return real_malloc(size);\n}\n\n// User provides strong override for debugging:\nvoid* malloc_hook(size_t size) {\n    log_allocation(size);\n    return NULL;  // Continue to real malloc\n}",
+  "keywords": "weak symbols override, default implementation weak, weak function linker, interrupt handler default"
+}

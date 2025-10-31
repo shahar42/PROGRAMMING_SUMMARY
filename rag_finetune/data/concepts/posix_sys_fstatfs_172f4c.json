@@ -1,0 +1,16 @@
+{
+  "topic": "fstatfs() System Call",
+  "explanation": "fstatfs() returns information about the mounted filesystem associated with an open file descriptor. It populates a statfs structure with details such as filesystem type, block size, total blocks, free blocks, and other statistics.\n\n**Parameters:**\n- `fd` (int): File descriptor of the open file\n- `buf` (struct statfs *): Pointer to a statfs structure to store the filesystem statistics\n\n**Common Errors:**\n- `EBADF`: fd is not a valid open file descriptor\n- `EFAULT`: buf points to an invalid address\n- `EINTR`: The call was interrupted by a signal\n- `EIO`: An I/O error occurred while reading from the filesystem\n- `ENOMEM`: Insufficient kernel memory was available",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.205019",
+    "syscall_name": "fstatfs",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fstatfs.json",
+    "concept_id": "posix_sys_fstatfs_172f4c",
+    "book_metadata_added": "2025-10-28T20:22:06.605884"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct statfs fs_stats;\nint fd = open(\"/tmp\", O_RDONLY); // Target filesystem via descriptor\n\nif (fd < 0) {\n    // EBADF likely if open failed\n}\n\n// Populate fs_stats with filesystem metadata\nint result = fstatfs(fd, &fs_stats);\n\nif (result == 0) {\n    // Success: Access statistics\n    long block_size = fs_stats.f_bsize;\n    unsigned long available = fs_stats.f_bavail;\n} else {\n    // Error handling (EFAULT, EBADF)\n}\n\nclose(fd);\n<ctrl63>",
+  "keywords": "fstatfs, statfs struct, filesystem statistics, disk space C"
+}

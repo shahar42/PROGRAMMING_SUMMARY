@@ -1,0 +1,13 @@
+{
+  "topic": "Customizable Comparison Operators for `std::unique_ptr`",
+  "explanation": "While `std::unique_ptr` doesn't natively support direct comparison using operators like `<=`,  implementing such operators requires deep understanding of the underlying pointer management, potential for exceptions, and compiler behavior regarding template instantiation and optimization.  The compiler's implementation will heavily influence performance and the ability to compile the code at all, depending on the types `T1`, `T2`, `D1`, and `D2`.  Naive implementations can lead to undefined behavior or significant performance penalties.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:09:01.632568",
+    "book_metadata_added": "2025-10-28T20:22:06.897645"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <class T1, class D1, class T2, class D2>\nbool operator<=(\n    const std::unique_ptr<T1, D1>& x,\n    const std::unique_ptr<T2, D2>& y) noexcept\n{\n    // Comparison relies on comparison of underlying raw pointers.\n    // Ensure both types yield comparable pointer results (e.g., raw T*)\n    return x.get() <= y.get();\n}\n\ntemplate <class T, class D>\nbool operator<=(const std::unique_ptr<T, D>& x, std::nullptr_t) noexcept\n{\n    // A unique_ptr is always <= nullptr if its pointer is null\n    return x.get() == nullptr;\n}\n\n// Optimization Note: Only needed if comparison logic changes based on type.\n// Standard lib typically provides optimized versions for all six ops."
+}

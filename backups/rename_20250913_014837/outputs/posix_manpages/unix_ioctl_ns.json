@@ -1,0 +1,67 @@
+{
+  "name": "ioctl_ns",
+  "synopsis": [
+    "#include <sys/ioctl.h>",
+    "#include <linux/nsfs.h>",
+    "int new_fd = ioctl(int fd, unsigned long op);",
+    "int nstype = ioctl(int fd, NS_GET_NSTYPE);",
+    "int ioctl(int fd, NS_GET_OWNER_UID, uid_t *uid);"
+  ],
+  "description": "The ioctl() system call provides operations for discovering Linux namespace relationships, such as obtaining file descriptors for owning or parent namespaces, determining namespace types, and getting owner UIDs.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor referring to a /proc/pid/ns/* file"
+    },
+    {
+      "name": "op",
+      "type": "unsigned long",
+      "description": "The ioctl request code, such as NS_GET_USERNS or NS_GET_PARENT"
+    },
+    {
+      "name": "arg",
+      "type": "void*",
+      "description": "Optional argument, e.g., a pointer for NS_GET_OWNER_UID"
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new file descriptor for NS_GET_USERNS and NS_GET_PARENT, the namespace type for NS_GET_NSTYPE, or 0 for NS_GET_OWNER_UID on success",
+    "failure": "Returns -1 and sets errno on error"
+  },
+  "errors": [
+    {
+      "code": "EPERM",
+      "description": "The requested namespace is outside of the caller’s namespace scope"
+    },
+    {
+      "code": "ENOTTY",
+      "description": "The operation is not supported or fd does not refer to a /proc/pid/ns/* file"
+    },
+    {
+      "code": "EINVAL",
+      "description": "fd refers to a nonhierarchical namespace or is invalid for the operation"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 4.9 and later",
+  "posix_compliance": null,
+  "examples": [
+    "userns_fd = ioctl(fd, NS_GET_USERNS);",
+    "if (userns_fd == -1) { perror(\"ioctl-NS_GET_USERNS\"); exit(EXIT_FAILURE); }",
+    "nstype = ioctl(fd, NS_GET_NSTYPE);",
+    "if (ioctl(fd, NS_GET_OWNER_UID, &uid) == -1) { perror(\"ioctl-NS_GET_OWNER_UID\"); exit(EXIT_FAILURE); }"
+  ],
+  "related_calls": [
+    "fstat",
+    "ioctl",
+    "proc"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ioctl_ns.pdf",
+    "extraction_date": "2025-07-28T12:22:53.055874",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "prctl() System Call",
+  "explanation": "prctl() manipulates various aspects of the behavior of the calling thread or process, such as capabilities and floating-point modes. Careless use can confuse the user-space run-time environment, so it should be used with caution.\n\n**Parameters:**\n- `op` (int): The operation to perform, defined in <linux/prctl.h>\n- `arg2` (unsigned long): Second argument, significance depends on the operation\n- `arg3` (unsigned long): Third argument, significance depends on the operation\n- `arg4` (unsigned long): Fourth argument, significance depends on the operation\n- `arg5` (unsigned long): Fifth argument, significance depends on the operation\n\n**Common Errors:**\n- `EINVAL`: Invalid argument provided\n- `EPERM`: Operation not permitted\n\n**Related System Calls:** `execve()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.208098",
+    "syscall_name": "prctl",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_prctl.json",
+    "concept_id": "posix_sys_prctl_c6e230",
+    "book_metadata_added": "2025-10-28T20:22:06.665468"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// prctl(op, arg2, arg3, arg4, arg5)\n\n// Set the name of the calling thread (max 16 bytes)\nconst char* thread_id = \"RPC_Worker\";\nprctl(PR_SET_NAME, (unsigned long)thread_id, 0, 0, 0);\n\n// Retrieve the current thread name\nchar name_buffer[16] = {0};\nprctl(PR_GET_NAME, (unsigned long)name_buffer, 0, 0, 0);\n\n// Disable core dump generation (security hardening)\nprctl(PR_SET_DUMPABLE, 0, 0, 0, 0);\n\n// Check if the process is currently dumpable (returns 0 or 1)\nint is_dumpable = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);\n\n// PR_SET_PDEATHSIG: Send SIGKILL to child upon parent exit\nprctl(PR_SET_PDEATHSIG, (unsigned long)SIGKILL, 0, 0, 0);\n\n// Lock process address space to prevent swapping\n// prctl(PR_MCLKS_ENFORCE, 0, 0, 0, 0);\n// requires PR_SET_MM with PR_SET_MM_FD_WRITE\nprctl(PR_SET_MM, PR_SET_MM_FD_WRITE, 0, 0, 0);\n<ctrl63>",
+  "keywords": "prctl, prctl system call, Linux process control, process capabilities"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Sync Primitives for System Throughput",
+  "explanation": "Concurrency allows multiple tasks to appear to run simultaneously, improving system responsiveness and throughput.  In computer systems, this is managed through synchronization primitives which coordinate access to shared resources to prevent race conditions and ensure data integrity.  This is crucial in operating systems and network programming for handling multiple clients or threads efficiently and correctly.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1004-1004",
+    "extraction_date": "2025-07-29T15:40:40.260746",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.728251"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Mutex (Mutual Exclusion) and RAII Locking\nstd::mutex data_mtx;\nint shared_data = 0;\n\nvoid access_critical_section() {\n    // Acquire lock upon scope entry\n    std::lock_guard<std::mutex> lock(data_mtx);\n    shared_data += 1;\n    // Release lock upon scope exit (RAII)\n}\n\n// Thread Management (Creation and Joining)\nvoid worker_task(int id) { /* ... concurrent work ... */ }\n\nstd::thread t1(worker_task, 1);\nstd::thread t2([]{ /* lambda job */ });\n\nt1.join(); // Wait for t1 to complete\nt2.detach(); // Let t2 run independently\n\n// Condition Variable (Wait/Notify for Synchronization)\nstd::mutex m;\nstd::condition_variable cv;\nbool data_ready = false;\n\nvoid waiter() {\n    std::unique_lock<std::mutex> lock(m);\n    // Wait until condition is true\n    cv.wait(lock, []{ return data_ready; });\n    // Process data\n}\n\nvoid notifier() {\n    {\n        std::lock_guard<std::mutex> lock(m);\n        data_ready = true;\n    }\n    cv.notify_all(); // Wake waiting threads\n}\n\n// Atomic Operations (Lock-Free Synchronization)\nstd::atomic<long> high_throughput_counter = 0;\n\nvoid safe_increment() {\n    high_throughput_counter++; // Atomic update\n}\n\nbool compare_exchange(long old_val, long new_val) {\n    // CAS (Compare and Swap)\n    return high_throughput_counter.compare_exchange_strong(old_val, new_val);\n}",
+  "keywords": "Concurrency, Synchronization primitives, Race condition, Thread synchronization"
+}

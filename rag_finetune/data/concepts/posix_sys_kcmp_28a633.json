@@ -1,0 +1,16 @@
+{
+  "topic": "kcmp() System Call",
+  "explanation": "The kcmp() system call compares kernel resources between two processes to determine if they share resources such as virtual memory or file descriptors. It requires permissions governed by ptrace access mode. Note that for accurate results, processes should be stopped to avoid false positives.\n\n**Parameters:**\n- `pid1` (pid_t): The process ID of the first process to compare.\n- `pid2` (pid_t): The process ID of the second process to compare.\n- `type` (int): The type of resource to compare, such as KCMP_FILE or KCMP_VM.\n- `idx1` (unsigned long): Index or file descriptor in the first process, depending on the type.\n- `idx2` (unsigned long): Index or file descriptor in the second process, depending on the type.\n\n**Common Errors:**\n- `EBADF`: type is KCMP_FILE and idx1 or idx2 is not an open file descriptor.\n- `EFAULT`: The epoll slot addressed by idx2 is outside of the user’s address space.\n- `EINVAL`: type is invalid.\n- `ENOENT`: The target file is not present in epoll instance.\n- `EPERM`: Insufficient permission to inspect process resources.\n\n**Related System Calls:** `clone()`, `unshare()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.111122",
+    "syscall_name": "kcmp",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_kcmp.json",
+    "concept_id": "posix_sys_kcmp_28a633",
+    "book_metadata_added": "2025-10-28T20:22:06.601456"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// kcmp Comparison Resource Types\n#define KCMP_FILE 0  // File descriptor table comparison\n#define KCMP_VM   1  // Virtual Memory Address space comparison\n// ... KCMP_SIGHAND, KCMP_IO, etc.\n\n// System Call Signature (Standard):\nlong kcmp(pid_t pid1, pid_t pid2, int type,\n          unsigned long idx1, unsigned long idx2);\n\n// Example: Compare if two processes share the VM space\npid_t procA = 1000;\npid_t procB = 1001;\n\n// idx1, idx2 are often 0, 0 for full resource comparison\nlong result = kcmp(procA, procB, KCMP_VM, 0, 0);\n\n// result == 0: Resources are identical (Shared)\n// result == 1: Resources are different\n// result < 0: Error (Need PTRACE permission)",
+  "keywords": "kcmp syscall, process resource comparison, kernel resource sharing, Linux kcmp"
+}

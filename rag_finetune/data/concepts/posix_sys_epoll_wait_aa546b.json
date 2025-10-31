@@ -1,0 +1,16 @@
+{
+  "topic": "epoll_wait() System Call",
+  "explanation": "The epoll_wait() system call waits for I/O events on the epoll instance referred to by the file descriptor epfd and returns them in a buffer up to maxevents. It blocks until an event occurs, is interrupted by a signal, or the timeout expires.\n\n**Parameters:**\n- `epfd` (int): File descriptor of the epoll instance\n- `events` (struct epoll_event *): Pointer to a buffer to store the returned events\n- `maxevents` (int): Maximum number of events to return, must be greater than zero\n- `timeout` (int): Timeout in milliseconds; -1 for indefinite blocking, 0 for non-blocking\n\n**Common Errors:**\n- `EBADF`: epfd is not a valid file descriptor\n- `EFAULT`: The memory area pointed to by events is not accessible with write permissions\n- `EINTR`: The call was interrupted by a signal handler before events occurred or timeout expired\n- `EINVAL`: epfd is not an epoll file descriptor, or maxevents is less than or equal to zero\n\n**Related System Calls:** `epoll_create()`, `epoll_ctl()`, `epoll()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.158461",
+    "syscall_name": "epoll_wait",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_epoll_wait.json",
+    "concept_id": "posix_sys_epoll_wait_aa546b",
+    "book_metadata_added": "2025-10-28T20:22:06.640791"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Required structure definition (often in <sys/epoll.h>)\nstruct epoll_event events_buffer[16];\n\nint epfd = initialized_epoll_fd;\nint max_events = 16;\nint timeout_ms = 1000; // 1 second timeout\n\n// Blocks waiting for events\nint nfds = epoll_wait(epfd, events_buffer,\n                      max_events, timeout_ms);\n\n// Return Codes:\n// > 0: Number of ready FDs\n// = 0: Timeout occurred\n// = -1: Error\n\nif (nfds > 0) {\n    // Process events_buffer[0] to events_buffer[nfds - 1]\n    // events_buffer[i].events contains the ready events (EPOLLIN, etc.)\n} else if (nfds == 0) {\n    // Wait timed out\n} else {\n    // Handle error (e.g., if interrupted by signal)\n}",
+  "keywords": "epoll_wait, epoll events, Linux I/O multiplexing, epoll blocking"
+}

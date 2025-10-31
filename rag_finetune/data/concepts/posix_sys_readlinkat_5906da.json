@@ -1,0 +1,16 @@
+{
+  "topic": "readlinkat() System Call",
+  "explanation": "The readlinkat() system call reads the contents of a symbolic link into a buffer. It allows specifying a directory file descriptor for relative paths, which are resolved relative to that directory instead of the current working directory. It operates similarly to readlink() but with enhanced path resolution capabilities.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor; if pathname is relative, it is resolved relative to this descriptor; use AT_FDCWD for current working directory.\n- `pathname` (const char *restrict): Path to the symbolic link; can be relative or absolute.\n- `buf` (char *restrict): Buffer to store the contents of the symbolic link.\n- `bufsiz` (size_t): Size of the buffer; contents may be truncated if too small.\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for a component of the path prefix.\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor.\n- `EFAULT`: buf extends outside the process’s allocated address space.\n- `EINVAL`: bufsiz is not positive, or the named file is not a symbolic link.\n- `EIO`: An I/O error occurred while reading from the filesystem.\n\n**Related System Calls:** `lstat()`, `stat()`, `symlink()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.061110",
+    "syscall_name": "readlinkat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_readlinkat.json",
+    "concept_id": "posix_sys_readlinkat_5906da",
+    "book_metadata_added": "2025-10-28T20:22:06.629449"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "ssize_t readlinkat(int dirfd, const char *pathname,\n                   char *buf, size_t bufsiz);\n\n// dirfd: Directory FD for resolution; use AT_FDCWD for CWD.\n// Return: Length of link target written, or -1 on error.\n\n#define AT_FDCWD (-100)\n\nchar target[256];\nssize_t bytes_read;\n\n// 1. Resolve relative to current working directory (like readlink())\nbytes_read = readlinkat(AT_FDCWD, \"my_link\",\n                        target, sizeof(target));\n\n// 2. Resolve relative to directory descriptor 'config_fd'\nint config_fd = /* initialized FD */;\nbytes_read = readlinkat(config_fd, \"data_link\",\n                        target, sizeof(target));\n\nif (bytes_read != -1)\n    target[bytes_read] = '\\0';\nelse\n    /* handle error */;",
+  "keywords": "readlinkat, readlink dirfd, AT_FDCWD, symbolic link target"
+}

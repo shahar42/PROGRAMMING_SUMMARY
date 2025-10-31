@@ -1,0 +1,17 @@
+{
+  "topic": "Move Semantics and std::move",
+  "explanation": "In modern C++, move semantics enable efficient transfer of resources from temporary or soon-to-be-destroyed objects to new owners, avoiding unnecessary copying. This is achieved through rvalue references and the std::move function, which signals that an object\u2019s resources can be 'moved' rather than copied. Move semantics are essential for optimizing performance in resource-intensive applications, such as those involving dynamic memory, file handles, or network connections.",
+  "syntax": "class ClassName {\npublic:\n    // Move constructor\n    ClassName(ClassName&& other) noexcept;\n    // Move assignment operator\n    ClassName& operator=(ClassName&& other) noexcept;\n};\n\n// Usage of std::move to enable move semantics\n#include <utility>\n\nObjectType obj1;\nObjectType obj2 = std::move(obj1);",
+  "code_example": "#include <iostream>\n#include <vector>\n#include <utility>\n\nclass Buffer {\npublic:\n    int* data;\n    size_t size;\n    // Constructor\n    Buffer(size_t s) : data(new int[s]), size(s) {\n        std::cout << \"Constructed\" << std::endl;\n    }\n    // Destructor\n    ~Buffer() { delete[] data; }\n    // Move constructor\n    Buffer(Buffer&& other) noexcept : data(other.data), size(other.size) {\n        other.data = nullptr;\n        other.size = 0;\n        std::cout << \"Moved\" << std::endl;\n    }\n    // Move assignment\n    Buffer& operator=(Buffer&& other) noexcept {\n        if (this != &other) {\n            delete[] data;\n            data = other.data;\n            size = other.size;\n            other.data = nullptr;\n            other.size = 0;\n            std::cout << \"Move assigned\" << std::endl;\n        }\n        return *this;\n    }\n    // Deleted copy constructor and copy assignment to emphasize move semantics\n    Buffer(const Buffer&) = delete;\n    Buffer& operator=(const Buffer&) = delete;\n};\n\nint main() {\n    Buffer buf1(10); // Create a Buffer object\n    Buffer buf2 = std::move(buf1); // Move buf1 into buf2\n    return 0;\n}",
+  "example_explanation": "This example defines a Buffer class that manages a dynamic array. It implements a move constructor and move assignment operator using rvalue references and std::move. In main(), std::move is used to transfer ownership of the resource from buf1 to buf2 without copying. The output demonstrates the move operation, showing how move semantics optimize resource transfer by avoiding unnecessary deep copies, which is a key feature of modern C++ for performance-critical applications.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "256-256",
+    "extraction_date": "2025-08-19T03:05:41.204686",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level"
+  }
+}

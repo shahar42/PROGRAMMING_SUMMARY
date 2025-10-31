@@ -1,0 +1,14 @@
+{
+  "topic": "Zombie Process and wait Function",
+  "explanation": "A zombie process is a terminated child process that still occupies a slot in the kernel's process table because its parent has not yet retrieved its termination status. It occurs when a child ends before the parent checks its status. The wait function is used by the parent to retrieve this status, allowing the kernel to fully remove the child process and free resources, preventing system resource waste from accumulating zombies.",
+  "syntax": "pid_t wait(int *status);",
+  "code_example": "#include <stdio.h>\n#include <stdlib.h>\n#include <sys/types.h>\n#include <sys/wait.h>\n#include <unistd.h>\n\nint main() {\n    pid_t pid = fork();\n    if (pid == 0) {  // Child process\n        printf(\"Child process terminating\\n\");\n        exit(0);\n    } else if (pid > 0) {  // Parent process\n        printf(\"Parent waiting for child\\n\");\n        wait(NULL);  // Wait for child to terminate and retrieve status\n        printf(\"Child has terminated and status retrieved\\n\");\n    } else {\n        perror(\"fork failed\");\n        return 1;\n    }\n    return 0;\n}",
+  "example_explanation": "This program forks a child process, which immediately terminates after printing a message. The parent process uses wait(NULL) to wait for the child to finish and retrieve its termination status, demonstrating how this prevents the child from becoming a zombie by allowing the kernel to clean up the child's resources after the wait call.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "271-272",
+    "extraction_date": "2025-07-21T22:11:39.408963",
+    "has_code": false,
+    "has_explanation": true
+  }
+}

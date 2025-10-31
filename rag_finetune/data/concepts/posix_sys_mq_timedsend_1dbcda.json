@@ -1,0 +1,16 @@
+{
+  "topic": "mq_timedsend() System Call",
+  "explanation": "mq_timedsend() adds a message to a message queue with a specified absolute timeout. If the queue is full and O_NONBLOCK is not set, it waits until space is available or the timeout expires. It operates similarly to mq_send() but includes timeout functionality.\n\n**Parameters:**\n- `mqdes` (mqd_t): Message queue descriptor.\n- `msg_ptr` (const char *): Pointer to the message.\n- `msg_len` (size_t): Length of the message in bytes.\n- `msg_prio` (unsigned int): Priority of the message, with higher values indicating higher priority.\n- `abs_timeout` (const struct timespec *): Pointer to a timespec structure specifying the absolute timeout.\n\n**Common Errors:**\n- `EAGAIN`: The queue was full, and the O_NONBLOCK flag was set.\n- `EBADF`: The descriptor specified in mqdes was invalid or not opened for writing.\n- `EINTR`: The call was interrupted by a signal handler.\n- `EINVAL`: The call would have blocked, and abs_timeout was invalid.\n- `EMSGSIZE`: msg_len was greater than the mq_msgsize attribute of the message queue.\n\n**Related System Calls:** `mq_close()`, `mq_getattr()`, `mq_notify()`, `mq_open()`, `mq_receive()`, `mq_unlink()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.076476",
+    "syscall_name": "mq_timedsend",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_mq_timedsend.json",
+    "concept_id": "posix_sys_mq_timedsend_1dbcda",
+    "book_metadata_added": "2025-10-28T20:22:06.675546"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "mqd_t mqdes;\nconst char *msg_ptr = \"Data to send\";\nsize_t msg_len = 12;\nunsigned int msg_prio = 10;\nstruct timespec abs_timeout;\n\n// Calculate absolute time: 5 seconds from system time\nclock_gettime(CLOCK_REALTIME, &abs_timeout);\nabs_timeout.tv_sec += 5;\n\n// Send message with absolute timeout\nint status = mq_timedsend(\n    mqdes,\n    msg_ptr,\n    msg_len,\n    msg_prio,\n    &abs_timeout\n);\n// Returns 0 on success.\n// Returns -1 on failure (ETIMEDOUT if timeout expired).",
+  "keywords": "mq_timedsend, mq_send timeout, POSIX message queue, timed message send"
+}

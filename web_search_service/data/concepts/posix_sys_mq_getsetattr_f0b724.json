@@ -1,0 +1,16 @@
+{
+  "topic": "mq_getsetattr() System Call",
+  "explanation": "This is a low-level system call used to get and set attributes for a message queue. It should not be used directly, as it is intended for implementing higher-level functions like mq_getattr(3) and mq_setattr(3); for details, refer to mq_setattr(3).\n\n**Parameters:**\n- `mqdes` (mqd_t): Message queue descriptor\n- `newattr` (const struct mq_attr *): Pointer to new attributes to set, or NULL if not setting\n- `oldattr` (struct mq_attr *): Pointer to store the old attributes\n\n**Related System Calls:** `mq_getattr()`, `mq_overview()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.190773",
+    "syscall_name": "mq_getsetattr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_mq_getsetattr.json",
+    "concept_id": "posix_sys_mq_getsetattr_f0b724",
+    "book_metadata_added": "2025-10-28T20:22:06.633976"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "/* Internal implementation of mq_setattr/mq_getattr */\nstruct mq_attr {\n    long mq_flags;      /* O_NONBLOCK, etc. */\n    long mq_maxmsg;\n    long mq_msgsize;\n    long mq_curmsgs;    /* Read-only status */\n};\n\nmqd_t mqdes;\nstruct mq_attr current_attr, old_attr;\n\n/* Prepare new attributes (e.g., set non-blocking flag) */\ncurrent_attr.mq_flags = O_NONBLOCK;\n\n/* Set new attributes and store the previous state in old_attr */\nint status = mq_getsetattr(mqdes, &current_attr, &old_attr);\n\n/* Retrieve current attributes only (newattr must be NULL) */\nmq_getsetattr(mqdes, NULL, &current_attr);\n\n/* Error check */\nif (status == -1) { /* errno is set */ }",
+  "keywords": "mq_getsetattr, message queue attributes, mq_attr syscall"
+}

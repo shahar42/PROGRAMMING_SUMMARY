@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigqueueinfo() System Call",
+  "explanation": "The rt_sigqueueinfo() system call sends a signal and additional data to a thread group. The rt_tgsigqueueinfo() system call sends a signal and data to a specific thread in a thread group. These are low-level interfaces not intended for direct application use.\n\n**Parameters:**\n- `tgid` (pid_t): The thread group ID (process ID) to send the signal to.\n- `sig` (int): The signal number to send.\n- `info` (siginfo_t *): Pointer to a siginfo_t structure containing additional data.\n- `tid` (pid_t): The thread ID to send the signal to (for rt_tgsigqueueinfo only).\n\n**Common Errors:**\n- `EAGAIN`: The limit of signals which may be queued has been reached.\n- `EINVAL`: sig, tgid, or tid was invalid.\n- `EPERM`: The caller does not have permission to send the signal to the target.\n- `ESRCH`: No thread group matching tgid was found for rt_sigqueueinfo, or no thread matching tgid and tid was found for rt_tgsigqueueinfo.\n\n**Related System Calls:** `kill()`, `pidfd_send_signal()`, `sigaction()`, `sigprocmask()`, `tgkill()`, `pthread_sigqueue()`, `sigqueue()`, `signal()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.234292",
+    "syscall_name": "rt_sigqueueinfo",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigqueueinfo.json",
+    "concept_id": "posix_sys_rt_sigqueueinfo_2ffa7c",
+    "book_metadata_added": "2025-10-28T20:22:06.614894"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "siginfo_t info = {0};\npid_t tgid = 1000;\nint sig_num = SIGUSR1;\n\n/* Custom payload */\ninfo.si_code = SI_QUEUE;\ninfo.si_value.sival_int = 42;\n\n/* Send signal (with info) to the thread group (TGID) */\nsyscall(SYS_rt_sigqueueinfo,\n        tgid,\n        sig_num,\n        &info);\n\npid_t tid = 1001;\ninfo.si_value.sival_ptr = (void*)0xABCD;\n\n/* Send signal (with info) to a specific thread (TID) */\nsyscall(SYS_rt_tgsigqueueinfo,\n        tgid,\n        tid,\n        sig_num,\n        &info);",
+  "keywords": "rt_sigqueueinfo, rt_tgsigqueueinfo, siginfo_t, queued signals"
+}

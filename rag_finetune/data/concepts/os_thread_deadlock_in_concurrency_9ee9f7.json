@@ -1,0 +1,15 @@
+{
+  "topic": "Deadlock in Concurrency",
+  "explanation": "A deadlock is a situation in concurrent programming where two or more processes or threads are blocked indefinitely, each waiting for the other to release a resource, preventing any progress. It is a common problem in systems like databases or multi-threaded applications, and understanding it helps developers identify and mitigate concurrency issues to ensure reliable program execution, though prevention efforts should be balanced against costs as per engineering principles.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "391-391",
+    "extraction_date": "2025-07-23T01:14:17.456292",
+    "has_code": false,
+    "has_explanation": false,
+    "book_metadata_added": "2025-10-28T20:22:06.795373"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "std::mutex mtx1, mtx2;\n\nauto t_job1 = [] {\n    mtx1.lock();\n    // T1 holds mtx1\n    mtx2.lock(); // T1 waits for T2\n    // ... Critical section ...\n    mtx2.unlock();\n    mtx1.unlock();\n};\n\nauto t_job2 = [] {\n    mtx2.lock();\n    // T2 holds mtx2\n    mtx1.lock(); // T2 waits for T1\n    // ... Critical section ...\n    mtx1.unlock();\n    mtx2.unlock();\n};\n\nstd::thread t1(t_job1);\nstd::thread t2(t_job2);\n\n// t1.join(); // Indefinite stall (Deadlock)\n// Condition: Circular wait (1->2, 2->1) + Mutual Exclusion.",
+  "keywords": "Deadlock, Thread synchronization, Resource contention"
+}

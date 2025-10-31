@@ -1,0 +1,16 @@
+{
+  "topic": "Exceptional Control Flow and its Impact on Memory Management",
+  "explanation": "Exceptional control flow (ECF) mechanisms, such as `setjmp` and `longjmp`, provide a non-local transfer of control, allowing a program to jump to a previously marked point.  This is crucial for handling errors and asynchronous events in systems programming. However,  improper use of ECF can lead to resource leaks, specifically memory leaks, because the normal function call/return sequence – where resources are deallocated – is bypassed.  Understanding ECF's impact on memory management is essential for writing robust and stable systems code.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "809-810",
+    "extraction_date": "2025-07-28T12:33:40.254192",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.726946"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "jmp_buf error_handler;\n\nvoid cleanup_bypass() {\n    // Dynamic Allocation (Resource Acquisition)\n    int* buffer = malloc(512);\n\n    if (buffer == NULL) return;\n\n    // ECF: Non-local jump, bypassing stack unwind\n    longjmp(error_handler, 1);\n\n    // DANGER: This required cleanup is skipped.\n    free(buffer); // MEMORY LEAK HERE\n}\n\nint error_entry_point() {\n    if (setjmp(error_handler) == 0) {\n        // First entry\n        cleanup_bypass();\n    } else {\n        // Resumption point after longjmp\n        // 'buffer' is now leaked.\n    }\n    return 0;\n}",
+  "keywords": "setjmp longjmp memory leak, non-local control transfer, exceptional control flow C, longjmp resource leak"
+}

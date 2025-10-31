@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Design: Ensuring Unjoinability on All Paths via RAII",
+  "category": "thread, design",
+  "explanation": "Assumption: A `std::thread` object can safely be left to rely on its default destructor behavior. Reality: If a `std::thread` object is joinable (i.e., it represents an active system thread) when its destructor runs, the program is immediately terminated via `std::terminate`. Why It Fails: This termination is often unexpected and bypasses normal exception handling. To use threads safely within RAII wrappers (like `ThreadRAII`), the wrapper must ensure that the underlying `std::thread` is made unjoinable (either by explicitly joining or detaching it) across all possible exit paths (normal return, exceptions, etc.) before the destructor completes.",
+  "code_example": "class ThreadRAII {\npublic:\n  ~ThreadRAII() {\n    if (t.joinable()) { \n      // Must handle join/detach here based on policy\n    }\n  }\nprivate:\n  std::thread t;\n};",
+  "practical_example": "A function that launches a thread and then throws an exception without cleaning up the thread handle will cause the program to crash when the `std::thread` local variable goes out of scope and calls its destructor.",
+  "keywords": [
+    "RAII",
+    "joinable",
+    "std::terminate",
+    "destructor safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276, 257",
+  "chapter": "Item 37",
+  "id": "emcpp_thread, design_thread_design__ensuring_unjoinability_6db741",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

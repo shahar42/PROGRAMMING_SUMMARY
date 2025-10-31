@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Perfect Forwarding",
+  "explanation": "Perfect forwarding efficiently passes arguments to a function template or another function without unnecessary copies or implicit type conversions.  This involves leveraging rvalue references and universal references to achieve optimal performance and preserve the original value category (lvalue or rvalue) of the arguments.  Compiler behavior is crucial here, as it determines how the forwarding is implemented, impacting memory usage and potential overhead.",
+  "syntax": "template <typename T>\nvoid forward_example(T&& arg) {\n  // Use std::forward to preserve value category\n  some_function(std::forward<T>(arg)); \n}",
+  "code_example": "#include <iostream>\n#include <utility>\ntemplate <typename T>\nvoid some_function(T&& param) {\n  std::cout << \"Value Category: \" << (std::is_lvalue_reference<T&&>::value ? \"lvalue\" : \"rvalue\") << std::endl;\n  }\ntemplate <typename T>\nvoid perfect_forwarding_example(T&& arg) {\n  some_function(std::forward<T>(arg));\n}\nint main() {\n  int x = 10;\n  perfect_forwarding_example(x); // lvalue\n  perfect_forwarding_example(10); // rvalue\n  return 0;\n}",
+  "example_explanation": "The compiler generates different code paths for lvalue and rvalue arguments.  When `perfect_forwarding_example` is called with an lvalue (e.g., `x`), `std::forward<T>(arg)` will create an lvalue reference to `arg`, preserving its lvalue-ness inside `some_function`.  Conversely, when called with an rvalue (e.g., `10`), it produces an rvalue reference, maintaining the rvalue properties. This avoids unnecessary copying, leading to performance gains, especially with large objects or complex types.  At the assembly level, this difference manifests in how the arguments are passed and potentially whether move semantics are employed. The runtime behavior demonstrates the value category preservation \u2013 the output shows 'lvalue' and 'rvalue' correctly based on the input type.  Compile-time behavior is evident in the template instantiation and type deduction performed by the compiler based on the argument passed.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:14:25.246827"
+  }
+}

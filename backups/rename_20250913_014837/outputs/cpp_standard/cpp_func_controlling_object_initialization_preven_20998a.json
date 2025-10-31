@@ -1,0 +1,38 @@
+{
+  "topic": "Controlling Object Initialization: Preventing Default Construction",
+  "explanation": "This concept delves into the compiler's handling of object construction, particularly when a class lacks a user-defined default constructor.  Understanding this is crucial for resource management, avoiding undefined behavior, and optimizing memory layout.  The compiler's actions differ significantly depending on whether a default constructor exists and how objects are initialized.  Without a default constructor, the compiler cannot implicitly create objects, forcing explicit initialization during declaration. This influences memory layout because the compiler cannot assume default-initialized values; it must instead handle the object's initialization explicitly.  Performance is impacted because direct initialization is generally faster than default construction followed by assignment.  At the assembly level, the differences translate into variations in the initialization instructions: direct initialization may involve direct memory assignments, while a default constructor's call necessitates extra function calls and potential stack operations.",
+  "syntax": "The core lies in prohibiting the compiler's implicit generation of a default constructor.  This can be done by:\n\n1. **Deleting the default constructor:**\n```c++\nstruct D1 {\n  int x;\n  D1(int val) : x(val) {} \n  D1() = delete;\n};\n```\n2. **Declaring the constructor explicit (if it takes arguments):**  Note that this alone doesn't fully prevent all implicit conversions, so this example uses both explicit and delete methods.\n```c++\nstruct D2 {\n  int x;\n  explicit D2(int val) : x(val) {} \n  D2() = delete; //This is the key part.\n};\n```\n\nThe compiler will reject any attempt to create an object of `D1` or `D2` without providing the constructor argument(s).",
+  "code_example": [
+    "#include <iostream>",
+    "#include <cassert>",
+    "struct D1 {",
+    "  int x;",
+    "  D1(int val) : x(val) {}",
+    "  D1() = delete;",
+    "};",
+    "struct D2 {",
+    "  int x;",
+    "  explicit D2(int val) : x(val) {}",
+    "  D2() = delete;",
+    "};",
+    "void test() {",
+    "  D1 d(6); // OK: d.x is initialized to 6",
+    "  //D1 e; // error: D1 has no default constructor",
+    "  D2 f(10);",
+    "  //D2 g; // error: D2 has no default constructor",
+    "  assert(d.x == 6);",
+    "  assert(f.x == 10);",
+    "}",
+    "int main() {",
+    "  test();",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `test()` function demonstrates the consequence of deleting the default constructor.  `d` is successfully initialized with a value; however, attempting to create `e` (or `g`) without providing an explicit argument, leads to a compilation error.  The compiler prevents implicit creation of objects lacking a default constructor. The `assert` statements verify correct initialization.  The assembly code for `D1 d(6);` would directly assign the value 6 to the memory location allocated for `d.x`.  In contrast, an attempt to create `e` would result in a compiler error; no assembly code would be generated for that line because the compilation would fail.  This control over object initialization is especially valuable in resource-constrained environments and when working with complex object relationships to prevent unexpected states and memory leaks.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:24:30.423093"
+  }
+}

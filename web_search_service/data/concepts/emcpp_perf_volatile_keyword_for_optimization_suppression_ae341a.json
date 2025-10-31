@@ -1,0 +1,13 @@
+{
+  "topic": "Volatile Keyword for Optimization Suppression in Special Memory",
+  "category": "perf",
+  "explanation": "Assumption: Compiler optimizations (like eliminating redundant loads or dead stores) are always safe and valid. Reality: When memory locations correspond to memory-mapped I/O (MMIO) devices (sensors, network ports), reads and writes are not idempotent. A second read might retrieve a new value (e.g., updated sensor data), and a second write might trigger a necessary, distinct hardware action. Why It Fails: If the compiler is not explicitly told that the memory is 'special' (via the `volatile` qualifier), it may optimize away seemingly redundant code, leading to incorrect device interaction, failure to read critical updates, or failure to issue necessary control commands. The `volatile` keyword guarantees that the compiler will perform reads and writes exactly as specified in the source code, suppressing optimizations that rely on normal memory behavior.",
+  "code_example": "// 'x' points to a hardware register\nvolatile int* x = ...;\n\n// Compiler MUST perform both reads, as the value may change\nauto y = *x; \ny = *x; ",
+  "practical_example": "A developer writes code to check a status register on a peripheral twice in quick succession. The compiler, seeing two identical reads, optimizes the second read away (redundant load). The code then fails because it never checks the updated status required to proceed.",
+  "keywords": "volatile keyword, MMIO register access, volatile optimization suppression, hardware register access",
+  "difficulty": "intermediate",
+  "page_reference": "289-297",
+  "chapter": "Item 40: Use std::atomic for concurrency; use volatile for special memory",
+  "id": "emcpp_perf_volatile_keyword_for_optimization_suppression_ae341a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

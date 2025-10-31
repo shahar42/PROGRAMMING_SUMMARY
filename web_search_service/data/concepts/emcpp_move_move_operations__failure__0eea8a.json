@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operations [Failure]: Return Optimization (NRVO) is Not Guaranteed",
+  "category": "move",
+  "explanation": "A common assumption that leads to flawed move-based optimization is the belief that move semantics are necessary and beneficial even when returning local objects, overriding the compiler's capability for optimization. The anti-pattern is writing redundant `std::move` when returning a local variable. The failure here lies in the interaction between explicit `std::move` and compiler optimizations like Return Value Optimization (RVO) and Named Return Value Optimization (NRVO). RVO/NRVO is the superior optimization mechanism: it eliminates the copy/move entirely by constructing the return object directly in the memory allocated for the caller's target variable. If the compiler can perform NRVO, the object is never moved or copied. C++ rules are specifically designed such that when returning a local object by value, the compiler attempts NRVO first; if that fails, it then falls back to utilizing the move constructor (if present) before finally resorting to the copy constructor. The failure occurs when a programmer explicitly applies `std::move` to the local variable being returned (`return std::move(local_obj);`). This explicit cast guarantees that the returned object is treated as an rvalue, which *disables* NRVO/RVO. The compiler is forced to execute a move construction, which, while cheap, is still more expensive than the zero-cost RVO/NRVO. Furthermore, if the move constructor is unavailable, the explicit `std::move` then forces a copy. Therefore, using `std::move` on a local return variable is a performance anti-pattern that sabotages the most efficient possible return mechanism (NRVO) and potentially degrades performance by forcing an unnecessary move construction or copy construction if the move operation is poorly implemented or absent.",
+  "code_example": "// Explicit move disables NRVO, forcing a move construction.\nWidget create_widget() {\n    Widget local_obj; \n    return std::move(local_obj); // Performance degradation compared to 'return local_obj;'\n}",
+  "practical_example": "A developer optimizes a factory function that creates a large `ConfigurationSet` object, adding `std::move` to the return statement. Profiling shows a slight increase in CPU time spent on object construction. Removing the explicit `std::move` allows NRVO to take effect, eliminating the move construction entirely and restoring the maximum theoretical performance.",
+  "keywords": [
+    "NRVO",
+    "RVO",
+    "move redundancy",
+    "optimization failure",
+    "perf"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "229-232",
+  "chapter": "Item 30: Understand the alternatives to perfect forwarding",
+  "id": "emcpp_move_move_operations__failure__0eea8a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

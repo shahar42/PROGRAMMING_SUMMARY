@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operations [Failure]: Built-in Arrays are Always Copied",
+  "category": "move",
+  "explanation": "The assumption that `std::move` applies ubiquitously to all data structures to enable resource transfer is a serious anti-pattern when dealing with fundamental C++ constructs, specifically built-in arrays. The failure is that built-in arrays (`T arr[N]`) are considered fixed-size, aggregate types that do not manage dynamic resources and fundamentally lack the concept of move semantics. Built-in arrays do not have constructors (move or copy) or assignment operators. When `std::move` is applied to a built-in array, the resulting cast to an rvalue reference signals eligibility for moving, but because the type itself has no defined move operations, any operation utilizing the array will fall back to traditional C-style copying mechanisms or container wrappers that treat the array as a value. If the array is wrapped in a type like `std::array`, the `std::array` move constructor typically executes a member-wise move on its contained members. Since the array contents are contiguous memory (e.g., integers), a member-wise move effectively translates into a massive copy operation. Thus, moving a built-in array or a large `std::array` is inherently performance-neutral compared to copying it, often incurring high cost due to the size of the aggregate. The anti-pattern is relying on move semantics to optimize resource transfer for these structures, when in reality, the move instruction translates directly into a large data copy, negating the expected optimization and highlighting the limitation of move semantics to resource-managing types only.",
+  "code_example": "// std::move does not make this array move cheap; it is still a full copy.\nint large_array[10000];\nstd::array<int, 10000> arr;\nauto moved_arr = std::move(arr); // Still copies all elements.",
+  "practical_example": "A developer working on image processing attempts to use `std::move` to quickly pass large pixel buffers (stored in `std::array<Pixel, N>`) between processing stages. They profile the pipeline and find no performance gain, realizing that the move constructor for `std::array` forces a full copy of the raw pixel data, rendering the move optimization useless for fixed-size memory blocks.",
+  "keywords": [
+    "built-in array",
+    "std::array",
+    "move failure",
+    "copy operation",
+    "perf"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "226-229",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_operations__failure__d82549",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Guaranteed Copy Elision and Return Value Optimization (RVO)",
+  "explanation": "Guaranteed Copy Elision (since C++17) and Return Value Optimization (RVO, a compiler optimization) are crucial for performance, especially when dealing with complex objects.  While RVO has been a common compiler optimization for a long time, C++17 guarantees elision in specific cases, eliminating unnecessary copies of objects. This impacts memory layout, performance, and the generated assembly code significantly.  The compiler analyzes the return statement and, if possible, constructs the returned object directly in the caller's memory location, bypassing the creation of a temporary object and its subsequent copy. Understanding how the compiler performs this optimization (or lack thereof) is key to writing efficient and predictable C++ code. The compiler's decision is often influenced by factors like inlining, the complexity of the returned object, and optimization levels.  Failure to understand this can lead to unexpected performance bottlenecks, especially with move constructors and move assignment operators.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:10:43.205153",
+    "book_metadata_added": "2025-10-28T20:22:06.935596"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Data {}; // Complex/expensive object\n\n// 1. Guaranteed Copy Elision (C++17)\n// Returns a prvalue (temporary object)\nData make_temp() {\n    return Data{}; // Elision is mandated: Constructed directly in destination.\n}\n\n// 2. Named Return Value Optimization (NRVO)\n// Returns a local named object\nData make_named() {\n    Data result;\n    // ... logic\n    return result; // Elision is optional optimization (highly likely).\n}\n\n// Usage: Both calls result in zero copy/move operations typically.\n// Data d1 = make_temp();\n// Data d2 = make_named();",
+  "keywords": "RVO, Copy Elision, Guaranteed Elision, NRVO"
+}

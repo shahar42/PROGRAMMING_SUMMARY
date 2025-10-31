@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Join Deadlock via Unfulfilled Future Wait",
+  "category": "thread",
+  "explanation": "Assumption: An RAII object configured to `join` will reliably terminate its managed thread, ensuring resource cleanup. Reality: If the managed thread is waiting indefinitely on an external synchronization signal (e.g., `std::future::wait()`), and an exception occurs in the calling scope preventing that signal from being sent (`std::promise::set_value()` is bypassed), the waiting thread never finishes. Why It Fails: The RAII destructor's mandatory call to `join()` will hang the entire program, as it waits for a thread that is eternally suspended. This demonstrates that using `join` in a destructor is inherently risky if the thread's completion relies on external exception-sensitive code paths.",
+  "code_example": "try {\n  // ... code that might throw exception ...\n  p.set_value(); // Skipped if exception thrown above\n} catch (...) { /* cleanup */ }\n// tr's dtor runs here, calling join() on thread waiting forever on p's future.",
+  "practical_example": "A thread pool uses RAII wrappers configured to join all worker threads upon shutdown. If a worker is waiting on a condition variable or future that is abandoned due to an upstream exception, the entire application hangs during termination.",
+  "keywords": "thread join hang, future wait deadlock, unfulfilled future wait, RAII thread safety",
+  "difficulty": "advanced",
+  "page_reference": "269",
+  "chapter": "Item 39: Be aware of the pitfalls of launching tasks",
+  "id": "emcpp_thread_thread_join_deadlock_via_unfulfilled_c12148",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

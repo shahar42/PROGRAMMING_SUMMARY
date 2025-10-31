@@ -1,0 +1,17 @@
+{
+  "topic": "Smart Pointers: Exclusive Ownership (std::unique_ptr)",
+  "explanation": "Smart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idioms, providing safer and more expressive memory management compared to raw pointers. Modern C++ emphasizes the use of smart pointers to handle ownership semantics explicitly, with std::unique_ptr for exclusive ownership and std::shared_ptr for shared ownership scenarios.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "300-300",
+    "extraction_date": "2025-08-19T03:25:24.413159",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.807151"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Resource {\n    int id;\n    explicit Resource(int i) : id(i) {}\n    ~Resource() = default;\n};\n\n// 1. Creation and Exclusive Ownership\nstd::unique_ptr<Resource> p1 = std::make_unique<Resource>(1);\n\n// ERROR: Unique Pointers are not copyable\n// std::unique_ptr<Resource> p2 = p1;\n\n// 2. Ownership Transfer (Move Semantics)\nstd::unique_ptr<Resource> p2 = std::move(p1);\n\n// p1 is now nullptr\nif (!p1) { /* check for null state */ }\n\n// 3. Access\nint val = p2->id;\n\n// Manual raw pointer extraction (must be deleted manually)\nResource* raw = p2.release();\ndelete raw;\n<ctrl63>"
+}

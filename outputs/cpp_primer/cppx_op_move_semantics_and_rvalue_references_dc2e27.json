@@ -1,38 +1,12 @@
 {
-  "topic": "Move Semantics and Rvalue References",
+  "topic": "Move Semantics and Rvalue References for Ownership Transfer",
   "explanation": "Move semantics provide a way to efficiently transfer ownership of resources (like dynamically allocated memory) from one object to another without performing a full copy.  This is particularly important for objects containing large amounts of data or managing external resources.  Rvalue references (&&) are used to identify objects that can be moved from.  Failing to utilize move semantics when appropriate can lead to significant performance degradation, especially when dealing with large objects or frequent object transfers within containers. Best practice is to define move constructors and move assignment operators (whenever possible) to prevent unnecessary copies and improve efficiency.",
-  "syntax": "Move constructor:\n`ClassName(ClassName&& other) noexcept { /* ... move resources from other to *this ... */ }\nMove assignment operator:\n`ClassName& operator=(ClassName&& other) noexcept { /* ... move resources from other to *this ... */ return *this; }`\n\n**Noexcept:** Using noexcept indicates that the move constructor/assignment operator won't throw exceptions, allowing for further compiler optimizations.  It's crucial to only use noexcept if your implementation guarantees it.  If exceptions might be thrown, omit noexcept.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <vector>",
-    "#include <string>",
-    "class LargeObject {",
-    "public:",
-    "  std::vector<std::string> data;",
-    "  LargeObject(const std::vector<std::string>& d) : data(d) { std::cout << \"Copy constructor called\\n\"; }",
-    "  LargeObject(LargeObject&& other) noexcept : data(std::move(other.data)) { std::cout << \"Move constructor called\\n\"; }",
-    "  LargeObject& operator=(LargeObject&& other) noexcept {",
-    "    if (this != &other) {",
-    "      data = std::move(other.data);",
-    "    }",
-    "    std::cout << \"Move assignment called\\n\";",
-    "    return *this;",
-    "  }",
-    "};",
-    "int main() {",
-    "  std::vector<std::string> vec = {\"one\", \"two\", \"three\"};",
-    "  LargeObject obj1(vec);",
-    "  LargeObject obj2 = std::move(obj1); //Move constructor called",
-    "  LargeObject obj3;",
-    "  obj3 = std::move(obj2); //Move assignment called",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates the use of move constructor and move assignment operator for the `LargeObject` class.  The move constructor efficiently transfers ownership of the `data` vector to the new object without copying. Similarly, the move assignment operator moves the data from the rvalue to the existing object.  Observe the output - it highlights when the move constructor and move assignment operator are called instead of the copy constructor, indicating efficient resource management.  Without move semantics, each assignment would involve a deep copy of the vector, which is significantly more expensive for large vectors.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "copy",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T05:29:43.242093"
-  }
+    "extraction_date": "2025-08-20T05:29:43.242093",
+    "book_metadata_added": "2025-10-28T20:22:06.577946"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

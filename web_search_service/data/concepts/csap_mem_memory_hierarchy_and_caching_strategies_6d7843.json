@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Locality Design",
+  "explanation": "The memory hierarchy bridges the performance gap between high-speed CPU registers and slower main memory by employing tiered storage levels (L1, L2, L3 cache) optimized for speed and capacity. Caching strategies fundamentally rely on the principle of locality, which dictates that memory accesses cluster in time (temporal locality) and space (spatial locality). By exploiting these patterns, the system predicts and stores frequently or proximally accessed data blocks in faster cache levels. This mechanism minimizes the average memory access time (AMAT), ensuring high instruction throughput and maximizing processor utilization. Effective cache design is therefore predicated on maximizing cache hit rates by efficiently managing data movement based on locality.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "616-616",
+    "extraction_date": "2025-07-28T11:13:16.132302",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.723657",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:20:30",
+    "original_length": 536,
+    "refined_length": 766
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Spatial Locality: Row-major array access (C/C++)\nvoid iterate_rows(int M, int N, int A[M][N]) {\n    for (int i = 0; i < M; i++) {\n        for (int j = 0; j < N; j++) {\n            A[i][j] *= 2; // Contiguous access\n        }\n    }\n}\n\n// 2. Temporal Locality: Loop invariant data reuse\nint sum_matrix(int M, int N, int A[M][N]) {\n    int total = 0;\n    for (int i = 0; i < M; i++) {\n        // A[i] is repeatedly used (Temporal)\n        for (int j = 0; j < N; j++) {\n            total += A[i][j];\n        }\n    }\n    return total;\n}\n\n// 3. Cache Unfriendly: Column-major access (Stride issue)\nvoid iterate_cols_slow(int M, int N, int A[M][N]) {\n    for (int j = 0; j < N; j++) {\n        for (int i = 0; i < M; i++) {\n            A[i][j] = 0; // Large stride (cache line miss risk)\n        }\n    }\n}\n\n// 4. Cache Blocking / Tiling (2D array multiplication)\n// Optimization for L1/L2 data reuse (B is block size)\nvoid blocked_mmul(int N, int A[N][N], int B) {\n    for (int jj = 0; jj < N; jj += B)\n        for (int kk = 0; kk < N; kk += B)\n            for (int i = 0; i < N; i++)\n                for (int j = jj; j < jj + B; j++)\n                    for (int k = kk; k < kk + B; k++)\n                        A[i][j] += 1;\n}"
+}

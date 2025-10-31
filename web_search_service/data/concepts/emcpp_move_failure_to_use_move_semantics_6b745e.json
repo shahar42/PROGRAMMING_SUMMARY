@@ -1,0 +1,13 @@
+{
+  "topic": "Failure to Use Move Semantics in Swap Operations",
+  "category": "move",
+  "explanation": "Assumption: The standard library's `std::swap` function automatically utilizes move semantics if they are available for the type being swapped. Reality: While `std::swap` uses move operations if available, if a user implements a custom `swap` function (often necessary for types with specialized resource management) and neglects to use `std::move` internally, the custom swap will degrade into three expensive copies instead of three cheap moves. Why It Fails: A robust custom `swap(T& a, T& b)` implementation requires a temporary object (`T temp = std::move(a);`). If `std::move` is omitted, the line becomes `T temp = a;`, forcing an expensive copy constructor call. Subsequent assignment operations (`a = std::move(b); b = std::move(temp);`) also rely on move assignment being called. If the user forgets `std::move` in the initial temporary creation, the entire operation unnecessarily defaults to a series of copies, entirely neutralizing the performance benefit derived from move semantics, especially if that custom swap is used heavily in sorting algorithms or copy-and-swap assignment.",
+  "code_example": "// Failure to use move in custom swap implementation\nvoid swap(Widget& a, Widget& b) noexcept {\n  Widget temp = a; // Accidentally copies a instead of moving\n  a = b;\n  b = temp;\n}",
+  "practical_example": "A custom container designed for speed implements a specialized internal swap. Because the temporary variable creation inside `swap` was written as a copy, every internal rearrangement or sorting operation within the container triggers three full deep copies per swap, resulting in O(N^2) copying overhead during sort algorithms instead of cheap O(N^2) pointer swaps.",
+  "keywords": "std::move in custom swap, move-aware swap implementation, custom swap performance, swap copy issue",
+  "difficulty": "intermediate",
+  "page_reference": "230-231",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_failure_to_use_move_semantics_6b745e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

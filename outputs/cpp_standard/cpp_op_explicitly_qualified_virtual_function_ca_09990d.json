@@ -1,32 +1,12 @@
 {
   "topic": "Explicitly Qualified Virtual Function Calls and Compiler Optimization",
   "explanation": "When a virtual function is called using explicit qualification with the scope resolution operator `::`, the compiler bypasses the virtual function mechanism (vtable lookup). This impacts runtime performance and memory layout.  The compiler can perform significant optimizations because the call target is known at compile time, unlike a regular virtual function call where the target is determined at runtime. This contrasts with unqualified virtual function calls, which rely on runtime polymorphism and involve indirect calls through the vtable.  Understanding this distinction is crucial for performance tuning and advanced C++ design, particularly in performance-critical sections of code.\n\nThe compiler's implementation involves directly emitting a call instruction to the specified function's address in the generated assembly code. This eliminates the overhead of the vtable lookup and the associated indirect function call. The memory layout remains unchanged; the vtable is still present, but it is not utilized in the execution path for the explicitly qualified virtual function call. The difference in runtime vs compile-time behavior is critical here: compile-time resolution vs. runtime resolution of the function call target.",
-  "syntax": "ClassA::virtualFunction(); // Explicit qualification using scope resolution operator",
-  "code_example": [
-    "#include <iostream>",
-    "class Base {",
-    "public:",
-    "  virtual void func() { std::cout << \"Base::func()\\n\"; }",
-    "};",
-    "class Derived : public Base {",
-    "public:",
-    "  void func() override { std::cout << \"Derived::func()\\n\"; }",
-    "};",
-    "int main() {",
-    "  Derived d;",
-    "  Base *b = &d;",
-    "  b->func(); // Virtual call - runtime polymorphism, uses vtable",
-    "  Derived::func(d); //Error: cannot call member function without an object",
-    "  d.func(); //Virtual call - runtime polymorphism, uses vtable",
-    "  b->Base::func(); // Explicit qualification - compile-time polymorphism, bypasses vtable",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "In the example, `b->func()` demonstrates a standard virtual function call. The compiler generates code that uses the vtable of `b` to locate and call the correct `func()` implementation at runtime.  However, `b->Base::func()` forces a static call to `Base::func()`. The compiler knows the exact address of `Base::func()` at compile time, resulting in a direct function call, avoiding the overhead of vtable lookup, thus improving performance.  The assembly code for `b->Base::func()` would show a direct call instruction, whereas `b->func()` would involve a more complex sequence of instructions to access and use the vtable. The difference can be significant, especially in frequently called functions or within performance-critical sections.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "basic",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T03:05:46.311965"
-  }
+    "extraction_date": "2025-08-19T03:05:46.311965",
+    "book_metadata_added": "2025-10-28T20:22:06.918249"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

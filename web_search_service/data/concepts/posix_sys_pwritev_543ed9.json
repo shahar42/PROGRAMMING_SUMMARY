@@ -1,0 +1,16 @@
+{
+  "topic": "pwritev() System Call",
+  "explanation": "The pwritev() system call writes data from multiple buffers to a file descriptor at a specified offset, without changing the file offset. It combines the functionality of writev() and pwrite(2), processing buffers in array order.\n\n**Parameters:**\n- `fd` (int): File descriptor to write to\n- `iov` (const struct iovec *): Array of iovec structures describing the buffers to write from\n- `iovcnt` (int): Number of elements in the iov array\n- `offset` (off_t): The file offset at which the write operation is performed\n\n**Common Errors:**\n- `EINVAL`: The sum of the iov_len values overflows an ssize_t value\n- `EINVAL`: The vector count iovcnt is less than zero or greater than the permitted maximum\n- `EOPNOTSUPP`: An unknown flag is specified (though not directly applicable to pwritev)\n\n**Related System Calls:** `pread()`, `read()`, `write()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.217636",
+    "syscall_name": "pwritev",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pwritev.json",
+    "concept_id": "posix_sys_pwritev_543ed9",
+    "book_metadata_added": "2025-10-28T20:22:06.672639"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct iovec iov[2];\nchar buf_a[] = \"Header: \";\nchar buf_b[] = \"Payload data.\";\n\niov[0].iov_base = buf_a;\niov[0].iov_len  = 8;\niov[1].iov_base = buf_b;\niov[1].iov_len  = 13;\n\nint target_fd = 4;\noff_t write_offset = 2048;\n\n// Atomically write both buffers (A then B) starting at offset 2048.\n// File descriptor's current offset is not updated.\nssize_t bytes_written = pwritev(target_fd, iov, 2, write_offset);",
+  "keywords": "pwritev, vectorized write offset, scatter gather write, positional write"
+}

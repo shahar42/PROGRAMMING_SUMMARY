@@ -1,0 +1,92 @@
+{
+  "name": "finit_module",
+  "synopsis": [
+    "#include <linux/module.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_finit_module, int fd, const char *param_values, int flags);"
+  ],
+  "description": "finit_module loads a kernel module from a file descriptor, similar to init_module, but reads the module directly from the filesystem. It allows for authenticity verification based on file location and supports flags to ignore version checks, requiring appropriate privileges.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the file containing the module to load"
+    },
+    {
+      "name": "param_values",
+      "type": "const char *",
+      "description": "String containing space-delimited specifications of module parameter values"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Bit mask of flags, such as MODULE_INIT_IGNORE_MODVERSIONS or MODULE_INIT_IGNORE_VERMAGIC, to modify loading behavior"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADMSG",
+      "description": "Module signature is misformatted"
+    },
+    {
+      "code": "EBUSY",
+      "description": "Timeout while trying to resolve a symbol reference by this module"
+    },
+    {
+      "code": "EFAULT",
+      "description": "An address argument referred to a location outside the process’s accessible address space"
+    },
+    {
+      "code": "ENOKEY",
+      "description": "Module signature is invalid or the kernel does not have a key for this module"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller was not privileged or module loading is disabled"
+    },
+    {
+      "code": "EBADF",
+      "description": "The file referred to by fd is not opened for reading"
+    },
+    {
+      "code": "EFBIG",
+      "description": "The file referred to by fd is too large"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Flags is invalid"
+    },
+    {
+      "code": "ENOEXEC",
+      "description": "fd does not refer to an open file"
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "The file referred to by fd is opened for read-write"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 3.8",
+  "posix_compliance": null,
+  "related_calls": [
+    "create_module",
+    "delete_module",
+    "query_module"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "finit_module.pdf",
+    "extraction_date": "2025-07-27T17:07:01.002552",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

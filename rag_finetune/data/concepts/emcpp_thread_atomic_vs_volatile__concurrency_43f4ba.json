@@ -1,0 +1,18 @@
+{
+  "topic": "Atomic vs Volatile: Concurrency Tool vs. Optimization Suppressor",
+  "category": "thread",
+  "explanation": "Assumption: `std::atomic` and `volatile` serve similar purposes related to shared state visibility. Reality: They address orthogonal concerns. `std::atomic` is a concurrency tool used for writing multi-threaded software, guaranteeing synchronized, mutex-free access to data shared between threads. `volatile` is a compiler directive that suppresses specific optimizations (like caching or reordering) to ensure reads/writes interact correctly with special memory locations (e.g., memory-mapped I/O or signal handlers). Why It Fails: Using `volatile` alone does not guarantee thread safety, and using `std::atomic` alone does not prevent optimization when interacting with external hardware registers, leading to incorrect behavior in both scenarios.",
+  "code_example": "std::atomic<int> a; // Thread safe access\nvolatile int v;    // Compiler won't optimize reads/writes away\n// volatile is NOT thread safe.",
+  "practical_example": "A developer working on a multi-threaded system uses `volatile` on a shared counter, believing it prevents race conditions. Since `volatile` offers no synchronization guarantee, the counter remains susceptible to data races and corruption.",
+  "keywords": [
+    "concurrency",
+    "optimization",
+    "memory-mapped I/O",
+    "thread safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "289-297",
+  "chapter": "Item 40: Use std::atomic for data accessed from multiple threads without using mutexes.",
+  "id": "emcpp_thread_atomic_vs_volatile__concurrency_43f4ba",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Virtual Function Table Layout and Dispatch Mechanism in C++",
+  "explanation": "In C++, virtual functions enable runtime polymorphism through a mechanism involving virtual tables (vtables) and virtual pointers (vptrs). The compiler synthesizes a vtable for each class that declares or inherits virtual functions. This vtable is an array of pointers to the actual function implementations. Each object of a class with virtual functions includes a hidden vptr member, typically placed at the beginning of the object's memory layout for efficient access. During object construction, the compiler-generated code initializes the vptr to point to the appropriate vtable for the object's dynamic type.\n\nThe dispatch mechanism for virtual functions involves indirect function calls via the vptr. When a virtual function is called (e.g., obj->foo()), the compiler emits code that: 1) Loads the vptr from the object, 2) Uses the vptr to access the vtable, 3) Indexes into the vtable to get the function pointer, and 4) Calls the function through that pointer. This happens at runtime, making virtual calls slower than non-virtual ones due to the indirect jump, but it allows for dynamic dispatch.\n\nMemory layout: For a class with virtual functions, the object includes the vptr (usually 8 bytes on 64-bit systems) followed by non-static data members. The vtable itself is stored in read-only memory and contains function pointers in the order of declaration. Compiler strategies vary: some (like GCC) place the vptr at the start, while others might align it based on ABI rules. Performance implications include cache misses from vtable lookups and branch prediction challenges. Optimizations include devirtualization (if the compiler can determine the exact type at compile time) and inline caching in some JIT compilers, though standard C++ compilers focus on static analysis. Cross-platform differences arise from ABIs; for example, Itanium C++ ABI (used by GCC and Clang) standardizes vtable layout, but MSVC has its own, potentially affecting binary compatibility.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "chapter": "inheritance",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "extraction_date": "2025-09-17T14:54:43.135027",
+    "book_metadata_added": "2025-10-28T20:22:06.680120"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class Base {\n    // Hidden member: void** __vptr;\npublic:\n    virtual void funcA() {} // VTable Slot [0]\n    virtual void funcB() {}  // VTable Slot [1]\n};\n\nclass Derived : public Base {\n    // __vptr points to Derived VTable\n    void funcA() override {} // Derived VTable[0] -> Derived::funcA\n    // funcB VTable[1] inherited -> Base::funcB\n};\n\n// Dispatch mechanism:\nBase* p = new Derived();\n// VTable Lookup:\n// p->funcA() resolves to (*(__vptr[0]))(p)\np->funcA();\ndelete p;\n// Note: VTables are per-class, vptrs are per-object.",
+  "keywords": "vtable, vptr, dynamic dispatch, virtual function dispatch"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Template Specialization and SFINAE for Custom Implementations",
+  "explanation": "In C++, template specialization allows developers to define custom implementations of a template for specific types or conditions, enabling tailored behavior. Substitution Failure Is Not An Error (SFINAE) is a technique that leverages template specialization and overload resolution to enable or disable template instantiations based on compile-time conditions. Together, these features facilitate writing highly generic, efficient, and type-safe code that adapts to different types or traits without runtime overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "618-618",
+    "extraction_date": "2025-08-19T05:43:35.742982",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.840316"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\nstruct Identity {\n    static const char* name = \"Generic\";\n};\n\ntemplate <>\nstruct Identity<int> {\n    static const char* name = \"Integer\";\n};\n// Use: Identity<float>::name vs Identity<int>::name\n\ntemplate <typename T>\nstruct Deleter {\n    void cleanup(T& obj) { /* default cleanup */ }\n};\n\ntemplate <typename T>\nstruct Deleter<T*> { // Partial specialization for pointers\n    void cleanup(T* obj) { delete obj; }\n};\n\ntemplate <typename T,\n          typename = std::enable_if_t<std::is_floating_point_v<T>>>\nT calculate(T val) {\n    return val * 1.5;\n}\n// SFINAE: Only floating-point types instantiate this function.\n\ntemplate <typename T>\nauto process(T x) ->\n    std::enable_if_t<std::is_arithmetic_v<T>, T>\n{\n    return x + 1;\n}\n// SFINAE using return type: Substitution failure on non-arithmetic T.",
+  "keywords": "SFINAE, Template Specialization, Conditional template instantiation"
+}

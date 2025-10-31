@@ -1,0 +1,13 @@
+{
+  "topic": "Lvalue Assignment Failure in Forwarding Contexts",
+  "category": "design",
+  "explanation": "Assumption: If a class provides both a copy constructor and a forwarding constructor (universal reference), the forwarding constructor handles all necessary initialization, and assignment operators can rely on standard library patterns. Reality: If a class relies solely on forwarding constructors for initialization but fails to provide explicit, dedicated overloads for lvalue and rvalue assignment operators, the lvalue assignment may become inefficient or impossible. Why It Fails: Constructors and assignment operators are orthogonal concepts. A universal reference constructor handles the creation of a new object efficiently, but it offers no help for the assignment of an already existing object. If only a single assignment operator taking `const T&` or relying on the copy-and-swap idiom is provided, lvalue assignment is necessarily implemented via copying, even if the user intended to utilize optimized move semantics or if the argument was an rvalue. The 'perfect' nature of the forwarding constructor masks the need for dedicated assignment operator optimization (i.e., `operator=(const C&)` and `operator=(C&&)`), leading to a class that is highly performant on creation but severely bottlenecked on assignment operations.",
+  "code_example": "// Failure to optimize assignment\nclass Widget {\n  template<typename T> Widget(T&&) { /* forward ctor */ }\n  Widget& operator=(const Widget& rhs) { /* performs deep copy */ return *this; }\n};\n\nWidget w1, w2;\nw1 = std::move(w2); // Calls the deep copy assignment operator, not a move.",
+  "practical_example": "A data structure is designed with a forwarding constructor to handle diverse input types. Later, the structure is used within a `std::vector`, and resizing the vector (which triggers move assignment) causes massive performance hiccups because the move assignment operator was never explicitly defined, forcing the use of the slow copy assignment operator.",
+  "keywords": "forwarding reference assignment, universal reference assignment operator, lvalue assignment operator overload",
+  "difficulty": "intermediate",
+  "page_reference": "207-210",
+  "chapter": "Item 27: Familiarize yourself with alternatives to overloading on universal references",
+  "id": "emcpp_design_lvalue_assignment_failure_in_forwarding_78f1f4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

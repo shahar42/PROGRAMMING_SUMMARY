@@ -1,0 +1,85 @@
+{
+  "name": "mq_timedreceive",
+  "synopsis": [
+    "#include <mqueue.h>",
+    "ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned int *msg_prio);",
+    "#include <time.h>",
+    "ssize_t mq_timedreceive(mqd_t mqdes, char *restrict msg_ptr, size_t msg_len, unsigned int *restrict msg_prio, const struct timespec *restrict abs_timeout);"
+  ],
+  "description": "mq_timedreceive() removes the oldest highest-priority message from a specified message queue and places it in a buffer, with an absolute timeout to prevent indefinite blocking if the queue is empty. It behaves like mq_receive() but returns immediately if the timeout expires.",
+  "parameters": [
+    {
+      "name": "mqdes",
+      "type": "mqd_t",
+      "description": "Message queue descriptor"
+    },
+    {
+      "name": "msg_ptr",
+      "type": "char *",
+      "description": "Pointer to the buffer to store the received message"
+    },
+    {
+      "name": "msg_len",
+      "type": "size_t",
+      "description": "Size of the buffer pointed to by msg_ptr, must be at least the queue's mq_msgsize attribute"
+    },
+    {
+      "name": "msg_prio",
+      "type": "unsigned int *",
+      "description": "Pointer to return the priority of the received message, or NULL if not needed"
+    },
+    {
+      "name": "abs_timeout",
+      "type": "const struct timespec *",
+      "description": "Absolute timeout for the operation, specifying seconds and nanoseconds since the Epoch"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes in the received message",
+    "failure": "Returns -1 on error, with errno set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "The queue was empty, and the O_NONBLOCK flag was set for the message queue description."
+    },
+    {
+      "code": "EBADF",
+      "description": "The descriptor specified in mqdes was invalid or not opened for reading."
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal handler."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The call would have blocked, and abs_timeout was invalid."
+    },
+    {
+      "code": "EMSGSIZE",
+      "description": "msg_len was less than the mq_msgsize attribute of the message queue."
+    },
+    {
+      "code": "ETIMEDOUT",
+      "description": "The call timed out before a message could be transferred."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": "POSIX.1-2008",
+  "related_calls": [
+    "mq_close",
+    "mq_getattr",
+    "mq_notify",
+    "mq_open",
+    "mq_send",
+    "mq_unlink"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mq_timedreceive.pdf",
+    "extraction_date": "2025-07-29T11:09:12.308066",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

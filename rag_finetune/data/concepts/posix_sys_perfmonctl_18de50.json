@@ -1,0 +1,16 @@
+{
+  "topic": "perfmonctl() System Call",
+  "explanation": "The perfmonctl system call provides an interface to the IA-64 performance monitoring unit (PMU), which includes registers for gathering hardware statistics. It performs operations specified by a command on the provided arguments, operating on a perfmon context identified by a file descriptor.\n\n**Parameters:**\n- `fd` (int): File descriptor of the perfmon context to operate on\n- `cmd` (int): Command to execute, such as PFM_CREATE_CONTEXT or PFM_START\n- `arg` (void*): Pointer to command-specific arguments\n- `narg` (int): Number of arguments in the arg array",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.212726",
+    "syscall_name": "perfmonctl",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_perfmonctl.json",
+    "concept_id": "posix_sys_perfmonctl_18de50",
+    "book_metadata_added": "2025-10-28T20:22:06.660445"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// int perfmonctl(int fd, int cmd, void *arg);\n\nint pmu_fd = 4;\nint ret;\nvoid *config_ptr = NULL; // Points to pfm structures\n\n// 1. Create perfmon context handle\nret = perfmonctl(pmu_fd, PFM_CREATE_CONTEXT, config_ptr);\n\n// 2. Load configuration registers (PMCs)\n// config_ptr points to struct pfm_pmc_attr[]\nret = perfmonctl(pmu_fd, PFM_WRITE_PMCS, config_ptr);\n\n// 3. Start performance counting\nret = perfmonctl(pmu_fd, PFM_START, NULL);\n\n// 4. Retrieve results\n// config_ptr points to struct pfm_pmu_read\nret = perfmonctl(pmu_fd, PFM_READ, config_ptr);\n\n// 5. Stop/Cleanup\nret = perfmonctl(pmu_fd, PFM_STOP, NULL);\n<ctrl63>",
+  "keywords": "perfmonctl system call, IA-64 PMU, perfmon interface"
+}

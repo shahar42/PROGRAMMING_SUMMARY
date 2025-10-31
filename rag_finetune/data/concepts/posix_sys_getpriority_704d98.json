@@ -1,0 +1,16 @@
+{
+  "topic": "getpriority() System Call",
+  "explanation": "getpriority() retrieves the scheduling priority (nice value) of a specified process, process group, or user. setpriority() sets the scheduling priority for the specified entities. The nice value affects process scheduling, with lower values indicating higher priority.\n\n**Parameters:**\n- `which` (int): Specifies the type of entity: PRIO_PROCESS for a process, PRIO_PGRP for a process group, or PRIO_USER for a user\n- `who` (id_t): The identifier for the entity; 0 denotes the calling process, process group, or real user ID depending on which\n\n**Common Errors:**\n- `EACCES`: The caller attempted to set a lower nice value without required privilege\n- `EINVAL`: The which value is not one of PRIO_PROCESS, PRIO_PGRP, or PRIO_USER\n- `EPERM`: The effective user ID does not match and the caller lacks privilege\n- `ESRCH`: No process was found matching the which and who values\n\n**Related System Calls:** `fork()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.219494",
+    "syscall_name": "getpriority",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getpriority.json",
+    "concept_id": "posix_sys_getpriority_704d98",
+    "book_metadata_added": "2025-10-28T20:22:06.590741"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Priority Constants (which argument)\n#define PRIO_PROCESS 0\n#define PRIO_PGRP    1\n#define PRIO_USER    2\n\n// Retrieve priority (nice value: typically -20 to 19)\nint nice_value;\nid_t target_id = getpid(); // Example target ID\n\n// 1. Query current process\nnice_value = getpriority(PRIO_PROCESS, 0);\n\n// 2. Query specific process ID\nnice_value = getpriority(PRIO_PROCESS, target_id);\n\n// 3. Query specific user ID\nid_t target_uid = getuid();\nnice_value = getpriority(PRIO_USER, target_uid);\n\n// Return Value: Nice value, or -1 on failure.\n// Must check errno if result is -1, as -1 is a valid nice value.\nif (nice_value == -1 && errno != 0) {\n    // Handle error (e.g., ESRCH, EPERM)\n}",
+  "keywords": "getpriority, setpriority, nice value, process priority"
+}

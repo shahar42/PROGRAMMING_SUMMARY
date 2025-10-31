@@ -1,0 +1,13 @@
+{
+  "topic": "Submatch Management in std::regex_match",
+  "explanation": "In C++, std::regex_match from the <regex> header performs pattern matching on a string and returns submatch results via objects like std::smatch or std::cmatch. Under the hood, the compiler relies on the standard library's regex engine, which is typically implemented using finite automata (e.g., NFA or DFA) for pattern matching. The submatch results are stored in a container (e.g., a std::vector of std::sub_match objects), where each sub_match represents a substring match with pointers to the beginning and end of the matched sequence. Memory layout involves dynamic allocation for the vector, leading to potential heap usage and indirection overhead. Performance implications include runtime costs for pattern compilation and matching, as regex operations are generally O(n) for input string length n, but submatch extraction can add O(m) where m is the number of submatches due to string slicing or pointer arithmetic. At compile-time, the regex pattern is a string literal or runtime string, so no template metaprogramming is involved; everything occurs at runtime. The compiler (e.g., GCC or Clang) translates std::regex_match calls into library function invocations, which may generate assembly involving loops for string scanning and jumps for state transitions in the automata. For instance, accessing m[0] involves dereferencing vector elements, potentially leading to cache misses if the vector is large, and runtime checks for bounds safety as per the standard's requirements.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:29:04.221355",
+    "book_metadata_added": "2025-10-28T20:22:06.824631"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "const std::string s = \"User: root (42)\";\nconst std::regex r(\"(\\\\w+):\\\\s*(\\\\w+)\\\\s*\\\\((\\\\d+)\\\\)\");\nstd::smatch m;\n\nif (std::regex_match(s, m, r)) {\n    // m.size() == 4 (Full match + 3 groups)\n    auto full_match = m[0];\n    auto username_group = m[2];\n    \n    // Access string content\n    std::string user = username_group.str(); \n    \n    // Check if group matched successfully\n    bool id_matched = m[3].matched;\n}\n\n// Accessing submatch iterators (raw indices)\n// auto start_it = m[1].first;\n// auto end_it = m[1].second;"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "From Relative to Final Locations",
+  "explanation": "Relocation is a crucial step in the linking and loading process that adjusts addresses within an object file to their final memory locations.  Object files initially contain addresses relative to their own starting point.  Because the linker combines multiple object files and the loader places the resulting executable at a specific memory address, these relative addresses must be converted to absolute addresses.  Relocation entries within object files specify which parts of the code need adjustment and how to perform the adjustment.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "195-195",
+    "extraction_date": "2025-07-21T10:45:33.669576",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.763334"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Relocation Entry Structure (e.g., ELF Rela format)\ntypedef struct {\n    uint64_t r_offset;  // Relative offset in section needing fixup\n    uint64_t r_info;    // Symbol index and type (R_X86_64_64, etc.)\n    int64_t r_addend;   // Constant bias stored in object file\n} RelocationEntry;\n\n// Linker/Loader Context\nuint64_t Object_Base_Address = 0x400000; // Start of the loaded object\nuint64_t Symbol_Final_Value = 0x800200;  // Final address of the referenced symbol\n\nRelocationEntry R = {\n    .r_offset = 0x1A0,\n    .r_addend = 0x0\n};\n\n// 1. Calculate Target Memory Location\nuint64_t Fixup_Location = Object_Base_Address + R.r_offset; // 0x4001A0\n\n// 2. Calculate Final Absolute Address (S + A)\n// S = Symbol Value, A = Addend\nuint64_t Final_Address = Symbol_Final_Value + R.r_addend; // 0x800200\n\n// Loader writes Final_Address into memory at Fixup_Location.",
+  "keywords": "Relocation, Linker relocation, Absolute address resolution, Relative to absolute addressing"
+}

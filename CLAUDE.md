@@ -1,0 +1,1 @@
+- never discard the book metadata ever they are valuable

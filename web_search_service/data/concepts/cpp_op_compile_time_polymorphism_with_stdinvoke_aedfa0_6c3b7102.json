@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism with `std::invoke` and its implications",
+  "explanation": "This example explores compile-time polymorphism achieved through `std::invoke` and its profound impact on compiler optimizations, memory layout, and runtime performance.  Unlike traditional runtime polymorphism (virtual functions), which relies on virtual function tables (vtables) and indirect function calls, `std::invoke` enables the compiler to select the appropriate function at compile time based on the argument types. This leads to significant performance gains by avoiding the overhead of runtime dispatch. We'll examine how different callable objects (functions, lambdas, functors) are handled and the resulting assembly code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:23:34.600957",
+    "book_metadata_added": "2025-10-28T20:22:06.866888"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct PrinterA {\n    void print(int x) const;\n};\n\nstruct PrinterB {\n    void print(int x) const;\n};\n\n// Compile-time polymorphic dispatcher template\ntemplate <typename T>\nvoid execute_print(T obj, int val) {\n    // Compiler selects the exact member function at compile time\n    // No VTABLE required; direct static call possible\n    std::invoke(&T::print, obj, val);\n}\n\nPrinterA pa;\nPrinterB pb;\n\nexecute_print(pa, 10);\nexecute_print(pb, 20);\n// Highly optimized: Monomorphization and potential inlining achieved."
+}

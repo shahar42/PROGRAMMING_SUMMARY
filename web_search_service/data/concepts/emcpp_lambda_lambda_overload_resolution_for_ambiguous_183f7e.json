@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Overload Resolution for Ambiguous Calls",
+  "category": "lambda",
+  "explanation": "Assumption: `std::bind` is a flexible alternative to defining a lambda for simple function customization. Reality: When the target function is overloaded (e.g., multiple versions of `setAlarm` exist), passing the raw function name to `std::bind` leads to a compilation failure because the compiler cannot resolve which specific function pointer signature to use. Why It Fails: `std::bind` requires a concrete callable entity (a specific function pointer or object) at the point of binding. Lambdas, conversely, define a function body where overload resolution occurs naturally based on the arguments used within that body, resolving the ambiguity seamlessly. This makes lambdas far superior for wrapping overloaded functions.",
+  "code_example": "void func(int);\nvoid func(double);\n\n// Error: Ambiguous call to func\n// auto binder = std::bind(func, _1);\n\n// Works: Context provided by usage inside the lambda\nauto lambda = [](auto x) { func(x); };",
+  "practical_example": "A developer attempts to use `std::bind` to partially apply arguments to a common utility function (like an overloaded internal logging function). If the utility function has multiple overloads, the `std::bind` call fails immediately, forcing a refactor to a lambda.",
+  "keywords": "std::bind overloaded error, Lambda overload resolution, Ambiguous function pointer",
+  "difficulty": "intermediate",
+  "page_reference": "250-257",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_lambda_lambda_overload_resolution_for_ambiguous_183f7e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

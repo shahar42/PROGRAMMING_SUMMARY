@@ -1,0 +1,16 @@
+{
+  "topic": "recv() System Call",
+  "explanation": "The recv(), recvfrom(), and recvmsg() calls are used to receive messages from a socket. They work with both connectionless and connection-oriented sockets, and allow for flags to modify behavior such as nonblocking operation or out-of-band data.\n\n**Parameters:**\n- `sockfd` (int): File descriptor of the socket\n- `buf` (void*): Buffer to store the received data\n- `len` (size_t): Length of the buffer\n- `flags` (int): Flags to control the operation, such as MSG_DONTWAIT or MSG_OOB\n\n**Common Errors:**\n- `EAGAIN`: The socket is nonblocking and the operation would block, or a timeout expired\n- `EWOULDBLOCK`: Same as EAGAIN\n- `EBADF`: The socket file descriptor is invalid\n- `ECONNREFUSED`: A remote host refused the connection\n- `EFAULT`: The buffer pointer is outside the process's address space\n\n**Related System Calls:** `read()`, `select()`, `poll()`, `epoll()`, `connect()`, `accept()`, `fcntl()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.172164",
+    "syscall_name": "recv",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_recv.json",
+    "concept_id": "posix_sys_recv_cbd1a9",
+    "book_metadata_added": "2025-10-28T20:22:06.667562"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "enum { BUF_SZ = 4096 };\nchar buffer[BUF_SZ];\nint sock_fd;\nssize_t bytes_read;\n\n// Standard blocking receive\nbytes_read = recv(sock_fd, buffer, BUF_SZ, 0);\n\n// Use MSG_DONTWAIT for non-blocking I/O\n// bytes_read = recv(sock_fd, buffer, BUF_SZ, MSG_DONTWAIT);\n\nif (bytes_read == -1) {\n    // Error handling (check errno for EAGAIN/EWOULDBLOCK)\n} else if (bytes_read == 0) {\n    // Connection closed by peer\n}\n\n/* --- recvfrom (for connectionless sockets) --- */\nstruct sockaddr src_addr;\nsocklen_t addr_len = sizeof(src_addr);\n\nbytes_read = recvfrom(sock_fd, buffer, BUF_SZ, 0,\n                      &src_addr, &addr_len);",
+  "keywords": "recv, socket receive, socket read, recv system call"
+}

@@ -1,0 +1,70 @@
+{
+  "name": "getdents64",
+  "synopsis": [
+    "#define _GNU_SOURCE",
+    "#include <dirent.h>",
+    "ssize_t getdents64(int fd, void *dirp, size_t count);"
+  ],
+  "description": "The getdents64 system call reads multiple directory entries from the file descriptor specified by fd into the buffer pointed to by dirp. The count argument specifies the size of the buffer.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the directory"
+    },
+    {
+      "name": "dirp",
+      "type": "void*",
+      "description": "Pointer to the buffer to hold the directory entries"
+    },
+    {
+      "name": "count",
+      "type": "size_t",
+      "description": "Size of the buffer in bytes"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes read, or 0 on end of directory",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "Invalid file descriptor fd"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Argument points outside the calling process’s address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Result buffer is too small"
+    },
+    {
+      "code": "ENOENT",
+      "description": "No such directory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "File descriptor does not refer to a directory"
+    }
+  ],
+  "bugs": null,
+  "versions": "glibc 2.30",
+  "posix_compliance": null,
+  "examples": [
+    "int fd = open(argc > 1 ? argv[1] : \".\", O_RDONLY | O_DIRECTORY);",
+    "ssize_t nread = syscall(SYS_getdents, fd, buf, BUF_SIZE);",
+    "for (size_t bpos = 0; bpos < nread;) { struct linux_dirent *d = (struct linux_dirent *) (buf + bpos); ... }"
+  ],
+  "related_calls": [
+    "readdir"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "getdents64.pdf",
+    "extraction_date": "2025-07-27T18:12:13.642529",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

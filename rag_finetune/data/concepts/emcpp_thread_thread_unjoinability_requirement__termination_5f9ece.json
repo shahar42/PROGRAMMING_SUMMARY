@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Unjoinability Requirement: Termination on Joinable Destruction",
+  "category": "thread",
+  "explanation": "Assumption: RAII guarantees safe cleanup of asynchronous threads when a `std::thread` object goes out of scope. Reality: If a `std::thread` object is 'joinable' (meaning it is associated with a running thread of execution) when its destructor is called, the C++ standard dictates that the program must terminate via `std::terminate()`. This rule exists because the alternatives (implicit join or implicit detach) introduce worse, harder-to-debug problems related to performance or resource lifetime safety. Why It Fails: Failure to explicitly call `join()` or `detach()` before the `std::thread` object is destroyed results in immediate program termination, often happening when an exception causes early stack unwinding.",
+  "code_example": "std::thread t(some_function);\n// If t is destroyed here without join/detach,\n// std::terminate() is called.",
+  "practical_example": "A function launches a background thread, but an early exit condition (like an exception or a failed check) causes the function scope to close before `t.join()` is reached, leading to an unexpected crash.",
+  "keywords": [
+    "std::thread",
+    "joinable",
+    "std::terminate",
+    "RAII failure"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-269",
+  "chapter": "Item 37: Remember that std::threads are not joinable upon destruction",
+  "id": "emcpp_thread_thread_unjoinability_requirement__termination_5f9ece",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

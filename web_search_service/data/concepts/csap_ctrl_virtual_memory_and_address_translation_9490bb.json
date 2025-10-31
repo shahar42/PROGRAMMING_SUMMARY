@@ -1,0 +1,15 @@
+{
+  "topic": "Virtual Memory: Abstraction and Caching",
+  "explanation": "Virtual memory is an abstraction that maps a program's logical address space (virtual addresses) to the physical address space of main memory. This indirection allows efficient memory management, simplified program loading and linking, memory protection, and automatic caching of frequently used data from secondary storage (disk) into main memory.  It's crucial for modern operating systems to support efficient and safe memory utilization for multiple processes.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "900-900",
+    "extraction_date": "2025-07-29T11:07:37.849733",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.691628"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Virtual Memory Components (32-bit, 4KB Pages)\n#define PAGE_SHIFT 12\n#define PAGE_SIZE (1 << PAGE_SHIFT) // 4096 bytes\n\n// Page Table Entry (PTE) Structure: The Mapping Data\ntypedef struct {\n    unsigned int Valid : 1;     // Is page currently cached in RAM?\n    unsigned int Writable : 1;  // Protection bit\n    unsigned int Accessed : 1;  // Replacement Policy Hint (Caching feedback)\n    unsigned int Dirty : 1;     // Needs to be written back to disk\n    unsigned int PFN : 20;      // Physical Frame Number (Address Abstraction)\n} PTE;\n\n// Per-Process Page Table Base Pointer\nPTE* Current_PageTable;\n\n// Virtual Address (VA) Decomposition\n// VA = [VPN (Index into PT) | Offset (Index within Page)]\n#define VPN(va) ((va) >> PAGE_SHIFT)\n#define Offset(va) ((va) & (PAGE_SIZE - 1))\n\n// Hardware Cache: Translation Lookaside Buffer (TLB)\n// Stores recently used PTEs for fast mapping (reducing latency)\n// If TLB Miss, hardware performs Page Table Walk (slow)\n// If PTE Valid=0, OS handles Page Fault (cache miss to disk)"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Processor Pipelining and Data Forwarding",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, data dependencies between instructions can create hazards, stalling the pipeline. Data forwarding is a technique to mitigate these hazards by supplying the result of a preceding instruction directly to a dependent instruction, avoiding the need to wait for the result to be written back to the register file. This significantly improves performance by reducing pipeline stalls.",
+  "syntax": "Data forwarding logic is typically implemented using multiplexers (or conditional selection) within the pipeline stages.  The selection logic determines which data source (register file, or a pipeline stage's output) to forward to the subsequent stage, based on the data dependencies between instructions.",
+  "code_example": "word d_valA = [\nD_icode in { ICALL, IJXX } : D_valP; # Use incremented PC\nd_srcA == e_dstE : e_valE; # Forward valE from execute\nd_srcA == M_dstM : m_valM; # Forward valM from memory\nd_srcA == M_dstE : M_valE; # Forward valE from memory\nd_srcA == W_dstM : W_valM; # Forward valM from write back\nd_srcA == W_dstE : W_valE; # Forward valE from write back\n1 : d_rvalA; # Use value read from register file\n];",
+  "example_explanation": "This HCL (Hardware Description Language) code snippet demonstrates data forwarding logic for a pipelined processor.  `d_valA` represents the value that will be used by the next instruction.  The conditional assignment checks for dependencies.  For example, `d_srcA == e_dstE : e_valE;` means: If the source operand `d_srcA` of the current instruction is the destination of the instruction in the execute stage (`e_dstE`), then forward the result from the execute stage (`e_valE`) to the next stage. Otherwise, check the next condition. If no dependency is found, the value is read from the register file (`d_rvalA`). This prevents pipeline stalls by providing data directly from the producer stage to the consumer stage, thus optimizing performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "479-479",
+    "extraction_date": "2025-07-27T17:05:53.530564",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

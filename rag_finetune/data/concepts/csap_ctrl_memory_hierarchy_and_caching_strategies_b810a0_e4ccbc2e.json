@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: To Disk",
+  "explanation": "Modern computing utilizes a memory hierarchy to minimize the latency gap between the CPU and storage subsystems. This hierarchy spans registers and fast, small L1/L2/L3 caches, through DRAM main memory, down to large, slow non-volatile storage like SSDs or HDDs. Caching strategies exploit the principle of locality of reference—temporal and spatial—to store frequently accessed data in faster levels, significantly reducing the Average Memory Access Time (AMAT). At the lowest level, the operating system manages the transition to disk via virtual memory paging or file system buffers, treating main memory as a cache for disk blocks to ensure data persistence and manage address space capacity.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "197-197",
+    "extraction_date": "2025-07-23T23:53:18.493072",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.693387",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:18:43",
+    "original_length": 548,
+    "refined_length": 696
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// OS Paging/Disk Caching via Memory Mapping (POSIX)\n\nint fd = open(\"persistent_data.dat\", O_RDWR);\nsize_t file_size = 1024 * 1024 * 100; // 100MB\n\n// Map disk file directly into virtual memory\nvoid *mem_region = mmap(NULL, file_size, \n                        PROT_READ | PROT_WRITE, \n                        MAP_SHARED, fd, 0);\n\n// Accessing mem_region triggers demand paging (Disk -> RAM)\n((int*)mem_region)[0] = 42; \n\n// Hint to the kernel about access pattern (optional optimization)\nmadvise(mem_region, file_size, MADV_SEQUENTIAL);\n\n// Force modified (\"dirty\") pages back to disk\nmsync(mem_region, file_size, MS_SYNC);\n\nmunmap(mem_region, file_size);\nclose(fd);\n<ctrl63>"
+}

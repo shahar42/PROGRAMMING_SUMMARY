@@ -1,0 +1,16 @@
+{
+  "topic": "Overlay Loading",
+  "explanation": "Overlay loading is a memory management technique used to load only necessary parts of a program into memory at a given time.  This is crucial for running large programs that exceed available memory. Instead of loading the entire program, the loader loads only the initial part (the root segment) and loads additional segments (overlays) as needed, replacing previously loaded segments. This conserves memory by avoiding the need to keep the entire program resident in RAM simultaneously.  The linker plays a key role by defining how these overlays are structured and which segments can replace each other.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "225-225",
+    "extraction_date": "2025-07-21T17:35:15.727911",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.762900"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "#define OVERLAY_BANK_SIZE 0x1000\n\n// Root Segment (Always Resident)\ntypedef struct {\n    int config[4];\n    void (*startup_hook)();\n} SegmentRoot;\n\n// Specific Tasks/Segments\ntypedef struct { char task_a_code[OVERLAY_BANK_SIZE]; } SegmentA;\ntypedef struct { float task_b_data[100]; } SegmentB;\n\n// Shared Memory Region: A union defining the space overlays compete for\nunion OverlayRegion {\n    SegmentA TaskA;\n    SegmentB TaskB; // Task B occupies same physical address space as Task A\n    char raw_bank[OVERLAY_BANK_SIZE];\n};\n\n// Program State Structure\nstruct OverlayProgram {\n    SegmentRoot root;\n    union OverlayRegion swap_space; // The active overlay resides here\n    int current_overlay_id;\n    void (*load_segment)(int id); // System function to swap memory content\n};\n<ctrl63>",
+  "keywords": "Overlay loading, Program overlays, Segment overlay, Dynamic loading segments"
+}

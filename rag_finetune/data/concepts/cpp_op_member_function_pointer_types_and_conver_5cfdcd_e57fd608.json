@@ -1,0 +1,18 @@
+{
+  "topic": "Member Function Pointers for Callbacks in C++",
+  "explanation": "In C++, member function pointers allow storing and invoking pointers to member functions of a class, enabling flexible callback mechanisms and dynamic dispatch. Conversion operators enable implicit or explicit conversion of class objects to other types, including function pointer types. Combining these features allows for advanced polymorphic behaviors and type-safe callback implementations, especially in modern C++ programming where type traits and template metaprogramming are prevalent.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "619-619",
+    "extraction_date": "2025-08-19T05:44:47.576596",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "overloading",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.887976"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class CallbackHandler {\n    int state = 100;\npublic:\n    using CB_Sig = int(int);\n\n    int execute(int input) const { return input + state; }\n\n    // Member Function Pointer Type\n    using MFP = CB_Sig (CallbackHandler::*);\n\n    // Conversion Operator: Object -> Member Function Pointer\n    operator MFP() const { return &CallbackHandler::execute; }\n};\n\n// Usage\nCallbackHandler cb;\nCallbackHandler::MFP fp = cb;\nint result = (cb.*fp)(5); // Invokes execute(5), result = 105\n\n// Conversion into a template context\ntemplate <typename T>\nvoid run_callback(T handler) {\n    // T is implicitly converted to MFP type\n    (cb.*handler)(1);\n}",
+  "keywords": "C++ member function pointer, Member function callback, C++ method pointer"
+}

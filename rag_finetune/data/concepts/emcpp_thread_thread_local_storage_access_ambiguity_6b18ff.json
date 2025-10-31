@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Local Storage Access Ambiguity in Default std::async",
+  "category": "thread",
+  "explanation": "The non-deterministic execution location of a task launched with the default `std::async` policy directly conflicts with reliable use of `thread_local` storage (TLS). If the implementation chooses `std::launch::async`, the task accesses the TLS specific to its new, independent thread. If the implementation chooses `std::launch::deferred`, the task accesses the TLS of the thread that eventually calls `get()` or `wait()`. This ambiguity makes it impossible to predict which thread's local state will be accessed, rendering `thread_local` variables inside such tasks unreliable.",
+  "code_example": "thread_local int counter = 0;\nauto f = [] { counter++; };\n// Which thread's counter is incremented is unpredictable:\nauto fut = std::async(f);",
+  "practical_example": "A library function uses `std::async` and relies on a `thread_local` cache for performance. Due to the deferred execution, the cache is sometimes accessed by the main thread (which is already managing its own cache) instead of the intended worker thread, leading to cache contention or incorrect data access.",
+  "keywords": [
+    "thread_local",
+    "TLS",
+    "deferred",
+    "resource conflict"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "263-268",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming.",
+  "id": "emcpp_thread_thread_local_storage_access_ambiguity_6b18ff",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

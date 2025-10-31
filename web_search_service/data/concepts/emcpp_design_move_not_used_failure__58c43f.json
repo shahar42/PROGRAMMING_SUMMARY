@@ -1,0 +1,19 @@
+{
+  "topic": "Move Not Used Failure: Container Operations and Exception Safety",
+  "category": "design",
+  "explanation": "The failure to utilize move semantics during container reallocation or growth represents a major anti-pattern tied directly to exception safety requirements. Programmers assume that when a standard library container (like `std::vector`) needs to grow and reallocate memory, it will use the move constructor to transfer existing elements to the new storage location. This assumption holds true only if the element type provides a `nothrow_move_constructible` guarantee (meaning the move operation is guaranteed not to throw an exception). If the element type's move constructor *can* throw an exception, the container implementation must fall back to using the copy constructor when reallocating. This strict requirement ensures strong exception safety: if an exception occurs during the transfer of elements to the new memory, the container can guarantee that the original state is preserved (the elements remain intact in the old memory location). If the container tried to move non-nothrow elements and failed halfway through, the original container would be left in a corrupted state, violating the strong guarantee. The failure occurs when the developer defines a move constructor that is not marked `noexcept` and then relies on move optimization during container resizing, resulting in a predictable and often expensive copy fallback every time the container grows, completely defeating the purpose of providing move semantics in the first place.",
+  "code_example": "struct Resource { \n    Resource(Resource&&) { /* potentially throws */ }; \n    // missing noexcept declaration\n};\n\nstd::vector<Resource> v;\nv.push_back(Resource{}); // When vector resizes, it copies existing elements, not moves them.",
+  "practical_example": "A large-scale data parser uses `std::vector` to hold custom objects whose move constructors interact with external resources and therefore are not `noexcept`. Although the developer provided move operations, the vectors consistently show poor insertion performance because every memory reallocation triggers a full deep copy of millions of objects instead of a cheap pointer transfer.",
+  "keywords": [
+    "noexcept",
+    "exception safety",
+    "container growth",
+    "copy fallback",
+    "nothrow_move_constructible"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "229-232",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_design_move_not_used_failure__58c43f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

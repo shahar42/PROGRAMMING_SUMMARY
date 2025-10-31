@@ -1,0 +1,14 @@
+{
+  "topic": "Access Control for Nested Types in C++ Templates",
+  "explanation": "In C++, access control for nested types, such as private structs, interacts complexly with template instantiation due to the language's two-phase lookup mechanism. When a template is declared, the compiler performs an initial name lookup but defers full instantiation and access checking until the template is actually used (point of instantiation). For a private nested type like Y::S, it is accessible within the enclosing class Y because the access is checked in the context of Y's scope. However, when used outside Y, such as in X<Y::S> at global scope, the compiler enforces access rules at instantiation time, resulting in an error. This behavior is compile-time only, as templates are resolved during compilation. Under the hood, compilers like GCC or Clang implement this via symbol resolution in the abstract syntax tree (AST), where access specifiers are verified against the instantiation context. There's no direct memory layout or runtime implication here, as this is purely a compile-time check, but it can affect code generation by preventing invalid instantiations, potentially optimizing binary size by avoiding unnecessary template code bloat. Assembly-level behavior isn't directly relevant, but failed access checks halt compilation, preventing any object code from being produced for the invalid instantiation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:43:03.693980",
+    "book_metadata_added": "2025-10-28T20:22:06.874083"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Y {\n    // Private nested type\n    struct State { int id = 0; };\npublic:\n    // Template member defined within Y's scope:\n    // Access check for State succeeds upon definition.\n    template <typename T>\n    void process(T value) {\n        State s;            // Accesses private type State\n        s.id = (int)value;\n        // ... use s\n    }\n\n    // Instantiation (PoI) occurs here or elsewhere.\n    void run() {\n        process(10);\n    }\n};\n\n// Access to Y::State fails outside Y's scope:\n// Y::State bad_s; // Error\n// (Template access is fine due to definition scope.)",
+  "keywords": "nested type template access, private nested class access, template instantiation access check"
+}

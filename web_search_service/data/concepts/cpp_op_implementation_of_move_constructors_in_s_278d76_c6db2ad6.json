@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of Move Constructors in std::basic_ofstream",
+  "explanation": "The move constructor in std::basic_ofstream is a key feature for efficient resource management in C++ streams, particularly for I/O operations involving file buffers. Under the hood, the compiler implements this by generating code that adheres to the C++ standard's effects: it move-constructs the base class (std::basic_ostream) and the contained std::basic_filebuf, then calls std::basic_ostream::set_rdbuf to install the moved buffer. This avoids deep copies of potentially large internal buffers, such as file handles or stream states, by transferring ownership. Memory layout-wise, std::basic_ofstream inherits from std::basic_ostream, which typically includes a pointer to a stream buffer (e.g., via a vtable for virtual functions), and its own members like the std::basic_filebuf object. This results in a layout where the base class subobject precedes the derived class members, potentially leading to padding for alignment. Performance implications are significant: move operations are O(1) time complexity compared to O(n) for copies, reducing overhead in scenarios with large streams. At the assembly level, the compiler might optimize this to simple pointer assignments or calls to std::basic_filebuf's move constructor, which could involve swapping file descriptors or internal pointers without duplicating data. Runtime behavior dominates here, as the actual resource transfer (e.g., file handle) occurs at execution time, though compile-time checks ensure the move is only invoked on rvalue references. If the source object is in a valid state post-move, it might be left in a moved-from state, which for streams means it's no longer associated with a file, potentially improving cache locality and reducing system calls.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:11:14.979875",
+    "book_metadata_added": "2025-10-28T20:22:06.900882"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class basic_ofstream : public basic_ostream {\nprivate:\n    basic_filebuf buf;\n\npublic:\n    // Implementation of Move Constructor\n    basic_ofstream(basic_ofstream&& other) noexcept\n        : basic_ostream(std::move(other)),  // Move base (stream state)\n          buf(std::move(other.buf))         // Move resource (file handle/buffer)\n    {\n        // Re-link the base stream pointer to *this* newly moved buffer\n        // (basic_ostream::set_rdbuf)\n        this->set_rdbuf(&buf);\n\n        // Invalidate original stream's link\n        other.set_rdbuf(nullptr);\n    }\n};"
+}

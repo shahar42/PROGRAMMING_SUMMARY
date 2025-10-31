@@ -1,0 +1,13 @@
+{
+  "topic": "Volatile Fails to Prevent Compiler and Hardware Reordering",
+  "category": "thread",
+  "explanation": "Assumption: If a variable is marked `volatile`, the compiler will treat its reads and writes as side effects, preventing optimizations and guaranteeing that the operation order is preserved across threads. Reality: `volatile` only prevents the *compiler* from optimizing away reads/writes to that specific variable (useful for memory-mapped I/O or signals). It does not impose any restrictions on code reordering relative to *other* variables, nor does it generate the necessary machine code to prevent hardware-level reordering across cores. Why It Fails: In concurrent programming, if `volatile` is used for synchronization, the compiler or hardware is free to reorder the assignment to the volatile flag relative to the assignment of the critical data, leading directly to data races and incorrect program state. `volatile` is fundamentally unsuitable for multi-threaded synchronization.",
+  "code_example": "volatile bool valAvailable(false);\nauto imptValue = computeValue();\nvalAvailable = true; // Compiler/hardware might reorder this assignment\n                     // to occur *before* imptValue is fully computed.",
+  "practical_example": "A device driver developer attempts to use `volatile` on a shared flag between the main application and an interrupt handler running on a different core. Since `volatile` provides no memory fencing, the application may read the flag and then read stale data from the buffer because the hardware reordered the writes.",
+  "keywords": "volatile thread safety, volatile memory barrier, volatile reordering, volatile concurrency",
+  "difficulty": "intermediate",
+  "page_reference": "295-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread_volatile_fails_to_prevent_compiler_1a4e4a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

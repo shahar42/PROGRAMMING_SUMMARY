@@ -1,0 +1,31 @@
+{
+  "topic": "Implementation of std::multimap in C++ Standard Library",
+  "explanation": "std::multimap is a sorted associative container in the C++ Standard Library that allows multiple equivalent keys, implemented as a balanced binary search tree, typically a red-black tree in most standard library implementations (e.g., libstdc++ or MSVC STL). The compiler handles std::multimap through template instantiation at compile-time, generating specialized code for the provided key and value types (e.g., int and std::string). Under the hood, the red-black tree ensures O(log n) time complexity for insertions, deletions, and searches by maintaining balance through rotations and recoloring operations, which are performed at runtime. Memory layout involves dynamically allocated nodes on the heap, each typically containing: the key-value pair, pointers to left and right child nodes, a parent pointer, and a color flag (e.g., 1 byte for red/black). This results in overhead due to pointer storage (usually 8 bytes each on 64-bit systems), making std::multimap memory-intensive for large datasets compared to unordered containers. Performance implications include cache misses from non-contiguous memory access during tree traversals, as nodes are scattered in memory. At the assembly level, insertions (like coll.insert()) translate to runtime calls that involve memory allocation (e.g., via new), node comparisons (using operator< for keys), and tree rebalancing, which might generate code with conditional branches, pointer arithmetic, and function calls to std::allocator. Compile-time behavior focuses on template resolution and type checking, while runtime behavior handles the actual tree operations, making std::multimap suitable for scenarios requiring sorted order but less ideal for frequent insertions due to the overhead of balancing.",
+  "syntax": "std::multimap<Key, T, Compare, Allocator> multimap_object;  // Declaration with implementation notes: Key is the key type (e.g., int), T is the mapped type (e.g., std::string), Compare is the sorting comparator (default: std::less<Key>), and Allocator manages memory (default: std::allocator). Internally, this instantiates a red-black tree where each node stores a std::pair<const Key, T>, and operations like insert() trigger runtime tree modifications.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <map>",
+    "#include <string>",
+    "using namespace std;",
+    "int main()",
+    "{",
+    "    typedef multimap<int, string> IntStringMMap;  // Defines a multimap with int keys and string values",
+    "    IntStringMMap coll;  // Creates an empty multimap; internally allocates a root node or sentinel",
+    "    coll.insert(make_pair(5, \"tagged\"));  // Inserts a node; runtime: allocates memory, compares keys, balances tree",
+    "    coll.insert(make_pair(2, \"a\"));",
+    "    coll.insert(make_pair(1, \"this\"));",
+    "    coll.insert(make_pair(4, \"of\"));",
+    "    coll.insert(make_pair(6, \"strings\"));",
+    "    coll.insert(make_pair(1, \"is\"));  // Allows duplicate keys; runtime: inserts another node with the same key",
+    "    coll.insert(make_pair(3, \"multimap\"));",
+    "    // Further operations would involve tree traversal",
+    "}"
+  ],
+  "example_explanation": "In this code, the compiler first instantiates the std::multimap template for <int, std::string> at compile-time, generating code for the red-black tree structure. Each coll.insert() call operates at runtime: it allocates a new node (e.g., via std::allocator), performs key comparisons (using std::less<int>), and inserts the node into the tree while maintaining balance. For duplicate keys (e.g., key 1 inserted twice), the tree allows multiple nodes with the same key, stored in sorted order, which might result in assembly code with loops for traversal and conditional jumps for comparisons. Memory layout ensures nodes are not contiguous, leading to potential cache inefficiencies during insertions (O(log n) time, but with heap fragmentation). Overall, this demonstrates runtime overhead versus compile-time benefits, as the sorted nature is enforced dynamically.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:33:43.674103"
+  }
+}

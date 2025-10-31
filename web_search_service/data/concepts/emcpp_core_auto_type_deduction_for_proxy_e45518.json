@@ -1,0 +1,23 @@
+{
+  "topic": "Auto Deduction: Proxy Object Type Retention",
+  "category": "core",
+  "explanation": "The core concept is that `auto` deduces the exact type of an initializing expression, without considering the programmer's intent. When an expression returns a proxy object\u2014a class designed to stand in for another type\u2014`auto` will deduce the type of the proxy class itself, not the underlying type it represents. This is a common source of confusion and bugs in C++.\n\nScott Meyers emphasizes that this behavior is not a flaw in `auto` but a direct and predictable consequence of its rules. The key insight is recognizing the potential mismatch between the actual return type of a function or operator and the programmer's mental model of that type. He warns that this mismatch is particularly dangerous when the proxy object's lifetime is tied to a temporary, as deducing the proxy type can inadvertently capture an object containing a dangling pointer or reference.\n\nThe mechanics are straightforward: an expression, such as an overloaded subscript operator, returns an object of a proxy class. For example, `std::vector<bool>`'s subscript operator doesn't return a reference to a `bool`, but an object of type `std::vector<bool>::reference`. If a developer writes a statement to initialize a variable with this result using `auto`, the variable's type becomes `std::vector<bool>::reference`. The proxy object itself is stored, and any implicit conversion to the underlying type (like `bool`) is deferred until the variable is used in a context requiring that type.\n\nThis has critical practical implications for correctness and performance. The most famous example involves a function returning a temporary `std::vector<bool>`. If you access an element and store the result in an `auto` variable, that variable will be a proxy object containing a pointer to the internal data of the now-destroyed temporary vector. Any subsequent use of this proxy object results in undefined behavior. This pattern also appears in expression template libraries for numerical computing, where intermediate operations create temporary proxy objects representing a computation rather than its result.\n\nThe primary pitfall is assuming `auto` deduces the 'semantic' type instead of the 'syntactic' one. Programmers expect a `bool` from a vector of bools, not a complex proxy object. This leads to code that compiles without warnings but fails catastrophically at runtime, making such bugs extremely difficult to diagnose. Awareness of APIs that use the proxy pattern is essential when using `auto`.",
+  "code_example": "// A function returning a temporary vector<bool>\nstd::vector<bool> features(const Widget& w);\n\nWidget w;\n\n// Problem: auto deduces std::vector<bool>::reference\n// The temporary vector from features(w) is destroyed after this line.\n// highPriority now holds a proxy object with a dangling pointer.\nauto highPriority = features(w)[5];\n\n// Matrix example using expression templates\nMatrix m1, m2, m3; // Assume Matrix+ returns a proxy Sum<Matrix, Matrix>\n\n// Problem: auto deduces the type of the proxy expression template object,\n// not the final Matrix result. The computation is deferred.\nauto sumProxy = m1 + m2 + m3;",
+  "practical_example": "In a financial modeling application using an expression template library for performance, an expression like `portfolio_a + portfolio_b` might return a proxy object. If a developer uses `auto result = ...` and the temporary portfolios go out of scope, the `result` proxy could be left in an invalid state, leading to incorrect calculations later on.",
+  "keywords": [
+    "auto",
+    "type deduction",
+    "proxy class",
+    "proxy objects",
+    "std::vector<bool>",
+    "expression templates",
+    "lifetime issues",
+    "dangling pointer",
+    "undefined behavior"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "46",
+  "chapter": "Item 6: Use the explicitly typed initializer idiom when auto deduces undesired types",
+  "id": "emcpp_core_auto_type_deduction_for_proxy_e45518",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

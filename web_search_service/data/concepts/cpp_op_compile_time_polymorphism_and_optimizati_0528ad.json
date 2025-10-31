@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism and Optimization of `std::array` Comparison",
+  "explanation": "This concept delves into how compilers optimize comparisons of `std::array` objects.  Unlike `std::vector`, `std::array` has a fixed size known at compile time. This allows for significant compile-time optimizations that drastically impact performance and memory layout.  We'll explore how the compiler generates efficient comparison code, potentially avoiding runtime loops altogether, and examine the resulting assembly code to understand the memory access patterns.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "declarators",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:53:21.138844",
+    "book_metadata_added": "2025-10-28T20:22:06.891098"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template<typename T, size_t N>\nstruct FixedSizeArray { T storage[N]; };\n\n// The size N is known at template instantiation time.\ntemplate<typename T, size_t N>\nbool compare(const FixedSizeArray<T, N>& a,\n             const FixedSizeArray<T, N>& b) {\n    // std::array::operator== uses compile-time N.\n    // For small N (e.g., N=4, N=8), the compiler:\n    // 1. Fully unrolls the loop.\n    // 2. Uses single wide register instructions (SIMD/SSE/AVX)\n    //    to compare large chunks (e.g., 16 or 32 bytes) at once.\n    \n    // Result: No runtime loop overhead needed for small arrays.\n    return std::memcmp(a.storage, b.storage, N * sizeof(T)) == 0;\n}\n// This mechanism ensures specific assembly paths (polymorphism)\n// for every unique size N."
+}

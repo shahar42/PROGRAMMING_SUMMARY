@@ -1,0 +1,18 @@
+{
+  "topic": "Template Metaprogramming and its Implementation Details",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate code based on template parameters.  This avoids runtime overhead, but its implementation involves complex compiler actions. The compiler recursively instantiates templates, effectively generating specialized code for each combination of template arguments. This process, involving recursive instantiation and potentially significant code bloat, is crucial to understanding TMP's performance characteristics.  The memory layout depends heavily on the specific template instantiation;  simple structures might result in compact layouts, while complex ones might lead to significant memory usage due to extensive code generation.  Crucially, understanding how the compiler handles recursive template instantiations and potential pitfalls like infinite recursion is key. The assembly-level behavior will vary greatly depending on the templates' instantiation, reflecting the generated specialized code for specific types. In some cases, it might simply reduce to efficient inlined code, while other instances can result in significant code size.  The behavior is entirely compile-time; no runtime computations are involved once the compiled code is generated.  Failure to understand TMP's compile-time nature can lead to long compilation times, significant increases in binary size, and unexpected compiler errors.",
+  "syntax": "```c++\ntemplate <std::size_t N>\nstruct Factorial {\n  static constexpr size_t value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static constexpr size_t value = 1;\n};\n\nint main() {\n  constexpr size_t result = Factorial<5>::value; // Computed at compile time\n  std::cout << result << std::endl; // Prints 120\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T, typename U>\nstruct is_same_type {\n  static constexpr bool value = false;\n};\n\ntemplate <typename T>\nstruct is_same_type<T, T> {\n  static constexpr bool value = true;\n};\n\nint main(){\n  static_assert(is_same_type<int,int>::value, \"Error\");\n  static_assert(!is_same_type<int,double>::value, \"Error\");\n  return 0;\n}",
+    "/*This example demonstrates compile-time type checking using template metaprogramming. The is_same_type template recursively compares two types at compile time.  The compiler will generate different code depending on whether the types match or not.  Failure to match will result in a compilation error due to the `static_assert` declaration.*/"
+  ],
+  "example_explanation": "The compiler processes the `Factorial` template recursively at compile time, generating specialized code for each instantiation (e.g., `Factorial<5>`, `Factorial<4>`, etc.). This avoids runtime calculation.  The `is_same_type` example shows how TMP can implement compile-time type checks.  The compiler analyzes the types passed to `is_same_type` and generates appropriate code based on the result. A `static_assert` will trigger a compilation error if the condition is not met.  Note that improper use of recursive templates can lead to compiler errors due to stack overflow or excessive compilation times if the recursion depth is not bounded properly.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:31:48.386448"
+  }
+}

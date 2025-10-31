@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Mode Lvalue Conversion via `std::bind`",
+  "category": "capture",
+  "explanation": "Assumption: When simulating move capture using `std::bind` (e.g., passing `std::move(data)`), the stored object inside the bind object retains its rvalue properties or is treated as an rvalue upon invocation. Reality: Although the stored object may be initialized via move construction, the object itself, when accessed inside the bind object's invocation, is treated as an lvalue. Why It Fails: The parameter passed to the underlying callable (the lambda) corresponding to the stored object is an lvalue reference (or reference-to-const). This is critical for understanding how state is managed when using `std::bind` as a replacement for C++14 'init capture' or when passing resources to a deferred execution object.",
+  "code_example": "// data is moved into func, but accessed as an lvalue inside the lambda\nauto func = std::bind([](Data& d) { /* d is an lvalue reference */ }, std::move(data));",
+  "practical_example": "A developer uses `std::bind` to capture a unique pointer, expecting to call `std::move` on the parameter inside the lambda. Because the parameter is received as an lvalue reference (by default, a copy/reference of the stored object), the subsequent move operation might be overlooked or incorrectly implemented, leading to unintended copies or misuse of the moved-in resource.",
+  "keywords": [
+    "std::bind",
+    "lvalue conversion",
+    "move simulation",
+    "captured state"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "227",
+  "chapter": "Item 32",
+  "id": "emcpp_capture_lambda_capture_mode_lvalue_conversion_bb0172",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

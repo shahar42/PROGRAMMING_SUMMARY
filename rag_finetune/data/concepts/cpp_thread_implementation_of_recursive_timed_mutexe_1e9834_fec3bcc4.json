@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Recursive Timed Mutexes in C++",
+  "explanation": "The std::recursive_timed_mutex in C++ is a synchronization primitive that allows a thread to lock it multiple times without deadlocking, while also supporting timed lock attempts. Under the hood, compilers like GCC or Clang rely on the standard library (e.g., libstdc++ or libc++) to implement this using platform-specific OS primitives, such as POSIX pthread_mutex_t on Unix-like systems or Windows CRITICAL_SECTION with extensions for recursion and timing. The compiler translates C++ code into calls to these library functions, which handle the low-level mechanics. Memory layout typically includes an internal structure with fields for the owning thread ID, a recursion count (e.g., an integer counter), and possibly a wait queue for blocked threads, consuming around 40-100 bytes depending on the platform. Performance implications include overhead from atomic operations (e.g., compare-and-exchange for checking ownership), which can lead to cache contention and increased latency in multi-threaded environments; recursive locking adds extra checks, potentially causing priority inversion if not managed. Assembly-level behavior often involves instructions like x86's LOCK CMPXCHG for atomic updates, ensuring thread safety, and system calls (e.g., futex on Linux) for waiting and waking threads. Most behavior is runtime-based, as locking depends on thread scheduling, though the compiler optimizes inlineable parts like noexcept functions; compile-time aspects are limited to template specializations for timed lock parameters.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:48:36.593842",
+    "book_metadata_added": "2025-10-28T20:22:06.844848"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::recursive_timed_mutex mtx;\n\nvoid recursive_call(int depth) {\n    mtx.lock(); // Thread safely acquires lock multiple times\n    if (depth > 0) {\n        recursive_call(depth - 1);\n    }\n    mtx.unlock(); // Releases one level of ownership\n}\n\nbool timed_try() {\n    using namespace std::chrono;\n    auto timeout = milliseconds(100);\n    \n    // Attempt lock acquisition with timeout\n    if (mtx.try_lock_for(timeout)) {\n        // success\n        mtx.unlock();\n        return true;\n    }\n    return false;\n}",
+  "keywords": "std::recursive_timed_mutex, C++ recursive mutex, reentrant mutex, timed mutex"
+}

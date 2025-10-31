@@ -1,0 +1,16 @@
+{
+  "topic": "getrusage() System Call",
+  "explanation": "getrusage() retrieves resource usage statistics for a specified entity, such as the calling process, its children, or the calling thread. It stores the information in a struct rusage, which includes metrics like CPU time and memory usage.\n\n**Parameters:**\n- `who` (int): Specifies the entity for which to retrieve resource usage: RUSAGE_SELF for the calling process, RUSAGE_CHILDREN for terminated children, or RUSAGE_THREAD for the calling thread (available since Linux 2.6.26).\n- `usage` (struct rusage *): Pointer to a struct rusage where the resource usage data is stored, including fields like ru_utime and ru_stime.\n\n**Common Errors:**\n- `EFAULT`: usage points outside the accessible address space\n- `EINVAL`: who is invalid\n\n**Related System Calls:** `clock_gettime()`, `getrlimit()`, `times()`, `wait()`, `wait4()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.117563",
+    "syscall_name": "getrusage",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getrusage.json",
+    "concept_id": "posix_sys_getrusage_98d9f0",
+    "book_metadata_added": "2025-10-28T20:22:06.674787"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct rusage usage;\nint ret;\n\n// RUSAGE_SELF: Calling process\nret = getrusage(RUSAGE_SELF, &usage);\n\n// RUSAGE_CHILDREN: Terminated children\n// ret = getrusage(RUSAGE_CHILDREN, &usage);\n\n// Access resource metrics:\ntime_t user_sec = usage.ru_utime.tv_sec;\nlong sys_usec = usage.ru_stime.tv_usec;\n\nlong max_mem_kb = usage.ru_maxrss;   // Max Resident Set Size (KB)\nlong major_faults = usage.ru_majflt; // Major page faults\nlong voluntary_switches = usage.ru_nvcsw;\n<ctrl63>",
+  "keywords": "getrusage, rusage struct, process resource usage"
+}

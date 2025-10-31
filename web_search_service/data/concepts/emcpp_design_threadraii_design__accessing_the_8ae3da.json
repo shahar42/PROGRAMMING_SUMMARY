@@ -1,0 +1,18 @@
+{
+  "topic": "ThreadRAII Design: Accessing the Underlying Thread Object",
+  "category": "design",
+  "explanation": "When creating RAII wrappers (like `ThreadRAII`) around `std::thread` to enforce cleanup (joining/detaching), it is often necessary to expose the underlying `std::thread` object. This is typically done via a `get()` member function, analogous to the `get()` functions provided by standard smart pointers (`std::unique_ptr`, `std::shared_ptr`). This approach avoids forcing the wrapper class to replicate the entire interface of `std::thread` and allows the RAII object to be used in contexts where a raw `std::thread` object is required.",
+  "code_example": "class ThreadRAII {\n  std::thread t;\npublic:\n  // ... constructor ...\n  std::thread& get() { return t; }\n  // ... destructor (handles join/detach) ...\n};",
+  "practical_example": "A developer needs to wrap thread management but occasionally must call a specialized third-party function that accepts a `std::thread&`. The `get()` function allows the wrapper to fulfill this requirement without breaking encapsulation of the RAII cleanup logic.",
+  "keywords": [
+    "RAII",
+    "std::thread wrapper",
+    "get function",
+    "interface replication"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "254",
+  "chapter": "Item 37",
+  "id": "emcpp_design_threadraii_design__accessing_the_8ae3da",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

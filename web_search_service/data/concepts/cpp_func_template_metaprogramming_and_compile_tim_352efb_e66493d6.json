@@ -1,0 +1,13 @@
+{
+  "topic": "Template Metaprogramming and Compile-Time Polymorphism with `std::conditional`",
+  "explanation": "This expert-level concept delves into how template metaprogramming enables compile-time polymorphism, leveraging `std::conditional` to select different implementations based on template arguments.  The compiler performs significant optimization during compilation, potentially eliminating branches and function calls entirely at runtime.  This results in significant performance gains compared to runtime polymorphism, particularly when the conditional logic is simple and can be resolved at compile time.  The memory layout is directly influenced by the chosen branch; the compiler only generates code for the selected implementation, eliminating the space overhead of unused code paths.  Understanding the compiler's behavior is crucial, as improperly designed template metaprogramming can lead to code bloat or unexpected compile errors due to recursive template instantiation failures.  At the assembly level, you'll observe the absence of conditional jumps or function call instructions corresponding to the unused branches, highlighting the optimization performed.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:47:14.317184",
+    "book_metadata_added": "2025-10-28T20:22:06.857544"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T> struct AddOne { constexpr static T calc(T v) { return v + 1; } };\ntemplate <typename T> struct Double { constexpr static T calc(T v) { return v * 2; } };\n\ntemplate <typename T, bool Fast>\nusing Strategy = typename std::conditional<\n    Fast,\n    AddOne<T>,\n    Double<T>\n>::type;\n\ntemplate <typename T, bool Fast>\nconstexpr T Process(T value) {\n    // Strategy type selected entirely at compile time\n    return Strategy<T, Fast>::calc(value);\n}\n\nconstexpr int result_A = Process<int, true>(100);  // Policy: AddOne\nconstexpr int result_B = Process<int, false>(100); // Policy: Double"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Using Smart Pointers for Automatic Resource Management",
+  "explanation": "In modern C++, smart pointers are used to manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They encapsulate raw pointers and provide ownership semantics, making resource management safer and more expressive. This approach leverages RAII (Resource Acquisition Is Initialization) principles, which tie resource lifetime to object lifetime, simplifying exception-safe code.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1098-1098",
+    "extraction_date": "2025-08-19T09:13:56.811690",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.813134"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct HeavyData { ~HeavyData() { /* Cleanup happens here */ } };\n\n// Exclusive Ownership (std::unique_ptr)\nauto u_ptr = std::make_unique<HeavyData>();\n\n// Cannot copy unique_ptr (move semantics required)\nauto u_ptr_moved = std::move(u_ptr);\n\n// Shared Ownership (std::shared_ptr)\nauto s_ptr1 = std::make_shared<HeavyData>();\nauto s_ptr2 = s_ptr1; // Reference count is 2\n\n// Access underlying raw pointer (use sparingly)\nHeavyData* raw = s_ptr1.get();\n\n// Check count\nlong count = s_ptr1.use_count(); // 2\n\n// Custom Deleter for unique_ptr (RAII for non-memory resources)\nauto file_closer = [](FILE* f){ fclose(f); };\nstd::unique_ptr<FILE, decltype(file_closer)>\n    log_file(fopen(\"log.txt\", \"w\"), file_closer);\n<ctrl63>",
+  "keywords": "smart pointers C++, RAII, automatic resource management, memory leak prevention"
+}

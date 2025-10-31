@@ -1,27 +1,12 @@
 {
   "topic": "Zero-sized arrays and Empty Base Optimization (EBO)",
   "explanation": "Zero-sized arrays, while seemingly paradoxical, are a powerful tool in C++ when combined with Empty Base Optimization (EBO).  A zero-sized array `T[0]` has a size of zero bytes, yet it still possesses a type that the compiler can distinguish.  This allows for clever type-erasure techniques and optimization opportunities.  Crucially, EBO dictates that if a class inherits from another class with a size of zero, the compiler *might* omit the base class entirely from the derived class's layout. This happens because a zero-sized base class adds no memory overhead. The behavior depends heavily on the compiler's optimization level and target architecture. The absence of the base class has profound implications for the structure of the object in memory, and for performance, especially concerning pointer arithmetic and member access.",
-  "syntax": "template <typename T, size_t N> struct MyStruct { T arr[N]; };\n\nstruct Base {};\nstruct Derived : Base {};\n\nint main() {\n  MyStruct<int, 0> zero_sized_array; // Zero-sized array\n  Derived d; // May be optimized due to EBO if Base is empty\n  return 0;\n}",
-  "code_example": [
-    "#include <iostream>",
-    "#include <type_traits>",
-    "struct Base {};",
-    "struct Derived : Base {};",
-    "template <typename T, size_t N> struct MyStruct { T arr[N]; };",
-    "int main() {",
-    "  MyStruct<int, 0> zero_sized_array;",
-    "  std::cout << \"Size of zero-sized array: \" << sizeof(zero_sized_array) << std::endl;",
-    "  std::cout << \"Size of Base: \" << sizeof(Base) << std::endl;",
-    "  std::cout << \"Size of Derived: \" << sizeof(Derived) << std::endl;",
-    "  // Examine the memory layout using a debugger or assembly analysis (compiler-specific)",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The code demonstrates a zero-sized array and EBO.  The `sizeof` operator will show the size of the zero-sized array (likely 0) and the size of the classes. The key observation is whether `sizeof(Derived)` is equal to `sizeof(Base)` (likely 0) or greater than zero.  A greater-than-zero size indicates that EBO was not applied, potentially due to compiler limitations, data alignment requirements, or other factors influencing object layout.  Examining the assembly code after compilation can show directly if the compiler elided the base class in memory, revealing how the compiler implemented EBO in this specific instance.  Different compilers might yield different results because of their specific implementation strategies for EBO and data alignment. Runtime behavior is primarily affected by whether EBO is successful, leading to differences in memory access patterns and speeds.  Compile-time behavior is reflected in the `sizeof` values and the resulting object layout determined during compilation.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T06:52:22.312687"
-  }
+    "extraction_date": "2025-08-19T06:52:22.312687",
+    "book_metadata_added": "2025-10-28T20:22:06.826231"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

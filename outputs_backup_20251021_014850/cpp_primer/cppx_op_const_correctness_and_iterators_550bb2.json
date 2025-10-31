@@ -1,0 +1,13 @@
+{
+  "topic": "Const Correctness and Iterators",
+  "explanation": "Const correctness is crucial for writing robust and safe C++ code.  It helps prevent accidental modifications to data that should remain unchanged.  Understanding how const applies to iterators is particularly important when working with containers and algorithms.  Using `cbegin()` and `cend()` for read-only access ensures that your code doesn't inadvertently modify elements in a constant container or a container passed as a `const` reference.  This is a common pattern for functions processing container contents without needing to change them.",
+  "syntax": "For containers like `std::vector`, `cbegin()` and `cend()` return constant iterators.  This contrasts with `begin()` and `end()`, which return mutable iterators.  Const iterators are indicated by the `const_iterator` type.  Applying `const` to a container also impacts the iterators it provides.\n\nExample:\n`const std::vector<int> v;`  `v.begin()` is invalid (compiler error), but `v.cbegin()` is valid.",
+  "code_example": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nvoid printVector(const std::vector<int>& vec) {\n  for (auto it = vec.cbegin(); it != vec.cend(); ++it) {\n    std::cout << *it << ' ';\n  }\n  std::cout << std::endl;\n}\n\nint main() {\n  std::vector<int> v1 = {1, 2, 3, 4, 5};\n  const std::vector<int> v2 = {6, 7, 8, 9, 10};\n\n  printVector(v1); // Correct: Using cbegin/cend with a non-const vector\n  printVector(v2); // Correct: Using cbegin/cend with a const vector\n\n  // This would be incorrect and compile-time error if using begin() on v2\n  // for (auto it = v2.begin(); it != v2.end(); ++it) { ... }\n  return 0;\n}",
+  "example_explanation": "The `printVector` function demonstrates best practice. It takes a `const` reference to a vector, ensuring that the function cannot modify the original vector.  The use of `cbegin()` and `cend()` further reinforces read-only access, preventing accidental modification even if the function tried to modify through the iterators.  Attempting to use `begin()` on a `const` vector would result in a compiler error, highlighting the importance of const correctness and the utility of `cbegin()` and `cend()`.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "sequential",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:53:09.618239"
+  }
+}

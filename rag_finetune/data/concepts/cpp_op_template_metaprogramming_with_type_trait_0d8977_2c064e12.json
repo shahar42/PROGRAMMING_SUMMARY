@@ -1,0 +1,18 @@
+{
+  "topic": "Template Metaprogramming with Type Traits and Compile-Time Computation",
+  "explanation": "Template metaprogramming in C++ allows compile-time computation and type introspection, enabling developers to write generic, efficient, and type-safe code. Using templates, type traits, and constexpr functions, C++ programmers can perform calculations, enforce constraints, and select implementations during compilation, which enhances performance and correctness. This approach is fundamental in modern C++ for creating flexible libraries like the Standard Template Library (STL) and for implementing advanced generic programming techniques.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "620-621",
+    "extraction_date": "2025-08-19T05:45:49.778441",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.807705"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <int N>\nstruct Factorial {\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\nconstexpr int result = Factorial<5>::value; // 120\n\n// ---\n\ntemplate <typename T>\nstruct HasBegin {\nprivate:\n    template <typename C> static std::true_type test(decltype(std::declval<C>().begin())*);\n    template <typename C> static std::false_type test(...);\npublic:\n    static constexpr bool value = decltype(test<T>(nullptr))::value;\n};\n\nstruct Container { void begin() {} };\nconstexpr bool check = HasBegin<Container>::value; // true\n\n// ---\n\ntemplate <typename T>\nusing MaxType = std::conditional_t<\n    (sizeof(T) > sizeof(long)), \n    T, \n    long\n>;\n\nMaxType<double> m1; // double\nMaxType<short> m2;  // long\n\n// ---\n\ntemplate <typename T>\nT factory_init() {\n    if constexpr (std::is_default_constructible_v<T>) {\n        return T{};\n    } else {\n        static_assert(false, \"No default constructor.\");\n    }\n}",
+  "keywords": "TMP, C++ Type Traits, Compile-time computation, C++ metaprogramming"
+}

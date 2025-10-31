@@ -1,0 +1,15 @@
+{
+  "topic": "Dynamic Linking and Loading of ELF Programs",
+  "explanation": "Dynamic linking is a process where a program's required libraries are loaded into memory only when the program is executed, rather than being linked statically at compile time.  This reduces the program's size and allows multiple programs to share the same library code in memory, saving space and resources.  The ELF (Executable and Linkable Format) is a common standard for object files and executables on Unix-like systems.  Dynamic linking of ELF programs involves the loader resolving symbol references to shared libraries at runtime and loading those libraries into memory on demand.",
+  "syntax": "The exact syntax varies by operating system and loader implementation, but generally involves the loader (e.g., the dynamic linker ld-linux.so on Linux) performing these steps: \n1. Reading the program's ELF header to identify dependencies.\n2. Locating and loading the necessary shared libraries.\n3. Resolving symbol references (functions, variables) from the program to the libraries using the Global Offset Table (GOT) and Procedure Linkage Table (PLT).\n4. Relocating addresses within the program to account for the loaded library addresses.\n5. Transferring control to the program's entry point.",
+  "code_example": "#include <dlfcn.h>\n#include <stdio.h>\nint main() {\n  void *handle;\n  void (*my_function)();\n  handle = dlopen(\"mylib.so\", RTLD_LAZY);\n  if (!handle) {\n    fprintf(stderr, \"%s\\n\", dlerror());\n    return 1;\n  }\n  my_function = dlsym(handle, \"my_function\");\n  if (!my_function) {\n    fprintf(stderr, \"%s\\n\", dlerror());\n    dlclose(handle);\n    return 1;\n  }\n  my_function();\n  dlclose(handle);\n  return 0;\n}",
+  "example_explanation": "This C code demonstrates dynamic linking using the `dlopen`, `dlsym`, and `dlclose` functions.  It loads a shared library (\"mylib.so\"), resolves the address of a function (\"my_function\") within that library, calls the function, and then unloads the library.  This showcases the runtime loading and symbol resolution aspects of dynamic linking.  The example highlights how the program doesn't link directly with `mylib.so` at compile time; the linkage happens at runtime using the dynamic linker.  The success of the example depends on `mylib.so` containing a function named `my_function` that's correctly exported.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "257-257",
+    "extraction_date": "2025-07-21T22:13:34.807936",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

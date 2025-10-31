@@ -1,0 +1,15 @@
+{
+  "topic": "Paging in Memory Management",
+  "explanation": "Paging is a memory management technique that divides the virtual address space into fixed-size blocks called pages and maps them to non-contiguous blocks in physical memory called page frames. It is used to provide efficient memory utilization, support for virtual memory, and flexibility in memory allocation without requiring contiguous physical space, allowing the OS to manage memory more effectively and handle processes independently of their memory usage patterns.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "196-196",
+    "extraction_date": "2025-07-21T17:29:29.749771",
+    "has_code": false,
+    "has_explanation": false,
+    "book_metadata_added": "2025-10-28T20:22:06.787974"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "// 1. Virtual to Physical Address Translation (Simplified)\n\n#define P_SHIFT 12         // Log2(Page Size)\n#define P_MASK ((1 << P_SHIFT) - 1)\n\ntypedef uint64_t PTE;      // Page Table Entry type\n\nuint64_t translate_address(uint64_t VA, uint64_t PTBR) {\n    uint64_t VPN = VA >> P_SHIFT;\n    uint64_t Offset = VA & P_MASK;\n\n    // Simulate multi-level lookup or direct access\n    PTE entry = fetch_pte(PTBR, VPN);\n\n    if (!entry.ValidBit) return HARDWARE_FAULT;\n\n    uint64_t PFN = entry.PageFrameNumber;\n    uint64_t PA = (PFN << P_SHIFT) | Offset;\n    return PA;\n}\n\n// 2. Structure of a Page Table Entry (PTE)\n\ntypedef struct {\n    uint64_t PFN : 40;        // Physical Frame Number\n    uint8_t Valid : 1;        // Is entry mapped?\n    uint8_t R_W : 1;          // Read/Write permissions\n    uint8_t User : 1;         // User vs Kernel page\n    uint8_t Accessed : 1;     // Used recently\n    uint8_t Dirty : 1;        // Has page been written to\n    uint8_t Global : 1;       // Should not be flushed on context switch\n    uint64_t Reserved : 18;\n} PageTableEntry;\n\n// 3. Handling a TLB Miss / Page Fault (OS Logic)\n\nvoid handle_page_fault(uint64_t fault_addr, PageTable* current_pt) {\n    uint64_t vpn = fault_addr >> P_SHIFT;\n\n    if (PageTableWalk(current_pt, vpn) == NULL_ENTRY) {\n        // Page does not exist in PT\n        if (MemoryRegionCheck(vpn)) { // Valid VMA access?\n            uint64_t pfn = OS_AllocateFrame();\n            MapPTE(current_pt, vpn, pfn, WRITE_PERM);\n            TLB_Invalidate(fault_addr);\n            RestartInstruction();\n        } else {\n            SignalSegmentationFault();\n        }\n    }\n}\n<ctrl63>",
+  "keywords": "Paging, Virtual memory management, Page frame, OS memory management"
+}

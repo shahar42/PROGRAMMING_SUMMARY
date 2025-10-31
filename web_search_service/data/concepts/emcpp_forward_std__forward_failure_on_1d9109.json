@@ -1,0 +1,18 @@
+{
+  "topic": "std::forward Failure on Non-Templated Contexts",
+  "category": "forward",
+  "explanation": "Assumption: Programmers often see `std::forward` as a generic utility to maintain value category when passing arguments, similar to a guaranteed move if possible. Reality: `std::forward` is fundamentally designed to work exclusively within the context of template functions that receive universal references (forwarding references). Its primary function is to decide, based on template type deduction (`T`), whether to cast the argument to an lvalue reference (`T&`) or an rvalue reference (`T&&`). Why It Fails: If `std::forward` is used outside of a templated context, or if the template parameter `T` is explicitly specified rather than deduced, its logic breaks down or defaults to unexpected behavior. For instance, if you manually write `std::forward<Widget>(w)`, `std::forward` cannot correctly deduce the original value category of `w` (whether it was an lvalue or rvalue) that led to the function call. It relies entirely on the mechanism of template argument deduction combined with reference collapsing to correctly set the return type. Attempting to use it on simple concrete types results in redundant or incorrect casting, failing the goal of conditional forwarding.",
+  "code_example": "// std::forward fails without template deduction\nvoid process_widget(Widget&& w) {\n  // T is not deduced here. Using forward is meaningless.\n  sink(std::forward<Widget>(w)); // Always casts to Widget&& (rvalue)\n}\n// Should just use std::move(w) for local rvalue parameter",
+  "practical_example": "A library maintainer attempts to simplify internal utility code by replacing explicit `std::move` casts with `std::forward` in a non-template helper function, leading to accidental lvalue references being converted to rvalues, causing dangling references or incorrect resource consumption.",
+  "keywords": [
+    "std::forward",
+    "template dependency",
+    "non-deduced context",
+    "forwarding failure"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "180-182",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_forward_std__forward_failure_on_1d9109",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

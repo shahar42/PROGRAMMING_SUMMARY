@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::string::find() in C++ STL",
+  "explanation": "std::string::find() is a member function of the std::string class that locates the first occurrence of a specified substring within the string, starting from a given position. Under the hood, most C++ standard library implementations (e.g., in libstdc++ or libc++) use a naive linear search algorithm for simplicity and generality, which iterates through the string's character array and performs character-by-character comparisons with the substring. The compiler translates this into efficient assembly code involving loops, memory loads, and conditional branches. For instance, it might generate a loop that uses instructions like MOV to load characters, CMP for comparisons, and JNE/JE for jumping based on matches. Memory layout-wise, std::string typically uses a contiguous array (e.g., via SSO for short strings or dynamic allocation for longer ones), so find() accesses this array sequentially, implying cache-friendly linear access but potential cache misses for large strings. Performance implications include O((n-m+1)*m) worst-case time complexity, where n is the string length and m is the substring length, making it inefficient for large-scale searches but suitable for general use. This is a runtime behavior, as the search depends on dynamic string contents; compile-time evaluation is impossible unless using constexpr strings in C++20+, but even then, it's limited. The compiler optimizes by inlining simple calls or vectorizing comparisons on supported hardware, reducing branch mispredictions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:11:02.757499",
+    "book_metadata_added": "2025-10-28T20:22:06.977497"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "std::string s = \"C++ standard library string find\";\nsize_t npos = std::string::npos;\n\n// 1. Search for substring\nsize_t p1 = s.find(\"library\");        // p1 = 12\n\n// 2. Search for character, starting at index 15\nsize_t p2 = s.find('r', 15);          // p2 = 25 (the 'r' in \"string\")\n\n// 3. Search for non-existent target\nsize_t p3 = s.find(\"vector\");         // p3 = npos\n\n// 4. Comparison logic\nif (s.find(\"string\") != npos) {\n    // Found \"string\"\n}\n\n// Search using a C-string literal\nsize_t p4 = s.find(\"std\");            // p4 = 4\nsize_t p5 = s.find(\"std\", 0, 1);      // Searches for 's' only\n                                      // p5 = 4 ('s' in \"standard\")"
+}

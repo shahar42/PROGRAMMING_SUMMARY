@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigtimedwait() System Call",
+  "explanation": "rt_sigtimedwait is a system call that synchronously waits for queued signals specified in a set, with an optional timeout. It removes the signal from the pending set and returns its number, along with additional information if provided.\n\n**Parameters:**\n- `set` (const sigset_t *restrict): Pointer to a set of signals to wait for\n- `info` (siginfo_t *_Nullable restrict): Pointer to a siginfo_t structure to receive signal information, or NULL if not needed\n- `timeout` (const struct timespec *restrict): Pointer to a timespec structure specifying the timeout period, or NULL for indefinite wait\n\n**Common Errors:**\n- `EAGAIN`: No signal in set became pending within the timeout period\n- `EINTR`: The wait was interrupted by a signal handler for a signal not in set\n- `EINVAL`: Timeout was invalid\n\n**Related System Calls:** `kill()`, `sigaction()`, `signalfd()`, `sigpending()`, `sigprocmask()`, `sigqueue()`, `sigwait()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.091967",
+    "syscall_name": "rt_sigtimedwait",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigtimedwait.json",
+    "concept_id": "posix_sys_rt_sigtimedwait_5f2b5f",
+    "book_metadata_added": "2025-10-28T20:22:06.665112"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "sigset_t wait_set;\nsiginfo_t info_out;\nstruct timespec timer = { .tv_sec = 5, .tv_nsec = 0 };\n\n// Initialize and specify signals to catch\nsigemptyset(&wait_set);\nsigaddset(&wait_set, SIGUSR1);\nsigaddset(&wait_set, SIGHUP);\n\n// rt_sigtimedwait system call (often wrapped by sigtimedwait)\nint sig_received = sigtimedwait(\n    &wait_set,        /* const sigset_t *restrict set */\n    &info_out,         /* siginfo_t *_Nullable restrict info */\n    &timer             /* const struct timespec *restrict timeout */\n);\n\nif (sig_received > 0) {\n    /* Process info_out */\n    int sender_pid = info_out.si_pid;\n}",
+  "keywords": "rt_sigtimedwait, signal wait timeout, synchronous signal handling, sigwait"
+}

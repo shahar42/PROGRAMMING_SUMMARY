@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::prev Iterator Function in C++",
+  "explanation": "The std::prev function is a template utility in the C++ Standard Library that returns an iterator decremented by a specified number of positions from the input iterator. At the compiler level, std::prev is defined as a template function, which means its instantiation occurs at compile-time based on the type of the BidirectionalIterator provided. The compiler uses template metaprogramming to deduce the iterator's traits via std::iterator_traits, specifically extracting the difference_type (typically std::ptrdiff_t) to handle the offset. Internally, for bidirectional iterators, the function typically implements a loop that calls the iterator's decrement operator (--it) n times, resulting in O(n) complexity. For random access iterators (which satisfy BidirectionalIterator), the compiler may optimize this to a single subtraction operation if the iterator supports random access, leveraging operator-() for constant-time access. Memory layout implications include the fact that iterators are often lightweight objects (e.g., pointers for arrays or complex wrappers for containers), so decrementing involves minimal memory access overhead, but for custom iterators, it could involve indirect function calls or state modifications. Performance-wise, this can lead to cache misses if n is large and the iterator traverses a large memory region. At the assembly level, for a pointer-based iterator (e.g., on an array), std::prev might compile to a simple subtraction instruction (e.g., subq for x86-64), whereas for std::vector::iterator, it could involve pointer arithmetic with bounds checking in debug modes. Runtime behavior handles the actual iteration, while compile-time behavior ensures type safety and optimization opportunities, such as inlining the loop for small n.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:28:45.208648",
+    "book_metadata_added": "2025-10-28T20:22:06.910020"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::vector<int> V = {10, 20, 30, 40, 50};\n\nauto end_it = V.end(); // Points past 50\n\n// Basic usage (Distance defaults to 1)\nauto it_50 = std::prev(end_it);\n// *it_50 == 50\n\n// Explicit distance (k=3)\nauto it_30 = std::prev(end_it, 3);\n// *it_30 == 30\n\n// Use with Bidirectional Iterator (e.g., list)\nstd::list<char> L = {'A', 'B'};\nauto it_A = std::prev(L.end(), 2);\n// *it_A == 'A'"
+}

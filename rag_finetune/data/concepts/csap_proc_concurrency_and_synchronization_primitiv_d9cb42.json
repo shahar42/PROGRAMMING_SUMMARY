@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Synchronization Primitives using fork and execve",
+  "explanation": "In high-performance web servers, handling multiple client requests concurrently is crucial.  The `fork` and `execve` system calls provide a mechanism for creating child processes to handle individual requests, improving performance compared to a single-threaded approach.  `fork` duplicates the parent process, creating a nearly identical copy. `execve` then replaces the child process's image with a new program (e.g., a CGI script), allowing it to handle the client request independently. This avoids blocking while waiting for the completion of long-running operations.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "728-728",
+    "extraction_date": "2025-07-28T12:12:10.385669",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.729083"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "char *const argv[] = {\"/usr/bin/handler\", NULL};\nchar *const envp[] = {\"VAR=VAL\", NULL};\n\npid_t pid = fork();\n\nif (pid == -1) {\n    /* Handle Error */\n} else if (pid == 0) {\n    // Child: Replace process image\n    execve(argv[0], argv, envp);\n    // Only reached if execve fails\n    _exit(127); \n} else {\n    // Parent: Optionally wait or continue handling requests\n    waitpid(pid, NULL, WNOHANG); \n}\n<ctrl63>",
+  "keywords": "fork execve concurrency, CGI process model, process based server architecture, process spawning"
+}

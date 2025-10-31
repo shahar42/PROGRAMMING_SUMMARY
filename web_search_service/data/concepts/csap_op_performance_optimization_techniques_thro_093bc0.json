@@ -1,0 +1,16 @@
+{
+  "topic": "Performance Optimization Techniques through Compiler Optimization",
+  "explanation": "Performance optimization in computer systems involves writing code that minimizes execution time and resource consumption.  Compilers play a crucial role, transforming high-level code into efficient machine instructions. However, the level of optimization a compiler can safely apply is limited by the need to maintain the program's original behavior. Understanding how different C code structures impact compiler optimization is crucial for writing efficient programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "526-527",
+    "extraction_date": "2025-07-27T17:47:15.070084",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.746418"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Aiding Optimization: Pointer Aliasing (C99+)\nvoid copy_data(int* restrict dest,\n               const int* restrict src,\n               size_t count) {\n    // restrict guarantees dest/src do not overlap\n    // Allows aggressive loop reordering/vectorization\n    for (size_t i = 0; i < count; ++i) {\n        dest[i] = src[i];\n    }\n}\n\n// Disabling Optimization: Volatile Keyword\n// Used for hardware registers or shared memory\nvolatile unsigned char IO_REGISTER;\n\nvoid write_byte(unsigned char val) {\n    // Compiler MUST generate actual store operation\n    IO_REGISTER = val;\n}\nunsigned char read_byte() {\n    // Compiler MUST generate actual load operation\n    return IO_REGISTER;\n}\n\n// Hinting Vectorization (Example GCC/Clang Pragma)\n// Used when compiler fails to deduce loop independence\nvoid vector_add(float* a, float* b, int N) {\n    #pragma GCC ivdep // Ignore Vector Dependencies\n    for (int i = 0; i < N; ++i) {\n        a[i] += b[i];\n    }\n}\n\n// Constant Propagation & Folding (C++)\n// Allows optimization via compile-time calculation\nconstexpr int GRID_WIDTH = 512;\nconstexpr int total_pixels = GRID_WIDTH * GRID_WIDTH;\n\nvoid calculate_offset(int x) {\n    // Compiler replaces total_pixels with 262144\n    if (x > total_pixels) {\n        // ...\n    }\n}",
+  "keywords": "Compiler optimization, C++ performance optimization, efficient C code, compiler techniques"
+}

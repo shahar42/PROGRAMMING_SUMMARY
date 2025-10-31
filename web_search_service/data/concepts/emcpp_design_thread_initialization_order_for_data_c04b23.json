@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Initialization Order for Data Access Safety",
+  "category": "design",
+  "explanation": "Assumption: Data members are initialized sequentially, but the order doesn't impact concurrently running threads. Reality: A `std::thread` begins executing its function immediately upon construction. If that function accesses other data members of the class, those members must be guaranteed to be fully initialized first. Why It Fails: If a `std::thread` object is declared before other data members it relies on, the thread might start running and attempt to access uninitialized memory or objects, leading to undefined behavior or crashes. Rule: Always declare `std::thread` objects as the *last* data member in a class definition to ensure all preceding members are initialized before the thread's execution begins.",
+  "code_example": "class Worker {\n  Data member1;\n  // Thread must be declared last\n  std::thread t;\npublic:\n  Worker(): t([this]{ /* access member1 safely */ }) {}\n};",
+  "practical_example": "A class managing logging resources initializes a complex mutex and a logging queue, followed by a `std::thread` that processes the queue. If the thread is declared before the queue initialization completes, the thread might attempt to lock the partially constructed mutex, causing immediate failure.",
+  "keywords": "std::thread initialization order, C++ initialization race, thread construction dependency",
+  "difficulty": "intermediate",
+  "page_reference": "254",
+  "chapter": "Item 37",
+  "id": "emcpp_design_thread_initialization_order_for_data_c04b23",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

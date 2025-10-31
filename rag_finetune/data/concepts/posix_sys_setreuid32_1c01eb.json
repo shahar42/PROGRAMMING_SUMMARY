@@ -1,0 +1,16 @@
+{
+  "topic": "setreuid32() System Call",
+  "explanation": "Sets the real and/or effective user ID of the calling process, supporting 32-bit IDs. Supplying -1 for either ID leaves it unchanged, with restrictions for unprivileged processes.\n\n**Parameters:**\n- `ruid` (uid_t): The real user ID to set, or -1 to leave unchanged.\n- `euid` (uid_t): The effective user ID to set, or -1 to leave unchanged.\n\n**Common Errors:**\n- `EAGAIN`: The call would change the caller’s real UID, but there was a temporary failure or resource limit issue.\n- `EINVAL`: One or more of the target user IDs is not valid in this user namespace.\n- `EPERM`: The calling process is not privileged and a disallowed change was specified.\n\n**Related System Calls:** `getgid()`, `getuid()`, `seteuid()`, `setgid()`, `setresuid()`, `setuid()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.188901",
+    "syscall_name": "setreuid32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setreuid32.json",
+    "concept_id": "posix_sys_setreuid32_1c01eb",
+    "book_metadata_added": "2025-10-28T20:22:06.661688"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "uid_t target_uid = 1001;\nint status;\n\n// Set EID to 0 (root), RUID unchanged\n// Requires capability or current EID=0/RUID=0/SavedUID=0\nstatus = setreuid32((uid_t)-1, 0);\n\n// Drop privileges: Set both RUID and EID to target_uid\nif (status == 0) {\n    status = setreuid32(target_uid, target_uid);\n}\n\n// Restore saved privileges (EID back to 0), RUID unchanged\nif (status == 0) {\n    status = setreuid32((uid_t)-1, 0);\n}\n\nif (status == -1) {\n    /* Handle EAGAIN (resource limits) or EINVAL (invalid IDs) */\n    perror(\"setreuid32 failure\");\n}",
+  "keywords": "setreuid32, setreuid, change process UID, real effective UID"
+}

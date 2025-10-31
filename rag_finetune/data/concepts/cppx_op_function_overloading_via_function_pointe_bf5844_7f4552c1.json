@@ -1,0 +1,16 @@
+{
+  "topic": "Function Overloading via Function Pointers and Virtual Dispatch in C",
+  "explanation": "In advanced C programming, achieving polymorphic behavior similar to object-oriented languages requires leveraging function pointers and manual dispatch mechanisms. This technique allows different functions to be called based on the runtime type of an object, enabling dynamic behavior and simulating method overriding. It is used to implement flexible, extensible systems where behavior varies depending on object types without relying on language-level features like inheritance.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "747-747",
+    "extraction_date": "2025-08-20T06:01:29.380462",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.557873"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "typedef struct Obj Obj;\ntypedef void (*Method)(Obj* self);\n\n// V-Table Definition\ntypedef struct {\n    Method execute;\n} VTable;\n\n// Base Object Structure (V-pointer mandatory)\nstruct Obj {\n    const VTable* vptr;\n};\n\n// Concrete Implementations\nvoid impl_type_a(Obj* o) { /* ... */ }\nvoid impl_type_b(Obj* o) { /* ... */ }\n\n// V-Table Initialization (The \"overloads\")\nconst VTable VT_A = { .execute = impl_type_a };\nconst VTable VT_B = { .execute = impl_type_b };\n\n// Dispatch mechanism (Simulating method call)\n#define DISPATCH(obj_ptr) ((obj_ptr)->vptr->execute(obj_ptr))\n\n// Setup Example\nObj obj_instance = { &VT_B };\nDISPATCH(&obj_instance);\n<ctrl63>",
+  "keywords": "C virtual functions, C polymorphism, C dynamic dispatch, function pointer dispatch C"
+}

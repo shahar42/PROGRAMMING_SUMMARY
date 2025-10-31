@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Failure: Preventing Implicit Conversions",
+  "category": "type",
+  "explanation": "Assumption: Implementing a perfect forwarding template will maintain the explicit type requirements established by existing, specialized overloads. Reality: Universal references are extremely permissive regarding implicit conversions. They accept any type that can be converted to the desired type during the process of template type deduction and instantiation. Why It Fails: If the original design used distinct overloads (or `explicit` constructors) to prevent unwanted implicit type promotions (e.g., preventing an integer from implicitly converting to a floating-point object), introducing a universal reference template bypasses these controls. The template deduction mechanism often allows conversions that the original explicit overloads were designed to forbid, leading to unexpected runtime behavior or ambiguous types being accepted, making the interface less strict and potentially unsafe.",
+  "code_example": "// Intended overloads prevent char* -> string conversion\nvoid func(const std::string&); // Explicitly requires string\ntemplate<typename T> void func(T&&); // Accepts char* and implicitly converts\nfunc(\"C-style string\"); // Calls template, potentially undesirable behavior",
+  "practical_example": "A cryptographic library uses specific integral types for keys and defines constructors/functions carefully to prevent implicit conversion from standard `int`. Introducing a universal reference template allows arbitrary integral types to implicitly convert, potentially corrupting key generation or validation logic.",
+  "keywords": [
+    "implicit conversion",
+    "template deduction",
+    "type safety violation",
+    "overloading complexity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "197-198",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_type_overloading_failure__preventing_implicit_70641d",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

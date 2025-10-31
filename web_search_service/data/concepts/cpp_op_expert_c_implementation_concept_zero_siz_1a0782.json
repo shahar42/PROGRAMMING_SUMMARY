@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Zero-sized Arrays and Empty Base Optimization (EBO)",
+  "explanation": "This concept delves into the interaction between zero-sized arrays, empty base classes, and the compiler's optimization techniques, specifically Empty Base Optimization (EBO).  Understanding this interaction requires a deep knowledge of how compilers lay out class members in memory and how they handle inheritance.  The key is that compilers often *do not* allocate space for zero-sized arrays, and when combined with EBO, this can lead to surprising and powerful optimizations.  However, this also introduces potential pitfalls if you rely on the behavior without fully grasping the compiler's freedom.  The specifics can vary across compilers and optimization levels.  While the standard guarantees certain behavior related to the lack of storage for zero-sized arrays, it's crucial to avoid relying on implementation details for portability.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:39:45.255081",
+    "book_metadata_added": "2025-10-28T20:22:06.897483"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct EmptyTag {};\n\n// Empty Base Optimization (EBO) applies\n// Tag consumes 0 bytes when derived\nstruct Optimized : EmptyTag {\n    int id;\n    // Zero-Sized Array (ZSA - often used for FAM proxy)\n    // Takes 0 bytes, only provides access/alignment\n    char data[0];\n};\n\n// Non-EBO comparison (member vs base)\nstruct NonOptimized {\n    EmptyTag t;\n    int id;\n    char data[0];\n};\n\n// Example Sizes (assuming standard alignment):\n// sizeof(Optimized)      == 4\n// sizeof(NonOptimized)   >= 8 (Tag member must be allocated 1 byte + padding)"
+}

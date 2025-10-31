@@ -1,0 +1,14 @@
+{
+  "topic": "RAII Reducing Leaks in Real-World Code",
+  "explanation": "RAII is a fundamental C++ idiom that ties resource acquisition to object construction and resource release to object destruction. In practical terms, it ensures that resources like file handles, network connections, or memory are automatically managed, reducing the risk of leaks and errors in real-world applications. Best practices include using RAII for any scarce resources to handle exceptions gracefully, avoid manual cleanup, and promote idiomatic C++ code. Common pitfalls, such as forgetting to release resources in all code paths, can be avoided by relying on destructors, which are called automatically when an object goes out of scope. In real-world scenarios, RAII is essential for robust programs, like in servers managing database connections or applications handling file I/O.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:55:28.392926",
+    "book_metadata_added": "2025-10-28T20:22:06.575347"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// RAII for dynamic memory (Modern C++ recommended)\nclass HeavyResource {};\nstd::unique_ptr<HeavyResource> ptr =\n    std::make_unique<HeavyResource>();\n// Resource cleanup guaranteed on scope exit.\n\n// RAII for synchronization (Locks)\nstd::mutex access_mtx;\nvoid protected_write() {\n    // lock_guard ensures unlock() is called,\n    // even if an exception is thrown.\n    std::lock_guard<std::mutex> lock(access_mtx);\n    // Critical section\n}\n\n// RAII for I/O Resources (File handles)\nstd::fstream config_file(\"settings.cfg\", std::ios::in);\nif (config_file.is_open()) {\n    std::string line;\n    std::getline(config_file, line);\n}\n// File handle automatically closed.\n\n// Custom RAII Wrapper (Minimal Deleter concept)\nstruct FileCloser { void operator()(FILE* f) const { fclose(f); } };\nstd::unique_ptr<FILE, FileCloser> safe_file(\n    fopen(\"temp.dat\", \"w\"));\n<ctrl63>",
+  "keywords": "RAII, C++ resource management, automatic cleanup, scope-based resource management"
+}

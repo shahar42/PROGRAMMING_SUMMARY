@@ -1,0 +1,84 @@
+{
+  "name": "seccomp",
+  "synopsis": [
+    "#include <linux/seccomp.h>",
+    "#include <linux/filter.h>",
+    "#include <linux/audit.h>",
+    "#include <linux/signal.h>",
+    "#include <sys/ptrace.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_seccomp, unsigned int operation, unsigned int flags, void *args);",
+    "Note: glibc provides no wrapper for seccomp(), necessitating the use of syscall(2)."
+  ],
+  "description": "The seccomp() system call manages the Secure Computing state of a process, restricting which system calls can be made. It supports operations like SECCOMP_SET_MODE_STRICT for basic restrictions and SECCOMP_SET_MODE_FILTER for custom filters using BPF programs.",
+  "parameters": [
+    {
+      "name": "operation",
+      "type": "unsigned int",
+      "description": "The operation to perform, such as SECCOMP_SET_MODE_STRICT or SECCOMP_SET_MODE_FILTER."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags that modify the behavior of the operation, such as SECCOMP_FILTER_FLAG_LOG."
+    },
+    {
+      "name": "args",
+      "type": "void *",
+      "description": "Pointer to arguments specific to the operation, such as a struct sock_fprog for filters."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success. If SECCOMP_FILTER_FLAG_TSYNC was used, returns the ID of the thread on synchronization failure.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The caller did not have the CAP_SYS_ADMIN capability or had not set no_new_privs before using SECCOMP_SET_MODE_FILTER."
+    },
+    {
+      "code": "EBUSY",
+      "description": "While installing a new filter with SECCOMP_FILTER_FLAG_NEW_LISTENER, a previous filter had already been installed with that flag."
+    },
+    {
+      "code": "EFAULT",
+      "description": "args was not a valid address."
+    },
+    {
+      "code": "EINVAL",
+      "description": "operation is unknown or invalid, flags are invalid for the operation, or other validation failures such as unaligned offsets or existing secure computing mode conflicts."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory, or the total length of filter programs would exceed the limit."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "operation specified SECCOMP_GET_ACTION_AVAIL, but the kernel does not support the filter return action."
+    },
+    {
+      "code": "ESRCH",
+      "description": "Another thread caused a failure during thread sync, but its ID could not be determined."
+    }
+  ],
+  "bugs": "Kernels prior to Linux 5.4 may incorrectly permit certain syscall numbers, potentially allowing bypasses for x32 ABI; policies must handle ABI differences to avoid vulnerabilities.",
+  "versions": "Linux 2.6 with CONFIG_SECCOMP, with specific features like flags from Linux 4.14 onwards",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "prctl",
+    "seccomp_unotify",
+    "fork",
+    "clone",
+    "execve"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "seccomp.pdf",
+    "extraction_date": "2025-07-30T23:51:09.026120",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

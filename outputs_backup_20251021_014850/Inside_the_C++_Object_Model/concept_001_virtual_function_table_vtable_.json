@@ -1,0 +1,25 @@
+{
+  "topic": "Virtual Function Table (vtable) Mechanism and Dynamic Dispatch",
+  "explanation": "In C++, when a class contains virtual functions, the compiler implements dynamic dispatch through a vtable\u2014a hidden table of function pointers associated with each polymorphic object. This vtable enables runtime resolution of function calls, allowing the program to invoke the correct overridden function based on the actual object's type, not the static type. Internally, each polymorphic object contains a pointer to its class's vtable, and function calls are dispatched by dereferencing this pointer and jumping to the appropriate function address. This mechanism is fundamental to supporting runtime polymorphism in the C++ object model, providing flexibility at the cost of additional memory overhead and indirection during function calls.\n\nIn C++, when a class contains virtual functions, the compiler creates a hidden pointer within each object instance pointing to a vtable\u2014an array of function pointers. This vtable enables dynamic dispatch, allowing the program to invoke the correct function implementation at runtime based on the actual object's type, even when accessed through a base class pointer. Internally, the vtable mechanism involves compiler-generated tables, pointer adjustments, and specific calling conventions that facilitate polymorphic behavior while maintaining efficient memory layout and function call semantics.\n\nIn C++, when a class contains virtual functions, the compiler implements a vtable\u2014a per-class static table of function pointers\u2014that enables dynamic dispatch at runtime. Each object of such a class contains a hidden pointer to its class's vtable, allowing the correct function implementation to be called based on the actual object type, even when accessed through a base class pointer. This mechanism is fundamental to supporting polymorphism, enabling runtime method resolution and flexible object behavior within the C++ object model.",
+  "syntax": "For a class with virtual functions:\n\n// Class declaration\nclass ClassName {\npublic:\n    virtual void functionName();\n    // ... other members\n};\n\n// Compiler-generated internal structure\n// Each object contains a hidden pointer to the vtable\n// The vtable is an array of function pointers, one per virtual function\n\n// During object creation, the compiler initializes the vptr (vtable pointer) to point to the class's vtable\n// Function calls via virtual functions are dispatched by following the vptr to the vtable and invoking the function pointer",
+  "code_example": "class Base {\npublic:\n    virtual void foo() { /* base implementation */ }\n};\nclass Derived : public Base {\npublic:\n    void foo() override { /* derived implementation */ }\n};\n\nint main() {\n    Base* p = new Derived(); // Object of Derived, vptr points to Derived's vtable\n    p->foo(); // Calls Derived::foo() via vtable dispatch\n    delete p;\n}",
+  "example_explanation": "In this example, the pointer 'p' is of type 'Base*' but points to an object of type 'Derived'. When 'p->foo()' is called, the runtime uses the vptr embedded within the object to locate the vtable for 'Derived'. The vtable contains a pointer to 'Derived::foo', ensuring the correct method is invoked despite the static type of the pointer. This demonstrates how the vtable mechanism enables dynamic dispatch, a core aspect of the C++ object model internals that supports polymorphism and runtime method resolution.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1-1",
+    "extraction_date": "2025-09-17T14:54:51.343459",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "merged_on": "2025-09-17T15:14:03.957542",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "152-152",
+      "extraction_date": "2025-09-17T15:14:03.311789",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "Inside_the_C++_Object_Model"
+    },
+    "merge_similarity_score": 0.9186959266662598
+  }
+}

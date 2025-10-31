@@ -1,0 +1,13 @@
+{
+  "topic": "Iterator, Reference, and Pointer Invalidation in std::vector Due to Reallocation",
+  "explanation": "In the C++ Standard Library, std::vector is implemented as a dynamic array that manages a contiguous block of memory for its elements. When inserting or removing elements, if the vector's capacity is exceeded, the compiler-generated code for std::vector's methods (like push_back) triggers a reallocation. This involves allocating a new, larger memory block using functions like operator new or malloc (depending on the implementation), copying the existing elements to the new block via operations like memmove or std::memcpy, and then deallocating the old memory with operator delete or free. This reallocation invalidates all iterators, references, and pointers to the vector's elements because their underlying memory addresses change. From a compiler perspective, the Standard Library's implementation (e.g., in libstdc++ or libc++) ensures that these operations are optimized for performance, but the invalidation is a runtime behavior, not detectable at compile-time unless static analysis tools are used. Memory layout implications include the contiguous storage, which provides O(1) access time but makes reallocations O(n) due to element copying, leading to potential performance bottlenecks in loops with frequent insertions. At the assembly level, reallocation might manifest as calls to memory allocation routines (e.g., syscalls for malloc) followed by data movement instructions (like rep movsb on x86), increasing cache misses and CPU cycles. This runtime behavior contrasts with compile-time optimizations, such as using std::vector::reserve() to preallocate memory, which can eliminate reallocations if the required size is known beforehand.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "declarators",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:23:22.117929",
+    "book_metadata_added": "2025-10-28T20:22:06.980673"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// Reallocation Invalidates All Pointers/References/Iterators\n\nstd::vector<int> v = {1, 2, 3};\nv.reserve(3); // Ensure size == capacity\n\nint* p_old = &v[0];\nauto it_old = v.begin();\nint& ref_old = v[1];\n\n// This operation exceeds capacity (3 -> 4)\n// and forces reallocation to a new memory address.\nv.push_back(4);\n\n// p_old, it_old, and ref_old are all INVALID.\n// They point/refer to the previously deallocated memory block.\n// Example: *p_old is undefined behavior.\n\n// Rule: If std::vector::capacity changes, everything invalidates.\n// If capacity does not change, only end() iterators invalidate."
+}

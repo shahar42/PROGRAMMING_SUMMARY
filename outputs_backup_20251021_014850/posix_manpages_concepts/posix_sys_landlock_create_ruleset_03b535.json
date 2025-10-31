@@ -1,0 +1,15 @@
+{
+  "topic": "landlock_create_ruleset() System Call",
+  "explanation": "This system call creates a new Landlock ruleset, which identifies a set of rules for actions on objects. The returned file descriptor can be used with other Landlock functions to add rules and restrict processes.\n\n**Parameters:**\n- `attr` (const struct landlock_ruleset_attr *): Points to a structure specifying the ruleset's properties, including a bitmask of handled filesystem actions.\n- `size` (size_t): Must be the size of struct landlock_ruleset_attr for compatibility reasons.\n- `flags` (uint32_t): Must be 0 if attr is used; otherwise, can be set to LANDLOCK_CREATE_RULESET_VERSION to retrieve the highest supported ABI version.\n\n**Common Errors:**\n- `EOPNOTSUPP`: Landlock is supported by the kernel but disabled at boot time.\n- `EINVAL`: Unknown flags, or unknown access, or too small size.\n- `E2BIG`: Size is too big.\n- `EFAULT`: Attr was not a valid address.\n- `ENOMSG`: Empty accesses (i.e., attr->handled_access_fs is 0).\n\n**Related System Calls:** `landlock_add_rule()`, `landlock_restrict_self()`",
+  "syntax": "int syscall(SYS_landlock_create_ruleset, const struct landlock_ruleset_attr *attr, size_t size, uint32_t flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = landlock_create_ruleset(...);  // Call the system call\nif (result == -1) {\n    perror(\"landlock_create_ruleset\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the landlock_create_ruleset() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.215245",
+    "syscall_name": "landlock_create_ruleset",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_landlock_create_ruleset.json",
+    "concept_id": "posix_sys_landlock_create_ruleset_03b535"
+  }
+}

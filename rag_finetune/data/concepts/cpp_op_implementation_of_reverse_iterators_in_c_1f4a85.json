@@ -1,0 +1,11 @@
+{
+  "topic": "Implementation of Reverse Iterators in C++ Standard Library Containers",
+  "explanation": "Reverse iterators, such as those returned by the rbegin() method of containers like std::vector or std::list, are a key feature in the C++ Standard Library for iterating over a sequence in reverse order. Under the hood, the compiler implements reverse iterators as a template class (std::reverse_iterator) defined in the <iterator> header. This class wraps an existing forward iterator and modifies its behavior. Specifically, the dereference operator (*) of a reverse iterator returns the value of the element *preceding* the one pointed to by the underlying forward iterator. This design allows reverse iterators to correctly represent a half-open range [rbegin(), rend()) that corresponds to the reversed version of the forward range [begin(), end()).",
+  "book": "C++ STL Containers",
+  "extraction_metadata": {
+    "source": "C++ STL Containers",
+    "book_metadata_added": "2025-10-28T20:22:06.986666"
+  },
+  "code_example": "// Mechanism of std::reverse_iterator<Iter>\ntemplate <typename Iter>\nclass reverse_iterator {\nprivate:\n    Iter current; // Base iterator, points one past the logical element\npublic:\n    // Core definition: Dereference returns the value *before* 'current'\n    decltype(auto) operator*() const {\n        Iter tmp = current;\n        return *(--tmp); \n    }\n    \n    // Reverse iterator increment (++) maps to base iterator decrement (--)\n    reverse_iterator& operator++() {\n        --current; \n        return *this;\n    }\n\n    Iter base() const { return current; }\n};\n\n// Usage Example\nstd::vector<int> v = {1, 2, 3};\nauto rit = std::make_reverse_iterator(v.end()); // Base is v.end()\n// *rit == 3 (Dereferences v.end() - 1)\n// ++rit moves base to v.end() - 1",
+  "keywords": "std::reverse_iterator, C++ reverse iteration, rbegin() rend(), iterator adapter"
+}

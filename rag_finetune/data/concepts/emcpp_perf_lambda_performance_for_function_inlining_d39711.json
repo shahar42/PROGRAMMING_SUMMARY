@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Performance for Function Inlining",
+  "category": "perf",
+  "explanation": "Assumption: Using `std::bind` results in performance equivalent to a direct function call or an equivalent lambda. Reality: Lambdas typically call their contained functions via a normal, direct function invocation within the closure class's `operator()`. This structure allows modern compilers to easily inline the target function body, leading to zero runtime overhead for the call itself. Why It Fails: `std::bind`, however, often captures the target function as a function pointer. When the resulting bind object is invoked, the call to the target function must go through this function pointer. Compilers are significantly less likely to inline calls made through function pointers, resulting in potential indirect call overhead that is avoided by the equivalent lambda.",
+  "code_example": "// Lambda: Direct call, high chance of inlining\nsetSoundL(Sound::Siren);\n\n// std::bind: Call via function pointer, low chance of inlining\nsetSoundB(Sound::Siren);",
+  "practical_example": "In performance-critical code where a small function is repeatedly called (e.g., in a tight loop or event handler), replacing a `std::bind` object with an equivalent lambda can result in measurable speed improvements due to increased inlining opportunities.",
+  "keywords": "std::bind inlining, Lambda vs std::bind performance, C++ function pointer inlining, function object overhead",
+  "difficulty": "intermediate",
+  "page_reference": "257",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_perf_lambda_performance_for_function_inlining_d39711",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

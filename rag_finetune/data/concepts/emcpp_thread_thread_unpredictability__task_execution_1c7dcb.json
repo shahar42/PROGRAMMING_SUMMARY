@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Unpredictability: Task Execution Location and Timing",
+  "category": "thread",
+  "explanation": "When using `std::async` with the default policy, it is impossible to predict two critical aspects of the task execution: timing and location. If the task is deferred, it will not run concurrently with the calling thread (`t`). Furthermore, if the task is deferred, it will run synchronously on the very thread that eventually calls `fut.get()` or `fut.wait()`. This ambiguity complicates debugging and timing analysis because a function intended to run concurrently might unexpectedly block the main thread.",
+  "code_example": "auto fut = std::async(heavy_computation);\n// ... time passes ...\n// If deferred, this line will execute heavy_computation synchronously:\nresult = fut.get();",
+  "practical_example": "A program relies on a task starting immediately to meet a deadline. If the task is launched deferred, the delay between the `std::async` call and the subsequent `get()`/`wait()` call counts against the main thread's performance, potentially causing a performance bottleneck where concurrent execution was expected.",
+  "keywords": [
+    "deferred",
+    "synchronous execution",
+    "get",
+    "wait",
+    "concurrency prediction"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "264",
+  "chapter": "Item 36: Understand std::async behavior under default launch policy",
+  "id": "emcpp_thread_thread_unpredictability__task_execution_1c7dcb",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

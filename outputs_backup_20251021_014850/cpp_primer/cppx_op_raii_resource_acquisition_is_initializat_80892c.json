@@ -1,0 +1,13 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ idiom where resource management (like memory, files, network connections, locks, etc.) is tied to the object's lifetime.  Resources are acquired in the constructor and released in the destructor. This ensures resources are always cleaned up, even in the face of exceptions or premature exits, preventing resource leaks and improving program stability.  It's a cornerstone of exception safety and makes your code more robust and easier to reason about.",
+  "syntax": "RAII is implemented by carefully designing classes. The constructor acquires the resource, and the destructor releases it.  Consider using smart pointers (like `std::unique_ptr`, `std::shared_ptr`, `std::weak_ptr`) for automatic memory management, rather than raw pointers. For other resources, you would manually manage acquisition and release within the constructor and destructor respectively.",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <memory>\n\nclass FileOpener {\npublic:\n  FileOpener(const std::string& filename) : file_(std::make_unique<std::ofstream>(filename)) {\n    if (!file_->is_open()) {\n      throw std::runtime_error(\"Could not open file!\");\n    }\n  }\n  ~FileOpener() {\n    // Destructor automatically closes the file\n    // even if exceptions are thrown\n  }\n  std::ofstream& getFile() { return *file_; }\nprivate:\n  std::unique_ptr<std::ofstream> file_;\n};\n\nint main() {\n  try {\n    FileOpener file(\"example.txt\");\n    file.getFile() << \"Hello, RAII!\\n\";\n  } catch (const std::runtime_error& error) {\n    std::cerr << \"Error: \" << error.what() << std::endl;\n  }\n  return 0;\n}",
+  "example_explanation": "The `FileOpener` class demonstrates RAII.  The constructor opens the file.  The destructor, automatically called when `file` goes out of scope (even if an exception is thrown), closes the file. `std::unique_ptr` handles the memory management of the `std::ofstream` object. This eliminates the need for explicit `file.close()` calls, reducing the chance of resource leaks and simplifying the code. The `try-catch` block demonstrates robust error handling, showing how RAII works correctly even in exceptional situations.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:06:24.521245"
+  }
+}

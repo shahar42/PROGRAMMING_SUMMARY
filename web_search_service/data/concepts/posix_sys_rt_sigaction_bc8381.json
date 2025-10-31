@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigaction() System Call",
+  "explanation": "The rt_sigaction system call examines and changes the action taken by a process on receipt of a specific signal. It allows installing a new signal handler and optionally saving the previous one.\n\n**Parameters:**\n- `signum` (int): The signal number, which must be a valid signal except SIGKILL and SIGSTOP.\n- `act` (const struct sigaction *): Pointer to a sigaction structure that specifies the new action for the signal, or NULL if no new action is to be set.\n- `oldact` (struct sigaction *): Pointer to a sigaction structure where the previous action is stored, or NULL if not needed.\n\n**Common Errors:**\n- `EFAULT`: act or oldact points to memory which is not a valid part of the process address space\n- `EINVAL`: An invalid signal was specified, or an attempt is made to change the action for SIGKILL or SIGSTOP",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.098657",
+    "syscall_name": "rt_sigaction",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigaction.json",
+    "concept_id": "posix_sys_rt_sigaction_bc8381",
+    "book_metadata_added": "2025-10-28T20:22:06.612534"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "void signal_handler(int signum) {\n    /* Critical section code */\n}\n\nstruct sigaction new_act;\nstruct sigaction old_act;\n\nnew_act.sa_handler = signal_handler;\nsigemptyset(&new_act.sa_mask);\nnew_act.sa_flags = SA_RESTART;\n\n// rt_sigaction system call wrapper\n// Install new handler for SIGINT, save previous settings\nint status = sigaction(SIGINT, &new_act, &old_act);\n\nif (status == 0) { /* Handler installed */ }\n<ctrl63>",
+  "keywords": "rt_sigaction, sigaction, signal handler, signal action"
+}

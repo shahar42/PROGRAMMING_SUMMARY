@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::istream::tellg() in C++ Streams",
+  "explanation": "std::istream::tellg() is a member function of the std::istream class that retrieves the current position of the get pointer in the input sequence. Under the hood, the compiler implements this by leveraging the stream's associated stream buffer (std::streambuf or its derived classes). When tellg() is invoked, the compiler generates code that first constructs a sentry object to verify the stream's state (e.g., checking if the stream is good and not in a fail state). If the stream is valid, it calls the stream buffer's pubseekoff() virtual function with arguments (0, std::ios_base::cur, std::ios_base::in) to query the current position without altering it. This involves runtime polymorphism due to virtual function calls in std::streambuf, which can lead to slight overhead in performance-critical code.\n\nMemory layout implications include the fact that std::istream contains a pointer to a std::streambuf object, which manages its own internal buffer (e.g., a character array or file descriptor). The position returned is typically a std::streampos object, which encapsulates file offsets or buffer indices, potentially involving platform-specific representations like off_t on POSIX systems. Performance-wise, tellg() may trigger I/O operations if the stream is tied to an external device (e.g., a file), as pubseekoff() could invoke system calls to query the file position, increasing latency. At compile-time, the compiler resolves the virtual function table for std::streambuf, but the actual behavior is runtime-dependent on the stream's state and the derived buffer type. Assembly-level behavior often includes calls to underlying OS functions (e.g., lseek on Unix-like systems), which manifest as syscalls in the generated assembly, highlighting the mix of C++ abstraction and low-level I/O.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:56:08.800333",
+    "book_metadata_added": "2025-10-28T20:22:06.839202"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::istringstream stream(\"Example data\");\n\nstd::streampos pos_start = stream.tellg(); // 0\n\nchar c;\nstream.get(c); // Reads 'E', advances pointer\n\nstd::streampos pos_after_read = stream.tellg(); // 1\n\n// tellg() returns std::streampos\n\n// Failure behavior:\n// If stream.fail() or stream.bad() is true,\n// tellg() returns std::streampos(-1)\n// (indicates invalid position)"
+}

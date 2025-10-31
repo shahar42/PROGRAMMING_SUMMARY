@@ -1,0 +1,40 @@
+{
+  "topic": "Rule of Five/Zero: Resource Management in Classes",
+  "explanation": "Many classes manage resources beyond their internal data members, such as dynamically allocated memory or file handles.  The compiler-generated copy constructor, copy assignment operator, move constructor, move assignment operator, and destructor (the \"Rule of Five\") might not correctly handle these resources, leading to memory leaks, double deletion, or other errors.  If your class doesn't manage external resources, you can rely on the compiler-generated special member functions (the \"Rule of Zero\").  Understanding when to define these functions explicitly is crucial for writing robust and correct C++ code.",
+  "syntax": "Example showing explicit definition of special member functions:\n\n```c++\nclass ResourceHolder {\npublic:\n    ResourceHolder() : resource(new int(10)) {}\n    ResourceHolder(const ResourceHolder& other) : resource(new int(*other.resource)) {}\n    ResourceHolder& operator=(const ResourceHolder& other) {\n        if (this != &other) {\n            delete resource;\n            resource = new int(*other.resource);\n        }\n        return *this;\n    }\n    ~ResourceHolder() { delete resource; }\n    ResourceHolder(ResourceHolder&& other) noexcept : resource(other.resource) { other.resource = nullptr; }\n    ResourceHolder& operator=(ResourceHolder&& other) noexcept {\n        if (this != &other) {\n            delete resource;\n            resource = other.resource;\n            other.resource = nullptr;\n        }\n        return *this;\n    }\n    int getResource() const { return *resource; }\nprivate:\n    int* resource;\n};\n```\n\n**Notes:** The example demonstrates the copy constructor, copy assignment operator, destructor, move constructor, and move assignment operator.  The move operations avoid unnecessary copies, enhancing performance.  Always ensure proper resource management to avoid memory leaks and dangling pointers.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "#include <vector>",
+    "class ResourceHolder {",
+    "public:",
+    "    ResourceHolder() : ptr(new std::string(\"Hello\")) {}",
+    "    ~ResourceHolder() { delete ptr; }",
+    "    ResourceHolder(const ResourceHolder& other) : ptr(new std::string(*other.ptr)) {}",
+    "    ResourceHolder& operator=(const ResourceHolder& other) {",
+    "        if (this != &other) {",
+    "            delete ptr;",
+    "            ptr = new std::string(*other.ptr);",
+    "        }",
+    "        return *this;",
+    "    }",
+    "    // Add move constructor and move assignment operator here for improved performance",
+    "    std::string get_string() const {return *ptr;}",
+    "private:",
+    "    std::string* ptr;",
+    "};",
+    "int main() {",
+    "  ResourceHolder rh1;",
+    "  ResourceHolder rh2 = rh1; // Uses copy constructor",
+    "  std::cout << rh2.get_string() << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates a class `ResourceHolder` that manages a dynamically allocated `std::string`.  The copy constructor and assignment operator are explicitly defined to prevent shallow copies that would lead to double deletion. The destructor releases the allocated memory.  Failing to define these would result in memory leaks and program crashes.  Note that this example omits move semantics, which are recommended for better performance in modern C++.  Adding move semantics would prevent unnecessary copies and improve efficiency further.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:21:12.747102"
+  }
+}

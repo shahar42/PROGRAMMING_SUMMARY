@@ -1,0 +1,15 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency arises when multiple threads execute seemingly simultaneously, sharing resources like memory.  Synchronization primitives are mechanisms that ensure correct and predictable behavior when multiple threads access shared resources concurrently, preventing race conditions and data corruption.  In computer architecture, this requires careful management of CPU scheduling, memory access, and cache coherence.",
+  "syntax": "Semaphores (e.g., using P and V operations, or their equivalents like `pthread_mutex_lock` and `pthread_mutex_unlock` in POSIX threads), mutexes, condition variables.",
+  "code_example": "/* Incorrect concurrent counter */\n#include <stdio.h>\n#include <pthread.h>\nlong cnt = 0;\nvoid *counter(void *arg) {\n  long i;\n  for (i = 0; i < 1000000; i++)\n    cnt++;\n  return NULL;\n}\nint main (int argc, char *argv[]) {\n  pthread_t t1, t2;\n  pthread_create(&t1, NULL, counter, NULL);\n  pthread_create(&t2, NULL, counter, NULL);\n  pthread_join(t1, NULL);\n  pthread_join(t2, NULL);\n  printf(\"cnt = %ld\\n\", cnt);\n  return 0;\n}",
+  "example_explanation": "This example demonstrates a race condition. Two threads concurrently increment a shared counter (`cnt`). Without synchronization, the updates may interleave unpredictably. For instance, both threads might read the same value of `cnt`, increment it locally, and then store the same incremented value back, leading to an incorrect final count.  Proper synchronization (e.g., using mutexes) would ensure that only one thread accesses and updates `cnt` at a time, guaranteeing the correct final count of 2,000,000.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1019-1019",
+    "extraction_date": "2025-07-29T16:09:48.522884",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems"
+  }
+}

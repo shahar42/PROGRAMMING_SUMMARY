@@ -1,0 +1,15 @@
+{
+  "topic": "_newselect() System Call",
+  "explanation": "select() allows a program to monitor multiple file descriptors, waiting until one or more become ready for I/O operations such as reading or writing. It uses sets to specify descriptors for readability, writability, or exceptions, but is limited by FD_SETSIZE and is recommended to be replaced by poll or epoll for modern applications.\n\n**Parameters:**\n- `nfds` (int): The highest file descriptor to check plus one.\n- `readfds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for readability.\n- `writefds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for writability.\n- `exceptfds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for exceptions.\n- `timeout` (struct timeval *_Nullable restrict): Timeout value for the operation.\n\n**Common Errors:**\n- `EBADF`: An invalid file descriptor was given in one of the sets.\n- `EINTR`: A signal was caught.\n- `EINVAL`: nfds is negative or exceeds limits, or timeout is invalid.\n- `ENOMEM`: Unable to allocate memory for internal tables.\n\n**Related System Calls:** `poll()`, `epoll()`",
+  "syntax": "#include <sys/select.h>",
+  "code_example": "#include <stdio.h>\n#include <stdlib.h>\n#include <sys/select.h>\nint main(void) {\n    int retval;\n    fd_set rfds;\n    struct timeval tv;\n    FD_ZERO(&rfds);\n    FD_SET(0, &rfds);\n    tv.tv_sec = 5;\n    tv.tv_usec = 0;\n    retval = select(1, &rfds, NULL, NULL, &tv);\n    if (retval == -1)\n        perror(\"select()\");\n    else if (retval)\n        printf(\"Data is available now.\\n\");\n    else\n        printf(\"No data within five seconds.\\n\");\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the _newselect() system call. The function takes 5 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.056292",
+    "syscall_name": "_newselect",
+    "converted_from": "posix_manpage",
+    "original_file": "unix__newselect.json",
+    "concept_id": "posix_sys__newselect_34436e"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Issue: Destruction of a Joinable Thread Terminates the Program",
+  "category": "thread",
+  "explanation": "To prevent the disastrous consequences of resource management errors, particularly the stack corruption caused by asynchronous tasks accessing invalid stack memory, the C++ Standard mandates that destroying a `std::thread` object that is still 'joinable' (meaning it has an associated execution thread that has not been joined or detached) must result in calling `std::terminate()`. This strict rule prevents undefined behavior by forcing the program to halt immediately upon detecting improper thread lifecycle management.",
+  "code_example": "void run_and_fail() {\n  std::thread t([] { /* long running task */ });\n  // t is destroyed without join/detach.\n  // This causes program termination.\n}",
+  "practical_example": "A developer places a `std::thread` object inside a function that can throw exceptions. If an exception occurs before the thread is explicitly joined or detached, the thread's destructor is called during stack unwinding, triggering immediate program termination instead of allowing graceful exception handling.",
+  "keywords": [
+    "joinable",
+    "std::terminate",
+    "thread destruction",
+    "lifecycle management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "270-271",
+  "chapter": "Item 37: Remember to make std::threads unjoinable on all paths",
+  "id": "emcpp_thread_thread_issue__destruction_of_9b19a2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

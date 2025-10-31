@@ -1,0 +1,18 @@
+{
+  "topic": "Move Operations Failure: Non-Noexcept Moves",
+  "category": "perf",
+  "explanation": "Assumption: The standard library will always use a type's move constructor for internal optimizations like reallocation in `std::vector` when `std::move` is applied to elements. Reality: For strong exception safety guarantees, especially during container growth (reallocation), the standard library checks if the move constructor is marked `noexcept`. If a move operation is not explicitly marked `noexcept`, the compiler assumes it might throw an exception. Why It Fails: If a `std::vector` is resizing and the move operation for an element type throws, the vector must be able to roll back to its prior state. If the move is not `noexcept`, guaranteeing this rollback is impossible after resources have been moved. To maintain safety, the library pessimistically defaults to using the copy constructor instead, even if an efficient move constructor exists. This anti-pattern means developers define efficient move operations but sabotage their usage in performance-critical library contexts by failing to add the necessary `noexcept` specifier, resulting in silent copy fallback.",
+  "code_example": "// Move constructor missing noexcept\nclass Widget { ... };\nWidget(Widget&& other) { /* move logic */ }\nstd::vector<Widget> v; v.reserve(100);\n// When v reallocates, it copies, not moves!",
+  "practical_example": "A custom allocator defines a move constructor for its handled type. During high-load insertion into a `std::vector`, reallocation causes unexpected memory thrashing because the vector continuously uses the slow copy constructor, having been denied access to the fast move constructor due to the missing `noexcept` safety guarantee.",
+  "keywords": [
+    "noexcept",
+    "exception safety",
+    "std::vector reallocation",
+    "copy fallback"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "224-225",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_move_operations_failure__non_9bd22e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

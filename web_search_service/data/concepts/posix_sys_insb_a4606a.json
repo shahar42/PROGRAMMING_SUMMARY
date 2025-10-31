@@ -1,0 +1,16 @@
+{
+  "topic": "insb() System Call",
+  "explanation": "insb performs low-level input of a series of bytes from a specified I/O port into a memory buffer. It is designed for internal kernel use but can be accessed from user space with proper permissions.\n\n**Parameters:**\n- `port` (unsigned short): The I/O port to read from\n- `addr` (void*): Pointer to the buffer where the input data will be stored\n- `count` (unsigned long): Number of bytes to input from the port\n\n**Related System Calls:** `ioperm()`, `iopl()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.089807",
+    "syscall_name": "insb",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_insb.json",
+    "concept_id": "posix_sys_insb_a4606a",
+    "book_metadata_added": "2025-10-28T20:22:06.597489"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define DEVICE_PORT 0x1A0\nunsigned char data_buffer[64];\nunsigned short port_addr = DEVICE_PORT;\nunsigned long count = 64;\nint status;\n\n// 1. Acquire I/O port permissions (root required)\n// Requires a 1-byte span starting at port_addr, enabled (1)\nstatus = ioperm(port_addr, 1, 1);\n\nif (status == 0) {\n    // 2. Perform Block Input (Input String Byte)\n    // Read 'count' bytes from 'port_addr' into 'data_buffer'\n    insb(port_addr, data_buffer, count);\n}\n\n// ioperm(port_addr, 1, 0); // Release access",
+  "keywords": "insb, rep insb, I/O port block read"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Floating-Point Arithmetic and its Implications for Performance and Accuracy",
+  "explanation": "Floating-point arithmetic is crucial for scientific computing and other applications requiring real number representation.  Understanding its properties, particularly non-associativity and potential for inaccuracies due to rounding and overflow, is essential for writing efficient and correct computer programs.  This knowledge directly impacts performance optimization and the design of hardware supporting floating-point operations.",
+  "syntax": "No specific syntax, but operations are typically represented as +, -, *, / with potential use of rounding functions (e.g., Round()). Hardware instructions perform these operations.",
+  "code_example": "; Example illustrating potential non-associativity of floating-point multiplication (x86-64 assembly)\nsection .data\na: dq 1e20\nb: dq 1e20\nc: dq 1e-20\nsection .text\nglobal _start\n_start:\nmovsd xmm0, [a]\nmovsd xmm1, [b]\nmulsd xmm0, xmm1 ; (a * b)\nmovsd xmm2, [c]\nmulsd xmm0, xmm2 ; ((a * b) * c)\n; ...store and print result 1...\nmovsd xmm0, [a]\nmovsd xmm1, [b]\nmovsd xmm2, [c]\nmulsd xmm1, xmm2 ; (b * c)\nmulsd xmm0, xmm1 ; a * (b * c)\n; ...store and print result 2...\nmov rax, 60\nxor rdi, rdi\nsyscall",
+  "example_explanation": "This x86-64 assembly code demonstrates the non-associativity of floating-point multiplication.  It calculates `(a * b) * c` and `a * (b * c)` using floating-point instructions (`mulsd`). Due to the limited precision of floating-point numbers and the order of operations, the results might differ, showcasing a key characteristic of floating-point arithmetic relevant to computer architecture and performance.  The difference highlights the need for careful consideration of floating-point operations when optimizing for performance, as seemingly equivalent expressions might yield different results. The compiler and hardware must handle these operations efficiently and accurately, which are significant architectural concerns.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "152-153",
+    "extraction_date": "2025-07-23T08:34:10.237741",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Virtual Function Table (vtable) Mechanism and Dispatch",
+  "explanation": "In C++, when a class contains virtual functions, the compiler implements a vtable (virtual table) to enable dynamic dispatch at runtime. The vtable is a per-class static array of function pointers, and each object of such a class contains a hidden pointer to its class's vtable. During a virtual function call, the program uses the object's vtable pointer to locate the correct function implementation, supporting polymorphism. This mechanism allows the program to determine at runtime which function to invoke, based on the actual object's type, enabling dynamic method dispatch essential for runtime polymorphism in C++.",
+  "syntax": "For a class with virtual functions:\n\nclass ClassName {\npublic:\n    virtual ReturnType FunctionName(Parameters);\n};\n\nCompiler-generated internal structures:\n- A vtable for ClassName: an array of function pointers.\n- Each object of ClassName contains a hidden pointer to the vtable.\n\nDuring a virtual call:\n- The object\u2019s vtable pointer is dereferenced.\n- The function pointer at the appropriate index is retrieved.\n- The function is invoked via this pointer.",
+  "code_example": "class Base {\npublic:\n    virtual void foo() { /* base implementation */ }\n};\nclass Derived : public Base {\npublic:\n    void foo() override { /* derived implementation */ }\n};\nint main() {\n    Base* p = new Derived();\n    p->foo(); // Virtual call: resolved via vtable at runtime\n}",
+  "example_explanation": "In this example, the pointer 'p' is of type 'Base*' but points to a 'Derived' object. When 'p->foo()' is called, the program uses the vtable pointer stored within the 'Derived' object to locate the correct 'foo' function implementation. The compiler generates a vtable for 'Base' and 'Derived' classes, with 'Derived' overriding the 'foo' entry. At runtime, the vtable pointer in the object points to 'Derived's vtable, ensuring the 'Derived' version of 'foo' is invoked. This demonstrates how the vtable mechanism enables dynamic dispatch based on the actual object type, a core aspect of C++ object model internals.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "1-1",
+    "extraction_date": "2025-09-17T14:54:52.307687",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout"
+  }
+}

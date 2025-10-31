@@ -1,0 +1,14 @@
+{
+  "topic": "Anonymous Namespaces and Internal Linkage",
+  "explanation": "Anonymous namespaces in C++ are a mechanism to encapsulate declarations within a translation unit, providing internal linkage to their contents. The compiler implements this by implicitly generating a unique, unnamed namespace for each anonymous namespace block, which effectively renames the symbols to prevent conflicts across translation units. For instance, when you declare variables or functions inside an anonymous namespace, the compiler mangles their names with a compiler-specific identifier (e.g., GCC might prepend a unique string like '.L__uniqname_'), ensuring they are not visible outside the current source file. This internal linkage means that each translation unit gets its own copy of these symbols, which is resolved at compile-time by the compiler and linker. Memory layout-wise, variables in an anonymous namespace are typically placed in the data segment (e.g., .data or .bss sections in ELF binaries), similar to static global variables, but without the 'static' keyword's restrictions. Performance implications are minimal, as this is primarily a linking optimization; however, it can reduce binary size and improve build times by avoiding external symbol resolution. At the assembly level, for example, a variable like 'i' in an anonymous namespace might appear as a local label (e.g., '.L_anonymous_i'), which is not exported in the symbol table, reducing the risk of name collisions. Runtime behavior is unaffected since these symbols are resolved at link time, but compile-time checks ensure no external access, enhancing encapsulation and modularity.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:32:57.945379",
+    "book_metadata_added": "2025-10-28T20:22:06.922157"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Symbols inside are local to the translation unit (internal linkage)\n\nnamespace {\n    // Compiler generates a unique, mangled name for 'data'\n    // (e.g., __anon_1_data)\n    int data = 10;\n\n    void local_init() {\n        data = 1;\n    }\n\n    class PrivateUtility {\n        // Only accessible within this TU\n        int value;\n    };\n}\n\n// data, local_init, and PrivateUtility are inaccessible\n// and invisible outside this specific source file.",
+  "keywords": "anonymous namespace, internal linkage C++, unnamed namespace"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Reference Dangle for Stored Closures",
+  "category": "capture",
+  "explanation": "Assumption: A lambda capturing local variables by reference can be safely stored or returned from the defining function. Reality: If a closure captures a stack variable by reference (implicitly via `[&]` or explicitly via `[&var]`) and the closure object outlives the scope of that stack variable, the captured reference immediately dangles. Why It Fails: This results in Undefined Behavior (UB) when the stored closure is invoked later, as it attempts to access memory that has been deallocated or reused. This is particularly dangerous when storing closures in containers (like `std::vector`) that persist beyond the local scope.",
+  "code_example": "void addDivisorFilter(std::vector<Filter>& filters, int divisor) {\n  // divisor is local stack variable\n  filters.emplace_back(\n    [&divisor](int value) { /* use divisor */ }\n  ); // Closure object is stored, divisor immediately dies after return\n}",
+  "practical_example": "A function generates a set of predicates based on local configuration variables and returns them in a vector. If these predicates captured the configuration variables by reference, the entire vector of predicates is useless and dangerous upon return.",
+  "keywords": "lambda dangling reference, capture by reference lifetime, stored closure UB, stack variable capture",
+  "difficulty": "intermediate",
+  "page_reference": "233-234",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_reference_dangle_for_6a8623",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

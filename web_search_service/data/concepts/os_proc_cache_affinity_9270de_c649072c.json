@@ -1,0 +1,15 @@
+{
+  "topic": "Cache Affinity",
+  "explanation": "Cache affinity is the concept where a process performs better when scheduled on the same CPU core it previously ran on, because its data and state remain in that CPU's cache and TLB (Translation Lookaside Buffer). It is used in multiprocessor systems to optimize performance by reducing the time needed to reload data from main memory, as switching CPUs would require reloading due to cache misses, despite hardware ensuring correct execution through cache coherence protocols.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "121-121",
+    "extraction_date": "2025-07-19T02:02:20.038327",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.792922"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "cpu_set_t cpuset;\nint target_core = 1; // Core ID to pin to\n\n// 1. Initialize CPU set\nCPU_ZERO(&cpuset);\n// 2. Add the desired core to the set\nCPU_SET(target_core, &cpuset);\n\n// 3. Apply affinity using sched_setaffinity\n// Target PID 0 (current process)\nint result = sched_setaffinity(\n    0, \n    sizeof(cpu_set_t), \n    &cpuset\n);\n\n// If successful, the process prefers target_core 1.\n\n/* Thread Affinity (HPC context) */\npthread_t thread = pthread_self();\n// CPU_ZERO & CPU_SET definitions omitted for brevity\n\nint err = pthread_setaffinity_np(\n    thread,\n    sizeof(cpu_set_t),\n    &cpuset\n);\n<ctrl63>",
+  "keywords": "Cache Affinity, CPU Pinning, Processor Affinity, Core Affinity"
+}

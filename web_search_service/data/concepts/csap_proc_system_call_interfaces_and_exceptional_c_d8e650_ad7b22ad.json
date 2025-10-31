@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Normal Flow Interruptions",
+  "explanation": "System calls provide an interface between a process running in user space and the operating system kernel. They allow user-level programs to request services from the kernel, such as accessing files, managing memory, or creating processes. Exceptional control flow refers to situations where the normal sequential execution of instructions is interrupted due to events like signals or exceptions.  Understanding this interaction is critical for writing robust and efficient systems programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "825-825",
+    "extraction_date": "2025-07-28T12:40:05.535222",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.744398"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// --- Syscall Interaction (Write) ---\n#define STDOUT_FILENO 1\n\n// Syscall requests kernel service\nchar buffer[] = \"Requesting IO...\\n\";\nssize_t count = sizeof(buffer) - 1;\n\n// Blocking call transitions to kernel mode\nssize_t written = write(STDOUT_FILENO, buffer, count);\n\n// Check errno on error (return < 0)\nif (written < 0) {\n    // Syscall failed\n}\n\n\n// --- Exceptional Control Flow (Signals) ---\n// Asynchronous software interruption\n\nvoid sig_handler(int sig) {\n    // Kernel interrupted normal flow to run handler\n    // Must use async-signal-safe functions\n    _exit(1); \n}\n\nstruct sigaction sa;\nsa.sa_handler = sig_handler;\nsigemptyset(&sa.sa_mask);\nsa.sa_flags = SA_RESTART; // Resume blocked syscalls\n\n// Register handler for SIGINT (Ctrl+C)\nsigaction(SIGINT, &sa, NULL);\n\n// Triggering ECF manually\nraise(SIGINT);\n// Program counter jumps to sig_handler\n// Kernel handles context switch (User -> Kernel -> User Handler)"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Constexpr Optimizations in STL for Performance",
+  "explanation": "This concept explores how `constexpr` functions and variables enable compile-time computation, influencing memory layout and runtime performance.  We'll examine how compilers optimize `constexpr` code, potentially eliminating runtime overhead entirely and leading to significant performance gains. We will also discuss the limitations of `constexpr` and situations where compile-time evaluation might not be possible, focusing on the interaction between `constexpr` and external factors, such as I/O or dynamic memory allocation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:29:24.555500",
+    "book_metadata_added": "2025-10-28T20:22:06.992997"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "constexpr size_t array_limit(size_t N) {\n    return N * 4 + 2;\n}\n\n// Compile-time size computation eliminates runtime overhead\nstd::array<int, array_limit(10)> data; \nstatic_assert(data.size() == 42);\n\n//---\n\nconstexpr int fib(int n) {\n    return (n <= 1) ? n : fib(n - 1) + fib(n - 2);\n}\n\ntemplate <size_t... Is>\nconstexpr std::array<int, sizeof...(Is)> make_fib_array(std::index_sequence<Is...>) {\n    // Array initialized entirely during compilation\n    return {fib(Is)...};\n}\n\nconstexpr auto FIB_SERIES = make_fib_array(std::make_index_sequence<6>{});\n\n//---\n\ntemplate <typename T>\nvoid debug_print(const T& value) {\n    // Compile-time branch elimination (zero runtime overhead)\n    if constexpr (std::is_integral_v<T>) {\n        std::cout << \"Int type: \" << value;\n    } else {\n        // This branch is optimized away if T is integral\n        std::cout << \"Non-Int type.\";\n    }\n}\n\n//---\n\nint get_runtime_value() {\n    int x;\n    std::cin >> x; // External state/IO interaction\n    return x;\n}\n\n// Error: Cannot evaluate at compile time due to IO\n// constexpr int CONFIG_LIMIT = get_runtime_value(); \n\nvoid use_value() {\n    // Must use dynamic memory (runtime cost)\n    int limit = get_runtime_value(); \n    auto p = std::unique_ptr<int[]>(new int[limit]);\n}\n\n//---\n\nconstexpr uint32_t hash_char(char c, uint32_t current) {\n    return current * 31 + c;\n}\n\nconstexpr uint32_t compile_hash(std::string_view s) {\n    uint32_t hash = 0;\n    for (size_t i = 0; i < s.length(); ++i) {\n        hash = hash_char(s[i], hash);\n    }\n    return hash;\n}\n\n// Hash calculated once at compile time, stored directly\nconstexpr uint32_t KEY_HASH = compile_hash(\"critical_resource_name\");",
+  "keywords": "constexpr optimization, compile-time evaluation, C++ zero runtime overhead"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Deduction Rules: Braced Initializer List Disparity",
+  "category": "type",
+  "explanation": "Auto type deduction and template type deduction operate using almost identical rules, with a single, crucial exception: their handling of braced initializer lists. While `auto` deduces a braced initializer as an instantiation of `std::initializer_list`, template type deduction will fail in the same scenario, resulting in a compilation error.\n\nMeyers highlights this as the only significant difference between the two deduction mechanisms in C++11. He notes the lack of a clear rationale for this discrepancy but stresses that programmers must remember this rule. The key takeaway is that an expression that successfully initializes an `auto` variable might fail as an argument to a template function if it's a braced list. Meyers also clarifies that C++14 features like `auto` in function return types or lambda parameters follow the stricter template deduction rules, not the special `auto` variable rule.\n\nThe mechanics behind this divergence are rooted in compiler rules for deduction. For a template function with a generic parameter, a braced initializer list is considered a \"non-deduced context.\" The compiler cannot infer a single type for the template parameter from a list of values. In contrast, the rule for `auto` variables was specifically designed to interpret such lists as `std::initializer_list`. To make a template function accept a braced list, its parameter must be explicitly typed as `std::initializer_list` of some templated type, which allows the compiler to deduce the element type.\n\nThis distinction has practical implications for writing generic code. You cannot pass a raw braced initializer list directly to a function template expecting a generic value or reference parameter and expect it to work. Instead, you must first assign the list to a named variable (e.g., an `auto` variable) and then pass that variable, or the function must be specifically designed to accept an `std::initializer_list`.\n\nThe most common pitfall is assuming that because `auto` and template deduction are otherwise mirrors of each other, they will behave identically in all situations. This leads to confusing compilation errors when passing braced lists to templates. Another point of confusion arises in C++14, where the `auto` keyword in different contexts (variable vs. function return) follows different deduction rules for this specific case.",
+  "code_example": "// The key difference between auto and template type deduction.\n\nauto x = { 11, 23, 9 }; // OK: x is std::initializer_list<int>\n\ntemplate<typename T>\nvoid f(T param);\n\n// f({ 11, 23, 9 }); // Error! Cannot deduce T from a braced initializer list.\n\n// To make the template work, it must be specialized for std::initializer_list\ntemplate<typename T>\nvoid g(std::initializer_list<T> param);\n\ng({ 11, 23, 9 }); // OK: T is deduced as int.",
+  "practical_example": "When creating a factory function that takes a variable number of configuration values, you cannot simply pass `{ A, B, C }` to a generic template parameter. The function must be explicitly designed to accept a `std::initializer_list`, or the caller must construct a container like a vector or initializer_list first.",
+  "keywords": [
+    "auto",
+    "template type deduction",
+    "initializer list",
+    "non-deduced context",
+    "generic programming",
+    "c++14"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "21-23",
+  "chapter": "Item 2: Understand auto type deduction",
+  "id": "emcpp_type_auto_type_deduction_versus_template_5bd152",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

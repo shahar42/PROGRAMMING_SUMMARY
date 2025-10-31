@@ -1,0 +1,18 @@
+{
+  "topic": "Reference Collapsing [Problem]: Misinterpreting Lvalue/Rvalue Combination",
+  "category": "type",
+  "explanation": "Assumption: Reference collapsing simplifies complex type interactions, meaning that if you combine references, the resulting type maintains the efficiency of the original category (e.g., rvalue efficiency is preserved). Reality: Reference collapsing strictly follows four rules, and the most restrictive rule\u2014that combining an lvalue reference with anything always results in an lvalue reference\u2014is frequently misunderstood, leading to lost move opportunities. Why It Fails: The rule states: `T& &` becomes `T&`, `T& &&` becomes `T&`, `T&& &` becomes `T&`, and only `T&& &&` becomes `T&&`. Specifically, if a template argument deduction results in the type parameter `T` being an lvalue reference (e.g., `T` is deduced as `Widget&`), the resulting instantiation of `T&&` collapses to `Widget&`. This means that even though the parameter syntax is `&&`, the type behaves as an lvalue reference, meaning any internal attempt to apply move semantics will fail unless `std::move` is used explicitly. Programmers who expect the `&&` syntax to guarantee some inherent rvalue efficiency often overlook that the presence of a single lvalue reference (`&`) during the collapsing process instantly degrades the resulting type to a non-movable lvalue reference (`&`), fundamentally changing its semantics.",
+  "code_example": "// Failure: Lvalue reference input forces Lvalue output\ntemplate<typename T>\nvoid f(T&& arg) { /* ... */ }\n\nWidget w_lvalue; \nf(w_lvalue); // T deduces to Widget&. T&& collapses to Widget& (lvalue reference).",
+  "practical_example": "A developer writes a template function intended to optimize initialization by moving. When passed an lvalue, they expect the function body to still have the option of moving, but the reference collapsing rules ensure the lvalue reference dominates, forcing a copy operation unless explicitly moved within the template body.",
+  "keywords": [
+    "reference collapsing rules",
+    "lvalue dominance",
+    "move opportunity loss",
+    "type degradation"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "217-221",
+  "chapter": "Item 28: Understand reference collapsing",
+  "id": "emcpp_type_reference_collapsing__problem__f0d035",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

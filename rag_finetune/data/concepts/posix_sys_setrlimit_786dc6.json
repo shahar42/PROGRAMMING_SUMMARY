@@ -1,0 +1,16 @@
+{
+  "topic": "setrlimit() System Call",
+  "explanation": "The setrlimit() system call sets resource limits for a process. It uses a structure to specify soft and hard limits for resources such as memory or CPU time. An unprivileged process can only lower limits or set soft limits up to the hard limit.\n\n**Parameters:**\n- `resource` (int): The resource to set, such as RLIMIT_AS for address space or RLIMIT_CPU for CPU time.\n- `rlim` (const struct rlimit *): Pointer to a rlimit structure containing the new soft and hard limits for the resource.\n\n**Common Errors:**\n- `EFAULT`: A pointer argument points to a location outside the accessible address space.\n- `EINVAL`: The value specified in resource is not valid, or rlim->rlim_cur was greater than rlim->rlim_max.\n- `EPERM`: An unprivileged process tried to raise the hard limit; or the caller tried to increase the hard RLIMIT_NOFILE limit above the maximum.\n\n**Related System Calls:** `getrlimit()`, `prlimit()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.249653",
+    "syscall_name": "setrlimit",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setrlimit.json",
+    "concept_id": "posix_sys_setrlimit_786dc6",
+    "book_metadata_added": "2025-10-28T20:22:06.621447"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct rlimit as_limit;\n\n// Soft limit: 1 GB (1024 * 1024 * 1024)\nas_limit.rlim_cur = 1073741824;\n\n// Hard limit: Infinite address space\nas_limit.rlim_max = RLIM_INFINITY;\n\n// Set Address Space limit for the process\nsetrlimit(RLIMIT_AS, &as_limit);\n\n// Example: Lowering the number of open files (soft=10, hard=20)\nstruct rlimit file_limit = {10, 20};\nsetrlimit(RLIMIT_NOFILE, &file_limit);\n<ctrl63>",
+  "keywords": "setrlimit, rlimit struct, process resource limits, RLIMIT_CPU"
+}

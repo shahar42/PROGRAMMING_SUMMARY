@@ -1,0 +1,19 @@
+{
+  "topic": "Synchronization Design: Atomic Redundancy with Mutex Protection",
+  "category": "sync",
+  "explanation": "When designing synchronization mechanisms using `std::mutex` and `std::condition_variable`, synchronization variables (such as boolean flags) should generally not be declared `std::atomic`. Since the mutex guarantees mutual exclusion\u2014meaning only one thread can access the flag at any given time\u2014the synchronization and memory visibility guarantees provided by `std::atomic` are redundant. Using a simple primitive type (`bool` or `int`) protected by a mutex is simpler, often yields better performance, and correctly separates the concerns: the mutex manages access control, and the condition variable manages waiting.",
+  "code_example": "std::mutex m;\nbool flag(false); // Not std::atomic\n// ... access and modify 'flag' only inside a lock_guard or unique_lock",
+  "practical_example": "A developer unnecessarily declares a status counter as `std::atomic<int>` even though every read and write of that counter is guarded by a single global lock. This introduces unnecessary complexity and potential overhead associated with atomic operations that are already covered by the mutex's memory barrier guarantees.",
+  "keywords": [
+    "std::atomic",
+    "std::mutex",
+    "redundancy",
+    "flag synchronization",
+    "perf"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "264-265",
+  "chapter": "Item 39",
+  "id": "emcpp_sync_synchronization_design__atomic_redundancy_30f2ee",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

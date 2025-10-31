@@ -1,0 +1,16 @@
+{
+  "topic": "poll() System Call",
+  "explanation": "poll() waits for one of a set of file descriptors to become ready for I/O operations, similar to select(2). It monitors specified file descriptors for events such as readability or writability, and blocks until an event occurs or a timeout expires.\n\n**Parameters:**\n- `fds` (struct pollfd *): Array of structures specifying the file descriptors to monitor, including fd, events, and revents fields\n- `nfds` (nfds_t): Number of elements in the fds array\n- `timeout` (int): Timeout in milliseconds; negative for infinite, zero for non-blocking\n- `tmo_p` (const struct timespec *_Nullable): Pointer to a timespec structure for precise timeout (for ppoll only)\n- `sigmask` (const sigset_t *_Nullable): Signal mask for safe signal handling (for ppoll only)\n\n**Common Errors:**\n- `EFAULT`: fds points outside the process’s accessible address space\n- `EINTR`: A signal occurred before any requested event\n- `EINVAL`: The nfds value exceeds the RLIMIT_NOFILE value, or invalid timeout for ppoll\n- `ENOMEM`: Unable to allocate memory for kernel data structures\n\n**Related System Calls:** `select()`, `ppoll()`, `epoll_wait()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.189231",
+    "syscall_name": "poll",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_poll.json",
+    "concept_id": "posix_sys_poll_9f4680",
+    "book_metadata_added": "2025-10-28T20:22:06.614373"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Monitor STDIN for readiness (POLLIN)\nstruct pollfd fds[1];\nfds[0].fd = STDIN_FILENO;\nfds[0].events = POLLIN;\n\nint timeout_ms = 5000; // 5 seconds\n\n// Block until ready or timeout\nint ret = poll(fds, 1, timeout_ms);\n\nif (ret < 0) {\n    /* Handle Error (e.g., EINTR) */\n} else if (ret == 0) {\n    /* Timeout occurred */\n} else {\n    // Event occurred on one or more FDs\n    if (fds[0].revents & POLLIN) {\n        /* STDIN is ready to read */\n    }\n    if (fds[0].revents & POLLERR) {\n        /* File descriptor error status */\n    }\n}",
+  "keywords": "poll system call, I/O multiplexing, poll vs select, struct pollfd"
+}

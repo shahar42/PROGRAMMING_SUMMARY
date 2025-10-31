@@ -1,0 +1,16 @@
+{
+  "topic": "oldlstat() System Call",
+  "explanation": "oldlstat is an older version of lstat, which retrieves file status information for a given pathname. It is identical to stat, except that if the pathname is a symbolic link, it returns information about the link itself rather than the file it refers to.\n\n**Parameters:**\n- `pathname` (const char *restrict): Pathname of the file or symbolic link\n- `statbuf` (struct stat *restrict): Pointer to the stat structure where file status information is stored\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for one of the directories in the path prefix of pathname\n- `EBADF`: fd is not a valid open file descriptor (though not directly for oldlstat)\n- `EFAULT`: Bad address\n- `ELOOP`: Too many symbolic links encountered while traversing the path\n- `ENAMETOOLONG`: Pathname is too long\n\n**Related System Calls:** `stat()`, `fstat()`, `fstatat()`, `access()`, `chmod()`, `chown()`, `readlink()`, `statx()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.195564",
+    "syscall_name": "oldlstat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_oldlstat.json",
+    "concept_id": "posix_sys_oldlstat_8ec778",
+    "book_metadata_added": "2025-10-28T20:22:06.643061"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct stat status_buffer;\nconst char *file_path = \"/path/to/file_or_link\";\n\n// oldlstat retrieves status of the link itself\n// (unlike oldstat/stat which follow the link).\nint result = oldlstat(file_path, &status_buffer);\n\nif (result == -1) {\n    // Check errno for EACCES (permission), ENOENT (not found).\n    errno;\n}\n\n// Access information:\nuid_t owner = status_buffer.st_uid;\ntime_t modified = status_buffer.st_mtime;\n<ctrl63>",
+  "keywords": "oldlstat, lstat old version, old stat call"
+}

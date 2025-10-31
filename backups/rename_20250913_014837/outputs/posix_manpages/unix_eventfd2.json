@@ -1,0 +1,73 @@
+{
+  "name": "eventfd2",
+  "synopsis": [
+    "#include <sys/eventfd.h>",
+    "int eventfd2(unsigned int initval, int flags);"
+  ],
+  "description": "eventfd2 creates a file descriptor for event notification, initializing a 64-bit counter with the specified initial value and applying the given flags. It allows user-space applications and the kernel to wait for and notify events.",
+  "parameters": [
+    {
+      "name": "initval",
+      "type": "unsigned int",
+      "description": "Initial value for the 64-bit counter"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify behavior, such as EFD_CLOEXEC, EFD_NONBLOCK, or EFD_SEMAPHORE"
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new eventfd file descriptor",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "An unsupported value was specified in flags"
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached"
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on the total number of open files has been reached"
+    },
+    {
+      "code": "ENODEV",
+      "description": "Could not mount (internal) anonymous inode device"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "There was insufficient memory to create a new eventfd file descriptor"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.27",
+  "posix_compliance": null,
+  "examples": [
+    "efd = eventfd(0, 0);  // Note: This is from the man page example, adapted for eventfd2 context",
+    "if (efd == -1) err(EXIT_FAILURE, \"eventfd\");",
+    "switch (fork()) { case 0: /* Child process writes to efd */ }"
+  ],
+  "related_calls": [
+    "futex",
+    "pipe",
+    "poll",
+    "read",
+    "select",
+    "signalfd",
+    "timerfd_create",
+    "write",
+    "epoll",
+    "sem_overview"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "eventfd2.pdf",
+    "extraction_date": "2025-07-26T22:06:46.324352",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Use of `std::enable_if` Failure: Compiler Error Obscurity",
+  "category": "template",
+  "explanation": "Assumption: When avoiding universal reference overloading collisions, `std::enable_if` is the correct, modern tool for conditionally disabling template instantiations. Reality: While `std::enable_if` is functional, applying complex type constraints via Substitution Failure Is Not An Error (SFINAE) within template signatures leads to verbose and almost incomprehensible compiler error messages when the constraints fail. Why It Fails: If a user passes an argument type that violates a SFINAE constraint, the compiler output focuses on the deep failure within the `std::enable_if` machinery (e.g., failure to define `::type` within `std::enable_if`), not the specific constraint violated by the user's input type. This anti-pattern dramatically hinders debugging and maintainability, especially when multiple overlapping universal reference templates are constrained via complex SFINAE expressions, making the code base brittle and unapproachable.",
+  "code_example": "// Complex SFINAE constraint on template parameter\ntemplate<typename T,\n  typename = std::enable_if_t<some_complex_trait<T>::value>>\nvoid process(T&& param) { ... }\n// If trait fails, compiler output is hundreds of lines of cryptic SFINAE errors.",
+  "practical_example": "A developer spends hours trying to debug why a specific type cannot be passed to a constrained forwarding function, only to realize the obscure compiler error points deep into standard library machinery instead of indicating the simple violation of a custom type trait.",
+  "keywords": [
+    "SFINAE",
+    "std::enable_if",
+    "template failure",
+    "debugging difficulty",
+    "cryptic errors"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "211-212",
+  "chapter": "Item 27: Use alternatives to overloading on universal references",
+  "id": "emcpp_template_use_of__std__b58c66",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

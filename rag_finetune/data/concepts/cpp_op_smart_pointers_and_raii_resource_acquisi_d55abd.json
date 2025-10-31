@@ -1,0 +1,16 @@
+{
+  "topic": "Smart Pointers and RAII (Resource Acquisition Is Initialization)",
+  "explanation": "Smart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation through RAII (Resource Acquisition Is Initialization). This idiom ties resource lifetime to object lifetime, reducing memory leaks and exception safety issues. Modern C++ provides std::unique_ptr, std::shared_ptr, and std::weak_ptr to facilitate safe and efficient resource management without manual delete calls.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "21-22",
+    "extraction_date": "2025-08-19T01:23:33.566588",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.836979"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// std::unique_ptr: Exclusive ownership, RAII guarantee\n\nstruct HeavyResource { ~HeavyResource() {} };\n\n// Preferred creation (exception safety)\nauto ptr1 = std::make_unique<HeavyResource>();\n\n// Unique ownership means non-copyable\n// auto ptr2 = ptr1; // ERROR\n\n// Ownership must be moved\nauto ptr3 = std::move(ptr1);\n\n// Access raw pointer (use only when necessary)\nHeavyResource* raw = ptr3.get();\nptr3.reset(); // Explicitly releases resource now\n\n\n\n// std::shared_ptr: Shared ownership, reference counting\n\nstruct SharedData {};\n\n// Preferred creation\nauto sp1 = std::make_shared<SharedData>(); // Count = 1\n\n// Copying shares ownership\nauto sp2 = sp1; // Count = 2\n\n// Access count\nint c = sp2.use_count(); // c == 2\n\n// Access member\nsp1->field = 10;\n\n// Resource released only when all shared_ptrs are destroyed\n\n\n\n// std::weak_ptr: Non-owning observer, breaking circular references\n\nauto owner = std::make_shared<int>(99);\n\n// weak_ptr observes without incrementing count\nstd::weak_ptr<int> observer = owner;\n\n// Check if resource still exists (owner still valid)\nif (!observer.expired()) {\n    // Must lock to access safely (creates temporary shared_ptr)\n    if (auto safe_access = observer.lock()) {\n        int value = *safe_access;\n    }\n}\n\nowner.reset(); // Resource deleted\n\n// observer.lock() now returns nullptr",
+  "keywords": "std::unique_ptr, C++ memory management, RAII, std::shared_ptr"
+}

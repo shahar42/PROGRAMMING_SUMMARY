@@ -1,0 +1,25 @@
+{
+  "topic": "Perfect Forwarding and Universal References in C++",
+  "explanation": "Perfect forwarding allows a function template to forward its arguments to another function without unnecessary copies or conversions, preserving the original argument's value category (lvalue or rvalue).  This is achieved through universal references, which are references that can bind to both lvalues and rvalues.  The compiler's implementation leverages template argument deduction and reference collapsing rules to determine the appropriate forwarding mechanism.  This impacts both compile-time behavior (template instantiation) and runtime behavior (function call efficiency).  Failure to correctly understand perfect forwarding can lead to performance bottlenecks due to unnecessary copies or moves, or subtle bugs due to incorrect argument forwarding.",
+  "syntax": "template <typename T> void forward_to(T&& arg) { std::forward<T>(arg); }\n\n// Example showing perfect forwarding to a function expecting a const T&:\ntemplate<typename T> void myFunc(const T& val) { /* ... */ }\n\ntemplate<typename T> void perfectForwardingExample(T&& val) {\n  myFunc(std::forward<T>(val)); // Forwards val without unnecessary copy\n}\n\n// Example illustrating the use of std::forward to prevent unnecessary copies\ntemplate <typename T> void log_value(T&& value) {\n  // Avoids copying if possible.\n  std::cout << value << std::endl; \n}\n\nint main() {\n  int x = 10;\n  log_value(x);             // T is int&, no copy\n  log_value(std::move(x)); // T is int&&, move semantic applied (if applicable)\n  log_value(10);          // T is int&&, copy elision possible\n}",
+  "code_example": [
+    "#include <iostream>",
+    "#include <utility>",
+    "template <typename T> void forward_to(T&& arg) { std::forward<T>(arg); }",
+    "template<typename T> void myFunc(const T& val) { std::cout << \"Value: \" << val << std::endl; }",
+    "template<typename T> void perfectForwardingExample(T&& val) { myFunc(std::forward<T>(val)); }",
+    "int main() {",
+    "  int x = 10;",
+    "  perfectForwardingExample(x);      // Forwards lvalue",
+    "  perfectForwardingExample(std::move(x)); // Forwards rvalue",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler generates different code paths depending on whether the argument passed to `perfectForwardingExample` is an lvalue or an rvalue.  For an lvalue (like `x` in the first call), it will generate code equivalent to calling `myFunc` with a reference. For an rvalue (like `std::move(x)`), it will generate code that performs a move (if T is movable) or a copy (if not).  The use of `std::forward` is crucial; it allows the compiler to correctly deduce the reference type and thus avoid unnecessary copying. The assembly-level behavior would show the differences in how the argument is passed and handled based on whether move semantics or copy semantics are used (depending on the type `T` and its move constructor/assignment operator).  Compile-time instantiation of the template `perfectForwardingExample` will create separate versions of the function for each argument type.  This leads to efficient runtime behavior as the correct move or copy will be performed efficiently.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T17:17:32.051094"
+  }
+}

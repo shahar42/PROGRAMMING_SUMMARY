@@ -1,0 +1,14 @@
+{
+  "topic": "Using const_cast for Const Correctness",
+  "explanation": "const_cast is a C++ casting operator used to add or remove const, volatile, or __unaligned qualifiers from an expression. In practical scenarios, it's employed when you need to modify an object that was passed as const, but you know it's safe because the original object isn't truly const. This technique is common in legacy code, interfacing with APIs, or when dealing with overloaded functions. Best practices include using const_cast sparingly to maintain const correctness, which enhances code safety, readability, and prevents unintended side effects. Always ensure the object isn't actually const before casting, as modifying a const object can lead to undefined behavior—a common pitfall. In real-world usage, prefer designing functions with const overloads or using std::as_const to avoid casts altogether.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:04:46.638308",
+    "book_metadata_added": "2025-10-28T20:22:06.570693"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "void force_change(const int* ptr) {\n    // Casting away constness to modify internal state\n    int* non_const_ptr = const_cast<int*>(ptr);\n    *non_const_ptr = 42;\n}\n\nint original_val = 10;\n// OK, original_val is truly non-const\nforce_change(&original_val);\n\n// Example of removing const from a reference\nvoid update_ref(const char& c) {\n    char& mod_c = const_cast<char&>(c);\n    mod_c = 'Z';\n}\nchar letter = 'A';\nupdate_ref(letter); // letter is now 'Z'",
+  "keywords": "const_cast, casting away const, remove constness"
+}

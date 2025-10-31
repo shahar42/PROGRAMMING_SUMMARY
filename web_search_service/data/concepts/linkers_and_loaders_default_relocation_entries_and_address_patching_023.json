@@ -1,0 +1,16 @@
+{
+  "topic": "For Non-Predetermined Addresses",
+  "explanation": "Relocation is a crucial step in the linking and loading process, especially when programs cannot be loaded at a predetermined address.  It involves modifying addresses within a program's code and data segments after it has been loaded into memory. This is necessary because the program is compiled assuming a specific base address (often 0), but the actual load address may differ. Relocation entries identify the locations needing modification, enabling the loader to patch these addresses with the correct values based on the final load address.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "81-82",
+    "extraction_date": "2025-07-16T23:03:35.551348",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.754013"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Simulation of Loader Action during Dynamic Relocation\n\n// Runtime Base Address (where the program actually landed)\nlong RuntimeLoadBase = 0x80000000;\n\n// Data extracted from the Relocation Table (e.g., ELF Rela struct)\nlong SymbolValue = 0x00010500; // S: Compiled address of the target symbol\nint  Addend      = 4;          // A: Offset stored in the instruction\nlong PatchOffset = 0x00020100; // r_offset: Location within the segment to patch\n\n// Calculate the address in memory needing the patch\nlong* PatchLocation = (long*)(RuntimeLoadBase + PatchOffset);\n\n// Relocation Formula: New Address = S + A + P(or L)\nlong FinalTargetAddress = SymbolValue + Addend + RuntimeLoadBase;\n\n// The Loader applies the relocation patch\n*PatchLocation = FinalTargetAddress;\n\n// Now, the instruction points correctly to the runtime target\n// *(RuntimeLoadBase + PatchOffset) == 0x80010504\n// (if PatchLocation holds a pointer to a 64-bit address)",
+  "keywords": "Relocation, Relocatable object file, Base address adjustment, Address patching"
+}

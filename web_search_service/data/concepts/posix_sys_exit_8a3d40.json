@@ -1,0 +1,16 @@
+{
+  "topic": "exit() System Call",
+  "explanation": "_exit() terminates the calling process immediately, closing all open file descriptors and making its children orphans inherited by init. The exit status is returned to the parent process via wait calls. _Exit() is equivalent to _exit().\n\n**Parameters:**\n- `status` (int): The exit status of the process, with the low-order 8 bits returned to the parent\n\n**Related System Calls:** `execve()`, `exit_group()`, `fork()`, `kill()`, `wait()`, `wait4()`, `waitpid()`, `atexit()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.133617",
+    "syscall_name": "exit",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_exit.json",
+    "concept_id": "posix_sys_exit_8a3d40",
+    "book_metadata_added": "2025-10-28T20:22:06.654778"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define EXIT_ERROR_CODE 1\n\n// Child process terminates immediately\nif (fork() == 0) {\n    // Standard I/O buffers are NOT flushed\n    // atexit() handlers are NOT called\n    _exit(EXIT_ERROR_CODE); \n}\n\n// Parent waits for status\nint status;\nwait(&status);\n// WEXITSTATUS(status) retrieves EXIT_ERROR_CODE (1)\n\n// Alternative form (C99 standard equivalent)\nif (some_error) {\n    _Exit(EXIT_ERROR_CODE);\n}",
+  "keywords": "_exit, _Exit, immediate exit, process termination syscall"
+}

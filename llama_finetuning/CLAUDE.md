@@ -1,0 +1,1 @@
+- models must be only on the external hardrive

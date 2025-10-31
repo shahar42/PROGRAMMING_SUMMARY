@@ -1,0 +1,13 @@
+{
+  "topic": "Failure of Passing-by-Value Optimization",
+  "category": "perf",
+  "explanation": "Assumption: The 'pass by value, then move/swap' idiom is universally the best approach for constructors and assignment operators because it centralizes code and relies on the compiler to efficiently create the copy via move semantics when an rvalue is passed. Reality: Passing by value imposes an unnecessary copy/move construction step even if the internal implementation of the function immediately moves the argument. Why It Fails: The parameter must always be materialized before the function body executes. If the caller provides an rvalue, the compiler moves it into the parameter variable, which is good. If the caller provides an lvalue, the compiler copies it into the parameter variable, which is necessary. The failure occurs when the pass-by-value approach is used in contexts where an explicit rvalue reference overload could have been used to avoid the construction of the parameter entirely. For example, in an assignment operator, if the object being assigned from is an rvalue, the copy-and-swap idiom forces an unnecessary move (or copy) into the parameter variable, only for that parameter to be immediately moved/swapped into the member data. An explicit move assignment operator could bypass this intermediate construction/move entirely, often yielding greater performance savings, especially for types that are large but complex to manage, making the pass-by-value idiom an anti-pattern for maximal optimization.",
+  "code_example": "// Failure of unnecessary construction step\nclass Widget { /* large resource */ };\nvoid process(Widget w) { // w is constructed/moved here\n  // ... then moved again into member data\n}\n\n// Explicit move assignment avoids the parameter construction step.",
+  "practical_example": "A high-performance system uses the pass-by-value copy-and-swap idiom for assignment. Profiling shows significant overhead caused by the redundant construction of the temporary parameter `w` when large rvalues are passed, demonstrating that explicit move assignment was required for peak efficiency.",
+  "keywords": "sink argument overhead, pass-by-value optimization, unnecessary copy parameter",
+  "difficulty": "intermediate",
+  "page_reference": "205-207",
+  "chapter": "Item 27: Familiarize yourself with alternatives to overloading on universal references",
+  "id": "emcpp_perf_failure_of_passing_by_value_6b8748",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

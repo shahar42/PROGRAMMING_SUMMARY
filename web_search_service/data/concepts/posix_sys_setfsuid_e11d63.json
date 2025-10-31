@@ -1,0 +1,16 @@
+{
+  "topic": "setfsuid() System Call",
+  "explanation": "setfsuid() sets the filesystem user ID of the calling process, which is used for permissions checking when accessing filesystem objects. It allows the filesystem user ID to differ from the effective user ID, typically for specific applications like NFS servers.\n\n**Parameters:**\n- `fsuid` (uid_t): The new value for the filesystem user ID\n\n**Related System Calls:** `setfsgid()`, `kill()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.251026",
+    "syscall_name": "setfsuid",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setfsuid.json",
+    "concept_id": "posix_sys_setfsuid_e11d63",
+    "book_metadata_added": "2025-10-28T20:22:06.591934"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// setfsuid(uid_t fsuid)\n// Sets the Filesystem User ID (FSUID).\n\nuid_t target_uid = 1000; // Example target UID\n\n// To set an arbitrary UID, requires CAP_SETUID capability.\n// Otherwise, fsuid must match RUID, EUID, or SUID.\n\nint ret = setfsuid(target_uid);\n\nif (ret == 0) {\n    /* Success: FSUID updated for FS checks */\n} else {\n    // EPERM if insufficient privileges\n    // EINVAL if UID is invalid\n    \n    // Example: Resetting FSUID to match EUID (always permitted)\n    setfsuid(geteuid());\n}\n\n// Related: setfsgid(), getfsuid()",
+  "keywords": "setfsuid, FSUID, filesystem user id"
+}

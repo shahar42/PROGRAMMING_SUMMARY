@@ -1,0 +1,19 @@
+{
+  "topic": "Reference Collapsing Failure: Misinterpreting Lvalue/Rvalue Combination",
+  "category": "type",
+  "explanation": "The anti-pattern regarding reference collapsing rules is the misunderstanding of how an lvalue reference combined with an rvalue reference yields an lvalue reference. Specifically, the rule states that combining an lvalue reference with any other reference type results in an lvalue reference (e.g., `T& &&` collapses to `T&`). This rule is central to how universal references work: when an lvalue is passed, the deduced type `T` is an lvalue reference, leading to the collapse that preserves the lvalue nature of the parameter. The failure occurs when programmers attempt to use templates or `typedefs` to force a 'move' context onto an existing lvalue reference, believing that the double ampersand syntax (`&&`) somehow overrides the lvalue nature. If a type alias or template manipulation accidentally generates a type equivalent to `int& &&`, the final type is unambiguously `int&`. The technical implication of this failure is that if one attempts to return or store this collapsed type, the result will always be treated as an lvalue reference, meaning any subsequent operation that relies on move semantics (like a move constructor) will be suppressed or will fall back to a copy operation because an lvalue reference expression always results in an lvalue value category. Thus, the programmer's expectation of moving or forwarding is broken by the language's safety mechanism designed to prevent accidental modification of named lvalue objects.",
+  "code_example": "using LvalueInt = int&;\nusing LvalueRvalue = LvalueInt&&; // Collapses to int&, NOT int&&.\nLvalueRvalue x; // x is an lvalue reference.",
+  "practical_example": "A metaprogramming expert creates complex type traits to dynamically deduce function return types for forwarding. Due to an error in the trait logic, a situation arises where `T&` is concatenated with `&&` during deduction, causing the resulting return type to be an lvalue reference. This subtly forces copies in the caller\u2019s context, which were expected to be zero-overhead moves, leading to a performance regression that is hard to diagnose due to the deep type system manipulation.",
+  "keywords": [
+    "reference collapsing",
+    "type manipulation",
+    "lvalue safety",
+    "type deduction failure",
+    "rvalue"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "215-221",
+  "chapter": "Item 28: Understand reference collapsing",
+  "id": "emcpp_type_reference_collapsing_failure__misinterpreting_641c12",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

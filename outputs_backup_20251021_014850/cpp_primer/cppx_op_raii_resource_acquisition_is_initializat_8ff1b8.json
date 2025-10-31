@@ -1,0 +1,13 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ technique that ties resource management to object lifetime.  It ensures resources (like memory, files, network connections) are automatically acquired when an object is created and released when the object goes out of scope (destructor is called). This dramatically reduces resource leaks and simplifies error handling.  Best practice is to always use RAII for resource management, leveraging smart pointers and other RAII-compliant classes.",
+  "syntax": "RAII is not a specific syntax but a programming idiom.  It's implemented using constructors to acquire resources and destructors to release them. Smart pointers like `std::unique_ptr`, `std::shared_ptr`, and `std::weak_ptr` are prime examples of RAII in action.  Example: `std::unique_ptr<int> ptr(new int(10));` acquires memory; when `ptr` goes out of scope, the destructor automatically calls `delete`, freeing the memory.",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <memory>\n\nvoid process_file(const std::string& filename) {\n  // Using std::unique_ptr for RAII-based file management\n  std::unique_ptr<std::ofstream> file(new std::ofstream(filename));\n  if (!*file) {\n    throw std::runtime_error(\"Could not open file\");\n  }\n  *file << \"This is some data.\";\n  // File is automatically closed when 'file' goes out of scope.\n}\n\nint main() {\n  try {\n    process_file(\"my_file.txt\");\n  } catch (const std::runtime_error& error) {\n    std::cerr << \"Error: \" << error.what() << std::endl;\n  }\n  return 0;\n}",
+  "example_explanation": "The `process_file` function demonstrates RAII. The `std::unique_ptr` manages the `std::ofstream` object.  The constructor of `std::ofstream` opens the file; its destructor closes the file, regardless of whether exceptions are thrown. This eliminates the need for explicit `file.close()` calls, making the code cleaner, safer, and less prone to resource leaks.  The `try-catch` block handles potential errors during file opening, demonstrating robust error handling in conjunction with RAII.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:20:40.490909"
+  }
+}

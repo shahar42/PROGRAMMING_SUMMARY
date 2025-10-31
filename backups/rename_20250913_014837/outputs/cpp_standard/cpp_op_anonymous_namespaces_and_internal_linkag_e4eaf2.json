@@ -1,0 +1,23 @@
+{
+  "topic": "Anonymous Namespaces and Internal Linkage",
+  "explanation": "Anonymous namespaces in C++ are a mechanism to encapsulate declarations within a translation unit, providing internal linkage to their contents. The compiler implements this by implicitly generating a unique, unnamed namespace for each anonymous namespace block, which effectively renames the symbols to prevent conflicts across translation units. For instance, when you declare variables or functions inside an anonymous namespace, the compiler mangles their names with a compiler-specific identifier (e.g., GCC might prepend a unique string like '.L__uniqname_'), ensuring they are not visible outside the current source file. This internal linkage means that each translation unit gets its own copy of these symbols, which is resolved at compile-time by the compiler and linker. Memory layout-wise, variables in an anonymous namespace are typically placed in the data segment (e.g., .data or .bss sections in ELF binaries), similar to static global variables, but without the 'static' keyword's restrictions. Performance implications are minimal, as this is primarily a linking optimization; however, it can reduce binary size and improve build times by avoiding external symbol resolution. At the assembly level, for example, a variable like 'i' in an anonymous namespace might appear as a local label (e.g., '.L_anonymous_i'), which is not exported in the symbol table, reducing the risk of name collisions. Runtime behavior is unaffected since these symbols are resolved at link time, but compile-time checks ensure no external access, enhancing encapsulation and modularity.",
+  "syntax": "namespace {  // Anonymous namespace declaration\n    // Declarations here (e.g., int i;) have internal linkage\n    // The compiler generates a unique name for this namespace,\n    // e.g., equivalent to 'namespace __unique_compiler_id { ... }'\n}",
+  "code_example": [
+    "#include <iostream>",
+    "namespace A {",
+    "    namespace {",
+    "        int i;  // Variable with internal linkage, unique to this translation unit",
+    "        int j;  // Another variable with internal linkage",
+    "    }",
+    "    void g() { i++; }  // Function accessing the anonymous namespace's i",
+    "}",
+    "using namespace A;  // Brings A into scope, but anonymous namespace remains internal"
+  ],
+  "example_explanation": "In this code, the anonymous namespace inside namespace A ensures that 'i' and 'j' have internal linkage, meaning they are not accessible from other translation units. The compiler (e.g., GCC or Clang) will mangle 'i' and 'j' into unique symbols during compilation, such as '.L__A_anonymous_i' in the generated assembly, which appears in the .data section for initialized globals. When 'g()' is called, it accesses 'i' directly at runtime, but the linker ensures no conflicts if this code is part of a larger program. Performance-wise, this avoids overhead from external linkage (e.g., no dynamic symbol resolution), and at compile-time, the compiler optimizes access to these variables as local entities, potentially inlining operations like 'i++' if possible.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:32:57.945379"
+  }
+}

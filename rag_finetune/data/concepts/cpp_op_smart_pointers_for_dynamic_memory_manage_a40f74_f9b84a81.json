@@ -1,0 +1,18 @@
+{
+  "topic": "Smart Pointers for Dynamic Memory Management",
+  "explanation": "In modern C++, smart pointers are used to manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They encapsulate raw pointers and provide ownership semantics, making resource management safer and more expressive compared to manual new/delete operations. This approach leverages RAII (Resource Acquisition Is Initialization) principles, which tie resource lifetime to object lifetime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "459-459",
+    "extraction_date": "2025-08-19T04:33:59.827973",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.882374"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::unique_ptr<T> // Exclusive ownership. RAII guarantees delete.\n\n// Construction (C++14+)\nstd::unique_ptr<int> up1 = std::make_unique<int>(42);\n\n// Cannot copy, must move ownership\nstd::unique_ptr<int> up2 = std::move(up1);\n// up1 is now nullptr\n\n// Access\nint val = *up2;\nup2->method();\n\n// Custom Deleter (type required in declaration)\nstruct FileCloser { void operator()(FILE* f) const { fclose(f); } };\nstd::unique_ptr<FILE, FileCloser> log_file(fopen(\"log\", \"w\"));\n// log_file automatically closes on scope exit.\n// ----------------------------------------------------------------------\n\nstd::shared_ptr<T> // Shared ownership via reference count.\n\n// Construction (prefer make_shared for efficiency)\nstd::shared_ptr<Resource> sp1 = \n    std::make_shared<Resource>(5);\n\n// Copy shares ownership (count = 2)\nstd::shared_ptr<Resource> sp2 = sp1;\n\n// Reference count access\nsize_t users = sp1.use_count(); // 2\n\n// Access raw pointer (use only if necessary)\nResource* raw = sp1.get();\n\n// Resetting releases ownership (decrements count)\nsp1.reset(); \n// Resource is destroyed when users == 0.\n// ----------------------------------------------------------------------\n\nstd::weak_ptr<T> // Non-owning observation pointer.\n\nstd::shared_ptr<Node> strong = std::make_shared<Node>();\nstd::weak_ptr<Node> observer = strong; // Observe strong\n\n// Cannot access directly. Must check and 'lock'.\nif (std::shared_ptr<Node> temp = observer.lock()) {\n    // Object is guaranteed to exist inside this scope\n    temp->operation();\n} else {\n    // Object has been destroyed\n}\n\n// Check if the managed object is destroyed\nbool gone = observer.expired();\n// Used to break cyclic dependencies (A holds B, B holds A).",
+  "keywords": "C++ smart pointers, RAII, unique_ptr shared_ptr, automatic memory management"
+}

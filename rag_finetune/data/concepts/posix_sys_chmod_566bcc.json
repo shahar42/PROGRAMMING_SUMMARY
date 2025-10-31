@@ -1,0 +1,16 @@
+{
+  "topic": "chmod() System Call",
+  "explanation": "The chmod(), fchmod(), and fchmodat() system calls change the mode bits of a file, including permissions and special flags like set-user-ID. They differ in how the file is specified: by pathname for chmod(), by file descriptor for fchmod(), and by directory file descriptor with optional flags for fchmodat().\n\n**Parameters:**\n- `pathname` (const char *): Path to the file whose mode is to be changed\n- `mode` (mode_t): Bit mask specifying the new file mode bits, including permissions and flags like S_ISUID\n- `fd` (int): File descriptor referring to the file whose mode is to be changed\n- `dirfd` (int): Directory file descriptor or AT_FDCWD for relative paths\n- `flags` (int): Flags for fchmodat(), such as AT_SYMLINK_NOFOLLOW\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix\n- `EBADF`: fd is not a valid file descriptor, or for fchmodat(), pathname is relative and dirfd is invalid\n- `EFAULT`: pathname points outside accessible address space\n- `EINVAL`: Invalid flag specified in flags for fchmodat()\n- `EIO`: An I/O error occurred\n\n**Related System Calls:** `chown()`, `execve()`, `open()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.106724",
+    "syscall_name": "chmod",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_chmod.json",
+    "concept_id": "posix_sys_chmod_566bcc",
+    "book_metadata_added": "2025-10-28T20:22:06.584037"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// chmod(): Change mode using a pathname\nconst char *path = \"/etc/config.file\";\n\n// Set permissions to rw-r--r-- (0644)\nmode_t mode_default = 0644;\n\nif (chmod(path, mode_default) == -1) {\n    // Handle error\n    return -1;\n}\n\n// Example: Set executable and sticky bit (1755)\nchmod(\"script.sh\", 01755);\n\n\n// fchmod(): Change mode using a file descriptor (fd)\nint fd = /* open(\"data.log\", ...) */;\n\n// Set permissions to rw------- (0600)\nmode_t mode_private = 0600;\n\nif (fchmod(fd, mode_private) == -1) {\n    // Handle error\n    return -1;\n}\n// close(fd);\n\n\n// fchmodat(): Change mode relative to a directory fd\nint dir_fd = /* open(\"/home/user\", ...) */;\nconst char *rel_path = \"subdir/item.txt\";\n\n// Change mode for relative path\nif (fchmodat(dir_fd, rel_path, 0777, 0) == -1) {\n    // Handle error\n    return -1;\n}\n\n// Using AT_FDCWD for absolute path or current directory\nfchmodat(AT_FDCWD, \"/tmp/global.dat\", 0660, 0);\n\n// Use AT_SYMLINK_NOFOLLOW if dealing with symbolic links\nfchmodat(dir_fd, \"link.sym\", 0644, AT_SYMLINK_NOFOLLOW);\n\n// close(dir_fd);",
+  "keywords": "chmod, change file permissions, fchmod, set file mode"
+}

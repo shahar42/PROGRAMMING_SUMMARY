@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigreturn() System Call",
+  "explanation": "rt_sigreturn() is called by the signal trampoline to restore the process's signal mask, stack, and context after a signal handler executes. It ensures the process resumes from the point of interruption as if the signal had not occurred.\n\n**Related System Calls:** `kill()`, `restart_syscall()`, `sigaltstack()`, `signal()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.244816",
+    "syscall_name": "rt_sigreturn",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigreturn.json",
+    "concept_id": "posix_sys_rt_sigreturn_88100e",
+    "book_metadata_added": "2025-10-28T20:22:06.664403"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// rt_sigreturn() is invoked by the signal trampoline (assembly stub)\n// after a signal handler returns. It is not called by user code.\n\n// The kernel saves necessary state into this structure\ntypedef struct ucontext {\n    struct ucontext *uc_link;\n    stack_t          uc_stack;\n    mcontext_t       uc_mcontext; // Saved CPU registers/context\n    sigset_t         uc_sigmask;  // Saved signal mask\n    // ...\n} ucontext_t;\n\n// Setup requiring ucontext_t for restoration\nstruct sigaction sa = { .sa_flags = SA_SIGINFO };\n// sa.sa_sigaction = handler;\n\n// The kernel trampoline uses the saved registers in uc_mcontext\n// to jump back into user space, restoring the previous state\n// and invoking the syscall handler:\n// long rt_sigreturn(void);\n// (Called invisibly upon signal handler exit)",
+  "keywords": "rt_sigreturn, sigreturn, signal context restore, signal trampoline"
+}

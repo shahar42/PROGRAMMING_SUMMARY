@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Rational Arithmetic with std::ratio",
+  "explanation": "The std::ratio template in C++ is a constexpr class template designed for compile-time rational arithmetic, allowing representation of fractions as ratios of integers. Internally, the compiler implements this by evaluating constant expressions during template instantiation. When std::ratio<N, D> is instantiated, the compiler computes the greatest common divisor (GCD) of N and D at compile time to simplify the fraction, ensuring that the static constexpr members num and den represent the reduced numerator and denominator. This leverages C++'s template metaprogramming capabilities, where the GCD calculation is typically performed via recursive template instantiations or, in modern compilers, optimized through constexpr functions. Compiler behavior involves constant folding and template resolution, meaning the values of num and den are determined entirely at compile time, with no runtime evaluation. Memory layout implications are minimal since std::ratio is a zero-sized object (as it's a static constexpr entity), and no runtime memory is allocated\u2014it's essentially a compile-time artifact. Performance-wise, this results in zero overhead at runtime, as the simplified values are embedded directly into the generated code. At the assembly level, references to std::ratio<N, D>::num or ::den are replaced with immediate constants, avoiding any instructions for computation. This contrasts with runtime behavior, where dynamic fractions would involve CPU operations, but std::ratio ensures all operations are compile-time, enabling optimizations like dead code elimination in dependent code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:45:39.859424",
+    "book_metadata_added": "2025-10-28T20:22:06.824452"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "using R1 = std::ratio<6, 9>;       // Internal reduction to 2/3\nusing R2 = std::ratio<1, 6>;\n\n// Compile-time Addition: 2/3 + 1/6 = 5/6\nusing R_Sum = std::ratio_add<R1, R2>;\n\nstatic_assert(R_Sum::num == 5);\nstatic_assert(R_Sum::den == 6);\n\n// Compile-time Multiplication: 2/3 * 1/6 = 2/18 = 1/9\nusing R_Prod = std::ratio_multiply<R1, R2>;\n\nconstexpr long long N = R_Prod::num;\nconstexpr long long D = R_Prod::den;\n\nstatic_assert(N == 1);\nstatic_assert(D == 9);"
+}

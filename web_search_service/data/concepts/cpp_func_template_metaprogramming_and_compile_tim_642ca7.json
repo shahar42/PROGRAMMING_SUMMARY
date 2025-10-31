@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming and Compile-Time Polymorphism",
+  "explanation": "Template metaprogramming allows computations and code generation to occur at compile time, rather than runtime.  This leverages the compiler's ability to perform complex operations during the translation phase, leading to significant performance gains and the ability to create highly generic and efficient code.  The compiler's implementation involves recursively instantiating templates, generating specialized code for different types, and potentially performing constant folding and other optimizations. This contrasts sharply with runtime polymorphism, where decisions about which function to call are made during program execution.  Memory layout depends on the specific instantiation; the compiler will allocate memory according to the types used in the instantiation, potentially generating highly optimized code with no runtime overhead for things like virtual function calls.\n\nUnderstanding compiler behavior is crucial.  Different compilers might have varying levels of optimization, impacting the ultimate generated assembly code.  A compiler that heavily optimizes template metaprogramming could eliminate loops or other structures entirely during compilation if the result can be precomputed.  The absence of runtime decisions means that the assembly code will directly reflect the specialized operations, leading to performance advantages, especially in performance-critical sections.  The compile-time nature can, however, result in significantly increased compile times for complex metaprograms.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:54:12.472254",
+    "book_metadata_added": "2025-10-28T20:22:06.985019"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <int N>\nstruct Fact {\n    static constexpr int value = N * Fact<N - 1>::value;\n};\n\ntemplate <>\nstruct Fact<0> {\n    static constexpr int value = 1;\n};\n\n// CRTP - Compile-Time Polymorphism\ntemplate <typename D>\nclass Base {\npublic:\n    // Static dispatch (no virtual table overhead)\n    void execute() { static_cast<D*>(this)->specific_action(); }\n};\n\nclass Policy : public Base<Policy> {\npublic:\n    void specific_action() { /* specialized behavior */ }\n};\n<ctrl63>",
+  "keywords": "TMP, Template Metaprogramming, Compile-time C++, Compile-Time Polymorphism"
+}

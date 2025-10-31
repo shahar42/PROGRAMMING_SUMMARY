@@ -1,0 +1,13 @@
+{
+  "topic": "Custom Deleters and their Impact on `std::unique_ptr` Implementation",
+  "explanation": "The `std::unique_ptr` smart pointer, while seemingly simple, reveals intricate compiler and runtime behavior when coupled with custom deleters. Understanding this interaction is crucial for advanced C++ programming, impacting memory management, exception safety, and performance.  The compiler's role is not just managing the pointer itself, but also ensuring correct invocation of the deleter, potentially involving function pointer manipulation and careful stack unwinding in the face of exceptions.  The choice of deleter significantly affects memory layout (indirectly, via the object being managed) and performance because the deleter's execution overhead is directly added to the destructor's cost.   This contrasts with the simpler `delete` operation used in the default deleter, highlighting the differences between compile-time known behavior and runtime polymorphic behavior.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:09:59.518280",
+    "book_metadata_added": "2025-10-28T20:22:06.900685"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Resource {};\n\n// Deleter: Stores no state -> EBO enabled\nstruct CustomDeleter {\n    void operator()(Resource* r) const { delete r; }\n};\n\n// Unique pointer definition\nusing PtrType = std::unique_ptr<Resource, CustomDeleter>;\n\n// Key implementation detail: size optimization (Empty Base Optimization)\nstatic_assert(sizeof(PtrType) == sizeof(Resource*));\n\n// Deleter stores state (e.g., function pointer) -> increased size\nusing FuncPtr = void(*)(Resource*);\nusing FatPtr = std::unique_ptr<Resource, FuncPtr>;\n\nstatic_assert(sizeof(FatPtr) > sizeof(Resource*));\n\nPtrType p(new Resource{});\n<ctrl63>"
+}

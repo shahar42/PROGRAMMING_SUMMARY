@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism Avoiding Virtual Branching",
+  "explanation": "Compile-time polymorphism, unlike runtime polymorphism achieved through virtual functions, leverages templates and `constexpr` functions to perform computations and generate specialized code during compilation.  This avoids runtime overhead associated with virtual function calls and branching. The compiler generates distinct code paths for each type used with the template, effectively creating multiple versions of the function at compile time.  Memory layout is affected as each specialized instantiation might have a different size and structure depending on the underlying types. Performance gains are significant when dealing with large datasets or performance-critical sections because there's no runtime dispatch.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:31:07.242694",
+    "book_metadata_added": "2025-10-28T20:22:06.996242"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <typename T>\nvoid execute_policy(T value) {\n    if constexpr (std::is_integral_v<T>) {\n        // Only compiled if T is an integer type\n        value *= 5;\n    } else if constexpr (std::is_floating_point_v<T>) {\n        // Only compiled if T is a float type\n        value += 1.0;\n    } else {\n        static_assert(false, \"Unsupported type.\");\n    }\n}\n\nint a = 10;\nexecute_policy(a);  // Compiler selects and generates integer code path.\n\ndouble b = 3.14;\nexecute_policy(b);  // Compiler selects and generates float code path.\n\n// No runtime branch overhead (if/else eliminated at compile time).",
+  "keywords": "Static polymorphism, template metaprogramming, zero-overhead abstraction, no virtual branching"
+}

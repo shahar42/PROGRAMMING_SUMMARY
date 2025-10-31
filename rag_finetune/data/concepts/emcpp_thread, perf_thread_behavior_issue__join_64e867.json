@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Behavior/Issue: Join-on-Destruction Performance Anomalies",
+  "category": "thread, perf",
+  "explanation": "While joining a thread in a destructor guarantees thread completion and prevents termination, it introduces a potential performance anomaly. If the thread being joined takes a long or unpredictable amount of time to finish, the main thread (or whatever thread is performing the destruction) will block indefinitely waiting for the completion. Why It Fails: This turns the thread cleanup mechanism into a synchronization bottleneck, leading to difficult-to-debug latency spikes or freezes, especially if the object being destroyed is frequently created and destroyed.",
+  "code_example": "// ThreadRAII policy: join-on-destruction\n~ThreadRAII() { if (t.joinable()) t.join(); } // Blocks the calling thread",
+  "practical_example": "A web server handles requests by creating local `ThreadRAII` objects. If one request thread gets stuck in a long computation, the cleanup of that thread handle blocks the worker thread responsible for its destruction, potentially starving the thread pool.",
+  "keywords": [
+    "join",
+    "blocking",
+    "performance anomaly",
+    "destructor"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "257",
+  "chapter": "Item 37",
+  "id": "emcpp_thread, perf_thread_behavior_issue__join_64e867",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

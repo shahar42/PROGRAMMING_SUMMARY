@@ -1,0 +1,25 @@
+{
+  "topic": "Smart Pointers (std::unique_ptr and std::shared_ptr)",
+  "explanation": "Smart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idioms, providing safer and more expressive memory management compared to raw pointers. Modern C++ emphasizes the use of smart pointers to handle ownership semantics explicitly, with std::unique_ptr for exclusive ownership and std::shared_ptr for shared ownership scenarios.\n\nSmart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idioms, providing safer and more expressive memory management compared to raw pointers. Modern C++ emphasizes the use of smart pointers to handle resource management efficiently and exception-safely, reducing the risk of dangling pointers and leaks.\n\nSmart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idioms, providing safer and more expressive memory management compared to raw pointers. Modern C++ (C++11 and beyond) introduces std::unique_ptr for exclusive ownership and std::shared_ptr for shared ownership, facilitating safer resource handling in object-oriented and generic programming.",
+  "syntax": "template<typename T> class std::unique_ptr {\npublic:\n    explicit unique_ptr(T* ptr = nullptr) noexcept;\n    ~unique_ptr();\n    unique_ptr(const unique_ptr&) = delete;\n    unique_ptr& operator=(const unique_ptr&) = delete;\n    unique_ptr(unique_ptr&&) noexcept;\n    unique_ptr& operator=(unique_ptr&&) noexcept;\n    T* get() const noexcept;\n    T& operator*() const; \n    T* operator->() const;\n    void reset(T* ptr = nullptr); \n    T* release();\n};\n\ntemplate<typename T> class std::shared_ptr {\npublic:\n    explicit shared_ptr(T* ptr = nullptr); \n    ~shared_ptr();\n    shared_ptr(const shared_ptr&); \n    shared_ptr& operator=(const shared_ptr&); \n    T* get() const noexcept;\n    T& operator*() const; \n    T* operator->() const;\n    void reset(T* ptr = nullptr); \n    long use_count() const noexcept;\n};",
+  "code_example": "#include <iostream>\n#include <memory>\n\nclass Resource {\npublic:\n    Resource() { std::cout << \"Resource acquired\" << std::endl; }\n    ~Resource() { std::cout << \"Resource destroyed\" << std::endl; }\n    void do_something() { std::cout << \"Doing something\" << std::endl; }\n};\n\nint main() {\n    {\n        auto ptr1 = std::make_unique<Resource>(); // unique_ptr manages Resource\n        ptr1->do_something();\n    } // Resource is automatically destroyed here when ptr1 goes out of scope\n\n    {\n        auto ptr2 = std::make_shared<Resource>(); // shared_ptr manages Resource\n        auto ptr3 = ptr2; // shared ownership\n        ptr2->do_something();\n        std::cout << \"Shared pointers count: \" << ptr2.use_count() << std::endl;\n    } // Resource destroyed when last shared_ptr (ptr3) goes out of scope\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the use of modern C++ smart pointers: 'std::unique_ptr' for exclusive ownership and 'std::shared_ptr' for shared ownership. The 'make_unique' and 'make_shared' functions create managed objects that automatically deallocate memory when they go out of scope, exemplifying RAII. The shared_ptr example shows reference counting with 'use_count()', illustrating shared ownership semantics. Overall, the code highlights how smart pointers simplify memory management, improve safety, and align with modern C++ best practices.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "578-578",
+    "extraction_date": "2025-08-19T05:26:42.208178",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard",
+    "merged_on": "2025-09-11T09:49:46.459663",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "44-44",
+      "extraction_date": "2025-09-11T09:49:42.751071",
+      "has_code": true,
+      "has_explanation": false,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.9262139797210693
+  }
+}

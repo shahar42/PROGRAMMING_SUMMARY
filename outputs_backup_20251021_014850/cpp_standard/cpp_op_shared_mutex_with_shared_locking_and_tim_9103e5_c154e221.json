@@ -1,0 +1,17 @@
+{
+  "topic": "Shared Mutex with Shared Locking and Timed Locking",
+  "explanation": "In modern C++, shared mutexes (such as std::shared_timed_mutex) enable multiple threads to acquire shared (read) access concurrently while ensuring exclusive (write) access is mutually exclusive. This allows for efficient read-heavy scenarios by permitting multiple readers simultaneously, while writers obtain exclusive access. The timed locking functions, like try_lock_shared_until, provide a way to attempt acquiring shared ownership with a timeout, enhancing control over thread synchronization and avoiding deadlocks in concurrent programming.",
+  "syntax": "class std::shared_timed_mutex {\npublic:\n    bool try_lock_shared();\n    template <class Rep, class Period>\n    bool try_lock_shared_for(const std::chrono::duration<Rep, Period>& rel_time);\n    template <class Clock, class Duration>\n    bool try_lock_shared_until(const std::chrono::time_point<Clock, Duration>& abs_time);\n    void unlock_shared();\n    // other members...\n};",
+  "code_example": "#include <shared_mutex>\n#include <thread>\n#include <vector>\n#include <iostream>\n#include <chrono>\n\nclass ReadWriteData {\npublic:\n    void read() const {\n        std::shared_lock<std::shared_timed_mutex> lock(mutex_);\n        std::cout << \"Reading data: \" << data_ << std::endl;\n    }\n    void write(int value) {\n        std::unique_lock<std::shared_timed_mutex> lock(mutex_);\n        data_ = value;\n        std::cout << \"Writing data: \" << data_ << std::endl;\n    }\n    bool try_read_with_timeout(const std::chrono::milliseconds& timeout) const {\n        std::shared_lock<std::shared_timed_mutex> lock(mutex_, std::defer_lock);\n        if (lock.try_lock_for(timeout)) {\n            std::cout << \"Successfully acquired shared lock within timeout. Data: \" << data_ << std::endl;\n            return true;\n        } else {\n            std::cout << \"Failed to acquire shared lock within timeout.\" << std::endl;\n            return false;\n        }\n    }\nprivate:\n    mutable std::shared_timed_mutex mutex_;\n    int data_ = 0;\n};\n\nint main() {\n    ReadWriteData sharedData;\n    sharedData.write(42);\n    std::vector<std::thread> threads;\n    for (int i = 0; i < 5; ++i) {\n        threads.emplace_back([&sharedData, i]() {\n            if (sharedData.try_read_with_timeout(std::chrono::milliseconds(100))) {\n                // read succeeded\n            } else {\n                // read timed out\n            }\n        });\n    }\n    for (auto& t : threads) {\n        t.join();\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the use of std::shared_timed_mutex to allow multiple threads to read shared data concurrently while ensuring exclusive access during writes. The method try_read_with_timeout attempts to acquire a shared lock within a specified timeout period using try_lock_for, illustrating timed shared locking. Multiple threads try to read the data with a timeout, showcasing how shared mutexes facilitate efficient concurrent read access with timeout control, which is essential for robust multithreaded applications.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1184-1184",
+    "extraction_date": "2025-08-19T09:49:59.295262",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "close_range() System Call",
+  "explanation": "The close_range() system call closes all open file descriptors in the range from 'first' to 'last' inclusive. It can also set flags to modify behavior, such as setting close-on-exec or unsharing descriptors. Errors during closure of individual descriptors are ignored.\n\n**Parameters:**\n- `first` (unsigned int): The first file descriptor to close (inclusive).\n- `last` (unsigned int): The last file descriptor to close (inclusive).\n- `flags` (int): A bitmask of flags, such as CLOSE_RANGE_CLOEXEC or CLOSE_RANGE_UNSHARE, to modify the behavior.\n\n**Common Errors:**\n- `EINVAL`: Invalid flags specified, or first is greater than last.\n- `EMFILE`: The number of open file descriptors exceeds the limit specified in /proc/sys/fs/nr_open, particularly with CLOSE_RANGE_UNSHARE.\n- `ENOMEM`: Insufficient kernel memory was available, especially with CLOSE_RANGE_UNSHARE.\n\n**Related System Calls:** `close()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.102611",
+    "syscall_name": "close_range",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_close_range.json",
+    "concept_id": "posix_sys_close_range_859122",
+    "book_metadata_added": "2025-10-28T20:22:06.669660"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define SYS_close_range 436\n\n#define CLOSE_RANGE_CLOEXEC (1U << 0)\n#define CLOSE_RANGE_UNSHARE (1U << 1)\n\n// 1. Simple closure of FDs 3 through 9 (inclusive)\nunsigned int first = 3;\nunsigned int last = 9;\nint status = syscall(SYS_close_range, first, last, 0);\n\n// 2. Setting Close-on-Exec for FDs 10 to 19\nsyscall(SYS_close_range, 10U, 19U, CLOSE_RANGE_CLOEXEC);\n\n// 3. Closure combined with unsharing\nsyscall(SYS_close_range, 20U, 30U,\n        CLOSE_RANGE_CLOEXEC | CLOSE_RANGE_UNSHARE);\n<ctrl63>",
+  "keywords": "close_range, bulk close file descriptors, close fd range, CLOSE_RANGE_CLOEXEC"
+}

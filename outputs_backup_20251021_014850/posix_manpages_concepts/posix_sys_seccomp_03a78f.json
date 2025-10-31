@@ -1,0 +1,15 @@
+{
+  "topic": "seccomp() System Call",
+  "explanation": "The seccomp() system call manages the Secure Computing state of a process, restricting which system calls can be made. It supports operations like SECCOMP_SET_MODE_STRICT for basic restrictions and SECCOMP_SET_MODE_FILTER for custom filters using BPF programs.\n\n**Parameters:**\n- `operation` (unsigned int): The operation to perform, such as SECCOMP_SET_MODE_STRICT or SECCOMP_SET_MODE_FILTER.\n- `flags` (unsigned int): Flags that modify the behavior of the operation, such as SECCOMP_FILTER_FLAG_LOG.\n- `args` (void *): Pointer to arguments specific to the operation, such as a struct sock_fprog for filters.\n\n**Common Errors:**\n- `EACCES`: The caller did not have the CAP_SYS_ADMIN capability or had not set no_new_privs before using SECCOMP_SET_MODE_FILTER.\n- `EBUSY`: While installing a new filter with SECCOMP_FILTER_FLAG_NEW_LISTENER, a previous filter had already been installed with that flag.\n- `EFAULT`: args was not a valid address.\n- `EINVAL`: operation is unknown or invalid, flags are invalid for the operation, or other validation failures such as unaligned offsets or existing secure computing mode conflicts.\n- `ENOMEM`: Out of memory, or the total length of filter programs would exceed the limit.\n\n**Related System Calls:** `prctl()`, `seccomp_unotify()`, `fork()`, `clone()`, `execve()`",
+  "syntax": "int syscall(SYS_seccomp, unsigned int operation, unsigned int flags, void *args);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = seccomp(...);  // Call the system call\nif (result == -1) {\n    perror(\"seccomp\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the seccomp() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.187886",
+    "syscall_name": "seccomp",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_seccomp.json",
+    "concept_id": "posix_sys_seccomp_03a78f"
+  }
+}

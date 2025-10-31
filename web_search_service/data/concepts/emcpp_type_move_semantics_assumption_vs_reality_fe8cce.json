@@ -1,0 +1,18 @@
+{
+  "topic": "Move Semantics Assumption vs Reality: Lvalues vs Rvalues",
+  "category": "type",
+  "explanation": "Assumption: If an expression is classified as an rvalue, it is a temporary and should be moved from; if it is classified as an lvalue, it should be copied. Reality: The distinction between lvalues (things you can take the address of, typically named variables) and rvalues (things you cannot, typically temporaries) dictates *which overload* is selected, but it does not guarantee the cost. Why It Fails: This failure occurs when the programmer conflates classification (lvalue/rvalue) with lifetime and mutability. The key failure case is Item 23: all named entities are lvalues, even if their *type* is rvalue reference (e.g., a universal reference parameter). If the programmer forgets this fundamental rule, they treat a named rvalue reference parameter as an rvalue (move source) and thus skip using `std::move` or `std::forward`, resulting in an unnecessary copy (lvalue binding) and performance failure.",
+  "code_example": "// Parameter 'w' is an rvalue reference type, but an lvalue expression\nvoid use_widget(Widget&& w) {\n  Widget local(w); // Uses copy constructor (w is an lvalue)\n  // Must use: Widget local(std::move(w));\n}",
+  "practical_example": "A developer is writing code inside a library's move constructor, intending to move resources out of the 'other' parameter. They treat 'other' as an rvalue simply because it was passed via an rvalue reference, failing to use `std::move` on its members, thus triggering unnecessary copying of resources.",
+  "keywords": [
+    "lvalue expression",
+    "rvalue classification",
+    "type vs expression",
+    "binding failure"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "175, 178, 231",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_type_move_semantics_assumption_vs_reality_fe8cce",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Function Contracts: Precondition Impact on Noexcept",
+  "category": "core",
+  "explanation": "The decision to declare a function `noexcept` should be guided by its contract, which can be categorized as either \"wide\" or \"narrow\". A function with a wide contract has no preconditions; it is designed to work correctly for all possible inputs and program states without causing undefined behavior. A function with a narrow contract, in contrast, requires callers to satisfy certain preconditions to guarantee correct behavior.\n\nScott Meyers' key insight is that `noexcept` is an integral part of a function's interface design, inextricably linked to its contract. He posits that only functions with wide contracts are truly suitable candidates for being `noexcept`. This is because a wide-contract function, by definition, has no failure modes that would necessitate throwing an exception to report an error. Applying `noexcept` to a narrow-contract function is often a design flaw, as it forecloses the possibility of using exceptions to signal precondition violations, leaving abrupt program termination as the only alternative.\n\nThe mechanics of this distinction are clear. A function with a wide contract, like `std::vector::size`, imposes no constraints and will always produce a well-defined result without throwing. A function with a narrow contract, such as dereferencing a pointer or `std::vector::at`, has implicit or explicit preconditions\u2014the pointer must not be null, or the index must be within bounds. If a precondition is violated, the designer must choose how to respond: throw an exception, trigger an assertion, or allow undefined behavior. If throwing is the chosen mechanism for handling contract violations, the function cannot be `noexcept`.\n\nThis mental model provides a robust framework for API design. When creating a function, the first step is to define its contract. If the function is designed to handle all inputs gracefully without throwing, it has a wide contract and should be marked `noexcept`. This communicates to callers that they can use it without `try`/`catch` blocks and enables potential compiler optimizations. Conversely, if a function relies on the caller to provide valid data, it has a narrow contract, and declaring it `noexcept` severely restricts its error-reporting capabilities.\n\nA common and dangerous pitfall is applying `noexcept` solely for a perceived performance gain without fully considering the function's contract. This can lead to brittle and unsafe code. If a `noexcept` function internally calls another function that throws when a precondition is violated, the `noexcept` promise is broken, and the program will terminate immediately via `std::terminate`. This trades a potentially recoverable error for a fatal, uncatchable crash.",
+  "code_example": "// Wide Contract: No preconditions, always safe. Good candidate for noexcept.\nclass Circle {\n    double radius_;\npublic:\n    double get_radius() const noexcept { return radius_; }\n    bool is_valid() const noexcept { return radius_ >= 0; }\n};\n\n// Narrow Contract: Preconditions exist. Caller must ensure validity.\n// `at` throws on failure, so it cannot be noexcept.\n// `operator[]` has UB on failure, could be noexcept, but it's a risky design.\nclass IntArray {\n    int data_[10];\npublic:\n    int at(int index) {\n        if (index < 0 || index >= 10) {\n            throw std::out_of_range(\"Index out of range\");\n        }\n        return data_[index];\n    }\n};",
+  "practical_example": "The `std::vector::at()` method has a narrow contract: the index must be valid. It throws `std::out_of_range` on failure, so it is not `noexcept`. In contrast, `std::vector::size()` has a wide contract\u2014it works for any valid vector object\u2014and is correctly marked `noexcept`.",
+  "keywords": [
+    "noexcept",
+    "wide contract",
+    "narrow contract",
+    "preconditions",
+    "api design",
+    "exception safety",
+    "undefined behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "94-95",
+  "chapter": "Item 14: Declare functions noexcept if they won't emit exceptions.",
+  "id": "emcpp_core_noexcept_for_wide_versus_narrow_cd2636",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

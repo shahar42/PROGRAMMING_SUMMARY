@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Design for Perfect Forwarding",
+  "category": "lambda",
+  "explanation": "Assumption: A generic lambda parameter defined as `auto x` automatically handles efficient passing (copy vs. move) to downstream functions. Reality: Any named parameter `x` inside the lambda body is treated as an lvalue, regardless of whether the original caller passed an rvalue. Why It Fails: This lvalue decay prevents the selection of move semantics (rvalue reference overloads) in downstream functions, leading to unnecessary copying. To correctly implement perfect forwarding within a generic lambda, the parameter must be declared as a universal reference (`auto&&`) and subsequently passed using `std::forward<DeclType>(x)` (where `DeclType` is the deduced type of the parameter, often found via `decltype(x)`).",
+  "code_example": "// Incorrect (always passes lvalue)\nauto f_bad = [](auto x) { process(x); }; \n\n// Correct (uses universal reference and forwarding)\nauto f_good = [](auto&& x) { \n  process(std::forward<decltype(x)>(x)); \n};",
+  "practical_example": "A generic lambda is written to act as a wrapper, accepting any argument type and forwarding it to a resource-intensive function (e.g., a network sender). If the lambda fails to use `auto&&` and `std::forward`, temporary objects passed to the lambda are copied instead of moved into the sender's buffer, incurring significant performance penalties.",
+  "keywords": "Generic lambda perfect forwarding, lambda lvalue decay, auto&& lambda, std::forward lambda argument",
+  "difficulty": "intermediate",
+  "page_reference": "229-230",
+  "chapter": "Item 33: Use decltype on auto&& parameters to std::forward them",
+  "id": "emcpp_lambda_lambda_design_for_perfect_forwarding_0a5b79",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Task-Based versus Thread-Based: Using Futures for Simple Event Signaling",
+  "category": "async, design",
+  "explanation": "While the combination of a mutex, condition variable, and flag is the fundamental mechanism for complex waiting conditions, it results in complex, 'unclean' code for simple event notification (e.g., waiting for an event to happen once). A superior, cleaner design is to use `std::future` (often backed by `std::promise`). The detecting task sets the promise/future, and the reacting task simply calls `future.wait()` or `future.get()`. This task-based approach eliminates the need for manual management of mutexes, CVs, and shared state flags for basic synchronization.",
+  "code_example": "// Thread 1 (Detecting)\nstd::promise<void> p;\n// ... eventually ...\np.set_value();\n\n// Thread 2 (Reacting)\nstd::future<void> f = p.get_future();\nf.wait();",
+  "practical_example": "A GUI application needs to wait for a background computation to complete before updating the status bar. Instead of managing a mutex/CV pair, the GUI thread waits on a future returned by the background task, simplifying the synchronization logic significantly.",
+  "keywords": [
+    "future",
+    "promise",
+    "condition_variable alternative",
+    "event signaling"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 40",
+  "id": "emcpp_async, design_task_based_versus_thread_based_95088f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

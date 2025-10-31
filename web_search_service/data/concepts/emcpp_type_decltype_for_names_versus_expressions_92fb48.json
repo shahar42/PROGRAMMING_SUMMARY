@@ -1,0 +1,20 @@
+{
+  "topic": "Decltype: Parenthesizing Name Yields Lvalue Reference",
+  "category": "type",
+  "explanation": "The core concept is that `decltype` produces different results depending on whether its argument is a simple name or a more complex expression, even if that expression is just a name wrapped in parentheses. When applied to the name of a variable, `decltype` yields the variable's declared type. However, when applied to any other lvalue expression, it yields an lvalue reference to that expression's type.\n\nScott Meyers' key insight is that parentheses matter immensely here. While programmers often see parentheses as harmless grouping operators, `decltype` treats a variable `x` and the expression `(x)` differently. The name `x` is just a name, but the expression `(x)` is formally an lvalue expression. This subtle syntactic distinction leads to a significant semantic difference in the resulting type, which is a frequent source of surprise and bugs.\n\nThe mechanics are rooted in the C++ standard's definition of `decltype`. For an unparenthesized argument that is the name of a variable or a class member, the result is simply the declared type of that entity. For all other expressions, including a variable name enclosed in parentheses, `decltype` analyzes the value category of the expression. If the expression is an lvalue of type `T`, `decltype` reports the type `T&`. If it's an xvalue, it reports `T&&`, and for a prvalue, it reports `T`.\n\nThis behavior is critical in generic programming and metaprogramming. It provides a tool to precisely capture not just the type of an object but also its value category, which is essential for implementing perfect forwarding correctly, especially in return types. For instance, you can ensure a wrapper function returns a reference if and only if the underlying function it calls returns a reference.\n\nThe most common pitfall is overlooking this distinction and assuming `decltype(x)` and `decltype((x))` are always identical. This mistake can lead to incorrect type deductions in templates, function return types, and other generic contexts, causing either compilation errors or subtle runtime bugs when an unexpected reference is produced.",
+  "code_example": "// `x` is just a name, `decltype` yields its declared type.\nint x = 5;\nusing DeclaredType = decltype(x);  // DeclaredType is int\n\n// `(x)` is an lvalue expression, `decltype` yields a reference.\nusing ExpressionType = decltype((x)); // ExpressionType is int&\n\nconst int& ref_x = x;\n// `ref_x` is a name, `decltype` yields its declared type.\nusing RefNameType = decltype(ref_x); // RefNameType is const int&",
+  "practical_example": "In a generic lambda or function template, you might use `decltype` on an expression to determine the return type. Understanding that `decltype((var))` yields a reference allows you to write code that preserves the reference-ness of the result of an operation.",
+  "keywords": [
+    "decltype",
+    "type deduction",
+    "lvalue expression",
+    "value category",
+    "parentheses",
+    "metaprogramming"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "28-29",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_type_decltype_for_names_versus_expressions_92fb48",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

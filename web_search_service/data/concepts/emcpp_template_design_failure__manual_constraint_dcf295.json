@@ -1,0 +1,19 @@
+{
+  "topic": "Design Failure: Manual Constraint (e.g., `enable_if`) Obscures Signatures",
+  "category": "template",
+  "explanation": "When universal references prove too aggressive in overload resolution, a common workaround is to use template metaprogramming techniques like SFINAE (`Substitution Failure Is Not An Error`), primarily implemented using `std::enable_if`, to manually constrain the set of types that the forwarding template can accept. The anti-pattern is that while this solution correctly prevents undesirable overloads, the mechanism itself severely damages code readability and maintainability. The assumption is that fine-grained control justifies the complexity. The reality is that applying constraints via `std::enable_if` forces complex type trait expressions directly into the function signature, often resulting in verbose, multi-line return types or default template parameters that bury the actual function intent and parameters in a sea of metaprogramming syntax. A simple function signature becomes nearly unreadable as type traits check for criteria like 'is not a copy of the enclosing class,' 'is not a derived class of the enclosing class,' and 'is implicitly convertible to a target type.' This technique fails the design goal of clear, declarative interfaces. The necessary complexity of the constraint mechanism obscures the fundamental purpose of the function, making signatures difficult to parse, refactor, and debug. Furthermore, debugging template substitution failures when using `enable_if` is notoriously difficult, as the error messages are often long and cryptic, pointing deep into the standard library implementation rather than the user's constraint logic. Therefore, the architectural solution used to save performance (preventing accidental copies or ambiguity) results in a catastrophic failure of code quality and maintainability.",
+  "code_example": "// The constraint obscures the actual function intent (failure of readability).\ntemplate<typename T, typename = std::enable_if_t<\n    !std::is_same_v<std::decay_t<T>, Widget> &&\n    !std::is_base_of_v<Widget, std::decay_t<T>>\n>>\nWidget(T&& init_val) { /* Forwarding logic */ }",
+  "practical_example": "A small team inherits a large C++ library where perfect forwarding constructors were aggressively constrained using deeply nested `std::enable_if` clauses across forty classes. The team finds that even minor changes to constructor parameters require hours of careful review just to ensure the SFINAE constraints are still correctly filtering out self-copy/move attempts, effectively slowing down all future feature development due to the signature complexity.",
+  "keywords": [
+    "SFINAE",
+    "enable_if",
+    "readability",
+    "design",
+    "template constraint"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "209-210",
+  "chapter": "Item 27: Use alternatives to overloading on universal references",
+  "id": "emcpp_template_design_failure__manual_constraint_dcf295",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

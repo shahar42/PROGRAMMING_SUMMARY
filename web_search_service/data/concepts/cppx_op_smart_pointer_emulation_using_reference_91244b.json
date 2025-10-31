@@ -1,0 +1,16 @@
+{
+  "topic": "Smart Pointer Emulation Using Reference Counting in C",
+  "explanation": "In advanced C programming, managing dynamic memory safely and efficiently often requires techniques similar to smart pointers in C++. Since C lacks built-in support for smart pointers, developers can emulate their behavior using reference counting mechanisms. This approach ensures that shared resources are automatically released when no longer in use, preventing memory leaks and dangling pointers. Implementing reference counting in C involves careful manipulation of counters and custom cleanup functions, enabling safer shared resource management in complex systems.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "586-586",
+    "extraction_date": "2025-08-20T04:55:34.000017",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.525654"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Smart Pointer Emulation (Shared Pointer Control Block)\n\ntypedef struct {\n    void* resource; // Managed data pointer\n} ManagedResource;\n\ntypedef struct {\n    ManagedResource* ptr;\n    volatile int ref_count; // Atomic increment/decrement critical\n} RefControlBlock;\n\n// Assume resource cleanup function exists: free_resource(ptr)\n\nvoid ref_acquire(RefControlBlock* rcb) {\n    if (rcb) rcb->ref_count++;\n}\n\nvoid ref_release(RefControlBlock* rcb) {\n    if (!rcb) return;\n\n    rcb->ref_count--;\n\n    if (rcb->ref_count == 0) {\n        free_resource(rcb->ptr);\n        free(rcb); // Release the control block\n    }\n}",
+  "keywords": "C reference counting, C smart pointer emulation, Shared pointer C"
+}

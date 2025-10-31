@@ -1,0 +1,64 @@
+{
+  "name": "mq_notify",
+  "synopsis": [
+    "#include <mqueue.h>",
+    "#include <signal.h>",
+    "int mq_notify(mqd_t mqdes, const struct sigevent *sevp);"
+  ],
+  "description": "mq_notify() allows a process to register or unregister for asynchronous notifications when a new message arrives on a specified empty message queue. It uses a sigevent structure to define how notifications are delivered, such as via signals or threads.",
+  "parameters": [
+    {
+      "name": "mqdes",
+      "type": "mqd_t",
+      "description": "Message queue descriptor referring to the queue for which notifications are registered or unregistered"
+    },
+    {
+      "name": "sevp",
+      "type": "const struct sigevent *",
+      "description": "Pointer to a sigevent structure specifying the notification method, or NULL to unregister"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "The message queue descriptor specified in mqdes is invalid"
+    },
+    {
+      "code": "EBUSY",
+      "description": "Another process has already registered to receive notification for this message queue"
+    },
+    {
+      "code": "EINVAL",
+      "description": "sevp->sigev_notify is not one of the permitted values; or sevp->sigev_notify is SIGEV_SIGNAL and sevp->sigev_signo is not a valid signal number"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory"
+    }
+  ],
+  "bugs": null,
+  "versions": "POSIX.1-2001",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <mqueue.h>\n#include <pthread.h>\n#include <signal.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n\nstatic void tfunc(union sigval sv) {\n    struct mq_attr attr;\n    ssize_t nr;\n    void *buf;\n    mqd_t mqdes = *((mqd_t *) sv.sival_ptr);\n    if (mq_getattr(mqdes, &attr) == -1) handle_error(\"mq_getattr\");\n    buf = malloc(attr.mq_msgsize);\n    if (buf == NULL) handle_error(\"malloc\");\n    nr = mq_receive(mqdes, buf, attr.mq_msgsize, NULL);\n    if (nr == -1) handle_error(\"mq_receive\");\n    printf(\"Read %zd bytes from MQ\\n\", nr);\n    free(buf);\n    exit(EXIT_SUCCESS);\n}\n\nint main(int argc, char *argv[]) {\n    mqd_t mqdes;\n    struct sigevent sev;\n    if (argc != 2) { fprintf(stderr, \"Usage: %s <mq-name>\\n\", argv[0]); exit(EXIT_FAILURE); }\n    mqdes = mq_open(argv[1], O_RDONLY);\n    if (mqdes == (mqd_t) -1) handle_error(\"mq_open\");\n    sev.sigev_notify = SIGEV_THREAD;\n    sev.sigev_notify_function = tfunc;\n    sev.sigev_notify_attributes = NULL;\n    sev.sigev_value.sival_ptr = &mqdes;\n    if (mq_notify(mqdes, &sev) == -1) handle_error(\"mq_notify\");\n    pause();\n}"
+  ],
+  "related_calls": [
+    "mq_close",
+    "mq_getattr",
+    "mq_open",
+    "mq_receive",
+    "mq_send",
+    "mq_unlink"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mq_notify.pdf",
+    "extraction_date": "2025-07-29T11:08:39.722696",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

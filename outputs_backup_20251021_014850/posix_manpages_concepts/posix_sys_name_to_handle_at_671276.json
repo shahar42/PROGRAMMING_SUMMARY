@@ -1,0 +1,15 @@
+{
+  "topic": "name_to_handle_at() System Call",
+  "explanation": "The name_to_handle_at() system call returns a file handle and mount ID for a specified file path. The open_by_handle_at() system call uses this handle to open the file and return a file descriptor.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor or AT_FDCWD\n- `pathname` (const char *): Pathname relative to dirfd\n- `handle` (struct file_handle *): Pointer to structure for file handle\n- `mount_id` (int *): Pointer to return the mount ID\n- `flags` (int): Flags such as AT_EMPTY_PATH or AT_SYMLINK_FOLLOW\n\n**Common Errors:**\n- `EFAULT`: pathname, mount_id, or handle points outside your accessible address space\n- `EINVAL`: flags includes an invalid bit value or handle->handle_bytes is greater than MAX_HANDLE_SZ\n- `ENOENT`: pathname is an empty string but AT_EMPTY_PATH was not specified in flags\n- `ENOTDIR`: The file descriptor in dirfd does not refer to a directory and conditions for AT_EMPTY_PATH are not met\n- `EOPNOTSUPP`: The filesystem does not support decoding of a pathname to a file handle",
+  "syntax": "int name_to_handle_at(int dirfd, const char *pathname, struct file_handle *handle, int *mount_id, int flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = name_to_handle_at(...);  // Call the system call\nif (result == -1) {\n    perror(\"name_to_handle_at\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the name_to_handle_at() system call. The function takes 5 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.064121",
+    "syscall_name": "name_to_handle_at",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_name_to_handle_at.json",
+    "concept_id": "posix_sys_name_to_handle_at_671276"
+  }
+}

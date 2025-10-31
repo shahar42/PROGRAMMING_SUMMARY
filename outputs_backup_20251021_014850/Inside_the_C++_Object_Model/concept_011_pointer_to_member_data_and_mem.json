@@ -1,0 +1,15 @@
+{
+  "topic": "Pointer-to-Member Data and Memory Offset Calculation in C++ Object Model",
+  "explanation": "In C++, pointer-to-member data (e.g., &Class::member) is an internal construct that encodes the offset of a non-static data member within an object, allowing indirect access to that member regardless of the object's dynamic type. Internally, the compiler generates a pointer-to-member that, at runtime, is used to compute the memory address of the member relative to the object pointer. This mechanism is essential for implementing features like member pointer arithmetic, dynamic member access, and polymorphic behavior, especially in complex inheritance hierarchies where data members may have different offsets due to multiple or virtual inheritance. Understanding how pointer-to-member data is represented and used reveals the underlying memory layout and offset calculations performed by the compiler during member access.",
+  "syntax": "Pointer-to-member data declaration:\n\n    type Class::*memberPointer;\n\nPointer-to-member data initialization:\n\n    memberPointer = &Class::member;\n\nMember access via object pointer:\n\n    objectPointer->*memberPointer;\n\nor\n\n    (objectPointer->*memberPointer) = value;",
+  "code_example": "struct Point {\n    int x;\n    int y;\n};\n\nint main() {\n    Point p;\n    int Point::*ptrToY = &Point::y; // Pointer-to-member data initialized to 'y' offset\n    p.*ptrToY = 42; // Assign value via pointer-to-member\n    Point* pPtr = &p;\n    pPtr->*ptrToY = 24; // Access and modify 'y' through pointer-to-member and object pointer\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how a pointer-to-member data (ptrToY) internally encodes the offset of 'y' within the Point object. When assigning or accessing 'p.*ptrToY' or 'pPtr->*ptrToY', the compiler generates code that computes the address of 'y' by adding the stored offset to the base address of the object. This process involves the object memory layout, where 'x' and 'y' are arranged sequentially, and the pointer-to-member provides a way to perform offset calculations at runtime, enabling indirect member access that is independent of the object's static type layout.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "103-103",
+    "extraction_date": "2025-09-17T15:09:11.127086",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model"
+  }
+}

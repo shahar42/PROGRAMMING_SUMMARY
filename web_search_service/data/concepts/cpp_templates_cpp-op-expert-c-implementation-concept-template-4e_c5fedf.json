@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Template Metaprogramming and Compile-Time Computation",
+  "explanation": "Template metaprogramming (TMP) leverages C++ templates to perform computations at compile time, rather than runtime.  This allows for significant performance optimizations and the generation of highly specialized code.  The compiler acts as a sophisticated Turing-complete machine, executing the template code before the program even runs.  This process involves recursive template instantiation, which can lead to a large expansion of the compiled code.  Memory layout is impacted because the results of compile-time computations are directly embedded in the final executable, avoiding runtime overhead associated with equivalent runtime calculations.  Assembly-level behavior shows no runtime function calls for operations performed at compile time; instead, the generated code directly reflects the compile-time results.\n\nCrucially, the complexity of TMP can lead to significant compilation times, especially with deeply nested templates.  Understanding the compiler's instantiation process is critical to avoiding exponential compile times, and techniques like partial specialization and tag dispatching are essential for managing complexity. The compiler's implementation may employ different optimization strategies depending on the target architecture and optimization level. For instance, some compilers may employ more aggressive optimizations for constant expressions evaluated at compile time.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "overloading",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:22:34.788324",
+    "book_metadata_added": "2025-10-28T20:22:06.938341"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <int N>\nstruct Factorial {\n    // Recursive instantiation\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\n// Base case specialization (terminates recursion)\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\n// Computation occurs entirely during compilation.\n// Result stored in the type system.\nconstexpr int result_5 = Factorial<5>::value; // 120\n\n// Note: Requires high compiler recursion limits for large N.\n\n// Alternative using C++17 'if constexpr' (Hybrid TMP/CTCE)\ntemplate <int N>\nconstexpr int factorial_ctce() {\n    if constexpr (N <= 1) {\n        return 1;\n    } else {\n        return N * factorial_ctce<N - 1>();\n    }\n}\nconstexpr int result_7 = factorial_ctce<7>(); // 5040"
+}

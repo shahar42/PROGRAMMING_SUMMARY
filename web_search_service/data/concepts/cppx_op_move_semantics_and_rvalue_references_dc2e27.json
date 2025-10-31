@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics and Rvalue References for Ownership Transfer",
+  "explanation": "Move semantics provide a way to efficiently transfer ownership of resources (like dynamically allocated memory) from one object to another without performing a full copy.  This is particularly important for objects containing large amounts of data or managing external resources.  Rvalue references (&&) are used to identify objects that can be moved from.  Failing to utilize move semantics when appropriate can lead to significant performance degradation, especially when dealing with large objects or frequent object transfers within containers. Best practice is to define move constructors and move assignment operators (whenever possible) to prevent unnecessary copies and improve efficiency.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:29:43.242093",
+    "book_metadata_added": "2025-10-28T20:22:06.577946"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceOwner {\n    int* ptr;\n    size_t size;\npublic:\n    // Ctor/Dtor assumed\n\n    // 1. Move Constructor: Takes rvalue reference (&&)\n    ResourceOwner(ResourceOwner&& other) noexcept\n        : ptr(other.ptr), size(other.size) // Steal resource\n    {\n        other.ptr = nullptr; // Nullify source\n        other.size = 0;\n    }\n\n    // 2. Move Assignment Operator\n    ResourceOwner& operator=(ResourceOwner&& other) noexcept {\n        if (this != &other) {\n            delete[] ptr;         // Release current resource\n\n            ptr = other.ptr;      // Steal\n            size = other.size;\n\n            other.ptr = nullptr;  // Nullify source\n            other.size = 0;\n        }\n        return *this;\n    }\n};\n<ctrl63>",
+  "keywords": "Move semantics, Rvalue references, std::move, ownership transfer"
+}

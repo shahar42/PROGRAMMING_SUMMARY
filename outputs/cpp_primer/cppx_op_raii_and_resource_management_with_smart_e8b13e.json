@@ -1,38 +1,12 @@
 {
   "topic": "RAII and Resource Management with Smart Pointers (HasPtr Example)",
   "explanation": "Resource Acquisition Is Initialization (RAII) is a fundamental C++ idiom that tightly couples resource management with object lifetime.  It ensures resources (like dynamically allocated memory) are automatically released when the object owning them goes out of scope, preventing memory leaks and other resource-related issues.  Smart pointers, such as `std::unique_ptr` and `std::shared_ptr`, are crucial tools for implementing RAII effectively.  This is illustrated by the example of a `HasPtr` class, which requires careful handling of dynamically allocated memory to prevent leaks and dangling pointers.  Incorrectly implementing the copy constructor and assignment operator in `HasPtr` can lead to double deletion or memory corruption.",
-  "syntax": "Smart pointers (e.g., `std::unique_ptr`, `std::shared_ptr`) manage dynamically allocated objects, automatically deleting them when they are no longer needed.  The `std::unique_ptr` offers exclusive ownership, preventing copying. `std::shared_ptr` allows shared ownership, managed by reference counting.  The copy constructor and assignment operator must be carefully defined to handle ownership correctly.  For example, in the `HasPtr` class's copy constructor and assignment operator, you should either copy the pointer and increase the reference count (if using shared ownership) or manage deep copies (if using unique ownership) to avoid double frees or accessing invalid memory.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <memory>",
-    "class HasPtr {",
-    "public:",
-    "  HasPtr(int *p) : ptr(std::unique_ptr<int>(p)), i(0) {}",
-    "  HasPtr(const HasPtr& hp) : ptr(std::make_unique<int>(*hp.ptr)), i(hp.i) {} //Copy Constructor",
-    "  HasPtr& operator=(const HasPtr& hp){",
-    "    ptr.reset(new int(*hp.ptr));",
-    "    i = hp.i;",
-    "    return *this;",
-    "  }",
-    "  ~HasPtr() {std::cout << \"Destructor called\" << std::endl;}",
-    "private:",
-    "  std::unique_ptr<int> ptr;",
-    "  int i;",
-    "};",
-    "int main() {",
-    "  int *x = new int(42);",
-    "  HasPtr hp(x);",
-    "  HasPtr hp2 = hp; //copy constructor used",
-    "  HasPtr hp3;",
-    "  hp3 = hp;  //copy assignment used",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The example demonstrates how `std::unique_ptr` can manage the dynamically allocated memory within the `HasPtr` class.   Crucially, the copy constructor and assignment operator are explicitly defined to create deep copies, avoiding the dangling pointer problem and double deletion. The use of `std::unique_ptr` prevents accidental copying of ownership. The destructor ensures that memory allocated to `ptr` is freed automatically when `HasPtr` objects are destroyed. This is best practice, preventing memory leaks.  This shows how RAII paired with smart pointers simplifies resource management, enhances code clarity, and avoids common errors like dangling pointers and memory leaks.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "copy",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T05:13:00.957961"
-  }
+    "extraction_date": "2025-08-20T05:13:00.957961",
+    "book_metadata_added": "2025-10-28T20:22:06.521514"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

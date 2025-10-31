@@ -1,0 +1,17 @@
+{
+  "topic": "Destructor Invocation Order and Resource Cleanup in Complex Inheritance Hierarchies",
+  "explanation": "In advanced C programming, especially when simulating object-oriented patterns or managing complex resource lifecycles, understanding the precise order of destructor calls in inheritance hierarchies is crucial. This ensures proper cleanup of resources allocated at various levels of the hierarchy, prevents resource leaks, and maintains program correctness. Although C does not natively support destructors, advanced techniques involve manual function pointers, vtables, or macros to emulate destructor behavior, making the invocation order and resource management critical for robust design.",
+  "syntax": "void (*destructor)(void *self); // Function pointer for destructor\n\n// Struct with destructor pointer\nstruct Class {\n    void (*destructor)(void *self);\n    // other members\n};\n\n// Derived class struct\nstruct DerivedClass {\n    struct Class base;\n    // additional members\n};\n\n// Destructor invocation sequence\ncall_destructor(struct Class *obj) {\n    if (obj && obj->destructor) {\n        obj->destructor(obj);\n    }\n}",
+  "code_example": "struct ZooAnimal {\n    void (*destroy)(struct ZooAnimal *self);\n};\nstruct Bear {\n    struct ZooAnimal base;\n    // Bear-specific members\n};\nstruct Panda {\n    struct Bear base;\n    // Panda-specific members\n};\nvoid destroy_Panda(struct ZooAnimal *self) {\n    // Cast to Panda if needed and cleanup resources\n    // Call base destructors in reverse order\n    struct Panda *panda = (struct Panda *)self;\n    // Cleanup Panda-specific resources\n    // Then call Bear destructor\n    destroy_Bear(&panda->base);\n}\nvoid destroy_Bear(struct ZooAnimal *self) {\n    struct Bear *bear = (struct Bear *)self;\n    // Cleanup Bear-specific resources\n    // Then call ZooAnimal destructor\n    destroy_ZooAnimal(self);\n}\nvoid destroy_ZooAnimal(struct ZooAnimal *self) {\n    // Cleanup ZooAnimal resources\n}\n// Usage\nstruct Panda p;\np.base.base.destroy = destroy_Panda;\np.base.base.destroy((struct ZooAnimal *)&p);",
+  "example_explanation": "This example demonstrates a manual implementation of destructor functions in a hierarchy of structs emulating inheritance in C. Each 'destructor' function is responsible for cleaning up resources specific to its level and then explicitly calling the destructor of its base class in reverse order. This pattern ensures that resource cleanup occurs correctly and in the proper sequence, mimicking the destructor invocation order in object-oriented languages. It highlights advanced resource management techniques in C, emphasizing the importance of destructor order in complex inheritance-like structures.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "986-986",
+    "extraction_date": "2025-08-20T07:38:11.553775",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "classes",
+    "extraction_type": "practical_programming"
+  }
+}

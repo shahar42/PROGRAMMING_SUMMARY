@@ -1,42 +1,12 @@
 {
   "topic": "Implementation of std::timed_mutex and its performance characteristics",
   "explanation": "The `std::timed_mutex` presents a fascinating case study in C++ implementation due to its intricate interaction between the standard library, the operating system's threading primitives, and the compiler's optimization strategies.  Understanding its implementation requires delving into the complexities of thread synchronization, memory models, and potential compiler-specific optimizations.  A crucial aspect is how the `try_lock_until` method, in particular, interacts with the underlying operating system's scheduling mechanisms and how the compiler translates this high-level abstraction into efficient low-level code.",
-  "syntax": "```c++\n#include <mutex>\n#include <chrono>\n\nstd::timed_mutex mtx;\n\nbool try_to_lock() {\n  return mtx.try_lock();\n}\n\nbool try_to_lock_until(std::chrono::system_clock::time_point time_point) {\n  return mtx.try_lock_until(time_point);\n}\n\nvoid lock(){\n  mtx.lock();\n}\n\nvoid unlock(){\n  mtx.unlock();\n}\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <mutex>",
-    "#include <chrono>",
-    "#include <thread>",
-    "",
-    "std::timed_mutex mtx;",
-    "",
-    "void worker_thread() {",
-    "  auto tp = std::chrono::system_clock::now() + std::chrono::milliseconds(100);",
-    "  if (mtx.try_lock_until(tp)) {",
-    "    std::cout << \"Acquired lock\\n\";",
-    "    std::this_thread::sleep_for(std::chrono::milliseconds(200));",
-    "    mtx.unlock();",
-    "  } else {",
-    "    std::cout << \"Failed to acquire lock\\n\";",
-    "  }",
-    "}",
-    "",
-    "int main() {",
-    "  std::thread t1(worker_thread);",
-    "  std::this_thread::sleep_for(std::chrono::milliseconds(50));",
-    "  mtx.lock();",
-    "  std::cout << \"Main thread acquired lock\\n\";",
-    "  std::this_thread::sleep_for(std::chrono::milliseconds(300));",
-    "  mtx.unlock();",
-    "  t1.join();",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates the use of `try_lock_until`.  The compiler will translate this into calls to OS-specific threading primitives (e.g., `pthread_mutex_timedlock` on POSIX systems or `WaitForSingleObjectEx` on Windows).  The performance hinges on the efficiency of these OS calls and the overhead of context switching.  The memory layout is straightforward: the `std::timed_mutex` object will contain a pointer to the underlying OS mutex structure, along with possibly some internal state for managing the timeout.  Assembly-level analysis would reveal the direct calls to the OS's API functions and their associated system calls, highlighting the crucial role of the operating system in realizing the semantics of a timed mutex. The runtime behavior involves kernel-level scheduling decisions, impacting latency and responsiveness significantly.  Compile-time behavior is mostly limited to static initialization of the mutex object.  Compiler optimizations can reduce the overhead of function calls, but the core operation remains fundamentally dependent on OS services, making it OS- and hardware-dependent in terms of actual performance.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "exceptions",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T09:48:22.023913"
-  }
+    "extraction_date": "2025-08-19T09:48:22.023913",
+    "book_metadata_added": "2025-10-28T20:22:06.890747"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

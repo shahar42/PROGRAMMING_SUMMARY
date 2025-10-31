@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Sync Primitives with Mutex Examples",
+  "explanation": "Concurrency allows multiple tasks to proceed seemingly at the same time, improving performance.  However, shared resources require synchronization to prevent race conditions (unpredictable behavior due to unsynchronized access). Synchronization primitives, like mutexes (mutual exclusion locks), coordinate access to shared resources, ensuring data consistency and program correctness within a computer system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1034-1034",
+    "extraction_date": "2025-07-29T16:15:07.635736",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.701611"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "void worker_task(int id, int& counter) {\n    // Thread entry point\n    counter += id;\n}\n\n// Basic Thread Creation (C++)\nint shared_val = 0;\nstd::thread t1(worker_task, 5, std::ref(shared_val));\nstd::thread t2(worker_task, 8, std::ref(shared_val));\n\n// Synchronization management\nt1.join(); // Wait for t1 to finish\nt2.join(); // Wait for t2 to finish\n\n\n// Manual Mutex Usage (C++ Style)\nstd::mutex mtx;\nint shared_resource = 0;\n\nvoid unsafe_access() {\n    shared_resource++; // Race Condition Risk\n}\n\nvoid safe_access_manual() {\n    mtx.lock();       // Acquire lock\n    shared_resource++;\n    // Must remember to unlock!\n    mtx.unlock();     // Release lock\n}\n\n\n// RAII Locking (std::lock_guard) - Preferred\nstd::mutex mtx_raii;\n\nvoid safe_access_raii() {\n    // Lock acquired upon construction\n    std::lock_guard<std::mutex> lock(mtx_raii);\n\n    // Critical Section\n    shared_resource = 42;\n\n    // Lock automatically released upon scope exit\n    // (even if exception is thrown)\n}\n\n\n// Atomic Operations (Lock-Free Primitives)\nstd::atomic<int> atomic_counter(0);\n\nvoid atomic_increment() {\n    // Guaranteed consistency without explicit mutex\n    atomic_counter++; // atomic_counter.fetch_add(1)\n}\n\nint current_val = atomic_counter.load();\n\n\n// Guaranteed One-Time Initialization\nstd::once_flag init_flag;\nResource* R_singleton = nullptr;\n\nvoid init_singleton() {\n    std::call_once(init_flag, [](){\n        // Lambda executed exactly once\n        R_singleton = new Resource();\n    });\n}",
+  "keywords": "mutex, race condition, synchronization primitives, C++ concurrency"
+}

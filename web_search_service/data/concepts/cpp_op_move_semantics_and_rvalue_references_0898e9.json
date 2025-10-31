@@ -1,0 +1,18 @@
+{
+  "topic": "Move Semantics and Rvalue References Distinguishing Lvalues",
+  "explanation": "In modern C++, move semantics enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature that allow functions and constructors to distinguish between lvalues and rvalues, facilitating move semantics. This is especially important in resource-managing classes, such as containers and smart pointers, to optimize resource transfer without expensive copying.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "296-296",
+    "extraction_date": "2025-08-19T03:22:28.860983",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.936753"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Resource {\n    int* data;\npublic:\n    // Copy Constructor (Lvalue)\n    Resource(const Resource& other);\n\n    // Move Constructor (Rvalue, enables resource transfer)\n    Resource(Resource&& other) noexcept {\n        data = other.data;\n        other.data = nullptr; // Nullify source\n    }\n};\n\nvoid process(int& l) {}   // Lvalue reference\nvoid process(int&& r) {}  // Rvalue reference\n\nint x = 5;\nprocess(x);             // Calls process(int& l)\nprocess(10);            // Calls process(int&& r)\n\n// std::move converts lvalue x into an rvalue expression\nprocess(std::move(x));  // Calls process(int&& r)",
+  "keywords": "Move Semantics, Rvalue Reference, Lvalue Rvalue, C++ &&"
+}

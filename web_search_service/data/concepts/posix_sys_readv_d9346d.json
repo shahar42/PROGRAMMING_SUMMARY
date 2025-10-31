@@ -1,0 +1,16 @@
+{
+  "topic": "readv() System Call",
+  "explanation": "The readv() system call reads data from a file descriptor into multiple buffers described by an array of iovec structures. It operates similarly to read(2) but scatters the input across the buffers. The data transfer is atomic, ensuring contiguous reading.\n\n**Parameters:**\n- `fd` (int): File descriptor from which to read data\n- `iov` (const struct iovec *): Pointer to an array of iovec structures describing the buffers\n- `iovcnt` (int): Number of elements in the iov array\n\n**Common Errors:**\n- `EINVAL`: The sum of the iov_len values overflows an ssize_t value\n- `EINVAL`: The vector count iovcnt is less than zero or greater than the permitted maximum\n- `EOPNOTSUPP`: An unknown flag is specified in flags\n\n**Related System Calls:** `pread()`, `read()`, `write()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.121488",
+    "syscall_name": "readv",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_readv.json",
+    "concept_id": "posix_sys_readv_d9346d",
+    "book_metadata_added": "2025-10-28T20:22:06.633404"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct iovec { void *iov_base; size_t iov_len; };\n\nchar bufA[16], bufB[32];\n\nstruct iovec iov[2];\niov[0].iov_base = bufA;\niov[0].iov_len = sizeof(bufA);\niov[1].iov_base = bufB;\niov[1].iov_len = sizeof(bufB);\n\n// Read 48 bytes total into bufA then bufB\nssize_t bytes_read = readv(fd, iov, 2);\n\n// Common Errors:\n// EBADF: Invalid file descriptor (fd)\n// EINVAL: iovcnt too large (>= IOV_MAX)\n// EFAULT: iov or buffer pointers inaccessible\n// EINTR: Signal interruption",
+  "keywords": "readv, scatter gather I/O, vectorized read, iovec"
+}

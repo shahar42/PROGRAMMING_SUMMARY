@@ -1,0 +1,14 @@
+{
+  "topic": "Using Smart Pointers to Manage Resources",
+  "explanation": "Smart pointers are crucial for modern C++ programming, offering automatic memory management and preventing memory leaks.  They act as wrappers around raw pointers, automatically deleting the pointed-to object when the smart pointer goes out of scope.  This eliminates the need for manual `delete` calls, reducing errors and making code safer and easier to maintain.  Choosing the right type of smart pointer (unique_ptr, shared_ptr, weak_ptr) depends on the ownership and sharing semantics required.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:40:42.502200",
+    "book_metadata_added": "2025-10-28T20:22:06.579253"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// std::unique_ptr: Exclusive, move-only ownership\nauto u_ptr_res = std::make_unique<int>(42);\n\n// Ownership transfer required (no copy)\nauto u_ptr_new = std::move(u_ptr_res);\n\n// Access value and raw pointer\n*u_ptr_new = 100;\nint* raw_p = u_ptr_new.get();\n\n// Unique_ptr with a Custom Deleter\nstruct FileCloser { void operator()(FILE* f) const { fclose(f); } };\nstd::unique_ptr<FILE, FileCloser>\n    log_file(fopen(\"log.txt\", \"w\"));\n\n// ------------------------------------------\n\n// std::shared_ptr: Reference counted, shared ownership\nauto s_ptr_A = std::make_shared<std::string>(\"Shared\");\n\n// Copying is allowed (Increments reference count)\nauto s_ptr_B = s_ptr_A;\n\n// Check how many pointers share ownership\nint count = s_ptr_A.use_count(); // 2\n\n// Access value\nif (s_ptr_B) { s_ptr_B->append(\" Data\"); }\n\n// ------------------------------------------\n\n// std::weak_ptr: Non-owning observer (Breaks cycles)\nauto s_ptr_C = std::make_shared<int>(99);\n\n// Create weak reference (count remains 1)\nstd::weak_ptr<int> w_ptr(s_ptr_C);\n\n// Must 'lock' to access the object safely\nif (auto locked_s = w_ptr.lock()) {\n    // locked_s is a temporary shared_ptr\n    *locked_s = 1;\n}\n\n// Check if resource is still valid\nif (w_ptr.expired()) {\n    // Resource has been deleted\n}\n<ctrl63>",
+  "keywords": "smart pointers, unique_ptr shared_ptr, automatic memory management, C++ resource management"
+}

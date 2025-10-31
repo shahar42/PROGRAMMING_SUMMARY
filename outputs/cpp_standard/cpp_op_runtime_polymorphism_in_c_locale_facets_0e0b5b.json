@@ -1,25 +1,12 @@
 {
   "topic": "Runtime Polymorphism in C++ Locale Facets via Virtual Functions",
   "explanation": "In C++ standard library locale facets, such as moneypunct, virtual functions enable runtime polymorphism to handle locale-specific formatting. The compiler implements this using a virtual table (vtable), a hidden data structure associated with classes that have virtual functions. For a class like moneypunct, the compiler generates a vtable containing pointers to the implementations of its virtual functions (e.g., do_decimal_point()). Each object instance of moneypunct includes a vptr (virtual table pointer) as its first member, typically at the beginning of the object's memory layout, followed by any data members. This setup allows dynamic dispatch: when a virtual function is called (e.g., via a base class pointer), the program loads the vptr at runtime, indexes into the vtable to find the correct function pointer, and invokes it. Memory layout implications include additional overhead; for example, a moneypunct object might occupy more space due to the vptr (usually 8 bytes on 64-bit systems), potentially fragmenting memory or increasing cache misses in performance-critical code. Performance-wise, virtual calls introduce indirect branching, which can be slower than direct calls due to CPU pipeline stalls or branch prediction failures, though modern compilers might devirtualize simple cases if the call site is predictable. Assembly-level behavior typically involves instructions like loading the vptr (e.g., 'mov rax, [rdi]' in x86-64 assembly for the object pointer), offsetting to the function pointer in the vtable, and jumping indirectly (e.g., 'call qword ptr [rax + offset]'). This is purely runtime behavior, as the exact function to call cannot be determined at compile time without full context, contrasting with compile-time resolved calls in non-virtual functions. In the context of moneypunct, this mechanism supports internationalization by allowing facets to be swapped at runtime, but it trades off for potential performance degradation in high-frequency operations like string formatting.",
-  "syntax": "template <class charT, bool Intl = false>\nclass moneypunct : public std::locale::facet {\n  public:\n    typedef charT char_type;\n    typedef std::basic_string<charT> string_type;\n    explicit moneypunct(size_t refs = 0) : std::locale::facet(refs) {}  // Constructor; implementation note: The vptr is initialized here to point to the class's vtable.\n    virtual charT do_decimal_point() const;  // Virtual function; resolved via vtable at runtime.\n    virtual charT do_thousands_sep() const;  // Virtual; runtime dispatch based on derived class.\n    virtual std::string do_grouping() const;\n    virtual std::string_type do_curr_symbol() const;\n    virtual std::string_type do_positive_sign() const;\n    virtual std::string_type do_negative_sign() const;\n    virtual int do_frac_digits() const;\n    virtual pattern do_pos_format() const;  // Returns a pattern object; involves runtime vtable lookup.\n    virtual pattern do_neg_format() const;\n    // Note: The pattern object (e.g., for do_pos_format()) is a struct with a field array, processed at runtime to enforce formatting rules like symbol placement.\n};",
-  "code_example": [
-    "#include <locale>",
-    "#include <iomanip>",
-    "#include <iostream>",
-    "#include <string>",
-    "int main() {",
-    "    std::locale loc(\"en_US.UTF-8\");  // Create a locale object, which aggregates facets like moneypunct.",
-    "    std::cout.imbue(loc);  // Imbue the stream with the locale, triggering runtime use of facets.",
-    "    double amount = 1234.56;  // Example monetary value.",
-    "    std::cout << std::showbase << std::put_money(static_cast<long double>(amount)) << std::endl;  // Uses money_put facet, which calls moneypunct virtual functions.",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "This code demonstrates runtime polymorphism in action with the moneypunct facet. When std::cout is imbued with the locale, the stream's money_put facet is set to use the moneypunct implementation from that locale. For instance, std::put_money invokes virtual functions like do_decimal_point() or do_pos_format() through the vtable of the moneypunct object. At runtime, the compiler resolves these calls by accessing the vptr of the facet object, leading to assembly instructions such as 'mov rax, [rdi]' (load vptr) followed by 'call qword ptr [rax + 8]' (assuming the function offset is 8 bytes). This indirect call incurs a performance penalty, potentially adding 5-20 cycles per call due to cache access for the vtable and branch prediction overhead, compared to direct calls. Memory layout: The moneypunct object in the locale might be stored in a per-thread or global structure, with its vptr ensuring the correct derived class implementation is used (e.g., for different locales). Compile-time behavior is limited here; while the code structure is known, the exact formatting (e.g., decimal point character) is resolved at runtime, preventing optimizations like constant propagation. In performance-sensitive applications, this could lead to bottlenecks, but the design prioritizes flexibility for internationalization.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T06:38:11.671808"
-  }
+    "extraction_date": "2025-08-19T06:38:11.671808",
+    "book_metadata_added": "2025-10-28T20:22:06.839381"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

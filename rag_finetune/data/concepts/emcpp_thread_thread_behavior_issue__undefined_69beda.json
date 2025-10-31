@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Behavior/Issue: Undefined Behavior on Unjoinable `std::thread`",
+  "category": "thread",
+  "explanation": "Assumption: Calling `join()` or `detach()` on a `std::thread` is always safe, provided the thread was successfully started. Reality: Invoking `std::thread::join()` or `std::thread::detach()` on an object that is not joinable (i.e., it holds no associated execution thread, having already been joined, detached, or moved from) results in undefined behavior (UB). Why It Fails: UB can lead to silent data corruption, resource leaks, or immediate program termination. Any thread management wrapper (like a custom `ThreadRAII` class) must strictly check `t.joinable()` before attempting to join or detach the thread handle to ensure runtime safety.",
+  "code_example": "std::thread t1(f);\nt1.join();\nt1.join(); // UB: t1 is no longer joinable",
+  "practical_example": "A smart pointer designed to manage a thread fails to check joinability in its destructor. If the client code explicitly joins the thread before the smart pointer goes out of scope, the destructor attempts a second, illegal join operation, causing UB.",
+  "keywords": [
+    "joinable()",
+    "undefined behavior",
+    "join",
+    "detach",
+    "thread safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Remember std::threads are joinable only if they are joinable",
+  "id": "emcpp_thread_thread_behavior_issue__undefined_69beda",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

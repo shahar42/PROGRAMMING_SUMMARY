@@ -1,0 +1,15 @@
+{
+  "topic": "move_pages() System Call",
+  "explanation": "move_pages moves individual pages of a specified process to another NUMA node. The result of the move is reflected in a status array, and flags control the constraints on the pages to be moved.\n\n**Parameters:**\n- `pid` (int): The ID of the process in which pages are to be moved; 0 for the calling process.\n- `count` (unsigned long): The number of pages to move, defining the size of the pages, nodes, and status arrays.\n- `pages` (void *pages[.count]): An array of pointers to the pages that should be moved, aligned to page boundaries.\n- `nodes` (const int nodes[.count]): An array of integers specifying the desired node for each page; can be NULL to get current node status.\n- `status` (int status[.count]): An array that returns the status of each page after the operation.\n- `flags` (int): Flags specifying the types of pages to move, such as MPOL_MF_MOVE or MPOL_MF_MOVE_ALL.\n\n**Common Errors:**\n- `E2BIG`: Too many pages to move.\n- `EACCES`: One of the target nodes is not allowed by the current cpuset.\n- `EFAULT`: Parameter array could not be accessed.\n- `EINVAL`: Invalid flags specified or attempt to migrate pages of a kernel thread.\n- `ENODEV`: One of the target nodes is not online.\n\n**Related System Calls:** `get_mempolicy()`, `mbind()`, `set_mempolicy()`",
+  "syntax": "long move_pages(int pid, unsigned long count, void *pages[.count], const int nodes[.count], int status[.count], int flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = move_pages(...);  // Call the system call\nif (result == -1) {\n    perror(\"move_pages\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the move_pages() system call. The function takes 6 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.074269",
+    "syscall_name": "move_pages",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_move_pages.json",
+    "concept_id": "posix_sys_move_pages_64122d"
+  }
+}

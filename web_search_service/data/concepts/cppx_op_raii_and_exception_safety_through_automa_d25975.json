@@ -1,0 +1,14 @@
+{
+  "topic": "RAII and Exception Safety through Automatic Object Destruction",
+  "explanation": "Resource Acquisition Is Initialization (RAII) is a fundamental C++ technique that leverages automatic object destruction to manage resources (memory, files, network connections, etc.) safely and efficiently.  When an exception occurs, the C++ runtime performs stack unwinding, automatically destroying objects in the reverse order of their construction. This ensures resources are released even if errors occur, preventing resource leaks and promoting exception safety.  Properly designed classes using RAII guarantee that their destructors release held resources, regardless of how the function exits (normally or via exception).",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:23:09.712245",
+    "book_metadata_added": "2025-10-28T20:22:06.565114"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class Buffer {\n    int* data;\npublic:\n    Buffer(size_t size) : data(new int[size]) {} // Resource Acquisition\n    ~Buffer() { delete[] data; }                 // Resource Release (Destruction)\n    Buffer(const Buffer&) = delete;              // Rule of Five safety\n};\n\n// Standard library RAII (Preferred Method)\nvoid safe_function() {\n    auto p = std::make_unique<Connection>(); // RAII object constructed\n    // If an exception occurs during subsequent operations,\n    // p is destroyed during stack unwinding, guaranteeing release.\n}\n\n// RAII for synchronization\nstd::mutex mtx;\nvoid protected_call() {\n    std::lock_guard<std::mutex> lock(mtx);\n    // Mutex automatically released (unlocked) upon scope exit\n    // (return or exception throw).\n}",
+  "keywords": "RAII, Exception safety, Stack unwinding, Resource management C++"
+}

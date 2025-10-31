@@ -1,0 +1,14 @@
+{
+  "topic": "Virtual Functions and Vtable Mechanism",
+  "explanation": "In C++ (as per ISO/IEC 14882:2014(E), C++11 and later), virtual functions enable runtime polymorphism by allowing derived class methods to be called through a base class pointer or reference. The compiler implements this using a vtable (virtual table), which is an array of pointers to the virtual functions for a class. For each class with virtual functions, the compiler generates a vtable at compile-time, containing entries for each virtual function in the class hierarchy. Each object of such a class includes a hidden pointer, known as the vptr (virtual table pointer), typically as the first member of the object in memory layout. This vptr points to the appropriate vtable for the object's actual type.\n\nMemory layout implications: The object's size increases by the size of a pointer (e.g., 8 bytes on a 64-bit system) to accommodate the vptr. The vtable itself is stored in read-only memory, and its layout is determined at compile-time, but the vptr is set at runtime during object construction (e.g., in the constructor of the most derived class). Performance-wise, virtual function calls incur overhead compared to non-virtual calls; a non-virtual call is a direct jump, while a virtual call involves an indirect jump through the vptr and vtable, potentially leading to branch prediction misses and cache inefficiencies. In assembly, a virtual call might translate to instructions like: loading the vptr from the object (e.g., mov rax, [rdi] for the object in rdi), then loading the function pointer from the vtable (e.g., mov rax, [rax + offset]), and finally calling through that pointer (e.g., call rax). This behavior is runtime-dependent, as the actual function invoked is resolved based on the object's dynamic type, contrasting with compile-time resolution for non-virtual functions. Compilers like GCC or Clang optimize this where possible, such as devirtualization if the type is known, but generally, it's a runtime mechanism.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:15:15.932577",
+    "book_metadata_added": "2025-10-28T20:22:06.916650"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "",
+  "keywords": "vtable, dynamic dispatch, C++ runtime polymorphism, virtual functions"
+}

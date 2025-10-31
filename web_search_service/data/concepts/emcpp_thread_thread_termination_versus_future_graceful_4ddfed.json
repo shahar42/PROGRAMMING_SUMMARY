@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Termination versus Future Graceful Destruction",
+  "category": "thread",
+  "explanation": "Assumption: All high-level concurrency handles have similar destructor behavior. Reality: The destructor behavior of `std::thread` and `std::future` diverges significantly. If a `std::thread` is joinable upon destruction, the program terminates (via `std::terminate`) because implicit join or detach were deemed worse alternatives (Item 37). In contrast, the destructor for a `std::future` never causes program termination, even though its behavior varies (sometimes acting like an implicit join, sometimes an implicit detach, and sometimes neither), ensuring resource cleanup without catastrophic failure.",
+  "code_example": "std::thread t([]{ /* long task */ });\n// If t is joinable here, program terminates.\n\nstd::future<int> f = std::async([]{ return 42; });\n// f destruction is safe, regardless of task completion status.",
+  "practical_example": "A developer must carefully manage `std::thread` lifetimes to prevent termination, but can rely on the `std::future` destructor to safely manage the result channel of an asynchronous task, greatly simplifying error handling for high-level calls.",
+  "keywords": "std::thread destructor terminate, joinable thread destruction, thread vs future destructor",
+  "difficulty": "intermediate",
+  "page_reference": "276-277",
+  "chapter": "Item 38: Be aware of varying std::future destructor behavior",
+  "id": "emcpp_thread_thread_termination_versus_future_graceful_4ddfed",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "getsid() System Call",
+  "explanation": "getsid() returns the session ID of the process with the specified process ID. If pid is 0, it returns the session ID of the calling process.\n\n**Parameters:**\n- `pid` (pid_t): The process ID; if 0, returns the session ID of the calling process.\n\n**Common Errors:**\n- `EPERM`: A process with process ID pid exists, but it is not in the same session as the calling process, and the implementation considers this an error.\n- `ESRCH`: No process with process ID pid was found.\n\n**Related System Calls:** `getpgid()`, `setsid()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.221797",
+    "syscall_name": "getsid",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getsid.json",
+    "concept_id": "posix_sys_getsid_55c5b6",
+    "book_metadata_added": "2025-10-28T20:22:06.626382"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "pid_t target_pid = 1001;\npid_t sid;\n\n// Syntax: pid_t getsid(pid_t pid);\n\n// Get own Session ID (using pid=0)\nsid = getsid(0);\n\n// Get Session ID of target_pid\nsid = getsid(target_pid);\n\nif (sid == (pid_t)-1) {\n    // Failure check\n    if (errno == ESRCH) {\n        /* No process found with target_pid */\n    } else if (errno == EPERM) {\n        /* Session Isolation/Permission restriction */\n    }\n} else {\n    /* Success: sid contains the session ID */\n}\n\n// Related: getsid(getpid()), getsid(0)\n// Related System Calls: setsid()",
+  "keywords": "getsid, get session ID, process SID"
+}

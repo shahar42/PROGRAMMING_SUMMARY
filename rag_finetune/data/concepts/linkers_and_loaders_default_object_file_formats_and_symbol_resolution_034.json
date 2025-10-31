@@ -1,0 +1,16 @@
+{
+  "topic": "ELF, COFF, PE Formats and Symbol Resolution",
+  "explanation": "Object file formats (like ELF, COFF, and PE) are the fundamental building blocks of programs.  They contain machine code, data, and metadata crucial for linking and loading.  Symbol resolution is the process of matching symbols (function and variable names) defined in one object file to their references in other object files, enabling the loader to construct an executable or shared library from multiple compiled units. This is critical because it allows modular programming and code reuse.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "120-120",
+    "extraction_date": "2025-07-18T01:49:53.958679",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.750006"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Simplified ELF Symbol Entry (Elf32_Sym)\ntypedef struct {\n    uint32_t st_name;   // Index into string table\n    uint32_t st_value;  // Address/Offset of symbol\n    uint16_t st_shndx;  // Section Index (SHN_UNDEF, SHN_COMMON, etc.)\n    unsigned char st_info; // Binding (Local, Global, Weak) & Type\n} Elf_Sym;\n\n// PE/COFF Symbol Storage Class Definition (StorageClass field)\n#define SCL_EXTERN    2  // Global (usually strong)\n#define SCL_STATIC    3  // Local/Internal\n#define SCL_WEAKEXT  17  // Weak External (Specific to PE/COFF/XCOFF)\n\n// Simplified Relocation Entry (Used by Linker)\ntypedef struct {\n    uintptr_t r_offset; // Address/Offset needing modification\n    uint32_t r_info;    // Packed: Symbol Index & Relocation Type\n    // Linker Operation (e.g., R_386_PC32):\n    // *Target = S + A - P\n    // S = Symbol Value, A = Addend, P = Place (r_offset)\n} Elf_Rel;\n\n// Strong vs Weak Symbol Binding Example (GNU C)\n// Strong symbol definition (cannot be redefined)\nint global_data = 5;\nvoid strong_function() {}\n\n// Weak symbol definition (allowed to be overridden by a strong one)\n__attribute__((weak)) void default_handler() {}\n\n// Resolution Rule: Strong wins over Weak.\n// Strong vs Strong definition leads to 'multiple definition' error.",
+  "keywords": "Object file format, Symbol resolution, ELF format, Linking process"
+}

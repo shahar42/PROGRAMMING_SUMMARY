@@ -1,31 +1,12 @@
 {
   "topic": "Template Metaprogramming and Compile-Time Polymorphism with `std::enable_if` and SFINAE",
   "explanation": "This expert-level C++ concept explores how template metaprogramming, specifically using `std::enable_if` and Substitution Failure Is Not An Error (SFINAE), allows for compile-time polymorphism and conditional compilation based on type traits.  The compiler performs extensive type checking at compile time, eliminating runtime overhead and improving code safety.  Understanding how the compiler processes these templates is crucial for writing efficient and robust code.\n\n**Compiler Implementation:** The compiler uses template instantiation to generate code specific to each type used with the template.  `std::enable_if` guides this process by conditionally enabling or disabling specific template specializations based on the results of type traits. If a specialization is not enabled due to a type mismatch, the compiler silently ignores it (SFINAE), rather than causing a compilation error. This allows creating functions that behave differently depending on the input type without resorting to runtime branching.  The compiler's internal mechanisms for template instantiation and type deduction are heavily involved.\n\n**Memory Layout and Performance:** Because the type-specific code is generated at compile time, there's no runtime penalty associated with choosing between different behaviors.  The memory layout is determined at compile time, ensuring optimal data structure selection based on the input types. This eliminates the runtime overhead of function pointers or virtual functions often used in runtime polymorphism.\n\n**Assembly-Level Behavior:** The generated assembly code will directly reflect the specific template instantiation. For example, a function operating on an integer type might generate optimized integer arithmetic instructions, while the same function instantiated with a floating-point type would use floating-point instructions. No runtime dispatch mechanism is present in the assembly code.\n\n**Runtime vs. Compile-Time Behavior:**  The core behavior is entirely compile-time.  The decision on which code to execute is made during compilation, resulting in a single, optimized code path for the specific type at runtime. There is no runtime type checking or branching involved.",
-  "syntax": "```c++\n#include <type_traits>\n\ntemplate <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>\nint processInteger(T value) {\n  return value * 2;\n}\n\ntemplate <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>\ndouble processFloatingPoint(T value) {\n  return value * 2.0;\n}\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <type_traits>",
-    "template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>",
-    "int processInteger(T value) {",
-    "  return value * 2;",
-    "}",
-    "",
-    "template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>",
-    "double processFloatingPoint(T value) {",
-    "  return value * 2.0;",
-    "}",
-    "int main() {",
-    "  std::cout << processInteger(5) << std::endl; // Calls processInteger<int>",
-    "  std::cout << processFloatingPoint(5.5) << std::endl; // Calls processFloatingPoint<double>",
-    "  //std::cout << processInteger(5.5) << std::endl; // Compilation error:  processInteger<double> is not enabled",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The example demonstrates how `std::enable_if` and SFINAE control which function is instantiated based on the input type. `processInteger` is only instantiated for integral types, and `processFloatingPoint` only for floating-point types. Attempting to call `processInteger` with a floating-point type results in a compilation failure due to SFINAE, highlighting the compile-time nature of the type checking and code selection. The compiler will generate separate, optimized code for each function instance.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T07:11:46.524604"
-  }
+    "extraction_date": "2025-08-19T07:11:46.524604",
+    "book_metadata_added": "2025-10-28T20:22:06.827273"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

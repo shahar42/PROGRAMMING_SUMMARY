@@ -1,0 +1,19 @@
+{
+  "topic": "Task-Based versus Thread-Based: Scheduler Flexibility for Thread Exhaustion",
+  "category": "async, thread, perf",
+  "explanation": "Assumption: Calling `std::async` is functionally equivalent to creating a new `std::thread` to execute a task, meaning both methods pose the same risk of system thread exhaustion if called frequently. Reality: When `std::async` is called with the default launch policy (see Item 36), it does not guarantee the creation of a new software thread. Instead, it permits the runtime scheduler to defer the execution of the function until the result is required. Why It Works: If the system is oversubscribed or out of threads, the scheduler can arrange for the task to be run synchronously on the thread that calls `get()` or `wait()` on the resulting `std::future`. This flexibility significantly reduces the risk of hitting the system limit and throwing a thread exhaustion exception compared to using `std::thread` directly, which demands an immediate resource commitment.",
+  "code_example": "auto fut = std::async(doAsyncWork); \n// If system is busy, doAsyncWork might run on the calling thread \n// when fut.get() is called later.",
+  "practical_example": "A server application processes thousands of independent requests using `std::async`. Even under peak load, the system remains stable because the scheduler can gracefully degrade execution to synchronous waiting on the result threads rather than crashing due to resource starvation.",
+  "keywords": [
+    "std::async",
+    "default launch policy",
+    "thread exhaustion",
+    "scheduler",
+    "load balancing"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "259-263",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_async, thread, perf_task_based_versus_thread_based_c34cc9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

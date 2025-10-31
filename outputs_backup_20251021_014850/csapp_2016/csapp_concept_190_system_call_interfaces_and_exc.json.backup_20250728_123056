@@ -1,0 +1,27 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls are the interface between a process running in user space and the operating system kernel.  They provide a mechanism for applications to request services from the kernel, such as accessing files, managing memory, or performing I/O operations. Exceptional control flow refers to the non-linear flow of execution caused by events like exceptions (hardware or software generated), signals (software interrupts), and system calls.  Understanding this interface and how the kernel manages exceptions is crucial for building robust and efficient systems programs.",
+  "syntax": "System calls typically follow a convention where a function call (e.g., `write()`, `open()`, `exit()`) is used to invoke a kernel service.  Arguments are passed to specify the request, and the return value indicates success or failure, possibly returning error codes.",
+  "code_example": [
+    "#include <unistd.h>",
+    "#include <stdio.h>",
+    "int main() {",
+    "    char *message = \"Hello, world!\\n\";",
+    "    ssize_t bytes_written = write(STDOUT_FILENO, message, 14);",
+    "    if (bytes_written == -1) {",
+    "        perror(\"write failed\");",
+    "        return 1;  // Indicate failure",
+    "    }",
+    "    return 0; // Indicate success",
+    "}"
+  ],
+  "example_explanation": "This C code uses the `write()` system call to print a message to the standard output.  `write()` takes three arguments: the file descriptor (STDOUT_FILENO for standard output), a pointer to the message, and the length of the message. The system call transfers control to the kernel, which handles the output operation. The return value indicates whether the write was successful.  If it fails (returns -1), `perror()` is used to print a system-specific error message, showcasing how exceptional control flow handles errors. The program demonstrates the hardware-software interaction:  user-space code invokes a kernel service to interact with hardware (the screen).",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "764-764",
+    "extraction_date": "2025-07-28T12:21:38.565981",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

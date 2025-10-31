@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Design: Race Conditions on Shared Thread Objects",
+  "category": "sync",
+  "explanation": "Assumption: A race condition exists within a destructor implementation (e.g., `ThreadRAII::~ThreadRAII`) between checking `t.joinable()` and calling `t.join()`, where another thread might modify `t` in the interim. Reality: While simultaneous member function calls on a single object are generally unsafe (unless all are `const`), if a thread object's destructor is executing, the object should be exclusively managed by that thread. If another thread *is* attempting to modify the object (e.g., calling `detach()`) while the destructor is running, the race condition is not a flaw in the destructor's logic, but a violation of the fundamental usage contract by the client code (i.e., attempting to invoke two modifying member functions concurrently on the same object).",
+  "code_example": "// Client Code Violation\nThreadRAII traii(std::move(t));\n// ...\n// Thread A calls delete traii; (invokes destructor)\n// Thread B tries to call traii.get().join(); // Race on traii object",
+  "practical_example": "A developer places a `ThreadRAII` object in shared memory and allows multiple threads to access it without proper synchronization. When one thread triggers cleanup (destruction), another thread simultaneously attempts to manually join the internal thread handle, leading to data races on the `ThreadRAII` object's state.",
+  "keywords": [
+    "RAII",
+    "destructor safety",
+    "simultaneous calls",
+    "member function",
+    "client responsibility"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "270",
+  "chapter": "Item 37: Remember std::threads are joinable only if they are joinable",
+  "id": "emcpp_sync_thread_design__race_conditions_549918",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

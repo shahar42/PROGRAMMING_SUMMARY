@@ -1,34 +1,12 @@
 {
   "topic": "RTTI (Run-Time Type Information) and its Implementation Details",
   "explanation": "RTTI, enabled by the `<typeinfo>` header, allows querying the dynamic type of an object at runtime.  This contrasts with static type checking performed by the compiler.  The implementation varies significantly between compilers, but generally involves generating a table (or similar data structure) containing type information during compilation. This table is accessed at runtime using the `typeid` operator. The compiler generates code that searches this table based on the object's address or a virtual function table pointer (vtable pointer, if the object is polymorphic).  The performance cost can be significant, particularly if type identification is performed within frequently executed code paths, as it involves an indirect memory access and potentially a search operation within the type information table.  The memory overhead depends on the number of types used and the complexity of the generated type information.  Improper use can lead to performance bottlenecks or unexpected behavior if not carefully considered.  Furthermore, exception handling may be involved to deal with situations where type identification fails.",
-  "syntax": "The core syntax involves the `typeid` operator:\n\n```c++\n#include <typeinfo>\n#include <iostream>\n\nclass Base { virtual void f() {} };\nclass Derived : public Base {};\n\nint main() {\n  Base* b = new Derived();\n  std::cout << typeid(*b).name() << std::endl; // Prints the name of the derived class at runtime (e.g., 'Derived' or similar depending on compiler)\n  std::cout << typeid(b).name() << std::endl; // Prints the name of the base class pointer type\n  delete b;\n  return 0;\n}\n```\n\nThe `typeid` operator returns a `std::type_info` object that can be compared for equality or have its name retrieved using `name()`. Note that the exact output of `name()` is implementation-defined and not guaranteed to be human-readable.  Moreover, for polymorphic classes, virtual function tables are involved, making the runtime cost more significant than for non-polymorphic classes. This also explains why the second `typeid` call returns `Base*` instead of `Derived*`.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <typeinfo>",
-    "#include <exception>",
-    "class Base { public: virtual ~Base() {} };",
-    "class Derived : public Base {};",
-    "int main() {",
-    "  try {",
-    "    Base* b = new Derived();",
-    "    std::cout << typeid(*b).name() << std::endl; // Runtime type identification",
-    "    if (typeid(*b) == typeid(Base)) {",
-    "      std::cout << \"Object is of type Base\" << std::endl;",
-    "    } else {",
-    "      std::cout << \"Object is of a derived type\" << std::endl;",
-    "    }",
-    "    delete b;",
-    "  } catch (const std::bad_typeid& e) {",
-    "    std::cerr << \"Error during type identification: \" << e.what() << std::endl;",
-    "  }",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates runtime type identification using `typeid`.  The compiler generates code to access the RTTI information at runtime. The `catch` block handles potential `std::bad_typeid` exceptions which might occur if `typeid` is used on a null pointer or an incomplete type. The assembly-level code would involve instructions to access the type information table (likely a global data section), possibly utilizing pointers or offsets. For polymorphic classes, the virtual table will be involved.  The performance impact will be measurable if this code is inside a performance-critical loop.  Profiling is needed to confirm this overhead for specific compilers and target architectures. The memory layout includes space for the RTTI table, which can increase the executable size, especially with many different types.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T04:34:06.665084"
-  }
+    "extraction_date": "2025-08-19T04:34:06.665084",
+    "book_metadata_added": "2025-10-28T20:22:06.905691"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

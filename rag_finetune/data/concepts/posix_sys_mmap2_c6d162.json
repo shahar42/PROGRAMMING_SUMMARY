@@ -1,0 +1,16 @@
+{
+  "topic": "mmap2() System Call",
+  "explanation": "The mmap2() system call maps files or devices into memory, similar to mmap(2), but with the offset specified in 4096-byte units to support large files on 32-bit systems. It is typically invoked via the glibc wrapper and is not the primary interface users should use.\n\n**Parameters:**\n- `addr` (unsigned long): Starting address for the memory mapping\n- `length` (unsigned long): Length of the mapping in bytes\n- `prot` (unsigned long): Protection options for the mapped memory\n- `flags` (unsigned long): Flags specifying the mapping behavior\n- `fd` (unsigned long): File descriptor of the file to map\n- `pgoffset` (unsigned long): Offset into the file in 4096-byte units\n\n**Common Errors:**\n- `EFAULT`: Problem with getting the data from user space\n- `EINVAL`: Offset multiplied by 4096 is not a multiple of the system page size\n\n**Related System Calls:** `getpagesize()`, `mmap()`, `mremap()`, `msync()`, `shm_open()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.220805",
+    "syscall_name": "mmap2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_mmap2.json",
+    "concept_id": "posix_sys_mmap2_c6d162",
+    "book_metadata_added": "2025-10-28T20:22:06.592682"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define SYS_mmap2 192\n\n// Calculate offset in 4KB pages (e.g., 2MB / 4096 = 512)\nunsigned long page_offset = 512; \nint fd = 3;\nsize_t length = 4096 * 4;\n\n// Invocation via low-level syscall\nvoid* addr = (void*) syscall(\n    SYS_mmap2, \n    0,                  // Recommended address (NULL)\n    length,             // Length in bytes\n    PROT_READ | PROT_WRITE, \n    MAP_SHARED, \n    (unsigned long) fd, \n    page_offset         // <-- Offset in 4096-byte units\n);\n\nif (addr == (void*)-1L) { /* handle failure */ }\n<ctrl63>",
+  "keywords": "mmap2, mmap large offset, mmap 32 bit LFS"
+}

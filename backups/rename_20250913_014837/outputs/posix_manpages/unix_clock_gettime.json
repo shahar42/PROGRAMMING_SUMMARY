@@ -1,0 +1,66 @@
+{
+  "name": "clock_gettime",
+  "synopsis": [
+    "#include <time.h>",
+    "int clock_gettime(clockid_t clockid, struct timespec *tp);"
+  ],
+  "description": "The clock_gettime() function retrieves the current time of the specified clock and stores it in the timespec structure pointed to by tp. The clockid argument identifies the clock to query, which may be system-wide or per-process.",
+  "parameters": [
+    {
+      "name": "clockid",
+      "type": "clockid_t",
+      "description": "Identifier of the clock to retrieve the time from, such as CLOCK_REALTIME."
+    },
+    {
+      "name": "tp",
+      "type": "struct timespec *",
+      "description": "Pointer to a timespec structure where the retrieved time is stored."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "tp points outside the accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The clockid specified is invalid."
+    },
+    {
+      "code": "ENODEV",
+      "description": "The device represented by the dynamic clock ID has disappeared."
+    },
+    {
+      "code": "ENOTSUP",
+      "description": "The operation is not supported by the dynamic clock device."
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "The timestamp would not fit in time_t range."
+    }
+  ],
+  "bugs": null,
+  "versions": "glibc 2.17",
+  "posix_compliance": "POSIX.1-1993",
+  "examples": [
+    "fd = open(\"/dev/ptp0\", O_RDWR);",
+    "clkid = FD_TO_CLOCKID(fd);",
+    "struct timespec ts;",
+    "clock_gettime(clkid, &ts);"
+  ],
+  "related_calls": [
+    "clock_getres",
+    "clock_settime"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "clock_gettime.pdf",
+    "extraction_date": "2025-07-26T10:25:23.490620",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

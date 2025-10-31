@@ -1,0 +1,22 @@
+{
+  "topic": "Implicit this Qualification: Value Category Overloading",
+  "category": "core",
+  "explanation": "Member function reference qualifiers are a feature of Modern C++ that allow you to overload member functions based on the value category\u2014lvalue or rvalue\u2014of the object they are invoked on. This provides a mechanism analogous to how free functions can be overloaded for lvalue and rvalue parameters, but applies it to the implicit 'this' pointer.\n\nScott Meyers presents this feature as an extension of the familiar const-qualification for member functions. Just as 'const' allows you to specify different behavior for const and non-const objects, reference qualifiers let you control how your class behaves when it's a persistent lvalue versus a temporary rvalue. The primary motivation is to enhance safety and enable optimizations, particularly by preventing callers from obtaining dangling references to the internal state of temporary objects.\n\nThe syntax involves placing a single ampersand (for lvalues) or a double ampersand (for rvalues) after the member function's parameter list, just like 'const'. A function qualified with a single ampersand can only be called on lvalue objects, while one qualified with a double ampersand can only be called on rvalue objects. This allows you to create pairs of overloads that provide different semantics. For example, a getter function on an lvalue object might safely return a reference to an internal data member, while the rvalue overload could return a copy by value or even move the data out of the temporary object, preventing a dangling reference.\n\nThis capability is particularly important for classes that act as resource handles or for objects returned by factory functions. It gives the class author fine-grained control over the object's interface depending on its lifetime. A common use case is a class with a large internal data buffer. When an instance is an rvalue (e.g., the return value of a function), you can provide a member function that moves this buffer out, an efficient operation that would be unsafe and undesirable for a long-lived lvalue instance.\n\nThe most common pitfall is simply being unaware that this feature exists. This can lead to designing classes with functions that are unsafe when called on temporaries. For instance, a getter that returns a reference to a member variable is a classic dangling reference bug waiting to happen if it's called on a temporary object returned from a factory function. Using reference qualifiers allows you to explicitly forbid this or provide a safe alternative.",
+  "code_example": "class Widget {\npublic:\n    using DataType = std::vector<double>;\n\n    // Only for lvalue Widgets: return a reference\n    DataType& data() & {\n        return values;\n    }\n\n    // Only for rvalue Widgets: return a value (by move)\n    DataType data() && {\n        return std::move(values);\n    }\n\nprivate:\n    DataType values;\n};\n\nWidget makeWidget();\n\nWidget w;\nauto& v1 = w.data();           // Calls lvalue-qualified version\nauto v2 = makeWidget().data(); // Calls rvalue-qualified version",
+  "practical_example": "A class managing a large memory buffer can use reference qualifiers to optimize resource transfer. When an instance is an lvalue, a getter might return a non-owning 'span' view of the data. When the instance is an rvalue temporary, an overloaded version of the same getter can safely move the entire buffer to the caller, transferring ownership efficiently without copies.",
+  "keywords": [
+    "reference qualifiers",
+    "lvalue",
+    "rvalue",
+    "member functions",
+    "this",
+    "dangling reference",
+    "resource management",
+    "factory functions"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "83",
+  "chapter": "Item 10: Prefer enum classes to unscoped enums",
+  "id": "emcpp_core_member_function_reference_qualifiers_0c92c6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

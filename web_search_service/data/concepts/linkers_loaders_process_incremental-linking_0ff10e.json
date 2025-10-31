@@ -1,0 +1,16 @@
+{
+  "topic": "Incremental Linking",
+  "explanation": "Incremental linking is a linking technique that avoids relinking the entire program when only a small portion of it changes.  This speeds up the linking process, especially useful in large software projects where recompilation and linking can be time-consuming. It works by strategically placing modules and adding 'glue code' to handle address changes that might occur when modules are updated or repositioned.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "285-285",
+    "extraction_date": "2025-07-21T23:02:52.751437",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.763757"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Core strategy: Use indirection (stubs or jump tables)\n// to decouple modules, avoiding full relink when offsets change.\n\n// Module B: Actual function location\nint TargetFunc(int arg) { return arg * arg; }\n\n// GLUE CODE / STUB (Stable, known address)\n// Only this pointer is updated during incremental linking.\nvoid* Stub_TargetFunc = (void*)&TargetFunc;\n\n// Module A: Caller uses the stable stub\ntypedef int (*FuncPtr)(int);\n\nint Caller() {\n    FuncPtr func = (FuncPtr)Stub_TargetFunc;\n    return func(10);\n}\n\n// If TargetFunc moves, only Stub_TargetFunc needs updating.\n// Module A remains untouched.",
+  "keywords": "Incremental linking, faster linking, partial linking"
+}

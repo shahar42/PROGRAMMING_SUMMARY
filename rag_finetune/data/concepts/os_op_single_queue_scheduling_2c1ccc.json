@@ -1,0 +1,15 @@
+{
+  "topic": "Single Queue Scheduling",
+  "explanation": "Single Queue Scheduling is a simple approach for managing jobs in a multiprocessor system by placing all jobs into one queue. It is used for its ease of implementation, allowing existing single-processor scheduling policies to be adapted for multiple CPUs with minimal changes, as it centralizes job management and selection.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "121-121",
+    "extraction_date": "2025-07-19T02:02:35.334316",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.800868"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "typedef struct {\n    int id;\n    int remaining_time;\n} Job;\n\n// Centralized management ensures simple policy adaptation (FCFS, SJF)\nQueue single_job_queue;\nMutex queue_lock;\n\nJob* get_next_job() {\n    Lock_Acquire(queue_lock);\n    if (Queue_Empty(single_job_queue)) {\n        Lock_Release(queue_lock);\n        return NULL;\n    }\n    // Policy applied: e.g., FCFS (dequeue front)\n    Job* job = Queue_Dequeue(single_job_queue);\n    Lock_Release(queue_lock);\n    return job;\n}\n\n// All N CPUs call this central function to pull work\nvoid cpu_worker_loop() {\n    Job* work = get_next_job();\n    if (work) { Execute(work); }\n}",
+  "keywords": "Global Queue Scheduling, Shared Queue Scheduling, Centralized Multiprocessor Scheduling"
+}

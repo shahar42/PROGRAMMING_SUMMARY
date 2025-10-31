@@ -1,0 +1,22 @@
+{
+  "topic": "Special Member Generation: Suppressing Moves with a Custom Destructor",
+  "category": "core",
+  "explanation": "A core rule in modern C++ is that a user-declared destructor in a class suppresses the compiler's automatic generation of move operations. Specifically, if you write your own destructor, the compiler will no longer provide a default move constructor or move assignment operator for your class. The generation of copy operations, however, remains unaffected by the presence of a custom destructor.\n\nScott Meyers' crucial insight is that this rule can introduce silent, significant performance regressions. A class that was previously efficient because it was movable can become drastically slower if a developer adds a seemingly innocuous feature, like a destructor for logging purposes. The code will still compile and pass functional tests, because calls that previously resolved to a move will now silently fall back to a more expensive copy. This makes the performance bug very difficult to detect without profiling or a deep understanding of these generation rules.\n\nThe mechanics behind this compiler behavior are rooted in caution. The C++ committee reasoned that if a programmer writes a custom destructor, the class is likely performing some special resource management that a simple, member-wise move might not handle correctly. For instance, a raw pointer might need special handling that a default move would get wrong. To avoid generating potentially incorrect code, the compiler opts for safety and disables the generation of move operations. It assumes the copy operations, if present, are implemented correctly to handle the class's semantics, and it will use them as a fallback.\n\nIn practice, this means any class that is intended to be movable must be designed with the \"Rule of Five\" in mind. If you declare a destructor, copy constructor, or copy-assignment operator, you should explicitly consider the move operations. If the default move behavior is what you want, you should bring it back explicitly by declaring the move constructor and move assignment operator with '= default'. This makes your intent clear and prevents the accidental performance degradation Meyers warns about. This is especially critical for classes that own large resources, such as those containing standard library containers.\n\nThe most common pitfall is adding a destructor to a simple aggregate or container-like class without realizing the side effect on its move semantics. Developers familiar with the older \"Rule of Three\" might not be aware of this new interaction. The lack of a compiler warning makes it easy to overlook that what was once a cheap move has now become an expensive deep copy, leading to performance issues that are hard to trace back to the addition of a single destructor.",
+  "code_example": "class StringTable_Movable {\npublic:\n  StringTable_Movable() = default;\n  // No user-declared dtor, copy, or move ops.\n  // Compiler generates all five special members.\n  // This class is both copyable and movable.\nprivate:\n  std::map<int, std::string> values;\n};\n\nclass StringTable_CopyOnly {\npublic:\n  StringTable_CopyOnly() { /* ... */ }\n  \n  // User-declared destructor\n  ~StringTable_CopyOnly() { /* ... logging ... */ }\n\n  // Dtor suppresses generation of move operations!\n  // The class is now copyable, but NOT movable.\nprivate:\n  std::map<int, std::string> values;\n};",
+  "practical_example": "A developer adds a destructor to a class that wraps a large data buffer, simply to log when the object is destroyed. This action silently disables the compiler-generated move constructor. Now, when the object is returned by value from a factory function, the entire buffer is deep-copied instead of having its internal pointer moved, causing a major, unexpected performance bottleneck in the application.",
+  "keywords": [
+    "destructor",
+    "move semantics",
+    "special member functions",
+    "rule of five",
+    "rule of zero",
+    "compiler-generated functions",
+    "performance degradation",
+    "copy elision"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "112-114",
+  "chapter": "Item 17: Understand the special member function generation",
+  "id": "emcpp_core_special_member_generation__suppressing_38c21b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

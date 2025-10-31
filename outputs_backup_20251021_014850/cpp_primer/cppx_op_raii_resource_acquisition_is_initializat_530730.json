@@ -1,0 +1,13 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ programming idiom that ties resource management to an object's lifetime.  Resources (like dynamically allocated memory, files, network connections, mutexes, etc.) are acquired in the object's constructor and released in its destructor. This guarantees that resources are always properly cleaned up, even in the presence of exceptions or premature function exits.  This eliminates memory leaks, resource exhaustion, and other common errors associated with manual resource management.",
+  "syntax": "RAII is implemented by ensuring that resource acquisition happens in the constructor and release in the destructor.  This typically involves using smart pointers (e.g., `std::unique_ptr`, `std::shared_ptr`, `std::weak_ptr`) for managing dynamically allocated memory and other resource-managing classes for other resources like files or locks.",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <memory>\n\nclass FileHandler {\npublic:\n  FileHandler(const std::string& filename) : file_(std::make_unique<std::ofstream>(filename)) {\n    if (!file_->is_open()) {\n      throw std::runtime_error(\"Could not open file\");\n    }\n  }\n  ~FileHandler() {\n    if (file_) {\n      file_->close();\n    }\n  }\n  std::ofstream& getFile() { return *file_; }\nprivate:\n  std::unique_ptr<std::ofstream> file_;\n};\n\nint main() {\n  try {\n    FileHandler file(\"example.txt\");\n    file.getFile() << \"Hello, RAII!\\n\";\n  } catch (const std::runtime_error& error) {\n    std::cerr << \"Error: \" << error.what() << std::endl;\n  }\n  return 0;\n}",
+  "example_explanation": "The `FileHandler` class demonstrates RAII. The constructor opens the file; the destructor ensures the file is closed, regardless of how the function exits (normally or via an exception).  `std::unique_ptr` manages the `std::ofstream` object, automatically deleting it when it goes out of scope.  Error handling is included to demonstrate robustness.  This prevents resource leaks, a common pitfall in C++ when manually managing resources.  The use of `std::unique_ptr` is a best practice for managing unique ownership of dynamically allocated objects.  Smart pointers are preferred over raw pointers in modern C++ for enhanced safety and readability.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T02:46:29.776595"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Implementing a Simple Spinlock in C",
+  "explanation": "A spinlock is a low-level synchronization mechanism in multi-threaded programming where a thread repeatedly checks (spins) until it can acquire a lock on a shared resource. It is used to ensure mutual exclusion, preventing multiple threads from accessing the same critical section simultaneously, which helps avoid data races and maintain program correctness in concurrent environments.",
+  "syntax": "void spinlock_acquire(atomic_int *lock); void spinlock_release(atomic_int *lock);",
+  "code_example": "#include <stdatomic.h>\n#include <stdio.h>\n#include <pthread.h>\natomic_int lock = ATOMIC_VAR_INIT(0);\nvoid spinlock_acquire(atomic_int *lck) {\n    while(atomic_exchange(lck, 1) == 1) {}  // Busy-wait until lock is acquired\n}\nvoid spinlock_release(atomic_int *lck) {\n    atomic_store(lck, 0);  // Release the lock\n}\nvoid *thread_function(void *arg) {\n    spinlock_acquire(&lock);  // Acquire the lock\n    printf(\"Thread %d acquired the lock\\n\", *(int*)arg);\n    spinlock_release(&lock);  // Release the lock\n    return NULL;\n}\nint main() {\n    pthread_t thread1, thread2;\n    int arg1 = 1;\n    int arg2 = 2;\n    pthread_create(&thread1, NULL, thread_function, &arg1);\n    pthread_create(&thread2, NULL, thread_function, &arg2);\n    pthread_join(thread1, NULL);\n    pthread_join(thread2, NULL);\n    return 0;\n}",
+  "example_explanation": "This program demonstrates a simple spinlock by creating two threads that each attempt to acquire the lock. The first thread to succeed will enter the critical section, print its message, and release the lock, allowing the second thread to do the same. This shows mutual exclusion, as only one thread accesses the shared resource at a time, illustrating how the spinlock prevents concurrent modifications.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "331-331",
+    "extraction_date": "2025-07-22T08:36:43.165936",
+    "has_code": false,
+    "has_explanation": true
+  }
+}

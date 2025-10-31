@@ -1,0 +1,16 @@
+{
+  "topic": "pselect() System Call",
+  "explanation": "pselect() is a variant of select() that allows a program to monitor multiple file descriptors for I/O readiness while atomically setting a signal mask to prevent race conditions. It waits until one or more descriptors become ready for operations like reading or writing, with an optional timeout.\n\n**Parameters:**\n- `nfds` (int): The highest-numbered file descriptor in any of the sets plus one.\n- `readfds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for readability.\n- `writefds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for writability.\n- `exceptfds` (fd_set *_Nullable restrict): Set of file descriptors to monitor for exceptional conditions.\n- `timeout` (const struct timespec *_Nullable restrict): Timeout period for the operation, or NULL for no timeout.\n- `sigmask` (const sigset_t *_Nullable restrict): Signal mask to atomically set during the call, or NULL to leave unchanged.\n\n**Common Errors:**\n- `EBADF`: An invalid file descriptor was given in one of the sets.\n- `EINTR`: A signal was caught.\n- `EINVAL`: nfds is negative or exceeds the RLIMIT_NOFILE resource limit, or timeout is invalid.\n- `ENOMEM`: Unable to allocate memory for internal tables.\n\n**Related System Calls:** `select()`, `poll()`, `epoll()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.151268",
+    "syscall_name": "pselect",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pselect.json",
+    "concept_id": "posix_sys_pselect_ae3e1d",
+    "book_metadata_added": "2025-10-28T20:22:06.610080"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "fd_set rfds, wfds;\nstruct timespec timeout_ts = { 5, 0 };\nsigset_t blocked_signals;\nint max_fd = 5;\n\nFD_ZERO(&rfds);\nFD_SET(3, &rfds);\n\nsigemptyset(&blocked_signals);\nsigaddset(&blocked_signals, SIGHUP);\n\n// Atomically wait and set signal mask during wait\nint result = pselect(max_fd, &rfds, &wfds,\n                     NULL, &timeout_ts,\n                     &blocked_signals);\n\n// The signal mask is restored upon return.",
+  "keywords": "pselect, select signal mask, I/O multiplexing, atomic select"
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Forwarding Failure using Tag Dispatch: Excessive Boilerplate Complexity",
+  "category": "design",
+  "explanation": "Tag dispatch is an alternative strategy to avoid the overloading pitfalls of universal references by separating the lvalue (copying) and rvalue (moving) logic into distinct implementation functions, using a dummy 'tag' argument to guide selection. While it solves the ambiguity problem inherent in universal references, the anti-pattern is the introduction of extreme code complexity and boilerplate, which fundamentally fails the goal of writing clean, maintainable code. The assumption is that isolating logic via helper functions will be cleaner than managing template constraints. The reality is that the tag dispatch mechanism requires defining at least two distinct dispatching structs or enums (tags), two internal helper functions (one for lvalue/copy, one for rvalue/move), and a primary function that must examine the input parameter category and conditionally call the correct helper function based on the deduced type properties. This results in the proliferation of small, specialized helper functions and necessitates runtime inspection (usually via `std::is_lvalue_reference`) or type traits to select the appropriate tag. This approach fails the 'clean design' criterion because it mandates a significant increase in the sheer volume of code required to achieve simple input handling, making the implementation opaque and difficult to debug. For every function requiring this distinction, the developer must recreate the entire dispatcher structure, contrasting sharply with the concise syntax of perfect forwarding, even if the latter is prone to ambiguity. The complexity introduced often outweighs the benefit of avoiding template overload issues, especially for less critical code paths.",
+  "code_example": "// Boilerplate failure: Requires tags, and two helper functions for one task.\nvoid helper(T&& val, std::true_type) { /* lvalue copy logic */ }\nvoid helper(T&& val, std::false_type) { /* rvalue move logic */ }\n\ntemplate<typename T>\nvoid process(T&& val) {\n    helper(std::forward<T>(val), std::is_lvalue_reference<T>());\n}",
+  "practical_example": "A development team adopts tag dispatch universally to manage lvalue/rvalue distinctions across 50 small utility functions. Six months later, new developers struggle immensely to navigate the code base because simple function calls are now wrapped in complex, two-layer dispatch mechanisms, causing maintenance costs to skyrocket and introducing errors when dispatch tags are incorrectly applied.",
+  "keywords": [
+    "tag dispatch",
+    "boilerplate",
+    "complexity",
+    "design anti-pattern",
+    "design"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "210-215",
+  "chapter": "Item 27: Use alternatives to overloading on universal references",
+  "id": "emcpp_design_forwarding_failure_using_tag_dispatch_462600",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

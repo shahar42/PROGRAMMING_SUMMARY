@@ -1,0 +1,16 @@
+{
+  "topic": "Signal Handling in UNIX Processes",
+  "explanation": "Signal handling in UNIX system programming allows processes to gracefully respond to asynchronous events, such as interrupts or errors, without halting execution.  It's crucial for robust applications that need to handle unexpected situations, ensuring they don't crash and can perform cleanup or alternative actions. Signals provide a mechanism for inter-process communication (IPC) allowing one process to send a signal to another, triggering specific actions.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "211-213",
+    "extraction_date": "2025-07-21T10:43:59.586500",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "unix_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.764314"
+  },
+  "book": "The C Programming Language - Kernighan & Ritchie",
+  "code_example": "struct sigaction sa;\nsa.sa_handler = my_handler;\nsigemptyset(&sa.sa_mask);\nsa.sa_flags = SA_RESTART; // Restart interrupted syscalls\n\n// Register handler for SIGUSR1\nint ret = sigaction(SIGUSR1, &sa, NULL);\n\n// Handler implementation (async-safe functions only)\nvoid my_handler(int sig) {\n    if (sig == SIGUSR1) {\n        // ... action ...\n    }\n}\nvoid handler_info(int s, siginfo_t* info, void* context) {\n    // SA_SIGINFO flag must be set\n    pid_t sender = info->si_pid;\n}\nsigprocmask(SIG_SETMASK, &old_set, NULL);sigset_t set, old_set;\nsigemptyset(&set);\nsigaddset(&set, SIGINT);\nsigaddset(&set, SIGTERM);\n\n// Block SIGINT and SIGTERM during critical section\nsigprocmask(SIG_BLOCK, &set, &old_set);\n\n// -- Critical Code Here --\n\n// Restore previous mask (unblock signals)\nsigprocmask(SIG_SETMASK, &old_set, NULL);pid_t target_pid = 1234;\nint status = kill(target_pid, SIGUSR1); // Send signal to PID\n\nraise(SIGHUP); // Send signal to calling process (self)\n\n// Wait for a signal (indefinitely until an unblocked signal arrives)\nint sig_received;\nsigwait(&set, &sig_received); // set defined by sigemptyset/sigaddset\n\nalarm(5); // Send SIGALRM in 5 seconds",
+  "keywords": "UNIX signals, sigaction, process interrupt handling, signal()"
+}

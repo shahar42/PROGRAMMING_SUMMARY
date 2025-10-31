@@ -1,0 +1,19 @@
+{
+  "topic": "std::move() Fails to Guarantee Movement or Optimization",
+  "category": "move",
+  "explanation": "Assumption: Programmers often assume that invoking `std::move` guarantees that a move operation will occur and that the operation will be cheap. Reality: `std::move` performs absolutely no movement itself. It is merely a conditional `static_cast<T&&>` that transforms the expression into an rvalue, thereby enabling the compiler to select a move constructor or move assignment operator *if one exists*. Why It Fails: If the target type lacks a move constructor (for example, if the user explicitly declared a destructor, copy constructor, or copy assignment operator, thus suppressing the implicit move generation prior to C++17, or if the compiler deleted it due to complex type constraints), the rvalue cast successfully triggers a copy constructor instead. The call silently degrades from a potential performance optimization (move) to a full performance penalty (copy). Furthermore, if the underlying type is a primitive or a small fixed container like `std::array`, the move operation is logically identical to a copy, meaning the performance gain expected from using `std::move` vanishes, but the semantic complexity of marking the object ready for destruction remains. This failure hinges on mistaking a casting utility for an execution guarantee, leading to brittle code where performance expectations are unmet without any compiler warning.",
+  "code_example": "// Failure when move constructor is deleted or defaulted to copy\nclass Widget {\n  int* data = new int[100];\npublic:\n  ~Widget() { delete[] data; } // Suppresses implicit move ctor before C++17\n};\nWidget w1;\nWidget w2 = std::move(w1); // Calls the copy ctor, not move!",
+  "practical_example": "A massive performance degradation in a resource-intensive loop where a user explicitly marked large objects for moving, only for the compiler to silently fall back to hundreds of deep copies because a move constructor was suppressed by the presence of a user-defined destructor.",
+  "keywords": [
+    "std::move",
+    "cast",
+    "performance trap",
+    "implicit copy",
+    "suppressed move"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "175-178",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_move_std__move___fa18f5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

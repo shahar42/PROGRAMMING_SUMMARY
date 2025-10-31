@@ -1,0 +1,16 @@
+{
+  "topic": "lchown() System Call",
+  "explanation": "The lchown() system call changes the owner and group of the file specified by the pathname, but does not dereference symbolic links. Only a privileged process can change the owner, and the owner can change the group to one they are a member of.\n\n**Parameters:**\n- `pathname` (const char *): Path to the file whose ownership is to be changed\n- `owner` (uid_t): The new owner user ID, or -1 to leave unchanged\n- `group` (gid_t): The new group ID, or -1 to leave unchanged\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix\n- `EFAULT`: pathname points outside the accessible address space\n- `ELOOP`: Too many symbolic links were encountered in resolving pathname\n- `ENAMETOOLONG`: pathname is too long\n- `ENOENT`: The file does not exist\n\n**Related System Calls:** `chown()`, `fchown()`, `fchownat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.079734",
+    "syscall_name": "lchown",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_lchown.json",
+    "concept_id": "posix_sys_lchown_fc1eda",
+    "book_metadata_added": "2025-10-28T20:22:06.625184"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "const char* link_path = \"symlink_to_target\";\nuid_t new_owner = 1001;\ngid_t new_group = 100;\n\n// lchown: Changes owner/group of the link,\n// does not dereference the link.\n// Requires EPERM/CAP_CHOWN unless changing only group\n// to one the process is a member of.\nint ret = lchown(link_path, new_owner, new_group);\n\nif (ret == -1) {\n    // Check errno for EPERM (not privileged), EACCES, ENOENT\n    perror(\"lchown error\");\n}",
+  "keywords": "lchown, change file ownership, chown symbolic link, lchown system call"
+}

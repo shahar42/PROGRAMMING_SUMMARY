@@ -1,0 +1,16 @@
+{
+  "topic": "Memory Hierarchy and Cache Performance",
+  "explanation": "Computer systems utilize a memory hierarchy to bridge the speed gap between CPU and main memory.  Faster, smaller caches (like L1, L2, L3) store frequently accessed data closer to the CPU, improving performance.  However, cache misses (when data isn't found in the cache) significantly impact performance. Understanding cache behavior, including write/read dependencies, is crucial for optimizing program execution speed.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "585-585",
+    "extraction_date": "2025-07-27T21:57:52.307237",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.704802"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define N 1024\nint matrix[N][N];\n\n// Cache-Friendly: Row-Major Traversal (Spatial Locality)\nfor (int i=0; i<N; ++i)\n  for (int j=0; j<N; ++j)\n    matrix[i][j] += 1;\n\n// Cache-Unfriendly: Column-Major (High Stride/Low Locality)\nfor (int j=0; j<N; ++j)\n  for (int i=0; i<N; ++i)\n    matrix[i][j] += 1;\n\n// ---\n\n// False Sharing Mitigation (Multithreading)\n// Data must be separated by at least one cache line (e.g., 64 bytes)\nstruct alignas(64) PaddedData {\n  long counter;\n  // Compiler ensures no other data occupies this line\n};\n\nPaddedData core_metrics[4];\n// Core 0 updates core_metrics[0]. Core 1 updates core_metrics[1].\n// No cache line invalidation required between cores.\n\n// ---\n\n// Cache Blocking (Temporal Locality optimization, e.g., Matrix Mul)\n#define BLOCK_SIZE 32 // Must fit within cache (L1/L2)\nvoid blocked_mult(int N) {\n    for (int bk = 0; bk < N; bk += BLOCK_SIZE)\n        for (int bj = 0; bj < N; bj += BLOCK_SIZE)\n            for (int i = 0; i < N; ++i)\n                for (int j = bj; j < bj + BLOCK_SIZE; ++j)\n                    for (int k = bk; k < bk + BLOCK_SIZE; ++k)\n                        C[i][j] += A[i][k] * B[k][j];\n} // Maximize reuse of A and B blocks while resident in cache",
+  "keywords": "CPU Cache, Memory Hierarchy, Cache Miss, Cache Performance"
+}

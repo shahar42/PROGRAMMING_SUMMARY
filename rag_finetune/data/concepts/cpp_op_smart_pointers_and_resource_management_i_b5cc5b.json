@@ -1,0 +1,16 @@
+{
+  "topic": "Smart Pointers and Resource Management in Modern C++",
+  "explanation": "In modern C++, smart pointers such as std::shared_ptr, std::unique_ptr, and std::weak_ptr are used to manage dynamic memory automatically and safely. They implement RAII (Resource Acquisition Is Initialization), ensuring resources are properly released when no longer needed, thus preventing memory leaks and dangling pointers. These smart pointers support ownership semantics, reference counting, and weak references, enabling safer and more expressive resource management patterns compared to raw pointers.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "537-537",
+    "extraction_date": "2025-08-19T05:11:24.078729",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.854296"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct HeavyResource {};\n\n// 1. Unique Ownership (std::unique_ptr)\nstd::unique_ptr<HeavyResource> u1 =\n    std::make_unique<HeavyResource>();\n\n// u2 takes over ownership (Move)\nstd::unique_ptr<HeavyResource> u2 = std::move(u1);\n// u1 is now nullptr\n\nu2.reset(); // Explicitly release resource\n\n// 2. Shared Ownership (std::shared_ptr)\nstd::shared_ptr<int> s1 = std::make_shared<int>(42);\nstd::shared_ptr<int> s2 = s1; // Copy (Ref count: 2)\n\nif (s1.use_count() == 2) { /* true */ }\n\n// 3. Weak Reference (std::weak_ptr)\nstd::weak_ptr<int> w = s1; // Does not increment count\n\nif (auto locked = w.lock()) {\n    // Access resource safely\n}\ns1.reset(); // Resource deleted\nif (w.expired()) { /* true */ }",
+  "keywords": "C++ smart pointers, std::unique_ptr std::shared_ptr, RAII, automatic memory management"
+}

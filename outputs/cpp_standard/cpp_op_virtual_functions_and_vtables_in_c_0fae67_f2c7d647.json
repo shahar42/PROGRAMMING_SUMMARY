@@ -1,0 +1,12 @@
+{
+  "topic": "Virtual Functions and VTables: Polymorphic Calls",
+  "explanation": "Virtual functions in C++ enable runtime polymorphism, allowing derived class methods to be called through a base class pointer or reference. The compiler implements this using a mechanism called a vtable (virtual table), which is an array of function pointers associated with each class that has virtual functions. For each class with virtual members, the compiler generates a vtable that contains pointers to the actual implementations of those virtual functions. Each object of such a class includes a hidden pointer (often called the vptr) that points to its class's vtable. This vptr is typically the first member in the object's memory layout, ensuring it's accessible before other members.\n\nMemory layout implications: The vptr adds overhead, typically 8 bytes on 64-bit systems, to the size of each object with virtual functions. This pointer is initialized by the constructor of the class, pointing to the correct vtable for the object's actual type. Performance-wise, calling a virtual function involves an indirect lookup: the program dereferences the vptr to access the vtable and then jumps to the function pointer, resulting in slightly slower execution compared to non-virtual calls (e.g., 2-3 extra instructions). Assembly-level behavior: When a virtual function is called, the generated assembly might look like 'mov rax, [rdi] ; load vptr from object' followed by 'call qword [rax + offset] ; call through vtable'. This is a runtime behavior, as the exact function to call is determined only when the program executes, based on the object's dynamic type. In contrast, non-virtual functions are resolved at compile-time via static dispatch. Compilers like GCC or Clang optimize this in some cases (e.g., devirtualization if the type is known), but generally, it's a runtime operation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:22:42.133525",
+    "book_metadata_added": "2025-10-28T20:22:06.912262"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

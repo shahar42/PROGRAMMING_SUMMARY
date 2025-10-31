@@ -1,0 +1,16 @@
+{
+  "topic": "PE File Storage Allocation and Dynamic Linking",
+  "explanation": "This concept describes how Portable Executable (PE) files, the standard executable format for Windows, are allocated in memory and how dynamic linking works within this context.  Understanding PE storage allocation is crucial for comprehending how Windows loads and executes programs, especially concerning the handling of DLLs (Dynamic Link Libraries) and their relocation.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "152-154",
+    "extraction_date": "2025-07-19T15:45:31.242172",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.749820"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// PE Section Header Concept (Allocation)\nstruct IMAGE_SECTION_HEADER {\n    char Name[8];          // e.g., .text, .data\n    uint32_t VirtualSize;\n    uint32_t RVA;          // Relative Virtual Address\n    uint32_t SizeOfRawData;\n    uint32_t PointerToRawData; // Disk offset\n};\n\n// Memory VA calculation at load time\n#define ImageBase 0x400000 // Preferred Load Address\nuint32_t CurrentVA = ImageBase + RVA;\n\n// Characteristics (Memory Protection Flags)\n#define MEM_EXECUTE 0x20000000\n#define MEM_WRITE   0x80000000\n\n// Relocation entry structure (.reloc section)\nstruct IMAGE_RELOC_ENTRY {\n    uint16_t Offset : 12;    // Offset within the page\n    uint16_t Type : 4;       // Fixup type (e.g., high/low word)\n    // Relocation RVA = Page RVA + Offset\n};\n\n// If ImageBase != ActualLoadAddress:\n// Fixup: *TargetVA += (ActualLoadAddress - ImageBase);\n\n\n// Dynamic Linking (Import Address Table - IAT)\ntypedef void (*pfn_ExitProcess)(uint32_t);\n\n// IAT slot (populated at runtime by loader)\npfn_ExitProcess IAT_ExitProcess;\n\n// Linker places a jump instruction here:\nvoid call_exit(uint32_t code) {\n    IAT_ExitProcess(code);\n    // Loader resolves IAT_ExitProcess to KERNEL32.dll VA\n}",
+  "keywords": "PE loading, DLL relocation, Dynamic linking, Windows loader"
+}

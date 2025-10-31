@@ -1,0 +1,13 @@
+{
+  "topic": "Expert Compile-Time Polymorphism: If Constexpr Branches",
+  "explanation": "This expert-level concept explores compile-time polymorphism achieved using `constexpr` functions and `if constexpr` statements.  Unlike runtime polymorphism (achieved with virtual functions and inheritance), this technique allows the compiler to select and optimize code branches at compile time based on template arguments or constant expressions. This leads to significant performance improvements by eliminating runtime branching and function calls. The compiler's implementation often involves template instantiation and potentially aggressive inlining, resulting in highly optimized machine code. Memory layout is directly impacted as only the selected code path is present in the final executable, reducing overall program size.  The behavior is entirely compile-time; there's no runtime overhead associated with the conditional logic.  Assembly level inspection would reveal the absence of conditional jump instructions for the discarded code paths.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:33:35.722625",
+    "book_metadata_added": "2025-10-28T20:22:06.943950"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Achieves polymorphism by eliminating runtime cost/branching\n// The compiler instantiates only the chosen branch.\n\ntemplate <typename T>\nvoid compile_time_dispatch(const T& src, T& dst) {\n    // Branch selection based on constant expression (trait evaluation)\n    if constexpr (std::is_trivially_copyable_v<T>) {\n        // Path A: Zero-overhead optimization (e.g., memcpy)\n        __builtin_memcpy(&dst, &src, sizeof(T));\n    } else {\n        // Path B: Standard behavior (requires ctor/assignment op)\n        dst = src;\n    }\n}\n\nstruct FastData { int x; }; // Trivial\nstruct SlowData {\n    SlowData& operator=(const SlowData&) { return *this; }\n};\n\n// Calling optimized_copy<FastData> compiles only Path A.\n// Calling optimized_copy<SlowData> compiles only Path B."
+}

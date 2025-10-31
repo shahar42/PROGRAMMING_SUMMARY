@@ -1,0 +1,15 @@
+{
+  "topic": "kexec_load() System Call",
+  "explanation": "The kexec_load() system call loads a new kernel for later execution using reboot(2). It specifies kernel layout and flags for control. Additionally, kexec_file_load() loads a kernel from file descriptors with a command line.\n\n**Parameters:**\n- `entry` (unsigned long): Physical entry address in the kernel image\n- `nr_segments` (unsigned long): Number of segments in the segments array (up to 16)\n- `segments` (struct kexec_segment *): Array of kexec_segment structures defining the kernel layout\n- `flags` (unsigned long): Bit mask for controlling the operation, including KEXEC_ON_CRASH and architecture constants\n- `kernel_fd` (int): File descriptor for the kernel file\n- `initrd_fd` (int): File descriptor for the initrd file\n- `cmdline_len` (unsigned long): Length of the command line string\n- `cmdline` (const char *): The command line string for the kernel\n\n**Common Errors:**\n- `EADDRNOTAVAIL`: The KEXEC_ON_CRASH flag was specified, but a segment region lies outside reserved crash kernel memory\n- `EADDRNOTAVAIL`: A mem or memsz field in segments is not a multiple of the system page size\n- `EBADF`: kernel_fd or initrd_fd is not a valid file descriptor\n- `EBUSY`: Another crash kernel is already being loaded or in use\n- `EINVAL`: flags is invalid\n\n**Related System Calls:** `reboot()`, `syscall()`",
+  "syntax": "long syscall(SYS_kexec_load, unsigned long entry, unsigned long nr_segments, struct kexec_segment *segments, unsigned long flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = kexec_load(...);  // Call the system call\nif (result == -1) {\n    perror(\"kexec_load\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the kexec_load() system call. The function takes 8 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.154261",
+    "syscall_name": "kexec_load",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_kexec_load.json",
+    "concept_id": "posix_sys_kexec_load_0322cb"
+  }
+}

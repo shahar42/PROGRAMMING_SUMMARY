@@ -1,0 +1,98 @@
+{
+  "name": "pidfd_open",
+  "synopsis": [
+    "#include <sys/syscall.h> /* Definition of SYS_* constants */",
+    "#include <unistd.h>",
+    "int syscall(SYS_pidfd_open, pid_t pid, unsigned int flags);",
+    "Note: glibc provides no wrapper for pidfd_open(), necessitating the use of syscall(2)."
+  ],
+  "description": "The pidfd_open() system call creates a file descriptor that refers to the process with the specified PID. It sets the close-on-exec flag and supports optional flags like PIDFD_NONBLOCK for nonblocking behavior.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The PID of the process to refer to."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Flags to modify behavior, such as PIDFD_NONBLOCK for returning a nonblocking file descriptor."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a file descriptor (a nonnegative integer)",
+    "failure": "Returns -1 and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "flags is not valid."
+    },
+    {
+      "code": "EINVAL",
+      "description": "pid is not valid."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on the total number of open files has been reached."
+    },
+    {
+      "code": "ENODEV",
+      "description": "The anonymous inode filesystem is not available in this kernel."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available."
+    },
+    {
+      "code": "ESRCH",
+      "description": "The process specified by pid does not exist."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.3",
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE",
+    "#include <poll.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "static int pidfd_open(pid_t pid, unsigned int flags) { return syscall(SYS_pidfd_open, pid, flags); }",
+    "int main(int argc, char *argv[]) {",
+    "    if (argc != 2) { fprintf(stderr, \"Usage: %s <pid>\\n\", argv[0]); exit(EXIT_FAILURE); }",
+    "    int pidfd = pidfd_open(atoi(argv[1]), 0);",
+    "    if (pidfd == -1) { perror(\"pidfd_open\"); exit(EXIT_FAILURE); }",
+    "    struct pollfd pollfd; pollfd.fd = pidfd; pollfd.events = POLLIN;",
+    "    int ready = poll(&pollfd, 1, -1);",
+    "    if (ready == -1) { perror(\"poll\"); exit(EXIT_FAILURE); }",
+    "    printf(\"Events (%#x): POLLIN is %sset\\n\", pollfd.revents, (pollfd.revents & POLLIN) ? \"\" : \"not \");",
+    "    close(pidfd);",
+    "    exit(EXIT_SUCCESS);",
+    "}"
+  ],
+  "related_calls": [
+    "clone",
+    "kill",
+    "pidfd_getfd",
+    "pidfd_send_signal",
+    "poll",
+    "process_madvise",
+    "select",
+    "setns",
+    "waitid",
+    "epoll"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pidfd_open.pdf",
+    "extraction_date": "2025-07-29T15:02:58.302694",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

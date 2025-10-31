@@ -1,0 +1,13 @@
+{
+  "topic": "Optimization of std::string::replace with overlapping substrings",
+  "explanation": "The `std::string::replace` method, specifically when dealing with overlapping source and destination substrings, presents a fascinating case study in compiler optimization and memory management.  Naive implementations would involve multiple memory allocations and copies, leading to significant performance degradation, especially for large strings.  However, optimizing compilers employ sophisticated techniques to minimize these overheads.  The key lies in understanding how the compiler analyzes the operation to determine if in-place modification is possible, avoiding unnecessary allocations and potentially leveraging instruction-level parallelism.  This optimization depends heavily on the compiler's ability to perform sophisticated data flow analysis and understand the semantics of string manipulation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:02:37.155907",
+    "book_metadata_added": "2025-10-28T20:22:06.808587"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::string data = \"ABCDEFGHIJK\";\n\n// Replace 5 chars at index 3 (\"DEFGH\")\n// Source is data itself, starting index 4 (\"FGH\")\n// High overlap (index 4 is shared/moved).\n\ndata.replace(\n    3,    // Destination position\n    5,    // Destination length\n    data, // Source string (same object)\n    4,    // Source start position\n    3     // Source length\n);\n\n// Compiler/STL optimizes internal buffer movement\n// (e.g., using specialized `memmove`-like logic internally)\n// to prevent data corruption and needless reallocation\n// when source and destination ranges overlap."
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Using std::discrete_distribution for Probabilistic Sampling",
+  "explanation": "In modern C++, the std::discrete_distribution class template is used to generate random integers according to a specified discrete probability distribution. It is particularly useful in probabilistic algorithms, simulations, and stochastic modeling, where outcomes are weighted by probabilities. This class allows for flexible, type-safe, and efficient sampling based on user-defined weights or probabilities, integrating seamlessly with the C++11 random number facilities.",
+  "syntax": "template<class RealType = double> class std::discrete_distribution {\npublic:\n    explicit discrete_distribution(std::initializer_list<RealType> weights);\n    explicit discrete_distribution(size_t n, RealType xmin = 0.0, RealType xmax = 1.0);\n    template<class UnaryOperation>\n    discrete_distribution(size_t nw, double xmin, double xmax, UnaryOperation fw);\n    template<class URNG> result_type operator()(URNG& g);\n    void param(const std::vector<RealType>& weights);\n    // Additional member functions\n};",
+  "code_example": "#include <iostream>\n#include <random>\n#include <vector>\n\nint main() {\n    // Define weights for outcomes 0, 1, 2, 3\n    std::vector<double> weights = {1.0, 2.0, 3.0, 4.0};\n    // Create a discrete_distribution with custom weights\n    std::discrete_distribution<> dist(weights.begin(), weights.end());\n    // Initialize random number generator\n    std::mt19937 gen(std::random_device{}());\n    // Generate 10 samples according to the distribution\n    for (int i = 0; i < 10; ++i) {\n        int outcome = dist(gen);\n        std::cout << \"Sampled outcome: \" << outcome << std::endl;\n    }\n    // Create a distribution using a custom weight function\n    auto weight_func = [](size_t i) { return static_cast<double>(i + 1); };\n    std::discrete_distribution<> custom_dist(4, 0.0, 4.0, weight_func);\n    for (int i = 0; i < 10; ++i) {\n        int outcome = custom_dist(gen);\n        std::cout << \"Custom sampled outcome: \" << outcome << std::endl;\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how to create and use std::discrete_distribution to generate random outcomes based on specified weights. The first distribution is initialized directly with a vector of weights, illustrating how to perform weighted sampling. The second distribution uses a custom weight function via a lambda, showing how to generate weights dynamically. The code then samples multiple outcomes, illustrating the probabilistic nature of the distribution and how it integrates with the C++11 random number generation facilities, exemplifying modern C++ idioms and best practices.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "977-977",
+    "extraction_date": "2025-08-19T08:22:19.670674",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

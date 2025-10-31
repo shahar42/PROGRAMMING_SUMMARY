@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its Optimization",
+  "explanation": "This explores how the compiler implements compile-time polymorphism using template metaprogramming, focusing on the impact on memory layout, performance, and potential compiler optimizations.  Unlike runtime polymorphism (virtual functions), template metaprogramming allows the compiler to generate specialized code for each template instantiation at compile time, eliminating the overhead of virtual function calls.  This can lead to significant performance gains, but understanding the compiler's behavior and potential limitations is crucial for effective use.  The compiler essentially performs 'partial evaluation' during compilation, generating different code paths depending on the template arguments.  This avoids the runtime cost of choosing a specific function via a virtual table (vtable).  However, excessive use can lead to 'code bloat' if many different template instantiations are needed, leading to larger executable sizes.  The memory layout is impacted because the generated code is specific to the template parameters, meaning there's no shared code between different instantiations (unlike with virtual functions).  Assembly-level behavior would show specialized instructions for each instantiation, without the indirect function calls associated with virtual functions. The runtime behavior is essentially deterministic and efficient, as the appropriate code is already generated at compile time.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:45:19.779881",
+    "book_metadata_added": "2025-10-28T20:22:06.910379"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// CRTP for Static Dispatch (Zero Overhead Policy)\ntemplate <typename Derived>\nstruct BasePolicy {\n    // Memory: No VTABLE pointer (vptr) added\n    int data = 1;\n\n    void interface() {\n        // Static Dispatch: Function target known at compile time\n        // Allows aggressive inlining and optimization\n        static_cast<Derived*>(this)->execute();\n    }\n};\n\nstruct FastImplementation : BasePolicy<FastImplementation> {\n    // Compile-time specialization\n    void execute() { /* highly optimized logic */ }\n};\n\n// Usage: FastImplementation f; f.interface();\n// Compiler generates specialized code block directly.",
+  "keywords": "Static Polymorphism, Compile-Time Polymorphism, Template Metaprogramming"
+}

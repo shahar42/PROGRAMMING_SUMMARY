@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Performance Improvement",
+  "explanation": "The memory hierarchy is a tiered storage architecture (registers, L1, L2, L3, main memory) engineered to bridge the significant speed disparity between the CPU and DRAM. Caching strategies exploit the principle of locality of reference (temporal and spatial) by storing frequently accessed data blocks in smaller, faster SRAM caches closer to the processing core. Successful cache lookups (hits) minimize memory latency and reduce CPU stall cycles. Cache management policies, including replacement algorithms (e.g., LRU) and write policies (write-back/write-through), govern data consistency and block eviction. Optimizing these strategies is crucial for minimizing the average memory access time (AMAT) and maximizing system throughput.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "659-660",
+    "extraction_date": "2025-07-28T11:26:31.814359",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.734098",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:21:01",
+    "original_length": 454,
+    "refined_length": 737
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define N 1024\nint matrix[N][N];\n\n// Good Spatial Locality (Row Major)\nvoid access_good() {\n    for (int i = 0; i < N; ++i) {\n        for (int j = 0; j < N; ++j) {\n            matrix[i][j]++; // Contiguous access\n        }\n    }\n}\n\n// Poor Spatial Locality (Column Major)\nvoid access_bad() {\n    for (int j = 0; j < N; ++j) {\n        for (int i = 0; i < N; ++i) {\n            matrix[i][j]++; // Large memory jump\n        }\n    }\n}\n\n#define CACHE_LINE_SIZE 64\n\n// False Sharing Avoidance (Manual Padding)\nstruct AlignedCounter {\n    // Data modified by Thread A\n    int threadA_count;\n    // Pad ensures threadB_count is on a different cache line\n    char padding[CACHE_LINE_SIZE - sizeof(int)];\n    // Data modified by Thread B\n    int threadB_count;\n};\n\n// Temporal Locality Example\n// Data elements are accessed repeatedly (high reuse)\nint sum_local(int* arr, int size) {\n    int sum = 0;\n    for (int i = 0; i < size; ++i) {\n        int temp = arr[i];\n        sum += temp;\n        sum *= temp; // arr[i] reused before eviction\n    }\n    return sum;\n}\n\n// GCC/Clang Cache Alignment Pragma\nstruct __attribute__((aligned(64))) CacheAlignedData {\n    int data[10]; // Structure guaranteed to start on a cache line boundary\n};"
+}

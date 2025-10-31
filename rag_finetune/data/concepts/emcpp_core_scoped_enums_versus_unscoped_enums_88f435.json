@@ -1,0 +1,22 @@
+{
+  "topic": "Scoped Enums: Namespace Pollution and Implicit Conversion",
+  "category": "core",
+  "explanation": "Scoped enums, declared using `enum class` or `enum struct`, are a C++11 feature designed to fix fundamental flaws in traditional C++98-style `enum`s. They provide strong type safety and ensure their enumerator names do not leak into the enclosing scope, making them a superior choice in modern C++.\n\nScott Meyers highlights two critical advantages that make scoped enums overwhelmingly preferable. The first is the elimination of namespace pollution. Enumerators in an unscoped `enum` are visible in the same scope as the `enum` itself, leading to frequent and frustrating name collisions in larger projects. The second, and arguably more important, advantage is strong typing, which prevents the dangerous implicit conversions to integral types that are allowed for unscoped enums.\n\nThe mechanics are simple but effective. Enumerators of a scoped enum are only accessible through the scope of the enum name itself, for example, `Color::Red`. This scoping prevents name clashes. Furthermore, the compiler will not perform any implicit conversions from a scoped enum type to an integer or any other type. If such a conversion is required, it must be requested explicitly with a cast, forcing the programmer to acknowledge the type change.\n\nIn practical code, this means you can define multiple enums in the same scope with common enumerator names like `Error` or `Ok` without conflict. The strong typing prevents logical errors where an enum value might be accidentally used in an arithmetic calculation or compared against an unrelated integer. This is especially useful for function overloading, as a call with a scoped enum cannot accidentally resolve to an overload taking an integer, which is a common bug with unscoped enums.\n\nThe most common pitfall for programmers accustomed to the old style is the lack of implicit conversion to integers. Code that previously relied on this behavior, such as using an enum value as an array index, will fail to compile and must be updated with an explicit cast. Another surprise is the requirement to qualify enumerator names with the enum's type name, which, while safer, is a departure from the old syntax.",
+  "code_example": "// C++98-style unscoped enum\nenum Color { black, white, red };\n// auto white = false; // Error! 'white' is already in this scope\n\n// C++11-style scoped enum\nenum class Vehicle { car, truck, boat };\nauto car = true; // OK. 'car' is not in this scope.\n\nVehicle v = Vehicle::car; // Must use scope resolution\n\n// Demonstrating type safety\nif (v == Vehicle::truck) { /* ... */ }\n// if (v == 0) // Error! No implicit conversion to int.",
+  "practical_example": "Defining status codes for different modules in a large application. Using `enum class ModuleA::Status` and `enum class ModuleB::Status` allows both to have an enumerator named `Error` without any naming conflicts, improving code organization and safety.",
+  "keywords": [
+    "scoped enums",
+    "enum class",
+    "unscoped enums",
+    "enum",
+    "type safety",
+    "namespace pollution",
+    "scope",
+    "implicit conversion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "67",
+  "chapter": "Item 10: Prefer scoped enums to unscoped enums",
+  "id": "emcpp_core_scoped_enums_versus_unscoped_enums_88f435",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

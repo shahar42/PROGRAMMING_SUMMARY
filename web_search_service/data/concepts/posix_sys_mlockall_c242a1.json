@@ -1,0 +1,16 @@
+{
+  "topic": "mlockall() System Call",
+  "explanation": "mlockall() locks all pages mapped into the address space of the calling process into RAM, preventing them from being paged to the swap area. The flags argument specifies which pages to lock, such as currently mapped pages or future mappings.\n\n**Parameters:**\n- `flags` (int): Bitwise OR of constants like MCL_CURRENT and MCL_FUTURE to specify which pages to lock, such as currently mapped pages or those that will be mapped in the future.\n\n**Common Errors:**\n- `EINVAL`: Unknown flags were specified or MCL_ONFAULT was specified without either MCL_FUTURE or MCL_CURRENT.\n- `ENOMEM`: Locking would exceed limits, some pages are not mapped, or it would result in too many distinct mappings.\n- `EPERM`: The caller is not privileged (CAP_IPC_LOCK).\n- `EAGAIN`: Some or all of the address range could not be locked.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.118351",
+    "syscall_name": "mlockall",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_mlockall.json",
+    "concept_id": "posix_sys_mlockall_c242a1",
+    "book_metadata_added": "2025-10-28T20:22:06.657213"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// mlockall(flags): Lock process pages into RAM.\n// Requires CAP_IPC_LOCK (root or capability).\n\n// Flags\n// MCL_CURRENT: Lock current mappings.\n// MCL_FUTURE: Lock future mappings.\n\nint flags = MCL_CURRENT | MCL_FUTURE;\n\nif (mlockall(flags) == -1) {\n    // Common Errors:\n    // EINVAL: Invalid flags specified.\n    // EPERM: Insufficient privileges.\n    return -1;\n}\n<ctrl63>",
+  "keywords": "mlockall, memory locking, prevent swapping"
+}

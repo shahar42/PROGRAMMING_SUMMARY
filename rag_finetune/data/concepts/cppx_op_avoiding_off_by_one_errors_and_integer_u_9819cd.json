@@ -1,0 +1,14 @@
+{
+  "topic": "Avoiding Off-by-One Errors and Integer Underflow with Iterators and Loops",
+  "explanation": "Off-by-one errors are a common source of bugs in C++ programs, often stemming from incorrect loop conditions or iterator handling.  When dealing with iterators or indices, carefully consider the inclusive/exclusive nature of your boundaries.  Using unsigned integers can lead to unexpected behavior if you accidentally try to decrement below zero, resulting in a very large positive number due to integer underflow. This can lead to infinite loops or other hard-to-debug issues.  Robust solutions rely on clear boundary conditions and using appropriate data types that prevent underflow.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:25:09.594215",
+    "book_metadata_added": "2025-10-28T20:22:06.556955"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Standard Forward: Range-based (OBO safe default)\nstd::vector<int> v;\nfor (const auto& item : v) {\n    // Avoids index boundary management\n}\n\n// Standard Forward: Index-based (OBO risk mitigation)\n// Start i=0, loop while i < size()\nfor (size_t i = 0; i < v.size(); ++i) {\n    v[i] = 0;\n}\n\n// Backward Iteration: Avoid unsigned underflow\n// Use signed int for index i, check against i >= 0\nfor (int i = v.size() - 1; i >= 0; --i) {\n    // If v.size() is 0, (0-1) == -1, loop skips safely\n}\n\n// Iterator check: Boundary is != end(), not < end()\nfor (auto it = v.begin(); it != v.end(); ++it) {\n    // ...\n}\n\n// Iterator check: Reversing safe iterator access\nfor (auto it = v.rbegin(); it != v.rend(); ++it) {\n    // ...\n}",
+  "keywords": "Off-by-one error, integer underflow unsigned, C++ loop pitfalls, iterator boundary errors"
+}

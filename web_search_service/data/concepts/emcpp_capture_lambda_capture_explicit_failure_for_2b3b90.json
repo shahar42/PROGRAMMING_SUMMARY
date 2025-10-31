@@ -1,0 +1,14 @@
+{
+  "topic": "Lambda Capture Explicit Failure for Member Data",
+  "category": "capture",
+  "explanation": "Explicit capture of a non-static class member variable by name (e.g., `[member]`) within a lambda defined inside a member function is invalid and results in a compilation error. This failure occurs because member variables are not variables of automatic storage duration accessible to the standard capture mechanism; they are accessed solely via the implicit `this` pointer. The capture list is strictly limited to variables visible in the immediate scope. To access the member data, the developer must explicitly capture `this` (by value or reference), thereby binding the lambda to the object's lifetime. Alternatively, C++14 generalized lambda capture (init capture) allows the member's value to be copied into a local variable within the closure (e.g., `[d = this->member]`).",
+  "code_example": "void Widget::addFilter() const\n{\n  filters.emplace_back(\n    [divisor] (int value) { /*...*/ }  // ERROR: 'divisor' is not a local variable\n  );\n}",
+  "practical_example": "A developer tries to fix the implicit `this` capture issue by changing `[=]` to `[divisor]`, resulting in a compilation failure, forcing them to learn the correct C++14 solution (`[div = divisor]`) or explicitly capture `[this]` and manage the lifetime externally.",
+  "keywords": "lambda capture member variable, capture non-static data member, explicit member capture failure, C++ member lambda capture",
+  "difficulty": "intermediate",
+  "page_reference": "235-236",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_explicit_failure_for_2b3b90",
+  "book": "Effective Modern C++ by Scott Meyers",
+  "extraction_metadata": {}
+}

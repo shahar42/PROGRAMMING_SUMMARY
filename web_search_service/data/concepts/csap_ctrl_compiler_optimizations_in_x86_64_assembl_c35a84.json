@@ -1,0 +1,16 @@
+{
+  "topic": "Compiler Optimizations in x86-64 Assembly",
+  "explanation": "Compilers transform high-level language code into optimized assembly instructions. Understanding these optimizations is crucial for analyzing program performance and for writing efficient code that interacts effectively with the underlying hardware.  Optimizations can lead to significant performance improvements by reducing instructions, better register utilization, and leveraging hardware features.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "362-363",
+    "extraction_date": "2025-07-26T12:44:40.018454",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.723871"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Strength Reduction (Address Calculation)\n// C: array[i*8 + 4]\n// Uses LEA (Load Effective Address) to combine\n// multiplication (shifting) and addition quickly.\n// Equivalent to RAX = RCX*8 + 4\n; LEA RAX, [RCX*8 + 4]\n\n// Zeroing Register Optimization\n// Prefer XOR over MOV 0 for performance and size\n// Breaks data dependency chains on previous content\n; XOR EAX, EAX\n; // EAX = 0\n\n// Loop Unrolling and Vectorization (SIMD/SSE)\n// C: for (i=0..N) a[i] += b[i]; (Floats)\n// Processes 4 elements simultaneously\n; MOVUPS XMM0, [RDI]   // Load 4 floats (16 bytes)\n; ADDPS XMM0, [RSI]    // Add 4 floats\n; MOVUPS [RDI], XMM0   // Store result\n\n// Move Elimination/Constant Propagation\n// C: int a = 10; int b = 10; return a + b;\n; MOV EAX, 20          // Result computed at compile time\n\n// Tail Call Optimization (TCO)\n// Turns recursion into a loop/jump, saving stack space\n// C: return func(new_args);\n; // Setup new_args\n; JMP .Lfunc_start     // Avoids PUSH/CALL overhead",
+  "keywords": "Compiler optimization, x86-64 optimization, C++ assembly optimization"
+}

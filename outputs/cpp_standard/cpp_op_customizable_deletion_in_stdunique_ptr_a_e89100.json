@@ -1,31 +1,12 @@
 {
   "topic": "Customizable Deletion in `std::unique_ptr` and Compiler Optimization",
   "explanation": "The `std::unique_ptr` offers customizable deletion via a custom deleter.  This goes beyond simple `delete` and impacts compiler optimization, memory management, and potentially runtime performance. Understanding how the compiler handles custom deleters, especially in relation to optimization and inlining, is crucial for advanced C++ development.  The compiler might perform significant optimizations depending on the nature of the custom deleter (e.g., a simple function pointer vs. a complex functor).  Memory layout isn't directly affected by the deleter itself, but the deleter's *behavior* influences memory deallocation strategies and therefore the overall performance and correctness of memory management.",
-  "syntax": "```c++\ntemplate <class T, class Deleter = std::default_delete<T>>\nclass unique_ptr {\npublic:\n  unique_ptr(T* ptr, Deleter d) : ptr_(ptr), deleter_(d) {}\n  ~unique_ptr() { deleter_(ptr_); }\n  // ... other members ...\nprivate:\n  T* ptr_;\n  Deleter deleter_;\n};\n```\n\n**Implementation Notes:** The compiler generates code for the destructor (`~unique_ptr`) that calls the provided deleter.  If the deleter is a simple function pointer, the compiler might inline the call, significantly improving performance.  However, for more complex deleters (e.g., functors with member variables or complex logic), inlining might be less effective or impossible.  The compiler's optimization capabilities will play a crucial role in determining the final performance.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <memory>",
-    "#include <string>",
-    "struct MyResource {",
-    "  std::string data;",
-    "  MyResource(const std::string& d) : data(d) { std::cout << \"Resource acquired: \" << data << std::endl; }",
-    "  ~MyResource() { std::cout << \"Resource released: \" << data << std::endl; }",
-    "};",
-    "void customDeleter(MyResource* ptr) {",
-    "  std::cout << \"Custom deleter releasing: \" << ptr->data << std::endl;",
-    "  delete ptr;",
-    "}",
-    "int main() {",
-    "  auto ptr1 = std::make_unique<MyResource>(\"Resource 1\");",
-    "  auto ptr2 = std::unique_ptr<MyResource, void(*)(MyResource*)>(new MyResource(\"Resource 2\"), customDeleter);",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The example showcases both the default deleter and a custom deleter.  The compiler will generate code that calls the appropriate deleter function during the destruction of `ptr1` and `ptr2`.  The performance difference might be subtle unless `customDeleter` is very complex, but the crucial point is the flexibility and control provided by customizable deletion.  In scenarios involving resource cleanup beyond simple `delete` (e.g., closing files, network connections, etc.), this becomes essential.  Analyzing the assembly code generated for the destructors would reveal how the compiler handles the function calls (inlining, etc.) in each case.  The runtime behavior will directly reflect the actions taken by the respective deleters.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:11:03.693244"
-  }
+    "extraction_date": "2025-08-19T05:11:03.693244",
+    "book_metadata_added": "2025-10-28T20:22:06.918081"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

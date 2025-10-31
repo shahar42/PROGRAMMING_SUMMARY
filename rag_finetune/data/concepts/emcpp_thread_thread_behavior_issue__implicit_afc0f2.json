@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Behavior/Issue: Implicit Detach Creates Dangling References",
+  "category": "thread",
+  "explanation": "If the `std::thread` destructor were allowed to implicitly detach the thread, severe resource lifetime issues would arise. If the thread's callable entity (e.g., a lambda) captures local variables by reference (like `goodVals` in the example), and the function returns while the detached thread is still running, those local variables are destroyed when the stack frame unwinds. The now-detached thread continues trying to access the stack memory that is no longer valid, resulting in catastrophic undefined behavior and memory corruption. This danger is why implicit detach was rejected in favor of termination.",
+  "code_example": "void doWork() {\n  std::vector<int> local_data;\n  // Capture by reference\n  std::thread t([&local_data] { /* access local_data */ });\n  // If t implicitly detaches here, local_data is destroyed,\n  // leading to UB when the thread tries to use it.\n}",
+  "practical_example": "A background worker thread relies on a reference to a local collection created by the launching function. If the launching function returns early (e.g., due to an error or condition check) and the thread implicitly detaches, the program eventually crashes or exhibits corrupted state when the detached thread attempts memory access.",
+  "keywords": [
+    "detach",
+    "dangling reference",
+    "lifetime",
+    "undefined behavior",
+    "local variables"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "252, 269",
+  "chapter": "Item 37: Remember that std::threads are not joinable upon destruction",
+  "id": "emcpp_thread_thread_behavior_issue__implicit_afc0f2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

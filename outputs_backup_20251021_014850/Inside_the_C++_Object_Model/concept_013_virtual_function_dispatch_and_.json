@@ -1,0 +1,15 @@
+{
+  "topic": "Virtual Function Dispatch and Destructor Calls in Arrays of Polymorphic Objects",
+  "explanation": "This concept explains how C++ manages destructor invocation for objects stored in contiguous memory, particularly when deleting elements of an array of polymorphic types. It highlights how the compiler uses the object\u2019s vtable to perform dynamic dispatch, ensuring the correct destructor (base or derived) is called at runtime. Internally, each object contains a pointer to its vtable, which directs the call to the appropriate destructor implementation, enabling proper cleanup in polymorphic hierarchies. This mechanism is crucial for resource management and correct object destruction semantics in complex inheritance models.",
+  "syntax": "for (int ix = 0; ix < elem_count; ++ix) {\n    Point *p = &((Point3d*)ptr)[ix];\n    delete p;\n}",
+  "code_example": "struct Point { virtual ~Point() {} };\nstruct Point3d : Point { ~Point3d() {} };\nvoid process(void* ptr, int elem_count) {\n    for (int ix = 0; ix < elem_count; ++ix) {\n        Point *p = &((Point3d*)ptr)[ix];\n        delete p;\n    }\n}",
+  "example_explanation": "This example demonstrates that when deleting each element in an array of Point3d objects through a base class pointer, the compiler generates code that retrieves the object's vtable pointer from its memory layout. The delete operation invokes the destructor via the vtable, ensuring the correct destructor (Point3d's destructor) is called even when deleting through a base class pointer. Internally, the vtable mechanism enables dynamic dispatch, allowing the runtime to identify and invoke the appropriate destructor implementation based on the actual object type, which is essential for correct polymorphic behavior and resource cleanup.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "151-151",
+    "extraction_date": "2025-09-17T15:12:06.760737",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model"
+  }
+}

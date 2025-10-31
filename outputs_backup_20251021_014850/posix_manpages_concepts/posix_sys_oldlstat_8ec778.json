@@ -1,0 +1,15 @@
+{
+  "topic": "oldlstat() System Call",
+  "explanation": "oldlstat is an older version of lstat, which retrieves file status information for a given pathname. It is identical to stat, except that if the pathname is a symbolic link, it returns information about the link itself rather than the file it refers to.\n\n**Parameters:**\n- `pathname` (const char *restrict): Pathname of the file or symbolic link\n- `statbuf` (struct stat *restrict): Pointer to the stat structure where file status information is stored\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for one of the directories in the path prefix of pathname\n- `EBADF`: fd is not a valid open file descriptor (though not directly for oldlstat)\n- `EFAULT`: Bad address\n- `ELOOP`: Too many symbolic links encountered while traversing the path\n- `ENAMETOOLONG`: Pathname is too long\n\n**Related System Calls:** `stat()`, `fstat()`, `fstatat()`, `access()`, `chmod()`, `chown()`, `readlink()`, `statx()`",
+  "syntax": "#include <sys/stat.h>",
+  "code_example": "#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <sys/stat.h>\n#include <sys/sysmacros.h>\n#include <time.h>\nint main(int argc, char *argv[]) {\n    struct stat sb;\n    if (argc != 2) {\n        fprintf(stderr, \"Usage: %s <pathname>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    if (lstat(argv[1], &sb) == -1) {\n        perror(\"lstat\");\n        exit(EXIT_FAILURE);\n    }\n    // ... (rest of the example code)\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the oldlstat() system call. The function takes 2 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.195564",
+    "syscall_name": "oldlstat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_oldlstat.json",
+    "concept_id": "posix_sys_oldlstat_8ec778"
+  }
+}

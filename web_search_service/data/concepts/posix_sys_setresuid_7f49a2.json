@@ -1,0 +1,16 @@
+{
+  "topic": "setresuid() System Call",
+  "explanation": "setresuid() sets the real user ID, effective user ID, and saved set-user-ID of the calling process. An unprivileged process can only change these IDs to their current values, while a privileged process can set them to arbitrary values. If an argument is -1, the corresponding ID is not changed.\n\n**Parameters:**\n- `ruid` (uid_t): The new real user ID, or -1 to leave unchanged.\n- `euid` (uid_t): The new effective user ID, or -1 to leave unchanged.\n- `suid` (uid_t): The new saved set-user-ID, or -1 to leave unchanged.\n\n**Common Errors:**\n- `EAGAIN`: The call would change the caller’s real UID, but there was a temporary failure allocating kernel data structures or it would exceed the RLIMIT_NPROC limit.\n- `EINVAL`: One or more of the target user IDs is not valid in this user namespace.\n- `EPERM`: The calling process is not privileged and tried to change the IDs to values that are not permitted.\n\n**Related System Calls:** `getresuid()`, `getuid()`, `setfsgid()`, `setfsuid()`, `setreuid()`, `setuid()`, `capabilities()`, `credentials()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.222145",
+    "syscall_name": "setresuid",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setresuid.json",
+    "concept_id": "posix_sys_setresuid_7f49a2",
+    "book_metadata_added": "2025-10-28T20:22:06.651324"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "uid_t R_ID = 0;   // Real ID\nuid_t E_ID = 1000; // Effective ID\nuid_t S_ID = 500; // Saved Set-UID\n\n// Set all three IDs (requires privilege if R/E/S != current EUID)\nint status1 = setresuid(R_ID, E_ID, S_ID);\n\n// Drop EID to 1000, keeping RUID/SUID unchanged (-1)\nint status2 = setresuid(-1, 1000, -1);\n\n// Permanently drop all privileges to user 1000\n// RUID, EUID, SUID all set to the same unprivileged ID\nsetresuid(1000, 1000, 1000);\n\n// Use -1 for error status check (0 on success)\nif (status1 == -1) { /* handle error */ }",
+  "keywords": "setresuid, change process uid, set real effective saved uid, privilege escalation"
+}

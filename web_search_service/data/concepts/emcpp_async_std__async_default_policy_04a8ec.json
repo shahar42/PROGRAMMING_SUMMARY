@@ -1,0 +1,18 @@
+{
+  "topic": "std::async Default Policy Causes Execution Ambiguity",
+  "category": "async",
+  "explanation": "Assumption: `std::async` guarantees asynchronous execution on a separate thread. Reality: The default launch policy is `std::launch::async | std::launch::deferred`. This policy grants the implementation flexibility to choose whether to launch the task immediately on a new thread (`async`) or defer execution until a waiting function (`get()` or `wait()`) is called on the resulting future (`deferred`). Why It Fails: This unpredictability makes it impossible to rely on the task running on a separate thread. If deferred execution is chosen, the task runs synchronously on the calling thread, potentially leading to unexpected performance bottlenecks and deadlocks if the task was expected to run concurrently.",
+  "code_example": "auto fut = std::async(f); // f might run on a new thread, \n// or it might run synchronously here:\nresult = fut.get(); ",
+  "practical_example": "A developer uses `std::async` hoping to speed up a computation. Because the system is under load, the task is deferred. When the main thread calls `get()`, the computation runs synchronously, blocking the main thread and negating the expected concurrency gain.",
+  "keywords": [
+    "launch policy",
+    "deferred",
+    "async",
+    "unpredictable execution"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming.",
+  "id": "emcpp_async_std__async_default_policy_04a8ec",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

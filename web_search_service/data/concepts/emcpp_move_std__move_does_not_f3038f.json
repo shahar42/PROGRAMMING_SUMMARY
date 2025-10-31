@@ -1,0 +1,20 @@
+{
+  "topic": "std::move Does Not Move Anything",
+  "category": "move",
+  "explanation": "The assumption widely held by programmers new to C++11 and later standards is that calling `std::move` on an object immediately initiates an efficient resource transfer. Programmers often believe that `std::move(x)` guarantees that the object `x` is moved from, thus avoiding expensive copying. This assumption is fundamentally flawed and constitutes a major anti-pattern in understanding move semantics. The reality is that `std::move` is merely a compile-time utility\u2014specifically, a cast\u2014that converts its input argument into an rvalue reference (an xvalue). This cast signals to the overload resolution mechanism that the argument is eligible for 'moving from' but does not perform the move operation itself. If the type receiving the rvalue reference has a defined move constructor or move assignment operator, the move operation *may* be selected. The failure occurs because the rvalue reference cast provided by `std::move` does not mandate a move; it only makes the input *eligible* for one. If, for instance, the target function or constructor only accepts a `const` lvalue reference, or if the type definition lacks a move constructor entirely (perhaps due to being implicitly deleted by the compiler or suppressed by a custom destructor), then overload resolution will fall back to selecting the copy constructor or copy assignment operator, if they exist and are accessible. The consequence is that a programmer may invoke `std::move` believing they have gained performance, only to silently incur a full, deep copy, entirely defeating the optimization goal of move semantics. Furthermore, if `std::move` is applied to a `const` object, the resulting type is an rvalue reference to a `const` type (`const T&&`). Since standard move operations (move constructors and move assignment operators) are almost universally designed to accept non-`const` rvalue references (allowing them to steal resources and modify the source object), calling `std::move` on a `const` object will invariably lead to the selection of the copy operation, as the move operations are simply not viable candidates for a `const` input. This double failure\u2014misunderstanding the role of the cast and failing to account for `const` correctness\u2014is a critical anti-pattern that leads to hidden performance degradation and incorrect assumptions about resource management and object state after the 'move'. The failure is insidious because the code compiles perfectly, yielding correct (but slow) behavior.",
+  "code_example": "// Assumption: this guarantees a cheap move\n// Reality: If Container lacks move ops, or T is const, it copies.\nstd::vector<int> source = {1, 2, 3};\nContainer moved_copy = std::move(source);",
+  "practical_example": "A library user attempts to use `std::move` to transfer ownership of a large, custom logging buffer object (`LogBuffer`) between threads, assuming performance benefits. If the library maintainer failed to define a move constructor for `LogBuffer` (perhaps relying solely on implicit copying), the presumed fast resource transfer becomes a massive hidden performance bottleneck, potentially causing the application to stall under high load due to unexpected deep memory duplication.",
+  "keywords": [
+    "std::move",
+    "cast",
+    "xvalue",
+    "copy fallback",
+    "anti-pattern",
+    "perf"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "175-178",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_move_std__move_does_not_f3038f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

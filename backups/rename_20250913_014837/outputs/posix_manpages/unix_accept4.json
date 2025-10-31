@@ -1,0 +1,113 @@
+{
+  "name": "accept4",
+  "synopsis": [
+    "#include <sys/socket.h>",
+    "int accept(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen);",
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sys/socket.h>",
+    "int accept4(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen, int flags);"
+  ],
+  "description": "The accept4() system call is used with connection-based socket types to extract the first pending connection request for a listening socket and create a new connected socket. It returns a new file descriptor and allows additional flags to modify the new socket's behavior, such as setting it to non-blocking or close-on-exec.",
+  "parameters": [
+    {
+      "name": "sockfd",
+      "type": "int",
+      "description": "The file descriptor of the listening socket."
+    },
+    {
+      "name": "addr",
+      "type": "struct sockaddr *_Nullable restrict",
+      "description": "Pointer to a sockaddr structure to receive the address of the connecting peer."
+    },
+    {
+      "name": "addrlen",
+      "type": "socklen_t *_Nullable restrict",
+      "description": "Pointer to the size of the addr structure, which is a value-result argument."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags to modify the new socket's behavior, such as SOCK_NONBLOCK or SOCK_CLOEXEC."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a nonnegative integer file descriptor for the accepted socket.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "EAGAIN or EWOULDBLOCK",
+      "description": "The socket is marked nonblocking and no connections are present."
+    },
+    {
+      "code": "EBADF",
+      "description": "sockfd is not an open file descriptor."
+    },
+    {
+      "code": "ECONNABORTED",
+      "description": "A connection has been aborted."
+    },
+    {
+      "code": "EFAULT",
+      "description": "The addr argument is not in a writable part of the user address space."
+    },
+    {
+      "code": "EINTR",
+      "description": "The system call was interrupted by a signal."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Socket is not listening, addrlen is invalid, or flags is invalid for accept4()."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on open file descriptors has been reached."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on open files has been reached."
+    },
+    {
+      "code": "ENOBUFS",
+      "description": "Insufficient resources for buffers."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory available."
+    },
+    {
+      "code": "ENOTSOCK",
+      "description": "sockfd does not refer to a socket."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The socket is not of type SOCK_STREAM."
+    },
+    {
+      "code": "EPERM",
+      "description": "Firewall rules forbid connection."
+    },
+    {
+      "code": "EPROTO",
+      "description": "Protocol error."
+    }
+  ],
+  "bugs": "On Linux, the new socket does not inherit file status flags like O_NONBLOCK from the listening socket, differing from BSD behavior; portable programs should explicitly set flags.",
+  "versions": "Linux 2.6.28, glibc 2.10",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "bind",
+    "connect",
+    "listen",
+    "select",
+    "socket"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "accept4.pdf",
+    "extraction_date": "2025-07-25T23:50:00.096581",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

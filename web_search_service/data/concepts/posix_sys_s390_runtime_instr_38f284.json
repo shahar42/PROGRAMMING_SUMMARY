@@ -1,0 +1,16 @@
+{
+  "topic": "s390_runtime_instr() System Call",
+  "explanation": "The s390_runtime_instr() system call starts or stops CPU run-time instrumentation for the calling thread. The command argument specifies whether to start or stop instrumentation, while the signum argument is ignored in current kernels.\n\n**Parameters:**\n- `command` (int): Controls whether to start (S390_RUNTIME_INSTR_START, 1) or stop (S390_RUNTIME_INSTR_STOP, 2) run-time instrumentation for the calling thread.\n- `signum` (int): Specifies a real-time signal number, which was intended for delivering signals on certain events but is ignored in kernels from Linux 4.4 onwards.\n\n**Common Errors:**\n- `EINVAL`: The value specified in command is not a valid command.\n- `EINVAL`: The value specified in signum is not a real-time signal number (though this does not cause an error in kernels from Linux 4.4 onwards).\n- `ENOMEM`: Allocating memory for the run-time instrumentation control block failed.\n- `EOPNOTSUPP`: The run-time instrumentation facility is not available.\n\n**Related System Calls:** `syscall()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.252821",
+    "syscall_name": "s390_runtime_instr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_s390_runtime_instr.json",
+    "concept_id": "posix_sys_s390_runtime_instr_38f284",
+    "book_metadata_added": "2025-10-28T20:22:06.623116"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// s390_runtime_instr(command, signum)\n\n// Constants for 'command' argument\n#define S390_RUNTIME_INSTR_START 1\n#define S390_RUNTIME_INSTR_STOP  2\n\nint ret;\nint signum_ignored = 0;\n\n// Start run-time instrumentation for the calling thread\nret = s390_runtime_instr(S390_RUNTIME_INSTR_START, signum_ignored);\n\n/* ... Code region to profile ... */\n\n// Stop run-time instrumentation\nret = s390_runtime_instr(S390_RUNTIME_INSTR_STOP, signum_ignored);\n\n// Note: Function wrapper or direct syscall(SYS_s390_runtime_instr, ...) assumed.",
+  "keywords": "s390_runtime_instr, s390 CPU instrumentation, IBM Z performance, s390x monitoring"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Stack Canaries and Buffer Overflow Protection",
+  "explanation": "Stack canaries are a security mechanism used to detect buffer overflow vulnerabilities.  A canary is a random value placed on the stack between a buffer and other control data (like return addresses).  If a buffer overflow occurs, the canary is likely to be overwritten, triggering an error and preventing malicious code execution. This is crucial for system security and preventing exploitation of vulnerabilities in systems programming.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "315-315",
+    "extraction_date": "2025-07-26T00:09:48.264503",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.735518"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Compiler Activation Flag (GCC/Clang)\n// Enables stack protection using randomized canaries.\n-fstack-protector        // Protects funcs with char arrays/va_list\n-fstack-protector-strong // Additional protection heuristics\n-fstack-protector-all    // Protects ALL functions\n\n// 2. Canary Initialization Source\n// Global value, typically read from TLS (Thread Local Storage)\nextern unsigned long __stack_chk_guard;\n\n// Initialized once during startup using secure randomness\nvoid initialize_guard() {\n    // e.g., read 8 bytes from /dev/urandom\n    // __stack_chk_guard = ...;\n}\n\n// 3. Conceptual Runtime Check (Function Epilogue)\nvoid vulnerable_func(char* input) {\n    char buffer[100];\n    // Stack layout: [Buffer] [Canary] [Return Address]\n\n    strcpy(buffer, input); // Potential overflow\n\n    // Compiler-inserted check before returning:\n    if (*canary_on_stack != __stack_chk_guard) {\n        __stack_chk_fail(); // Calls the failure routine\n    }\n}\n\n// 4. Failure Handler Function\nextern void __stack_chk_fail(void);\n\n// Standard action upon failure:\nvoid __stack_chk_fail() {\n    // 1. Log error: \"Stack smashing detected!\"\n    // 2. Abort process (SIGABRT)\n    // 3. Prevents control flow redirection (hijacking)\n}",
+  "keywords": "Stack Canary, Buffer Overflow Protection, Stack Smashing Protection, Canary Value"
+}

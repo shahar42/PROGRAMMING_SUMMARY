@@ -1,0 +1,16 @@
+{
+  "topic": "setns() System Call",
+  "explanation": "The setns() system call allows the calling thread to reassociate with a different namespace specified by a file descriptor. It changes the thread's namespace memberships based on the provided namespace type.\n\n**Parameters:**\n- `fd` (int): A file descriptor referring to a namespace, such as from /proc/[pid]/ns/ or a PID file descriptor obtained via pidfd_open(2).\n- `nstype` (int): Specifies the type of namespace to join; 0 for any type, or specific flags like CLONE_NEWIPC for particular namespaces.\n\n**Common Errors:**\n- `EBADF`: fd is not a valid file descriptor.\n- `EINVAL`: fd refers to a namespace whose type does not match that specified in nstype.\n- `EINVAL`: There is a problem with reassociating the thread with the specified namespace.\n- `EINVAL`: The caller tried to join an ancestor PID namespace.\n- `EINVAL`: The caller attempted to join the user namespace in which it is already a member.\n\n**Related System Calls:** `clone()`, `fork()`, `unshare()`, `vfork()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.147197",
+    "syscall_name": "setns",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setns.json",
+    "concept_id": "posix_sys_setns_5c8a78",
+    "book_metadata_added": "2025-10-28T20:22:06.605324"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int setns(int fd, int nstype);\n/* Reassociate calling thread with a namespace */\n\n// Example: Target FD from /proc filesystem\n// Requires CLONE_NEW* flags for nstype, or 0 for any type\nint target_fd = open(\"/proc/pid/ns/uts\", O_RDONLY);\n\nif (target_fd != -1) {\n    // Join the UTS namespace associated with target_fd\n    int status = setns(target_fd, CLONE_NEWUTS);\n\n    // Or join regardless of type specified by the file handle\n    // status = setns(target_fd, 0);\n\n    close(target_fd);\n}\n\n// status is 0 on success, -1 on error\n// Common errors: EPERM (not privileged), EBADF\n// Required capability: CAP_SYS_ADMIN",
+  "keywords": "setns, join namespace, change namespace"
+}

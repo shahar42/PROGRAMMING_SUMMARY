@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::merge in C++ Standard Library",
+  "explanation": "The std::merge algorithm in the C++ Standard Library is designed to merge two sorted ranges into a single sorted range, preserving the relative order of elements from each input range (making it a stable merge). Under the hood, the compiler typically links to the Standard Library implementation, which is often optimized for performance. The algorithm iterates through both input ranges simultaneously using a two-pointer approach, comparing elements and copying the smaller one to the output range. This results in a time complexity of O(N + M), where N and M are the sizes of the input ranges, due to the linear traversal. Memory layout-wise, std::merge requires additional space for the output range, often allocating a temporary buffer if the destination isn't pre-allocated, which can lead to heap allocations and potential cache misses. Performance implications include efficient CPU utilization for sorted data but increased memory bandwidth usage for large datasets. At the assembly level, this translates to loops with conditional jumps (e.g., CMP and Jcc instructions in x86), memory loads/stores (e.g., MOV instructions), and potential vectorized operations if the compiler optimizes with SIMD instructions. Runtime behavior dominates, as merging depends on actual data values, though compile-time checks (e.g., via constexpr contexts) can validate iterators; however, the merge itself occurs at runtime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T17:16:56.906549",
+    "book_metadata_added": "2025-10-28T20:22:06.989602"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "std::vector<int> R1 = {1, 5, 8};\nstd::vector<int> R2 = {2, 4, 9};\nstd::vector<int> Dest(6); // Must fit R1.size + R2.size\n\n// Merges two sorted input ranges R1, R2 into Dest.\n// Uses operator< by default (stable merge).\nstd::merge(R1.begin(), R1.end(),\n           R2.begin(), R2.end(),\n           Dest.begin());\n\n// Custom comparison predicate version\nstd::merge(R1.cbegin(), R1.cend(),\n           R2.cbegin(), R2.cend(),\n           Dest.begin(),\n           std::less<int>()); // Predicate function/functor"
+}

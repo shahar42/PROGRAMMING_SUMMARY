@@ -1,0 +1,16 @@
+{
+  "topic": "getdents64() System Call",
+  "explanation": "The getdents64 system call reads multiple directory entries from the file descriptor specified by fd into the buffer pointed to by dirp. The count argument specifies the size of the buffer.\n\n**Parameters:**\n- `fd` (int): File descriptor of the directory\n- `dirp` (void*): Pointer to the buffer to hold the directory entries\n- `count` (size_t): Size of the buffer in bytes\n\n**Common Errors:**\n- `EBADF`: Invalid file descriptor fd\n- `EFAULT`: Argument points outside the calling process’s address space\n- `EINVAL`: Result buffer is too small\n- `ENOENT`: No such directory\n- `ENOTDIR`: File descriptor does not refer to a directory\n\n**Related System Calls:** `readdir()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.253585",
+    "syscall_name": "getdents64",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getdents64.json",
+    "concept_id": "posix_sys_getdents64_a897f9",
+    "book_metadata_added": "2025-10-28T20:22:06.598355"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define SYS_GETDENTS64 217\n#define BUF_SIZE 4096\n\nstruct linux_dirent64 {\n    uint64_t d_ino;        // Inode number\n    int64_t d_off;         // Offset to next entry\n    unsigned short d_reclen; // Length of this record\n    unsigned char d_type;  // File type (DT_REG, DT_DIR, etc.)\n    char d_name[];         // Filename (NUL-terminated)\n};\n\nchar buffer[BUF_SIZE];\nint dir_fd = 3;  // Assumed open directory FD\nlong bytes_read;\n\n// Standard syscall invocation\nbytes_read = syscall(SYS_GETDENTS64, dir_fd, buffer, BUF_SIZE);\n\nif (bytes_read > 0) {\n    // Process buffer entries\n}\n// Error check: if (bytes_read == -1) { EBADF/EFAULT }\n// close(dir_fd);",
+  "keywords": "getdents64 syscall, read directory entries, linux directory listing, getdents replacement"
+}

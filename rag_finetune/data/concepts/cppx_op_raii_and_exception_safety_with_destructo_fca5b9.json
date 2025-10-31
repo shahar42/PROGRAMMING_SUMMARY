@@ -1,0 +1,14 @@
+{
+  "topic": "RAII and Exception Safety with Destructors",
+  "explanation": "Resource Acquisition Is Initialization (RAII) is a fundamental C++ principle that tightly couples resource management with object lifetime.  This is achieved primarily through destructors.  Exception safety, particularly strong exception safety, relies heavily on RAII to ensure that resources are properly released even when exceptions are thrown.  A key aspect is that destructors should *never* throw exceptions. If a destructor throws, and that exception isn't caught within the destructor itself, it can lead to program termination (often with undefined behavior) due to unpredictable stack unwinding.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:23:37.193747",
+    "book_metadata_added": "2025-10-28T20:22:06.522356"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// RAII via Standard Library (Strong Exception Guarantee)\nstd::unique_ptr<FileHandle> file(\n    open_file(\"data.txt\"));\n\n// Custom RAII Wrapper: Basic Guarantee\nclass LockGuard {\n    Mutex& m;\npublic:\n    explicit LockGuard(Mutex& mx) : m(mx) { m.lock(); }\n    ~LockGuard() { m.unlock(); } // Must not throw\n};\n\n// Destructor Exception Safety Rule\n// C++11 onwards: Implicitly noexcept(true) if no exceptions thrown\nclass SafeResource {\n    Handle h;\npublic:\n    ~SafeResource() noexcept {\n        release(h); // Ensure no exceptions escape\n    }\n};",
+  "keywords": "Destructor throws, Noexcept destructor, Double exception, RAII exception safety"
+}

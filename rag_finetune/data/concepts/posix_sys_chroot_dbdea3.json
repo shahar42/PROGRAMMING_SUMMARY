@@ -1,0 +1,16 @@
+{
+  "topic": "chroot() System Call",
+  "explanation": "chroot() changes the root directory of the calling process to that specified in path. This directory is used for pathnames beginning with /. Only a privileged process can call it.\n\n**Parameters:**\n- `path` (const char *): Path to the new root directory\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix.\n- `EFAULT`: path points outside your accessible address space.\n- `EIO`: An I/O error occurred.\n- `ELOOP`: Too many symbolic links were encountered in resolving path.\n- `ENAMETOOLONG`: path is too long.\n\n**Related System Calls:** `chdir()`, `pivot_root()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.176753",
+    "syscall_name": "chroot",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_chroot.json",
+    "concept_id": "posix_sys_chroot_dbdea3",
+    "book_metadata_added": "2025-10-28T20:22:06.611934"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "const char *new_root_path = \"/home/jail\";\nint result = chroot(new_root_path);\n\nif (result == -1) {\n    // Requires privileged access (EPERM if not root/CAP_SYS_CHROOT)\n    // Also check for EACCES, EFAULT, or ENOTDIR\n    return -1;\n}\n\n// Success: The effective root directory ('/') is now new_root_path.\n// Note: chdir(\"/\") is often called immediately after for cleanup.\n// Current working directory remains unchanged until chdir().\n\n// Example usage following chroot:\n// chdir(\"/\");\n// execl(\"/bin/sh\", \"sh\", (char *)0);",
+  "keywords": "chroot, chroot jail, change root directory, unistd.h"
+}

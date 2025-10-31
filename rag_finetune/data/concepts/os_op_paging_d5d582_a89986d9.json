@@ -1,0 +1,15 @@
+{
+  "topic": "Paging",
+  "explanation": "Paging is a memory management technique in operating systems that divides virtual memory into fixed-size blocks called pages and physical memory into blocks called page frames. It is used to provide a flexible abstraction of memory, allowing processes to use more memory than physically available by mapping pages to non-contiguous frames, which improves memory utilization, simplifies allocation, and supports features like virtual memory without assumptions about memory layout.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "196-196",
+    "extraction_date": "2025-07-21T17:25:19.485975",
+    "has_code": false,
+    "has_explanation": false,
+    "book_metadata_added": "2025-10-28T20:22:06.789017"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "// Virtual Address Structure (32-bit architecture, 4KB pages)\nconst int PAGE_OFFSET_BITS = 12;\n\ntypedef struct {\n    uint32_t offset : PAGE_OFFSET_BITS;        // Displacement within the page\n    uint32_t page_number : (32 - PAGE_OFFSET_BITS); // Index into the Page Table\n} VirtualAddress;\n\n// Single-Level Page Table Entry (PTE)\ntypedef struct {\n    uint32_t present : 1;   // Must be set for valid translation\n    uint32_t write : 1;     // Permissions\n    uint32_t accessed : 1;\n    // ... other flags (Dirty, User/Supervisor, etc.)\n    uint32_t frame_number : 20; // Physical Page Frame Number (PPFN)\n} PageTableEntry;\n\n// Translation (Conceptual Step)\n// PA = (Frame Number << PAGE_OFFSET_BITS) | Offset\nphys_addr_t translate(PageTableEntry pte, VirtualAddress va) {\n    if (!pte.present) { /* Handle Page Fault */ }\n    return (pte.frame_number << PAGE_OFFSET_BITS) | va.offset;\n}",
+  "keywords": "Paging, Virtual Memory, OS Memory Management"
+}

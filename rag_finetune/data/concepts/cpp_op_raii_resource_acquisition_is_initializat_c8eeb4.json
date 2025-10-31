@@ -1,0 +1,16 @@
+{
+  "topic": "RAII as Standard C++ Idiom",
+  "explanation": "RAII is a C++ programming idiom where resource acquisition (such as file handles, memory, or network connections) is tied to object lifetime. When an object is created, it acquires resources, and when it is destroyed (goes out of scope), it releases those resources automatically. This pattern ensures exception-safe resource management, preventing leaks and ensuring proper cleanup even in error conditions. In the context of C++, RAII is fundamental for managing resources like file streams, memory, and locks, leveraging constructors and destructors to automate cleanup.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1097-1097",
+    "extraction_date": "2025-08-19T09:12:29.438911",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.849261"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class SocketConnection {\n    int sock_fd;\npublic:\n    SocketConnection(int port) {\n        // Acquire resource (e.g., connect to port)\n        sock_fd = setup_socket(port);\n    }\n    ~SocketConnection() {\n        if (sock_fd != -1) close(sock_fd); // Release\n    }\n    SocketConnection(const SocketConnection&) = delete;\n};\n\n// ---\n\nvoid handle_data() {\n    // Acquire stack-based mutex guard\n    std::lock_guard<std::mutex> lock(global_mtx); \n\n    // Lock held here\n    process_shared_resource();\n\n    // Lock released automatically when 'lock' goes out of scope\n}\n\n// ---\n\n// Modern C++ RAII for dynamic memory\nvoid process_buffer(size_t size) {\n    auto buffer = std::make_unique<char[]>(size);\n    // Use buffer\n    // ...\n    // Memory automatically freed upon exit (no manual delete[])\n}\n<ctrl63>",
+  "keywords": "RAII, C++ resource management, Scope-based resource management, Resource Acquisition Is Initialization"
+}

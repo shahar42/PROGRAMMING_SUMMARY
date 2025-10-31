@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics and Perfect Forwarding in Custom Stream Implementations",
+  "explanation": "This expert-level concept delves into the intricacies of move semantics and perfect forwarding within the context of custom stream implementations, focusing on how compilers optimize resource management and the implications for memory layout and performance.  Understanding this requires a deep knowledge of how compilers handle rvalues, lvalues, and the nuances of expression evaluation.  Improper implementation can lead to significant performance degradation or subtle, hard-to-debug errors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:56:48.425582",
+    "book_metadata_added": "2025-10-28T20:22:06.909437"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class BufferHandle {\n    char* data_;\npublic:\n    BufferHandle(size_t s) : data_(new char[s]) {}\n    ~BufferHandle() { delete[] data_; }\n    BufferHandle(const BufferHandle&) = delete;\n\n    // Explicit Move Constructor: Zeroes out source state\n    BufferHandle(BufferHandle&& other) noexcept\n        : data_(std::exchange(other.data_, nullptr)) {}\n\n    // Move Assignment\n    BufferHandle& operator=(BufferHandle&& other) noexcept {\n        if (this != &other) {\n            delete[] data_;\n            data_ = std::exchange(other.data_, nullptr);\n        }\n        return *this;\n    }\n};\n\n// --- Perfect Forwarding in Stream Operation ---\n\nnamespace Stream {\n    template <typename T>\n    void sink(T&& item) {\n        // Preserves the value category (lvalue or rvalue) of item\n        detail::process_internal(std::forward<T>(item));\n    }\n}\n\nnamespace detail {\n    // Overload for lvalue references\n    void process_internal(const BufferHandle& h) { /* Read-only access */ }\n    // Overload for rvalue references (allows move optimization)\n    void process_internal(BufferHandle&& h) { /* Transfer ownership */ }\n}",
+  "keywords": "Move Semantics, Perfect Forwarding, Forwarding References, Custom iostream C++"
+}

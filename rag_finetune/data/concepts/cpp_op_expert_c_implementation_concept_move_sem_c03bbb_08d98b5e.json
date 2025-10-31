@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Move Semantics and Rvalue References in Custom Copyable/Movable Classes",
+  "explanation": "This explores the intricate details of implementing move semantics and rvalue references within custom classes, focusing on how the compiler optimizes memory management and avoids unnecessary copies. It contrasts with simple copy constructors and, particularly when dealing with large objects or resources.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:47:17.743290",
+    "book_metadata_added": "2025-10-28T20:22:06.826901"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class LargeResource {\nprivate:\n    int* data_;\npublic:\n    explicit LargeResource(size_t s) : data_(new int[s]) {}\n    ~LargeResource() { delete[] data_; }\n\n    // Disable Copying (Focus on Move)\n    LargeResource(const LargeResource&) = delete;\n\n    // Move Constructor: Stealing the Resource\n    LargeResource(LargeResource&& other) noexcept\n        : data_(std::exchange(other.data_, nullptr)) {}\n\n    // Move Assignment Operator\n    LargeResource& operator=(LargeResource&& other) noexcept {\n        if (this != &other) {\n            delete[] data_; // Release existing resource\n            data_ = std::exchange(other.data_, nullptr); // Steal & nullify source\n        }\n        return *this;\n    }\n};"
+}

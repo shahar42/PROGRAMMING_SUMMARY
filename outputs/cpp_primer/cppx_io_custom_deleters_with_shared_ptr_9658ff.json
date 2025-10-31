@@ -1,32 +1,12 @@
 {
   "topic": "Custom Deleters with `shared_ptr`",
   "explanation": "The `std::shared_ptr` manages the lifetime of dynamically allocated objects, automatically deleting them when the last `shared_ptr` pointing to them goes out of scope. However, sometimes the default deletion mechanism (using `delete`) isn't sufficient.  This is particularly true when dealing with resources that require more complex cleanup, such as closing files, releasing network connections, or unregistering from event systems.  Custom deleters provide a way to specify how a managed object should be deleted, allowing for more precise control over resource management.  This is a crucial aspect of RAII (Resource Acquisition Is Initialization), a fundamental C++ principle ensuring proper resource cleanup even in the face of exceptions.",
-  "syntax": "To use a custom deleter with `shared_ptr`, you provide a callable object (e.g., a function or function object) as the second template argument to `shared_ptr`.  This callable object will be invoked when the last `shared_ptr` goes out of scope.\n\n```c++\nstd::shared_ptr<T> ptr(new T, custom_deleter);\n```\n\nWhere `custom_deleter` is a callable object taking a pointer to `T` as an argument.  The type of `custom_deleter` is automatically deduced, allowing for flexible choices such as lambda expressions or function pointers.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <memory>",
-    "#include <fstream>",
-    "",
-    "void file_deleter(std::FILE* file) {",
-    "  if (file) {",
-    "    std::fclose(file);",
-    "  }",
-    "}",
-    "",
-    "int main() {",
-    "  std::shared_ptr<std::FILE> file(std::fopen(\"my_file.txt\", \"w\"), file_deleter);",
-    "  if (file) {",
-    "    std::fprintf(file.get(), \"Hello, world!\\n\");",
-    "  }",
-    "  // file will be automatically closed and the resource released even if exceptions occur.",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates a custom deleter for `FILE*`.  The `file_deleter` function ensures that the file is properly closed using `std::fclose` even if exceptions occur during file operations.  This prevents resource leaks and promotes robust code.  Note the use of `file.get()` to access the raw pointer within the `shared_ptr` when needed.  Using a lambda expression for the deleter is also a common and concise alternative.\n\n**Pitfalls to Avoid:**\n\n* **Double deletion:** Ensure your custom deleter doesn't attempt to delete the managed object if it has already been deleted (e.g., through another `shared_ptr`).\n* **Exception safety:**  Design your custom deleter to be exception-safe. If an exception occurs within the deleter, it should still ensure proper resource cleanup.\n* **Memory leaks:**  Incorrectly implemented custom deleters can lead to memory leaks. Thoroughly test your custom deleter to ensure it correctly handles all scenarios.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "dynamic",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T04:55:43.761108"
-  }
+    "extraction_date": "2025-08-20T04:55:43.761108",
+    "book_metadata_added": "2025-10-28T20:22:06.536415"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

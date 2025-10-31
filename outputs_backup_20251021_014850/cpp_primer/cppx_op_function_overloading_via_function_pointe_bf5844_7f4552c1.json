@@ -1,0 +1,15 @@
+{
+  "topic": "Function Overloading via Function Pointers and Virtual Dispatch in C",
+  "explanation": "In advanced C programming, achieving polymorphic behavior similar to object-oriented languages requires leveraging function pointers and manual dispatch mechanisms. This technique allows different functions to be called based on the runtime type of an object, enabling dynamic behavior and simulating method overriding. It is used to implement flexible, extensible systems where behavior varies depending on object types without relying on language-level features like inheritance.",
+  "syntax": "struct Base {\n    void (*print_total)(struct Base *self, int value);\n};\n\nstruct Derived {\n    struct Base base;\n    // additional members\n};\n\n// Function implementations\nvoid base_print_total(struct Base *self, int value);\nvoid derived_print_total(struct Base *self, int value);\n\n// Usage\nstruct Derived d;\n// Assign function pointers at runtime\n\nd.base.print_total = derived_print_total;\n\n// Call via base pointer\nstruct Base *b = (struct Base *)&d;\nb->print_total(b, 10);",
+  "code_example": "struct Base {\n    void (*print_total)(struct Base *self, int value);\n};\nstruct Derived {\n    struct Base base;\n    // additional members\n};\nvoid base_print_total(struct Base *self, int value) {\n    printf(\"Base total: %d\\n\", value);\n}\nvoid derived_print_total(struct Base *self, int value) {\n    printf(\"Derived total: %d\\n\", value);\n}\n// Instantiate derived object and assign function pointer\n\nstruct Derived d;\n\nd.base.print_total = derived_print_total;\n// Call method via base pointer, enabling dynamic dispatch\n\nstruct Base *b = (struct Base *)&d;\n\nb->print_total(b, 10);",
+  "example_explanation": "This example demonstrates how to implement runtime polymorphism in C by embedding a function pointer within a base struct and assigning different function implementations depending on the derived type. When calling 'b->print_total', the function executed depends on the actual function pointer assigned, effectively overriding behavior. This technique is essential for advanced C programming to simulate object-oriented features like method overriding and dynamic dispatch, enabling flexible and extensible code architectures.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "747-747",
+    "extraction_date": "2025-08-20T06:01:29.380462",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}

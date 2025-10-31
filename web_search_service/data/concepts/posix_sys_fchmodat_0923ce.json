@@ -1,0 +1,16 @@
+{
+  "topic": "fchmodat() System Call",
+  "explanation": "fchmodat() changes the mode bits of a file specified by a directory file descriptor and a pathname. It allows for additional flags to control behavior, such as handling symbolic links. This system call is useful for changing permissions relative to an open directory.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor, or AT_FDCWD to use the current working directory\n- `pathname` (const char *): Pathname of the file whose mode is to be changed\n- `mode` (mode_t): The new file mode bits, including permissions and special flags like S_ISUID\n- `flags` (int): Flags that modify the operation, such as AT_SYMLINK_NOFOLLOW\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix\n- `EBADF`: pathname is relative and dirfd is neither AT_FDCWD nor a valid file descriptor\n- `EFAULT`: pathname points outside your accessible address space\n- `EINVAL`: Invalid flag specified in flags\n- `EIO`: An I/O error occurred\n\n**Related System Calls:** `chown()`, `execve()`, `open()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.138831",
+    "syscall_name": "fchmodat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fchmodat.json",
+    "concept_id": "posix_sys_fchmodat_0923ce",
+    "book_metadata_added": "2025-10-28T20:22:06.603818"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Change permissions in current directory (like chmod)\nfchmodat(AT_FDCWD, \"file.log\", 0640, 0);\n\n// Set up directory context\nint dfd = open(\"temp_dir\", O_RDONLY | O_DIRECTORY);\n\n// Change permissions relative to dfd (standard behavior)\nfchmodat(dfd, \"private_data\", S_IRWXU, 0); // 0700\n\n// Use flag: If \"link\" is a symlink, change permissions\n// of the link itself, not the target file.\nfchmodat(dfd, \"link\", 0400, AT_SYMLINK_NOFOLLOW);\n\nclose(dfd);",
+  "keywords": "fchmodat, chmod relative directory, change file permissions"
+}

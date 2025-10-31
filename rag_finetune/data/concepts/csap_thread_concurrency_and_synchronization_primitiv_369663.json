@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Sync Primitives for Memory Sharing",
+  "explanation": "Concurrency arises when multiple threads execute seemingly simultaneously, sharing resources like memory.  Synchronization primitives are mechanisms that ensure correct and predictable interactions between these concurrent threads, preventing race conditions and data corruption.  Without proper synchronization, unpredictable results occur due to the non-deterministic interleaving of instructions from different threads.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1019-1021",
+    "extraction_date": "2025-07-29T16:10:07.017162",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.691419"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "std::mutex data_mutex;\nint shared_resource = 0;\n\nvoid safe_access() {\n    // RAII lock ensures unlock upon scope exit\n    std::lock_guard<std::mutex> lock(data_mutex);\n    shared_resource++; // Critical section\n}\n\n// Manual locking (less safe)\nvoid manual_access() {\n    data_mutex.lock();\n    // Do work\n    data_mutex.unlock();\n}\n\nstd::atomic<long> transaction_id = 0;\n\nvoid lock_free_increment() {\n    // Atomically fetch old value and add 1\n    long new_id = transaction_id.fetch_add(1);\n}\n\n// Simple atomic variable assignment\nvoid direct_atomic_op() {\n    transaction_id = 500;\n}\n\nstd::mutex mtx;\nstd::condition_variable cv;\nstd::queue<int> data_queue;\n\nvoid consumer_wait() {\n    std::unique_lock<std::mutex> lock(mtx);\n    // Wait until queue is not empty (spurious wakeups handled)\n    cv.wait(lock, []{ return !data_queue.empty(); });\n    int data = data_queue.front();\n}\n\nvoid producer_notify(int item) {\n    {\n        std::lock_guard<std::mutex> lock(mtx);\n        data_queue.push(item);\n    } // Lock released\n    cv.notify_one();\n}\n\n// C-style thread synchronization using POSIX\npthread_mutex_t p_mtx = PTHREAD_MUTEX_INITIALIZER;\nint p_resource = 0;\n\nvoid posix_lock() {\n    pthread_mutex_lock(&p_mtx);\n    p_resource++;\n    pthread_mutex_unlock(&p_mtx);\n}\n<ctrl63>",
+  "keywords": "Thread synchronization, Race condition, Synchronization primitives, Concurrency control"
+}

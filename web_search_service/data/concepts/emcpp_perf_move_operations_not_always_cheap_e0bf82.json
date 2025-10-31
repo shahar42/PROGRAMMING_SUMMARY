@@ -1,0 +1,13 @@
+{
+  "topic": "Move Operations Not Always Cheap (Deep Copy Failure)",
+  "category": "perf",
+  "explanation": "Assumption: Move operations are fundamentally implemented as cheap, shallow copies of resource pointers, followed by nulling the source pointers. Reality: For certain container types and user-defined types, move operations may be as expensive as a full deep copy, or only marginally cheaper. Why It Fails: 1. `std::array`: Since `std::array` stores data directly, moving it requires copying every single element, making it a full deep copy. 2. Small Buffer Optimization (SSO): For strings and vectors, small contents are stored internally, meaning a 'move' of a small buffer might just be copying all the elements rather than swapping pointers. 3. Custom Types: If a user-defined class attempts to manage memory in a way that involves complex ownership semantics (e.g., using counting references or specific invariants), the move constructor may require significant processing beyond a simple pointer swap, or even a full copy if the object cannot be left in a safe, null state. Relying on move being cheap without verifying the type's implementation leads directly to performance bottlenecks where massive data structures are moved across functions, consuming enormous amounts of time.",
+  "code_example": "// Show the failure case of non-heap managed memory\nstd::array<int, 10000> arr; \nauto moved = std::move(arr);  // Still copies all 10000 integers element-wise!",
+  "practical_example": "A networking application relies on moving large `std::array` buffers between threads. The expectation of near-zero cost move time leads to thread synchronization delays and high CPU usage due to the constant, unnoticed element-by-element copying occurring during the move operations.",
+  "keywords": "Move deep copy, Non-trivial move, SSO move cost, std::array move cost",
+  "difficulty": "advanced",
+  "page_reference": "224-227",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_move_operations_not_always_cheap_e0bf82",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

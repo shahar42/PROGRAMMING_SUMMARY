@@ -1,0 +1,15 @@
+{
+  "topic": "ioctl_fideduperange() System Call",
+  "explanation": "This ioctl allows sharing physical storage between files by deduplicating identical data ranges on the same filesystem, reducing storage consumption through copy-on-write behavior. It compares and shares data from a source file to one or more destination files if the data is identical.\n\n**Parameters:**\n- `src_fd` (int): File descriptor of the source file, which must be open for reading.\n- `request` (int): The ioctl request code, typically FIDEDUPERANGE.\n- `arg` (struct file_dedupe_range *): Pointer to a structure containing deduplication information, including source offset, length, and an array of destination details.\n\n**Common Errors:**\n- `EBADF`: src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem which src_fd resides on does not support deduplication.\n- `EINVAL`: The filesystem does not support deduplicating the ranges of the given files; this can occur if file descriptors represent devices, FIFOs, or sockets, or if offsets and lengths are not aligned properly.\n- `EISDIR`: One of the files is a directory and the filesystem does not support shared regions in directories.\n- `ENOMEM`: The kernel was unable to allocate sufficient memory to perform the operation or dest_count is too large.\n- `EOPNOTSUPP`: The filesystem does not support deduplicating either file descriptor, or if either refers to special inodes.\n\n**Related System Calls:** `ioctl()`",
+  "syntax": "#include <linux/fs.h>",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = ioctl_fideduperange(...);  // Call the system call\nif (result == -1) {\n    perror(\"ioctl_fideduperange\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the ioctl_fideduperange() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.221482",
+    "syscall_name": "ioctl_fideduperange",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_fideduperange.json",
+    "concept_id": "posix_sys_ioctl_fideduperange_31f455"
+  }
+}

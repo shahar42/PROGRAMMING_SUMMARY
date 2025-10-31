@@ -1,0 +1,21 @@
+{
+  "topic": "Runtime `typeid`: Misrepresenting Deduced Qualifiers",
+  "category": "debug",
+  "explanation": "The C++ standard library provides a runtime mechanism for type inspection through the 'typeid' operator and the 'name' member function of the resulting 'type_info' object. This allows a program to generate a string representation of an object's type during execution, which can be useful for logging or dynamic dispatch scenarios.\n\nScott Meyers cautions that while this approach seems appealingly simple, it is often a poor choice for understanding the results of compile-time type deduction. The crucial insight is that 'typeid' does not report the static type as the compiler sees it. Instead, it reports a type that has undergone a decay process similar to pass-by-value: it strips top-level reference and const/volatile qualifiers from the type before reporting it.\n\nThe mechanics of 'typeid' mean that when it is applied to an expression, the resulting 'type_info' object reflects a simplified version of the expression's static type. For example, if a variable is declared as a const reference to an integer, 'typeid' will report its type as simply integer, discarding both the 'const' and the reference qualifier. Furthermore, the string returned by the 'name' function is implementation-defined. Some compilers produce human-readable names, while others produce 'mangled' names that require an external tool to decipher.\n\nThis behavior makes 'typeid' unsuitable for precisely debugging template or 'auto' type deduction, where the presence or absence of references and const qualifiers is often the central question. For example, it cannot distinguish between a function parameter deduced as a value, a reference, or a const reference, as it would likely report the same base type for all three. Its primary valid use case is in runtime type identification (RTTI) with polymorphic types, where it correctly identifies the dynamic type of an object through a base class pointer.\n\nThe most common pitfall is placing undue trust in the output of 'typeid' for understanding static types. Developers frequently misinterpret the decayed type it reports as the actual type the compiler deduced, leading to incorrect assumptions about their code's behavior regarding copies, moves, and const-correctness. The non-portable nature of the output string is another drawback, making it unreliable for anything other than informal, compiler-specific debugging.",
+  "code_example": "#include <iostream>\n#include <typeinfo> // for typeid\n\nint main() {\n    int x = 27;\n    const int& rx = x;\n\n    // typeid on x (int) reports 'int'\n    std::cout << typeid(x).name() << '\\n';\n\n    // typeid on rx (const int&) also reports 'int'.\n    // The const and reference qualifiers are stripped.\n    std::cout << typeid(rx).name() << '\\n';\n\n    // This can be misleading when debugging type deduction.\n    return 0;\n}",
+  "practical_example": "In a logging system, you might use `typeid(object).name()` to record the type of an exception caught in a generic catch block. However, you should not rely on this mechanism to debug a universal reference parameter inside a template, as it will fail to show whether the parameter was bound to an lvalue or an rvalue.",
+  "keywords": [
+    "debug",
+    "typeid",
+    "type_info",
+    "RTTI",
+    "runtime",
+    "type decay",
+    "mangled names"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "31-32",
+  "chapter": "Item 4: Know how to view deduced types",
+  "id": "emcpp_debug_viewing_deduced_types_at_runtime_079b1a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

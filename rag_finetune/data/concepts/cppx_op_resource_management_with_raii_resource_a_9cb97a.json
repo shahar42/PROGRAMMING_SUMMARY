@@ -1,0 +1,14 @@
+{
+  "topic": "Resource Management with RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a cornerstone of modern C++ that ensures resources (like memory, files, network connections, locks, etc.) are automatically managed and released when they are no longer needed.  This is achieved by associating the resource's lifetime with the lifetime of an object.  When the object goes out of scope, its destructor is automatically called, releasing the resource. This prevents resource leaks and makes code safer and easier to reason about.  It's a fundamental technique for avoiding memory leaks and other resource-related errors, especially crucial in larger projects.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "io",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:08:13.071014",
+    "book_metadata_added": "2025-10-28T20:22:06.515765"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class FileHandle {\n    FILE* fp;\npublic:\n    explicit FileHandle(const char* path) {\n        fp = fopen(path, \"r\");\n    }\n    // The RAII Guarantee: Destructor releases resource\n    ~FileHandle() { \n        if (fp) fclose(fp);\n    }\n    \n    // Prevent accidental copying of the resource handle\n    FileHandle(const FileHandle&) = delete;\n    FileHandle& operator=(const FileHandle&) = delete;\n};\n\n// --- Standard Library: Memory RAII (std::unique_ptr) ---\n\nstruct Config {};\n\nvoid process_config() {\n    // Resource acquired upon creation (heap allocation)\n    std::unique_ptr<Config> ptr = std::make_unique<Config>();\n\n    // Ownership is unique and guaranteed\n    \n    if (rand() % 2) {\n        return; // Config deleted here automatically\n    }\n\n    // ptr leaves scope, Config destructor called.\n}\n\n// --- Standard Library: Concurrency RAII (std::lock_guard) ---\n\nstd::mutex shared_mtx;\nint counter = 0;\n\nvoid increment() {\n    // Resource (lock) acquired upon object creation\n    std::lock_guard<std::mutex> lock(shared_mtx);\n\n    // Critical section\n    counter++; \n    \n    // Lock automatically released when 'lock' leaves scope (via destructor)\n    // even if an exception occurs.\n}",
+  "keywords": "RAII, resource management C++, automatic resource cleanup"
+}

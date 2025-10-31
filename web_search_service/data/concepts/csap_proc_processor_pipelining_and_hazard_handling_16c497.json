@@ -1,0 +1,26 @@
+{
+  "topic": "Data Dependencies in Pipeline Hazards",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the stages of multiple instructions.  However, this can lead to hazards (data, control, or structural) that require handling to maintain correct program execution. Data hazards occur when an instruction depends on the result of a previous instruction that is not yet available. Control hazards arise from branch instructions, where the next instruction to execute is not known until the branch condition is evaluated. Structural hazards occur when multiple instructions require the same hardware resource simultaneously.  Understanding and handling these hazards is crucial for achieving optimal performance in modern processors.\n\nProcessor pipelining is a technique that improves instruction execution speed by overlapping the execution of multiple instructions.  Instead of completing one instruction before starting the next, different stages of multiple instructions are executed concurrently. However, this can lead to hazards—situations where the correct execution order is disrupted.  Hazards need handling to maintain the correctness of the program's execution.  Understanding pipelining and hazard handling is crucial for optimizing program performance and utilizing the full potential of modern processors.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "389-389",
+    "extraction_date": "2025-07-26T21:58:33.703974",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-27T17:09:28.410053",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "494-494",
+      "extraction_date": "2025-07-27T17:09:22.743902",
+      "has_code": false,
+      "has_explanation": false,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8691596388816833,
+    "book_metadata_added": "2025-10-28T20:22:06.719678"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// RAW Hazard (Read After Write / True Dependency)\n// I1 writes R1. I2 reads R1 before I1 WB stage completes.\n\nI1: ADD R1, R2, R3    // Def: R1\nI2: SUB R4, R1, R5    // Use: R1\nI3: AND R6, R7, R8\n\n// Hazard mitigation: Data Forwarding or pipeline stall (NOPs)\n// R1 value is needed by I2 EX stage, available from I1 EX or MEM stage.\n\n// WAW Hazard (Write After Write / Output Dependency)\n// I1 and I4 both write the same destination register (R1).\n\nI1: LOAD R1, 0(R2)    // Writes R1\nI2: SUB R6, R7, R8\nI3: ADD R9, R9, R10\nI4: DIV R1, R11, R12  // Writes R1\n// Must maintain sequential write order.\n\n// WAR Hazard (Write After Read / Anti-Dependency)\n// I1 reads R3. I3 writes R3.\n\nI1: STORE R2, 0(R3)   // Read R3 (Address)\nI2: ADD R4, R5, R6\nI3: SUB R3, R7, R8    // Write R3 (Value)\n// I3 must not complete WB before I1 finishes reading R3.\n// Often resolved via Register Renaming.",
+  "keywords": "Pipeline Hazards, Data Dependency Hazard, Processor Pipelining, RAW Hazard"
+}

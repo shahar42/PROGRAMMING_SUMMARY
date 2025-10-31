@@ -1,0 +1,12 @@
+{
+  "topic": "Move Assignment Implementation in C++ Standard Library Streams",
+  "explanation": "In C++, the move assignment operator for classes like basic_iostream (as defined in ISO/IEC 14882:2014(E), section 27.7.2.5.3) is implemented to perform a swap operation with the right-hand side object. This design choice leverages the efficiency of swapping internal state rather than copying it, which is crucial for classes managing resources like I/O buffers. The compiler itself does not generate this implementation; instead, it relies on the standard library's definition. When the compiler encounters a move assignment, it resolves it to a call to the library-provided operator=, which internally calls std::swap or a custom swap. This results in exchanging pointers to internal buffers, error states, and other members, minimizing data movement.\n\nMemory layout implications are significant: basic_iostream typically includes a vtable pointer for virtual functions (e.g., for polymorphic stream behavior), along with pointers to buffers and state variables. Swapping these involves only exchanging these pointers (e.g., to the stream buffer), which is an O(1) operation in terms of time complexity, avoiding the overhead of copying large buffers. This contrasts with copy assignment, which might be deleted or inefficient for such classes.\n\nAt the assembly level, the swap might translate to a series of register exchanges or memory swaps (e.g., using XCHG instructions on x86), depending on the optimizer. For instance, if the stream's members are pointers, the assembly could involve loading addresses into registers and swapping their values, resulting in minimal instructions like MOV and XCHG.\n\nBehavior is primarily runtime: the swap occurs during program execution, but the compiler performs overload resolution at compile-time to select the correct operator=. This hybrid nature ensures efficiency in resource-heavy classes like streams, where performance implications include reduced latency for operations like stream reassignment in loops, as it avoids unnecessary allocations or copies.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "overloading",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:57:23.475472",
+    "book_metadata_added": "2025-10-28T20:22:06.872137"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Concurrency Shared State: Abstracted and Implementation-Defined Storage",
+  "category": "type",
+  "explanation": "The C++ Standard defines the concept of the 'shared state' as the external location used to store the result of an asynchronous operation and manage its synchronization data. However, the Standard explicitly leaves the type, interface, and implementation of the shared state unspecified. This design choice allows library implementers the freedom to optimize storage and synchronization mechanisms. The shared state is crucial because it serves as the intermediary storage location, ensuring the result lives at least as long as the last `std::future` or `std::shared_future` referring to it. It is typically represented by a heap-based object.",
+  "code_example": "// The shared state is conceptually linked between promise and future\nstd::promise<int> p;\nstd::future<int> f = p.get_future();\n// ... p and f both refer to the same underlying shared state, \n// which manages synchronization and storage.",
+  "practical_example": "When analyzing memory usage for concurrent code, a developer notices unexpected heap allocations associated with `std::async` calls, even for tasks returning trivial types. This allocation is usually the internal, implementation-defined structure of the shared state object, which must reside on the heap to manage its potentially long lifetime.",
+  "keywords": [
+    "shared state",
+    "implementation-defined",
+    "heap allocation",
+    "std::promise"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "258",
+  "chapter": "Item 38",
+  "id": "emcpp_type_concurrency_shared_state__abstracted_aca19a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

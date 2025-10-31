@@ -1,0 +1,13 @@
+{
+  "topic": "Smart Pointers: `unique_ptr` and `shared_ptr`",
+  "explanation": "Smart pointers (`unique_ptr` and `shared_ptr`) are essential for modern C++ memory management. They automatically handle memory deallocation, preventing memory leaks and dangling pointers.  `unique_ptr` provides exclusive ownership of a dynamically allocated object, while `shared_ptr` allows multiple pointers to share ownership.  Choosing the right smart pointer depends on the ownership semantics required.  Improper usage can lead to crashes or subtle errors; adhering to best practices is crucial.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:56:34.230658",
+    "book_metadata_added": "2025-10-28T20:22:06.567535"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// unique_ptr: Exclusive Ownership\n\nstruct FileHandle { int id; /*...*/ };\n\n// Best Practice Initialization\nauto u1 = std::make_unique<FileHandle>(10);\n\n// Exclusive ownership (move semantics)\nauto u2 = std::move(u1);\n\n// u1 is now null (u1 == nullptr)\n\n// Access managed object\nu2->id = 5;\n\n// Release ownership (dangerous, manual delete needed)\nFileHandle* raw_ptr = u2.release();\ndelete raw_ptr;\n\n// unique_ptr managing an array\nauto array_p = std::make_unique<int[]>(20);\narray_p[0] = 42;\n\n\n// shared_ptr: Shared Ownership and Reference Counting\n\nclass Widget { /*...*/ };\n\n// Best Practice Initialization\nauto s1 = std::make_shared<Widget>(42);\n\n// Shared ownership (copy allowed)\nauto s2 = s1;\nauto s3 = s1;\n\n// Reference count check\nsize_t count = s1.use_count(); // count == 3\n\n// Access managed object\ns2->method();\n\n// Explicitly relinquish ownership\ns3.reset(); // count == 2\n\n// Getting raw pointer\nWidget* raw_w = s1.get();\n\n\n// Custom Deleters (often unique_ptr)\n\n// Resource type and custom cleanup function signature\nusing Closer = void(*)(FILE*);\n\n// Unique_ptr with custom stateful deleter (lambda)\nauto file_p = std::unique_ptr<FILE, Closer>(\n    fopen(\"log.txt\", \"w\"),\n    [](FILE* f) { if (f) fclose(f); }\n);\n// shared_ptr custom deleter\nauto buffer = std::shared_ptr<char[]>(\n    new char[1024],\n    [](char* p) { delete[] p; }\n);"
+}

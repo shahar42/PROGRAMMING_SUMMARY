@@ -1,0 +1,20 @@
+{
+  "topic": "Overloading Universal References [Problem]: Constructor Ambiguity",
+  "category": "design",
+  "explanation": "A critical failure mode arises when using a perfect forwarding constructor (PFC)\u2014a constructor taking a universal reference parameter (`template<typename T> Widget(T&&)`)\u2014in conjunction with the standard copy and move constructors. The assumption is that the PFC, due to template deduction rules, will correctly defer to the more specific, non-template copy and move constructors when applicable. The anti-pattern is that the PFC often leads to ambiguous resolutions or unexpected captures. Specifically, when an object of the same type (`Widget`) is passed to the PFC, the compiler may attempt to instantiate the PFC template for `Widget` as the deduced type `T`. If a `const Widget&` (for copy construction) or a `Widget&&` (for move construction) is passed, the PFC can deduce `T` in a way that generates a signature that competes directly with the explicit copy/move constructors, leading to ambiguity errors that halt compilation. Even if it doesn't cause ambiguity, the PFC is essentially a 'catch-all' constructor. If the programmer forgets to explicitly delete or constrain the PFC, it may inadvertently match unintended types, such as objects that require implicit conversions, leading to unintended construction pathways that bypass necessary initialization logic. Furthermore, the PFC competes with the implicitly generated or defaulted copy and move constructors. If the PFC is defined without constraints, it often provides a better match than a default copy constructor for certain lvalue inputs, thus silently preventing the standard copy construction path and forcing the object through the forwarding template, which adds complexity and potential overhead to a simple copy operation. This requires developers utilizing PFCs to meticulously constrain them using techniques like SFINAE (`std::enable_if`) or concepts (C++20) to ensure they only match types that are *not* the containing class itself, adding significant boilerplate just to prevent inherent ambiguity.",
+  "code_example": "// The forwarding constructor competes directly with the copy/move ops.\nclass Widget {\n    Widget(const Widget&); // Copy\n    Widget(Widget&&);      // Move\n\n    template<typename T>\n    Widget(T&&) { /* PFC */ } // AMBIGUOUS if T=Widget& or T=Widget\n};",
+  "practical_example": "A team implements a reusable container class using a PFC to handle initialization from various derived classes and primitives. During testing, they find that simple copy construction (`Widget w2(w1);`) fails to compile due to ambiguity, as the compiler cannot definitively choose between the explicit copy constructor and the PFC instantiated with `T = Widget&`. This forces a refactor to utilize complex SFINAE rules just to handle basic instantiation, frustrating the design process.",
+  "keywords": [
+    "PFC",
+    "constructor",
+    "ambiguity",
+    "SFINAE",
+    "design",
+    "type"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "197-200",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_overloading_universal_references__problem_5190a5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

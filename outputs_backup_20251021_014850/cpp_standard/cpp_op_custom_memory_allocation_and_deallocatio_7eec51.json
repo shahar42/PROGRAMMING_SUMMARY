@@ -1,0 +1,15 @@
+{
+  "topic": "Custom Memory Allocation and Deallocation Operators in C++",
+  "explanation": "In C++, classes can define their own memory management functions by overloading the global or class-specific operator new and operator delete. This allows fine-grained control over how memory is allocated and deallocated for objects, enabling optimizations, debugging, or specialized memory handling strategies. Modern C++ encourages explicit control over resource management, and custom operators are a key feature for implementing patterns like memory pooling or tracking allocations.",
+  "syntax": "void* operator new(std::size_t size); \nvoid operator delete(void* ptr) noexcept;\n// For class-specific operators:\nReturnType* ClassName::operator new(std::size_t size);\nvoid ClassName::operator delete(void* ptr) noexcept;",
+  "code_example": "#include <iostream>\n#include <cstdlib>\n\nclass MyClass {\npublic:\n    // Custom global new operator\n    static void* operator new(std::size_t size) {\n        std::cout << \"Custom new for MyClass, size: \" << size << \"\\n\";\n        void* ptr = std::malloc(size);\n        if (!ptr) throw std::bad_alloc();\n        return ptr;\n    }\n    // Custom global delete operator\n    static void operator delete(void* ptr) noexcept {\n        std::cout << \"Custom delete for MyClass\\n\";\n        std::free(ptr);\n    }\n    void display() const {\n        std::cout << \"MyClass instance at \" << this << \"\\n\";\n    }\n};\n\nint main() {\n    MyClass* obj = new MyClass();\n    obj->display();\n    delete obj;\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how to define custom global operator new and delete for a class MyClass. When an object of MyClass is created with new, the custom operator new is invoked, which outputs a message and allocates memory using malloc. Similarly, when delete is called, the custom operator delete outputs a message and frees the memory. This showcases C++'s ability to override default memory management functions, enabling tailored resource handling strategies aligned with modern C++ best practices.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1258-1258",
+    "extraction_date": "2025-08-27T00:04:32.186813",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

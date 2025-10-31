@@ -1,0 +1,16 @@
+{
+  "topic": "Correct Execution via Hazard Management",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the execution stages of multiple instructions.  However, this can lead to hazards (data, control, or structural) that require handling to ensure correct program execution. Data hazards occur when an instruction depends on the result of a previous instruction that hasn't completed yet; control hazards arise from branch instructions whose target is unknown until late in the pipeline; structural hazards occur when multiple instructions require the same resource simultaneously.  Effective hazard handling is critical for maximizing the performance benefits of pipelining.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "420-421",
+    "extraction_date": "2025-07-26T22:08:08.383340",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.723276"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Data Hazard Detection and Handling (RAW Dependency)\ntypedef int RegID;\n#define REG_ZERO 0\n\n// Abstract representation of instruction moving through a stage\ntypedef struct {\n    RegID rd;\n    RegID rs1, rs2;\n    bool writes_rd;\n    bool active;\n} PipelineReg;\n\n// Checks if the instruction entering ID stage depends on\n// the result being calculated in the EX stage (1 cycle latency)\nbool DataHazard_Stall(PipelineReg EX_I, PipelineReg ID_I) {\n    // If EX instruction does not write a result, no hazard\n    if (!EX_I.active || !EX_I.writes_rd || EX_I.rd == REG_ZERO) {\n        return false;\n    }\n\n    // Check dependency (RAW)\n    return (EX_I.rd == ID_I.rs1 || EX_I.rd == ID_I.rs2);\n}\n\n// If true: Stall ID/IF stages OR initiate Forwarding (Bypass)",
+  "keywords": "Pipeline Hazards, Instruction Pipelining, Data Hazard, Hazard Management"
+}

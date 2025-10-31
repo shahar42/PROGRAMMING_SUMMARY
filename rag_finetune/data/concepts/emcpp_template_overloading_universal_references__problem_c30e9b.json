@@ -1,0 +1,19 @@
+{
+  "topic": "Overloading Universal References [Problem]: Over-Specialization (Catch-all)",
+  "category": "template",
+  "explanation": "The perfect forwarding template acts as a 'catch-all' function due to its highly permissive nature in overload resolution. This behavior is a severe anti-pattern when designing overloaded function sets, as the general template aggressively matches types that were intended for specialized, non-template overloads, leading to broken specialization logic. The fundamental failure is that when multiple overloads exist (some template, some non-template), the universal reference template often results in an instantiation that is a better match than a necessary conversion or a less-specific non-template specialization. For example, if a class has a conversion operator that allows conversion to a primitive type (like `int`), and a function exists specifically for handling that primitive (`void handle(int)`), introducing a universal reference template (`template<typename T> void handle(T&&)`) can prevent the intended conversion and subsequent specialized call. Instead, the universal reference template is instantiated directly with the class type, bypassing the conversion operator and the targeted overload. This forces the specialized logic to be implemented *inside* the generic forwarding template, requiring complex runtime checks or template specialization logic to restore the intended behavior, which defeats the purpose of separate overloads. The consequence is a loss of control over the overload resolution process, resulting in unreadable code, increased template complexity, and the inability to define clear, distinct processing paths for specific types or value categories.",
+  "code_example": "// If Widget converts to int, the universal reference template may be chosen\n// instead of the specialized int overload, bypassing the conversion.\nvoid process(int i) { /* specialized logic */ }\ntemplate<typename T>\nvoid process(T&& arg) { /* generic forwarding logic */ }",
+  "practical_example": "A mathematical library provides a generic `normalize` function. It has a specific overload for matrix types (`normalize(const Matrix&)`). A developer adds a template overload using a universal reference for performance optimization (`template<typename T> normalize(T&&)`). If a custom object that implicitly converts to `Matrix` is passed, the compiler may prefer the generic forwarding template (as a perfect match for the custom object type) over the conversion-to-Matrix-followed-by-specific-overload path. This prevents the essential matrix normalization logic from being executed.",
+  "keywords": [
+    "catch-all",
+    "specialization failure",
+    "overload resolution",
+    "conversion suppression",
+    "design"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "200-201",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_universal_references__problem_c30e9b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

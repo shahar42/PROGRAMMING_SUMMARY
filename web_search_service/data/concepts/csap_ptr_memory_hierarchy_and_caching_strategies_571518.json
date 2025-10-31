@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Time Minimization",
+  "explanation": "The memory hierarchy structures storage into levels (e.g., registers, L1, L2, DRAM) ordered by decreasing speed and increasing capacity to mitigate the latency disparity between the CPU and main memory. Caching is the primary mechanism employed to minimize the average memory access time ($T_{avg}$). This is achieved by exploiting the principle of locality of reference, which includes temporal locality (reuse of recently accessed data) and spatial locality (accessing data near recently accessed locations). Active data blocks are moved into faster, lower-latency cache levels closer to the processor. Effective cache management maximizes the cache hit ratio, thereby minimizing the miss penalty and sustaining high CPU throughput.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "839-839",
+    "extraction_date": "2025-07-28T12:50:34.236212",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.726104",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:20:40",
+    "original_length": 382,
+    "refined_length": 734
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define N 1024\nint M[N][N];\n\n// 1. Spatial Locality: Efficient Access (Row-major)\nvoid row_major() {\n    for (int i = 0; i < N; i++) {\n        for (int j = 0; j < N; j++) {\n            M[i][j] *= 2; // Sequential memory access (Cache hits)\n        }\n    }\n}\n\n// 2. Spatial Locality: Inefficient Access\nvoid col_major() {\n    for (int j = 0; j < N; j++) {\n        for (int i = 0; i < N; i++) {\n            M[i][j] *= 2; // Large memory stride (Cache misses)\n        }\n    }\n}\n//------------------------------------------------\n\n// 3. Cache Line Alignment (False Sharing Avoidance, C++17)\n// Assuming 64-byte cache line size\nstruct alignas(64) PaddedCounter {\n    volatile long count; \n    // No explicit padding needed due to alignas() directive\n};\n\n// Good: Ensures separate cache lines for multithreaded access\nPaddedCounter counters[2];\n\n// Bad: c1 and c2 might share a cache line (False Sharing)\nstruct UnalignedCounter {\n    volatile long c1;\n    volatile long c2; \n};"
+}

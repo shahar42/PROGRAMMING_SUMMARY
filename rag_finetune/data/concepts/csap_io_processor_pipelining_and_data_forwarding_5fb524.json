@@ -1,0 +1,26 @@
+{
+  "topic": "Pipelining and Forwarding Before Register Writes",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the stages of instruction processing.  Forwarding is a technique used to resolve data hazards, where an instruction needs the result of a preceding instruction that hasn't yet written its result back to the register file.  Without forwarding, the pipeline would stall, reducing performance. Forwarding allows the result to be passed directly from one pipeline stage to another, avoiding the stall.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "464-464",
+    "extraction_date": "2025-07-27T01:23:59.865960",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-27T01:24:06.626395",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "464-465",
+      "extraction_date": "2025-07-27T01:24:04.850928",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.870724618434906,
+    "book_metadata_added": "2025-10-28T20:22:06.709129"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Pipeline Hazard Forwarding Logic (EX Stage Input)\n\n#define REG_ZERO 0\n\n// Pipeline Register Outputs (Rd, Write Enable)\nint Dest_EXMEM, Dest_MEMWB;\nbool Write_EXMEM, Write_MEMWB;\n\n// Current Instruction Inputs (Rs1, Rs2)\nint Rs1_IDEX, Rs2_IDEX;\n\n// --- Operand A (Rs1) Forwarding Check ---\n\n// Path 1: Forward from EX/MEM stage (Result is freshest)\nif (Write_EXMEM && Dest_EXMEM != REG_ZERO && Dest_EXMEM == Rs1_IDEX)\n    return EXMEM_ALU_Result;\n\n// Path 2: Forward from MEM/WB stage (Requires stall check avoidance)\nif (Write_MEMWB && Dest_MEMWB != REG_ZERO && Dest_MEMWB == Rs1_IDEX) {\n    // If EX/MEM is not writing to Rs1, use MEM/WB result\n    if (Dest_EXMEM != Rs1_IDEX)\n        return MEMWB_Value;\n}\n<ctrl63>",
+  "keywords": "Pipeline Forwarding, Data Hazard Resolution, Bypassing, Pipeline Stall"
+}

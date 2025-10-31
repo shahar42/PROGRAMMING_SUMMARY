@@ -1,0 +1,22 @@
+{
+  "topic": "Special Member Generation: The Rule of Five",
+  "category": "core",
+  "explanation": "The \"Rule of Five\" is the modern C++ extension of the classic \"Rule of Three,\" advising that if you declare any of the five special member functions\u2014destructor, copy constructor, copy assignment operator, move constructor, or move assignment operator\u2014you should explicitly define or default all five. This practice ensures that the class's ownership and resource management semantics are handled consistently and intentionally, preventing subtle bugs related to compiler-generated functions.\n\nScott Meyers emphasizes that this rule is a direct consequence of the interconnected generation logic for special members. Declaring one special function can suppress the generation of others. For example, declaring a destructor prevents move generation, and declaring either a move constructor or move assignment operator prevents the generation of copy operations. Adhering to the Rule of Five forces you to consciously decide whether your class should be copyable, movable, both, or neither, rather than relying on complex and sometimes surprising default compiler behaviors.\n\nThe mechanics are based on the C++ standard's rules for implicit function generation. The compiler treats a user-declared destructor, copy operation, or move operation as a signal that the class has non-trivial resource management needs. In response, it disables the generation of other functions to avoid creating default implementations that would likely be incorrect. For instance, if you provide move operations, the compiler assumes you want to manage resource ownership uniquely, so it disables the copy operations to prevent accidental sharing or double-freeing of resources. Using '= default' allows you to opt back into the compiler's default implementation for a function that would otherwise be suppressed or deleted.\n\nIn practical terms, this means that for any class managing a resource (memory, file handles, network sockets, etc.) or for any class in a hierarchy with a virtual destructor, you should explicitly declare all five special members. For a base class, this often means defining a virtual destructor and then defaulting the copy and move operations to re-enable them. For a resource-owning class, it might mean implementing custom copy/move/destruct logic. This explicit declaration makes the class's interface and intent much clearer to other programmers.\n\nThe most common pitfall is neglecting the rule and only declaring one or two special functions, leading to an incomplete set of operations. For example, declaring a destructor and copy operations but forgetting the move operations makes the class unmovable and potentially inefficient. Conversely, declaring only move operations makes the class move-only, which might be unintentional. The key is to be explicit about all five to avoid leaving the class's core behavior to chance.",
+  "code_example": "// A class adhering to the Rule of Five\nclass Base {\npublic:\n  // 1. User-declared virtual destructor\n  virtual ~Base() = default;\n\n  // Because a dtor was declared, moves would be suppressed.\n  // We explicitly default them to re-enable moving.\n  // 2. Move Constructor\n  Base(Base&&) = default;\n  // 3. Move Assignment Operator\n  Base& operator=(Base&&) = default;\n\n  // Declaring move operations suppresses copy operations.\n  // We explicitly default them to re-enable copying.\n  // 4. Copy Constructor\n  Base(const Base&) = default;\n  // 5. Copy Assignment Operator\n  Base& operator=(const Base&) = default;\n};",
+  "practical_example": "When creating a polymorphic base class, you must declare a virtual destructor. This action suppresses the generation of move operations. To ensure derived classes can still be moved efficiently, you must follow the Rule of Five and explicitly re-enable the move constructor and move assignment operator using '= default' in the base class.",
+  "keywords": [
+    "rule of five",
+    "rule of three",
+    "special member functions",
+    "destructor",
+    "copy constructor",
+    "move semantics",
+    "resource management",
+    "compiler-generated functions"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "112-113",
+  "chapter": "Item 17: Understand the special member function generation",
+  "id": "emcpp_core_special_member_generation__the_5fe58b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

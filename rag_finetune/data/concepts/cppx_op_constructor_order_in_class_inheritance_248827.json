@@ -1,0 +1,14 @@
+{
+  "topic": "Constructor Order in Class Inheritance",
+  "explanation": "In C++, when dealing with class inheritance, the constructor of the base class is always called before the constructor of the derived class. This ensures that the base class's members are properly initialized before the derived class attempts to use them, which is crucial for maintaining object integrity. For copy constructors, the base class's copy constructor is invoked first, followed by the derived class's. This concept is essential in real-world scenarios, such as modeling hierarchical relationships (e.g., a Bear as a derived class of ZooAnimal in a simulation program). Best practices include explicitly calling the base class constructor in the derived class's initialization list to avoid undefined behavior, ensuring proper resource management, and adhering to the Rule of Three/Five for classes with pointers or resources. Common pitfalls include forgetting to call the base class constructor, leading to partially initialized objects, or mishandling copy semantics in inherited classes, which can cause memory leaks or data corruption—avoid this by always defining copy constructors appropriately in derived classes.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:39:04.438275",
+    "book_metadata_added": "2025-10-28T20:22:06.515075"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class Base {\n    Base() { /* Base ctor runs FIRST (1) */ }\n    Base(const Base&) { /* Base copy ctor runs FIRST (1) */ }\n};\n\nclass Derived : public Base {\n    Derived() { /* Derived ctor runs SECOND (2) */ }\n    Derived(const Derived& d)\n        : Base(d) { /* Derived copy ctor runs SECOND (2) */ }\n};\n\n// CRITICAL ORDER:\n// Initialization: Base::Base() -> Derived::Derived()\n// Copying:        Base::Base(d) -> Derived::Derived(d)\n// Destruction:    Derived::~() -> Base::~() (Reverse order)",
+  "keywords": "Constructor initialization order, Base derived constructor order, C++ inheritance constructor call"
+}

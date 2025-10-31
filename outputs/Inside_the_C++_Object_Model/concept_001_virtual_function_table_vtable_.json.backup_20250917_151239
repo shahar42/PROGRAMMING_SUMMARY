@@ -1,0 +1,39 @@
+{
+  "topic": "Virtual Function Table (vtable) Mechanism and Dynamic Dispatch",
+  "explanation": "In C++, when a class contains virtual functions, the compiler implements dynamic dispatch through a vtable—a hidden table of function pointers associated with each polymorphic object. This vtable enables runtime resolution of function calls, allowing the program to invoke the correct overridden function based on the actual object's type, not the static type. Internally, each polymorphic object contains a pointer to its class's vtable, and function calls are dispatched by dereferencing this pointer and jumping to the appropriate function address. This mechanism is fundamental to supporting runtime polymorphism in the C++ object model, providing flexibility at the cost of additional memory overhead and indirection during function calls.\n\nIn C++, when a class contains virtual functions, the compiler creates a hidden pointer within each object instance pointing to a vtable—an array of function pointers. This vtable enables dynamic dispatch, allowing the program to invoke the correct function implementation at runtime based on the actual object's type, even when accessed through a base class pointer. Internally, the vtable mechanism involves compiler-generated tables, pointer adjustments, and specific calling conventions that facilitate polymorphic behavior while maintaining efficient memory layout and function call semantics.",
+  "syntax": "For a class with virtual functions:\n\nclass ClassName {\npublic:\n    virtual ReturnType FunctionName(Parameters);\n    // ...\n};\n\n// Compiler-generated internal structures:\n// - Each class with virtual functions has a vtable: a static array of function pointers.\n// - Each object of such class contains an implicit pointer to its vtable (commonly called vptr).\n// - Function calls to virtual functions are implemented as:\n//   *(object->vptr[index]) (object, other args);",
+  "code_example": [
+    "class Base {",
+    "public:",
+    "    virtual void foo() { /* base implementation */ }",
+    "};",
+    "class Derived : public Base {",
+    "public:",
+    "    void foo() override { /* derived implementation */ }",
+    "};",
+    "",
+    "int main() {",
+    "    Base* p = new Derived();",
+    "    p->foo(); // Calls Derived::foo() via vtable dispatch",
+    "}"
+  ],
+  "example_explanation": "In this example, the pointer 'p' is of type 'Base*' but points to a 'Derived' object. Internally, the 'Derived' object contains a vptr pointing to its vtable, which has the address of 'Derived::foo'. When 'p->foo()' is called, the program dereferences the vptr to access the vtable, retrieves the function pointer for 'Derived::foo', and executes it. This demonstrates how the vtable mechanism enables runtime polymorphism by resolving function calls dynamically based on the actual object type, not the static type, illustrating the core internal implementation of virtual functions in the C++ object model.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1-1",
+    "extraction_date": "2025-09-17T14:54:51.343459",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "merged_on": "2025-09-17T15:09:55.479290",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "103-103",
+      "extraction_date": "2025-09-17T15:09:54.826212",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "Inside_the_C++_Object_Model"
+    },
+    "merge_similarity_score": 0.8501969575881958
+  }
+}

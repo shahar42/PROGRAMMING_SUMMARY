@@ -1,32 +1,12 @@
 {
   "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
   "explanation": "Return Value Optimization (RVO) and its more specific form, Named Return Value Optimization (NRVO), are compiler optimizations that eliminate unnecessary object copies when returning objects from functions.  Instead of creating a temporary object on the stack and then copying it to the caller's location, the compiler directly constructs the object in the caller's memory location. This significantly impacts performance, especially for large or complex objects.  The compiler's ability to perform RVO/NRVO depends on various factors, including the function's return type, the presence of copy constructors and move constructors, and the compiler's optimization level.\n\n**Compiler Implementation:** Compilers employ various techniques to implement RVO/NRVO. One common approach is to analyze the function's return statement and determine if the returned object can be directly constructed in the caller's memory. If possible, the compiler generates code that omits the temporary object creation and copy/move operations.  This often involves analyzing the control flow within the function to ensure there are no potential side effects that would prevent the optimization.\n\n**Memory Layout and Performance Implications:** RVO/NRVO drastically reduces memory usage and execution time.  Avoiding temporary object creation prevents allocation and deallocation overhead on the stack. Copying large objects can be an expensive operation, especially if they contain dynamically allocated memory. By eliminating copies, RVO/NRVO can lead to substantial performance improvements, particularly in performance-critical sections of code. \n\n**Assembly-level Behavior:**  The difference between code with and without RVO/NRVO is evident at the assembly level.  Code with RVO/NRVO will lack instructions for allocating space for a temporary object, copying its contents, and deallocating the temporary object. Instead, the assembly code will directly initialize the object in the caller's memory.\n\n**Runtime vs Compile-time Behavior:** RVO/NRVO is a compile-time optimization. The compiler decides whether or not to apply the optimization during the compilation process.  It doesn't affect runtime behavior; the final executable code either performs the copy or bypasses it entirely based on the compiler's decision. The optimization's effectiveness is highly dependent on the compiler's capabilities and optimization settings. It's important to note that compilers are not obligated to perform RVO/NRVO, even if it's theoretically possible.",
-  "syntax": "C++ syntax with implementation notes:\n```c++\nclass MyClass {\npublic:\n    MyClass(int data) : data_(data) {}\n    MyClass(const MyClass& other) : data_(other.data_) { std::cout << \"Copy constructor called\\n\"; }\n    MyClass(MyClass&& other) noexcept : data_(other.data_) { other.data_ = 0; std::cout << \"Move constructor called\\n\"; }\n    ~MyClass() { std::cout << \"Destructor called\\n\"; }\nprivate:\n    int data_;\n};\n\nMyClass createMyClass(int data) {\n    return MyClass(data); // RVO can be applied here\n}\n\nMyClass createMyClass2(int data) {\n    MyClass obj(data); \n    return obj; // NRVO can be applied here\n}\n\nint main() {\n    MyClass obj1 = createMyClass(10);\n    MyClass obj2 = createMyClass2(20);\n    return 0;\n}\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "class MyClass {",
-    "public:",
-    "  MyClass(std::string s) : str(std::move(s)) { std::cout << \"MyClass constructor\\n\";}",
-    "  MyClass(const MyClass& other) : str(other.str){ std::cout << \"MyClass copy constructor\\n\";}",
-    "  ~MyClass() { std::cout << \"MyClass destructor\\n\";}",
-    "private:",
-    "  std::string str;",
-    "};",
-    "MyClass createObject() {",
-    "  std::string temp = \"Hello, world!\";",
-    "  return MyClass(temp);",
-    "}",
-    "int main() {",
-    "  MyClass obj = createObject();",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "In this example, `createObject` returns a `MyClass` object.  With compiler optimizations enabled, RVO is likely to be applied, avoiding the copy construction of `MyClass`.  Observe the output carefully to see if the copy constructor is called or if only the `MyClass` constructor and destructor are executed. This demonstrates how the compiler can optimize away unnecessary copies, improving performance.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T03:06:47.297620"
-  }
+    "extraction_date": "2025-08-19T03:06:47.297620",
+    "book_metadata_added": "2025-10-28T20:22:06.804807"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

@@ -1,0 +1,56 @@
+{
+  "total_examples": 10,
+  "checkpoint": 10,
+  "examples": {
+    "cpp_io_using_seekg_to_reposition_the_input_posi_162d5c": {
+      "topic": "Using seekg() to reposition the input position indicator in std::istream",
+      "example_type": "demonstration",
+      "code": "std::ifstream file(\"data.dat\");\n\n// Absolute positioning (from beginning)\nfile.seekg(100);\n\n// Relative positioning (forward from current)\nfile.seekg(20, std::ios::cur);\n\n// Relative positioning (backward from end)\nfile.seekg(-10, std::ios::end);\n\n// Save current position\nstd::streampos saved_pos = file.tellg();\n\n// Restore position\nfile.seekg(saved_pos);\n\n// seekg clears eofbit, sets failbit on error\nif (file.fail()) {\n    file.clear();\n}"
+    },
+    "cpp_op_implicit_conversion_of_unscoped_enumerat_11abc5_42090ed5": {
+      "topic": "Implicit Conversion of Unscoped Enumerations to Integers",
+      "example_type": "demonstration",
+      "code": "// Unscoped enumerations (C compatibility)\nenum Color {\n    RED = 1,\n    GREEN,      // 2\n    BLUE        // 3\n};\n\nColor c = GREEN;\n\n// Implicit conversion to underlying type (int)\nint i = c; // i == 2\n\n// Used directly in arithmetic\nint sum = RED + 10; // sum == 11\n\n// Also compares implicitly against integers\nif (c > 1) { /* true */ }\n\n// Explicit underlying type forces conversion type\nenum Flags : long { X = 1L };\nlong l = X;\n// int j = X; // Implicit conversion still works"
+    },
+    "cpp_func_compile_time_function_execution_with_con_29887c_e930b8d3": {
+      "topic": "Compile-Time Function Execution with `constexpr` and Implications for Static Initialization",
+      "example_type": "demonstration",
+      "code": "constexpr int Factorial(int n) {\n    return (n <= 1) ? 1 : n * Factorial(n - 1);\n}\n\n// Result guaranteed to be evaluated at compile time\nconstexpr int STATIC_INIT_VAL = Factorial(6); // 720\n\n// Usage in context requiring a constant expression\ntemplate<int N>\nstruct LookupTable {};\n\n// Template argument deduction at compile time\nusing Table = LookupTable< Factorial(3) >;\n\n// Array size determined at compile time\nvoid use_array() {\n    int arr[STATIC_INIT_VAL];\n}\n\n// Runtime call still possible if arguments aren't constant\nint runtime_call(int x) { return Factorial(x); }"
+    },
+    "cpp_op_compile_time_polymorphism_and_expression_7d70c3_e26a98bb": {
+      "topic": "Compile-Time Polymorphism and Expression Templates",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "csap_mem_memory_hierarchy_and_caching_strategies_0f7c7f_223630ff": {
+      "topic": "Memory Hierarchy and Caching Strategies: Cache Utilization",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "csap_ctrl_global_offset_table_got_and_position_ind_b1bb6b": {
+      "topic": "Global Offset Table (GOT) and Position-Independent Code (PIC)",
+      "example_type": "demonstration",
+      "code": ".global my_pic_func\n.type my_pic_func, @function\n\nmy_pic_func:\n# Access external symbol 'target_var' via GOT/PIC\n\n# 1. Calculate address of target_var's entry in the GOT\n#    (Using PC-relative addressing: RIP + offset)\n    movq    target_var@GOTPCREL(%rip), %rax\n\n# 2. Load the absolute address (resolved by dynamic loader)\n#    from the Global Offset Table entry pointed to by RAX\n    movq    (%rax), %rbx\n\n# 3. Access the data using the resolved absolute address\n    movl    (%rbx), %ecx\n\n    ret\n.size my_pic_func, .-my_pic_func"
+    },
+    "objmdl_object_001_virtual_function_table_vtable_imple": {
+      "topic": "Virtual Function Table (vtable) Implementation and Virtual Function Dispatch",
+      "example_type": "demonstration",
+      "code": "class VBase {\n// Object layout: [vptr | members...]\n// VTABLE Layout: [0: f1, 1: f2, 2: ~VBase]\npublic:\n    virtual void f1() {}\n    virtual void f2() {}\n    virtual ~VBase() = default;\n};\n\nclass VDerived : public VBase {\n// VDerived VTABLE entry 0 points to D::f1\npublic:\n    void f1() override {}\n};\n\n// Dispatch: ptr->vptr->vtable[index]->function_address\nvoid invoke_dispatch(VBase* ptr) {\n    // Runtime lookup required\n    ptr->f1();\n    \n    // Constant offset lookup (if known not overridden)\n    ptr->f2(); \n}"
+    },
+    "kernighan_ritchie_functions_main_function_005": {
+      "topic": "main function",
+      "example_type": "demonstration",
+      "code": "int main(void) {\n    /* Required entry point */\n    /* Must return int */\n    return 0; // Success\n}\n\nint main(int argc, char *argv[]) {\n    /* argc: argument count */\n    /* argv: argument vector (array of C strings) */\n    \n    // argv[0] is the program name\n    \n    if (argc > 1) {\n        // Handle command-line arguments\n    }\n    \n    return 0;\n}"
+    },
+    "linkers_and_loaders_default_symbol_resolution_027": {
+      "topic": "Symbol Resolution Across Compilation Units",
+      "example_type": "demonstration",
+      "code": "// Snippet 1: Basic External Linkage (Default behavior)\n// Requires definition in one compilation unit (A)\n// and declaration (using extern) in another (B).\n// --- Unit A (Definition) ---\nint application_status = 0;\nvoid start_engine() { /* ... */ }\n\n// --- Unit B (Reference) ---\nextern int application_status; // Declaration for the linker\nextern void start_engine();     // Matches Unit A's definition\n\nvoid init() {\n    application_status = 1;\n    start_engine();\n}\n\n// Snippet 2: Internal Linkage (Hiding Symbols)\n// Prevents symbol definition from being resolved externally.\n// --- Unit A ---\nstatic int local_counter = 5; // C style internal linkage\n\nnamespace {\n    // C++ style internal linkage (via anonymous namespace)\n    void private_utility() { /* ... */ }\n}\n\n// --- Unit B ---\n// extern int local_counter; // Linker error: cannot resolve\n// Cannot reference symbols defined internally in Unit A\n\n// Snippet 3: `extern \"C\"` (Resolving C++/C Conflicts)\n// Forces non-mangled symbol names for cross-language linking.\nextern \"C\" {\n    // Defines an external symbol using C linkage conventions\n    void shared_interface_call(int x);\n\n    int shared_config = 10;\n}\n\n// In a C source file, these are referenced simply:\nextern void shared_interface_call(int x);"
+    },
+    "posix_sys_munmap_79b5a7": {
+      "topic": "munmap() System Call",
+      "example_type": "demonstration",
+      "code": "#define PAGE_SIZE 4096\n\nvoid *addr;\nsize_t length = PAGE_SIZE * 10;\n\n// 1. Create a region to unmap\naddr = mmap(NULL, length, PROT_READ | PROT_WRITE, \n            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);\n\nif (addr == MAP_FAILED) { /* handle error */ }\n\n// 2. Remove the virtual memory mapping\nint status = munmap(addr, length);\n\nif (status == -1) {\n    // EINVAL: addr not page aligned or length is zero/invalid.\n    // EFAULT: Internal kernel error.\n    perror(\"munmap failed\");\n}\n\n// addr is now an invalid pointer."
+    }
+  }
+}

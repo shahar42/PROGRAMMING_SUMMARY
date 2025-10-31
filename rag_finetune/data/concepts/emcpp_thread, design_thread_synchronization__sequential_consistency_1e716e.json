@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Synchronization: Sequential Consistency Default",
+  "category": "thread, design",
+  "explanation": "C++ offers multiple memory consistency models for `std::atomic` operations. The default model is Sequential Consistency (SC), which is the strongest and easiest to reason about, guaranteeing that all atomic operations appear to happen in a single, global, consistent order across all threads. Why It Fails: While C++ supports weaker (relaxed) consistency models (e.g., `memory_order_relaxed`) to potentially maximize performance on specific hardware, these models introduce highly complex rules regarding instruction reordering and visibility. Subtle errors in code using relaxed atomics are common, even for experts, leading to extremely difficult-to-debug concurrency bugs. The recommendation is to use the SC default unless performance profiling strictly mandates a weaker model.",
+  "code_example": "// Default atomic operation uses Sequential Consistency\nstd::atomic<int> x{0};\nx.store(10); // Uses memory_order_seq_cst implicitly",
+  "practical_example": "A high-frequency trading application attempts to gain microsecond advantages by switching from default sequential consistency to relaxed atomics for internal queue operations. The resulting complex memory ordering requirements lead to intermittent, non-reproducible race conditions that are nearly impossible to trace in production.",
+  "keywords": [
+    "sequential consistency",
+    "relaxed atomics",
+    "memory model",
+    "synchronization"
+  ],
+  "difficulty": "expert",
+  "page_reference": "273 (footnote 6)",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread, design_thread_synchronization__sequential_consistency_1e716e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

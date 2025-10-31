@@ -1,30 +1,12 @@
 {
   "topic": "Custom Hash Specialization for `std::unique_ptr`",
   "explanation": "This concept delves into the expert-level implementation details of specializing the `std::hash` template for `std::unique_ptr`.  It highlights how compilers handle custom hash functions, the interplay between compile-time and runtime behavior, and the memory implications.  Understanding this requires a deep grasp of template metaprogramming, how the standard library's hashing mechanism works, and the underlying memory management of `std::unique_ptr`.",
-  "syntax": "```cpp\ntemplate <class T, class D> struct std::hash<std::unique_ptr<T, D>> {\n  std::size_t operator()(const std::unique_ptr<T, D>& ptr) const {\n    return std::hash<T*>()(ptr.get());\n  }\n};\n```\n\n**Implementation Notes:**  The specialization leverages the existing `std::hash` for raw pointers (`T*`). This avoids redundant hashing logic and relies on the compiler's ability to efficiently generate code for pointer hashing. The compiler will likely optimize this by directly using the pointer address for hashing, leading to minimal overhead.  Crucially, this highlights that the hash function operates on the *raw pointer* obtained via `ptr.get()`, not the `unique_ptr` object itself. This underscores the distinction between the unique_ptr's management and the underlying pointed-to object.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <memory>",
-    "#include <unordered_map>",
-    "#include <functional>",
-    "struct MyData { int x; };",
-    "template <class T, class D> struct std::hash<std::unique_ptr<T, D>> {\n  std::size_t operator()(const std::unique_ptr<T, D>& ptr) const {\n    return std::hash<T*>()(ptr.get());\n  }\n};",
-    "int main() {",
-    "  std::unordered_map<std::unique_ptr<MyData>, int, std::hash<std::unique_ptr<MyData>>> myMap;",
-    "  auto ptr1 = std::make_unique<MyData>(); ptr1->x = 10;",
-    "  auto ptr2 = std::make_unique<MyData>(); ptr2->x = 20;",
-    "  myMap[std::move(ptr1)] = 1;",
-    "  myMap[std::move(ptr2)] = 2;",
-    "  std::cout << myMap[std::unique_ptr<MyData>(new MyData{10})] << std::endl; //Will not work reliably without proper hash specialization",
-    "  std::cout << myMap.size() << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The example demonstrates using a custom hash specialization within an `unordered_map`.  Without the specialization, the `unordered_map` would likely fail to correctly handle `unique_ptr` keys because the default `std::hash` is not defined for `unique_ptr`. The compiler's implementation of `std::hash` for pointers typically involves a direct address calculation, making the hash function very fast. The runtime performance will depend primarily on the underlying hash table implementation (open addressing or chaining) and the hash function's effectiveness in distributing keys evenly.  Memory layout is minimal; the hash function itself typically doesn't involve significant memory allocation beyond potential internal state in the hash function object itself, if any. The assembly level behavior will show direct pointer dereference and calculation for the hash code, with minimal instructions involved.  Note that the crucial part is that the hash function is evaluated at *runtime*, when the map is populated and accessed, but the *specialization* of the hash function occurs at *compile time*. Incorrect or poorly designed specializations lead to hash collisions and potentially degraded performance.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "templates",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:26:16.945949"
-  }
+    "extraction_date": "2025-08-19T05:26:16.945949",
+    "book_metadata_added": "2025-10-28T20:22:06.852201"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

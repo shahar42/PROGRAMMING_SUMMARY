@@ -1,29 +1,12 @@
 {
   "topic": "Compile-Time Function Inlining and its Impact on Code Size, Performance, and Optimization",
   "explanation": "Function inlining is a compiler optimization that replaces a function call with the function's body at the call site.  This avoids the overhead of a function call, potentially improving performance. However, the impact depends heavily on compiler optimizations, inlining heuristics, and the function's size and complexity.  Understanding how compilers make these decisions is crucial for advanced C++ performance tuning.  Compilers use various heuristics to decide whether to inline a function, often considering factors like function size (smaller functions are more likely to be inlined), code complexity (simple functions are preferred), and the presence of virtual function calls (usually prevent inlining).  The compiler's ability to perform inlining also greatly impacts the size of the generated code; extensive inlining can lead to code bloat, particularly when inlining larger functions. At the assembly level, inline functions show no function call instructions (like `call` or `jmp` in x86). Instead, the function's code appears directly within the caller's code. This significantly reduces the function call overhead of pushing arguments onto the stack, saving CPU cycles and memory access time. However, excessive inlining can lead to larger compiled code, increasing instruction cache misses, negating the performance benefits. Runtime behavior is unaffected, as inlining is a purely compile-time transformation.  The `inline` keyword is a *hint* to the compiler, not a mandate; the compiler may ignore it based on its own optimization decisions.  The trade-off between code size and execution speed necessitates a nuanced understanding of the compiler's inlining strategy to optimize effectively.  Different compilers (GCC, Clang, MSVC) have different inlining strategies and heuristics.",
-  "syntax": "```cpp\ninline int add(int a, int b) { return a + b; }\n// The inline keyword suggests, but doesn't guarantee, inlining. \n// The compiler might choose to ignore it based on its optimization heuristics.\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <chrono>",
-    "inline int add(int a, int b) { return a + b; }",
-    "int main() {",
-    "  auto start = std::chrono::high_resolution_clock::now();",
-    "  int sum = 0;",
-    "  for (int i = 0; i < 100000000; ++i) {",
-    "    sum += add(i, i + 1);",
-    "  }",
-    "  auto end = std::chrono::high_resolution_clock::now();",
-    "  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);",
-    "  std::cout << \"Sum: \" << sum << std::endl;",
-    "  std::cout << \"Time taken: \" << duration.count() << \" ms\" << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates the potential performance benefits of inlining. By comparing the execution time of the `add` function with and without the `inline` keyword (and analyzing the generated assembly code with compiler optimization flags like `-O3` or `/Ox`), you can observe the impact of inlining on the final executable size and performance. Note that the effect may vary significantly depending on the compiler, optimization level, and the architecture. The assembly code (obtained using tools like objdump or a debugger) will reveal whether the compiler actually inlined the `add` function. The absence of a function call instruction at the call site indicates successful inlining.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "basic",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T02:33:35.780888"
-  }
+    "extraction_date": "2025-08-19T02:33:35.780888",
+    "book_metadata_added": "2025-10-28T20:22:06.928021"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

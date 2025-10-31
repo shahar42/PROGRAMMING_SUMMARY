@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Init Capture: Moving Non-Copyable Resources into Closure",
+  "category": "capture",
+  "explanation": "Generalized lambda capture (C++14) allows the definition and initialization of new data members within the closure object using arbitrary expressions. This is critical for capturing variables that are non-copyable (e.g., `std::unique_ptr`, `std::thread`, `std::future`). By using `[ data_member = std::move(local_variable) ]`, the resource ownership is efficiently transferred into the closure, ensuring the lambda holds the resource directly.",
+  "code_example": "auto pw = std::make_unique<Widget>();\n// ... configure *pw ...\nauto func = [ pw_in_closure = std::move(pw) ]\n            { /* use pw_in_closure */ };",
+  "practical_example": "A developer needs a lambda to execute asynchronously using `std::async`. The lambda requires exclusive ownership of a large object. Generalized capture allows moving the `std::unique_ptr` holding the object into the lambda, preventing unnecessary copying and ensuring correct lifetime management.",
+  "keywords": [
+    "init capture",
+    "generalized capture",
+    "closure class",
+    "std::unique_ptr",
+    "move semantics"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "241-247",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_init_capture__moving_530346",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

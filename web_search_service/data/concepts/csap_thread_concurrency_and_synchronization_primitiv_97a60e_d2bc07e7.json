@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Sync Primitives in Computer Systems",
+  "explanation": "Concurrency in computer systems involves multiple threads of execution seemingly running simultaneously.  Synchronization primitives are mechanisms used to manage shared resources accessed by concurrent threads, preventing data corruption and ensuring program correctness.  These are crucial in computer architecture because they allow for efficient utilization of multi-core processors while maintaining data integrity.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:40:20.366661",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.718286"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Mutex & Lock Guard (C++ Standard Library)\nstd::mutex mtx;\nint shared_resource = 0;\n\nvoid access_resource() {\n    // RAII principle: lock acquired on creation, released on scope exit\n    std::lock_guard<std::mutex> lock(mtx);\n    // Critical Section\n    shared_resource++;\n}\n\n\n// Atomic Operations (Lock-Free Programming)\nstd::atomic<long> safe_counter(0);\nstd::atomic_bool running(true);\n\nvoid worker_loop() {\n    long expected = safe_counter.load();\n    long desired = expected + 1;\n\n    // Compare-and-Swap (CAS) loop\n    while (!safe_counter.compare_exchange_weak(expected, desired)) {\n        desired = expected + 1;\n    }\n}\n\n\n// Condition Variables (Waiting and Signaling)\nstd::mutex mtx;\nstd::condition_variable cv;\nstd::queue<int> task_queue;\n\nvoid waiting_thread() {\n    std::unique_lock<std::mutex> lock(mtx);\n    // Wait until queue is not empty (spurious wakeups handled by predicate)\n    cv.wait(lock, []{ return !task_queue.empty(); });\n    int task = task_queue.front();\n    task_queue.pop();\n}\n\nvoid notifying_thread(int data) {\n    {\n        std::lock_guard<std::mutex> lock(mtx);\n        task_queue.push(data);\n    } // Mutex unlocked\n    cv.notify_one();\n}",
+  "keywords": "Thread synchronization, Concurrency control, Race conditions, Synchronization primitives"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "`volatile` Does Not Imply Atomicity, Causing Data Races",
+  "category": "thread",
+  "explanation": "Assumption: Declaring a variable `volatile` makes it safe for concurrent access by multiple threads. Reality: `volatile` is a directive primarily intended for interaction with special memory (e.g., memory-mapped I/O or signals) by preventing the compiler from optimizing away reads and writes. It provides *zero* guarantees regarding atomicity or synchronization between CPU cores. Why It Fails: A standard operation like `++vc` decomposes into a non-atomic read-modify-write sequence. If two threads interleave these steps, one thread's update can be lost (e.g., both threads read 0, both write 1), resulting in an incorrect final value and constituting a data race, which leads to C++ Undefined Behavior.",
+  "code_example": "volatile int vc(0);\n// Thread 1: ++vc; \n// Thread 2: ++vc; \n// vc may be 1, 2, or any result due to UB.",
+  "practical_example": "A developer uses `volatile` on a shared counter believing it solves concurrency issues. Under heavy load, the counter frequently loses updates because the compiler is unaware it needs to use synchronization primitives (like locks or atomic instructions) instead of just inhibiting caching.",
+  "keywords": "volatile atomicity, volatile thread safety, volatile data race, volatile vs atomic",
+  "difficulty": "intermediate",
+  "page_reference": "289-297",
+  "chapter": "Item 40",
+  "id": "emcpp_thread__volatile__does_not_f1f837",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

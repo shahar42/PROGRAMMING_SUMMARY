@@ -1,0 +1,17 @@
+{
+  "topic": "Template Class Specialization and Usage in C++",
+  "explanation": "In C++, templates enable generic programming by allowing classes and functions to operate with generic types. Template classes can be specialized to provide custom implementations for specific types, enhancing flexibility and efficiency. This feature is fundamental for creating reusable, type-safe components such as containers, iterators, and synchronization primitives in the Standard Template Library (STL). Specialization allows developers to optimize or modify behavior for particular types without altering the general template definition.",
+  "syntax": "template <class Type> class ClassName { /* class definition */ }; // General template\n\n// Full specialization\ntemplate <> class ClassName<SpecificType> { /* specialized implementation */ };\n\n// Partial specialization (for class templates)\ntemplate <class T> class ClassName<T*> { /* specialized for pointer types */ };",
+  "code_example": "#include <iostream>\ntemplate <typename Mutex>\nclass shared_lock {\npublic:\n    explicit shared_lock(Mutex& m) : mutex_(m) {\n        mutex_.lock_shared();\n    }\n    ~shared_lock() {\n        mutex_.unlock_shared();\n    }\nprivate:\n    Mutex& mutex_;\n};\n\n// Specialization for a specific Mutex type\nclass shared_timed_mutex {\npublic:\n    void lock_shared() { std::cout << \"Shared lock acquired\" << std::endl; }\n    void unlock_shared() { std::cout << \"Shared lock released\" << std::endl; }\n};\n\nint main() {\n    shared_timed_mutex mtx;\n    shared_lock<shared_timed_mutex> lock(mtx);\n    // lock is acquired upon creation and released when going out of scope\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how a class template 'shared_lock' can be instantiated with a specific mutex type 'shared_timed_mutex'. It shows the general template syntax and how template parameters enable generic programming. The code also illustrates potential specialization, where 'shared_timed_mutex' provides specific lock/unlock behavior. The 'shared_lock' class manages lock acquisition and release via RAII, exemplifying modern C++ idioms and template usage for synchronization primitives.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1176-1176",
+    "extraction_date": "2025-08-19T09:47:12.279956",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture [=] Fails to Isolate Static Storage",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-value capture (`[=]`) guarantees that the resulting closure is self-contained and insulated from external changes, as it copies all necessary data. Reality: `[=]` only captures local automatic variables and parameters. It explicitly ignores objects with static storage duration (globals, namespace statics, or function statics). Why It Fails: If the lambda refers to a static object, it accesses the live, mutable object directly. The use of `[=]` provides a false sense of security, leading developers to assume the closure is isolated when, in fact, external modifications to the static object immediately affect the lambda's subsequent execution, compromising predictability and potential thread safety.",
+  "code_example": "void addDivisorFilter()\n{\n  static auto divisor = computeDivisor();\n  filters.emplace_back(\n    [=](int value)                 // Appears self-contained\n    { return value % divisor == 0; } // Accesses live, static 'divisor'\n  );\n  ++divisor;                       // Modifies the lambda's behavior\n}",
+  "practical_example": "A developer uses `[=]` for a lambda meant for concurrent processing, assuming the environment variables (stored as function statics) are copied. If a separate thread modifies the static variable, the lambda's logic changes mid-execution, leading to race conditions or inconsistent results, despite the apparent safety of by-value capture.",
+  "keywords": "lambda capture static variables, [=] static storage, lambda captures global, default capture static failure",
+  "difficulty": "intermediate",
+  "page_reference": "233-234",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture____e6f616",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

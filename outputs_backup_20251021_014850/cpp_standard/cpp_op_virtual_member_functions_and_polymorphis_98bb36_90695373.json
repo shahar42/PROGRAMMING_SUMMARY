@@ -1,0 +1,17 @@
+{
+  "topic": "Virtual Member Functions and Polymorphism",
+  "explanation": "In C++, virtual member functions enable runtime polymorphism by allowing derived classes to override base class methods. When a function is declared as virtual in a base class, calls to that function through a base class pointer or reference invoke the derived class's overridden implementation, facilitating dynamic dispatch. This mechanism is fundamental for designing flexible and extensible object-oriented systems where behavior can vary depending on the actual object type at runtime.",
+  "syntax": "class Base {\n    virtual ReturnType functionName(Parameters) const noexcept;\n};\n\n// Derived class overrides\nclass Derived : public Base {\n    ReturnType functionName(Parameters) const noexcept override;\n};",
+  "code_example": "#include <iostream>\n\nclass ErrorCondition {\npublic:\n    explicit ErrorCondition(int code) : code_(code) {}\n    void display() const { std::cout << \"Error code: \" << code_ << std::endl; }\nprivate:\n    int code_;\n};\n\nclass ErrorHandler {\npublic:\n    virtual ~ErrorHandler() = default;\n    virtual ErrorCondition default_error_condition(int ev) const noexcept {\n        return ErrorCondition(ev);\n    }\n};\n\nclass CustomErrorHandler : public ErrorHandler {\npublic:\n    ErrorCondition default_error_condition(int ev) const noexcept override {\n        // Custom logic for error condition\n        return ErrorCondition(ev + 100);\n    }\n};\n\nint main() {\n    ErrorHandler* handler = new CustomErrorHandler();\n    ErrorCondition ec = handler->default_error_condition(42);\n    ec.display();\n    delete handler;\n    return 0;\n}",
+  "example_explanation": "This example demonstrates a base class 'ErrorHandler' with a virtual function 'default_error_condition'. The derived class 'CustomErrorHandler' overrides this function to provide custom behavior. In 'main', a pointer to the base class is used to invoke the method, which dynamically dispatches to the derived class's override at runtime. This showcases how virtual functions enable polymorphic behavior in C++, allowing different error handling strategies to be implemented and selected dynamically.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "498-498",
+    "extraction_date": "2025-08-19T04:51:41.719445",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level"
+  }
+}

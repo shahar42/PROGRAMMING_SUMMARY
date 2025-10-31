@@ -1,0 +1,16 @@
+{
+  "topic": "inotify_init() System Call",
+  "explanation": "inotify_init() initializes a new inotify instance and returns a file descriptor associated with a new inotify event queue. inotify_init1() performs the same function but allows specifying flags to set behaviors like non-blocking or close-on-exec.\n\n**Parameters:**\n- `flags` (int): Flags to modify behavior, such as IN_NONBLOCK for non-blocking operation or IN_CLOEXEC for close-on-exec\n\n**Common Errors:**\n- `EINVAL`: An invalid value was specified in flags (for inotify_init1)\n- `EMFILE`: The user limit on the total number of inotify instances has been reached or the per-process limit on the number of open file descriptors has been reached\n- `ENFILE`: The system-wide limit on the total number of open files has been reached\n- `ENOMEM`: Insufficient kernel memory is available\n\n**Related System Calls:** `inotify_add_watch()`, `inotify_rm_watch()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.123819",
+    "syscall_name": "inotify_init",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_inotify_init.json",
+    "concept_id": "posix_sys_inotify_init_8edc45",
+    "book_metadata_added": "2025-10-28T20:22:06.615672"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Standard initialization (equivalent to inotify_init1(0))\nint fd = inotify_init();\n// fd is the inotify file descriptor\n\n// Use fd for operations like inotify_add_watch()\nif (fd == -1) {\n    // Handle error (e.g., EMFILE, ENOMEM)\n}\n\n// Initialization with behavior flags (Linux specific)\nint fd1 = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);\n\nif (fd1 == -1) {\n    // Check for EINVAL if flags are unsupported\n}\n\n// Cleanup\nif (fd >= 0) { close(fd); }\n<ctrl63>",
+  "keywords": "inotify_init, inotify_init1, inotify, Linux file monitoring"
+}

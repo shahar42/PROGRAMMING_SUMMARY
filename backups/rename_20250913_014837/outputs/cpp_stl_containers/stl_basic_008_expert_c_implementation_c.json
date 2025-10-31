@@ -1,0 +1,36 @@
+{
+  "topic": "Expert C++ Implementation Concept: Compile-Time Polymorphism with `constexpr` and Template Metaprogramming",
+  "explanation": "This explores compile-time polymorphism achieved through `constexpr` functions and template metaprogramming.  Unlike runtime polymorphism (virtual functions), this happens entirely during compilation, eliminating runtime overhead. The compiler generates specialized code for each instantiation, effectively performing function overloading at compile time.  This is crucial for performance-critical applications where runtime overhead is unacceptable.  The implementation relies heavily on the compiler's ability to evaluate expressions at compile time and generate optimized code based on those evaluations. Memory layout is affected by the compiler's ability to optimize away function calls if the result can be known at compile time, reducing stack usage and improving data locality.  The assembly generated will show significant differences depending on the compiler's ability to perform constant folding and inlining. Runtime behavior is essentially reduced to simple data access and operations, because complex computations are effectively pre-computed.",
+  "syntax": "```c++\ntemplate <typename T, size_t N>\nconstexpr T arraySum(const T (&arr)[N]) {\n  T sum = 0;\n  for (size_t i = 0; i < N; ++i) {\n    sum += arr[i];\n  }\n  return sum;\n}\n\nint main() {\n  constexpr int arr[] = {1, 2, 3, 4, 5};\n  constexpr int sum = arraySum(arr); // Compile-time calculation\n  std::cout << sum << std::endl; // Output: 15\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <typename T, size_t N>",
+    "constexpr T factorial(T n) {",
+    "  return (n == 0) ? 1 : n * factorial(n - 1);",
+    "}",
+    "template <size_t N>",
+    "constexpr std::array<long long, N> generateFactorials() {",
+    "  std::array<long long, N> result;",
+    "  for (size_t i = 0; i < N; ++i) {",
+    "    result[i] = factorial(i);",
+    "  }",
+    "  return result;",
+    "}",
+    "int main() {",
+    "  constexpr std::array<long long, 10> factorials = generateFactorials<10>();",
+    "  for (long long fact : factorials) {",
+    "    std::cout << fact << \" \";",
+    "  }",
+    "  std::cout << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` function and `generateFactorials` are marked `constexpr`, enabling compile-time evaluation. The compiler will calculate the factorials for 0 through 9 at compile time.  The `main` function then uses the pre-computed `factorials` array. No runtime calculation of factorials occurs.  The assembly code will likely not contain any loops or function calls for the factorial calculations, instead directly embedding the computed values.  Memory layout will be efficient as the `factorials` array is populated directly by the compiler; and no dynamic memory allocation is needed. Performance is dramatically improved compared to a runtime implementation, eliminating the overhead of recursive function calls at runtime. The compiler's ability to optimize away the loops and recursive calls in `factorial` and `generateFactorials` is key to the performance gains.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:12:58.555470"
+  }
+}

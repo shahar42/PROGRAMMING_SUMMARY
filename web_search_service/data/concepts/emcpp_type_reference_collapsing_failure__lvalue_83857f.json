@@ -1,0 +1,19 @@
+{
+  "topic": "Reference Collapsing Failure: Lvalue Persistence",
+  "category": "type",
+  "explanation": "Reference collapsing is the set of rules that governs how references interact when they are nested (e.g., `T&` of `T&`). The anti-pattern arises from the failure to understand the dominant nature of the lvalue reference in collapsing rules, which fundamentally limits the ability to move lvalues. The assumption is often that applying `std::forward` or similar mechanisms will always maintain the most specific value category (rvalue) if it was the original input. The reality is that the reference collapsing rule `T& &&` collapses to `T&` (lvalue reference) is the critical failure point that prevents lvalues from being moved away without an explicit cast. When an lvalue is passed to a universal reference parameter (`T&&`), the type deduction mechanism sets `T` to be an lvalue reference (`X&`). The parameter signature thus becomes `(X&) &&`, which, by the collapsing rule, resolves to `X&`. The parameter inside the function is therefore an lvalue reference, ensuring that it preserves the identity of the original lvalue. This is necessary for perfect forwarding to maintain lvalue status. The failure occurs because programmers sometimes wish to treat certain *specific* lvalue inputs as if they were disposable rvalues. However, the collapsing rule ensures that the lvalue identity is fiercely preserved. If a function receives an lvalue reference and tries to apply move semantics without explicitly using `std::move`, the reference collapsing rule prevents the creation of a temporary rvalue reference that could bind to a move constructor, forcing a copy instead. This rule demonstrates that perfect forwarding (which relies on collapsing) guarantees correct preservation of lvalue status, which, paradoxically, acts as a failure mechanism preventing unwanted or assumed moves of persistent objects. The rule 'lvalue always wins' ensures that once an lvalue is involved in the deduction process, the resulting parameter is non-moving.",
+  "code_example": "// Lvalue reference binds to universal reference, T is deduced as X&.\nvoid func(T&& param) { /* T&& collapses to X& */ }\n\n// Rule: T& && -> T& (lvalue persistence)",
+  "practical_example": "A template function is designed to handle temporary objects (rvalues) using move semantics. The function is accidentally called with a named, persistent local variable (an lvalue). Due to reference collapsing, the universal reference parameter resolves to an lvalue reference. Inside the function, instead of triggering a move, the lvalue persistence forces a copy, resulting in a stack copy of a large object where a cheap move was expected.",
+  "keywords": [
+    "reference collapsing",
+    "lvalue persistence",
+    "move limitation",
+    "type",
+    "failure"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "215-221",
+  "chapter": "Item 28: Understand reference collapsing",
+  "id": "emcpp_type_reference_collapsing_failure__lvalue_83857f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

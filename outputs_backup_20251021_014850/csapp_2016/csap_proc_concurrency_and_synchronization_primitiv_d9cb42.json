@@ -1,0 +1,15 @@
+{
+  "topic": "Concurrency and Synchronization Primitives using fork and execve",
+  "explanation": "In high-performance web servers, handling multiple client requests concurrently is crucial.  The `fork` and `execve` system calls provide a mechanism for creating child processes to handle individual requests, improving performance compared to a single-threaded approach.  `fork` duplicates the parent process, creating a nearly identical copy. `execve` then replaces the child process's image with a new program (e.g., a CGI script), allowing it to handle the client request independently. This avoids blocking while waiting for the completion of long-running operations.",
+  "syntax": "fork();\n/* ... error checking ... */\nexecve(\"/path/to/cgi_program\", args, envp);",
+  "code_example": "#include <unistd.h>\n#include <stdio.h>\nint main() {\n    pid_t pid = fork();\n    if (pid < 0) {\n        perror(\"fork failed\");\n        return 1;\n    }\n    else if (pid == 0) {\n        char *args[] = {\"/path/to/cgi_program\", NULL};\n        char *envp[] = {NULL};\n        execve(\"/path/to/cgi_program\", args, envp);\n        perror(\"execve failed\");\n        return 1;\n    }\n    else {\n        printf(\"Parent process continues...\n\");\n        return 0;\n    }\n}",
+  "example_explanation": "This example demonstrates the use of `fork` to create a child process. The child process then uses `execve` to replace its image with the CGI program. The parent process continues to execute, handling other requests concurrently.  The `execve` call demonstrates the hardware-software interaction \u2013 the operating system loads a new program into the child's memory space, overwriting the previous code and state, to process the request.  The success or failure of `fork` and `execve` is checked for proper error handling, demonstrating awareness of potential system-level issues.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "728-728",
+    "extraction_date": "2025-07-28T12:12:10.385669",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

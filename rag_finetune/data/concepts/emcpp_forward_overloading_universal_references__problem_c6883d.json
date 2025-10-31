@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References [Problem]: Brace Initialization Ambiguity",
+  "category": "forward",
+  "explanation": "Assumption: If a specific overload taking `std::initializer_list` is provided alongside a universal reference template, the compiler will successfully choose the list overload when brace notation is used. Reality: If the type contained within the braces is complex or if the forwarding template is meant to handle arbitrary aggregates, the interaction can lead to ambiguity or unexpected compilation failures. Why It Fails: If a function `f` has both a universal reference overload `f(T&&)` and a `f(std::initializer_list<U>)`, and the user calls `f({a, b})`, the compiler attempts to deduce `T` in the template. While, as noted in a previous point, deduction generally fails for initializer lists alone, if the template body implicitly supports initialization from the sequence (e.g., if `T` is a container type), or if the template could be satisfied by converting the brace list to a type `T` that satisfies the function call, ambiguity can arise. The failure here lies in the fact that brace initialization is fundamentally non-deducible for templates, yet the template mechanism attempts to instantiate anyway, creating conflicting paths in overload resolution that require complex tie-breaking or manual disambiguation.",
+  "code_example": "// The basic failure of brace initialization with templates (reinforcement of Item 24/26 interaction)\ntemplate<typename T> void f(T&& t) { /* ... */ }\nvoid f(std::initializer_list<int> list) { /* ... */ }\n\nf({1, 2, 3}); // Compiler error: Template argument deduction failed.",
+  "practical_example": "A user relying on `std::vector`'s ability to be constructed from an initializer list uses a forwarding template wrapper. The wrapper fails to compile the desired vector construction because the forwarding template cannot resolve the type deduction from the braces, forcing the wrapper to expose a dedicated initializer list interface.",
+  "keywords": [
+    "initializer list",
+    "template deduction",
+    "brace initialization ambiguity",
+    "perfect forwarding limit"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "194-195, 205",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_forward_overloading_universal_references__problem_c6883d",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

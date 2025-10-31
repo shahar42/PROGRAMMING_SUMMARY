@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Eliminating Manual Management",
+  "explanation": "RAII is a fundamental C++ programming technique that tightly couples resource management with object lifetime.  It ensures resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object goes out of scope. This eliminates resource leaks and simplifies error handling by leveraging the destructor.  It's a cornerstone of C++'s exception safety and promotes more robust and maintainable code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:01:10.222210",
+    "book_metadata_added": "2025-10-28T20:22:06.529687"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceGuard {\n    int* handle;\npublic:\n    // Acquisition is Initialization\n    ResourceGuard(size_t size) \n        : handle(new int[size]) {}\n\n    // Release happens automatically on scope exit\n    ~ResourceGuard() { delete[] handle; }\n\n    // RAII handles exceptions safely:\n    // If constructor fails, destructor is not called.\n    // If scope code throws, destructor is still called.\n};\n\n// Standard Library RAII (Smart Pointer)\nstruct Payload {};\nstd::unique_ptr<Payload> p = std::make_unique<Payload>();\n\n// Standard Library RAII (Synchronization)\nstd::mutex mtx;\nvoid locked_op() {\n    std::lock_guard<std::mutex> lock(mtx);\n    // Lock automatically released when 'lock' goes out of scope.\n}"
+}

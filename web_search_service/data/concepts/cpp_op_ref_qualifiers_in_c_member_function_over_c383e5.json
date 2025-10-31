@@ -1,0 +1,14 @@
+{
+  "topic": "Ref-Qualifiers in C++ Member Function Overloading",
+  "explanation": "Ref-qualifiers in C++ (introduced in C++11) are qualifiers applied to member functions that specify whether the function can be called on lvalue or rvalue objects. Specifically, '&' denotes an lvalue ref-qualifier (for lvalue objects), and '&&' denotes an rvalue ref-qualifier (for rvalue objects). These qualifiers are part of the function's signature for overload resolution, ensuring that the correct overload is selected based on the object's value category. The compiler implements this feature during overload resolution, a compile-time process, by examining the implicit 'this' parameter's type. For instance, when resolving a call, the compiler checks if the object is an lvalue or rvalue and matches it against the ref-qualifier. If no match is found, the call is ill-formed. Memory layout implications are minimal, as ref-qualifiers do not alter the class's memory footprint; they only affect which function is invoked, similar to const qualifiers. Performance-wise, this is a compile-time decision, avoiding runtime overhead, but it can lead to better code efficiency by allowing specialized implementations for lvalues and rvalues. At the assembly level, the compiler generates separate code paths for each overload, but the selection is resolved at compile time, resulting in direct jumps to the appropriate function without runtime checks. For example, in generated assembly, an lvalue call might directly invoke the '&'-qualified function, while an rvalue call invokes the '&&'-qualified one, optimizing for move semantics. This behavior is strictly compile-time, as opposed to runtime polymorphism like virtual functions, making it faster and more predictable.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:25:42.674202",
+    "book_metadata_added": "2025-10-28T20:22:06.905127"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct ValueSelector {\n    int data = 5;\n\n    // 1. Lvalue Ref-Qualifier (For named objects)\n    int get_val() const & {\n        return data; // Read-only path\n    }\n\n    // 2. Rvalue Ref-Qualifier (For temporaries)\n    //    Allows move semantics or modification of the temporary.\n    int get_val() && {\n        return -data; // Temporary path\n    }\n};\n\n// Usage:\n// ValueSelector obj;\n// obj.get_val();        // Calls 'const &'\n// ValueSelector{}.get_val(); // Calls '&&'\n//\n// Ref-qualifiers are part of the function signature.",
+  "keywords": "Ref-qualifiers, C++ Lvalue Rvalue overloading, member function & &&, this qualification"
+}

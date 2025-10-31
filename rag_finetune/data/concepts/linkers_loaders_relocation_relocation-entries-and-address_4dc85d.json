@@ -1,0 +1,16 @@
+{
+  "topic": "Modifying Addresses by Linker",
+  "explanation": "Relocation is a crucial step in the linking and loading process where the linker or loader modifies the addresses within an object file to reflect their final memory locations.  This is necessary because object files are initially compiled with relative addresses, not knowing their final positions in memory.  Different architectures have varying relocation mechanisms, impacting the complexity of the process.  The relocation entry contains information the linker/loader uses to adjust addresses, ensuring the program runs correctly after being loaded into memory.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "196-197",
+    "extraction_date": "2025-07-21T10:45:45.436352",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.751970"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "typedef unsigned long VAddr; // Virtual Address\n\n// Simplified Relocation Entry (ELF Rela structure basis)\nstruct Rela {\n    VAddr r_offset;     // Location to modify (P)\n    int r_type;         // Relocation type (e.g., R_X86_64_PC32)\n    long r_addend;      // Constant offset (A)\n    VAddr sym_value;    // Symbol's final value (S)\n};\n\n// Linker/Loader calculation logic (Varies by r_type)\n\n// Example 1: Absolute 64-bit Address (R_X86_64_64)\nVAddr Absolute_Fixup(struct Rela R) {\n    return R.sym_value + R.r_addend; // S + A\n}\n\n// Example 2: PC-Relative 32-bit Address (R_X86_64_PC32)\nlong PCRelative_Fixup(struct Rela R) {\n    return R.sym_value + R.r_addend - R.r_offset; // S + A - P\n}\n\n// The result is written to memory at address P.",
+  "keywords": "Relocation, Linker address modification, Object file relocation, Load time address fixup"
+}

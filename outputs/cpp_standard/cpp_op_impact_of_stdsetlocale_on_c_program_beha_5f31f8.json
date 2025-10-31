@@ -1,23 +1,12 @@
 {
   "topic": "Impact of `std::setlocale` on C++ Program Behavior",
   "explanation": "The `std::setlocale` function, while seemingly simple, reveals intricate interactions between the C++ standard library, the C library's locale handling, and the underlying operating system.  Its implementation-defined aspects highlight the non-portability of relying on specific compiler behaviors.  Understanding its implications requires examining compiler-specific optimizations, memory management, and potential runtime overhead.",
-  "syntax": "```cpp\n#include <locale>\n#include <iostream>\n\nint main() {\n  std::locale currentLocale = std::locale(); // Get current locale\n  std::cout << \"Current locale: \" << currentLocale.name() << std::endl;\n\n  std::locale newLocale(\"en_US.UTF-8\"); // Or any other valid locale\n  std::locale previousLocale = std::setlocale(LC_ALL, newLocale.name().c_str());\n  //LC_ALL affects all locale categories.  Consider LC_NUMERIC, LC_TIME, etc. for more granular control.\n  std::cout << \"New locale: \" << std::locale().name() << std::endl; \n  std::cout << \"Previous locale: \" << previousLocale.name() << std::endl;\n\n  // Restore the previous locale (good practice)\n  std::setlocale(LC_ALL, previousLocale.name().c_str());\n  return 0;\n}\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <locale>",
-    "int main() {",
-    "  std::locale loc = std::locale(\"de_DE.UTF-8\");",
-    "  std::locale prev = std::setlocale(LC_ALL, loc.name().c_str());",
-    "  std::cout << std::setprecision(3) << 3.14159 << std::endl; // Decimal separator depends on locale",
-    "  std::setlocale(LC_ALL, prev.name().c_str()); // Restore previous locale",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The compiler's handling of `std::setlocale` involves a call to the underlying C library's `setlocale` function. This is not a C++-specific operation; it's a system call.  The memory layout is not directly affected by `setlocale` itself; it primarily alters how the C++ standard library interprets input and output (e.g., the decimal separator in floating point numbers). The runtime behavior is crucial:  `setlocale` modifies global state, influencing subsequent I/O operations.  Performance impact is generally negligible unless many locale changes are made, but changes are not instantaneous.  A compiler might optimize repeated calls within a scope.  Assembly-level analysis would show a system call instruction (e.g., `syscall` on Linux), demonstrating the underlying OS dependency.  The fact that the effect on the C locale is 'implementation-defined' is key - different compilers (and even different versions of the same compiler) may have different internal representations and caching mechanisms for locale data.  Therefore, relying on predictable behavior across different platforms is risky.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T06:20:12.762566"
-  }
+    "extraction_date": "2025-08-19T06:20:12.762566",
+    "book_metadata_added": "2025-10-28T20:22:06.858994"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

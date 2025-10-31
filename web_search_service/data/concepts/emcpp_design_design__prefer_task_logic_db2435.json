@@ -1,0 +1,18 @@
+{
+  "topic": "Design: Prefer Task Logic Over Condition Variable Mediation",
+  "category": "design",
+  "explanation": "Condition variables and their required mutexes introduce complexity and overhead, often resulting in 'suspect design' if used for simple task sequencing. If tasks can coordinate sequentially (e.g., Task A initializes data, then Task B consumes it, with no concurrent access) through structured data transfer or higher-level primitives, they can remain independent through program logic, eliminating the need for explicit shared-state mediation (mutexes and condvars) entirely.",
+  "code_example": "// If Task A only writes and Task B only reads after A finishes:\n// Coordination via data transfer (e.g., moving data) is better than locking.",
+  "practical_example": "A developer implements a complex locking scheme using a mutex and condvar to ensure a global structure is initialized before being used. This could be simplified by using `std::future<T>` to transfer the initialized structure directly, ensuring the consuming task waits only for the data, not for a low-level signal.",
+  "keywords": [
+    "mutex avoidance",
+    "program logic",
+    "task coordination",
+    "suspect design"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "263",
+  "chapter": "Item 39: Be aware of the pitfalls of condition variables",
+  "id": "emcpp_design_design__prefer_task_logic_db2435",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

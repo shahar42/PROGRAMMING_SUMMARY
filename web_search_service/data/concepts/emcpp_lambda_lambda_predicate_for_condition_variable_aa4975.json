@@ -1,0 +1,18 @@
+{
+  "topic": "Wait Predicate: Spurious Wakeup Loop Abstraction",
+  "category": "lambda",
+  "explanation": "The C++ standard library API for `std::condition_variable::wait` permits passing a predicate (typically a lambda) that tests for the waited-for condition. This usage is highly recommended because it encapsulates the necessary check against spurious wakeups, which are unavoidable in many concurrent implementations. By using the lambda predicate, the function handles the internal loop structure (`while (!condition) wait(...)`), ensuring the thread only proceeds when the condition is truly met, simplifying the logic for the reacting task.",
+  "code_example": "cv.wait(lk, \n        [] { return whether_the_event_has_occurred; });",
+  "practical_example": "Instead of writing a manual `while (!flag) { cv.wait(lk); }` loop, a developer passes a lambda capturing the flag by reference to the `wait` call. This reduces the chance of synchronization bugs and ensures the necessary condition check is performed automatically upon every wakeup (not just notifications).",
+  "keywords": [
+    "lambda",
+    "predicate",
+    "condition_variable",
+    "spurious wakeups"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "276-289",
+  "chapter": "Item 38/39",
+  "id": "emcpp_lambda_lambda_predicate_for_condition_variable_aa4975",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

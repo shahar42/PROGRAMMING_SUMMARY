@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Explicitness for State Management Safety",
+  "category": "capture",
+  "explanation": "Assumption: Binding arguments to a callable (via `std::bind` or lambda) clearly communicates how the argument's state is stored (by value or reference). Reality: While lambdas make the capture mode explicit (e.g., `[w]` for value, `[&w]` for reference), `std::bind` implicitly stores all bound arguments by value by default. Why It Fails: This implicit value storage in `std::bind` requires the developer to memorize library behavior. If the developer intends for the bound object to reflect external changes, they must manually wrap the argument using `std::ref`. Failure to use `std::ref` results in the callable operating on a stale copy of the original object, a bug that is difficult to spot during code review due to the lack of explicit capture syntax.",
+  "code_example": "Widget w;\n// std::bind stores w by copy (implicit)\nauto compressRateB = std::bind(compress, w, _1);\n\n// Lambda stores w by copy (explicit)\nauto compressRateL = [w](CompLevel lev) { /*...*/ };",
+  "practical_example": "A developer uses `std::bind` to create a callback that processes a configuration object (`Config c`). If `c` is later modified by another thread, the callback continues to use the old, copied state because the developer forgot to wrap `c` with `std::ref` during the initial binding.",
+  "keywords": "std::bind implicit copy, std::bind capture by reference, std::bind vs lambda capture",
+  "difficulty": "intermediate",
+  "page_reference": "237",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_capture_lambda_capture_explicitness_for_state_3fdc81",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

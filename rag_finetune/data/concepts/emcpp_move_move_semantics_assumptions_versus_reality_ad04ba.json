@@ -1,0 +1,18 @@
+{
+  "topic": "Move Semantics Assumptions versus Reality: Failure with Const Arguments",
+  "category": "move",
+  "explanation": "Assumption: If an object is marked for moving using `std::move`, the operation will proceed efficiently, regardless of the source object's constness. Reality: `std::move` cannot trigger a move operation if the source object is `const`, resulting in an unavoidable copy operation. Why It Fails: A move operation requires the move constructor to take a non-const rvalue reference parameter (`T&&`). This non-const requirement is necessary because a fundamental part of the move operation is modifying the source object (e.g., nulling out its internal pointers or setting its size to zero) to leave it in a valid, destructible state. If the source object is `const`, this modification is illegal. When `std::move` casts a `const T` lvalue to an rvalue, the selected move constructor will be `T(const T&&)`, which usually does not exist. The compiler then typically falls back to selecting the const copy constructor `T(const T&)` because the const copy constructor *can* accept the const rvalue reference. The movement fails entirely, and an expensive copy is executed silently, undermining all performance assumptions.",
+  "code_example": "// Failure: Const objects cannot be moved\nconst Widget cw;\nWidget w = std::move(cw); // Calls the copy constructor, not the move constructor!",
+  "practical_example": "A function accepts a `const` parameter reference for efficiency but decides to transfer ownership of the data internally via move. Since the input parameter is `const`, the internal move is silently replaced by a copy, creating an unexpected performance bottleneck in resource allocation.",
+  "keywords": [
+    "const object",
+    "move failure",
+    "copy fallback",
+    "non-const requirement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "231",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_semantics_assumptions_versus_reality_ad04ba",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

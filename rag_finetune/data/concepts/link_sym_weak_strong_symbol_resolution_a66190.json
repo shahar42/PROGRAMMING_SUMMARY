@@ -1,0 +1,15 @@
+{
+  "id": "link_sym_weak_strong_symbol_resolution_a66190",
+  "topic": "Weak and Strong Symbols in Linker Symbol Resolution",
+  "explanation": "Weak and strong symbols are fundamental linker concepts that determine how multiply-defined symbols are resolved during the linking stage. Strong symbols represent definitive, authoritative symbol definitions—by default, all symbols are strong, meaning if the linker encounters two strong definitions with the same name, it raises a multiple definition error. Functions and initialized global variables automatically get strong symbols. Weak symbols, on the other hand, provide a flexible mechanism that allows multiple definitions of the same symbol name without causing linker errors. When both a strong and weak symbol exist with the same name, the strong symbol always takes precedence. Uninitialized global variables (BSS section) automatically get weak symbols. In C/C++, weak symbols can be explicitly created using `__attribute__((weak))` in GCC/Clang or the `#pragma weak` preprocessor directive. This mechanism is crucial for creating overridable default implementations in libraries and frameworks, allowing developers to replace default behavior without modifying library code. The linker's symbol resolution follows these rules: strong beats weak, multiple strong symbols cause errors, multiple weak symbols result in arbitrary selection of one copy.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "chapter": "symbol_resolution",
+    "extraction_type": "technical_deep_dive",
+    "extraction_date": "2025-10-29T00:00:00.000000",
+    "book_metadata_added": "2025-10-29T00:00:00.000000"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Strong symbols (initialized globals, functions)\nint strong_var = 42;        // Strong: initialized\nvoid strong_func() {}       // Strong: function definition\n\n// Weak symbols (uninitialized globals)\nint weak_var;               // Weak: uninitialized (BSS)\n\n// Explicit weak symbol with attribute\n__attribute__((weak)) void default_handler() {\n    // Default implementation\n}\n\n// Strong overrides weak\nvoid default_handler() {    // Strong: overrides weak\n    // Custom implementation wins\n}\n\n// Linker resolution rules:\n// 1. Strong + Strong = ERROR (multiple definition)\n// 2. Strong + Weak   = Strong wins\n// 3. Weak + Weak     = Pick one arbitrarily\n\n// Check symbol types with nm:\n// $ nm file.o\n// 0000000000000000 T strong_func    # T = strong text\n// 0000000000000000 D strong_var     # D = strong data\n// 0000000000000000 W default_handler # W = weak\n// 0000000000000004 C weak_var       # C = common (weak)",
+  "keywords": "weak strong symbols, linker symbol resolution, multiple definition error, weak attribute"
+}

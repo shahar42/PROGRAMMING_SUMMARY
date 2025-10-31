@@ -1,0 +1,31 @@
+{
+  "topic": "Move Semantics and Rvalue References",
+  "explanation": "Move semantics are a crucial optimization technique in C++ that allows efficient transfer of resources (like dynamically allocated memory or file handles) between objects, avoiding unnecessary copying.  This is particularly beneficial when dealing with large objects or objects managing external resources.  Instead of copying the entire object, move semantics transfer ownership of the resources. This is achieved using rvalue references (&&) which bind to temporary objects (rvalues) that are about to be destroyed.  By moving resources from the temporary object to the new object, we avoid expensive copying operations and improve performance.",
+  "syntax": "Move constructors and move assignment operators are declared with rvalue references as parameters:\n\n```c++\nclass MyClass {\npublic:\n  MyClass(MyClass&& other) noexcept : data_(std::move(other.data_)) { other.data_ = nullptr; }\n  MyClass& operator=(MyClass&& other) noexcept {\n    if (this != &other) {\n      delete[] data_;\n      data_ = std::move(other.data_);\n      other.data_ = nullptr;\n    }\n    return *this;\n  }\nprivate:\n  int* data_;\n};\n```\n\n**Practical Usage Notes:**\n* `std::move()` is used to explicitly cast an lvalue to an rvalue, allowing the move constructor/assignment operator to be called.\n* `noexcept` is usually added to move operations to indicate they won't throw exceptions, potentially enabling further optimizations.\n* Always ensure proper resource management in move operations, preventing resource leaks (as shown in the example by setting `other.data_ = nullptr`).\n* Avoid unnecessary moves; prefer move-only types when appropriate (using `std::unique_ptr`, `std::shared_ptr`, etc.).",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "#include <vector>",
+    "class MyString {",
+    "public:",
+    "  MyString(const std::string& str) : data_(new std::string(str)) {}",
+    "  MyString(MyString&& other) noexcept : data_(other.data_) { other.data_ = nullptr; }",
+    "  ~MyString() { delete data_; }",
+    "private:",
+    "  std::string* data_;",
+    "};",
+    "int main() {",
+    "  std::vector<MyString> vec;",
+    "  vec.push_back(MyString(\"Hello\")); // Copy constructor is used here.",
+    "  vec.emplace_back(\"World\"); // Move constructor is used here (more efficient).",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the difference between copying and moving.  `push_back` needs to copy the `MyString` object, while `emplace_back` constructs the `MyString` object in place within the vector, utilizing the move constructor.  The move constructor efficiently transfers ownership of the dynamically allocated string, preventing unnecessary copying and memory allocation, which is particularly important for large strings or other resource-intensive objects.  The destructor `~MyString()` handles deallocation of the string to prevent memory leaks.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:39:29.131580"
+  }
+}

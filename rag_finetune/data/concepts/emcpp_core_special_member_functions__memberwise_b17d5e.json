@@ -1,0 +1,20 @@
+{
+  "topic": "Special Member Functions: Memberwise Move as a Request",
+  "category": "core",
+  "explanation": "The behavior of a compiler-generated move operation is described as a \"memberwise move.\" This means it individually moves each non-static data member and base-class subobject from the source object to the destination. However, it is not a monolithic, all-or-nothing move operation.\n\nScott Meyers clarifies this by explaining that \"memberwise moves\" are more accurately described as \"memberwise move requests.\" The generated code does not force a move. Instead, for each member, it uses the equivalent of `std::move` to cast the source member to an rvalue and then relies on overload resolution to determine the best way to construct or assign the destination member.\n\nThe underlying mechanism is elegant. When the compiler generates a move constructor, for each member like `m_data`, it effectively tries to initialize the new object's `m_data` from the source object's `m_data` treated as an rvalue. If the member's type has a move constructor, overload resolution selects it, and a cheap move occurs. If the member's type is not move-enabled (e.g., a legacy class with only a copy constructor), overload resolution falls back to the copy constructor, which takes a const lvalue reference. This ensures the code compiles and behaves correctly, albeit with a copy instead of a move for that specific member.\n\nThis design has significant practical implications for code maintainability and interoperability. It allows you to create classes that are composed of both modern move-enabled types and older copy-only types. The compiler-generated move operations for your class will \"do the right thing\" for each member, moving those that can be moved and copying those that can only be copied. This graceful degradation makes it much safer to rely on default-generated functions in complex class hierarchies or when working with third-party libraries.\n\nThe most common pitfall is a silent performance degradation. A programmer might assume that because their class is being moved, the operation is guaranteed to be cheap. However, if one or more data members are not move-enabled, the compiler-generated \"move\" operation will silently invoke expensive copies for those members. This can lead to unexpected performance bottlenecks that are not immediately obvious from reading the code where the move occurs.",
+  "code_example": "class LegacyWidget { // C++98-style, no move ops\npublic:\n    LegacyWidget& operator=(const LegacyWidget&) { /* deep copy logic */ return *this; }\n    LegacyWidget(const LegacyWidget&) { /* deep copy logic */ }\n    LegacyWidget() = default;\n};\n\nclass ModernWidget {\nprivate:\n    std::string s;       // Has move operations\n    LegacyWidget lw;     // Only has copy operations\npublic:\n    // Compiler will generate move ops for ModernWidget\n};\n\nModernWidget mw1;\n// In the generated move constructor for ModernWidget:\n// - mw2.s is move-constructed from mw1.s\n// - mw2.lw is copy-constructed from mw1.lw (fallback)\nModernWidget mw2 = std::move(mw1);",
+  "practical_example": "Consider a class managing a network connection (`unique_ptr` to a socket) and also holding a configuration object from a legacy library that is only copyable. The compiler-generated move constructor for your class will correctly transfer ownership of the network connection via a move, and safely copy the legacy configuration object, providing correct behavior without any handwritten code.",
+  "keywords": [
+    "memberwise move",
+    "move semantics",
+    "overload resolution",
+    "special member functions",
+    "compiler-generated functions",
+    "fallback to copy"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "110",
+  "chapter": "Item 17: Understand special member function generation",
+  "id": "emcpp_core_special_member_functions__memberwise_b17d5e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Universal References Anti-Pattern: Self-Assignment Trap",
+  "category": "design",
+  "explanation": "Assumption: Using a universal reference in a combined assignment operator provides a clean, efficient, and exception-safe implementation that covers both lvalue and rvalue assignments. Reality: While elegant, the universal reference assignment operator (`template<typename T> Widget& operator=(T&& rhs)`) poses significant dangers related to self-assignment. The `rhs` parameter can refer to the object itself (i.e., `&rhs == this`). Why It Fails: If self-assignment occurs and the assignment operator proceeds to use `std::forward<T>(rhs)` to move resources, the move operation often destroys the state of the source before the destination object can reacquire resources, resulting in resource corruption (e.g., double-free or dangling pointers). Implementing the necessary aliasing check (`if (this == &rhs) return *this;`) is essential, but often overlooked in the quest for perfect forwarding brevity. This anti-pattern introduces a subtle memory safety hazard related to aliasing in move semantics contexts.",
+  "code_example": "// Dangerous self-assignment check missing/flawed\ntemplate<typename T> Widget& operator=(T&& rhs) {\n  // if (this == &rhs) { return *this; } // Crucial check missing!\n  member = std::forward<T>(rhs); // Potential corruption if self-assigned\n  return *this;\n}",
+  "practical_example": "In a utility class handling atomic resources, a user executes `w = std::move(w);`. The lack of a self-assignment check allows the move assignment logic to steal resources from itself, leading to a guaranteed crash or undefined behavior when the original resources are accessed later.",
+  "keywords": [
+    "self-assignment",
+    "assignment operator",
+    "aliasing failure",
+    "move assignment trap"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "200-201",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_universal_references_anti_pattern__f1ed47",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Input Stream Sentry Object for Buffering and State Management",
+  "explanation": "In C++, the input stream sentry object is a RAII (Resource Acquisition Is Initialization) guard that manages the stream's state during input operations. It ensures that the stream is in a good state before reading and handles buffering and synchronization. The sentry object is constructed at the beginning of an input function, such as peek(), to perform necessary checks and setup. It automatically cleans up or restores the stream state when destroyed, providing exception safety and consistent behavior during input operations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1056-1056",
+    "extraction_date": "2025-08-19T08:54:56.209124",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.898980"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Used within std::basic_istream methods (get, peek)\ntemplate <typename Ch, typename Tr>\nTr::int_type do_input_op()\n{\n    // RAII Guard: checks state, flushes tied streams, sets locale\n    sentry s(*this, true); // Optional flag: skipws\n\n    if (s) {\n        // Stream is valid and prepared for input\n        // Actual reading operation (e.g., from rdbuf())\n        return rdbuf()->sbumpc();\n    }\n\n    // Sentry failed initialization or state was bad\n    setstate(failbit);\n    return Tr::eof();\n    // Sentry destructor restores state/performs cleanup\n}",
+  "keywords": "std::istream::sentry, C++ stream sentry, stream state guard, istream buffering RAII"
+}

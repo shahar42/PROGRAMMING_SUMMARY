@@ -1,0 +1,14 @@
+{
+  "id": "cppx_inherit_private_inheritance_has_a_relationship_bfc57c",
+  "topic": "Private Inheritance: Has-A Relationship vs Composition",
+  "explanation": "Private inheritance expresses a 'has-a' (implementation reuse) relationship rather than an 'is-a' (interface inheritance) relationship. The derived class inherits the implementation but not the interface—the base class interface is completely hidden from external users. Private inheritance is typically used when you need access to protected members of the base class, want to reuse implementation without exposing the base class interface, or need to override virtual functions from the base. However, composition (having a member object) is usually preferred over private inheritance for implementing 'has-a' relationships because it provides better encapsulation, clearer intent, and more flexibility (you can easily switch implementations, have multiple instances, or control initialization order). Private inheritance should be considered when you specifically need: (1) access to protected members that composition cannot provide, (2) ability to override base class virtual functions, or (3) empty base optimization (EBO) for zero-size base classes. In most other cases, composition with a member variable is the better design choice. Private inheritance is often considered a short-term solution or special-case mechanism rather than a primary design tool.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "inheritance",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-10-29T00:00:00.000000",
+    "book_metadata_added": "2025-10-29T00:00:00.000000"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class Timer {\nprotected:\n    void start() { /* ... */ }\n    void stop() { /* ... */ }\npublic:\n    virtual void onTimeout() {}\n};\n\n// PRIVATE INHERITANCE: Access protected + override virtual\nclass Task : private Timer {\npublic:\n    void execute() {\n        start();  // Access protected member\n        // ... work ...\n        stop();\n    }\n    \n    void onTimeout() override {  // Override virtual\n        // Custom timeout handling\n    }\n};\n\n// COMPOSITION: Preferred when no protected access needed\nclass BetterTask {\n    Timer timer;  // Composition: has-a\npublic:\n    void execute() {\n        // timer.start();  // ERROR: can't access protected\n        // Clearer ownership and lifetime semantics\n    }\n};\n\n// When to use each:\n// Private inheritance: Need protected access or virtual override\n// Composition: Default choice for has-a relationships"
+}

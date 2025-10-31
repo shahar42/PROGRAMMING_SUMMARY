@@ -1,0 +1,19 @@
+{
+  "topic": "Overloading Universal References [Problem]: Interaction with `const`",
+  "category": "type",
+  "explanation": "A subtle but frustrating failure arises when universal reference templates interact with `const`-qualified arguments, often leading to unexpected behavior or compilation errors when combined with other overloads. The assumption is that the perfect forwarding template will seamlessly handle `const` arguments by correctly deducing `T` as a `const`-qualified lvalue reference (e.g., `T = const Widget&`). While the deduction works, the failure occurs when the resulting instantiated template signature interacts poorly with existing, non-template overloads. For example, if a forwarding template `template<typename T> void func(T&&)` exists alongside a dedicated non-const lvalue overload `void func(Widget&)`, passing a `const Widget` lvalue might be correctly handled by the template (deducing `const Widget&`). However, if a second, non-template overload `void func(const Widget&)` also exists, the compiler faces difficulties. In complex scenarios involving inheritance or implicit conversions, the highly specific nature of the universal reference instantiation (being a perfect, type-specific match) can sometimes be preferred over the dedicated `const` overload, or, conversely, the ambiguity can cause the entire call to fail. A particularly insidious failure occurs when `std::move` is mistakenly applied inside the forwarding template to the argument that was deduced as a `const` lvalue reference. This results in an rvalue reference to a `const` object (`const Widget&&`). Since standard move operations require mutable (non-`const`) sources to steal resources, the compiler falls back to a deep copy operation inside the function, violating the performance goal. The `const` nature of the argument, correctly preserved by perfect forwarding, paradoxically ensures that the desired move optimization cannot occur, leading to a silent performance degradation where developers expected perfect forwarding to handle the argument category *and* optimize based on that category.",
+  "code_example": "// Lvalue const input forces T to be const T&.\ntemplate<typename T>\nvoid forward_and_move(T&& val) { \n    // If val is const Widget&, this results in const Widget&&,\n    // forcing a copy if move ops aren't const-aware (they usually aren't).\n    std::move(std::forward<T>(val)); \n}",
+  "practical_example": "A system uses a central dispatcher function defined with a universal reference. A user passes a static, globally defined `const Configuration` object. The dispatcher correctly forwards the argument, but the recipient function, expecting an efficient rvalue for temporary configuration objects, ends up executing a full deep copy of the static configuration because the incoming argument was correctly identified as `const`, thereby forcing the copy path over the move path.",
+  "keywords": [
+    "const correctness",
+    "move failure",
+    "copy fallback",
+    "type deduction",
+    "universal reference"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "195-205",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_type_overloading_universal_references__problem_1caa53",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

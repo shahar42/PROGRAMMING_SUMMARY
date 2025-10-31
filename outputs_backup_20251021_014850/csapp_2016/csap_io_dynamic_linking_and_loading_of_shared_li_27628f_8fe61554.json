@@ -1,0 +1,15 @@
+{
+  "topic": "Dynamic Linking and Loading of Shared Libraries",
+  "explanation": "Dynamic linking is a crucial computer systems concept where a program loads libraries at runtime instead of compile time. This allows for smaller executables, easier updates (libraries can be updated independently), and shared library usage across multiple programs.  It's essential for efficient resource management and modular software development, particularly in large, complex systems.",
+  "syntax": "The general process involves using system calls (e.g., dlopen, dlsym, dlclose on POSIX systems) to open a shared library (.so or .dll), find function addresses within it, and then execute those functions.  Error handling is crucial for robust applications.",
+  "code_example": "#include <dlfcn.h>\n#include <stdio.h>\nint main() {\n  void *handle;\n  void (*foo)(int);\n  handle = dlopen(\"./libfoo.so\", RTLD_LAZY);\n  if (!handle) {\n    fprintf(stderr, \"%s\\n\", dlerror());\n    return 1;\n  }\n  foo = dlsym(handle, \"foo\");\n  if (dlerror()) {\n    fprintf(stderr, \"%s\\n\", dlerror());\n    dlclose(handle);\n    return 1;\n  }\n  foo(10);\n  dlclose(handle);\n  return 0;\n}",
+  "example_explanation": "This C code demonstrates dynamic linking. It uses `dlopen` to open the shared library `libfoo.so` (containing a function `foo`), `dlsym` to get the address of `foo`, then calls `foo` and finally uses `dlclose` to release the library.  Error checking with `dlerror` ensures robustness. This illustrates how a program loads and interacts with external code at runtime, a key element of computer systems architecture enhancing modularity and resource efficiency.  The example highlights the hardware-software interaction as the operating system's dynamic linker handles the loading and memory management of the shared library.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "731-731",
+    "extraction_date": "2025-07-28T12:12:19.547835",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

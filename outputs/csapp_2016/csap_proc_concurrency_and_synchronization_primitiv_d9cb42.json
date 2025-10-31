@@ -1,36 +1,14 @@
 {
   "topic": "Concurrency and Synchronization Primitives using fork and execve",
   "explanation": "In high-performance web servers, handling multiple client requests concurrently is crucial.  The `fork` and `execve` system calls provide a mechanism for creating child processes to handle individual requests, improving performance compared to a single-threaded approach.  `fork` duplicates the parent process, creating a nearly identical copy. `execve` then replaces the child process's image with a new program (e.g., a CGI script), allowing it to handle the client request independently. This avoids blocking while waiting for the completion of long-running operations.",
-  "syntax": "fork();\n/* ... error checking ... */\nexecve(\"/path/to/cgi_program\", args, envp);",
-  "code_example": [
-    "#include <unistd.h>",
-    "#include <stdio.h>",
-    "int main() {",
-    "    pid_t pid = fork();",
-    "    if (pid < 0) {",
-    "        perror(\"fork failed\");",
-    "        return 1;",
-    "    }",
-    "    else if (pid == 0) {",
-    "        char *args[] = {\"/path/to/cgi_program\", NULL};",
-    "        char *envp[] = {NULL};",
-    "        execve(\"/path/to/cgi_program\", args, envp);",
-    "        perror(\"execve failed\");",
-    "        return 1;",
-    "    }",
-    "    else {",
-    "        printf(\"Parent process continues...\n\");",
-    "        return 0;",
-    "    }",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates the use of `fork` to create a child process. The child process then uses `execve` to replace its image with the CGI program. The parent process continues to execute, handling other requests concurrently.  The `execve` call demonstrates the hardware-software interaction – the operating system loads a new program into the child's memory space, overwriting the previous code and state, to process the request.  The success or failure of `fork` and `execve` is checked for proper error handling, demonstrating awareness of potential system-level issues.",
   "extraction_metadata": {
     "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
     "page_range": "728-728",
     "extraction_date": "2025-07-28T12:12:10.385669",
     "has_code": false,
     "has_explanation": true,
-    "book_context": "csapp_systems"
-  }
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.729083"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)"
 }

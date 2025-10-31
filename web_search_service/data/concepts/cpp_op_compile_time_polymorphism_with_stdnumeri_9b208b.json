@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism with `std::numeric_limits` and its Implementation Details",
+  "explanation": "This focuses on `std::numeric_limits`, a class template providing compile-time information about arithmetic types.  Its implementation reveals fascinating aspects of compiler behavior and interaction with the underlying hardware.  The compiler doesn't just provide values; it uses these values during compilation to perform optimizations and enforce type-safe constraints. Understanding its behavior requires delving into how compilers generate code based on type properties known only at compile time. This impacts code generation, particularly in template metaprogramming and constant expression evaluation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:35:03.073755",
+    "book_metadata_added": "2025-10-28T20:22:06.929316"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "using L_INT = std::numeric_limits<int>;\nusing L_DBL = std::numeric_limits<double>;\n\n// Compile-Time Information Retrieval\nconstexpr int char_bits = std::numeric_limits<char>::digits;\n\n// Polymorphic access via type T\nconstexpr double min_d = L_DBL::min();\nconstexpr double max_d = L_DBL::max();\n\n// Implementation detail: trait specification\nstatic_assert(L_INT::is_specialized);\nstatic_assert(L_DBL::is_iec559);\n\n// Usage in constexpr context\ntemplate <typename T>\nconstexpr bool is_signed() {\n    return std::numeric_limits<T>::is_signed;\n}\n\nstatic_assert(is_signed<long>());\nstatic_assert(!is_signed<size_t>());"
+}

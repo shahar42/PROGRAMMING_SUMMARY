@@ -1,0 +1,16 @@
+{
+  "topic": "epoll_ctl() System Call",
+  "explanation": "epoll_ctl is used to add, modify, or remove entries in the interest list of an epoll file descriptor. It performs the specified operation on the target file descriptor.\n\n**Parameters:**\n- `epfd` (int): The epoll file descriptor.\n- `op` (int): The operation to perform: EPOLL_CTL_ADD, EPOLL_CTL_MOD, or EPOLL_CTL_DEL.\n- `fd` (int): The target file descriptor to add, modify, or remove.\n- `event` (struct epoll_event *_Nullable): Pointer to the epoll_event structure, which specifies events and data; ignored for EPOLL_CTL_DEL.\n\n**Common Errors:**\n- `EBADF`: epfd or fd is not a valid file descriptor.\n- `EEXIST`: op was EPOLL_CTL_ADD, and the supplied file descriptor fd is already registered with this epoll instance.\n- `EINVAL`: epfd is not an epoll file descriptor, or fd is the same as epfd, or the requested operation op is not supported, or an invalid event type was specified with EPOLLEXCLUSIVE.\n- `EINVAL`: op was EPOLL_CTL_MOD and events included EPOLLEXCLUSIVE, or EPOLLEXCLUSIVE was previously applied to this epfd and fd pair.\n- `EINVAL`: EPOLLEXCLUSIVE was specified in event and fd refers to an epoll instance.\n\n**Related System Calls:** `epoll_wait()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.170142",
+    "syscall_name": "epoll_ctl",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_epoll_ctl.json",
+    "concept_id": "posix_sys_epoll_ctl_02ac62",
+    "book_metadata_added": "2025-10-28T20:22:06.637343"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int epfd, fd;\nstruct epoll_event event;\n\n// ADD: Register fd for read events (Edge Triggered)\nevent.events = EPOLLIN | EPOLLET;\nevent.data.fd = fd;\nepoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);\n\n// MOD: Modify registered events (e.g., switch to write interest)\nevent.events = EPOLLOUT;\nepoll_ctl(epfd, EPOLL_CTL_MOD, fd, &event);\n\n// DEL: Remove fd from the epoll interest list\n// The 'event' argument is ignored (often passed as NULL)\nepoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);\n\n// Check return value for errors (returns -1 on failure)\n// if (ret == -1) { perror(\"epoll_ctl\"); }",
+  "keywords": "epoll_ctl, epoll add fd, EPOLL_CTL_ADD, epoll register"
+}

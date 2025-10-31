@@ -1,0 +1,96 @@
+{
+  "name": "msgop",
+  "synopsis": [
+    "#include <sys/msg.h>",
+    "int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);",
+    "ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp, int msgflg);"
+  ],
+  "description": "The msgsnd() system call sends a message to a System V message queue, while msgrcv() receives a message from it. Both require the calling process to have appropriate permissions on the queue.",
+  "parameters": [
+    {
+      "name": "msqid",
+      "type": "int",
+      "description": "Message queue identifier"
+    },
+    {
+      "name": "msgp",
+      "type": "const void * (for msgsnd) or void * (for msgrcv)",
+      "description": "Pointer to a caller-defined structure containing the message type and data"
+    },
+    {
+      "name": "msgsz",
+      "type": "size_t",
+      "description": "Size of the message data in bytes"
+    },
+    {
+      "name": "msgflg",
+      "type": "int",
+      "description": "Flags that modify the behavior, such as IPC_NOWAIT"
+    },
+    {
+      "name": "msgtyp",
+      "type": "long",
+      "description": "Message type for selection in msgrcv(), must be greater than 0"
+    }
+  ],
+  "return_value": {
+    "success": "msgsnd() returns 0; msgrcv() returns the number of bytes actually copied into the message buffer",
+    "failure": "Both return -1 and set errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The calling process does not have the required permissions on the message queue"
+    },
+    {
+      "code": "EAGAIN",
+      "description": "The message cannot be sent due to queue limits and IPC_NOWAIT was specified"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The address pointed to by msgp is not accessible"
+    },
+    {
+      "code": "EIDRM",
+      "description": "The message queue was removed"
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid argument, such as invalid msqid, msgsz, or mtype"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to copy the message"
+    },
+    {
+      "code": "E2BIG",
+      "description": "Message text length exceeds msgsz and MSG_NOERROR is not specified (for msgrcv)"
+    },
+    {
+      "code": "ENOMSG",
+      "description": "No message of the requested type exists and IPC_NOWAIT was specified (for msgrcv)"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "Kernel not configured for certain flags (for msgrcv)"
+    }
+  ],
+  "bugs": "In Linux 3.13 and earlier, msgrcv() with MSG_COPY but without IPC_NOWAIT could return incorrect messages; specifying both MSG_COPY and MSG_EXCEPT was not diagnosed as an error until Linux 3.14.",
+  "versions": "Linux-specific, with bug fixes in Linux 3.14",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "msgctl"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "msgop.pdf",
+    "extraction_date": "2025-07-29T11:56:16.343155",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

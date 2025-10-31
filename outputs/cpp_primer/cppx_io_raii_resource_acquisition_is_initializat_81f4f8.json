@@ -1,45 +1,12 @@
 {
-  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "topic": "RAII: Preventing Resource Leaks",
   "explanation": "RAII is a fundamental C++ programming technique that tightly couples resource management with object lifetime.  It ensures resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object goes out of scope. This prevents resource leaks and simplifies error handling.  Best practice dictates that you should almost always prefer RAII to manual resource management.  Common pitfalls include forgetting to handle exceptions properly, which might prevent destructors from running and releasing resources, leading to leaks.",
-  "syntax": "RAII is implemented through constructors (to acquire resources) and destructors (to release resources).  The compiler implicitly calls the destructor when an object goes out of scope, ensuring automatic cleanup.  Consider using smart pointers (unique_ptr, shared_ptr, weak_ptr) for automatic memory management.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <fstream>",
-    "#include <memory>",
-    "",
-    "class FileHandler {",
-    "public:",
-    "  FileHandler(const std::string& filename) : file_(filename.c_str(), std::ios::out) {",
-    "    if (!file_) {",
-    "      throw std::runtime_error(\"Could not open file!\");",
-    "    }",
-    "  }",
-    "  ~FileHandler() {",
-    "    file_.close();",
-    "    std::cout << \"File closed successfully.\"<<std::endl;",
-    "  }",
-    "  std::ofstream& getFile() { return file_; }",
-    "private:",
-    "  std::ofstream file_;",
-    "};",
-    "",
-    "int main() {",
-    "  try {",
-    "    FileHandler file(\"mydata.txt\");",
-    "    file.getFile() << \"Some data to write\";",
-    "  } catch (const std::runtime_error& error) {",
-    "    std::cerr << \"Error: \" << error.what() << std::endl;",
-    "    return 1;",
-    "  }",
-    "  return 0;",
-    "}",
-    ""
-  ],
-  "example_explanation": "This example shows a `FileHandler` class using RAII. The constructor opens the file; the destructor automatically closes it, even if exceptions are thrown.  This avoids the need for manual `file.close()` calls and significantly reduces the risk of resource leaks. The `try-catch` block demonstrates best practice for exception handling in conjunction with RAII; it handles potential errors during file opening. Using `std::ofstream` and `std::runtime_error` follows the standard library best practices, enhancing readability and maintainability.  Note that  `std::unique_ptr` would be preferred if `file_` was dynamically allocated.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "copy",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T07:38:47.128080"
-  }
+    "extraction_date": "2025-08-20T07:38:47.128080",
+    "book_metadata_added": "2025-10-28T20:22:06.546453"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

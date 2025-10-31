@@ -1,0 +1,13 @@
+{
+  "topic": "Type Aliases in C++: Compile-Time Substitution and Compiler Behavior",
+  "explanation": "Type aliases, introduced via typedef or the modern using keyword, are a compile-time feature in C++ that allow developers to create synonyms for existing types. At the compiler level, type aliases do not create new types; instead, they are resolved during the parsing phase as part of the Abstract Syntax Tree (AST) construction. The compiler performs lexical and semantic analysis to substitute the alias with the original type throughout the code, ensuring that no additional runtime or memory overhead is introduced. For instance, when using typedef std::set<int> IntSet;, the compiler treats IntSet as equivalent to std::set<int> during type checking, template instantiation, and code generation phases. This substitution happens purely at compile-time, with no impact on the generated assembly or executable. Memory layout remains identical to that of the original type, as aliases do not alter struct padding, alignment, or object size\u2014it's merely a naming convenience. Performance-wise, type aliases can improve code readability and reduce errors in large codebases, potentially leading to faster compilation times by simplifying type expressions in templates. However, they have no direct runtime performance implications since they are erased before code execution. In terms of assembly-level behavior, the generated machine code will reference the original type's implementation (e.g., std::set's red-black tree structure), with no additional instructions or data sections. This compile-time nature contrasts with runtime polymorphism, as type aliases are fully resolved by the linker, avoiding any dynamic dispatch overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:32:09.674017",
+    "book_metadata_added": "2025-10-28T20:22:06.982294"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "using Ptr = int*;\ntypedef int* Ptr; // Identical to 'using Ptr = int*'\n\nPtr p; // p is treated as int*\n\n// Aliasing function pointers (typedef historical strength)\ntypedef int (*Validator)(const char*);\n\n// Aliasing templated types (using modern strength)\ntemplate <typename T>\nstruct Vector {};\n\ntemplate <typename T>\nusing IntVector = Vector<int, T>;\n\n// No new type created. Pure compile-time substitution."
+}

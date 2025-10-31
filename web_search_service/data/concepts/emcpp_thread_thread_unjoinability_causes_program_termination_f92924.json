@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Unjoinability Causes Program Termination",
+  "category": "thread",
+  "explanation": "Assumption: A `std::thread` object going out of scope without being manually joined or detached will be automatically cleaned up by the system or silently detached. Reality: If a `std::thread` object is 'joinable' (meaning it is associated with an actively running underlying thread) when its destructor is invoked, the C++ standard mandates that the program must immediately terminate via `std::terminate`. Why It Fails: This strict rule prevents two dangerous scenarios: implicit detachment (leaving a thread running unmanageably in the background) and implicit joining (which could block indefinitely). Since the programmer failed to explicitly handle the thread's lifetime, the program state is considered corrupted, leading to termination.",
+  "code_example": "void doWork() {\n  std::thread t([]{ /* long task */ });\n  if (!conditionsAreSatisfied()) {\n    // t is joinable here. When doWork exits, t's destructor \n    // is called, causing program termination.\n    return;\n  }\n  t.join(); // Only reached if conditions are met\n}",
+  "practical_example": "A function launches a background thread to calculate results. If that function throws an exception before the thread is explicitly joined, the thread object's destructor runs during stack unwinding, causing the entire application to crash instead of handling the exception gracefully.",
+  "keywords": "std::thread joinable destructor, unjoined thread terminate, `std::terminate` on thread exit",
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 38: Be aware of the perils of thread handles that are joinable",
+  "id": "emcpp_thread_thread_unjoinability_causes_program_termination_f92924",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Array Modifications in C++ Metaprogramming",
+  "explanation": "In C++ metaprogramming, array modifications refer to techniques like those described in ISO/IEC 14882:2014(E) 20.10.7.4, which involve transforming and manipulating arrays at compile-time using tools such as std::index_sequence and std::make_index_sequence. The compiler implements this feature through template instantiation and constexpr evaluation, where arrays are used as compile-time constructs rather than runtime objects. For instance, std::make_index_sequence<N> generates a std::index_sequence<0, 1, ..., N-1> at compile-time via recursive template instantiation, leveraging the compiler's ability to perform metaprogramming computations during the compilation phase. This results in no runtime memory allocation for the sequence itself, as it's purely a type-level construct. Performance implications are significant: compile-time evaluation reduces runtime overhead, but complex templates can lead to longer compilation times due to the exponential growth of template instantiations. At the assembly level, the metaprogramming logic is entirely optimized away, leaving only the final runtime code (e.g., a simple loop or function call). This behavior is strictly compile-time, with no runtime execution involved in generating the sequence, contrasting with runtime arrays that involve dynamic memory layout and potential cache misses.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:42:27.658790",
+    "book_metadata_added": "2025-10-28T20:22:06.934106"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T, size_t N, size_t... I>\nconstexpr std::array<T, N> reverse_array_impl(\n    const std::array<T, N>& arr, std::index_sequence<I...>)\n{\n    // Modifies element order via index pack expansion\n    return { arr[N - 1 - I]... };\n}\n\ntemplate <typename T, size_t N>\nconstexpr std::array<T, N> reverse_array(const std::array<T, N>& arr)\n{\n    return reverse_array_impl(arr, std::make_index_sequence<N>{});\n}\n\nconstexpr std::array<int, 3> initial = {10, 20, 30};\nconstexpr auto reversed = reverse_array(initial); // {30, 20, 10}\n\n// Use case: Creating an array whose elements are derived from indices\ntemplate <size_t... I>\nconstexpr auto make_squares(std::index_sequence<I...>)\n{\n    return std::array<size_t, sizeof...(I)>{ (I * I)... };\n}\nconstexpr auto squares = make_squares(std::make_index_sequence<5>{});\n// squares is {0, 1, 4, 9, 16}",
+  "keywords": "std::index_sequence, make_index_sequence, compile-time array manipulation, C++ sequence helper"
+}

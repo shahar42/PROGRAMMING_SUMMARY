@@ -1,0 +1,13 @@
+{
+  "topic": "Task-Based versus Thread-Based for Result and Exception Propagation",
+  "category": "async",
+  "explanation": "Assumption: If a function throws an exception while running asynchronously, it can be caught by the caller regardless of the execution mechanism. Reality: When using the thread-based approach (`std::thread`), an unhandled exception thrown in the asynchronously executed function causes the entire program to terminate via `std::terminate`. Why It Fails: The thread-based approach provides no mechanism for communicating exceptions back to the parent scope. In contrast, the task-based approach (`std::async`) returns an `std::future`, and the `get()` function on that future is designed to capture and re-throw any exceptions, allowing the caller to handle them safely, alongside retrieving return values.",
+  "code_example": "// Task-based exception handling\ntry {\n  auto fut = std::async(throws_func);\n  fut.get(); \n} catch(...) { /* handled */ }\n\n// Thread-based exception handling leads to std::terminate\n// std::thread t(throws_func); \n// t.join(); // Program dies before join",
+  "practical_example": "A developer runs a computationally intensive validation task using `std::thread`. If the validation hits bad input and throws, the entire web server process terminates unexpectedly, whereas using `std::async` would isolate the failure and allow the server to return an error code.",
+  "keywords": "std::thread exception propagation, Task-based exception handling, std::terminate thread exception, asynchronous exception handling",
+  "difficulty": "intermediate",
+  "page_reference": "259-263",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming.",
+  "id": "emcpp_async_task_based_versus_thread_based_e9e2bd",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

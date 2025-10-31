@@ -1,0 +1,29 @@
+{
+  "topic": "Move Semantics: Handling Moved-From Objects",
+  "explanation": "In C++, move semantics allow for efficient transfer of resources from one object to another using operations like std::move. A key concept is that after an object is moved from, it enters a valid but unspecified state, meaning it remains usable but its exact value or content is not defined. This is crucial in real-world scenarios, such as working with containers (e.g., std::string or std::vector), where moves can optimize performance by avoiding copies. Best practices include never relying on the state of a moved-from object to prevent bugs, always reinitializing it if further use is needed, and understanding that operations like empty() or size() may work but yield unpredictable results. This pattern helps in writing idiomatic C++ code that is efficient and robust, especially in performance-critical applications like game development or data processing.",
+  "syntax": "To perform a move, use std::move to cast an object to an rvalue reference, enabling move constructors or assignment operators. Syntax example: \nType newObj = std::move(originalObj);  // originalObj is now in a valid but unspecified state\nPractical usage note: Always check if the object needs reinitialization after a move, e.g., originalObj.clear(); to ensure it's in a known state before reuse, avoiding common pitfalls like accessing undefined data.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <string>",
+    "#include <utility>  // For std::move",
+    "",
+    "int main() {",
+    "    std::string source = \"Hello, World!\";  // Original string",
+    "    std::string dest = std::move(source);   // Move operation",
+    "    // source is now in a valid but unspecified state",
+    "    std::cout << \"Destination: \" << dest << std::endl;  // Likely outputs the string",
+    "    std::cout << \"Source empty? \" << std::boolalpha << source.empty() << std::endl;  // May output true, but not guaranteed",
+    "    // Best practice: Reinitialize if needed",
+    "    source = \"Reset string\";  // Safely reuse source",
+    "    std::cout << \"Source after reset: \" << source << std::endl;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates moving a std::string object, showcasing real-world usage in resource management, such as in functions that transfer ownership to avoid copying large strings. After the move, 'source' is valid, and calling source.empty() might indicate it's empty, but depending on this could lead to pitfalls like incorrect logic in loops or conditionals. Best practices here include explicitly resetting 'source' (e.g., with source = \"Reset string\";), which ensures predictable behavior and aligns with idiomatic C++ patterns for efficiency and safety in scenarios like building containers or handling temporary objects in algorithms.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:27:36.721877"
+  }
+}

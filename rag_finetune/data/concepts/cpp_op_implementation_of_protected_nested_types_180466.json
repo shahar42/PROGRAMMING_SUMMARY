@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Protected Nested Types in C++",
+  "explanation": "In C++, protected nested types, such as a struct defined within a class under the 'protected' access specifier, are a compile-time feature that controls visibility and accessibility based on inheritance hierarchies. The compiler enforces access rules during the compilation phase by checking the context in which the nested type is used. For instance, a protected nested struct is accessible within the defining class, derived classes, and friends, but not from unrelated classes or global scope. Under the hood, compilers like GCC or Clang implement this through symbol tables and semantic analysis passes, where access specifiers are resolved early in the compilation process (e.g., during parsing and name resolution). This results in compile-time errors for unauthorized access, with no runtime overhead or checks, as C++ access control is not part of the generated machine code. Memory layout-wise, a protected nested type is treated as a regular nested type; it doesn't alter the class's memory footprint directly but inherits the same layout rules as its enclosing class (e.g., via the Standard Layout or POD rules if applicable). Performance implications are minimal since access checks occur at compile time, avoiding any runtime branching or indirection. At the assembly level, if access is permitted, the compiler generates standard code for type instantiation and member access (e.g., loading from memory offsets), but if not, compilation fails entirely, preventing any assembly output for invalid code paths. This compile-time behavior contrasts with runtime polymorphism (e.g., virtual functions), emphasizing C++'s static nature for access control.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:08:30.048963",
+    "book_metadata_added": "2025-10-28T20:22:06.852904"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\nprotected:\n    struct InnerConfig {\n        int val = 0;\n    };\n    InnerConfig cfg;\n};\n\nclass Derived : public Base {\npublic:\n    void setup() {\n        // SUCCESS: Derived uses Base::InnerConfig directly\n        InnerConfig temp;\n        temp.val = 5;\n        cfg = temp;\n    }\n};\n\n// NOTE: Base::InnerConfig is inaccessible from global/unrelated scope.",
+  "keywords": "Protected nested type, C++ nested class access, Protected member type"
+}

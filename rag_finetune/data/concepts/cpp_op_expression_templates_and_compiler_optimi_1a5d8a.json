@@ -1,0 +1,14 @@
+{
+  "topic": "Expression Templates and Compiler Optimization",
+  "explanation": "Expression templates are a powerful C++ metaprogramming technique that allows for significant performance optimizations in numerical computations.  Instead of immediately evaluating expressions involving operators on objects (like vectors or matrices), expression templates defer evaluation until the result is actually needed.  This is achieved by creating a compile-time representation of the expression as a tree-like structure, which the compiler can then optimize aggressively.  This contrasts with a naive approach where each operator call would result in immediate computation and potentially many temporary object allocations.  The compiler's ability to perform these optimizations is crucial; without sophisticated compiler support, expression templates offer little to no benefit.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:53:58.136302",
+    "book_metadata_added": "2025-10-28T20:22:06.829006"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template<typename T>\nstruct Vector {\n    T* data; size_t size;\n    T operator[](size_t i) const { return data[i]; }\n\n    // Evaluation point: Compiler fuses loops here\n    template<typename Expr>\n    Vector& operator=(const Expr& expr) {\n        for (size_t i = 0; i < size; ++i) data[i] = expr[i];\n        return *this;\n    }\n};\n\n// Expression Node (Represents deferred A + B)\ntemplate<typename L, typename R>\nstruct VAddExpr {\n    const L& l; const R& r;\n    auto operator[](size_t i) const { return l[i] + r[i]; }\n};\n\n// Deferred Operation: Returns Expression Node, NOT a resulting Vector\ntemplate<typename L, typename R>\nVAddExpr<L, R> operator+(const L& l, const R& r) {\n    return { l, r };\n}\n\n// Usage: Vector C = A + B * 2.0; (Single fused loop upon assignment)\n// The type of (A + B) is VAddExpr<Vector, Vector>\n// The type of C = ... is evaluated by Vector::operator=",
+  "keywords": "Expression Templates, C++ expression optimization, Deferred evaluation, C++ performance metaprogramming"
+}

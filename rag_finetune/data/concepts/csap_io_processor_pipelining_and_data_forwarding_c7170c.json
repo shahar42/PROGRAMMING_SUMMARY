@@ -1,0 +1,26 @@
+{
+  "topic": "Pipelining and Forwarding to Mitigate Stalls",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the execution of multiple instructions.  However, data dependencies between instructions can cause pipeline stalls. Data forwarding is a technique that mitigates these stalls by providing data directly from a later pipeline stage to an earlier one, thus avoiding the need to read from the register file, which would otherwise be necessary and delay instruction processing.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "464-464",
+    "extraction_date": "2025-07-27T01:23:59.865960",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-27T01:24:10.894806",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "465-466",
+      "extraction_date": "2025-07-27T01:24:09.357017",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8721509575843811,
+    "book_metadata_added": "2025-10-28T20:22:06.728848"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "struct PipeReg_ID_EX {\n    int Rs, Rt, Rd;      // Source/Dest Registers\n    int Val_Rs, Val_Rt;  // Values read from RF\n    bool MemRead, RegWrite;\n};\n\nstruct PipeReg_EX_MEM {\n    int Dest;\n    int ALU_Result;\n    bool RegWrite;\n};\n\n// --- Forwarding Unit Logic (Partial) ---\nint Forward_A(PipeReg_ID_EX ID_EX, PipeReg_EX_MEM EX_MEM) {\n    if (EX_MEM.RegWrite && (EX_MEM.Dest != 0) && (EX_MEM.Dest == ID_EX.Rs)) {\n        // Data Hazard detected (R-type or Load)\n        return EX_MEM.ALU_Result; // Forward data from EX/MEM\n    }\n    // Check MEM/WB (not shown)\n    return ID_EX.Val_Rs; // Default: Register File value\n}",
+  "keywords": "Data Forwarding, Pipeline Bypassing, Pipeline Hazards, Data Dependency Stalls"
+}

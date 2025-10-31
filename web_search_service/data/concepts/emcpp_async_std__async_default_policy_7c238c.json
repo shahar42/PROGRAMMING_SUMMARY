@@ -1,0 +1,18 @@
+{
+  "topic": "std::async Default Policy Dangers: Non-Execution and Thread Uncertainty",
+  "category": "async",
+  "explanation": "Assumption: Calling `std::async` guarantees the immediate creation and execution of a task in a separate thread. Reality: The default launch policy (`std::launch::deferred | std::launch::async`) permits the task to be executed synchronously in the calling thread (deferred) only when its associated future's `wait()` or `get()` method is called. Why It Fails: This non-deterministic behavior causes major issues: 1) Tasks may never execute if the future is discarded; 2) Accessing `thread_local` variables becomes uncertain (as the task might run on the caller's thread); and 3) Timeouts relying on asynchronous execution may fail if the task is deferred, leading to incorrect program logic.",
+  "code_example": "auto future_result = std::async(some_task); \n// Task may not run until future_result.get() is called, \n// potentially running synchronously in the caller's thread.",
+  "practical_example": "A developer uses `std::async` to schedule a background logging task, expecting it to run independently. If the future is never waited upon, the logs are never written if the implementation chose the deferred launch policy.",
+  "keywords": [
+    "std::async",
+    "std::launch::deferred",
+    "non-deterministic",
+    "thread_local"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 36: Specify std::launch::async if asynchronous task execution is essential",
+  "id": "emcpp_async_std__async_default_policy_7c238c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

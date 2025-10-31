@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism Based on Template Arguments",
+  "explanation": "Compile-time polymorphism, achieved through template metaprogramming, allows for code generation at compile time based on template arguments. This differs drastically from runtime polymorphism (virtual functions) where decisions are made during program execution.  The compiler performs significant code generation optimization, effectively eliminating the runtime overhead associated with virtual function calls.  Understanding how the compiler instantiates templates and generates specialized code is crucial for performance optimization.  Memory layout is influenced by the specific types used in template instantiation; the compiler might perform significant inlining and eliminate function calls entirely resulting in smaller and potentially faster code.  Assembly level inspection reveals the lack of indirect function calls typically associated with runtime polymorphism.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:04:55.654881",
+    "book_metadata_added": "2025-10-28T20:22:06.874843"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename Derived>\nclass StaticBase {\npublic:\n    void interface() const {\n        // Static dispatch via CRTP\n        static_cast<const Derived*>(this)->specialized_op();\n    }\n};\n\nclass HandlerA : public StaticBase<HandlerA> {\npublic:\n    void specialized_op() const {\n        // Code Path A\n    }\n};\n\nclass HandlerB : public StaticBase<HandlerB> {\npublic:\n    void specialized_op() const {\n        // Code Path B\n    }\n};\n\n// Compiler selects specialized_op based on Derived type at compile time.\n// (No virtual overhead)",
+  "keywords": "Compile-time polymorphism, Static polymorphism, Template metaprogramming, TMP"
+}

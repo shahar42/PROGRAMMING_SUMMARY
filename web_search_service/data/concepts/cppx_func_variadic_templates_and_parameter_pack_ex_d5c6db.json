@@ -1,0 +1,14 @@
+{
+  "topic": "Variadic Templates and Parameter Pack Expansion for Utilities",
+  "explanation": "Variadic templates in C++ allow functions or classes to accept a variable number of arguments, making code more flexible and reusable. This is particularly useful in real-world scenarios like implementing logging functions, processing variable-length data, or creating generic utilities (e.g., in libraries like fmt or std::format). Best practices include using recursion for older C++ standards (pre-C++17) to unpack parameter packs, ensuring a clear base case to avoid infinite recursion, and preferring fold expressions in C++17+ for simpler, more efficient code. Common pitfalls include stack overflows from deep recursion (mitigated by limiting argument counts or using C++17 features), forgetting to handle all types in the pack (which can lead to compilation errors), and overusing variadics when simpler overloads suffice—always profile for performance as recursion adds overhead.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:51:32.731141",
+    "book_metadata_added": "2025-10-28T20:22:06.567036"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "template <typename T>\nvoid log_values(T val) { /* Base case processing */ }\n\ntemplate <typename T, typename... Args>\nvoid log_values(T head, Args... tail) {\n    // Head processing (e.g., printing the current argument)\n    // ...\n    log_values(tail...); // Recursive call: Pack expansion\n}\n\ntemplate <typename... Nums>\nauto calculate_sum(Nums... args) {\n    // C++17 Fold Expression: (Initial value + Arg1 + Arg2 + ...)\n    return (args + ... + 0); \n}\n\n// Common pattern: applying a function to all elements\ntemplate <typename F, typename... Args>\nvoid apply_to_all(F f, Args&&... args) {\n    // Sequence comma operator ensures execution order\n    ((f(std::forward<Args>(args))), ...); \n}",
+  "keywords": "Variadic templates, parameter pack expansion, C++ variadic arguments"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Mode `this` Pointer Lifetime Issue",
+  "category": "capture",
+  "explanation": "Assumption: Capturing `this` implicitly or explicitly provides safe, persistent access to member data within the lambda closure. Reality: Capturing `this` performs a simple copy of the object's pointer value. If the closure is stored (e.g., in a global container or returned) and its lifetime extends beyond the lifetime of the original object, the captured `this` becomes a dangling pointer. Why It Fails: The compiler does not track the lifetime relationship between the stored closure and the object providing the pointer. When the original object is destroyed (especially if managed by a local smart pointer like `std::unique_ptr`), subsequent invocation of the closure results in Undefined Behavior.",
+  "code_example": "FilterContainer filters;\nvoid doSomeWork() {\n  auto pw = std::make_unique<Widget>();\n  // Lambda implicitly captures this, storing a pointer to *pw\n  pw->addFilter(); \n} // *pw destroyed here. filters holds dangling pointer.",
+  "practical_example": "A framework stores user-provided event handlers (lambdas) globally. If these handlers are methods that capture `this` from objects created locally inside a setup function, the handlers will fail the moment the local setup function exits and the originating objects are destroyed.",
+  "keywords": "lambda this dangling pointer, C++ lambda capture this lifetime, dangling this pointer closure",
+  "difficulty": "intermediate",
+  "page_reference": "233",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_mode__this_b33427",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

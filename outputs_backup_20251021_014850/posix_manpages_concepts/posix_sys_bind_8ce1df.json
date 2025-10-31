@@ -1,0 +1,15 @@
+{
+  "topic": "bind() System Call",
+  "explanation": "bind() assigns the address specified by addr to the socket referred to by the file descriptor sockfd. It is normally necessary to assign a local address using bind() before a SOCK_STREAM socket can receive connections. The rules for name binding vary by address family.\n\n**Parameters:**\n- `sockfd` (int): File descriptor of the socket to bind.\n- `addr` (const struct sockaddr *): Pointer to the address structure to assign to the socket.\n- `addrlen` (socklen_t): Size, in bytes, of the address structure pointed to by addr.\n\n**Common Errors:**\n- `EACCES`: The address is protected, and the user is not the superuser.\n- `EADDRINUSE`: The given address is already in use.\n- `EBADF`: sockfd is not a valid file descriptor.\n- `EINVAL`: The socket is already bound, or addrlen is wrong, or addr is not valid for this socket's domain.\n- `ENOTSOCK`: The file descriptor sockfd does not refer to a socket.\n\n**Related System Calls:** `accept()`, `connect()`, `getsockname()`, `listen()`, `socket()`, `getaddrinfo()`, `getifaddrs()`, `ip()`",
+  "syntax": "int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);",
+  "code_example": "#include <sys/socket.h>\n#include <sys/un.h>\nstruct sockaddr_un my_addr;\nmemset(&my_addr, 0, sizeof(my_addr));\nmy_addr.sun_family = AF_UNIX;\nstrncpy(my_addr.sun_path, MY_SOCK_PATH, sizeof(my_addr.sun_path) - 1);\nif (bind(sfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == -1) handle_error(\"bind\");",
+  "example_explanation": "This example demonstrates the basic usage of the bind() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.134093",
+    "syscall_name": "bind",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_bind.json",
+    "concept_id": "posix_sys_bind_8ce1df"
+  }
+}

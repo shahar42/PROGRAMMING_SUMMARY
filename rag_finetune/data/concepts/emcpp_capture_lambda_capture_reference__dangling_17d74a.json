@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Reference [Dangling] for [Lifetime Mismatch]",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-reference capture (`[&]`) is safe if the lambda is executed immediately. Reality: Default by-reference capture causes the closure to contain references to local variables or parameters. If the closure's lifetime exceeds the scope where the captured variables were defined, these references become dangling. Why It Fails: This is critical when closures are returned from functions, stored in class members, or passed to asynchronous execution mechanisms (like `std::async` or thread constructors), as the local variables are destroyed long before the closure is invoked.",
+  "code_example": "auto make_closure() {\n  int x = 100;\n  return [&] { return x + 1; }; // Dangles when make_closure returns\n}",
+  "practical_example": "A developer uses `[&]` inside a short function to capture large objects for a future/promise pair. By the time the future is checked, the original large objects have been destroyed, causing a crash upon closure execution.",
+  "keywords": "Dangling reference lambda, Lambda capture lifetime, Reference capture unsafe, Stack variable lambda capture",
+  "difficulty": "beginner",
+  "page_reference": "233-234",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_reference__dangling_17d74a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

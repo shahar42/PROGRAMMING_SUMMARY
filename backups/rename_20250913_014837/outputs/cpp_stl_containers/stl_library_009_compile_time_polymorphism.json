@@ -1,0 +1,34 @@
+{
+  "topic": "Compile-Time Polymorphism with `constexpr` and Template Metaprogramming",
+  "explanation": "Compile-time polymorphism, unlike runtime polymorphism achieved through virtual functions, leverages templates and `constexpr` functions to perform computations and generate specialized code during compilation.  This avoids runtime overhead associated with virtual function calls and branching. The compiler generates distinct code paths for each type used with the template, effectively creating multiple versions of the function at compile time.  Memory layout is affected as each specialized instantiation might have a different size and structure depending on the underlying types. Performance gains are significant when dealing with large datasets or performance-critical sections because there's no runtime dispatch.",
+  "syntax": "```cpp\ntemplate <typename T>\nconstexpr T factorial(T n) {\n  return (n == 0) ? 1 : n * factorial(n - 1);\n}\n\nint main() {\n  constexpr int fact5 = factorial(5); // Computed at compile time\n  int fact10 = factorial(10);       // Computed at compile time if T is int; otherwise, runtime\n  std::cout << fact5 << \" \" << fact10 << std::endl;\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T>",
+    "constexpr T add(T a, T b) { return a + b; }",
+    "template <typename T, size_t N>",
+    "constexpr size_t array_sum(const T (&arr)[N]) {",
+    "  size_t sum = 0;",
+    "  for (size_t i = 0; i < N; ++i) {",
+    "    sum = add(sum, arr[i]);",
+    "  }",
+    "  return sum;",
+    "}",
+    "int main() {",
+    "  constexpr int arr[] = {1, 2, 3, 4, 5};",
+    "  constexpr size_t sum = array_sum(arr); // Sum computed at compile time",
+    "  std::cout << \"Sum: \" << sum << std::endl;",
+    "  // Compile-time check if the array is empty.  If it's empty, it won't compile.",
+    "  static_assert(sizeof(arr) > 0, \"Array cannot be empty\");",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `factorial` and `array_sum` functions demonstrate compile-time computation.  The compiler will unroll loops and perform calculations during compilation, resulting in optimized machine code without runtime overhead. The `static_assert` demonstrates how this compile time functionality can be used to add compile time checks.  Assembly code generated for `constexpr` functions will show direct computations embedded in the machine code, not function calls.  For example, `factorial(5)` will result in a direct assignment of the value 120, not a function call instruction. Runtime behavior only occurs when `constexpr` conditions are not met, like in `factorial(10)` if `T` is not a primitive type that can be evaluated at compile time.  The choice of data types and their ability to participate in `constexpr` computations has a direct impact on whether the computations occur at compile time or runtime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:31:07.242694"
+  }
+}

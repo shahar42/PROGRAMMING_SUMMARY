@@ -1,0 +1,16 @@
+{
+  "topic": "Exception Specification and Compatibility in C++",
+  "explanation": "In modern C++, exception specifications are used to declare which exceptions a function might throw, enabling the compiler and programmers to reason about exception safety and compatibility. When overloading functions or specializing templates, the exception specifications of different declarations are compared to ensure consistency and correctness. This comparison helps maintain exception safety guarantees and supports features like noexcept and dynamic exception specifications, which influence optimization and program correctness.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "416-416",
+    "extraction_date": "2025-08-19T04:15:25.295881",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.876420"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// C++17/20: throw() is synonym for noexcept\nvoid func_safe() noexcept;\nvoid func_legacy() throw(); // Equivalent to noexcept\n\n// Function Pointer Compatibility Rules\nusing Ptr_Throwing = void (*)();\nusing Ptr_NoExcept = void (*)() noexcept;\n\nPtr_Throwing ptr_a = func_safe; // OK (Relaxing specification allowed)\n// Ptr_NoExcept ptr_b = func_throwing; // Error (Cannot tighten specification)\n\n// Virtual Function Overrides\nstruct Base {\n    virtual void check() noexcept = 0;\n};\n\nstruct Derived : Base {\n    // Override must maintain or strengthen the restriction\n    void check() noexcept override; // OK\n    // void check() override; // ERROR: incompatible exception spec\n};",
+  "keywords": "noexcept compatibility, C++ exception specification, Overloading exception specification, `noexcept` specialization"
+}

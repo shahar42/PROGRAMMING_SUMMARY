@@ -1,0 +1,13 @@
+{
+  "topic": "Auto Deduction Drops Volatile Qualifiers",
+  "category": "type",
+  "explanation": "Assumption: If a variable `x` is declared `volatile`, then using `auto y = x;` will preserve the `volatile` nature of the data, ensuring reads/writes to `y` are also non-optimizable. Reality: According to the rules of `auto` deduction (Item 2), when `auto` deduces a non-reference, non-pointer type, it strips away `const` and `volatile` qualifiers. Therefore, `y` in `auto y = x;` is simply an `int` (or base type), not a `volatile int`. Why It Fails: Once the value is copied from the volatile memory location `x` into the non-volatile variable `y`, the compiler is free to apply optimizations to subsequent reads or writes involving `y`, potentially defeating the entire purpose of the original `volatile` declaration.",
+  "code_example": "volatile int x; \nauto y = x; // y is int, not volatile int\n\ny = x; // Read 1 from x (required)\ny = x; // Read 2 from x (might be optimized if compiler assumes x didn't change between reads)",
+  "practical_example": "A developer reads a hardware register `x` (declared volatile) into a local `auto` variable `y` for repeated processing inside a loop. Since `y` is not volatile, the compiler caches `y`'s value in a register, meaning subsequent loop iterations only read the cached value, missing real-time updates to the hardware register `x`.",
+  "keywords": "auto strips volatile, auto drops cv qualifiers, auto volatile deduction",
+  "difficulty": "intermediate",
+  "page_reference": "297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_type_auto_deduction_drops_volatile_qualifiers_8a4c1e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

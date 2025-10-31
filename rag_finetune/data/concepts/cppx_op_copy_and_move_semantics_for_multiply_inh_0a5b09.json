@@ -1,0 +1,14 @@
+{
+  "topic": "Copy and Move Semantics for Multiply Inherited Classes",
+  "explanation": "When a class inherits from multiple base classes, understanding how copy, move, and assignment operations behave is crucial.  The default synthesized versions of these operations (copy constructor, move constructor, copy assignment, move assignment, destructor) will recursively handle the base classes.  However, if you define any of these operations yourself in the derived class, the compiler will *not* automatically handle the base classes; you must explicitly manage them to prevent errors and ensure correct resource management.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:38:18.920309",
+    "book_metadata_added": "2025-10-28T20:22:06.560678"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct B1 { int b1; };\nstruct B2 { double b2; };\n\nstruct Derived : B1, B2 {\n    char d;\n\n    // Must initialize bases explicitly in Custom Copy Constructor\n    Derived(const Derived& other)\n        : B1(other),\n          B2(other),\n          d(other.d)\n    {}\n\n    // Must call base assignments explicitly in Custom Assignment Op\n    Derived& operator=(const Derived& other) {\n        B1::operator=(other);\n        B2::operator=(other);\n        d = other.d;\n        return *this;\n    }\n};",
+  "keywords": "Multiple inheritance copy semantics, Calling base class special members, User-defined derived constructor MI"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "io_submit() System Call",
+  "explanation": "The io_submit system call queues asynchronous I/O requests in the specified AIO context. It submits an array of I/O control blocks for processing.\n\n**Parameters:**\n- `ctx_id` (aio_context_t): The AIO context ID to which requests are submitted.\n- `nr` (long): The number of I/O requests to submit.\n- `iocbpp` (struct iocb **): An array of pointers to I/O control blocks containing the details of the I/O operations.\n\n**Common Errors:**\n- `EAGAIN`: Insufficient resources are available to queue any iocbs.\n- `EBADF`: The file descriptor specified in the first iocb is invalid.\n- `EFAULT`: One of the data structures points to invalid data.\n- `EINVAL`: The AIO context specified by ctx_id is invalid, nr is less than 0, or the iocb is not properly initialized.\n- `ENOSYS`: io_submit() is not implemented on this architecture.\n\n**Related System Calls:** `io_cancel()`, `io_destroy()`, `io_getevents()`, `io_setup()`, `aio()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.240346",
+    "syscall_name": "io_submit",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_io_submit.json",
+    "concept_id": "posix_sys_io_submit_94ea3c",
+    "book_metadata_added": "2025-10-28T20:22:06.619317"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "aio_context_t ctx_id = 1; // Setup via io_setup()\nconst long NR_REQ = 2;\n\n// Define I/O control blocks\nstruct iocb req1 = { /* setup details */ };\nstruct iocb req2 = { /* setup details */ };\n\n// Array of pointers to IOCBs\nstruct iocb *iocb_arr[NR_REQ] = { \n    &req1, \n    &req2 \n};\n\n// Submits NR_REQ requests to the AIO context\nint submitted = io_submit(ctx_id, \n                          NR_REQ, \n                          iocb_arr);\n\n// Returns count submitted (>= 0) or negative error code\n// Common error: -EAGAIN (Insufficient resources)",
+  "keywords": "io_submit, Linux AIO, iocb, AIO context"
+}

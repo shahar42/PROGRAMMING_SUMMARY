@@ -1,0 +1,14 @@
+{
+  "topic": "Variadic Templates and Overload Resolution",
+  "explanation": "Variadic templates in C++ allow functions to accept a variable number of arguments, making them flexible for real-world scenarios like logging, formatting, or processing collections. However, when both a variadic template and a non-variadic template are available, the compiler selects the most specialized version to ensure precise matching, as per C++ overload resolution rules. This promotes best practices such as writing specific overloads for common cases to improve code readability, performance, and maintainability. A common pitfall is relying solely on variadic templates, which can lead to less efficient code or subtle bugs due to their generality; to avoid this, always provide non-variadic overloads for frequent use cases, ensuring the compiler picks the optimal function and reducing potential ambiguities in larger codebases.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:49:37.861965",
+    "book_metadata_added": "2025-10-28T20:22:06.561925"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Specific overload for a single argument (Preferred)\ntemplate <typename T>\nvoid format(T arg) { /* Single argument handling */ }\n\n// Specific overload for zero arguments (Base case)\nvoid format() { /* End of recursion */ }\n\n// Variadic Template (Generic Fallback, used for >1 argument)\ntemplate <typename T, typename... Args>\nvoid format(T first, Args... rest) { /* Handle first, recurse on rest */ }\n\nvoid check_resolution() {\n    int i = 42;\n    float f = 3.14f;\n\n    // Calls format() (Base Case)\n    format();\n\n    // Calls template<T> format(T arg) (Most specific match)\n    format(i);\n\n    // Calls variadic template (T=int, Args...=float)\n    format(i, f);\n}",
+  "keywords": "Variadic template overload resolution, Template specialization matching, Variadic vs non-variadic template, Template priority rules"
+}

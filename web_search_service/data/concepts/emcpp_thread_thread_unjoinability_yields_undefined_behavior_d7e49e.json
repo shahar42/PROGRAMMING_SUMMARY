@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Unjoinability Yields Undefined Behavior",
+  "category": "thread",
+  "explanation": "Assumption: Calling `join()` or `detach()` on a thread that is not currently running safely results in a standard exception or ignored operation. Reality: The C++ Standard explicitly states that invoking `join()` or `detach()` on an unjoinable `std::thread` object results in undefined behavior. Why It Fails: A thread is unjoinable if it is default-constructed, has already been joined, or has already been detached. Failing to check `t.joinable()` before calling management functions (especially in destructors for RAII) risks catastrophic failure. Rule: Always check `if (t.joinable())` before attempting to manage the thread's lifespan via `join()` or `detach()` to ensure defined behavior.",
+  "code_example": "// ThreadRAII Destructor\n~ThreadRAII() {\n  if (t.joinable()) { // CRITICAL CHECK\n    // Decide policy: join or detach\n    t.join(); \n  }\n}",
+  "practical_example": "A thread management class destructor attempts to call `join()` unconditionally. If the thread object was passed a function that immediately returned, or if the thread was accidentally joined elsewhere, the destructor's second attempt to join triggers undefined behavior, potentially crashing the application.",
+  "keywords": "std::thread::joinable, join detach UB, unjoinable thread, calling join twice",
+  "difficulty": "beginner",
+  "page_reference": "254",
+  "chapter": "Item 37",
+  "id": "emcpp_thread_thread_unjoinability_yields_undefined_behavior_d7e49e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

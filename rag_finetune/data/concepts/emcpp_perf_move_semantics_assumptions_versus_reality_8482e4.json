@@ -1,0 +1,18 @@
+{
+  "topic": "Move Semantics Assumptions versus Reality: Failure on Simple Types",
+  "category": "perf",
+  "explanation": "Assumption: Move operations are fundamentally superior to copies and should be utilized whenever possible for optimization. Reality: For types where the contained resources are small or nonexistent (e.g., built-in types, pointers, or small structs containing only primitives), the move operation offers no performance benefit over a copy. Why It Fails: A move operation involves the same number of bitwise operations as a copy for types that do not manage dynamic heap resources. For instance, moving an `int` or a raw pointer involves simply copying 4 or 8 bytes. The overhead required to execute the move constructor/assignment (function call, stack manipulation) often negates any tiny potential gain. Furthermore, attempting to force move semantics on these types increases code complexity without any corresponding benefit, violating the principle of least astonishment. The underlying mechanism (deep vs. shallow) is the key differentiator; if the copy is already shallow (i.e., no dynamic allocation management), the move cannot improve the performance profile.",
+  "code_example": "// Move is equivalent to copy, increasing complexity without gain\nint x = 5;\nint y = std::move(x); // Same as y = x; runtime overhead is similar or worse.",
+  "practical_example": "A programmer applies `std::move` to every variable passing across a function boundary in a computation heavy system, thinking they are optimizing integer arithmetic. Profiling reveals that the tiny overhead of the move function calls slightly increased runtime, demonstrating that move semantics must be reserved for types with expensive deep copies.",
+  "keywords": [
+    "primitive types",
+    "move cost",
+    "optimization failure",
+    "bitwise copy"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "210-212",
+  "chapter": "Item 27: Familiarize yourself with alternatives to overloading on universal references",
+  "id": "emcpp_perf_move_semantics_assumptions_versus_reality_8482e4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

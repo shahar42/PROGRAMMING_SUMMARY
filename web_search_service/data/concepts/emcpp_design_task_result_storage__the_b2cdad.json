@@ -1,0 +1,18 @@
+{
+  "topic": "Task Result Storage: The Necessity of External Shared State",
+  "category": "design",
+  "explanation": "Assumption: The result of an asynchronous task launched via `std::async` or managed by `std::promise` can be stored directly within the caller's `std::future` object or the callee's execution context. Reality: Neither location is suitable. The callee's resources are destroyed when it finishes, and the `std::future` object cannot reliably hold the result because it may be transferred to a `std::shared_future` (which is copyable) or because the result type itself might be move-only (prohibiting storage in a potentially copied object). Why It Fails: Storing the result locally violates the required lifetime guarantee, which must extend until the last referring future is destroyed. Therefore, the result must be stored in a non-local entity known as the 'shared state.'",
+  "code_example": "// Result must survive the destruction of the original future\nstd::future<MoveOnlyType> fut = std::async(some_task);\nstd::shared_future<MoveOnlyType> sfut = fut.share(); \n// The result stored in shared state persists long after 'fut' might be destroyed.",
+  "practical_example": "A developer attempts to pass a move-only object (like `std::unique_ptr`) as the result of an asynchronous task. If the system attempted to store this result directly inside the calling `std::future`, subsequent attempts to copy the future (e.g., sharing it) would fail, thus requiring the external, heap-allocated Shared State.",
+  "keywords": [
+    "shared state",
+    "std::future lifetime",
+    "move-only types",
+    "asynchronous result"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "258",
+  "chapter": "Item 38",
+  "id": "emcpp_design_task_result_storage__the_b2cdad",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Signed and Unsigned Integer Mixing and Implicit Type Conversion Pitfalls",
+  "explanation": "In advanced C programming, understanding how signed and unsigned integers interact during expressions is crucial, as implicit conversions can lead to unexpected results and subtle bugs. When a signed value is involved in an operation with an unsigned value, the signed operand is automatically converted to unsigned, which can cause negative signed values to be interpreted as large positive numbers due to wrap-around. Mastery of this behavior enables developers to write correct, predictable code and avoid common pitfalls related to integer conversions, especially in low-level or performance-critical contexts.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "67-67",
+    "extraction_date": "2025-08-20T01:25:54.611665",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.542908"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "int s_val = -1;\nunsigned int u_val = 10;\n\n// PITFALL: Signed operand promoted to unsigned (UINT_MAX)\n// Comparison: UINT_MAX > 10 (TRUE)\nif (s_val > u_val) {\n    // Unexpected branch taken\n}\n\n// FIX 1: Cast the unsigned value down to signed\nif (s_val > (int)u_val) {\n    // Expected branch not taken\n}\n\n// FIX 2: Cast the signed value up to unsigned\nif ((unsigned int)s_val > u_val) {\n    // Equivalent to Pitfall check\n}\n\n// DIRECT CONVERSION RESULT\nunsigned int promotion = s_val;\n// promotion == UINT_MAX (or equivalent architecture max)\n\n// PITFALL: Indexing arithmetic\nsize_t length = 5;\nint idx = -1;\n\n// idx promotes to UINT_MAX; length - idx causes wrap-around\nsize_t offset = length + idx; // 5 + UINT_MAX = 4 (Modulo arithmetic)",
+  "keywords": "signed unsigned conversion, integer promotion rules, signed unsigned comparison, integer mixing pitfalls"
+}

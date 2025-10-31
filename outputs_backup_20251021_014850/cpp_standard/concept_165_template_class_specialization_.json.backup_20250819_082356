@@ -1,0 +1,35 @@
+{
+  "topic": "Template Class Specialization and SFINAE in Modern C++",
+  "explanation": "In modern C++, template class specialization combined with SFINAE (Substitution Failure Is Not An Error) allows developers to create flexible and type-safe class templates that adapt their behavior based on template parameters. This technique enables compile-time selection of class implementations, facilitating generic programming and enabling advanced metaprogramming patterns without runtime overhead.",
+  "syntax": "template <typename T, typename Enable = void> class ClassName { /* primary template */ }; \n\n// Specialization enabled when a condition is true\ntemplate <typename T> class ClassName<T, std::enable_if_t<Condition<T>>> { /* specialized template */ };",
+  "code_example": [
+    "#include <type_traits>",
+    "template <typename T, typename Enable = void>",
+    "class NumericTraits {",
+    "public:",
+    "    static constexpr bool is_numeric = false;",
+    "};",
+    "",
+    "// Specialization for integral types using SFINAE",
+    "template <typename T>",
+    "class NumericTraits<T, std::enable_if_t<std::is_integral_v<T>>> {",
+    "public:",
+    "    static constexpr bool is_numeric = true;",
+    "};",
+    "",
+    "int main() {",
+    "    static_assert(NumericTraits<int>::is_numeric, \"int should be numeric\");",
+    "    static_assert(!NumericTraits<double>::is_numeric, \"double should not be numeric\");",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates how template class specialization combined with SFINAE can be used to differentiate behavior based on type traits. The primary template defaults to 'false' for 'is_numeric', while the specialization for integral types sets it to 'true'. The static_asserts verify at compile time that the traits are correctly specialized, showcasing modern C++ techniques for type-safe, compile-time polymorphism.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "938-940",
+    "extraction_date": "2025-08-19T08:03:38.882206",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

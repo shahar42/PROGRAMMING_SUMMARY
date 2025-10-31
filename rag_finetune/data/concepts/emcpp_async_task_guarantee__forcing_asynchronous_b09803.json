@@ -1,0 +1,18 @@
+{
+  "topic": "Task Guarantee: Forcing Asynchronous Launch Policy",
+  "category": "async",
+  "explanation": "Assumption: Calling `std::async(f, args...)` immediately launches a task on a separate thread. Reality: The default launch policy for `std::async` permits the task to be deferred (`std::launch::deferred`), meaning the callable object `f` might not execute until the associated `std::future` is waited upon or queried. Why It Fails: Deferred execution can lead to unexpected thread management issues, potential resource leaks if the future is destroyed before execution, and violations of expected concurrency. To guarantee immediate, concurrent execution, developers must explicitly specify the `std::launch::async` policy. Helper wrappers are often used to enforce this explicit policy project-wide.",
+  "code_example": "template<typename F, typename... Ts>\nauto reallyAsync(F&& f, Ts&&... params)\n{\n  // Forces execution on a separate thread\n  return std::async(std::launch::async,\n                    std::forward<F>(f),\n                    std::forward<Ts>(params)...);\n}",
+  "practical_example": "A developer expects a background task to start immediately to process a large dataset. If they omit `std::launch::async`, the processing may not begin until much later when another part of the system attempts to retrieve the result from the future, causing unexpected latency spikes in the user experience.",
+  "keywords": [
+    "std::async",
+    "std::launch::async",
+    "deferred execution",
+    "task guarantee"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "249, 263-268",
+  "chapter": "Item 35/36 context",
+  "id": "emcpp_async_task_guarantee__forcing_asynchronous_b09803",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

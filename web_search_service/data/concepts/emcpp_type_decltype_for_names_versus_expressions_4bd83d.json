@@ -1,0 +1,21 @@
+{
+  "topic": "Decltype: Id-Expression Versus Parenthesized Lvalue",
+  "category": "type",
+  "explanation": "The behavior of `decltype` fundamentally depends on the kind of entity it is applied to. When applied to the unadorned name of a variable, it yields the declared type of that variable. However, when applied to a more complex lvalue expression, it always yields an lvalue reference to the type of that expression. This distinction is subtle but critical.\n\nScott Meyers highlights this as a primary source of surprise for developers. The key insight is that an seemingly innocuous syntactic change, like wrapping a variable name in parentheses, transforms it from a 'name' into a general 'expression' in the eyes of the compiler. This triggers a different `decltype` rule, causing the resulting type to change from a value type to a reference type.\n\nThe mechanics are governed by specific rules in the C++ standard. For an entity `x`, `decltype(x)` simply looks up the declared type of `x`. For the expression `(x)`, the compiler first determines that the expression `(x)` is an lvalue. Because it is an lvalue expression more complex than a simple name, `decltype` adds an lvalue reference to its type. So if `x` is declared as an `int`, `decltype(x)` is `int`, but `decltype((x))` is `int&`.\n\nThis has significant practical implications in modern C++, especially with `decltype(auto)` and trailing return types. If a generic function returns a local variable, returning the name directly will correctly result in a value type (a copy). However, if the developer parenthesizes the name in the return statement, the function's return type will be deduced as a reference. This would create a dangling reference to the local variable, which is undefined behavior. Understanding this prevents you from accidentally returning references to local objects.\n\nThe most common and dangerous pitfall is adding parentheses around a variable name within a `decltype` specifier without realizing the semantic impact. This can happen for stylistic reasons or due to macro expansions. A programmer might believe they are just clarifying precedence or grouping, but they are in fact changing the type that will be deduced, often from a safe value to a potentially dangerous reference.",
+  "code_example": "int i = 0;\nconst int& j = i;\n\n// Case 1: decltype on a name\ndecltype(i) x;        // x is type int (declared type of i)\ndecltype(j) y = i;    // y is type const int& (declared type of j)\n\n// Case 2: decltype on an lvalue expression\ndecltype((i)) z = i;  // (i) is an lvalue expression, not just a name\n                        // z is type int& (reference to i's type)\n\n// Example of changing behavior\nz = 10; // i is now 10\n// x = 5;  // x is a separate int, doesn't affect i",
+  "practical_example": "In a generic lambda, if you use `decltype(auto)` for a variable capture and initialize it with `(some_variable)`, you will capture a reference to `some_variable`, not a copy. This can lead to dangling references if the lambda outlives the original variable.",
+  "keywords": [
+    "decltype",
+    "value category",
+    "lvalue",
+    "expression",
+    "type deduction",
+    "dangling reference",
+    "parentheses"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "28-29",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_type_decltype_for_names_versus_expressions_4bd83d",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

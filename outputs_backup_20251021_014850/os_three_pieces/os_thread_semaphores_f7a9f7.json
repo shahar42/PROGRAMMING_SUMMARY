@@ -1,0 +1,14 @@
+{
+  "topic": "Semaphores",
+  "explanation": "A semaphore is a synchronization primitive in C programming that manages access to shared resources by multiple threads or processes. It maintains a count to control how many threads can access the resource simultaneously, preventing race conditions and ensuring orderly execution in concurrent environments.",
+  "syntax": "sem_init(sem_t *sem, int pshared, unsigned int value); sem_wait(sem_t *sem); sem_post(sem_t *sem);",
+  "code_example": "#include <stdio.h>\n#include <stdlib.h>\n#include <pthread.h>\n#include <semaphore.h>\n\nsem_t semaphore;\n\nvoid* thread_function(void* arg) {\n    sem_wait(&semaphore);\n    printf(\"Thread accessed the resource.\\n\");\n    sem_post(&semaphore);\n    return NULL;\n}\n\nint main() {\n    sem_init(&semaphore, 0, 1);  // Initialize binary semaphore\n    pthread_t thread1, thread2;\n    pthread_create(&thread1, NULL, thread_function, NULL);\n    pthread_create(&thread2, NULL, thread_function, NULL);\n    pthread_join(thread1, NULL);\n    pthread_join(thread2, NULL);\n    sem_destroy(&semaphore);\n    return 0;\n}",
+  "example_explanation": "This program initializes a binary semaphore to ensure mutual exclusion. Two threads are created, and each attempts to access the shared resource. The sem_wait call blocks the second thread until the first releases the semaphore with sem_post, demonstrating how semaphores synchronize access and prevent simultaneous execution in the critical section.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "361-361",
+    "extraction_date": "2025-07-23T00:27:47.426118",
+    "has_code": false,
+    "has_explanation": false
+  }
+}

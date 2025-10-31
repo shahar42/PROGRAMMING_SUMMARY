@@ -1,0 +1,58 @@
+{
+  "name": "capget",
+  "synopsis": [
+    "#include <linux/capability.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_capget, cap_user_header_t hdrp, cap_user_data_t datap);"
+  ],
+  "description": "The capget system call retrieves the capabilities of a specified thread. It uses a header structure to provide the capability version and PID, and stores the capability sets in a data structure. This interface is Linux-specific and may change across kernel versions.",
+  "parameters": [
+    {
+      "name": "hdrp",
+      "type": "cap_user_header_t",
+      "description": "Pointer to a structure containing the capability version and PID of the thread."
+    },
+    {
+      "name": "datap",
+      "type": "cap_user_data_t",
+      "description": "Pointer to a structure to hold the effective, permitted, and inheritable capability sets."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "Bad memory address; hdrp must not be NULL, and datap may be NULL only when determining the preferred capability version."
+    },
+    {
+      "code": "EINVAL",
+      "description": "One of the arguments was invalid."
+    },
+    {
+      "code": "EPERM",
+      "description": "An attempt was made to perform an operation without sufficient privileges."
+    },
+    {
+      "code": "ESRCH",
+      "description": "No such thread."
+    }
+  ],
+  "bugs": "In kernels before Linux 2.6.11, capset() could fail if a thread without the CAP_SETPCAP capability tried to change its own capabilities by specifying a nonzero PID.",
+  "versions": "Linux-specific; structures introduced with versions like _LINUX_CAPABILITY_VERSION_1 in early kernels, up to _LINUX_CAPABILITY_VERSION_3 in Linux 2.6.26.",
+  "posix_compliance": null,
+  "related_calls": [
+    "clone",
+    "gettid"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "capget.pdf",
+    "extraction_date": "2025-07-26T00:10:32.402654",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

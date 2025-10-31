@@ -1,0 +1,14 @@
+{
+  "topic": "Best Practices for Throwing Exceptions in C++",
+  "explanation": "In C++, throwing exceptions is a fundamental mechanism for error handling, but it's crucial to follow best practices to avoid common pitfalls like memory leaks, dangling pointers, or undefined behavior. The provided code snippet demonstrates throwing an exception via a pointer (e.g., throw *p; where p points to an exception object). In real-world scenarios, such as in large-scale applications or libraries, always throw exceptions by value rather than by pointer. This ensures the exception object is copied and managed automatically by the runtime, preventing issues if the original object goes out of scope. Best practices include: throwing by value for simplicity and safety, catching by const reference to avoid object slicing, and avoiding raw pointers for exceptions to reduce error-prone code. Common pitfalls include throwing pointers to local variables, which can lead to crashes if the pointer is invalidated; to avoid this, use smart pointers or throw by value directly.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "specialized",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:24:20.883242",
+    "book_metadata_added": "2025-10-28T20:22:06.563793"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class FileError : public std::runtime_error {\n    public:\n    FileError() : std::runtime_error(\"File Issue\") {}\n};\n\n// BAD PRACTICE: Throwing by pointer (dereferenced).\n// Requires dynamic allocation (new) and risks memory leaks\n// if the exception is caught by value.\nFileError* p = new FileError();\n// throw *p;\n\n// BEST PRACTICE: Throw by value.\n// Ensures the standard mechanism handles safe copy/move\n// and guarantees destruction cleanup.\nthrow FileError();\n<ctrl63>",
+  "keywords": "throw by value, C++ exception best practices, throwing exceptions by pointer"
+}

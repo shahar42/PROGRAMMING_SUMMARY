@@ -1,0 +1,64 @@
+{
+  "name": "rt_sigtimedwait",
+  "synopsis": [
+    "#include <signal.h>",
+    "int sigwaitinfo(const sigset_t *restrict set, siginfo_t *_Nullable restrict info);",
+    "int sigtimedwait(const sigset_t *restrict set, siginfo_t *_Nullable restrict info, const struct timespec *restrict timeout);"
+  ],
+  "description": "rt_sigtimedwait is a system call that synchronously waits for queued signals specified in a set, with an optional timeout. It removes the signal from the pending set and returns its number, along with additional information if provided.",
+  "parameters": [
+    {
+      "name": "set",
+      "type": "const sigset_t *restrict",
+      "description": "Pointer to a set of signals to wait for"
+    },
+    {
+      "name": "info",
+      "type": "siginfo_t *_Nullable restrict",
+      "description": "Pointer to a siginfo_t structure to receive signal information, or NULL if not needed"
+    },
+    {
+      "name": "timeout",
+      "type": "const struct timespec *restrict",
+      "description": "Pointer to a timespec structure specifying the timeout period, or NULL for indefinite wait"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the signal number (a value greater than zero)",
+    "failure": "Returns -1 and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "No signal in set became pending within the timeout period"
+    },
+    {
+      "code": "EINTR",
+      "description": "The wait was interrupted by a signal handler for a signal not in set"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Timeout was invalid"
+    }
+  ],
+  "bugs": "Silently ignores attempts to wait for SIGKILL and SIGSTOP; cannot be used to receive synchronously generated signals like SIGSEGV or SIGFPE; in multithreaded programs, which thread receives a signal is indeterminate.",
+  "versions": "Linux 2.2",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "kill",
+    "sigaction",
+    "signalfd",
+    "sigpending",
+    "sigprocmask",
+    "sigqueue",
+    "sigwait"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "rt_sigtimedwait.pdf",
+    "extraction_date": "2025-07-30T23:05:38.173700",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

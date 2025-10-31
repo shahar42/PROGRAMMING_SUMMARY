@@ -9,16 +9,28 @@ UPDATED: Efficient book-specific duplicate cleanup functionality
 import json
 import logging
 import sys
+import string
+import asyncio
+import os
+import requests
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from collections import defaultdict
 import re
-from typing import List, Tuple, Dict
+import openai
+from datetime import datetime
+from dotenv import load_dotenv
 
-# Add current directory to Python path
-sys.path.append('.')
+# Current directory is automatically in path for modern Python
 
 from mcp.server.fastmcp import FastMCP
+
+# Load environment variables
+load_dotenv('config/config.env')
+
+# Get project root from environment or use script's directory
+SCRIPT_DIR = Path(__file__).parent.resolve()
+PROJECT_ROOT = Path(os.getenv("PROJECT_ROOT", SCRIPT_DIR))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -26,6 +38,13 @@ logger = logging.getLogger("programming-concepts-mcp")
 
 # Initialize FastMCP server
 mcp = FastMCP("programming-concepts")
+
+# Initialize OpenAI client for hidden gems evaluation
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if OPENAI_API_KEY:
+    logger.info("✅ OpenAI API key loaded for hidden gems evaluation")
+else:
+    logger.warning("⚠️ OpenAI API key not found - using heuristic evaluation")
 
 # Global variables for concepts database
 concepts = []
@@ -38,8 +57,58 @@ books_metadata = {
     "csapp_2016": "Computer Systems: A Programmer's Perspective (3rd Edition)",
     "cpp_standard": "The C++ Standard Library (ISO/IEC 14882)",
     "cpp_primer": "C++ Primer (5th Edition)",
-    "cpp_knowledge": "C++ Knowledge Base (High Priority Concepts)",
-    "Inside_the_C++_Object_Model": "Inside the C++ Object Model (Stanley Lippman)"
+    "Inside_the_C++_Object_Model": "Inside the C++ Object Model (Stanley Lippman)",
+    "cpp_stl_containers": "C++ STL Containers (Extracted Concepts)",
+    "posix_manpages": "POSIX Manual Pages"
+}
+
+# Book authority weights for relevance scoring
+BOOK_AUTHORITY = {
+    "kernighan_ritchie": 3.0,      # Authoritative for C
+    "csapp_2016": 3.0,             # Authoritative for systems (boosted from 2.8)
+    "cpp_standard": 3.0,           # Authoritative for C++
+    "expert_c_programming": 2.5,   # Advanced C concepts
+    "unix_env": 2.7,               # UNIX/systems
+    "os_three_pieces": 2.4,        # OS concepts
+    "cpp_primer": 2.0,             # Tutorial level
+    "linkers_loaders": 2.6,        # Specialized topic
+    "Inside_the_C++_Object_Model": 2.7,  # Advanced C++
+    "cpp_stl_containers": 2.3,     # STL specific
+    "posix_manpages": 2.5,         # Reference material (reasonable universal weight)
+}
+
+# Context hints for boosting relevant books based on query terms
+CONTEXT_HINTS = {
+    'cpp': ['cpp_standard', 'cpp_primer', 'Inside_the_C++_Object_Model', 'cpp_stl_containers'],
+    'c++': ['cpp_standard', 'cpp_primer', 'Inside_the_C++_Object_Model', 'cpp_stl_containers'],
+    'stl': ['cpp_stl_containers', 'cpp_standard', 'cpp_primer'],
+    'std::': ['cpp_standard', 'cpp_stl_containers'],
+    'system': ['csapp_2016', 'unix_env', 'os_three_pieces', 'posix_manpages'],
+    'syscall': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'system call': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'unix': ['unix_env', 'csapp_2016', 'posix_manpages'],
+    'linux': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'pipe': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'fork': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'read': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'write': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'open': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'close': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'file descriptor': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'process': ['posix_manpages', 'unix_env', 'csapp_2016', 'os_three_pieces'],
+    'thread': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'signal': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'ipc': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'socket': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'network': ['posix_manpages', 'unix_env', 'csapp_2016'],
+    'memory': ['csapp_2016', 'kernighan_ritchie', 'expert_c_programming'],
+    'link': ['linkers_loaders', 'csapp_2016'],
+    'vector': ['cpp_stl_containers', 'cpp_standard'],
+    'sort': ['cpp_stl_containers', 'cpp_standard'],
+    'algorithm': ['cpp_stl_containers', 'cpp_standard'],
+    'template': ['cpp_standard', 'cpp_primer', 'Inside_the_C++_Object_Model'],
+    'object': ['Inside_the_C++_Object_Model', 'cpp_standard', 'cpp_primer'],
+    'posix': ['posix_manpages', 'unix_env'],
 }
 
 
@@ -47,7 +116,7 @@ def build_concept_index():
     """Build the concept index from outputs directory, using a cache for performance."""
     global concepts
     
-    PROJECT_ROOT = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
+    # Use global PROJECT_ROOT instead of hardcoded path
     outputs_dir = PROJECT_ROOT / "outputs"
     cache_file = outputs_dir / "concept_cache.json"
     
@@ -91,7 +160,7 @@ def build_concept_index():
 
         concept_files = [f for f in book_dir.glob("*.json")
                          if f.name not in ["progress.json", "metadata.json", "summary.json", "concept_cache.json"]
-                         and not f.name.endswith("_summary.md")]
+                         and not f.name.endswith("_summary.md") and ".backup" not in f.name]
         
         book_concepts = 0
         for concept_file in concept_files:
@@ -131,15 +200,9 @@ def add_concept(concept_data: Dict[str, Any], book_name: str, filename: str):
     # Extract category from new naming scheme if available
     category = extract_category_from_filename(filename)
 
-    # Generate clean, predictable IDs for both old and new naming schemes
-    concept_num_match = re.search(r'concept_(\d+)', filename)
-    if concept_num_match:
-        # Old naming scheme
-        concept_num = concept_num_match.group(1).zfill(3)  # Pad to 3 digits
-        concept_id = f"{book_name}_concept_{concept_num}"
-    else:
-        # New naming scheme - use filename stem as ID
-        concept_id = f"{book_name}_{Path(filename).stem}"
+    # Generate clean IDs using ONLY the new naming scheme
+    # New naming scheme - use filename stem as ID
+    concept_id = f"{book_name}_{Path(filename).stem}"
 
     # SURGICAL FIX: Map the standardized extractor format to MCP server expectations
     title = concept_data.get('topic', concept_data.get('title', concept_data.get('concept', 'Unknown Concept')))
@@ -196,86 +259,42 @@ def find_concept_by_id_flexible(concept_id: str):
         if concept['id'] == concept_id:
             return concept
 
-    # Try partial matches for backward compatibility
+    # Try case-insensitive partial match as fallback
     concept_id_lower = concept_id.lower()
     for concept in concepts:
         if concept_id_lower in concept['id'].lower():
-            return concept
-        # Also try matching without book prefix
-        if concept_id_lower.replace(concept['book'] + '_', '') in concept['id'].lower():
             return concept
 
     return None
 
 
-def normalize_concept_id(raw_id: str) -> str:
-    """Normalize concept ID to clean format"""
-    # Extract book name and concept number
-    parts = raw_id.split('_')
-    if len(parts) >= 3 and 'concept' in parts:
-        book_name = parts[0]
-        concept_idx = parts.index('concept')
-        if concept_idx + 1 < len(parts):
-            concept_num = parts[concept_idx + 1]
-            if concept_num.isdigit():
-                return f"{book_name}_concept_{concept_num.zfill(3)}"
-
-    return raw_id
-
-
-def format_parameters(parameters):
-    """Format parameter list for display"""
-    if not parameters:
-        return ""
-
-    formatted = []
-    for param in parameters:
-        name = param.get('name', 'unknown')
-        param_type = param.get('type', 'unknown')
-        desc = param.get('description', 'No description')
-        formatted.append(f"- **{name}** ({param_type}): {desc}")
-
-    return "\n".join(formatted)
-
-
-def format_errors(errors):
-    """Format error list for display"""
-    if not errors:
-        return ""
-
-    formatted = []
-    for error in errors:
-        code = error.get('code', 'UNKNOWN')
-        desc = error.get('description', 'No description')
-        formatted.append(f"- **{code}**: {desc}")
-
-    return "\n".join(formatted)
 
 
 def load_posix_concepts():
-    """Load POSIX syscalls as concepts"""
-    posix_dir = Path("/home/shahar42/Suumerizing_C_holy_grale_book/outputs/posix_manpages")
+    """Load POSIX syscalls as concepts from converted format"""
+    # Load from converted concepts directory
+    posix_concepts_dir = PROJECT_ROOT / "outputs/posix_manpages_concepts"
 
-    if not posix_dir.exists():
+    if not posix_concepts_dir.exists():
+        logger.warning(f"POSIX concepts directory not found: {posix_concepts_dir}")
         return
 
-    for json_file in posix_dir.glob("unix_*.json"):
+    logger.info(f"Loading POSIX concepts from {posix_concepts_dir}")
+    loaded_count = 0
+
+    for json_file in posix_concepts_dir.glob("posix_sys_*.json"):
         try:
             with open(json_file, 'r', encoding='utf-8') as f:
-                syscall = json.load(f)
+                concept_data = json.load(f)
 
-            # Format as concept
-            concept_data = {
-                'topic': f"{syscall['name']}() - POSIX System Call",
-                'explanation': syscall['description'],
-                'syntax': '\n'.join(syscall['synopsis']),
-                'content': f"Parameters:\n{format_parameters(syscall.get('parameters', []))}\n\nErrors:\n{format_errors(syscall.get('errors', []))}"
-            }
-
+            # Add the concept directly (it's already in the right format)
             add_concept(concept_data, 'posix_manpages', json_file.name)
+            loaded_count += 1
 
         except Exception as e:
             logger.warning(f"Error loading POSIX concept {json_file}: {e}")
+
+    logger.info(f"✅ Loaded {loaded_count} POSIX system call concepts")
 
 
 # ===============================
@@ -327,7 +346,7 @@ async def analyze_concept_duplicates(book_name: str, similarity_threshold: float
         return f"Invalid book name '{book_name}'. Available books: {', '.join(available_books)}"
 
     # Get book directory
-    PROJECT_ROOT = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
+    # Use global PROJECT_ROOT instead of hardcoded path
     book_dir = PROJECT_ROOT / "outputs" / book_name
 
     if not book_dir.exists():
@@ -343,9 +362,11 @@ async def analyze_concept_duplicates(book_name: str, similarity_threshold: float
     if not concept_files:
         return f"No concept files found in {book_dir}"
 
-    result = f"# 📊 Duplicate Analysis for {books_metadata[book_name]}\n\n"
-    result += f"**Files Analyzed:** {len(concept_files)}\n"
-    result += f"**Similarity Threshold:** {similarity_threshold:.0%}\n\n"
+    result_parts = [
+        f"# 📊 Duplicate Analysis for {books_metadata[book_name]}\n\n",
+        f"**Files Analyzed:** {len(concept_files)}\n",
+        f"**Similarity Threshold:** {similarity_threshold:.0%}\n\n"
+    ]
 
     # Load all concepts
     loaded_concepts = []
@@ -391,41 +412,49 @@ async def analyze_concept_duplicates(book_name: str, similarity_threshold: float
     # Count duplicates
     duplicates = [pair for pair in similar_pairs if pair['is_duplicate']]
 
-    result += f"## Summary\n\n"
-    result += f"- **Total similar pairs found:** {len(similar_pairs)}\n"
-    result += f"- **Pairs above duplicate threshold:** {len(duplicates)}\n"
-    result += f"- **Estimated files that could be removed:** {len(duplicates)}\n\n"
+    result_parts.extend([
+        f"## Summary\n\n",
+        f"- **Total similar pairs found:** {len(similar_pairs)}\n",
+        f"- **Pairs above duplicate threshold:** {len(duplicates)}\n",
+        f"- **Estimated files that could be removed:** {len(duplicates)}\n\n"
+    ])
 
     if duplicates:
-        result += f"## 🚨 Potential Duplicates (≥{similarity_threshold:.0%} similar)\n\n"
+        result_parts.append(f"## 🚨 Potential Duplicates (≥{similarity_threshold:.0%} similar)\n\n")
         for i, pair in enumerate(duplicates[:10], 1):  # Show top 10
-            result += f"### {i}. Similarity: {pair['similarity']:.1%}\n"
-            result += f"**File 1:** `{pair['concept1']['file_name']}`\n"
-            result += f"Topic: {pair['concept1']['data'].get('topic', 'Unknown')}\n\n"
-            result += f"**File 2:** `{pair['concept2']['file_name']}`\n"
-            result += f"Topic: {pair['concept2']['data'].get('topic', 'Unknown')}\n\n"
+            result_parts.extend([
+                f"### {i}. Similarity: {pair['similarity']:.1%}\n",
+                f"**File 1:** `{pair['concept1']['file_name']}`\n",
+                f"Topic: {pair['concept1']['data'].get('topic', 'Unknown')}\n\n",
+                f"**File 2:** `{pair['concept2']['file_name']}`\n",
+                f"Topic: {pair['concept2']['data'].get('topic', 'Unknown')}\n\n"
+            ])
 
         if len(duplicates) > 10:
-            result += f"*...and {len(duplicates) - 10} more duplicate pairs*\n\n"
+            result_parts.append(f"*...and {len(duplicates) - 10} more duplicate pairs*\n\n")
 
     if len(similar_pairs) > len(duplicates):
-        result += f"## 📋 Other Similar Pairs ({similarity_threshold - 0.1:.0%}-{similarity_threshold:.0%} similar)\n\n"
+        result_parts.append(f"## 📋 Other Similar Pairs ({similarity_threshold - 0.1:.0%}-{similarity_threshold:.0%} similar)\n\n")
         similar_not_dup = [p for p in similar_pairs if not p['is_duplicate']][:5]
 
         for i, pair in enumerate(similar_not_dup, 1):
-            result += f"{i}. **{pair['similarity']:.1%}** - `{pair['concept1']['file_name']}` vs `{pair['concept2']['file_name']}`\n"
+            result_parts.append(f"{i}. **{pair['similarity']:.1%}** - `{pair['concept1']['file_name']}` vs `{pair['concept2']['file_name']}`\n")
 
-    result += f"\n## 💡 Recommendations\n\n"
+    result_parts.append(f"\n## 💡 Recommendations\n\n")
 
     if duplicates:
-        result += f"- Run `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, True)` for a dry run\n"
-        result += f"- Run `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, False)` to perform cleanup\n"
-        result += f"- Consider adjusting threshold if too many/few duplicates detected\n"
+        result_parts.extend([
+            f"- Run `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, True)` for a dry run\n",
+            f"- Run `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, False)` to perform cleanup\n",
+            f"- Consider adjusting threshold if too many/few duplicates detected\n"
+        ])
     else:
-        result += f"- ✅ No duplicates found at {similarity_threshold:.0%} threshold\n"
-        result += f"- Consider lowering threshold (e.g., 0.80) if you want more aggressive deduplication\n"
+        result_parts.extend([
+            f"- ✅ No duplicates found at {similarity_threshold:.0%} threshold\n",
+            f"- Consider lowering threshold (e.g., 0.80) if you want more aggressive deduplication\n"
+        ])
 
-    return result
+    return ''.join(result_parts)
 
 
 @mcp.tool()
@@ -449,7 +478,7 @@ async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float
         return f"Invalid book name '{book_name}'. Available books: {', '.join(available_books)}"
 
     # Get book directory
-    PROJECT_ROOT = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
+    # Use global PROJECT_ROOT instead of hardcoded path
     book_dir = PROJECT_ROOT / "outputs" / book_name
 
     if not book_dir.exists():
@@ -488,7 +517,7 @@ async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float
             logger.warning(f"Failed to load {file_path}: {e}")
 
     if failed_loads > 0:
-        result += f"⚠️ **Warning:** {failed_loads} files could not be loaded\n\n"
+        result_parts.append(f"⚠️ **Warning:** {failed_loads} files could not be loaded\n\n")
 
     # Helper function to calculate similarity between concepts
     def calculate_concept_similarity(concept1_data, concept2_data):
@@ -556,10 +585,10 @@ async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float
 
     # Report findings
     if not duplicate_groups:
-        result += "✅ **No duplicates found!** All concepts appear to be unique.\n"
-        return result
+        result_parts.append("✅ **No duplicates found!** All concepts appear to be unique.\n")
+        return ''.join(result_parts)
 
-    result += f"🔍 **Found {len(duplicate_groups)} duplicate groups:**\n\n"
+    result_parts.append(f"🔍 **Found {len(duplicate_groups)} duplicate groups:**\n\n")
 
     files_to_delete = []
     files_kept = []
@@ -572,7 +601,7 @@ async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float
         backup_dir.mkdir(exist_ok=True)
 
     for group_num, group in enumerate(duplicate_groups, 1):
-        result += f"### Group {group_num}: {len(group)} similar concepts\n\n"
+        result_parts.append(f"### Group {group_num}: {len(group)} similar concepts\n\n")
 
         # Choose the best concept to keep (longest explanation or most recent)
         best_concept = max(group, key=lambda x: (
@@ -594,8 +623,10 @@ async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float
                 similarity_text = ""
 
             status = "**KEEP**" if is_keeper else ("WOULD DELETE" if dry_run else "DELETE")
-            result += f"- {status}: `{concept['file_name']}`{similarity_text}\n"
-            result += f"  Topic: {concept['data'].get('topic', 'Unknown')[:60]}...\n"
+            result_parts.extend([
+                f"- {status}: `{concept['file_name']}`{similarity_text}\n",
+                f"  Topic: {concept['data'].get('topic', 'Unknown')[:60]}...\n"
+            ])
 
             if not is_keeper:
                 if not dry_run:
@@ -609,116 +640,299 @@ async def cleanup_duplicate_concepts(book_name: str, similarity_threshold: float
                 else:
                     files_to_delete.append(concept['file_name'])
 
-        result += "\n"
+        result_parts.append("\n")
 
     # Summary
-    result += "## 📊 Cleanup Summary\n\n"
-    result += f"- **Duplicate groups found:** {len(duplicate_groups)}\n"
-    result += f"- **Files to delete:** {len(files_to_delete)}\n"
-    result += f"- **Files kept:** {len(files_kept)}\n"
+    result_parts.extend([
+        "## 📊 Cleanup Summary\n\n",
+        f"- **Duplicate groups found:** {len(duplicate_groups)}\n",
+        f"- **Files to delete:** {len(files_to_delete)}\n",
+        f"- **Files kept:** {len(files_kept)}\n"
+    ])
 
     if not dry_run:
-        result += f"- **Backup location:** `{backup_dir}`\n"
-        result += f"- **Files deleted:** {len(files_to_delete)}\n"
-        result += "\n✅ **Cleanup completed successfully!**\n"
-        result += "\n💡 **Note:** Deleted files are backed up and can be restored if needed.\n"
+        result_parts.extend([
+            f"- **Backup location:** `{backup_dir}`\n",
+            f"- **Files deleted:** {len(files_to_delete)}\n",
+            "\n✅ **Cleanup completed successfully!**\n",
+            "\n💡 **Note:** Deleted files are backed up and can be restored if needed.\n"
+        ])
     else:
-        result += "\n⚠️ **This was a dry run** - no files were actually deleted.\n"
-        result += "\nRun `cleanup_duplicate_concepts('{}', {}, False)` to perform actual cleanup.".format(book_name,
-                                                                                                          similarity_threshold)
+        result_parts.extend([
+            "\n⚠️ **This was a dry run** - no files were actually deleted.\n",
+            f"\nRun `cleanup_duplicate_concepts('{book_name}', {similarity_threshold}, False)` to perform actual cleanup."
+        ])
 
-    return result
-
-
-# ===============================
-# CONCEPT ACCESS TOOLS
-# ===============================
-
-@mcp.tool()
-async def read_concept_resource(book_name: str, concept_id: str) -> str:
-    """
-    Read a specific concept as a resource-like tool
-
-    Args:
-        book_name: Name of the book (e.g., 'os_three_pieces')
-        concept_id: Clean concept identifier
-
-    Returns:
-        Formatted concept content
-    """
-    # Validate book exists
-    if book_name not in books_metadata:
-        available_books = list(books_metadata.keys())
-        return f"Error: Book '{book_name}' not found. Available books: {', '.join(available_books)}"
-
-    # Find the concept
-    concept = find_concept_by_uri_id(book_name, concept_id)
-
-    if not concept:
-        # List available concepts for debugging
-        available_concepts = []
-        for c in concepts:
-            if c['book'] == book_name:
-                available_concepts.append(concept_to_clean_uri_id(c))
-
-        return f"Error: Concept '{concept_id}' not found in {book_name}. Available concepts: {', '.join(available_concepts[:5])}..."
-
-    # Format the concept content
-    result = f"# {concept['title']}\n\n"
-    result += f"**Source:** {concept['book_title']}\n\n"
-
-    if concept['description']:
-        result += f"## Description\n{concept['description']}\n\n"
-
-    if concept['content']:
-        result += f"## Details\n{concept['content']}\n\n"
-
-    if concept['syntax']:
-        result += f"## Code Example\n```c\n{concept['syntax']}\n```\n\n"
-
-    # Add any additional information from raw data
-    raw_data = concept['raw_data']
-    for key, value in raw_data.items():
-        if key not in ['title', 'description', 'content', 'syntax', 'concept', 'summary', 'explanation',
-                       'code'] and value:
-            result += f"**{key.title()}:** {value}\n"
-
-    return result
-
-
-@mcp.tool()
-async def list_concept_uris() -> str:
-    """List all available concept URIs"""
-
-    result = "## Available Concept URIs\n\n"
-
-    by_book = {}
-    for concept in concepts:
-        book_name = concept['book']
-        if book_name not in by_book:
-            by_book[book_name] = []
-
-        concept_id = concept_to_clean_uri_id(concept)
-        uri = f"concept://{book_name}/{concept_id}"
-        by_book[book_name].append((concept['title'], uri))
-
-    for book_name, book_concepts in by_book.items():
-        result += f"### {books_metadata[book_name]}\n\n"
-        for title, uri in book_concepts[:10]:  # Show first 10 per book
-            result += f"- **{title}**: `{uri}`\n"
-        if len(book_concepts) > 10:
-            result += f"- ... and {len(book_concepts) - 10} more concepts\n"
-        result += "\n"
-
-    result += f"\n**Total:** {len(concepts)} concepts across {len(by_book)} books\n"
-    result += f"\n**Usage:** Use `read_concept_resource(book_name, concept_id)` to access specific concepts"
-
-    return result
+    return ''.join(result_parts)
 
 
 # ===============================
 # SEARCH AND DISCOVERY TOOLS
 # ===============================
+
+def _validate_and_preprocess_query(query: str) -> tuple[str, str]:
+    """Validate query and return (processed_query, query_type)"""
+    if not query or query.isspace():
+        return "", "EMPTY"
+    if query == "*":
+        return "*", "WILDCARD" 
+    if query.isdigit():
+        return query, "NUMERIC"
+    if all(c in string.punctuation + string.whitespace for c in query):
+        return "", "INVALID"
+    return query.strip().lower(), "NORMAL"
+
+
+def _calculate_enhanced_relevance(concept, search_terms, base_score):
+    """Enhanced relevance calculation with context awareness"""
+    enhanced_score = base_score
+    
+    # Book authority multiplier
+    authority_weight = BOOK_AUTHORITY.get(concept['book'], 1.0)
+    enhanced_score *= authority_weight
+    
+    # Context bonus - if query contains context hints, boost matching books
+    for term in search_terms:
+        for context, preferred_books in CONTEXT_HINTS.items():
+            if context in term and concept['book'] in preferred_books:
+                enhanced_score *= 1.8  # 80% bonus for context match (boosted from 1.5)
+                break
+
+    # Special syscall bonus - extra boost for POSIX manpages on syscall queries
+    syscall_terms = ['syscall', 'system call', 'open', 'pipe', 'fork', 'exec', 'read', 'write', 'close', 'dup', 'wait']
+    for term in search_terms:
+        if any(syscall_term in term for syscall_term in syscall_terms) and concept['book'] == 'posix_manpages':
+            enhanced_score *= 1.4  # Additional 40% bonus for POSIX syscalls
+            break
+    
+    # Exact title match gets huge bonus
+    for term in search_terms:
+        if term in concept['title'].lower():
+            enhanced_score *= 2.0
+            
+    return enhanced_score
+
+
+def _fuzzy_match_book_name(user_input: str) -> str:
+    """Fuzzy match user input to actual book names for natural UX"""
+    if not user_input:
+        return None
+        
+    user_lower = user_input.lower().replace(' ', '').replace('_', '').replace('-', '')
+    
+    # Direct mappings for common user inputs
+    book_aliases = {
+        'kr': 'kernighan_ritchie',
+        'kernighan': 'kernighan_ritchie', 
+        'ritchie': 'kernighan_ritchie',
+        'cbook': 'kernighan_ritchie',
+        'cprogramming': 'kernighan_ritchie',
+        
+        'cppprimer': 'cpp_primer',
+        'primer': 'cpp_primer',
+        'c++primer': 'cpp_primer',
+        
+        'cppstandard': 'cpp_standard',
+        'standard': 'cpp_standard',
+        'c++standard': 'cpp_standard',
+        'iso': 'cpp_standard',
+        
+        'csapp': 'csapp_2016',
+        'computersystems': 'csapp_2016',
+        'systems': 'csapp_2016',
+        
+        'unix': 'unix_env',
+        'unixenvironment': 'unix_env',
+        'stevens': 'unix_env',
+        
+        'os': 'os_three_pieces',
+        'operatingsystems': 'os_three_pieces',
+        'threepieces': 'os_three_pieces',
+        
+        'expertc': 'expert_c_programming',
+        'expert': 'expert_c_programming',
+        'secrets': 'expert_c_programming',
+        
+        'linkers': 'linkers_loaders',
+        'loaders': 'linkers_loaders',
+        'levine': 'linkers_loaders',
+        
+        'objectmodel': 'Inside_the_C++_Object_Model',
+        'lippman': 'Inside_the_C++_Object_Model',
+        
+        'stl': 'cpp_stl_containers',
+        'containers': 'cpp_stl_containers',
+        
+        'posix': 'posix_manpages',
+        'manpages': 'posix_manpages',
+        'man': 'posix_manpages',
+    }
+    
+    # Check aliases first
+    if user_lower in book_aliases:
+        return book_aliases[user_lower]
+    
+    # Fuzzy matching against actual book names and titles
+    available_books = list(books_metadata.keys())
+    
+    # Try partial matching on book codes
+    for book_code in available_books:
+        if user_lower in book_code.lower().replace('_', ''):
+            return book_code
+    
+    # Try partial matching on book titles
+    for book_code, book_title in books_metadata.items():
+        title_clean = book_title.lower().replace(' ', '').replace('(', '').replace(')', '').replace(':', '')
+        if user_lower in title_clean or title_clean.startswith(user_lower):
+            return book_code
+    
+    # No match found
+    return None
+
+
+async def _evaluate_concept_as_gem(concept: dict) -> tuple[int, str]:
+    """Use OpenAI to evaluate if a concept is a 'hidden gem' (0-10 rating)"""
+    
+    # Prepare content for evaluation (truncate if too long)
+    title = concept.get('title', 'Unknown Title')
+    content = concept.get('content', '') + ' ' + concept.get('description', '')
+    content = content[:800] + '...' if len(content) > 800 else content
+    
+    # Create evaluation prompt
+    prompt = f"""Analyze this programming concept and rate it as a "hidden gem" (0-10):
+
+Title: {title}
+Content: {content}
+
+A TRUE hidden gem must be:
+- Something that would shock even expert C++/systems programmers
+- Obscure implementation details that reveal secret compiler/OS behavior  
+- Counter-intuitive gotchas that contradict common assumptions
+- Internal mechanisms that are deliberately hidden from developers
+- Bugs, quirks, or undocumented behaviors in compilers/systems
+- Implementation details that even seasoned developers rarely encounter
+
+BE EXTREMELY SELECTIVE. Most concepts should score 0-4.
+
+Rate 0-10 where:
+- 0-4: Known to experienced developers, documented behavior, or obvious
+- 5-6: Advanced knowledge but still somewhat familiar to experts
+- 7-8: TRULY surprising - even experts would say "I had no idea!"
+- 9-10: Mind-blowing secrets that reveal hidden system internals
+
+Only score 7+ if this would genuinely shock an expert who's been programming for 10+ years.
+
+Format your response as: SCORE: X | REASON: brief explanation of why it's truly hidden"""
+
+    try:
+        # Use OpenAI API if available, otherwise fall back to heuristics
+        if OPENAI_API_KEY:
+            headers = {
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": "gpt-4o-mini",  # Using cost-effective model for evaluations
+                "messages": [
+                    {
+                        "role": "system", 
+                        "content": "You are a 20-year veteran systems programmer evaluating concepts for 'hidden gem' potential. Be RUTHLESSLY selective - most concepts should score 0-4. Only score 7+ for secrets that would shock even expert developers with decades of experience. Look for undocumented behaviors, implementation quirks, and truly obscure gotchas."
+                    },
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
+                ],
+                "max_tokens": 100,
+                "temperature": 0.3
+            }
+            
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                llm_response = result['choices'][0]['message']['content'].strip()
+                
+                # Parse the response to extract score and reason
+                try:
+                    # Look for "SCORE: X" pattern
+                    score_match = re.search(r'SCORE:\s*(\d+)', llm_response, re.IGNORECASE)
+                    reason_match = re.search(r'REASON:\s*(.+)', llm_response, re.IGNORECASE)
+                    
+                    score = int(score_match.group(1)) if score_match else 0
+                    reason = reason_match.group(1).strip() if reason_match else llm_response
+                    
+                    # Clamp score to valid range
+                    score = max(0, min(10, score))
+                    
+                    return score, reason
+                
+                except (ValueError, AttributeError):
+                    # Fallback: try to extract number from response
+                    numbers = re.findall(r'\d+', llm_response)
+                    score = int(numbers[0]) if numbers else 0
+                    return max(0, min(10, score)), llm_response[:100]
+            
+            else:
+                logger.warning(f"OpenAI API error {response.status_code}: {response.text}")
+                # Fall through to heuristics
+        
+        # Fallback: Use heuristic-based scoring if OpenAI unavailable
+        score = 0
+        content_lower = (title + ' ' + content).lower()
+        
+        # Tier 1: Ultra-rare gems (3 points each)
+        ultra_rare = ['vtable', 'thunk', 'abi', 'bootstrap', 'relocatable', 'elf', 
+                     'instruction pipeline', 'branch prediction', 'context switch', 'sfinae']
+        if any(word in content_lower for word in ultra_rare):
+            score += 3
+            
+        # Tier 2: Deep system knowledge (2 points each)  
+        deep_system = ['assembly', 'linker', 'kernel', 'system call', 'undefined behavior',
+                      'race condition', 'dynamic dispatch', 'symbol resolution', 'lazy binding',
+                      'virtual memory', 'paging', 'interrupt', 'privilege level']
+        if any(word in content_lower for word in deep_system):
+            score += 2
+            
+        # Tier 3: Implementation details (1 point each)
+        implementation = ['implementation', 'internal', 'mechanism', 'optimization', 
+                         'compiler', 'runtime', 'gotcha', 'subtle', 'profiling', 'debugging']
+        if any(word in content_lower for word in implementation):
+            score += 1
+            
+        # Bonus for code examples
+        if content.count('```') > 0 or 'example' in content_lower:
+            score += 1
+            
+        # Simple reason generation for heuristic fallback
+        reasons = []
+        if 'vtable' in content_lower:
+            reasons.append("reveals virtual function table internals")
+        elif 'assembly' in content_lower:
+            reasons.append("shows low-level assembly details")
+        elif 'undefined behavior' in content_lower:
+            reasons.append("explains dangerous undefined behavior")
+        elif 'optimization' in content_lower:
+            reasons.append("reveals compiler optimization secrets")
+        elif 'implementation' in content_lower:
+            reasons.append("exposes internal implementation details")
+        else:
+            reasons.append("contains advanced system-level concepts")
+            
+        reason = f"[Heuristic] This concept {reasons[0]} that most developers rarely encounter"
+        
+        return min(score, 10), reason
+        
+    except Exception as e:
+        logger.warning(f"Evaluation failed: {e}")
+        return 0, "Evaluation failed"
+
 
 def _expand_search_terms(query: str) -> list:
     """Expand search query with acronyms, synonyms, and related terms."""
@@ -852,7 +1066,7 @@ def _expand_search_terms(query: str) -> list:
         'array': ['array', 'std::array', 'fixed size array'],
         'list': ['list', 'std::list', 'doubly linked list'],
         'forward_list': ['forward_list', 'std::forward_list', 'singly linked list'],
-        'deque': ['deque', 'std::deque', 'double ended queue'],
+        'deque': ['deque', 'std::deque', 'double ended queue', 'doubly ended queue', 'block vector'],
         'queue': ['queue', 'std::queue', 'fifo queue'],
         'stack': ['stack', 'std::stack', 'lifo stack'],
         'priority_queue': ['priority_queue', 'std::priority_queue', 'heap'],
@@ -863,9 +1077,15 @@ def _expand_search_terms(query: str) -> list:
         'multimap': ['multimap', 'std::multimap', 'ordered multimap'],
         'unordered_map': ['unordered_map', 'std::unordered_map', 'hash map'],
         'unordered_multimap': ['unordered_multimap', 'std::unordered_multimap', 'hash multimap'],
+        'bitset': ['bitset', 'std::bitset', 'bit array', 'bit vector'],
 
         # Algorithms
-        'algorithm': ['algorithm', 'std algorithm', 'algorithms'],
+        'algorithm': [
+            'algorithm', 'std algorithm', 'algorithms', 'sort', 'find', 'binary_search',
+            'lower_bound', 'upper_bound', 'equal_range', 'transform', 'for_each',
+            'accumulate', 'copy', 'move_algo', 'remove_if', 'count_if', 'copy_if',
+            'any_of', 'all_of', 'none_of', 'fill', 'generate', 'replace', 'reverse'
+        ],
         'sort': ['sort', 'std::sort', 'sorting'],
         'find': ['find', 'std::find', 'linear search'],
         'binary_search': ['binary_search', 'std::binary_search'],
@@ -877,6 +1097,17 @@ def _expand_search_terms(query: str) -> list:
         'accumulate': ['accumulate', 'std::accumulate', 'reduce'],
         'copy': ['copy', 'std::copy', 'copying'],
         'move_algo': ['move', 'std::move algorithm', 'move algorithm'],
+        'remove_if': ['remove_if', 'std::remove_if', 'erase-remove idiom'],
+        'remove_copy_if': ['remove_copy_if', 'std::remove_copy_if'],
+        'count_if': ['count_if', 'std::count_if', 'counting elements'],
+        'copy_if': ['copy_if', 'std::copy_if', 'conditional copy'],
+        'any_of': ['any_of', 'std::any_of', 'any exist'],
+        'all_of': ['all_of', 'std::all_of', 'all exist'],
+        'none_of': ['none_of', 'std::none_of', 'none exist'],
+        'fill': ['fill', 'std::fill', 'fill range'],
+        'generate': ['generate', 'std::generate', 'generate range'],
+        'replace': ['replace', 'std::replace', 'replace elements'],
+        'reverse': ['reverse', 'std::reverse', 'reverse range'],
 
         # C++20 Features
         'span': ['span', 'std::span', 'view'],
@@ -1003,27 +1234,33 @@ def _expand_search_terms(query: str) -> list:
         # Common synonyms and related terms
         'dynamic linking': ['dynamic linking', 'runtime linking', 'shared libraries'],
         'static linking': ['static linking', 'static libraries'],
-        'memory management': ['memory management', 'allocation', 'deallocation', 'malloc', 'free'],
-        'pointers': ['pointers', 'pointer arithmetic', 'references'],
-        'function pointers': ['function pointers', 'callbacks', 'function callbacks'],
+        'memory management': ['memory management', 'allocation', 'deallocation', 'malloc', 'free', 'new', 'delete'],
+        'pointers': ['pointers', 'pointer arithmetic', 'references', 'smart pointers'],
+        'function pointers': ['function pointers', 'callbacks', 'function callbacks', 'functors'],
         'system calls': ['system calls', 'syscalls', 'kernel interface'],
         'process control': ['process control', 'fork', 'exec', 'process management'],
         'file operations': ['file operations', 'file io', 'file handling'],
-        'error handling': ['error handling', 'exception handling', 'error management'],
-        'compilation': ['compilation', 'linking', 'build process'],
-        'optimization': ['optimization', 'performance', 'efficiency'],
+        'error handling': ['error handling', 'exception handling', 'error management', 'exception'],
+        'compilation': ['compilation', 'linking', 'build process', 'preprocessor'],
+        'optimization': ['optimization', 'performance', 'efficiency', 'complexity'],
         'debugging': ['debugging', 'gdb', 'debugging tools'],
-        'concurrency': ['concurrency', 'threading', 'parallel programming'],
-        'synchronization': ['synchronization', 'mutex', 'semaphore', 'locks'],
-        'virtual memory': ['virtual memory', 'paging', 'memory mapping'],
+        'concurrency': ['concurrency', 'threading', 'parallel programming', 'multiple cores'],
+        'synchronization': ['synchronization', 'mutex', 'semaphore', 'locks', 'conditional variable', 'system 5 semaphores', 'race conditions', 'deadlock', 'barrier', 'atomic'],
+        'virtual memory': ['virtual memory', 'paging', 'memory mapping', 'page table', 'address translation', 'address space', 'mmap', 'TLB', 'MMU', 'page fault'],
         'cache': ['cache', 'caching', 'cpu cache'],
         'assembly': ['assembly', 'assembler', 'machine code'],
         'templates': ['templates', 'generic programming', 'metaprogramming'],
         'inheritance': ['inheritance', 'polymorphism', 'virtual functions'],
-        'containers': ['containers', 'data structures', 'vector', 'list', 'map'],
+        'containers': [
+            'containers', 'data structures', 'collection', 'STL',
+            'vector', 'list', 'deque', 'array', 'forward_list',
+            'map', 'set', 'multimap', 'multiset',
+            'unordered_map', 'unordered_set', 'unordered_multimap', 'unordered_multiset', 'bitset',
+            'stack', 'queue', 'priority_queue', 'iterator'
+        ],
         'algorithms': ['algorithms', 'sorting', 'searching', 'complexity'],
         'networking': ['networking', 'sockets', 'tcp', 'udp'],
-        'security': ['security', 'buffer overflow', 'vulnerability'],
+        'security': ['security', 'vulnerability'],
     }
 
     query_lower = query.lower().strip()
@@ -1062,21 +1299,33 @@ async def search_concepts(query: str, limit: int = 10) -> str:
         query: Search query (use '*' to list all concepts)
         limit: Maximum number of results to return (default: 10)
     """
-    query_lower = query.lower()
-
-    if query == "*":
+    # Validate and preprocess the query
+    processed_query, query_type = _validate_and_preprocess_query(query)
+    search_terms = []  # Initialize for all code paths
+    
+    if query_type == "EMPTY":
+        # Return most fundamental/popular concepts
+        fundamental_concepts = [c for c in concepts if any(kw in c['title'].lower() 
+                               for kw in ['pointer', 'function', 'variable', 'memory', 'array', 'malloc', 'free'])]
+        matching_concepts = sorted(fundamental_concepts, key=lambda x: BOOK_AUTHORITY.get(x['book'], 1.0), reverse=True)[:limit]
+    elif query_type == "INVALID":
+        return "No concepts found - please use alphanumeric search terms"
+    elif query_type == "NUMERIC":
+        # Search for concepts that actually contain numbers in examples/code
+        matching_concepts = [c for c in concepts if query in c.get('syntax', '') or query in c.get('content', '')][:limit]
+    elif query_type == "WILDCARD":
         # Return all concepts
         matching_concepts = concepts[:limit]
     else:
-        # Expand search terms with acronyms and synonyms
-        search_terms = _expand_search_terms(query)
+        # Normal search with enhanced relevance
+        search_terms = _expand_search_terms(processed_query)
 
         # Search concepts with enhanced term matching
         matching_concepts = []
         concept_scores = {}  # Track relevance scores
 
         for concept in concepts:
-            relevance_score = 0
+            base_score = 0
             concept_text_fields = [
                 concept['title'].lower(),
                 concept['description'].lower(),
@@ -1088,25 +1337,27 @@ async def search_concepts(query: str, limit: int = 10) -> str:
             if concept.get('category'):
                 concept_text_fields.append(concept['category'].lower())
 
-            # Calculate relevance score based on term matches
+            # Calculate base relevance score based on term matches
             for term in search_terms:
                 for i, field in enumerate(concept_text_fields):
                     if term in field:
-                        # Weight: title=3, description=2, content=1, book=0.5, category=2
-                        weights = [3, 2, 1, 0.5, 2]
+                        # Weight: title=3, description=2.5, content=2, book=1.5, category=2
+                        weights = [3, 2.5, 2, 1.5, 2]
                         weight = weights[i] if i < len(weights) else 1
-                        relevance_score += weight
+                        base_score += weight
 
                         # Bonus for exact title match
                         if i == 0 and field == term:
-                            relevance_score += 2
+                            base_score += 2
 
-            if relevance_score > 0:
-                concept_scores[id(concept)] = relevance_score
+            # Apply enhanced relevance calculation
+            if base_score > 0:
+                enhanced_score = _calculate_enhanced_relevance(concept, search_terms, base_score)
+                concept_scores[concept['id']] = enhanced_score
                 matching_concepts.append(concept)
 
-        # Sort by relevance score (highest first)
-        matching_concepts.sort(key=lambda c: concept_scores.get(id(c), 0), reverse=True)
+        # Sort by enhanced relevance score (highest first)
+        matching_concepts.sort(key=lambda c: concept_scores.get(c['id'], 0), reverse=True)
         matching_concepts = matching_concepts[:limit]
 
     if not matching_concepts:
@@ -1187,35 +1438,55 @@ async def search_by_book(book_name: str, query: str = "") -> str:
 
 
 @mcp.tool()
-async def search_by_category(category: str, limit: int = 10) -> str:
+async def search_by_category(category: str, book_name: str = None, limit: int = 10) -> str:
     """Search concepts by category using the new naming scheme.
 
     Args:
         category: Category to search for (e.g., 'func', 'mem', 'ptr', 'op', 'io', 'ctrl')
+        book_name: Optional book name to filter by (e.g., 'cpp_primer', 'csapp_2016')
         limit: Maximum number of results to return (default: 10)
     """
-    # Filter concepts by category
+    # Filter concepts by category and optionally by book
     matching_concepts = []
-    for concept in concepts:
+    search_pool = concepts
+    
+    # If book_name is specified, try fuzzy matching first
+    matched_book = None
+    if book_name:
+        matched_book = _fuzzy_match_book_name(book_name)
+        if not matched_book:
+            available_books = sorted(set(c['book'] for c in concepts))
+            available_titles = [f"'{book}' ({books_metadata.get(book, book)})" for book in available_books]
+            return f"Could not find book matching '{book_name}'. Try one of:\n" + "\n".join([f"  • {title}" for title in available_titles[:8]]) + f"\n{'  • ...' if len(available_titles) > 8 else ''}"
+        
+        search_pool = [c for c in concepts if c['book'] == matched_book]
+        if not search_pool:
+            return f"No concepts found in book '{books_metadata.get(matched_book, matched_book)}'"
+    
+    for concept in search_pool:
         if concept.get('category') and concept['category'].lower() == category.lower():
             matching_concepts.append(concept)
             if len(matching_concepts) >= limit:
                 break
 
     if not matching_concepts:
-        # Show available categories
+        # Show available categories from the search pool
         available_categories = set()
-        for concept in concepts:
+        for concept in search_pool:
             if concept.get('category'):
                 available_categories.add(concept['category'])
 
+        actual_book = matched_book or book_name
+        book_context = f" in book '{books_metadata.get(actual_book, actual_book)}'" if actual_book else ""
         if available_categories:
-            return f"No concepts found for category '{category}'. Available categories: {', '.join(sorted(available_categories))}"
+            return f"No concepts found for category '{category}'{book_context}. Available categories{book_context}: {', '.join(sorted(available_categories))}"
         else:
-            return f"No concepts found for category '{category}'. No categories are currently indexed."
+            return f"No concepts found for category '{category}'{book_context}. No categories are currently indexed{book_context}."
 
-    # Format results
-    result_text = f"Found {len(matching_concepts)} concepts in category **{category}**:\n\n"
+    # Format results  
+    actual_book = matched_book or book_name
+    book_context = f" from **{books_metadata.get(actual_book, actual_book)}**" if actual_book else ""
+    result_text = f"Found {len(matching_concepts)} concepts in category **{category}**{book_context}:\n\n"
 
     for i, concept in enumerate(matching_concepts, 1):
         concept_uri_id = concept_to_clean_uri_id(concept)
@@ -1230,140 +1501,6 @@ async def search_by_category(category: str, limit: int = 10) -> str:
     return result_text
 
 
-@mcp.tool()
-async def find_advanced_concepts(topic: str, threshold: int = 2) -> str:
-    """Finds advanced concepts related to a specific topic.
-
-    Args:
-        topic: The general programming topic to search for (e.g., 'memory', 'linking').
-        threshold: A score (default: 2) a concept must meet to be considered "advanced".
-    """
-    # Define heuristics for what makes a concept "advanced"
-    ADVANCED_KEYWORDS = [
-        'advanced', 'internals', 'optimization', 'low-level', 'kernel', 'complex',
-        'performance', 'architecture', 'concurrent', 'asynchronous', 'memory layout',
-        'virtual memory', 'system call', 'linking', 'loading', 'multithreading',
-        'synchronization', 'parallelism', 'cache coherence', 'memory alignment',
-        'interrupts', 'scheduling', 'file systems', 'network stack', 'garbage collection',
-        'instruction pipelining', 'branch prediction', 'memory paging', 'context switching',
-        'atomic operations', 'lock-free programming', 'syscalls',
-        'dynamic linking', 'static analysis',
-        'memory fences', 'thread affinity', 'heap management', 'GOT', 'TLB',
-        'page table', 'segment'
-    ]
-    BOOK_WEIGHTS = {
-        "linkers_loaders": 3,
-        "expert_c_programming": 3,
-        "csapp_2016": 3,
-        "unix_env": 2,
-        "os_three_pieces": 2,
-        "kernighan_ritchie": 0
-    }
-
-    # Search for concepts matching the topic and calculate their "advanced score"
-    advanced_matches = []
-    topic_lower = topic.lower()
-
-    for concept in concepts:
-        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
-
-        # First, ensure the concept is relevant to the topic at all
-        if topic_lower not in concept_text:
-            continue
-
-        # Calculate the advanced score
-        advanced_score = 0
-        # Add points for being from an advanced book
-        advanced_score += BOOK_WEIGHTS.get(concept['book'], 0)
-        # Add points for each advanced keyword found
-        for keyword in ADVANCED_KEYWORDS:
-            if keyword in concept_text:
-                advanced_score += 1
-
-        # Only include concepts that meet our threshold
-        if advanced_score >= threshold:
-            advanced_matches.append({'concept': concept, 'score': advanced_score})
-
-    if not advanced_matches:
-        return f"No advanced concepts found for topic '{topic}' with threshold {threshold}. Try a lower threshold or broader topic."
-
-    # Sort results to show the "most advanced" first
-    advanced_matches.sort(key=lambda x: x['score'], reverse=True)
-
-    result_text = f"Found {len(advanced_matches)} advanced concepts for '{topic}' (Threshold: {threshold}):\n\n"
-    for i, match in enumerate(advanced_matches, 1):
-        concept = match['concept']
-        concept_uri_id = concept_to_clean_uri_id(concept)
-        concept_path = f"{concept['book']}/{concept_uri_id}"
-
-        result_text += f"{i}. **{concept['title']}** (From: {concept['book_title']})\n"
-        result_text += f"   *Advanced Score: {match['score']}*\n"
-        result_text += f"   {concept['description'][:100]}{'...' if len(concept['description']) > 100 else ''}\n"
-        result_text += f"   ID: `{concept['id']}`\n"
-        result_text += f"   Path: `{concept_path}`\n\n"
-
-    return result_text
-
-
-@mcp.tool()
-async def find_code_examples(pattern: str = "") -> str:
-    """Find all concepts that contain actual code examples.
-
-    Args:
-        pattern: Optional pattern to search within code examples (e.g. 'malloc', 'file', 'fork')
-    """
-    code_concepts = []
-    pattern_lower = pattern.lower() if pattern else ""
-
-    for concept in concepts:
-        # Check if concept has code/syntax
-        has_code = (concept['syntax'] and concept['syntax'].strip()) or \
-                   (concept['raw_data'].get('code') and concept['raw_data']['code'].strip()) or \
-                   (concept['raw_data'].get('example') and concept['raw_data']['example'].strip())
-
-        if has_code:
-            # If pattern specified, check if it matches
-            if pattern:
-                code_text = (concept['syntax'] + " " +
-                             str(concept['raw_data'].get('code', '')) + " " +
-                             str(concept['raw_data'].get('example', ''))).lower()
-                if pattern_lower in code_text:
-                    code_concepts.append(concept)
-            else:
-                code_concepts.append(concept)
-
-    if not code_concepts:
-        if pattern:
-            return f"No code examples found matching pattern: '{pattern}'"
-        else:
-            return "No code examples found in the knowledge base"
-
-    # Format results
-    result_text = f"Found {len(code_concepts)} concepts with code examples"
-    if pattern:
-        result_text += f" matching '{pattern}'"
-    result_text += ":\n\n"
-
-    for i, concept in enumerate(code_concepts, 1):
-        concept_uri_id = concept_to_clean_uri_id(concept)
-        uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-        result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-
-        # Show code preview
-        code_sample = concept['syntax'] or concept['raw_data'].get('code', '') or concept['raw_data'].get('example', '')
-        if code_sample:
-            # Show first few lines of code
-            code_lines = code_sample.strip().split('\n')[:3]
-            preview = '\n'.join(code_lines)
-            if len(code_sample.split('\n')) > 3:
-                preview += "\n   ..."
-            result_text += f"   ```c\n   {preview}\n   ```\n"
-
-        result_text += f"   ID: `{concept['id']}`\n"
-        result_text += f"   URI: `{uri}`\n\n"
-
-    return result_text
 
 
 # ===============================
@@ -1449,91 +1586,6 @@ async def compare_concepts(concept1_id: str, concept2_id: str) -> str:
 
 
 @mcp.tool()
-async def explain_my_code(code_snippet: str, language: str = "C") -> str:
-    """Analyze code using concepts from your knowledge base.
-
-    Args:
-        code_snippet: The code to analyze
-        language: Programming language (default: C)
-    """
-    code_lower = code_snippet.lower()
-
-    # Extract keywords/patterns from code
-    code_keywords = []
-
-    # Common C patterns to look for
-    c_patterns = {
-        'malloc': ['malloc', 'memory allocation', 'heap'],
-        'free': ['free', 'memory deallocation'],
-        'pointer': ['*', 'pointer', 'address'],
-        'array': ['[', ']', 'array', 'index'],
-        'function': ['(', ')', 'function', 'call'],
-        'struct': ['struct', 'structure'],
-        'file': ['fopen', 'fclose', 'fread', 'fwrite', 'file'],
-        'process': ['fork', 'exec', 'wait', 'process'],
-        'signal': ['signal', 'kill', 'sigaction'],
-        'thread': ['pthread', 'thread', 'mutex'],
-        'string': ['strcpy', 'strlen', 'strcmp', 'string'],
-        'stdio': ['printf', 'scanf', 'fprintf', 'input', 'output']
-    }
-
-    # Identify relevant concepts based on code content
-    for keyword, patterns in c_patterns.items():
-        if any(pattern in code_lower for pattern in patterns):
-            code_keywords.append(keyword)
-
-    # Find concepts that match the identified keywords
-    relevant_concepts = []
-    for concept in concepts:
-        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
-        relevance_score = sum(1 for keyword in code_keywords if keyword in concept_text)
-
-        # Also check if concept has similar code patterns
-        if concept['syntax']:
-            syntax_lower = concept['syntax'].lower()
-            code_similarity = sum(1 for line in code_snippet.split('\n')
-                                  if any(word in syntax_lower for word in line.split() if len(word) > 2))
-            relevance_score += code_similarity * 0.5
-
-        if relevance_score > 0:
-            relevant_concepts.append((concept, relevance_score))
-
-    if not relevant_concepts:
-        return f"No relevant concepts found for this {language} code. The code might use patterns not covered in the knowledge base."
-
-    # Sort by relevance
-    relevant_concepts.sort(key=lambda x: x[1], reverse=True)
-
-    # Format analysis
-    result_text = f"# Code Analysis: {language}\n\n"
-    result_text += f"## Your Code\n```{language.lower()}\n{code_snippet}\n```\n\n"
-
-    result_text += f"## Analysis Using Knowledge Base\n\n"
-    result_text += f"Identified {len(code_keywords)} key patterns: {', '.join(code_keywords)}\n\n"
-
-    # Show most relevant concepts
-    top_concepts = relevant_concepts[:5]
-    result_text += f"### 🔍 Relevant Concepts ({len(top_concepts)} found)\n\n"
-
-    for i, (concept, score) in enumerate(top_concepts, 1):
-        concept_uri_id = concept_to_clean_uri_id(concept)
-        uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-        result_text += f"**{i}. {concept['title']}** ({concept['book_title']})\n"
-        result_text += f"   {concept['description'][:150] if concept['description'] else 'No description'}{'...' if len(concept.get('description', '')) > 150 else ''}\n"
-
-        # Show relevant code if available
-        if concept['syntax'] and any(keyword in concept['syntax'].lower() for keyword in code_keywords):
-            code_preview = concept['syntax'].strip().split('\n')[:2]
-            result_text += f"   ```c\n   {chr(10).join(code_preview)}\n   ```\n"
-
-        result_text += f"   ID: `{concept['id']}` | Relevance: {score:.1f}\n"
-        result_text += f"   URI: `{uri}`\n\n"
-
-    return result_text
-
-
-@mcp.tool()
 async def get_concept_details(concept_id: str) -> str:
     """Get detailed information about a specific concept.
 
@@ -1609,319 +1661,6 @@ async def debug_concept_ids(search_term: str = "") -> str:
 # ===============================
 
 @mcp.tool()
-async def generate_study_path(goal: str) -> str:
-    """Create ordered learning sequence for a programming goal.
-
-    Args:
-        goal: Learning goal (e.g. 'system programming', 'memory management', 'file I/O', 'C basics')
-    """
-    goal_lower = goal.lower()
-
-    # Define study paths based on common goals
-    study_paths = {
-        'c basics': ['basic', 'variable', 'function', 'array', 'pointer', 'string'],
-        'memory management': ['pointer', 'malloc', 'free', 'memory', 'heap', 'stack'],
-        'file io': ['file', 'open', 'read', 'write', 'close', 'stream'],
-        'system programming': ['process', 'fork', 'exec', 'signal', 'pipe', 'thread'],
-        'unix programming': ['unix', 'system call', 'process', 'signal', 'file descriptor'],
-        'debugging': ['debug', 'error', 'gdb', 'valgrind', 'trace'],
-        'compilation': ['compile', 'link', 'library', 'object', 'makefile'],
-        'data structures': ['struct', 'array', 'list', 'tree', 'hash']
-    }
-
-    # Find matching keywords for the goal
-    relevant_keywords = []
-    for path_name, keywords in study_paths.items():
-        if any(keyword in goal_lower for keyword in path_name.split()):
-            relevant_keywords.extend(keywords)
-            break
-
-    # If no specific path found, extract keywords from goal
-    if not relevant_keywords:
-        relevant_keywords = goal_lower.split()
-
-    # Find concepts matching the keywords
-    relevant_concepts = []
-    for concept in concepts:
-        concept_text = (concept['title'] + ' ' + concept['description'] + ' ' + concept['content']).lower()
-        relevance_score = sum(1 for keyword in relevant_keywords if keyword in concept_text)
-
-        if relevance_score > 0:
-            relevant_concepts.append((concept, relevance_score))
-
-    if not relevant_concepts:
-        return f"No concepts found for learning goal: '{goal}'"
-
-    # Sort by relevance and book authority
-    book_priority = {'kernighan_ritchie': 4, 'unix_env': 3, 'os_three_pieces': 2, 'linkers_loaders': 1, 'csapp_2016': 3,
-                     'cpp_knowledge': 5}
-    relevant_concepts.sort(key=lambda x: (x[1], book_priority.get(x[0]['book'], 0)), reverse=True)
-
-    # Create study path
-    result_text = f"# Study Path: {goal.title()}\n\n"
-    result_text += f"Found {len(relevant_concepts)} relevant concepts organized by learning progression:\n\n"
-
-    # Group by complexity/book
-    basic_concepts = []
-    intermediate_concepts = []
-    advanced_concepts = []
-
-    for concept, score in relevant_concepts:
-        concept_text = concept['title'].lower() + ' ' + concept['description'].lower()
-
-        # Simple heuristic for complexity
-        if any(word in concept_text for word in ['basic', 'introduction', 'overview', 'simple']):
-            basic_concepts.append(concept)
-        elif any(word in concept_text for word in ['advanced', 'complex', 'optimization', 'internals']):
-            advanced_concepts.append(concept)
-        else:
-            intermediate_concepts.append(concept)
-
-    # If no clear categorization, distribute evenly
-    if not basic_concepts and not advanced_concepts:
-        third = len(relevant_concepts) // 3
-        basic_concepts = [c[0] for c in relevant_concepts[:third]]
-        intermediate_concepts = [c[0] for c in relevant_concepts[third:2 * third]]
-        advanced_concepts = [c[0] for c in relevant_concepts[2 * third:]]
-
-    # Format study path
-    if basic_concepts:
-        result_text += f"## 📚 Foundation Level\n"
-        for i, concept in enumerate(basic_concepts[:5], 1):
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-            result_text += f"   {concept['description'][:100] if concept['description'] else 'Core concept'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n"
-            result_text += f"   URI: `{uri}`\n\n"
-
-    if intermediate_concepts:
-        result_text += f"## 🔧 Practical Level\n"
-        for i, concept in enumerate(intermediate_concepts[:5], 1):
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-            result_text += f"   {concept['description'][:100] if concept['description'] else 'Practical application'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n"
-            result_text += f"   URI: `{uri}`\n\n"
-
-    if advanced_concepts:
-        result_text += f"## 🚀 Advanced Level\n"
-        for i, concept in enumerate(advanced_concepts[:5], 1):
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-            result_text += f"{i}. **{concept['title']}** ({concept['book_title']})\n"
-            result_text += f"   {concept['description'][:100] if concept['description'] else 'Advanced topic'}{'...' if len(concept.get('description', '')) > 100 else ''}\n"
-            result_text += f"   ID: `{concept['id']}`\n"
-            result_text += f"   URI: `{uri}`\n\n"
-
-    result_text += f"## 💡 Study Tips\n"
-    result_text += f"- Start with Foundation Level concepts\n"
-    result_text += f"- Use `get_concept_details(id)` for full explanations\n"
-    result_text += f"- Use `find_code_examples('{goal}')` for practical examples\n"
-    result_text += f"- Compare concepts between different books for deeper understanding\n"
-
-    return result_text
-
-
-@mcp.tool()
-async def generate_reference_sheet(topic: str, format: str = "markdown") -> str:
-    """Generate a formatted reference sheet for a specific topic.
-
-    Args:
-        topic: The programming topic to create a reference for
-        format: Output format - 'markdown', 'text', or 'html'
-    """
-    global concepts
-
-    if not concepts:
-        return "No concepts available"
-
-    # Search for relevant concepts
-    topic_lower = topic.lower()
-    relevant_concepts = []
-
-    for concept in concepts:
-        if (topic_lower in concept['title'].lower() or
-                topic_lower in concept['description'].lower() or
-                topic_lower in concept['content'].lower()):
-            relevant_concepts.append(concept)
-
-    if not relevant_concepts:
-        return f"No concepts found for topic: {topic}"
-
-    # Group concepts by book
-    by_book = {}
-    for concept in relevant_concepts:
-        book = concept['book_title']
-        if book not in by_book:
-            by_book[book] = []
-        by_book[book].append(concept)
-
-    # Generate reference sheet based on format
-    if format.lower() == "markdown":
-        return _generate_markdown_reference(topic, by_book)
-    elif format.lower() == "html":
-        return _generate_html_reference(topic, by_book)
-    else:  # text format
-        return _generate_text_reference(topic, by_book)
-
-
-@mcp.tool()
-async def synthesize_concepts(topic: str, max_sources: int = 5) -> str:
-    """AI-powered synthesis: Combine concepts from multiple books into comprehensive explanation.
-
-    Args:
-        topic: The topic to synthesize (e.g., 'memory management', 'pointers', 'processes')
-        max_sources: Maximum number of source books to include (default: 5)
-    """
-    topic_lower = topic.lower()
-
-    # Find all related concepts across books
-    related_concepts = []
-    concept_scores = []
-
-    for concept in concepts:
-        # Calculate relevance score using multiple factors
-        title_score = 2.0 if topic_lower in concept['title'].lower() else 0.0
-        desc_score = 1.5 if topic_lower in concept['description'].lower() else 0.0
-        content_score = 1.0 if topic_lower in concept['content'].lower() else 0.0
-
-        # Boost score for certain books based on topic
-        book_boost = {
-            'memory': {'kernighan_ritchie': 1.5, 'os_three_pieces': 2.0, 'expert_c_programming': 1.8,
-                       'csapp_2016': 2.2},
-            'process': {'unix_env': 2.0, 'os_three_pieces': 1.8, 'csapp_2016': 1.8},
-            'link': {'linkers_loaders': 2.5, 'csapp_2016': 1.5},
-            'pointer': {'kernighan_ritchie': 2.0, 'expert_c_programming': 2.2},
-            'cache': {'csapp_2016': 2.5, 'os_three_pieces': 1.5},
-            'assembly': {'csapp_2016': 2.5},
-            'system': {'unix_env': 2.0, 'csapp_2016': 2.2, 'os_three_pieces': 1.8}
-        }
-
-        boost = 1.0
-        for keyword, boosts in book_boost.items():
-            if keyword in topic_lower:
-                boost = boosts.get(concept['book'], 1.0)
-                break
-
-        total_score = (title_score + desc_score + content_score) * boost
-
-        if total_score > 0:
-            related_concepts.append(concept)
-            concept_scores.append(total_score)
-
-    if not related_concepts:
-        return f"No concepts found for synthesis on topic: '{topic}'"
-
-    # Sort by score and group by book
-    sorted_pairs = sorted(zip(related_concepts, concept_scores), key=lambda x: x[1], reverse=True)
-    concepts_by_book = {}
-
-    for concept, score in sorted_pairs[:15]:  # Top 15 concepts
-        book = concept['book']
-        if book not in concepts_by_book:
-            concepts_by_book[book] = []
-        concepts_by_book[book].append((concept, score))
-
-    # Limit books to max_sources
-    if len(concepts_by_book) > max_sources:
-        # Keep books with highest total scores
-        book_scores = {book: sum(score for _, score in concepts)
-                       for book, concepts in concepts_by_book.items()}
-        top_books = sorted(book_scores.items(), key=lambda x: x[1], reverse=True)[:max_sources]
-        concepts_by_book = {book: concepts_by_book[book] for book, _ in top_books}
-
-    # Generate synthesized content
-    result = f"# 🧬 Synthesized Knowledge: {topic.title()}\n\n"
-    result += f"*AI-powered synthesis combining insights from {len(concepts_by_book)} authoritative sources*\n\n"
-
-    # Executive Summary
-    result += "## 📋 Executive Summary\n\n"
-    result += f"This synthesis combines {sum(len(c) for c in concepts_by_book.values())} concepts from:\n"
-    for book in concepts_by_book:
-        result += f"- **{books_metadata[book]}**\n"
-    result += "\n"
-
-    # Core Concepts Section
-    result += f"## 🎯 Core Understanding of {topic.title()}\n\n"
-
-    # Synthesize main explanation
-    all_descriptions = []
-    for book_concepts in concepts_by_book.values():
-        for concept, _ in book_concepts[:3]:  # Top 3 from each book
-            if concept['description']:
-                all_descriptions.append(concept['description'])
-
-    if all_descriptions:
-        # Create unified explanation
-        result += "### Unified Explanation\n\n"
-        # Combine unique insights
-        seen_points = set()
-        for desc in all_descriptions:
-            sentences = desc.split('. ')
-            for sentence in sentences:
-                normalized = sentence.lower().strip()
-                if normalized and normalized not in seen_points and len(normalized) > 20:
-                    seen_points.add(normalized)
-                    result += f"- {sentence.strip()}.\n"
-        result += "\n"
-
-    # Technical Details by Perspective
-    result += "## 🔍 Multi-Perspective Analysis\n\n"
-
-    for book, book_concepts in concepts_by_book.items():
-        book_name = books_metadata[book].split('(')[0].strip()
-        result += f"### {book_name} Perspective\n\n"
-
-        # Combine insights from this book
-        for concept, score in book_concepts[:2]:  # Top 2 concepts
-            if concept['content']:
-                concept_uri_id = concept_to_clean_uri_id(concept)
-                uri = f"concept://{concept['book']}/{concept_uri_id}"
-                result += f"**{concept['title']}**: {concept['content'][:200]}...\n"
-                result += f"[Read full concept]({uri})\n\n"
-
-    # Code Examples Section
-    result += "## 💻 Unified Code Examples\n\n"
-
-    code_examples = []
-    for book, book_concepts in concepts_by_book.items():
-        for concept, _ in book_concepts:
-            if concept['syntax']:
-                code_examples.append({
-                    'code': concept['syntax'],
-                    'source': books_metadata[book],
-                    'title': concept['title'],
-                    'concept': concept
-                })
-
-    if code_examples:
-        result += "### Comprehensive Example\n\n```c\n"
-        result += "/* Synthesized from multiple sources */\n\n"
-
-        # Intelligently combine code examples
-        seen_patterns = set()
-        for example in code_examples[:3]:  # Top 3 examples
-            code_lines = example['code'].split('\n')
-            result += f"/* From {example['source'].split('(')[0].strip()} */\n"
-            for line in code_lines:
-                normalized = line.strip().lower()
-                if normalized and normalized not in seen_patterns:
-                    seen_patterns.add(normalized)
-                    result += f"{line}\n"
-            result += "\n"
-        result += "```\n\n"
-
-    result += f"\n---\n*Synthesis generated from {len(concepts_by_book)} books with {sum(len(c) for c in concepts_by_book.values())} relevant concepts*"
-
-    return result
-
-
-@mcp.tool()
 async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate") -> str:
     """
     ENHANCED: Generate comprehensive custom tutorial addressing review feedback:
@@ -1989,106 +1728,139 @@ async def generate_custom_tutorial(topic: str, skill_level: str = "intermediate"
         source_mapping[book].append(concept['title'])
 
     # Generate enhanced tutorial structure
-    result = f"# 📚 Enhanced Tutorial: {topic.title()}\n\n"
-    result += f"**Skill Level**: {skill_level.title()}\n"
-    result += f"**Estimated Duration**: {estimated_duration} minutes\n"
-    result += f"**Concepts Covered**: {len(selected_concepts)} lessons\n\n"
+    result_parts = [
+        f"# 📚 Enhanced Tutorial: {topic.title()}\n\n",
+        f"**Skill Level**: {skill_level.title()}\n",
+        f"**Estimated Duration**: {estimated_duration} minutes\n",
+        f"**Concepts Covered**: {len(selected_concepts)} lessons\n\n",
+        "## 📖 Sources\n\n"
+    ]
 
     # ENHANCEMENT 2: Explicit source attribution
-    result += "## 📖 Sources\n\n"
     for book, concepts_list in source_mapping.items():
-        result += f"- **{book}**: {', '.join(concepts_list[:3])}"
+        result_parts.append(f"- **{book}**: {', '.join(concepts_list[:3])}")
         if len(concepts_list) > 3:
-            result += f" (and {len(concepts_list) - 3} more)"
-        result += "\n"
-    result += "\n"
+            result_parts.append(f" (and {len(concepts_list) - 3} more)")
+        result_parts.append("\n")
+    result_parts.append("\n")
 
     # ENHANCEMENT 3: Clear, comprehensive learning objectives
-    result += "## 🎯 Learning Objectives\n\n"
-    result += "By the end of this tutorial, you will:\n"
+    result_parts.extend([
+        "## 🎯 Learning Objectives\n\n",
+        "By the end of this tutorial, you will:\n"
+    ])
 
     if skill_level_lower == 'beginner':
-        result += f"- Understand the fundamental concepts of {topic}\n"
-        result += f"- Recognize common patterns and basic syntax\n"
-        result += f"- Write simple, working code examples\n"
-        result += f"- Identify when to use {topic} in your programs\n"
+        result_parts.extend([
+            f"- Understand the fundamental concepts of {topic}\n",
+            f"- Recognize common patterns and basic syntax\n",
+            f"- Write simple, working code examples\n",
+            f"- Identify when to use {topic} in your programs\n"
+        ])
     elif skill_level_lower == 'intermediate':
-        result += f"- Master practical applications of {topic}\n"
-        result += f"- Understand system-level implications and performance considerations\n"
-        result += f"- Implement robust solutions with proper error handling\n"
-        result += f"- Debug common issues and optimize implementations\n"
+        result_parts.extend([
+            f"- Master practical applications of {topic}\n",
+            f"- Understand system-level implications and performance considerations\n",
+            f"- Implement robust solutions with proper error handling\n",
+            f"- Debug common issues and optimize implementations\n"
+        ])
     else:  # advanced
-        result += f"- Master advanced techniques and optimization strategies for {topic}\n"
-        result += f"- Understand deep system-level behavior and edge cases\n"
-        result += f"- Implement high-performance, production-ready solutions\n"
-        result += f"- Recognize and avoid subtle pitfalls and anti-patterns\n"
+        result_parts.extend([
+            f"- Master advanced techniques and optimization strategies for {topic}\n",
+            f"- Understand deep system-level behavior and edge cases\n",
+            f"- Implement high-performance, production-ready solutions\n",
+            f"- Recognize and avoid subtle pitfalls and anti-patterns\n"
+        ])
 
-    result += "\n## 📖 Tutorial Content\n\n"
+    result_parts.append("\n## 📖 Tutorial Content\n\n")
 
     # ENHANCEMENT 4: Progressive lessons with complete explanations
     for i, concept in enumerate(selected_concepts, 1):
         concept_uri_id = concept_to_clean_uri_id(concept)
         uri = f"concept://{concept['book']}/{concept_uri_id}"
 
-        result += f"### Lesson {i}: {concept['title']}\n\n"
-        result += f"*Source: {concept['book_title']}*\n\n"
+        result_parts.extend([
+            f"### Lesson {i}: {concept['title']}\n\n",
+            f"*Source: {concept['book_title']}*\n\n"
+        ])
 
         # ENHANCEMENT 5: Complete concept explanation (no truncation)
         if concept['description']:
-            result += f"**Concept**: {concept['description']}\n\n"
+            result_parts.append(f"**Concept**: {concept['description']}\n\n")
 
         # ENHANCEMENT 6: Full detailed explanation
         if concept['content']:
-            result += f"**Detailed Explanation**:\n\n{concept['content']}\n\n"
+            result_parts.append(f"**Detailed Explanation**:\n\n{concept['content']}\n\n")
         else:
-            result += f"**Detailed Explanation**: [See full concept for complete details]({uri})\n\n"
+            result_parts.append(f"**Detailed Explanation**: [See full concept for complete details]({uri})\n\n")
 
         # ENHANCEMENT 7: Enhanced code examples with context
         if concept['syntax']:
-            result += "**Code Example**:\n\n"
-            result += _generate_enhanced_code_example(concept, topic, skill_level_lower)
-            result += "\n"
+            result_parts.extend([
+                "**Code Example**:\n\n",
+                _generate_enhanced_code_example(concept, topic, skill_level_lower),
+                "\n"
+            ])
 
         # ENHANCEMENT 8: Specific, actionable practice tasks
-        result += "**Practice Exercise**:\n\n"
-        result += _generate_specific_practice_task(concept, topic, skill_level_lower, i)
-        result += "\n"
+        result_parts.extend([
+            "**Practice Exercise**:\n\n",
+            _generate_specific_practice_task(concept, topic, skill_level_lower, i),
+            "\n"
+        ])
 
         # ENHANCEMENT 9: Concrete tool demonstrations for advanced topics
         if skill_level_lower == 'advanced' and _has_system_level_content(concept):
-            result += "**System Analysis**:\n\n"
-            result += _generate_tool_demonstration(concept, topic)
-            result += "\n"
+            result_parts.extend([
+                "**System Analysis**:\n\n",
+                _generate_tool_demonstration(concept, topic),
+                "\n"
+            ])
 
-        result += f"**Full Reference**: [Complete concept details]({uri})\n\n"
-        result += "---\n\n"
+        result_parts.extend([
+            f"**Full Reference**: [Complete concept details]({uri})\n\n",
+            "---\n\n"
+        ])
 
     # ENHANCEMENT 10: Advanced summary and next steps
-    result += "## 🎓 Summary & Next Steps\n\n"
-    result += f"You've now covered {len(selected_concepts)} key concepts in {topic}. "
+    result_parts.extend([
+        "## 🎓 Summary & Next Steps\n\n",
+        f"You've now covered {len(selected_concepts)} key concepts in {topic}. "
+    ])
 
     if skill_level_lower == 'beginner':
-        result += "Practice these fundamentals before moving to intermediate topics.\n\n"
-        result += "**Recommended Next Topics**: "
-        result += ", ".join(_get_next_topics_beginner(topic))
+        result_parts.extend([
+            "Practice these fundamentals before moving to intermediate topics.\n\n",
+            "**Recommended Next Topics**: ",
+            ", ".join(_get_next_topics_beginner(topic))
+        ])
     elif skill_level_lower == 'intermediate':
-        result += "You're ready to tackle real-world applications and performance optimization.\n\n"
-        result += "**Recommended Advanced Topics**: "
-        result += ", ".join(_get_next_topics_intermediate(topic))
+        result_parts.extend([
+            "You're ready to tackle real-world applications and performance optimization.\n\n",
+            "**Recommended Advanced Topics**: ",
+            ", ".join(_get_next_topics_intermediate(topic))
+        ])
     else:
-        result += "You now have expert-level understanding. Consider contributing to open-source projects.\n\n"
-        result += "**Expert-Level Challenges**: "
-        result += ", ".join(_get_expert_challenges(topic))
+        result_parts.extend([
+            "You now have expert-level understanding. Consider contributing to open-source projects.\n\n",
+            "**Expert-Level Challenges**: ",
+            ", ".join(_get_expert_challenges(topic))
+        ])
 
-    result += "\n\n## 🔗 Cross-References\n\n"
-    result += "Related tutorials you might find useful:\n"
+    result_parts.extend([
+        "\n\n## 🔗 Cross-References\n\n",
+        "Related tutorials you might find useful:\n"
+    ])
+
     for book in source_books[:3]:
-        result += f"- Search `{book.split('(')[0].strip()}` for advanced {topic} topics\n"
+        result_parts.append(f"- Search `{book.split('(')[0].strip()}` for advanced {topic} topics\n")
 
-    result += f"\n---\n*Tutorial generated from {len(source_books)} authoritative sources, "
-    result += f"covering {len(selected_concepts)} progressive concepts*"
+    result_parts.extend([
+        f"\n---\n*Tutorial generated from {len(source_books)} authoritative sources, ",
+        f"covering {len(selected_concepts)} progressive concepts*"
+    ])
 
-    return result
+    return ''.join(result_parts)
 
 
 def _calculate_concept_complexity(concept: Dict) -> int:
@@ -2361,180 +2133,12 @@ def _get_expert_challenges(topic: str) -> List[str]:
     return ['Contribute to open-source projects', 'Write performance-critical libraries', 'Develop system tools']
 
 
-@mcp.tool()
-async def create_best_practices_guide(topic: str) -> str:
-    """Analyze patterns across all sources to generate best practices guide.
 
-    Args:
-        topic: The topic to analyze for best practices (e.g., 'error handling', 'memory management')
-    """
-    topic_lower = topic.lower()
-
-    # Collect all relevant concepts
-    relevant_concepts = []
-    for concept in concepts:
-        relevance_score = 0
-        if topic_lower in concept['title'].lower():
-            relevance_score += 3
-        if topic_lower in concept['description'].lower():
-            relevance_score += 2
-        if topic_lower in concept['content'].lower():
-            relevance_score += 1
-
-        if relevance_score > 0:
-            relevant_concepts.append((concept, relevance_score))
-
-    if not relevant_concepts:
-        return f"No concepts found to generate best practices for '{topic}'"
-
-    # Sort by relevance
-    relevant_concepts.sort(key=lambda x: x[1], reverse=True)
-
-    # Analyze patterns across books
-    patterns_by_book = {}
-    code_patterns = []
-    common_recommendations = []
-    pitfalls = []
-
-    for concept, _ in relevant_concepts[:20]:  # Top 20 concepts
-        book = concept['book']
-        if book not in patterns_by_book:
-            patterns_by_book[book] = []
-        patterns_by_book[book].append(concept)
-
-        # Extract patterns from content
-        content = (concept['content'] + ' ' + concept['description']).lower()
-
-        # Look for recommendations
-        if any(word in content for word in ['should', 'must', 'always', 'recommend']):
-            common_recommendations.append(concept)
-
-        # Look for pitfalls
-        if any(word in content for word in ['avoid', 'never', 'pitfall', 'error', 'mistake', 'wrong']):
-            pitfalls.append(concept)
-
-        # Collect code patterns
-        if concept['syntax']:
-            code_patterns.append({
-                'code': concept['syntax'],
-                'source': concept['book_title'],
-                'context': concept['title'],
-                'concept': concept
-            })
-
-    # Generate best practices guide
-    result = f"# 🏆 Best Practices Guide: {topic.title()}\n\n"
-    result += f"*Analyzing {len(relevant_concepts)} concepts from {len(patterns_by_book)} authoritative sources*\n\n"
-
-    return result
-
-
-# Helper functions for reference sheet generation
-def _generate_markdown_reference(topic: str, by_book: dict) -> str:
-    """Generate markdown formatted reference sheet."""
-    output = f"# {topic.title()} Reference Sheet\n\n"
-    output += f"*Generated from {sum(len(concepts) for concepts in by_book.values())} concepts across {len(by_book)} books*\n\n"
-
-    for book, concepts in by_book.items():
-        output += f"## {book}\n\n"
-
-        for concept in concepts:
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-            output += f"### {concept['title']}\n\n"
-
-            if concept['description']:
-                output += f"{concept['description']}\n\n"
-
-            if concept['syntax']:
-                output += f"```c\n{concept['syntax']}\n```\n\n"
-
-            if concept['content']:
-                output += f"**Details:** {concept['content'][:200]}{'...' if len(concept['content']) > 200 else ''}\n\n"
-
-            output += f"*Source: {book}* | [Full Details]({uri})\n\n---\n\n"
-
-    return output
-
-
-def _generate_html_reference(topic: str, by_book: dict) -> str:
-    """Generate HTML formatted reference sheet."""
-    output = f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{topic.title()} Reference Sheet</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 40px; }}
-        h1 {{ color: #333; border-bottom: 2px solid #007acc; }}
-        h2 {{ color: #007acc; }}
-        pre {{ background: #f4f4f4; padding: 10px; border-radius: 5px; }}
-        .source {{ font-style: italic; color: #666; }}
-    </style>
-</head>
-<body>
-    <h1>{topic.title()} Reference Sheet</h1>
-    <p><em>Generated from {sum(len(concepts) for concepts in by_book.values())} concepts across {len(by_book)} books</em></p>
-"""
-
-    for book, concepts in by_book.items():
-        output += f"    <h2>{book}</h2>\n"
-
-        for concept in concepts:
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-            output += f"    <h3>{concept['title']}</h3>\n"
-
-            if concept['description']:
-                output += f"    <p>{concept['description']}</p>\n"
-
-            if concept['syntax']:
-                output += f"    <pre><code>{concept['syntax']}</code></pre>\n"
-
-            if concept['content']:
-                content = concept['content'][:200] + ('...' if len(concept['content']) > 200 else '')
-                output += f"    <p><strong>Details:</strong> {content}</p>\n"
-
-            output += f"    <p class='source'>Source: {book} | <a href='{uri}'>Full Details</a></p>\n    <hr>\n"
-
-    output += "</body></html>"
-    return output
-
-
-def _generate_text_reference(topic: str, by_book: dict) -> str:
-    """Generate plain text formatted reference sheet."""
-    output = f"{topic.upper()} REFERENCE SHEET\n"
-    output += "=" * len(f"{topic.upper()} REFERENCE SHEET") + "\n\n"
-    output += f"Generated from {sum(len(concepts) for concepts in by_book.values())} concepts across {len(by_book)} books\n\n"
-
-    for book, concepts in by_book.items():
-        output += f"{book.upper()}\n"
-        output += "-" * len(book) + "\n\n"
-
-        for concept in concepts:
-            concept_uri_id = concept_to_clean_uri_id(concept)
-            uri = f"concept://{concept['book']}/{concept_uri_id}"
-
-            output += f"{concept['title']}\n"
-
-            if concept['description']:
-                output += f"Description: {concept['description']}\n"
-
-            if concept['syntax']:
-                output += f"Code:\n{concept['syntax']}\n"
-
-            if concept['content']:
-                content = concept['content'][:200] + ('...' if len(concept['content']) > 200 else '')
-                output += f"Details: {content}\n"
-
-            output += f"Source: {book}\nURI: {uri}\n\n"
-
-    return output
 
 
 # Initialize the concepts database when the module loads
 build_concept_index()
+load_posix_concepts()
 logger.info("Programming Concepts MCP Server initialized with efficient duplicate cleanup")
 
 if __name__ == "__main__":

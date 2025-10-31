@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Virtual Functions in C++ Standard",
+  "explanation": "Virtual functions in C++ enable runtime polymorphism, allowing derived classes to override base class methods. The compiler implements this using a virtual table (vtable), which is an array of function pointers associated with a class. Each object of a class with virtual functions contains a hidden pointer, known as the virtual table pointer (vptr), typically as the first member in the object's memory layout. This vptr points to the vtable for that object's actual type. When a virtual function is called, the compiler generates code that dereferences the vptr to locate the correct function in the vtable and then invokes it, making the call resolved at runtime rather than compile-time.\n\nMemory layout implications: For a class with virtual functions, the object's size includes the vptr (usually 8 bytes on 64-bit systems), followed by the class's data members. This adds overhead, as each object incurs extra space for the vptr, and multiple inheritance can complicate the layout with multiple vptrs. Performance-wise, virtual function calls involve an indirect jump, which is slower than direct calls due to the additional memory access and potential cache misses. In assembly, a virtual call might look like: loading the vptr from the object, offsetting to the correct vtable entry, and then calling the address stored there (e.g., on x86-64: mov rax, [rdi] ; mov rax, [rax + offset] ; call rax). This runtime resolution contrasts with compile-time binding for non-virtual functions, where the linker directly resolves the call address. Overall, while virtual functions provide flexibility, they introduce runtime overhead, making them less suitable for performance-critical code paths where the extra indirection (e.g., 5-10 cycles on modern CPUs) could be avoided with static dispatch.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:53:36.607255",
+    "book_metadata_added": "2025-10-28T20:22:06.824091"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\n    // Compiler adds hidden vptr (Virtual Pointer)\npublic:\n    virtual void func1() {} // Vtable Index 0\n    virtual void func2() {} // Vtable Index 1\n};\n\nclass Derived : public Base {\npublic:\n    // Overrides func1 entry in Derived vtable\n    void func1() override {}\n};\n\n// Runtime Polymorphism via vptr lookup\n// p->vptr points to Derived's vtable\nBase* p = new Derived();\np->func1(); // Calls Derived::func1 (Index 0)\np->func2(); // Calls Base::func2 (Index 1)\ndelete p;\n\n// Vtable: Array of function pointers for the class type.\n// Vptr: Hidden member in object, pointing to the Vtable.",
+  "keywords": "vtable, vptr, C++ virtual functions implementation, dynamic dispatch"
+}

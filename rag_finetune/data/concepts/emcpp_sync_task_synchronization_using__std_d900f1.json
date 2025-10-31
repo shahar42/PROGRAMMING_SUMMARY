@@ -1,0 +1,18 @@
+{
+  "topic": "Task Synchronization using `std::future` Wait Mechanism",
+  "category": "sync",
+  "explanation": "The primary method for synchronizing the execution flow between two independent concurrent tasks using futures is the blocking wait mechanism. When a task holds a `std::future`, calling `future.wait()` blocks that task until the corresponding `std::promise` is set by the other task. This creates a synchronization barrier, ensuring that the reacting task cannot proceed until the detecting/producing task has completed its event notification. This pattern is effective even when the data transmitted is simply a signal (using `std::promise<void>`), proving that the mechanism is fundamentally about synchronization, not just data transfer.",
+  "code_example": "void reacting_task(std::future<int> f) {\n  f.wait(); // Blocks until value is ready\n  // ... proceed after synchronization ...\n}\n// ...",
+  "practical_example": "In a pipeline where Task A generates data and Task B processes it, Task B must wait until Task A confirms that setup is complete. Task A uses a promise to signal completion, and Task B uses `future::wait()` to ensure strict ordering before attempting to read the shared resource.",
+  "keywords": [
+    "wait",
+    "blocking",
+    "synchronization barrier",
+    "std::promise<void>"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "266",
+  "chapter": "Item 39",
+  "id": "emcpp_sync_task_synchronization_using__std_d900f1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "LRU Cache Simulation",
+  "explanation": "The Least Recently Used (LRU) cache simulation is a technique used to model cache behavior in computer systems, where the least recently accessed item is evicted when the cache is full. It helps in understanding memory management and optimizing performance by prioritizing frequently accessed data in programming scenarios like caching algorithms.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "256-256",
+    "extraction_date": "2025-07-21T22:27:59.784905",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.783981"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "class LRUCache {\n    int capacity;\n    using KVP = std::pair<int, int>;\n    std::list<KVP> recency;\n    std::unordered_map<int, std::list<KVP>::iterator> index;\n\npublic:\n    LRUCache(int cap) : capacity(cap) {}\n\n    int get(int key) {\n        if (!index.count(key)) return -1;\n        recency.splice(recency.begin(), recency, index[key]);\n        return index[key]->second;\n    }\n\n    void put(int key, int value) {\n        if (index.count(key)) {\n            index[key]->second = value;\n            recency.splice(recency.begin(), recency, index[key]);\n        } else {\n            recency.push_front({key, value});\n            index[key] = recency.begin();\n\n            if (recency.size() > capacity) {\n                index.erase(recency.back().first);\n                recency.pop_back();\n            }\n        }\n    }\n};",
+  "keywords": "LRU Cache, Least Recently Used, Cache Replacement Algorithm, LRU Eviction Policy"
+}

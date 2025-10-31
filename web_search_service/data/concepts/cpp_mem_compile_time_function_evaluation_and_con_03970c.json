@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Function Evaluation and Constant Expressions with `constexpr` and `static constexpr`",
+  "explanation": "The `constexpr` specifier allows functions to be evaluated at compile time if the arguments are known at compile time. This enables significant performance optimizations and allows functions to be used in contexts requiring compile-time constants, such as array sizes or non-type template arguments.  The `static` keyword, when combined with `constexpr`, further restricts the function's visibility to the class or namespace it's declared in.  Compilers perform constant folding and substitution during compilation; if the function's logic can be fully evaluated during compilation, the compiler replaces the function call with the result, avoiding the runtime overhead of a function call. This is particularly effective for simple calculations and data manipulations. Understanding the compiler's ability (or inability) to perform this optimization is crucial.  For complex operations or conditionally evaluated expressions, the compiler might be unable to perform full compile-time evaluation, falling back to runtime execution.  Memory layout implications are minimal since compile-time evaluation avoids runtime stack allocation; the computed value directly replaces the function call in the compiled code. Assembly-level behavior will show the absence of a function call instruction if the compiler performs compile-time evaluation; instead, the result will be directly embedded in the generated code.  The key difference between `constexpr` and `static constexpr` lies in the linkage and visibility: `static constexpr` has internal linkage, limiting its scope to the translation unit (source file) it's defined in, unlike `constexpr`, which can have external linkage.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:35:34.665549",
+    "book_metadata_added": "2025-10-28T20:22:06.897998"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "constexpr int factorial(int n) {\n    return (n <= 1) ? 1 : n * factorial(n - 1);\n}\n\nconstexpr int FACT_5 = factorial(5); // Evaluated at compile time (120)\n\n// Requires compile-time constant size\nfloat data_buffer[FACT_5];\n\nclass Constants {\npublic:\n    // Defined inside class, compile-time constant\n    static constexpr int DEFAULT_SIZE = 10;\n    static constexpr int getSquare(int x) {\n        return x * x;\n    }\n};\n\nconstexpr int MAX_SQ = Constants::getSquare(Constants::DEFAULT_SIZE);\nint storage[MAX_SQ]; // Array size 100\n// FACT_5; // Can be used as a non-type template argument",
+  "keywords": "C++ constexpr, Compile-time evaluation, static constexpr, Constant expressions C++"
+}

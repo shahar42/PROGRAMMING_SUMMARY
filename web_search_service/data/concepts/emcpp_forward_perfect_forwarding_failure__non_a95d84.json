@@ -1,0 +1,19 @@
+{
+  "topic": "Perfect Forwarding Failure: Non-Deduced Contexts Break Forwarding",
+  "category": "forward",
+  "explanation": "Perfect forwarding relies on the mechanism of template argument deduction to create universal references and apply reference collapsing rules correctly. A critical anti-pattern involves placing the universal reference syntax (`T&&`) into a non-deduced context, which instantly strips it of its special universal reference properties, causing forwarding to fail. The failure occurs when the compiler cannot deduce the type `T` from the function arguments, which often happens when the template parameter is used in a context that prevents deduction. For example, if a function signature involves converting the argument before assignment to the template parameter (e.g., `template<typename T> void func(std::vector<T>&& vec)`), the argument deduction machinery fails to associate the input type directly with `T`. When this happens, `T&&` reverts to acting strictly as a standard rvalue reference, meaning it can no longer bind to lvalues. Consequently, if an lvalue is passed to such a function, the compilation fails, breaking the expectation of perfect forwarding which is designed to handle both value categories. This limitation shows that perfect forwarding is not a universally applicable technique but is highly dependent on adhering to specific signature forms (e.g., `T&&` being the outermost type structure of the parameter, not nested within other types or requiring implicit conversions). The inability to use `T&&` in arbitrary type constructions severely limits the practical application of forwarding wrappers in many templated scenarios.",
+  "code_example": "// T is in a non-deduced context (nested within std::vector)\ntemplate<typename T>\nvoid process_vec(std::vector<T>&& vec) { \n    // If lvalue std::vector<int> is passed, deduction fails. T becomes int.\n    // 'vec' is only an rvalue reference, failing to bind to lvalues.\n}",
+  "practical_example": "A C++ library aims to create a generic wrapper function that takes an rvalue of a container of type `T`. The developer uses `template<typename T> void process(std::span<T>&& data)`. A user attempts to pass a temporary `std::vector<int>` to this function. Since `std::span` is not the immediate type allowing deduction, the deduction fails, and the function fails to compile, proving that perfect forwarding cannot be applied to parameters where the type parameter is nested, thus limiting its generalization capabilities.",
+  "keywords": [
+    "non-deduced context",
+    "universal reference failure",
+    "deduction failure",
+    "template",
+    "type"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "203-204",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_forward_perfect_forwarding_failure__non_a95d84",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

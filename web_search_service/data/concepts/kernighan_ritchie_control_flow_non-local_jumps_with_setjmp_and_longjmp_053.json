@@ -1,0 +1,16 @@
+{
+  "topic": "Non-local Jumps with setjmp and longjmp",
+  "explanation": "In C, `setjmp` and `longjmp` provide a mechanism for non-local jumps, allowing immediate returns from deeply nested function calls, bypassing the normal function call and return stack.  This is useful for handling exceptional situations or error conditions that require immediate exit from multiple function levels, such as exceptions or asynchronous events.  It's crucial to understand that these functions manipulate the call stack directly and should be used cautiously to avoid unexpected behavior or crashes.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "211-211",
+    "extraction_date": "2025-07-21T10:43:48.558621",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "c_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.772394"
+  },
+  "book": "The C Programming Language - Kernighan & Ritchie",
+  "code_example": "jmp_buf env;\n\nvoid error_exit(int code) {\n    // Non-local jump returns to setjmp\n    // Execution stack unwound\n    longjmp(env, code);\n}\n\nint try_block() {\n    int ret = setjmp(env);\n\n    if (ret == 0) {\n        // Initial call (Try block setup)\n        // ... perform operations\n        error_exit(42); // Initiate jump\n        // unreachable\n    } else {\n        // Return via longjmp (Catch block)\n        // ret == 42\n        return ret;\n    }\n}",
+  "keywords": "setjmp longjmp, non-local jump, C exceptions"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Combining Atomic/Volatile for Concurrent Memory-Mapped I/O",
+  "category": "thread",
+  "explanation": "While `std::atomic` and `volatile` typically serve different masters, they can be combined for highly specialized tasks, specifically involving memory-mapped I/O (MMIO). When an MMIO location is concurrently accessed by multiple threads, both guarantees are necessary: `volatile` ensures the compiler interacts directly with the memory location (preventing optimization), and `std::atomic` ensures the concurrent accesses are properly synchronized and ordered across different threads.",
+  "code_example": "volatile std::atomic<int>  vai; \n// Operations on vai are atomic (concurrent) AND\n// cannot be optimized away (MMIO/volatile requirement).",
+  "practical_example": "Writing a device driver where multiple application threads might simultaneously update a status register residing in memory-mapped I/O space. Failure to use both attributes results in either data races (if `volatile` only) or incorrect hardware interaction (if `atomic` only).",
+  "keywords": "atomic volatile MMIO, concurrent memory-mapped I/O, atomic volatile combination, hardware registers synchronization",
+  "difficulty": "advanced",
+  "page_reference": "290-292",
+  "chapter": "Item 40: Use std::atomic for data accessed from multiple threads without using mutexes.",
+  "id": "emcpp_thread_combining_atomic_volatile_for_concurrent_3b5bb3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

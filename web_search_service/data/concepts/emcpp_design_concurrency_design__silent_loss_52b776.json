@@ -1,0 +1,18 @@
+{
+  "topic": "Concurrency Design: Silent Loss of Deferred Tasks on Future Destruction",
+  "category": "design",
+  "explanation": "Assumption: If a task is launched, it will eventually run, perhaps lazily, but its execution is guaranteed if a `std::future` exists for it. Reality: For tasks launched with `std::launch::deferred`, execution only occurs upon an explicit request (e.g., `get()` or `wait()`). If the final `std::future` referring to this deferred task is destroyed without ever requesting the result, the task is silently discarded and never executes. Why It Fails: This leads to lost work if the task was essential. The default, non-blocking behavior of the future destructor (for deferred tasks) is akin to an implicit detach from the execution context, meaning the work is simply forgotten.",
+  "code_example": "// Task is deferred, awaiting explicit call:\nauto f = std::async(std::launch::deferred, compute_data);\n// If f goes out of scope here without f.get() or f.wait(), compute_data never runs.\n",
+  "practical_example": "A logging system uses `std::async(std::launch::deferred, ...)` to queue low-priority logging messages. If the queue processing thread fails to retrieve the future's result before the future object itself is destroyed, those log messages are permanently lost.",
+  "keywords": [
+    "std::launch::deferred",
+    "task loss",
+    "future destruction",
+    "never run"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "276-280",
+  "chapter": "Item 38: Remember to make futures non-blocking on destruction",
+  "id": "emcpp_design_concurrency_design__silent_loss_52b776",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

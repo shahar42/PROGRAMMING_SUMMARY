@@ -1,0 +1,16 @@
+{
+  "topic": "Memory Allocation Optimization with Boundary Tags",
+  "explanation": "Boundary tags are data structures used in dynamic memory allocators to manage free and allocated blocks of memory.  They improve the efficiency of coalescing free blocks by storing essential information (like block size and allocation status) at the beginning and end of each block.  This facilitates faster memory allocation and deallocation, crucial for performance in systems dealing with frequent dynamic memory management.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "877-877",
+    "extraction_date": "2025-07-28T16:58:08.061056",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.741771"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "typedef size_t Tag;\n#define TAG_SIZE sizeof(Tag)\n#define IS_USED 0x1\n\n// Extracts the block size (lower bits reserved for status)\n#define SIZE_FROM_TAG(tag) ((tag) & ~IS_USED)\n\n// Given ptr P points to current Block Header (Tag):\nvoid* P;\n\n// Calculate location of the preceding block's footer\nTag* PREV_FOOTER(void* P) {\n    return (Tag*)P - 1;\n}\n\n// Calculate location of the current block's footer\n// S = total block size (including both tags)\nTag* CURRENT_FOOTER(void* P, size_t S) {\n    return (Tag*)((char*)P + S - TAG_SIZE);\n}\n\n// Example Coalescing Check:\nTag prev_tag = *PREV_FOOTER(P);\nif (!(prev_tag & IS_USED)) {\n    size_t prev_sz = SIZE_FROM_TAG(prev_tag);\n    P = (char*)P - prev_sz; // Move header to start of merged block\n}",
+  "keywords": "Boundary tags, Memory coalescing, Dynamic memory allocation structure"
+}

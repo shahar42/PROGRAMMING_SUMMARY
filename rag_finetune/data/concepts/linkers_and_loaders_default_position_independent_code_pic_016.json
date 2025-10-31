@@ -1,0 +1,16 @@
+{
+  "topic": "PIC for Load Address Independence",
+  "explanation": "Position Independent Code (PIC) is a code generation technique that produces executables or shared libraries whose addresses do not depend on their load address in memory. This is crucial for shared libraries (like .so files on Linux or .dll files on Windows) because multiple programs might load the same shared library concurrently, each into a different memory location. PIC ensures that the code works correctly regardless of where the loader places it in memory.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "49-49",
+    "extraction_date": "2025-07-14T01:36:28.162481",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.747054"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// PIC Data Access Mechanism (x86/x64 Assembly Principle)\n\n// 1. Get Program Counter (PC/RIP)\ncall .L1             // Push address of .L1 onto stack\n.L1:\npop %rdi             // RDI = Current PC\n\n// 2. Calculate Global Offset Table (GOT) Base Address\nadd $GOT_OFFSET, %rdi // RDI = GOT Base (Offset is fixed at link time)\n\n// 3. Load Target Address from GOT\n// GOT[i] holds the absolute runtime address of the variable\nmov GOT_INDEX(%rdi), %rax // RAX = Address of global_var\n\n// 4. Access the Data (Load independent of load address)\nmov (%rax), %rcx\n// ... Code continues\n// RIP-relative addressing (x64 standard method) is similar:\n// mov global_var@GOTPCREL(%rip), %rax",
+  "keywords": "PIC, Position Independent Code, shared library loading, load address independence"
+}

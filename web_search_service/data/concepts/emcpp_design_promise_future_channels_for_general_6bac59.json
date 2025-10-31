@@ -1,0 +1,13 @@
+{
+  "topic": "Promise/Future Channels for General Inter-Task Signaling",
+  "category": "design",
+  "explanation": "Assumption: The `std::future`/`std::promise` pairing is only useful for transmitting a return value or exception from an asynchronously executed function (the callee) back to the caller. Reality: This pairing creates a general-purpose communications channel. The `std::promise` is the transmitting end (writer), and the `std::future` (or `std::shared_future`) is the receiving end (reader). Why It Fails: Restricting the mental model of futures to only function returns prevents their use in complex peer-to-peer concurrent designs, such as using them purely for signaling arbitrary events between unrelated tasks (e.g., a 'detecting' task signaling a 'reacting' task that an event has occurred), independent of return values.",
+  "code_example": "std::promise<void> signal;\nauto future = signal.get_future();\n// Task A:\n// ... event occurs ...\nsignal.set_value();\n// Task B:\nfuture.wait(); // Blocks until Task A sets the promise",
+  "practical_example": "A monitoring task (Task A) is responsible for detecting a critical state change (e.g., resource depletion). It uses `std::promise::set_value()` to signal this event. A separate handler task (Task B) waits on the corresponding `std::future` to unblock and immediately execute the recovery protocol.",
+  "keywords": "Promise Future Channel, Future as Communication, Inter-task Signaling C++",
+  "difficulty": "intermediate",
+  "page_reference": "266",
+  "chapter": "Item 39",
+  "id": "emcpp_design_promise_future_channels_for_general_6bac59",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

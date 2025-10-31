@@ -1,0 +1,14 @@
+{
+  "topic": "ioctl_ficlonerange() System Call",
+  "explanation": "This ioctl operation allows sharing physical storage between files on supported filesystems by reflinking data ranges, which is faster than copying. It shares data from a source file to a destination file using copy-on-write, ensuring modifications remain private, and requires both files to be on the same filesystem.\n\n**Parameters:**\n- `dest_fd` (int): File descriptor of the destination file, which must be open for writing\n- `FICLONERANGE` (unsigned long): The ioctl command for cloning ranges\n- `arg` (struct file_clone_range *): Pointer to a structure containing source file details: src_fd (int), src_offset (__u64), src_length (__u64), and dest_offset (__u64)\n- `FICLONE` (unsigned long): The ioctl command for cloning entire files\n- `src_fd` (int): File descriptor of the source file for the FICLONE variant\n\n**Common Errors:**\n- `EBADF`: src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem of src_fd does not support reflink\n- `EINVAL`: The filesystem does not support reflinking the ranges of the given files, or either file descriptor represents a device, FIFO, or socket; offsets and lengths may need to be block-aligned\n- `EISDIR`: One of the files is a directory and the filesystem does not support shared regions in directories\n- `EOPNOTSUPP`: The filesystem does not support reflinking either file descriptor, or either refers to special inodes\n- `EPERM`: dest_fd is immutable\n\n**Related System Calls:** `ioctl()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.213688",
+    "syscall_name": "ioctl_ficlonerange",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_ficlonerange.json",
+    "concept_id": "posix_sys_ioctl_ficlonerange_62b509",
+    "book_metadata_added": "2025-10-28T20:22:06.661158"
+  },
+  "book": "POSIX System Call Manual"
+}

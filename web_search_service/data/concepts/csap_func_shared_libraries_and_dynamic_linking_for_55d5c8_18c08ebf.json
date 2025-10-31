@@ -1,0 +1,16 @@
+{
+  "topic": "Shared Libraries and Dynamic Linking for Performance Optimization",
+  "explanation": "Shared libraries are collections of compiled code that can be loaded into a program's address space at runtime.  This avoids redundant code duplication across multiple processes, saving memory and improving performance. Dynamic linking allows the operating system to load and link these libraries on demand, enabling efficient handling of requests for dynamically generated content, as opposed to using resource-intensive fork/exec for each request. This approach is crucial for improving the throughput of busy servers, especially web servers handling numerous requests.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "728-728",
+    "extraction_date": "2025-07-28T12:12:14.823869",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.705771"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// A. Shared Library Creation (Position Independent Code)\n// Enables efficient mapping of text segment (sharing)\n// -fPIC (GCC/Clang): Mandatory for memory sharing\ngcc -c -fPIC utility.c -o utility.o\n\n// -shared: Links objects into dynamic library (.so)\ngcc -shared utility.o -o libutility.so\n\n// Linking executable against shared library\n// ld.so handles linking at runtime (Load Time)\ngcc main.c -L. -lutility -o app\n\n// B. Runtime Dynamic Linking (dlopen)\n// Used when library dependency is unknown until runtime\n// Crucial for plugins or hot-swapping code without restarts\n\nvoid* handle = dlopen(\"libplugin.so\", RTLD_NOW);\nif (!handle) { /* log error */ }\n\n// Get function symbol address (GOT lookup)\ndouble (*exec)(double);\nexec = (double (*)(double))dlsym(handle, \"process_data\");\n\ndouble r = exec(1.0);\ndlclose(handle);\n<ctrl63>",
+  "keywords": "Shared Libraries, Dynamic Linking, DLL, SO files"
+}

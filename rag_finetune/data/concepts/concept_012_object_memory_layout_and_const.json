@@ -1,0 +1,16 @@
+{
+  "topic": "Object Memory Layout and Constructor Invocation Sequence in Arrays of Objects",
+  "explanation": "In C++, when an array of objects is allocated, the compiler arranges the objects contiguously in memory and invokes each object's constructor sequentially. Internally, this process involves calculating the memory addresses for each element based on the size of the object and calling the constructor for each element in order. Understanding this internal mechanism is crucial for grasping how object arrays are laid out in memory and how constructors are invoked during array initialization, especially in the context of complex class hierarchies and constructor chaining.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "151-151",
+    "extraction_date": "2025-09-17T15:11:28.459511",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "book_metadata_added": "2025-10-28T20:22:06.679934"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "struct Object {\n    int id;\n    Object(int i) : id(i) {} // Constructor invoked sequentially\n};\n\nconst size_t N = 3;\nconst size_t OBJ_SIZE = sizeof(Object);\n\n// 1. Allocate raw memory (large enough for N objects)\nchar* raw_mem = new char[N * OBJ_SIZE];\n\n// 2. Sequential Construction (Compiler mechanism shown manually)\nfor (size_t i = 0; i < N; ++i) {\n    // Calculate contiguous address\n    void* addr = raw_mem + (i * OBJ_SIZE);\n\n    // Invoke Object constructor at calculated address (placement new)\n    new (addr) Object{ (int)i };\n}\n\n// Memory Layout: [Obj 0] [Obj 1] [Obj 2]\n// &Obj[i] == &Obj[i-1] + OBJ_SIZE",
+  "keywords": "Array object construction, sequential constructor invocation, C++ array memory layout"
+}

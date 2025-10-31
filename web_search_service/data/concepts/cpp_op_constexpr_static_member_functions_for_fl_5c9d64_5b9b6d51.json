@@ -1,0 +1,14 @@
+{
+  "topic": "constexpr Static Member Functions for Floating-Point Type Traits",
+  "explanation": "In C++, constexpr static member functions and variables, as seen in type traits like those mimicking std::numeric_limits, enable compile-time evaluation of constants related to floating-point types. The compiler implements constexpr by ensuring that the function or variable can be computed at compile-time, adhering to strict rules: the expression must be a constant expression, involving only constexpr functions, literals, and operations that can be evaluated without runtime dependencies. For floating-point properties (e.g., epsilon(), which represents the smallest distinguishable difference from 1.0), the compiler leverages hardware-specific details from the IEEE 754 standard. Internally, the compiler may inline these values directly into the code or use them in template metaprogramming, avoiding runtime overhead. Memory layout implications are minimal since constexpr static variables do not occupy runtime memory; they are substituted at compile-time, reducing binary size and improving cache performance. Performance-wise, this leads to zero-cost abstractions, as the values are known at compile-time, eliminating branches or loads in the generated assembly. At the assembly level, a constexpr function like static constexpr T epsilon() might not produce any instructions if used in a constant context; instead, the compiler embeds the literal value directly (e.g., for float, it might use a MOV instruction with the immediate value). Runtime behavior is non-existent for these; everything occurs at compile-time, but if the function is called at runtime (though unlikely for constexpr), it would still execute quickly as it's side-effect-free and noexcept. This contrasts with non-constexpr equivalents, which might involve runtime library calls, increasing execution time and potentially introducing floating-point exceptions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:35:56.862625",
+    "book_metadata_added": "2025-10-28T20:22:06.859343"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\nstruct FloatLimits {\n    // Compile-time retrieval of floating-point constant\n    static constexpr T epsilon() {\n        if (sizeof(T) == sizeof(float)) {\n            return T(1.19209290e-07);\n        }\n        return T(2.2204460492503131e-16);\n    }\n\n    // Relying on compiler builtins for known constants\n    static constexpr T infinity() {\n        return __builtin_huge_val();\n    }\n};\n\nconstexpr float F_EPS = FloatLimits<float>::epsilon();\nconstexpr double D_INF = FloatLimits<double>::infinity();",
+  "keywords": "constexpr type traits, compile time floating point, constexpr static members, numeric_limits constexpr"
+}

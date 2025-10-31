@@ -1,0 +1,20 @@
+{
+  "topic": "Move Semantics Assumptions versus Reality: Move Operations Not Always Cheap",
+  "category": "perf",
+  "explanation": "The fundamental anti-pattern surrounding move semantics is the blanket assumption that a move operation will always be dramatically cheaper than a copy operation. This assumption leads developers to aggressively utilize `std::move` and forwarding mechanisms even in contexts where the performance benefit is marginal or nonexistent. The reality is that move operations often revert to copies or are computationally equivalent to copies in specific, common scenarios. The failure mechanism is multifaceted. Firstly, for types that manage resources locally without dynamic allocation, such as small objects or `std::array`, a 'move' operation must copy the object's entire contents. For instance, moving a `std::array<int, 10000>` requires copying 10,000 integers, which is identical to the copy constructor and certainly not 'cheap.' Secondly, the Small String Optimization (SSO) used by modern `std::string` implementations means that if a string is small enough to fit within the internal buffer of the `std::string` object (typically 16-32 bytes), moving it involves copying that internal buffer. For very short strings, the overhead of checking the size, executing the move constructor logic, and potentially zeroing the source buffer can easily be greater than or equal to the time required for a simple copy operation, especially considering cache efficiency. Thirdly, move operations for objects that hold non-trivial resources, even if heap-allocated, can involve more than just pointer swapping, such as adjusting ownership counters, performing validation, or acquiring mutexes. If the cost of the setup/teardown logic for the move is non-negligible, the move operation may not provide the expected performance gain over a simple copy. This anti-pattern dictates that developers should assume move operations are *not* cheap until profiling confirms otherwise, preventing optimization efforts that yield zero or negative return on investment due to inherent type structure limitations.",
+  "code_example": "// Moving a type using SSO is often just as slow as copying.\nstd::string small_str = \"12345\"; // Fits in SSO buffer\nstd::string moved = std::move(small_str); // Still copies internal buffer.",
+  "practical_example": "A high-frequency trading application relies on passing small transaction IDs wrapped in a custom `IDWrapper` object. Developers optimize the system by introducing move constructors, expecting a speed boost. Because `IDWrapper` is small and manages its data directly on the stack (no heap allocation), the move constructor defaults to a full member-wise copy. The move optimization yielded zero performance improvement and added complexity to the class definition.",
+  "keywords": [
+    "move semantics",
+    "SSO",
+    "std::array",
+    "copy equivalent",
+    "perf",
+    "anti-pattern"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "226-229",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_move_semantics_assumptions_versus_reality_3c02f5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

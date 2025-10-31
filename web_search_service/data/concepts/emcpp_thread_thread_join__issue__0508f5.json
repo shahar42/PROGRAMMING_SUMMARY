@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Join [Issue]: RAII Joining of Suspended Tasks is Risky",
+  "category": "thread",
+  "explanation": "Assumption: An RAII wrapper (like `ThreadRAII`) should unconditionally join the managed thread in its destructor to guarantee unjoinability before scope exit. Reality: If the managed thread is indefinitely suspended (e.g., waiting on a future via `p.get_future().wait()`) and the scope exits due to an exception *before* the main thread sets the value (`p.set_value()`), the RAII destructor will block the exiting thread indefinitely while attempting to join the suspended thread. Why It Fails: This leads to deadlocks or unacceptable program unresponsiveness. The RAII wrapper must be carefully designed to handle suspended threads, typically preferring detachment or relying on external notification mechanisms to ensure the thread's state can be resolved quickly before joining.",
+  "code_example": "ThreadRAII tr(\n  std::thread(... { p.get_future().wait(); } ...),\n  ThreadRAII::DtorAction::join // RISKY if p is never set and scope exits\n);",
+  "practical_example": "A developer uses a standard RAII wrapper configured to always join. A background task is started but immediately blocks waiting for a configuration file to load asynchronously. If an unrelated exception occurs in the main thread, the RAII destructor attempts to join the blocked thread, causing the entire application to hang indefinitely until the task completes its potentially long wait.",
+  "keywords": [
+    "ThreadRAII",
+    "join",
+    "suspension",
+    "future",
+    "deadlock"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268",
+  "chapter": "Item 39",
+  "id": "emcpp_thread_thread_join__issue__0508f5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

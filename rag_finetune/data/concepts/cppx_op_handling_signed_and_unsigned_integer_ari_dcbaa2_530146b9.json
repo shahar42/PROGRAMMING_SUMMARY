@@ -1,0 +1,14 @@
+{
+  "topic": "Handling Signed and Unsigned Integer Arithmetic",
+  "explanation": "In C++, when performing arithmetic operations between signed and unsigned integers, the signed operand is implicitly converted to unsigned, which can lead to unexpected results such as value wrapping for negative numbers. This is a common pitfall in real-world programming, especially when dealing with values like array indices, sizes, or counters that are typically unsigned to prevent negative values, but interact with signed inputs. Best practices include explicitly casting operands to a common type (e.g., using static_cast to signed or unsigned) to avoid surprises, always checking for potential overflow or underflow, and preferring signed types for general calculations unless unsigned is specifically needed for non-negative values. In practical scenarios, such as processing user input or handling file sizes, this ensures robust code that prevents bugs related to integer conversion.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:24:31.589544",
+    "book_metadata_added": "2025-10-28T20:22:06.566703"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// PITFALL: Signed/Unsigned Implicit Conversion\n\nint s_count = -1;\nsize_t u_limit = 10;\n\n// PITFALL 1: Comparison results in unintended behavior\n// s_count (-1) converts to size_t (MAX_SIZE)\nif (s_count > u_limit) { /* Always true */ }\n\n// PITFALL 2: Arithmetic wrap-around\n// Result is MAX_SIZE + 9, not 9\nsize_t wrapped_result = s_count + u_limit;\n\n// FIX 1: Explicit cast to common signed type (if safe)\n// Requires u_limit to fit in int.\nint fixed_result_A = s_count + static_cast<int>(u_limit);\n\n// FIX 2: Standard practice - use a safe signed type (e.g., long long)\n// Cast BOTH to the common signed type for calculation\nusing SafeType = long long;\nSafeType safe_s = static_cast<SafeType>(s_count);\nSafeType safe_u = static_cast<SafeType>(u_limit);\n\nSafeType fixed_result_B = safe_s + safe_u;\n<ctrl63>",
+  "keywords": "signed unsigned arithmetic, signed unsigned conversion, integer promotion rules, C++ implicit conversion"
+}

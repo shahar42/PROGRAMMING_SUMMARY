@@ -1,24 +1,12 @@
 {
   "topic": "Implementation of std::mutex Lock Operation in C++",
   "explanation": "The std::mutex::lock() operation in C++ is a synchronization primitive that ensures mutual exclusion for shared resources in multithreaded environments. Under the hood, compilers implement this feature by leveraging hardware-level atomic operations to manage a lock state, typically represented as a simple integer flag or a more complex structure depending on the platform (e.g., a kernel object on POSIX systems). For instance, on x86 architectures, the compiler (via the standard library) often translates lock() into assembly instructions like LOCK CMPXCHG or XCHG, which use the CPU's LOCK prefix to ensure atomicity and prevent data races by serializing access to the mutex's memory location. This atomic behavior guarantees that lock operations on the same mutex appear in a single total order, as specified in the standard, effectively acting as a modification order for synchronization purposes. Memory layout-wise, a std::mutex object is usually a POD-like structure (e.g., 4-8 bytes on common platforms), containing a flag or pointer to an OS resource, which minimizes overhead but can lead to false sharing in cache lines if multiple mutexes are adjacent in memory, impacting performance through cache thrashing. Performance implications include low latency for uncontended locks (nanoseconds via spinlocks in user space), but high costs for contended locks due to context switches, kernel involvement, or spinning, which can degrade CPU utilization and introduce jitter in real-time systems. This is primarily a runtime behavior, as the compiler performs static checks (e.g., ensuring the mutex type is correct) but delegates the actual locking to runtime libraries and OS schedulers; however, constexpr contexts or lock-free alternatives might optimize away some overhead at compile-time in advanced scenarios.",
-  "syntax": "std::mutex m;  // Declares a mutex object, typically a small structure in memory (e.g., 40 bytes on Linux x86-64, containing a flag and OS-specific data). Implementation note: The compiler generates code that calls the standard library's lock function, which uses atomic instructions for thread-safe flag manipulation.\nm.lock();  // Attempts to acquire the lock, blocking the thread if necessary. Implementation note: This involves runtime atomic operations (e.g., compare-and-swap loops) and may throw system_error if errors occur, with the mutex's internal state updated atomically to reflect ownership.",
-  "code_example": [
-    "#include <mutex>",
-    "#include <iostream>",
-    "#include <thread>",
-    "int main() {",
-    "    std::mutex m;  // Mutex object created with default initialization",
-    "    m.lock();  // Acquire the lock; blocks if already locked by another thread",
-    "    std::cout << \"Mutex locked by main thread\" << std::endl;",
-    "    m.unlock();  // Release the lock",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, the std::mutex m is instantiated as a local object, likely allocating a small memory block (e.g., on x86-64 Linux, it might use 40 bytes including padding). When m.lock() is invoked, the compiler translates this into a call to the standard library function, which at runtime performs an atomic operation\u2014such as a LOOP with CMPXCHG in assembly\u2014to check and set the mutex's internal flag. If the mutex is free, the operation succeeds immediately; otherwise, the thread enters a blocked state via OS primitives (e.g., futex on Linux), leading to a context switch and potential rescheduling. This runtime behavior ensures synchronization with prior unlock() calls, as per the standard's total order guarantee, but can introduce performance penalties like increased latency (e.g., microseconds for kernel involvement) and cache coherency traffic. Assembly-level insight: On x86, this might generate code like 'lock cmpxchg' in a spin loop before yielding, highlighting the blend of user-space efficiency and kernel-backed reliability, with no compile-time evaluation possible for the locking outcome due to its dependency on thread states.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T09:47:32.262071"
-  }
+    "extraction_date": "2025-08-19T09:47:32.262071",
+    "book_metadata_added": "2025-10-28T20:22:06.851250"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

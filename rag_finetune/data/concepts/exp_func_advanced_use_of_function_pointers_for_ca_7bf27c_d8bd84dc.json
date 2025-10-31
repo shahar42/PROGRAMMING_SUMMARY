@@ -1,0 +1,26 @@
+{
+  "topic": "Advanced Function Pointers with Dynamic Dispatch",
+  "explanation": "In advanced C programming, function pointers are employed to implement flexible callback mechanisms, dynamic dispatch, and plugin architectures. Mastering complex function pointer syntax, callback registration, and invocation patterns enables developers to write highly modular, extensible, and efficient code. This technique is crucial for designing systems that require runtime behavior customization without sacrificing performance or type safety, especially in scenarios involving event handling, interrupt routines, or callback-based APIs.\n\nIn advanced C programming, function pointers are employed to implement flexible callback mechanisms, enabling dynamic invocation of functions, plugin architectures, or event-driven designs. Mastery of function pointer syntax, including complex declarations and usage patterns, allows for highly modular and efficient code that can adapt at runtime without sacrificing performance or type safety.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "136-136",
+    "extraction_date": "2025-07-21T17:32:15.360676",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "expert_c_programming",
+    "merged_on": "2025-08-19T00:15:53.844081",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "1121-1121",
+      "extraction_date": "2025-08-19T00:15:49.796661",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "expert_c_programming"
+    },
+    "merge_similarity_score": 0.9225046038627625,
+    "book_metadata_added": "2025-10-28T20:22:07.013657"
+  },
+  "book": "Expert C Programming: Deep C Secrets",
+  "code_example": "typedef int (*ApiResult)(void* context, int status);\n\n// Function definition matching the signature\nstatic int HandleError(void* ctx, int s) {\n    *(int*)ctx = s;\n    return s == 0;\n}\n\n// Function pointer registration\nApiResult CurrentCallback = HandleError;\n\nint last_status = -1;\n\n// Dynamic invocation\nCurrentCallback(&last_status, 404);\n\n// last_status is now 404\n\n\n\ntypedef float (*FilterFunc)(float input);\n\nfloat LowPass(float i) { return i * 0.5f; }\nfloat HighPass(float i) { return i * 0.9f; }\n\n// Dispatch Table (Dynamic V-Table)\nFilterFunc Filters[] = {\n    LowPass,\n    HighPass\n};\n\nenum FilterType { LP, HP };\n\n// Dispatch using enumeration index\nfloat result_hp = Filters[HP](100.0f);\nfloat result_lp = Filters[LP](100.0f);\n\n\n\nstruct VTable {\n    void* context;\n    int (*connect)(void* ctx, const char* addr);\n    int (*send)(void* ctx, const char* data);\n    void (*close)(void* ctx);\n};\n\nint NetConnect(void* c, const char* a);\n\n// Setup implementation for a TCP handler\nstruct VTable TcpHandler = {\n    .context = NULL, // allocated later\n    .connect = NetConnect,\n    .send = NULL, // filled by implementation\n    .close = NULL\n};\n\n// Use the interface\nint success = TcpHandler.connect(NULL, \"127.0.0.1\");",
+  "keywords": "C++ callbacks, dynamic dispatch, C function pointers, plugin architecture"
+}

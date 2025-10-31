@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Exception-Caused Non-Linearity",
+  "explanation": "System calls provide a mechanism for applications to request services from the operating system kernel.  These services range from file I/O and network communication to memory management.  Exceptional control flow refers to the non-linear execution path caused by events like interrupts, exceptions, and signals, which often involve system calls for handling.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "975-975",
+    "extraction_date": "2025-07-29T14:49:31.453175",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.733206"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "void sig_handler(int sig) { \n    // Exceptional Control Flow (ECF) entry point\n    // Triggered by kernel interrupt/trap handling\n    if (sig == 11) { /* SIGSEGV */\n        // Syscall used asynchronously within the handler\n        write(2, \"ECF: SIGSEGV caught\\n\", 20);\n    }\n}\n\nstruct sigaction sa = {0};\nsa.sa_handler = sig_handler;\nsa.sa_flags = SA_RESTART; \n\n// Syscall registration: ECF handler setup\n// Registers handler function pointer in Kernel Space (PCB)\nint result = sigaction(SIGSEGV, &sa, NULL); \n\n// Syscall invocation switches execution mode (User -> Kernel)\nssize_t bytes_written = write(1, \"Start\\n\", 6);\n// The 'write' function executes the underlying trap instruction\n// Trap is an intentional, synchronous form of ECF"
+}

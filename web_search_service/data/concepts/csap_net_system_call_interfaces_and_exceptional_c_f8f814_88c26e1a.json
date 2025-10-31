@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Process Interaction Focus",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing hardware resources (network, disk), managing memory, or interacting with other processes. Exceptional control flow refers to how the program's execution path changes due to events outside the normal sequential flow, like system calls, interrupts, and signals.  Understanding this interaction is crucial for writing efficient and reliable systems programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "959-959",
+    "extraction_date": "2025-07-29T14:00:23.922196",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.706411"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "pid_t pid = fork();\n\nif (pid < 0) {\n    // System call failed\n    _exit(1);\n} else if (pid == 0) {\n    // Child: New execution context\n    execl(\"/bin/echo\", \"echo\", \"Hello\", (char*)NULL);\n    // exec only returns on error\n    perror(\"Exec error\");\n    _exit(1);\n} else {\n    // Parent: Wait for child termination\n    int status;\n    waitpid(pid, &status, 0);\n\n    if (WIFEXITED(status)) {\n        // Check exit status\n    }\n}\n\n// --- ECF: Signal Handling Setup ---\n\nvoid sig_handler(int sig) {\n    // Asynchronous signal processing logic\n    if (sig == SIGINT) {\n        // Cleanup or terminate\n    }\n}\n\nstruct sigaction sa;\nsa.sa_handler = sig_handler;\nsigemptyset(&sa.sa_mask);\nsa.sa_flags = SA_RESTART;\n\nsigaction(SIGINT, &sa, NULL);\n\n// --- Simple System Call Demonstration (Exit) ---\n\n// Terminates the current process\n_exit(EXIT_SUCCESS);\n// vs. exit() which performs cleanup (flushing buffers)\n\n// --- Process Group Management ---\n\n// Change process group ID\nsetpgid(0, 0);\n\n// Get current PID and GID\npid_t my_pid = getpid();\npid_t my_pgid = getpgrp();\n<ctrl63>"
+}

@@ -1,0 +1,56 @@
+{
+  "name": "setitimer",
+  "synopsis": [
+    "#include <sys/time.h>",
+    "int setitimer(int which, const struct itimerval *restrict new_value, struct itimerval *_Nullable restrict old_value);"
+  ],
+  "description": "The setitimer() system call sets the value of an interval timer for the calling process. It specifies the initial expiration time and optional interval for periodic expiration, after which a signal is generated.",
+  "parameters": [
+    {
+      "name": "which",
+      "type": "int",
+      "description": "Specifies the type of timer (ITIMER_REAL, ITIMER_VIRTUAL, or ITIMER_PROF)"
+    },
+    {
+      "name": "new_value",
+      "type": "const struct itimerval *",
+      "description": "Pointer to the structure containing the new timer value, including initial value and interval"
+    },
+    {
+      "name": "old_value",
+      "type": "struct itimerval *",
+      "description": "Pointer to a structure where the previous timer value will be stored, or NULL if not needed"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "new_value or old_value is not a valid pointer"
+    },
+    {
+      "code": "EINVAL",
+      "description": "which is not one of ITIMER_REAL, ITIMER_VIRTUAL, or ITIMER_PROF; or a tv_usec field in new_value is outside the range [0, 999999]"
+    }
+  ],
+  "bugs": "Under heavy loading, an ITIMER_REAL timer may expire before the previous signal is delivered, leading to lost signals. Before Linux 2.6.16, timer values exceeding a certain limit were silently truncated.",
+  "versions": "Available since 4.2BSD, POSIX.1-2001, but marked obsolete in POSIX.1-2008",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "timer_create",
+    "timer_gettime",
+    "sigaction",
+    "signal"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "setitimer.pdf",
+    "extraction_date": "2025-08-03T10:54:30.737664",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

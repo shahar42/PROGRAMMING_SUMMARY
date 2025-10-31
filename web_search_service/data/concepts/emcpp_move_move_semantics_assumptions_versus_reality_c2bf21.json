@@ -1,0 +1,18 @@
+{
+  "topic": "Move Semantics Assumptions versus Reality: Source Object State Inconsistency",
+  "category": "move",
+  "explanation": "Assumption: After an object is moved from, its state is completely predictable and often equates to a default-constructed or null state, allowing for safe subsequent operations or immediate destruction. Reality: C++ guarantees only that a moved-from object must be in a 'valid but unspecified' state. It must be destructible, but its contents, size, or internal flags are not guaranteed to be null, zero, or empty. Why It Fails: Programmers often mistakenly assume that moving a `std::vector` leaves it `size() == 0` or that moving a `std::string` leaves it empty (`\"\"`). While this is true for standard library containers, relying on this exact state for user-defined types (UDTs) or for custom library implementations is brittle. If a UDT leaves a specific flag set or a small internal buffer non-null after moving (which is allowed by the 'valid but unspecified' rule), subsequent code that checks for nullness or emptiness might execute incorrect logic, leading to unexpected behavior or resource leaks if the destructor relies on specific pre-destruction state checks. The failure lies in treating the moved-from state as predictable instead of relying on the only strong guarantee: destructibility.",
+  "code_example": "// Failure to account for unspecified moved-from state\nWidget w1;\nWidget w2 = std::move(w1);\n// Assuming w1.size() == 0, but it might be validly > 0 or garbage.\nif (w1.should_cleanup()) { /* executes incorrectly */ }",
+  "practical_example": "A proprietary networking buffer class ensures its moved-from state is 'valid' by setting a small internal state flag but doesn't zero out a large capacity value. Post-move cleanup logic accidentally relies on the capacity being zeroed, leading to a memory leak when the moved-from buffer is destroyed.",
+  "keywords": [
+    "moved-from state",
+    "unspecified state",
+    "valid but unspecified",
+    "inconsistent state"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "231-232",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_semantics_assumptions_versus_reality_c2bf21",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

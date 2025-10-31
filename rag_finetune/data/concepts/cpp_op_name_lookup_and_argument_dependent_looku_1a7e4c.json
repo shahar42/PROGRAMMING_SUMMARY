@@ -1,0 +1,14 @@
+{
+  "topic": "Argument-Dependent Lookup (ADL) for Functions in C++",
+  "explanation": "Argument-dependent lookup (ADL), also known as Koenig lookup, is a crucial aspect of C++ name resolution that significantly impacts how the compiler finds functions called within a function's body, particularly when dealing with unqualified function calls.  The compiler's implementation involves a two-phase process. First, it searches for names within the current scope (including namespaces and classes).  If the name is not found, ADL kicks in. This involves searching the namespaces of the argument types of the function call.  This mechanism is crucial for enabling generic programming and operator overloading.  The compiler's implementation might involve building a symbol table with nested scopes, and traversing it according to the name lookup rules.  The process can be significantly influenced by template instantiation, as the argument types of templates are only known at compile time.  This leads to variations in compile-time performance and possibly larger executable sizes due to the increase in code generated from different instantiations of template functions.  Understanding ADL's nuances is paramount for avoiding unexpected behavior or compiler errors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:42:08.433789",
+    "book_metadata_added": "2025-10-28T20:22:06.820854"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "namespace Library {\n    struct TagType {};\n    // Function defined in the namespace of TagType\n    void process(TagType t) { /* ... */ }\n}\n\n// Global scope, Library::process is not in scope\nvoid call_process() {\n    Library::TagType arg;\n    \n    // ADL kicks in: Looks in namespace of 'arg' (Library)\n    process(arg); \n}\n\n// ADL only works for function calls, not for variables or types.",
+  "keywords": "ADL, Koenig lookup, Argument-Dependent Lookup, Unqualified function call"
+}

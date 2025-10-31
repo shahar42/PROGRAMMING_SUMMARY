@@ -1,0 +1,15 @@
+{
+  "topic": "Concurrency and Synchronization Primitives (POSIX Threads)",
+  "explanation": "Concurrency allows multiple threads of execution to run seemingly simultaneously within a single process, improving performance by utilizing multiple CPU cores or overlapping I/O operations.  Synchronization primitives are mechanisms used to coordinate and control access to shared resources by these concurrent threads, preventing race conditions and ensuring data consistency.  POSIX Threads (pthreads) provide a standardized C API for creating and managing threads in a POSIX-compliant operating system.",
+  "syntax": "pthread_create(&thread, &attr, start_routine, arg);\n//Create a new thread\npthread_join(thread, &status); //Wait for thread to finish\npthread_exit(status); //Terminate thread\npthread_detach(thread); //Detach a thread (no need to join)",
+  "code_example": "#include <pthread.h>\n#include <stdio.h>\n#include <stdlib.h>\n\nvoid *thread_function(void *arg) {\n  long tid = (long)arg;\n  printf(\"Thread %ld: starting\\n\", tid);\n  /* ... some computation ... */\n  printf(\"Thread %ld: finishing\\n\", tid);\n  pthread_exit(NULL);\n}\n\nint main(int argc, char *argv[]) {\n  pthread_t thread1, thread2;\n  long t1 = 1, t2 = 2;\n  pthread_create(&thread1, NULL, thread_function, (void *)t1);\n  pthread_create(&thread2, NULL, thread_function, (void *)t2);\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n  printf(\"Main thread: finishing\\n\");\n  return 0;\n}",
+  "example_explanation": "This example demonstrates the creation and management of two threads using pthreads. Each thread executes the `thread_function`, printing a message indicating its start and finish. The `pthread_create` function creates each thread, passing a unique ID as an argument. The `pthread_join` function in the main thread waits for both threads to complete before exiting, ensuring that both threads' output is displayed. This illustrates the basic mechanisms of thread creation, execution, and synchronization (implicit synchronization through `pthread_join`), showcasing the fundamental concepts of concurrency management within a computer system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:40:02.910913",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems"
+  }
+}

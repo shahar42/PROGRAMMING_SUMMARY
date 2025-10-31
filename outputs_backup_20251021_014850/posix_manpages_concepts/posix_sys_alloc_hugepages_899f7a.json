@@ -1,0 +1,15 @@
+{
+  "topic": "alloc_hugepages() System Call",
+  "explanation": "alloc_hugepages allocates huge pages in memory for the process, which are larger than standard pages and not subject to swapping. It supports shared or private memory segments based on a key identifier.\n\n**Parameters:**\n- `key` (int): Identifier for the pages; 0 for private, positive for shared and inherited by child processes.\n- `addr` (void*): Hint for the address, which the kernel may ignore; for free_hugepages, it specifies the address to free.\n- `len` (size_t): Length of the required segment, must be a multiple of the huge page size.\n- `prot` (int): Memory protection flags, such as PROT_READ, PROT_WRITE, or PROT_EXEC.\n- `flag` (int): Flags; if key is positive, IPC_CREAT creates a new segment if none exists.\n\n**Common Errors:**\n- `ENOSYS`: The system call is not supported on this kernel.\n- `ENOENT`: No segment with the given key exists and IPC_CREAT is not set.\n\n**Related System Calls:** `mmap()`, `syscall()`",
+  "syntax": "void *syscall(SYS_alloc_hugepages, int key, void addr[.len], size_t len, int prot, int flag);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = alloc_hugepages(...);  // Call the system call\nif (result == -1) {\n    perror(\"alloc_hugepages\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the alloc_hugepages() system call. The function takes 5 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.176087",
+    "syscall_name": "alloc_hugepages",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_alloc_hugepages.json",
+    "concept_id": "posix_sys_alloc_hugepages_899f7a"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "The `std::move` Myth: It Doesn't Move",
+  "category": "move",
+  "explanation": "Assumption: Calling `std::move(x)` performs an action that physically relocates the resources of `x`, making it the engine of move semantics. Reality: `std::move` is merely a standard library function template that performs an unconditional static cast of its argument to an rvalue reference. It generates zero executable code at runtime. Why It Fails: The failure stems from assuming `std::move` *guarantees* a move operation. It only facilitates the compiler\u2019s choice of an overload that accepts an rvalue reference. If the destination context only accepts a copy (e.g., if a receiving function only has a copy constructor, or the type being moved is constant), the operation resolves to a copy, completely defeating the purpose of the call. The anti-pattern is using `std::move` as a command rather than a casting hint, leading to incorrect performance estimations when fallback occurs.",
+  "code_example": "// Calling move on a non-movable type still results in copy\nclass NonMovable { public: NonMovable(const NonMovable&); };\nNonMovable nm1; \nNonMovable nm2(std::move(nm1)); // Falls back to copy ctor",
+  "practical_example": "A developer places `std::move` on an argument passed to a black-box third-party library function, expecting zero-copy transfer. If that function internally relies on a type lacking move semantics, the library incurs significant hidden copy overhead.",
+  "keywords": [
+    "std::move",
+    "cast only",
+    "no runtime effect",
+    "move semantics assumption"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "175-177",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_move_the__std__move_1593be",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

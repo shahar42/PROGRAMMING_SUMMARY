@@ -1,0 +1,19 @@
+{
+  "topic": "std::bind Argument Evaluation: Immediate Execution Trap",
+  "category": "design",
+  "explanation": "Assumption: Arguments passed to `std::bind` behave like arguments inside a lambda body, evaluating only when the resulting function object is invoked. Reality: `std::bind` evaluates *all* of its arguments immediately at the moment the `std::bind` call itself is executed. Why It Fails: If an argument is a time-sensitive expression (e.g., `steady_clock::now()`) or involves state that changes, the resulting bound object stores the result of that immediate calculation, fixing the value permanently. This prevents the bound object from recalculating the value when it is finally invoked later. Lambdas naturally defer this argument evaluation until invocation, making them safer and more intuitive for expressions that must be evaluated dynamically at runtime.",
+  "code_example": "auto fixed_time_bind = std::bind(f, steady_clock::now() + 1h);\n// fixed_time_bind uses the time captured during the bind call.\n\nauto deferred_time_lambda = []{ f(steady_clock::now() + 1h); };\n// deferred_time_lambda calculates time when invoked.",
+  "practical_example": "A developer attempts to use `std::bind` to create a reusable function object that needs to operate on current time. Because the time calculation is performed during the binding process, the resulting object is useless after a short delay, as it is perpetually bound to the stale timestamp captured upon creation.",
+  "keywords": [
+    "std::bind",
+    "immediate evaluation",
+    "deferred evaluation",
+    "lambda advantage",
+    "argument binding"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-234",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_design_std__bind_argument_evaluation_cdce98",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

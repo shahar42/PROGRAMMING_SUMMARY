@@ -1,0 +1,15 @@
+{
+  "topic": "landlock_add_rule() System Call",
+  "explanation": "The landlock_add_rule() system call adds a new Landlock rule to an existing ruleset. A rule describes an action on an object, such as a file hierarchy with specific access rights. It is used to enforce security restrictions on filesystem operations.\n\n**Parameters:**\n- `ruleset_fd` (int): File descriptor of the Landlock ruleset obtained from landlock_create_ruleset(2).\n- `rule_type` (enum landlock_rule_type): Identifies the type of the rule, such as LANDLOCK_RULE_PATH_BENEATH for file hierarchies.\n- `rule_attr` (const void *): Pointer to the rule attributes structure, which varies based on rule_type.\n- `flags` (uint32_t): Must be set to 0; any other value is invalid.\n\n**Common Errors:**\n- `EOPNOTSUPP`: Landlock is supported by the kernel but disabled at boot time.\n- `EINVAL`: Flags is not 0, or the rule accesses are inconsistent.\n- `ENOMSG`: Empty accesses in rule attributes.\n- `EBADF`: ruleset_fd is not a valid file descriptor, or a member of rule_attr is not.\n- `EBADFD`: ruleset_fd is not a ruleset file descriptor, or a member of rule_attr is not the expected type.\n\n**Related System Calls:** `landlock_create_ruleset()`, `landlock_restrict_self()`",
+  "syntax": "int syscall(SYS_landlock_add_rule, int ruleset_fd, enum landlock_rule_type rule_type, const void *rule_attr, uint32_t flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = landlock_add_rule(...);  // Call the system call\nif (result == -1) {\n    perror(\"landlock_add_rule\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the landlock_add_rule() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.199441",
+    "syscall_name": "landlock_add_rule",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_landlock_add_rule.json",
+    "concept_id": "posix_sys_landlock_add_rule_881c09"
+  }
+}

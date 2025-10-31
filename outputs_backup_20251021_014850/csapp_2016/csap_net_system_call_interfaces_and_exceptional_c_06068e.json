@@ -1,0 +1,15 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as network communication, file I/O, or process management.  Exceptional control flow refers to how the system handles events that disrupt normal program execution, like system calls, interrupts, and signals.  Understanding this interaction is crucial for building robust and efficient systems-level programs.",
+  "syntax": "int system_call_name(arguments);",
+  "code_example": "#include <sys/socket.h>\n#include <sys/types.h>\n#include <unistd.h>\nint main() {\n  int listenfd = socket(AF_INET, SOCK_STREAM, 0);\n  // ... socket setup ...\n  int connfd = accept(listenfd, (struct sockaddr *) NULL, NULL);\n  if (connfd < 0) {\n    perror(\"accept\");\n    exit(1);\n  }\n  // ... handle connection on connfd ...\n  close(connfd);\n  close(listenfd);\n  return 0;\n}",
+  "example_explanation": "This example demonstrates the `accept` system call.  A server creates a listening socket (`listenfd`) using the `socket` system call. The `accept` system call then blocks until a client connects. Upon a successful connection, `accept` returns a new socket descriptor (`connfd`) representing the connection to the client.  The error handling shows how exceptional control flow (through `perror` and `exit`) is managed in response to potential failures of the `accept` call. This highlights the interplay between the user-level program, the system call interface, and the kernel's management of network connections.  The use of `close` further shows how the kernel manages resources based on system calls, illustrating the interaction between hardware resources and the software that uses them.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "959-959",
+    "extraction_date": "2025-07-29T14:00:04.206694",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

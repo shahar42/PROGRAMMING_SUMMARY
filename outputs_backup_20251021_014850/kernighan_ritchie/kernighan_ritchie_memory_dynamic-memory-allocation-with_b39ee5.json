@@ -1,0 +1,15 @@
+{
+  "topic": "Dynamic Memory Allocation with sbrk",
+  "explanation": "The `sbrk` system call is crucial for dynamic memory allocation in UNIX system programming. Unlike static allocation where memory is reserved at compile time, `sbrk` allows a program to request additional memory from the operating system during runtime. This is essential for handling situations where the exact memory requirements are unknown beforehand, such as when dealing with variable-sized data structures or user input.",
+  "syntax": "void *sbrk(intptr_t increment);",
+  "code_example": "#include <unistd.h>\n#include <stdio.h>\n#include <stdlib.h>\n#define NALLOC 1024\nvoid *morecore(unsigned nu) {\n  void *ptr = sbrk(nu * sizeof(char));\n  if (ptr == (void*)-1) {\n    perror(\"sbrk failed\");\n    exit(1);\n  }\n  return ptr;\n}\nint main() {\n  char *p = (char *) morecore(NALLOC);\n  if (p == NULL) {\n     fprintf(stderr, \"Memory allocation failed\\n\");\n     return 1;\n  }\n  printf(\"Allocated %d bytes at address %p\\n\", NALLOC, p);\n  // ... use the allocated memory ...\n  return 0;\n}",
+  "example_explanation": "The `morecore` function demonstrates the use of `sbrk`. It attempts to allocate `nu` units of memory using `sbrk`.  If `sbrk` fails (returns -1, cast to (void*)-1 for comparison), it prints an error message and exits. Otherwise, it returns a pointer to the newly allocated memory. The `main` function calls `morecore` to allocate `NALLOC` bytes and then prints the address of the allocated memory. This illustrates how `sbrk` allows a program to dynamically request and manage memory during execution, a fundamental aspect of system-level programming in UNIX.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "152-152",
+    "extraction_date": "2025-07-19T02:00:54.066734",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "unix_programming"
+  }
+}

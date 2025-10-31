@@ -1,36 +1,12 @@
 {
   "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
   "explanation": "Return Value Optimization (RVO) and its more specific variant, Named Return Value Optimization (NRVO), are compiler optimizations that eliminate the often unnecessary copying of objects returned from functions.  Instead of creating a temporary object on the stack within the function, then copying it to the caller's location, the compiler directly constructs the returned object in the caller's designated memory location. This significantly impacts performance, especially with large or complex objects.  Understanding the nuances of how compilers perform these optimizations is crucial for writing efficient C++ code.  The compiler's ability to perform RVO/NRVO depends heavily on factors like the return type, the presence of temporary objects in the return statement, and the compiler's optimization level.  Failure to enable optimizations can result in substantial performance degradation due to unnecessary copy constructor calls and memory allocations.",
-  "syntax": "```cpp\nclass LargeObject {\npublic:\n    LargeObject() { /* Constructor */ }\n    LargeObject(const LargeObject& other) { /* Copy Constructor */ }\n    ~LargeObject() { /* Destructor */ }\n    // ... other members\n};\n\nLargeObject createLargeObject() {\n    LargeObject obj;\n    return obj; // RVO candidate\n}\n\nLargeObject createLargeObject2() {\n    LargeObject obj; \n    return std::move(obj); // Not RVO, but Move semantics\n}\nLargeObject getObj() { return {};} // NRVO candidate, in C++17 and later\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <chrono>",
-    "#include <vector>",
-    "class LargeObject {",
-    "public:",
-    "  std::vector<int> data;",
-    "  LargeObject() { data.resize(1000000); }",
-    "  LargeObject(const LargeObject& other) { data = other.data; } // Copy Constructor",
-    "  ~LargeObject() {}",
-    "};",
-    "LargeObject createLargeObject() {",
-    "  LargeObject obj;",
-    "  return obj; ",
-    "}",
-    "int main() {",
-    "  auto start = std::chrono::high_resolution_clock::now();",
-    "  LargeObject obj = createLargeObject();",
-    "  auto end = std::chrono::high_resolution_clock::now();",
-    "  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);",
-    "  std::cout << \"Time taken by function: \" << duration.count() << \" microseconds\" << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The `createLargeObject` function demonstrates a scenario where RVO can significantly improve performance.  Without RVO, the copy constructor of `LargeObject` would be invoked, resulting in a potentially expensive copy operation.  By compiling this code with optimization enabled (-O2 or -O3 for g++ or clang++), the compiler is likely to perform RVO, directly constructing `obj` in the caller's memory, thus avoiding the copy.  The performance difference, especially noticeable with large objects, would highlight the effectiveness of RVO. The `main` function measures the time taken for this operation. The time measured will be much shorter with optimizations enabled.  Disabling optimizations will show a clear performance hit due to the missing RVO.  Analyzing the assembly code (using tools like objdump or similar) can reveal whether the compiler actually performed RVO; the absence of copy constructor calls in the assembly would confirm its implementation.  The NRVO example showcases how compiler can even optimize even more by creating objects in place without copy when returned from a function by name. Comparing assembly with and without optimizations, and with varying return types (e.g., adding parameters to the function that affect RVO likelihood), allows for a deeper understanding of compiler behavior in this context.  The code example is also suited for demonstrating the importance of move semantics (`std::move`) in cases where RVO is not possible and when move semantics is more efficient then copy.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "declarators",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T02:48:18.132194"
-  }
+    "extraction_date": "2025-08-19T02:48:18.132194",
+    "book_metadata_added": "2025-10-28T20:22:06.815444"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

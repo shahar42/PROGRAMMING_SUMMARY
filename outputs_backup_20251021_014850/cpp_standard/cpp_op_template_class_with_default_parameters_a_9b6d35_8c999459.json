@@ -1,0 +1,15 @@
+{
+  "topic": "Template Class with Default Parameters and Inheritance of Tag Dispatching",
+  "explanation": "This concept demonstrates how C++ templates can be used to define generic classes with default template parameters, enabling flexible and reusable code. Additionally, it shows how inheritance among empty tag structs facilitates compile-time type dispatching (tag dispatching) for iterator categories, which is fundamental in implementing generic algorithms that adapt to different iterator types. Combining template class specialization, default parameters, and inheritance allows for highly customizable and efficient generic programming in C++.",
+  "syntax": "template<\n    class Category,\n    class T,\n    class Distance = ptrdiff_t,\n    class Pointer = T*,\n    class Reference = T&\n> struct iterator;\n\nstruct input_iterator_tag { };\nstruct output_iterator_tag { };\nstruct forward_iterator_tag: public input_iterator_tag { };\nstruct bidirectional_iterator_tag: public forward_iterator_tag { };\nstruct random_access_iterator_tag: public bidirectional_iterator_tag { };",
+  "code_example": "#include <iostream>\n\ntemplate<\n    class Category,\n    class T,\n    class Distance = ptrdiff_t,\n    class Pointer = T*,\n    class Reference = T&\n> struct iterator {\n    using iterator_category = Category;\n    using value_type = T;\n    using difference_type = Distance;\n    using pointer = Pointer;\n    using reference = Reference;\n};\n\nstruct input_iterator_tag { };\nstruct output_iterator_tag { };\nstruct forward_iterator_tag: public input_iterator_tag { };\nstruct bidirectional_iterator_tag: public forward_iterator_tag { };\nstruct random_access_iterator_tag: public bidirectional_iterator_tag { };\n\nint main() {\n    // Define a custom iterator with random access category\n    iterator<random_access_iterator_tag, int> it;\n    std::cout << \"Iterator category: \" << typeid(it.iterator_category).name() << std::endl;\n    return 0;\n}",
+  "example_explanation": "This example defines a generic 'iterator' template class with default template parameters for pointer and reference types, allowing flexible customization. It also declares a hierarchy of empty structs representing iterator categories, with inheritance modeling their capabilities. In 'main', an instance of the iterator is created with the 'random_access_iterator_tag', demonstrating how tag inheritance can be used for compile-time dispatching of iterator behaviors, a core technique in implementing the C++ Standard Template Library algorithms.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "856-856",
+    "extraction_date": "2025-08-19T07:27:47.929837",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

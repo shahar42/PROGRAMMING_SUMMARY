@@ -1,0 +1,14 @@
+{
+  "topic": "The Rule of Three for Resource Management in Custom Classes",
+  "explanation": "The Rule of Three is a fundamental C++ best practice for classes that manage resources, such as dynamic memory. It states that if a class defines any one of a destructor, a copy constructor, or a copy assignment operator, it should probably define all three to ensure proper resource handling. This prevents common pitfalls like memory leaks, double deletions, or shallow copies that lead to undefined behavior. In real-world scenarios, such as implementing custom containers like StrVec (a string vector from C++ Primer), this rule ensures that objects are copied correctly and resources are released when objects are destroyed. Best practices include using the Rule of Three to promote idiomatic C++ code, avoiding raw pointers where possible, and considering modern alternatives like smart pointers in C++11 and later to automate resource management.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:28:20.914274",
+    "book_metadata_added": "2025-10-28T20:22:06.521930"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class CustomResource {\n    int* buffer;\n    size_t length;\npublic:\n    CustomResource(size_t s) : buffer(new int[s]), length(s) {}\n\n    // 1. Destructor: Release dynamic memory\n    ~CustomResource() { delete[] buffer; }\n\n    // 2. Copy Constructor: Ensure deep copy\n    CustomResource(const CustomResource& other)\n        : length(other.length), buffer(new int[length]) {\n        // std::copy(other.buffer, other.buffer + length, buffer);\n    }\n\n    // 3. Copy Assignment Operator: Handle self-assignment and cleanup\n    CustomResource& operator=(const CustomResource& rhs) {\n        if (this == &rhs) return *this;\n        delete[] buffer; // Release old resource\n\n        length = rhs.length;\n        buffer = new int[length];\n        // copy data...\n\n        return *this;\n    }\n};",
+  "keywords": "Rule of Three, C++ copy control, deep copy, resource management"
+}

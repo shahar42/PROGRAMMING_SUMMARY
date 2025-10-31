@@ -1,0 +1,13 @@
+{
+  "topic": "Tag Types for Lock Policies in std::unique_lock",
+  "explanation": "Tag types, such as defer_lock_t, try_to_lock_t, and adopt_lock_t, are empty structs used in the C++ Standard Library to implement policy-based design for mutex locking in std::unique_lock. The compiler treats these as compile-time constants (often constexpr), enabling tag dispatching for overload resolution and template specialization. Internally, the compiler generates distinct code paths based on the tag provided to std::unique_lock's constructor. For instance, defer_lock_t instructs the compiler to defer lock acquisition, meaning no locking occurs in the constructor, while try_to_lock_t triggers an immediate attempt using mutex.try_lock(). Memory layout is minimal: these empty structs typically occupy no space (size of 1 byte in some implementations due to the empty base optimization or padding, but often optimized away in templates), avoiding runtime overhead. Performance implications include compile-time policy selection, which reduces branching at runtime; for example, defer_lock avoids immediate atomic operations, potentially improving startup performance in multi-threaded code. At the assembly level, the compiler might emit different instructions: defer_lock could skip lock calls in the constructor, whereas try_to_lock includes a call to an atomic try-lock function (e.g., x86's LOCK CMPXCHG). This behavior is primarily compile-time (template instantiation), but actual locking is runtime-dependent on thread scheduling and mutex state, making it a hybrid for efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:46:27.173841",
+    "book_metadata_added": "2025-10-28T20:22:06.865653"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::mutex m;\n\n// 1. std::defer_lock_t: Do not lock now\n// L1 created, mutex m is not locked.\nstd::unique_lock<std::mutex> L1(m, std::defer_lock);\nL1.lock(); // Manual acquisition\n\n// 2. std::try_to_lock_t: Non-blocking attempt\nstd::unique_lock<std::mutex> L2(m, std::try_to_lock);\nif (L2.owns_lock()) { /* critical section */ }\n\n// 3. std::adopt_lock_t: Assume lock is already held\nm.lock();\n// L3 takes ownership of the existing lock on m\nstd::unique_lock<std::mutex> L3(m, std::adopt_lock);\n\n// Tag Types: Empty structs for policy dispatch\n// Implemented via template specialization/overload resolution."
+}

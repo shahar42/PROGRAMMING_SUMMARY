@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigprocmask() System Call",
+  "explanation": "rt_sigprocmask examines and changes the set of blocked signals for the calling thread. It modifies the signal mask based on the specified operation and can retrieve the previous mask if requested.\n\n**Parameters:**\n- `how` (int): Specifies how to modify the signal mask (SIG_BLOCK, SIG_UNBLOCK, or SIG_SETMASK)\n- `set` (const kernel_sigset_t *_Nullable): Pointer to a new set of signals to add, remove, or set\n- `oldset` (kernel_sigset_t *_Nullable): Pointer to store the previous signal mask, if not NULL\n- `sigsetsize` (size_t): Size in bytes of the signal sets in set and oldset\n\n**Common Errors:**\n- `EFAULT`: The set or oldset argument points outside the process’s allocated address space\n- `EINVAL`: Either the value specified in how was invalid or the kernel does not support the size passed in sigsetsize\n\n**Related System Calls:** `kill()`, `pause()`, `sigaction()`, `signal()`, `sigpending()`, `sigsuspend()`, `pthread_sigmask()`, `sigqueue()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.175691",
+    "syscall_name": "rt_sigprocmask",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigprocmask.json",
+    "concept_id": "posix_sys_rt_sigprocmask_b25bbf",
+    "book_metadata_added": "2025-10-28T20:22:06.660972"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "sigset_t block_mask, old_mask;\n\n// 1. Initialize set of signals to block\nsigemptyset(&block_mask);\nsigaddset(&block_mask, SIGUSR1);\nsigaddset(&block_mask, SIGUSR2);\n\n// 2. Block signals (SIG_BLOCK), saving the current mask in old_mask\nrt_sigprocmask(SIG_BLOCK, &block_mask, &old_mask);\n\n// ... Protected execution context ...\n\n// 3. Restore previous mask (SIG_SETMASK)\nrt_sigprocmask(SIG_SETMASK, &old_mask, NULL);\n<ctrl63>",
+  "keywords": "sigprocmask, rt_sigprocmask, signal mask, block signals"
+}

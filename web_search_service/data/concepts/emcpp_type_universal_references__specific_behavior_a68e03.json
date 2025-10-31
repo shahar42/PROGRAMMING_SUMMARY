@@ -1,0 +1,19 @@
+{
+  "topic": "Universal References [Specific Behavior]: Misidentifying T&&",
+  "category": "type",
+  "explanation": "Assumption: The type syntax `T&&` always denotes an rvalue reference, indicating that the referenced object is a temporary or soon-to-be-destroyed entity suitable for moving. Reality: In certain contexts, specifically when `T&&` appears in a template parameter deduction scenario (or `auto&&`), it becomes a universal reference (or forwarding reference). A universal reference can bind equally well to both lvalues and rvalues. Why It Fails: This failure stems from a fundamental misunderstanding of the C++ type system's interaction with templates. The key determinant of a universal reference is not just the `&&` syntax, but the fact that type deduction must occur. If type deduction is disabled (e.g., if `T` is already known, or if the parameter is `std::vector<T>&&`), then `T&&` reverts to its strict meaning: an rvalue reference that binds only to rvalues. Misidentifying a strict rvalue reference as a universal reference leads to forwarding code that fails to compile when passed an lvalue, or, conversely, mistaking a universal reference for a strict rvalue reference leads to attempts to optimize away copies that were never necessary, or failing to apply `std::forward` correctly.",
+  "code_example": "// Failure of deduction context dependency\nvoid f(Widget&& w); // Strict rvalue ref (T is known)\n\ntemplate<typename T>\nvoid g(T&& t);      // Universal ref (T is deduced)\n\nWidget w_lvalue;\nf(w_lvalue); // Compiler error: Cannot bind lvalue to rvalue ref",
+  "practical_example": "A developer attempts to implement a setter function using `const T&` overload and a move-only `T&&` overload, but mistakenly makes the move-only overload a template `template<typename U> void set(U&& u)` assuming it will only capture rvalues, resulting in the template greedily capturing *all* arguments (lvalues and rvalues), often causing ambiguity or unwanted moves.",
+  "keywords": [
+    "universal reference",
+    "rvalue reference",
+    "type deduction",
+    "ambiguity",
+    "T&&"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "182-186",
+  "chapter": "Item 24: Distinguish universal references from rvalue references",
+  "id": "emcpp_type_universal_references__specific_behavior_a68e03",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

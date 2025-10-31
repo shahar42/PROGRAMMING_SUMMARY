@@ -1,0 +1,37 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Name Lookup and Argument-Dependent Lookup (ADL) in Namespaces",
+  "explanation": "Namespaces in C++ are a crucial mechanism for managing the scope of identifiers, preventing naming collisions, and organizing code.  While seemingly straightforward, their implementation involves complex interactions with the compiler's name lookup process, particularly Argument-Dependent Lookup (ADL) which significantly impacts compile-time behavior and can lead to subtle performance effects if not understood.  The compiler performs name lookup in phases, starting with the immediate scope and traversing outward.  For ADL, the types of function arguments are considered, widening the search scope to include namespaces associated with those types.  This can dramatically impact which function overload is selected, especially when dealing with template functions and user-defined types. This impacts not just which code executes, but how the compiler optimizes function calls and potential inlining.\n\nMemory layout isn't directly affected by namespaces themselves, as namespaces don't allocate memory. However, the choice of functions due to ADL can influence memory layout through the impact on the generated code for data structures or external functions called. Performance is influenced significantly by the compiler's ability to resolve overloaded function calls efficiently. Inefficient name lookup due to poorly designed namespaces or complex ADL scenarios can lead to slower compile times and reduced performance at runtime, particularly for complex template metaprogramming.",
+  "syntax": "Namespaces are declared using the `namespace` keyword:\n\n```c++\nnamespace MyNamespace {\n  int myFunction(int a, int b) { return a + b; }\n}\n\n// ADL example\nnamespace OtherNamespace {\n  int myFunction(double a, double b) { return static_cast<int>(a + b); }\n}\n\nint main() {\n  int x = MyNamespace::myFunction(5, 3); // Explicit namespace qualification\n  int y = myFunction(5.0, 3.0); // ADL will consider OtherNamespace due to double arguments\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <vector>",
+    "namespace MyNamespace {",
+    "  template <typename T>",
+    "  void processVector(const std::vector<T>& vec) {",
+    "    for (const auto& val : vec) {",
+    "      //Some operation on val",
+    "    }",
+    "  }",
+    "}",
+    "namespace OtherNamespace {",
+    "  template <typename T>",
+    "  void processVector(const std::vector<T>& vec) {",
+    "      //Different implementation of processVector",
+    "  }",
+    "}",
+    "int main() {",
+    "  std::vector<int> vec1 = {1,2,3};",
+    "  MyNamespace::processVector(vec1); // Explicit Namespace",
+    "  std::vector<double> vec2 = {1.0, 2.0, 3.0};",
+    "  processVector(vec2); // ADL might select either implementation depending on compiler and std::vector implementation",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `main` function demonstrates ADL. The call to `processVector(vec1)` explicitly uses `MyNamespace`.  The call `processVector(vec2)` relies on ADL. The compiler will search namespaces associated with `std::vector<double>` (potentially `std` itself) looking for a matching `processVector` overload. This creates a dependency on the compiler's implementation of `std::vector` and its interaction with ADL.  Disambiguation depends on compiler-specific rules and the exact implementation of the standard library, leading to potential portability issues if not handled carefully.  Observing the assembly code generated for both calls will reveal differences in how the function calls are resolved and potentially what optimizations are applied, illustrating the impact of name lookup on performance.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:38:08.876690"
+  }
+}

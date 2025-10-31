@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics and Rvalue References with External Resources",
+  "explanation": "Move semantics are a crucial optimization technique in C++ that allows efficient transfer of resources (like dynamically allocated memory or file handles) between objects, avoiding unnecessary copying.  This is particularly beneficial when dealing with large objects or objects managing external resources.  Instead of copying the entire object, move semantics transfer ownership of the resources. This is achieved using rvalue references (&&) which bind to temporary objects (rvalues) that are about to be destroyed.  By moving resources from the temporary object to the new object, we avoid expensive copying operations and improve performance.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:39:29.131580",
+    "book_metadata_added": "2025-10-28T20:22:06.581063"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceHolder {\n    void* handle;\npublic:\n    ResourceHolder(void* h) : handle(h) {}\n    ~ResourceHolder() { free(handle); }\n\n    ResourceHolder(ResourceHolder&& other) noexcept\n        : handle(other.handle) // Steal resource\n    {\n        other.handle = nullptr; // Nullify source\n    }\n\n    ResourceHolder& operator=(ResourceHolder&& other) noexcept;\n    ResourceHolder(const ResourceHolder&) = delete;\n    ResourceHolder& operator=(const ResourceHolder&) = delete;\n};\n\nResourceHolder& ResourceHolder::operator=(ResourceHolder&& other) noexcept {\n    if (this != &other) {\n        free(handle); // Release current resource\n\n        handle = other.handle; // Steal handle\n        other.handle = nullptr;\n    }\n    return *this;\n}\n\nResourceHolder r1(malloc(100));\nResourceHolder r2 = std::move(r1); // Explicitly invoke move constructor",
+  "keywords": "Move Semantics, Rvalue reference, && C++, Resource ownership transfer"
+}

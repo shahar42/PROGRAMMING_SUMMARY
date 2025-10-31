@@ -1,0 +1,18 @@
+{
+  "topic": "std::bind Failure: Immediate Argument Evaluation",
+  "category": "lambda",
+  "explanation": "Assumption: Arguments passed to `std::bind` that are expressions (e.g., function calls) are evaluated dynamically when the resulting function object is invoked. Reality: `std::bind` evaluates all arguments immediately at the point of the binding call, capturing the *result* of the expression, not the expression itself. Why It Fails: If the argument relies on current runtime state (such as fetching the current time via `steady_clock::now()`), `std::bind` captures a stale, fixed value. Lambdas, conversely, evaluate expressions within their body only when the closure is invoked, ensuring state-dependent values are current.",
+  "code_example": "auto setSoundB = std::bind(setAlarm, steady_clock::now() + 1h, _1, 30s); \n// steady_clock::now() is evaluated and fixed here, not when setSoundB is called.",
+  "practical_example": "A task scheduler uses `std::bind` to set an action that should run 5 minutes from 'now'. Because `now()` is evaluated during the binding setup (which might happen hours before the scheduler runs), the scheduled time is incorrect relative to the actual execution moment.",
+  "keywords": [
+    "std::bind",
+    "evaluation timing",
+    "immediate evaluation",
+    "runtime state"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "255",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_lambda_std__bind_failure__bc9e5a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

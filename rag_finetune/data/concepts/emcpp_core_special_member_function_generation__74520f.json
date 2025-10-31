@@ -1,0 +1,20 @@
+{
+  "topic": "Special Member Function Generation: Independence of Copy Operations",
+  "category": "core",
+  "explanation": "The two copy operations, the copy constructor and the copy assignment operator, are treated as independent by the compiler regarding their automatic generation. Scott Meyers points out that explicitly declaring one of these two functions does not prevent the compiler from generating a default implementation for the other if it is needed and all conditions for its generation are met. This rule is a direct carryover from C++98 and represents an exception to the more integrated rules governing the other special member functions in modern C++.\n\nMeyers' key insight is that this independence is unique to the copy operations and contrasts sharply with the behavior of move operations. Understanding this specific exception is vital for correctly predicting the behavior of a class, especially when dealing with legacy code or classes that only partially implement the 'Rule of Three/Five'. It prevents the incorrect assumption that defining any special member function disables the automatic generation of all others.\n\nThe mechanics are simple: if a programmer provides a user-defined copy constructor but omits a copy assignment operator, the compiler will still synthesize a public and inline copy assignment operator if one is used in the code. This generated operator will perform a member-wise copy of all base and non-static data members. The reverse is also true: declaring only a copy assignment operator allows the compiler to generate the copy constructor on demand. This stands in stark contrast to the all-or-nothing approach for move semantics.\n\nIn practical terms, this allows for a class to have, for instance, custom copy-construction logic (perhaps for logging or incrementing a static counter) while still relying on the compiler's simple and efficient member-wise assignment. However, this is often a sign of incomplete class design. For any class that manages resources, relying on a compiler-generated copy operation when another has been customized is a code smell that can lead to bugs like resource leaks or double-frees, as the generated function will likely perform a shallow copy.\n\nA common pitfall is to assume that declaring a copy constructor is sufficient to define the class's copying semantics. A developer might write a correct deep-copying copy constructor but forget the copy assignment operator. This can lead to the compiler silently generating a member-wise (shallow) copy assignment operator, which introduces subtle and dangerous bugs when an object is assigned to another.",
+  "code_example": "class Widget {\npublic:\n  // User-declared copy constructor\n  Widget(const Widget& rhs) { /* ... custom logic ... */ }\n\n  // No copy assignment operator declared.\n  // Compiler will generate one if needed.\n};\n\nvoid example() {\n  Widget w1;\n  Widget w2(w1); // Calls user-declared copy constructor.\n  w1 = w2;       // Compiles! Calls compiler-generated copy assignment op.\n}",
+  "practical_example": "A legacy C++98 class might have a custom copy constructor to handle a single pointer member correctly, but the original author may have forgotten to implement the copy assignment operator. In C++11 and later, the compiler will still generate a default copy assignment operator, which would perform a shallow copy of the pointer, leading to a double-free bug. This highlights the danger of this specific generation rule.",
+  "keywords": [
+    "special member functions",
+    "copy constructor",
+    "copy assignment",
+    "compiler-generated functions",
+    "rule of three",
+    "c++98"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "110",
+  "chapter": "Item 17: Understand the special member function generation rules",
+  "id": "emcpp_core_special_member_function_generation__74520f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

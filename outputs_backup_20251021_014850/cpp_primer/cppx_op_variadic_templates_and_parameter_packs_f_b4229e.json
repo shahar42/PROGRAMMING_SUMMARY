@@ -1,0 +1,13 @@
+{
+  "topic": "Variadic Templates and Parameter Packs for Flexible Functions",
+  "explanation": "Variadic templates allow you to create functions that can accept a variable number of arguments. This is incredibly useful for writing flexible and reusable functions that can handle different numbers of inputs without needing separate overloads for each possibility.  A common pitfall is inefficient recursive implementations; iterative approaches are generally preferred for performance, especially with a large number of arguments.",
+  "syntax": "Variadic templates use the ellipsis (...) to represent a parameter pack.  The pack can be expanded within the function body using various techniques (e.g., fold expressions, recursive calls).  Example:\n\n```c++\ntemplate <typename... Args>\nvoid print_all(Args&&... args) {\n  (std::cout << ... << args) << std::endl; // Fold expression for simple concatenation\n}\n```\n\nNote:  `Args&&...` uses perfect forwarding to handle arguments efficiently and avoid unnecessary copies. Prefer this to `Args...` unless you need to modify the arguments within the function.",
+  "code_example": "#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\ntemplate <typename... Args>\nvoid print_all(Args&&... args) {\n  ((std::cout << args << \" \"), ...); // Fold expression for printing\n  std::cout << std::endl;\n}\ntemplate <typename T>\nvoid process_data(const std::vector<T>& data) {\n  for (const auto& item : data) {\n    print_all(item, \"processed\");\n  }\n}\nint main() {\n  std::vector<std::string> strings = {\"hello\", \"world\", \"C++\"};\n  std::vector<int> numbers = {1, 2, 3, 4, 5};\n  process_data(strings);\n  process_data(numbers);\n  return 0;\n}",
+  "example_explanation": "The `print_all` function demonstrates a simple fold expression to print any number of arguments. The `process_data` function showcases how variadic templates can be integrated into more complex scenarios.  It processes a vector of any type, using `print_all` to output each element with additional text.  This approach is much more elegant than writing separate functions for each potential data type or number of arguments.  Avoid unnecessary recursion when dealing with parameter packs.  For simple operations, fold expressions are concise and efficient.  For more complex logic, consider iterative approaches for better performance with larger packs.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:51:43.484235"
+  }
+}

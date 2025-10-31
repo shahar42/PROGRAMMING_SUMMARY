@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Failure: Template Hiding Specialized Overloads",
+  "category": "template",
+  "explanation": "Assumption: Specialized, non-template overloads for specific types (especially built-in types) will always take precedence over the highly general universal reference template. Reality: The rules for template specialization deduction are complex. In many cases, the compiler may prefer the instantiation of the universal reference template over a non-template function that accepts the target type, especially if the non-template function requires implicit type conversion or promotion. Why It Fails: If specialized overloads are intended to handle specific primitive types (like `int` or `bool`) using optimized logic, the presence of the universal reference template can shadow or hide these overloads. The compiler may select the template (deducing `T` to the exact type) over a specialized non-template function, leading to unintended behavior, increased binary size due to unnecessary template instantiation, and the execution of generic forwarding logic instead of dedicated type handling.",
+  "code_example": "// Intended specialized overload for int is hidden\ntemplate<typename T> void log(T&&) { /* Generic log */ }\nvoid log(int) { /* Specialized high-speed log for int */ }\nint x = 5; log(x); // Calls template (T deduced as int&), hiding specialized int overload",
+  "practical_example": "A network library provides dedicated overloads for handling `int` and `long` network parameters efficiently. Introducing a universal reference function for broader compatibility causes all usages of `int` and `long` to hit the generic template, bypassing crucial endianness conversion logic in the specialized overloads.",
+  "keywords": [
+    "template hiding",
+    "specialization failure",
+    "overload resolution ambiguity",
+    "template greed"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "201-202",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_failure__template_hiding_9cc7ea",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

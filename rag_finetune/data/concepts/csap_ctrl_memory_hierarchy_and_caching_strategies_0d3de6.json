@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Full Range",
+  "explanation": "The memory hierarchy is a tiered storage structure designed to mitigate the significant speed disparity between the CPU and main memory (DRAM). It organizes storage levels—registers, L1/L2/L3 caches, main memory, and secondary storage—by decreasing speed and increasing capacity. Caching strategies exploit the principle of locality of reference (temporal and spatial) by moving frequently accessed data blocks into faster, smaller cache levels. This mechanism ensures a high cache hit rate, drastically reducing the average memory access time (AMAT). Effective cache management, governed by policies for block placement (e.g., set-associative mapping) and replacement (e.g., LRU), is fundamental to maximizing system throughput and overall application performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "376-376",
+    "extraction_date": "2025-07-26T21:47:05.462261",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.740445",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:21:31",
+    "original_length": 555,
+    "refined_length": 765
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Spatial Locality (Cache Friendly Matrix Access)\n#define N 1024\nint matrix[N][N];\n\n// Row-major iteration (C/C++ default)\n// Sequential memory access: maximizes use of\n// data brought into cache lines.\nvoid process_rows() {\n    for (int i = 0; i < N; ++i) {\n        for (int j = 0; j < N; ++j) {\n            matrix[i][j] = 0;\n        }\n    }\n}\n// Note: Looping j then i (column-major) causes\n// poor spatial locality and cache thrashing.\n\n// Cache Line Optimization (False Sharing Prevention)\n#define CACHE_L_SIZE 64 // Typical L1/L2 Cache Line Size\n\n// Ensures structures do not share cache lines\nstruct __attribute__((aligned(CACHE_L_SIZE))) PerThreadData {\n    long operation_count;\n    // Implicit padding fills remainder of 64 bytes\n};\n\nPerThreadData status[8];\n// status[i] modified only by Thread i\n// Avoids coherence invalidation overheads.\n<ctrl63>"
+}

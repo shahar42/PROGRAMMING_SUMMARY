@@ -1,0 +1,18 @@
+{
+  "topic": "Move Operations [Limitation/Failure]: Premature Application of std::move",
+  "category": "design",
+  "explanation": "Assumption: Applying `std::move` to a member variable or function parameter as soon as possible is an effective way to maximize move opportunities and optimize performance. Reality: Applying `std::move` prematurely, particularly to local variables or function parameters, transforms the variable into an rvalue and renders it potentially unusable (moved-from state) for the rest of the current scope. Why It Fails: This creates a subtle but potent logic error. If a function parameter is used for subsequent operations (like logging, validation, or multiple assignments) after being moved, the program enters an undefined or implementation-defined state, as the moved-from object is required only to be in a valid, destructible state, but not necessarily maintain its original value or functionality. When dealing with complex resources, prematurely moving a member variable in a helper function can cause the owning object's state to become internally inconsistent if the subsequent code path relies on that member being intact. The proper pattern requires applying `std::move` only at the very last point of use, immediately before the destruction or transfer of control.",
+  "code_example": "// Failure of early move\nvoid f(Widget w) {\n  auto temp = std::move(w); // Premature move\n  if (w.isValid()) { /* ... */ } // Dangerous: w is in moved-from state\n}",
+  "practical_example": "In a complex resource manager, a utility function attempts to move a resource handle to an internal cache early in the function. Later, an exception handling block attempts to log the state of the resource handle, but the handle has already been moved, resulting in an unhelpful or crashing diagnostic.",
+  "keywords": [
+    "premature move",
+    "use-after-move",
+    "logic error",
+    "parameter decay"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "189-191",
+  "chapter": "Item 25: Use std::move on rvalue references and std::forward on universal references",
+  "id": "emcpp_design_move_operations__limitation_failure_6450f7",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "sigsetjmp with Signal Mask Saving",
+  "explanation": "sigsetjmp is a function in C that saves the current execution context into an environment object, similar to setjmp, but with an additional argument to handle signals. It is used to perform non-local jumps while optionally saving the process's current signal mask, which ensures that signal handling states are preserved and restored during jumps. This is particularly useful in multi-threaded or signal-intensive programs to maintain consistent signal behavior after a jump.",
+  "syntax": "int sigsetjmp(sigjmp_buf env, int savemask)",
+  "code_example": "#include <setjmp.h>\n#include <stdio.h>\nint main() {\n    sigjmp_buf env;\n    int val = sigsetjmp(env, 1);  // Saves the context and signal mask\n    if (val == 0) {\n        printf(\"Executing initial code\\n\");\n        siglongjmp(env, 1);  // Jumps back, restoring the signal mask\n    } else {\n        printf(\"Returned from siglongjmp with signal mask restored\\n\");\n    }\n    return 0;\n}",
+  "example_explanation": "This example shows sigsetjmp saving the execution context and the signal mask because the savemask argument is set to 1. When siglongjmp is called, it restores both the context and the saved signal mask, causing the program to jump back to the point after sigsetjmp. The output demonstrates the jump and restoration, highlighting how the signal mask is handled to maintain signal state consistency.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "390-390",
+    "extraction_date": "2025-07-23T00:26:50.705617",
+    "has_code": false,
+    "has_explanation": true
+  }
+}

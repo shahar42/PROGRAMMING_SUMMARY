@@ -1,0 +1,69 @@
+{
+  "name": "select_tut",
+  "synopsis": [
+    "Seeselect(2)"
+  ],
+  "description": "The select() and pselect() system calls are used to monitor multiple file descriptors for readiness, allowing programs to wait for I/O events or exceptional conditions efficiently. This page provides tutorial information on their use, including handling signals and data events.",
+  "parameters": [
+    {
+      "name": "nfds",
+      "type": "int",
+      "description": "The highest-numbered file descriptor plus one to be monitored"
+    },
+    {
+      "name": "readfds",
+      "type": "fd_set *",
+      "description": "Set of file descriptors to monitor for readability"
+    },
+    {
+      "name": "writefds",
+      "type": "fd_set *",
+      "description": "Set of file descriptors to monitor for writability"
+    },
+    {
+      "name": "exceptfds",
+      "type": "fd_set *",
+      "description": "Set of file descriptors to monitor for exceptional conditions"
+    },
+    {
+      "name": "timeout",
+      "type": "struct timeval *",
+      "description": "Timeout for the select() call"
+    },
+    {
+      "name": "sigmask",
+      "type": "const sigset_t *",
+      "description": "Signal mask for pselect() to handle signals"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of file descriptors ready for the requested I/O",
+    "failure": "Returns -1 on error and sets errno"
+  },
+  "errors": [
+    {
+      "code": "EINTR",
+      "description": "A signal was caught, interrupting the call"
+    }
+  ],
+  "bugs": "Programs using select() may encounter race conditions if signals arrive after checking global flags but before the call, potentially causing indefinite blocking; pselect() is recommended to mitigate this.",
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [
+    "static volatile sig_atomic_t got_SIGCHLD = 0;",
+    "static void child_sig_handler(int sig) { got_SIGCHLD = 1; }",
+    "int main(int argc, char *argv[]) { sigset_t sigmask, empty_mask; /* ... code as in the man page ... */ r = pselect(nfds, &readfds, &writefds, &exceptfds, NULL, &empty_mask); }"
+  ],
+  "related_calls": [
+    "pselect",
+    "sigprocmask",
+    "sigaction"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "select_tut.pdf",
+    "extraction_date": "2025-07-30T23:52:08.011331",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

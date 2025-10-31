@@ -1,0 +1,14 @@
+{
+  "topic": "pthread_cond_wait Function",
+  "explanation": "The pthread_cond_wait function is a synchronization primitive in C's POSIX threads (pthreads) library used to make a thread wait until a specific condition is signaled by another thread. It atomically unlocks the associated mutex and suspends the thread, allowing other threads to access shared resources safely. This prevents busy-waiting and ensures efficient multi-threaded programming by coordinating thread execution based on conditions.",
+  "syntax": "int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);",
+  "code_example": "#include <pthread.h>\n#include <stdio.h>\n#include <unistd.h>\n\npthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;\npthread_cond_t cond = PTHREAD_COND_INITIALIZER;\n\nvoid *waiter(void *arg) {\n    pthread_mutex_lock(&mutex);\n    printf(\"Waiting...\\n\");\n    pthread_cond_wait(&cond, &mutex);\n    printf(\"Woken up!\\n\");\n    pthread_mutex_unlock(&mutex);\n    return NULL;\n}\n\nvoid *signaler(void *arg) {\n    sleep(1);  // Simulate delay\n    pthread_mutex_lock(&mutex);\n    pthread_cond_signal(&cond);\n    pthread_mutex_unlock(&mutex);\n    return NULL;\n}\n\nint main() {\n    pthread_t thread1, thread2;\n    pthread_create(&thread1, NULL, waiter, NULL);\n    pthread_create(&thread2, NULL, signaler, NULL);\n    pthread_join(thread1, NULL);\n    pthread_join(thread2, NULL);\n    return 0;\n}",
+  "example_explanation": "This program creates two threads: one (waiter) that locks the mutex, prints 'Waiting...', and calls pthread_cond_wait to suspend until signaled, and another (signaler) that waits for 1 second before signaling the condition and unlocking the mutex. This demonstrates pthread_cond_wait by showing how the waiter thread blocks and resumes only after the signal, ensuring safe synchronization without busy-waiting.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "450-450",
+    "extraction_date": "2025-07-23T08:32:41.080187",
+    "has_code": true,
+    "has_explanation": true
+  }
+}

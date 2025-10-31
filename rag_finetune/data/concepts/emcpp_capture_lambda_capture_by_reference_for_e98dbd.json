@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture By-Reference for Immediate, Synchronous Use",
+  "category": "capture",
+  "explanation": "The primary danger of default by-reference capture (`[&]`) is lifetime mismatch. However, when a lambda is passed immediately to a synchronous standard library algorithm (like `std::all_of`, `std::for_each`, or `std::transform`), the execution is guaranteed to complete before the function that created the lambda returns. This eliminates the risk of dangling references, making `[&]` safe and often preferable in these specific contexts as it avoids unnecessary copying of captured variables.",
+  "code_example": "auto divisor = computeDivisor();\n// Safe use: std::all_of executes immediately and synchronously\nif (std::all_of(begin(c), end(c), \n                [&](const auto& value) { \n                  return value % divisor == 0; \n                })) { ... }",
+  "practical_example": "When filtering a large container using `std::find_if`, capturing a large, expensive-to-copy local object by reference (`[&]`) is efficient and safe, provided the operation completes before the scope ends. Using default by-value capture (`[=]`) in this scenario would introduce unnecessary copy overhead.",
+  "keywords": "Synchronous lambda capture, Immediate lambda use, C++ [&] safe",
+  "difficulty": "intermediate",
+  "page_reference": "234-235",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_by_reference_for_e98dbd",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

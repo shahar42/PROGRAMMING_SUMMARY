@@ -1,0 +1,19 @@
+{
+  "topic": "Future Destruction Implicit Join for `std::async` Tasks",
+  "category": "sync",
+  "explanation": "Assumption: All `std::future` destructors simply decrement the shared state reference count and return immediately, consistent with standard RAII cleanup. Reality: The destructor of a `std::future` blocks (performs an implicit join) until the associated asynchronous task completes, provided three conditions are met: 1) The shared state was created by `std::async`; 2) The task was launched asynchronously (`std::launch::async`); and 3) The future being destroyed is the *last* remaining future referencing that shared state. Why It Matters: This behavior guarantees that resources tied to the asynchronous operation are properly cleaned up and prevents the program from terminating while the task is still running (potentially avoiding resource leaks or termination issues associated with unjoined threads). However, it means the destructor can block indefinitely, which is often unexpected for RAII objects.",
+  "code_example": "// The temporary future's destructor blocks until the task completes\nstd::async(std::launch::async, []{ /* long calculation */ }); \n// Current thread blocks here.",
+  "practical_example": "A developer uses `std::async` to launch several short-lived, independent background tasks within a loop, relying on the return value of `std::async` being implicitly discarded. Because the temporary `std::future` created by `std::async` blocks in its destructor, the tasks are inadvertently executed sequentially rather than in parallel.",
+  "keywords": [
+    "std::async",
+    "std::future",
+    "destructor blocking",
+    "implicit join",
+    "std::launch::async"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "259",
+  "chapter": "Item 38: Be aware of the pitfalls of futures derived from std::async",
+  "id": "emcpp_sync_future_destruction_implicit_join_for_9d9431",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

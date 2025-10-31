@@ -1,0 +1,16 @@
+{
+  "topic": "Processor Pipelining and its Impact on Performance",
+  "explanation": "Modern processors utilize pipelining to execute instructions concurrently, overlapping different stages of instruction processing.  This improves performance by increasing instruction throughput, but the presence of data and control dependencies can limit the effectiveness of pipelining. Understanding these dependencies is crucial for performance optimization.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "557-557",
+    "extraction_date": "2025-07-27T18:11:12.915442",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.732146"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Data Hazard: RAW (Read After Write) Dependency\n// Pipelined stages overlap: IF, ID, EX, MEM, WB\nADD R3, R1, R2       // I1: Writes R3 in WB\nSUB R4, R3, R5       // I2: Reads R3 in ID/EX\nAND R6, R4, R7       // I3: Reads R4 in ID/EX\n\n// Hazard occurs when I2 tries to read R3\n// before I1 has written R3 back to register file.\n// Mitigation: Pipeline Stall (NOP) or Operand Forwarding.\n\n// ---\n\n// Control Hazard (Branch Dependency)\nCMP R1, #0\nBNE Target_A         // Branch Instruction (Executed in EX)\nADD R5, R5, #1       // Delay Slot 1 (Executed/Flushed if branch taken)\nSUB R6, R6, #2       // Delay Slot 2\nTarget_A:\nMUL R7, R7, R8\n\n// Branch prediction mitigates pipeline flush latency.\n\n// ---\n\n// Hazard Mitigation: Operand Forwarding (Bypass)\n// Feeds result directly from EX/MEM stage output register.\nMUL R10, R1, R2      // I1: R10 computed in EX\nADD R11, R10, R3     // I2: R10 needed in EX input stage\n// R10 value is \"forwarded\" from I1's EX stage\n// output register directly to I2's EX input.\nSTORE R11, 0(R4)",
+  "keywords": "Pipelining, Pipeline Hazards, Instruction Level Parallelism, ILP"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "fchownat() System Call",
+  "explanation": "The fchownat() system call changes the owner and group of a file, similar to chown(), but allows the file to be specified relative to a directory file descriptor and includes flags to control behavior such as not following symbolic links.\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor, or AT_FDCWD to use the current working directory.\n- `pathname` (const char *): Path to the file; if relative, it is resolved relative to dirfd.\n- `owner` (uid_t): The new owner user ID; specify -1 to leave unchanged.\n- `group` (gid_t): The new group ID; specify -1 to leave unchanged.\n- `flags` (int): Bit mask of flags, such as AT_SYMLINK_NOFOLLOW or AT_EMPTY_PATH, to modify behavior.\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix.\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor.\n- `EFAULT`: pathname points outside your accessible address space.\n- `EINVAL`: Invalid flag specified in flags.\n- `EIO`: A low-level I/O error occurred while modifying the inode.\n\n**Related System Calls:** `chown()`, `fchown()`, `lchown()`, `openat()`",
+  "syntax": "int fchownat(int dirfd, const char *pathname, uid_t owner, gid_t group, int flags);",
+  "code_example": "#include <pwd.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n\nint main(int argc, char *argv[]) {\n    // Code to change ownership using chown(), adaptable for fchownat\n    uid_t uid;\n    // ... (rest of the example from man page)\n    if (chown(argv[2], uid, -1) == -1) {\n        perror(\"chown\");\n        exit(EXIT_FAILURE);\n    }\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the fchownat() system call. The function takes 5 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.235424",
+    "syscall_name": "fchownat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fchownat.json",
+    "concept_id": "posix_sys_fchownat_fcc0be"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Non-local Jumps with setjmp and longjmp",
+  "explanation": "In C, `setjmp` and `longjmp` provide a mechanism for non-local jumps, allowing immediate returns from deeply nested function calls, bypassing the normal function call and return stack.  This is useful for handling exceptional situations or error conditions that require immediate exit from multiple function levels, such as exceptions or asynchronous events.  It's crucial to understand that these functions manipulate the call stack directly and should be used cautiously to avoid unexpected behavior or crashes.",
+  "syntax": "int setjmp(jmp_buf env);\nvoid longjmp(jmp_buf env, int val);",
+  "code_example": "#include <stdio.h>\n#include <setjmp.h>\n\njmp_buf env;\n\nvoid nested_function() {\n  if (setjmp(env) == 0) {\n    printf(\"Nested function called\\n\");\n    // Simulate an error condition\n    longjmp(env, 1);\n  }\n  else {\n    printf(\"Returning from longjmp\\n\");\n  }\n}\n\nint main() {\n  if (setjmp(env) == 0) {\n    printf(\"Main function called\\n\");\n    nested_function();\n    printf(\"Main function continues\\n\");\n  } else {\n    printf(\"Returning to main from longjmp\\n\");\n  }\n  return 0;\n}",
+  "example_explanation": "The example demonstrates the use of `setjmp` and `longjmp`.  `setjmp` saves the current program state into `env`. The `if (setjmp(env) == 0)` block in `main` and `nested_function` executes only on the initial call; a subsequent `longjmp` call will directly return to this point.  In the nested function, a simulated error condition triggers `longjmp(env, 1)`, which immediately returns control to the nearest enclosing `setjmp` call, skipping the remaining code in `nested_function` and `main`. The non-zero return value of `setjmp` (1 in this case) indicates that the return was from `longjmp`. The output shows the non-sequential execution flow.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "211-211",
+    "extraction_date": "2025-07-21T10:43:48.558621",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "c_programming"
+  }
+}

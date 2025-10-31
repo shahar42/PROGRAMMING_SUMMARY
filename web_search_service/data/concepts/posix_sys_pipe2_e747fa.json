@@ -1,0 +1,16 @@
+{
+  "topic": "pipe2() System Call",
+  "explanation": "pipe2() creates a pipe, a unidirectional data channel for interprocess communication, similar to pipe(), but allows additional flags to modify the pipe's behavior such as setting it to non-blocking or close-on-exec.\n\n**Parameters:**\n- `pipefd` (int[2]): Array used to return two file descriptors referring to the ends of the pipe: pipefd[0] for reading and pipefd[1] for writing\n- `flags` (int): Bitwise OR of flags to modify pipe behavior, such as O_CLOEXEC, O_NONBLOCK, O_DIRECT, or O_NOTIFICATION_PIPE\n\n**Common Errors:**\n- `EFAULT`: pipefd is not valid\n- `EINVAL`: Invalid value in flags\n- `EMFILE`: The per-process limit on the number of open file descriptors has been reached\n- `ENFILE`: The system-wide limit on the total number of open files has been reached\n- `ENFILE`: The user hard limit on memory that can be allocated for pipes has been reached and the caller is not privileged\n\n**Related System Calls:** `fork()`, `read()`, `socketpair()`, `splice()`, `tee()`, `vmsplice()`, `write()`, `popen()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.157448",
+    "syscall_name": "pipe2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pipe2.json",
+    "concept_id": "posix_sys_pipe2_e747fa",
+    "book_metadata_added": "2025-10-28T20:22:06.652909"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int pipefd[2];\nint result;\n\n// Common pipe2 flags\nconst int flags = O_CLOEXEC | O_NONBLOCK;\n\n// Creates a pipe that is non-blocking and automatically\n// closes file descriptors if an exec call succeeds.\nresult = pipe2(pipefd, flags);\n\nif (result == 0) {\n    // Read end: pipefd[0]\n    // Write end: pipefd[1]\n    \n    // Use the pipe...\n    \n    close(pipefd[0]);\n    close(pipefd[1]);\n} else {\n    // Error handling (result == -1)\n}\n<ctrl63>",
+  "keywords": "pipe2, pipe with flags, non-blocking pipe C"
+}

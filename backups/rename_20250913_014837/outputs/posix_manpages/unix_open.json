@@ -1,0 +1,163 @@
+{
+  "name": "open",
+  "synopsis": [
+    "#include <fcntl.h>",
+    "int open(const char *pathname, int flags, ... /*mode_t mode*/);",
+    "int creat(const char *pathname, mode_t mode);",
+    "int openat(int dirfd, const char *pathname, int flags, ... /*mode_t mode*/);",
+    "int openat2(int dirfd, const char *pathname, const struct open_how *how, size_t size);"
+  ],
+  "description": "The open() system call opens the file specified by pathname and returns a file descriptor for subsequent operations. If the file does not exist and O_CREAT is specified in flags, it creates the file with the given mode.",
+  "parameters": [
+    {
+      "name": "pathname",
+      "type": "const char *",
+      "description": "The pathname of the file to open or create."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags specifying access mode (e.g., O_RDONLY, O_WRONLY, O_RDWR) and other options (e.g., O_CREAT, O_TRUNC)."
+    },
+    {
+      "name": "mode",
+      "type": "mode_t",
+      "description": "File permission mode for creation, used if O_CREAT is specified."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new file descriptor (a nonnegative integer)",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The requested access to the file is not allowed, or search permission is denied for a directory in the path, or write access to the parent directory is not allowed for creation."
+    },
+    {
+      "code": "EBADF",
+      "description": "For openat(), pathname is relative and dirfd is neither AT_FDCWD nor a valid file descriptor."
+    },
+    {
+      "code": "EBUSY",
+      "description": "O_EXCL was specified and pathname refers to a block device in use by the system."
+    },
+    {
+      "code": "EDQUOT",
+      "description": "O_CREAT is specified, the file does not exist, and the user's quota of disk blocks or inodes is exhausted."
+    },
+    {
+      "code": "EEXIST",
+      "description": "pathname already exists and O_CREAT and O_EXCL were used."
+    },
+    {
+      "code": "EFAULT",
+      "description": "pathname points outside the accessible address space."
+    },
+    {
+      "code": "EFBIG",
+      "description": "See EOVERFLOW."
+    },
+    {
+      "code": "EINTR",
+      "description": "Interrupted by a signal while waiting for a slow device."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid value in flags, or O_TMPFILE without O_WRONLY or O_RDWR, or other invalid flag combinations."
+    },
+    {
+      "code": "EISDIR",
+      "description": "pathname refers to a directory and write access was requested."
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links encountered in resolving pathname."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on open file descriptors has been reached."
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "pathname is too long."
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on open files has been reached."
+    },
+    {
+      "code": "ENODEV",
+      "description": "pathname refers to a device special file with no corresponding device."
+    },
+    {
+      "code": "ENOENT",
+      "description": "O_CREAT is not set and the file does not exist, or a directory component does not exist."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "No space left on the device for creating the file."
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component in pathname is not a directory."
+    },
+    {
+      "code": "ENXIO",
+      "description": "O_NONBLOCK and O_WRONLY are set for a FIFO with no reader, or the file is a device with no corresponding device."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support O_TMPFILE."
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "pathname refers to a file too large to open."
+    },
+    {
+      "code": "EPERM",
+      "description": "The operation was prevented by a file seal or O_NOATIME without permission."
+    },
+    {
+      "code": "EROFS",
+      "description": "pathname is on a read-only filesystem and write access was requested."
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "pathname refers to an executable in use, a swap file with O_TRUNC, or a file being read by the kernel."
+    },
+    {
+      "code": "EWOULDBLOCK",
+      "description": "O_NONBLOCK was specified and an incompatible lease is held on the file."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "fd = open(\"some_prog\", O_PATH);",
+    "snprintf(buf, PATH_MAX, \"/proc/self/fd/%d\", fd);",
+    "execl(buf, \"some_prog\", (char *) NULL);",
+    "fd = open(\"/path/to/dir\", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);",
+    "linkat(fd, \"\", AT_FDCWD, \"/path/for/file\", AT_EMPTY_PATH);"
+  ],
+  "related_calls": [
+    "read",
+    "write",
+    "lseek",
+    "fcntl",
+    "execve",
+    "linkat"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "open.pdf",
+    "extraction_date": "2025-07-29T12:14:14.311617",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

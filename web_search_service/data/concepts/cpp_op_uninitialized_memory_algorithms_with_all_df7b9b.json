@@ -1,0 +1,16 @@
+{
+  "topic": "Uninitialized Memory Algorithms with Allocators",
+  "explanation": "In modern C++, algorithms like 'uninitialized_copy_n' are used to construct objects directly into uninitialized memory, typically allocated via allocators or raw memory buffers. This approach is essential for custom memory management, container implementation, and performance-critical applications, as it allows precise control over object lifetime and construction without default-initializing memory. These algorithms utilize placement new internally to construct objects in-place, ensuring exception safety and optimal resource management.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "536-536",
+    "extraction_date": "2025-08-19T05:07:55.384369",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.809358"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Resource { int id; public: Resource(int i): id(i) {} };\nstd::allocator<Resource> alloc;\nsize_t N = 10;\n\n// 1. Allocate raw, uninitialized memory\nResource* raw_storage = alloc.allocate(N);\n\n// 2. Source data\nstd::vector<Resource> src = { {100}, {200}, {300} };\n\n// 3. Construct objects via uninitialized_copy_n (uses placement new)\nResource* constructed_end = \n    std::uninitialized_copy_n(src.begin(), 3, raw_storage);\n\n// 4. Manual Destruction (Required for allocated objects)\nstd::destroy(raw_storage, constructed_end);\n\n// 5. Deallocate memory\nalloc.deallocate(raw_storage, N);\n<ctrl63>",
+  "keywords": "Placement new, Uninitialized algorithms, In-place construction, Raw memory construction"
+}

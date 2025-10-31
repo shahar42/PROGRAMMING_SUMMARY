@@ -1,0 +1,13 @@
+{
+  "topic": "Overloading Universal References Collision (Lvalue Copy Hiding)",
+  "category": "template",
+  "explanation": "Assumption: When providing both a perfect forwarding template (universal reference) and a standard lvalue copy overload (e.g., taking `const T&`), the compiler will correctly select the lvalue copy overload for lvalues and the forwarding template only for rvalues. Reality: The universal reference template (`template<typename T> void func(T&& param)`) is extremely 'greedy' for non-const lvalues. When an lvalue `w` is passed, `T` is deduced as an lvalue reference (`Widget&`). The template instantiation `void func(Widget& param)` is then often a *better* match than the intended copy overload, such as `void func(const Widget& param)`. Why It Fails: For a non-const lvalue, passing it to a non-const lvalue reference (`Widget&`) is considered a perfect match, while passing it to a `const` lvalue reference (`const Widget&`) requires adding const qualification. The greedy universal reference template hijacks the non-const lvalue inputs, leading to the selection of the template, often resulting in complex forwarding logic being used where a simple, dedicated copy handler was intended. This is a common and difficult collision anti-pattern.",
+  "code_example": "// Non-const lvalue W fails to hit the const lvalue overload\ntemplate<typename T> void f(T&&) { /* Universal Ref/Forwarding */ }\nvoid f(const Widget&) { /* Intended copy overload */ }\nWidget w; f(w); // Calls template version, not the const copy overload!",
+  "practical_example": "A logging system defines specialized `const T&` overloads for primitive types to ensure zero memory allocation. Adding a universal reference template causes all non-const primitive lvalues to be forwarded through the template, forcing unnecessary function instantiations and potentially violating the zero-allocation goal.",
+  "keywords": "Universal reference collision, T&& hides const T&, Perfect forwarding overload failure, Greedy universal reference",
+  "difficulty": "advanced",
+  "page_reference": "195-197",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_universal_references_collision__d6d791",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

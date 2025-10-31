@@ -1,0 +1,101 @@
+{
+  "name": "mmap",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);",
+    "int munmap(void *addr, size_t length);"
+  ],
+  "description": "mmap() creates a new mapping in the virtual address space of the calling process, mapping files or devices into memory for access via pointers. It allows specifying the starting address, length, protection, flags, file descriptor, and offset. The function returns a pointer to the mapped area for use in the program.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "void*",
+      "description": "Starting address for the new mapping; NULL lets the kernel choose."
+    },
+    {
+      "name": "length",
+      "type": "size_t",
+      "description": "Length of the mapping, which must be greater than 0."
+    },
+    {
+      "name": "prot",
+      "type": "int",
+      "description": "Desired memory protection, such as PROT_READ, PROT_WRITE, PROT_EXEC, or PROT_NONE."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags controlling mapping behavior, such as MAP_SHARED, MAP_PRIVATE, or MAP_ANONYMOUS."
+    },
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor referring to the file or object to map."
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "Offset in the file where mapping begins, must be a multiple of the page size."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a pointer to the mapped area",
+    "failure": "Returns MAP_FAILED (i.e., (void *)-1) and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "File descriptor refers to a non-regular file, or access conflicts with file mode."
+    },
+    {
+      "code": "EAGAIN",
+      "description": "File is locked or too much memory is locked."
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid file descriptor and MAP_ANONYMOUS was not set."
+    },
+    {
+      "code": "EEXIST",
+      "description": "MAP_FIXED_NOREPLACE was specified and the address range is already mapped."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid addr, length, offset, or flags (e.g., length is 0 or not aligned)."
+    },
+    {
+      "code": "ENFILE",
+      "description": "System-wide limit on open files reached."
+    },
+    {
+      "code": "ENODEV",
+      "description": "Filesystem does not support memory mapping."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory or process limits exceeded."
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "Offset and length overflow on 32-bit systems with large files."
+    },
+    {
+      "code": "EPERM",
+      "description": "Permission denied, such as for PROT_EXEC on a no-exec filesystem."
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "MAP_DENYWRITE set but the file is open for writing."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux-specific; features like MAP_SHARED_VALIDATE since Linux 4.15",
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "mmap.pdf",
+    "extraction_date": "2025-07-29T11:01:33.500965",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

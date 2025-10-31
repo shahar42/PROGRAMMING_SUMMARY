@@ -1,0 +1,26 @@
+{
+  "topic": "Move Semantics and Rvalue References from Temporaries",
+  "explanation": "In modern C++, move semantics enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature that allow functions and constructors to distinguish between lvalues and rvalues, facilitating move semantics. This is especially important in resource-managing classes, such as containers and smart pointers, to optimize resource transfer without expensive copying.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. This is achieved through rvalue references (&&) and move constructors or move assignment operators, which 'move' resources instead of copying them. Modern C++ leverages move semantics to optimize resource management, especially in container classes and performance-critical applications.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "296-296",
+    "extraction_date": "2025-08-19T03:22:25.406716",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "merged_on": "2025-08-19T06:18:34.881896",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "698-698",
+      "extraction_date": "2025-08-19T06:18:34.237692",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8993903398513794,
+    "book_metadata_added": "2025-10-28T20:22:06.829514"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Resource {\n    int* data_;\npublic:\n    Resource(size_t s) : data_(new int[s]) {}\n    ~Resource() { delete[] data_; }\n\n    // 1. Move Constructor (Rvalue reference T&&)\n    Resource(Resource&& other) noexcept\n        : data_(other.data_) {\n        other.data_ = nullptr; // Steal and null source\n    }\n\n    // 2. Move Assignment Operator\n    Resource& operator=(Resource&& other) noexcept {\n        if (this != &other) {\n            delete[] data_;         // Release existing\n            data_ = other.data_;\n            other.data_ = nullptr;\n        }\n        return *this;\n    }\n};\n\n// 3. Forcing a Move (lvalue -> rvalue ref)\nstd::vector<int> source;\nstd::vector<int> destination = std::move(source);\n\n// Rvalue function overloading example\nvoid accept(std::string&& temp_str); // Accepts temporaries only\nvoid accept(const std::string& stable_str); // Accepts lvalues or const rvalues",
+  "keywords": "Move semantics, Rvalue references, C++ &&, Temporaries"
+}

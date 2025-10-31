@@ -1,0 +1,18 @@
+{
+  "topic": "Concurrency Design: Promise/Future is a One-Shot Mechanism",
+  "category": "design",
+  "explanation": "Assumption: A `std::promise` and `std::future` pair can be used repeatedly to signal multiple events between tasks, similar to condition variables or atomic flags. Reality: The communication channel between a promise and a future is inherently a one-shot mechanism. Once the promise has been set (i.e., its value or exception has been stored), the future is fulfilled, and the channel cannot be reused for subsequent communication. Why It Fails: This design limitation means futures are unsuitable for recurring synchronization patterns (like signaling when a queue has new data) and must be replaced by condition variables or similar multi-shot primitives when repeated signaling is required.",
+  "code_example": "// This promise cannot be set again after the first call:\nstd::promise<void> p;\np.set_value(); // OK\np.set_value(); // ERROR: std::future_error exception",
+  "practical_example": "A developer attempts to use a single promise/future pair in a loop to signal data availability. After the first iteration, the promise throws an exception because the shared state is already fulfilled, forcing the developer to create and manage new promise/future pairs for every subsequent signal.",
+  "keywords": [
+    "one-shot",
+    "std::promise",
+    "reusability limitation",
+    "set only once"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "267",
+  "chapter": "Item 39: Consider void futures for one-shot event communication",
+  "id": "emcpp_design_concurrency_design__promise_future_af5240",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

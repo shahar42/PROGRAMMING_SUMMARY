@@ -1,0 +1,19 @@
+{
+  "topic": "Explicit Rvalue Overload Failure: Losing Genericity",
+  "category": "forward",
+  "explanation": "Another alternative to complex universal reference overloading is to explicitly provide separate overloads for lvalues (`const T&`) and rvalues (`T&&`). The anti-pattern here is the failure to maintain the genericity and efficiency that universal references provide for heterogenous types. When using specific overloads, the programmer loses the ability to perfectly forward arguments of *unknown* types without writing boilerplate functions for every possible type combination (e.g., `const string&`, `string&&`, `const char*`, etc.). More importantly, this approach forces the manual handling of value category for every distinct type, negating the central benefit of universal references, which is their ability to automatically deduce and forward the correct value category for *any* T. When implemented in a class that manages multiple resources or takes heterogeneous arguments, this approach quickly leads to an explosion of overloads. The failure is that by trying to manually solve the overload resolution problem (by avoiding universal references), the programmer sacrifices the template's power to handle all types efficiently, forcing them back into the maintenance nightmare of excessive function overloads and inevitable missing type specializations.",
+  "code_example": "void process(const std::string& s); // Lvalue/copy\nvoid process(std::string&& s); // Rvalue/move\n// What about const char*? Or std::string_view? Must write more overloads.",
+  "practical_example": "A networking library needs to accept message payloads from various sources (literal strings, internal buffers, custom message objects). The developer explicitly overloads for `std::string&` and `std::string&&`. When a user tries to pass a `std::string_view` or a custom buffer object, the compilation fails, forcing the developer to constantly chase and add new overloads, breaking the extensibility goal of the library.",
+  "keywords": [
+    "overloading",
+    "genericity loss",
+    "heterogenous types",
+    "boilerplate",
+    "overload explosion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "212-215",
+  "chapter": "Item 27: Use std::forwarding references to distinguish overloads for rvalue and lvalue arguments",
+  "id": "emcpp_forward_explicit_rvalue_overload_failure__6c0df6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

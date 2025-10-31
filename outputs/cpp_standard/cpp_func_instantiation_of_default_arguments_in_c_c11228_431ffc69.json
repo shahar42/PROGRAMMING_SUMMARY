@@ -1,0 +1,12 @@
+{
+  "topic": "Instantiation of Default Arguments in C++ Templates",
+  "explanation": "In C++, default arguments in template functions that depend on template parameters are instantiated per template specialization, meaning the compiler generates specific code for each type T used. When a template like template<class T> void f(T x, T y = ydef(T()), T z = zdef(T())) is defined, the expressions ydef(T()) and zdef(T()) are not evaluated until the template is instantiated for a concrete T. The compiler performs this instantiation at compile-time during template resolution, creating a separate function instance for each T. This involves parsing the default arguments in the context of T, resolving dependent names (like ydef and zdef), and potentially instantiating other templates if ydef or zdef are templates themselves.\n\nUnder the hood, the compiler uses a two-phase lookup: first, it checks for non-dependent names at the point of definition, and then resolves dependent names during instantiation. For performance, this can lead to code bloat, as each instantiation produces a new function in the object code, increasing binary size and potentially cache misses. Memory layout is indirectly affected; for example, if ydef(T()) or zdef(T()) involves creating temporary objects, those temporaries occupy stack space during runtime calls. At the assembly level, the instantiated function might include calls to the assembly equivalents of ydef and zdef, such as function prologues and epilogues for parameter passing, which could involve register allocation and stack frame setup. Runtime behavior occurs when the function is called, evaluating the defaults if not provided, whereas compile-time behavior handles the instantiation and error checking (e.g., if zdef(T) doesn't exist for a given T, a compilation error occurs). This mechanism ensures type safety but can introduce subtle errors if defaults rely on incomplete types or have side effects.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:59:44.771430",
+    "book_metadata_added": "2025-10-28T20:22:06.822564"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

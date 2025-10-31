@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Design for Low-Level OS Integration",
+  "category": "thread, design",
+  "explanation": "While task-based programming is preferred, direct use of `std::thread` is necessary when the application requires access to underlying operating system threading APIs (like pthreads or Windows Threads). This is crucial for setting low-level parameters such as thread priorities, CPU affinities, or other platform-specific optimizations not exposed by the C++ standard concurrency library. The mechanism for this access is the `std::thread::native_handle()` function. Why Task-Based Fails Here: The results returned by task-based programming (`std::future` objects) have no equivalent `native_handle` functionality, making it impossible to adjust the properties of the underlying worker thread used by `std::async` after the task is launched.",
+  "code_example": "std::thread t(worker_func);\n// Access OS-specific API via the native handle\nauto handle = t.native_handle();\nset_os_thread_priority(handle, HIGH);",
+  "practical_example": "A high-frequency trading application requires guaranteed low latency for its market data processing thread. The developer must use `std::thread` directly to set the thread's CPU affinity mask and priority using OS-specific calls accessed via `native_handle()` to ensure deterministic performance.",
+  "keywords": "std::thread native_handle, Thread affinity, Thread priority C++, OS specific threading",
+  "difficulty": "advanced",
+  "page_reference": "260",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_thread, design_thread_design_for_low_level_b22ad0",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

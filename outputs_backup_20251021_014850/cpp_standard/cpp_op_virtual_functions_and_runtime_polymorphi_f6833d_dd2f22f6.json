@@ -1,0 +1,17 @@
+{
+  "topic": "Virtual Functions and Runtime Polymorphism in C++",
+  "explanation": "In C++, virtual functions enable runtime polymorphism by allowing derived classes to override base class methods. When a function is declared as virtual in a base class, the decision of which function to invoke is made at runtime based on the actual object type, not the pointer or reference type. This mechanism is fundamental for designing flexible and extensible object-oriented systems, such as implementing custom locale facets like 'money_get' for input formatting.",
+  "syntax": "class Base {\n    public:\n        virtual ReturnType functionName(Parameters) const;\n};\n\n// Derived class overrides\nclass Derived : public Base {\n    public:\n        ReturnType functionName(Parameters) const override;\n};",
+  "code_example": "#include <iostream>\n#include <locale>\n\nclass CustomMoneyGet : public std::money_get<char> {\npublic:\n    template <typename Iter>\n    Iter do_get(Iter begin, Iter end, bool intl, std::ios_base& str, std::ios_base::iostate& err, std::string& quant) const override {\n        // Custom parsing logic for monetary input\n        // For demonstration, just advance iterator and set error state to good\n        if (begin == end) {\n            err = std::ios_base::failbit;\n            return begin;\n        }\n        // Simulate reading monetary value\n        quant = \"100.00\";\n        return begin + 1;\n    }\n};\n\nint main() {\n    std::string input = \"$100.00\";\n    auto it = input.begin();\n    std::ios_base::iostate err = std::ios_base::goodbit;\n    std::string amount;\n    CustomMoneyGet moneyFacet;\n    it = moneyFacet.do_get(it, input.end(), false, std::cin, err, amount);\n    if (!(err & std::ios_base::failbit)) {\n        std::cout << \"Parsed amount: \" << amount << std::endl;\n    } else {\n        std::cout << \"Failed to parse monetary value.\" << std::endl;\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the use of a virtual function 'do_get' in a custom locale facet derived from 'std::money_get'. By overriding 'do_get', the derived class provides specialized behavior for parsing monetary input. The 'main' function shows how the overridden method is invoked polymorphically, enabling flexible and extensible input formatting tailored to specific needs. This exemplifies runtime polymorphism in C++ through virtual functions, a core object-oriented feature.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "736-736",
+    "extraction_date": "2025-08-19T06:34:31.589341",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Busy-Waiting: Performance Cost of Polling Atomic Flags",
+  "category": "perf",
+  "explanation": "Assumption: Using a simple `std::atomic<bool>` flag combined with a polling loop (`while (!flag);`) is a sufficient, lock-free replacement for complex synchronization primitives like condition variables, avoiding issues like spurious wakeups and lost notifications. Reality: This creates a busy-waiting loop. The task is logically blocked (waiting for the event) but physically running, consuming 100% of the assigned CPU core during the wait period. Why It Fails: Busy-waiting results in high performance penalties by occupying a hardware thread that could be used by other tasks, incurring context switch costs whenever its time slice ends, and preventing the core from entering power-saving states. This approach is only viable for extremely short wait times or highly specialized low-level spinlocks; otherwise, true blocking mechanisms (like condition variables) are necessary for resource efficiency.",
+  "code_example": "std::atomic<bool> flag(false);\n// ... Setting task: flag = true;\n// ... Waiting task:\nwhile (!flag); // Wasteful busy-wait loop",
+  "practical_example": "A multi-threaded application uses atomic flags for internal event notification. If the latency between the event occurring and the task reacting is high (e.g., waiting for network I/O), the waiting threads continuously burn CPU cycles, leading to unexpected high power consumption and reduced throughput for unrelated tasks running on the same system.",
+  "keywords": [
+    "busy-waiting",
+    "polling",
+    "std::atomic",
+    "context switch",
+    "performance penalty"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "264",
+  "chapter": "Item 39: Consider void futures for one-shot event communication",
+  "id": "emcpp_perf_thread_busy_waiting__performance_35f193",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

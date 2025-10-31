@@ -1,0 +1,30 @@
+{
+  "topic": "Template Metaprogramming and its Impact on Compile-Time Code Generation",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code for different template instantiations. This results in significant performance improvements and potentially smaller executables by avoiding runtime overhead.  The compiler's implementation involves recursive template instantiation and potentially significant code bloat if not carefully managed.  Understanding how the compiler handles TMP is crucial for avoiding unexpected compilation times and code size issues.  Memory layout is affected because the compiler generates unique code for each template type, and the performance impact depends on the complexity of the metaprogram.  In some cases, the assembly code generated might show extensive inlining and unrolling, reflecting the compile-time nature of the calculations.  The behavior is entirely compile-time: any computation that can be resolved at compile time using templates will be, resulting in zero runtime cost for those calculations.",
+  "syntax": "Compile-time computations are performed using templates and template specialization.  For example:\n\n```c++\ntemplate <int N>\nstruct Factorial {\n  static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static constexpr int value = 1;\n};\n\nint main() {\n  constexpr int result = Factorial<5>::value; // Computed at compile time\n  std::cout << result << std::endl; // Prints 120\n  return 0;\n}\n```\n\nNote:  `constexpr` emphasizes compile-time evaluation, though the compiler may choose to evaluate it at runtime in certain contexts.  Error handling within TMP is crucial as compile-time errors can be complex to diagnose.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <typename T, size_t N>",
+    "constexpr size_t array_sum(const std::array<T, N>& arr) {",
+    "  size_t sum = 0;",
+    "  for (size_t i = 0; i < N; ++i) {",
+    "    sum += arr[i];",
+    "  }",
+    "  return sum;",
+    "}",
+    "int main() {",
+    "  constexpr std::array<int, 5> arr = {1, 2, 3, 4, 5};",
+    "  constexpr size_t sum = array_sum(arr); //Sum is calculated at compile time",
+    "  std::cout << \"Sum: \" << sum << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `array_sum` function uses template metaprogramming to calculate the sum of an array at compile time. The compiler generates code specifically for the given array size, eliminating any runtime loop overhead.  Disassembling the resulting executable will likely show the sum already embedded in the code, not calculated at runtime.  Failure to properly handle template instantiation for various types or sizes can lead to extremely long compilation times or compiler errors due to recursive template expansion exceeding limits.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:32:35.764244"
+  }
+}

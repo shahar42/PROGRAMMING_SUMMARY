@@ -1,0 +1,15 @@
+{
+  "topic": "Virtual Memory: Process Isolation and Robustness",
+  "explanation": "Virtual memory is a memory-management technique that provides each process with its own private address space, independent of other processes.  This isolation enhances security and robustness. Address translation is the mechanism by which the virtual addresses used by a process are mapped to physical addresses in main memory. This mapping is crucial for efficient memory management and protection, allowing the OS to swap pages to disk and manage memory more effectively than if processes directly accessed physical memory.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "854-854",
+    "extraction_date": "2025-07-28T16:47:41.917062",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.692535"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Page Table Entry (PTE) structure for memory protection\nstruct PTE {\n    uintptr_t physical_page_addr : 52;\n    bool present     : 1; // Robustness: Handles swapped pages (Page Fault)\n    bool writable    : 1; // Protection: R/W access control\n    bool executable  : 1; // Protection: Non-Executable (NX) bit\n    bool user_mode   : 1; // Isolation: Kernel vs User memory access\n    // ...\n};\n\n// --- Process Isolation via Context Switching ---\n\n// Hardware Register pointing to the active address space root\nvolatile uint64_t PTBR_REGISTER; // Page Table Base Register (e.g., x86 CR3)\n\ntypedef struct {\n    uint64_t virtual_map_root;\n    // ... process state\n} ProcessControlBlock;\n\n// Mechanism guaranteeing isolation during task switch\nvoid switch_process_context(ProcessControlBlock *next_p) {\n    // 1. Change the active address space pointer\n    PTBR_REGISTER = next_p->virtual_map_root;\n    \n    // 2. Flush Translation Lookaside Buffer (TLB)\n    // (Prevents accessing the previous process's stale translations)\n    asm(\"invlpg_or_flush_tlb\"); \n}"
+}

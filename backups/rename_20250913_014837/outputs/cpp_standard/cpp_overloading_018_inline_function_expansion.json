@@ -1,0 +1,22 @@
+{
+  "topic": "Inline Function Expansion",
+  "explanation": "Inline function expansion is a compiler optimization technique where the body of a function is substituted directly at the call site, rather than generating a traditional function call. Under the hood, compilers like GCC or Clang use heuristics to decide when to inline, based on factors such as function size, call frequency, and optimization flags (e.g., -O2 or -O3). If a function is marked with the 'inline' keyword, it's a hint to the compiler, but the decision is ultimately made during the optimization phase. Memory layout implications include reduced stack usage and smaller executable size if inlining eliminates function prologue/epilogue code, but excessive inlining can lead to code bloat, increasing cache misses and potentially slowing down the program. Performance-wise, inlining reduces the overhead of function calls (e.g., pushing parameters onto the stack and jumping to the function address), which is critical in performance-sensitive code. At the assembly level, an inlined function might replace a 'call' instruction with the expanded instructions, improving instruction cache locality. Runtime behavior involves no additional branching for the function call, while compile-time behavior depends on the compiler's inlining analysis, which can be influenced by link-time optimization (LTO) for cross-translation-unit inlining.",
+  "syntax": "inline return_type function_name(parameters) { // Function body }\n// Implementation notes: The 'inline' keyword suggests to the compiler that the function should be expanded inline, but it's not guaranteed. For templates, inlining is more common due to instantiation per use. In C++17+, 'inline variables' extend this to variables, affecting linkage and definition rules.",
+  "code_example": [
+    "#include <iostream>",
+    "inline int add(int a, int b) {",
+    "    return a + b;  // Simple addition, likely to be inlined due to small size",
+    "}",
+    "int main() {",
+    "    std::cout << add(3, 4) << std::endl;  // Call to add; compiler may inline this",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, the 'add' function is a candidate for inlining. The compiler analyzes it during the optimization phase and may replace the call in main() with the equivalent assembly instructions (e.g., 'mov eax, 3; add eax, 4;'). This results in no 'call' or 'ret' instructions in the generated assembly, reducing runtime overhead. Memory layout benefits include a potentially smaller binary if the function is inlined everywhere, but if not inlined (e.g., due to size limits), it occupies a separate code section. Performance implications are evident in benchmarks: inlined versions run faster on repeated calls due to eliminated branch mispredictions, though excessive inlining could increase code size and lead to instruction cache thrashing. Compile-time behavior involves the compiler's decision tree, often based on profile-guided optimization (PGO), while runtime behavior shows improved locality and speed.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "overloading",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:05:43.904588"
+  }
+}

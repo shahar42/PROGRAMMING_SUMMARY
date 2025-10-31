@@ -1,31 +1,12 @@
 {
   "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
   "explanation": "Return Value Optimization (RVO) and its more specific variant, Named Return Value Optimization (NRVO), are compiler optimizations that eliminate the often-expensive copy or move construction of return values.  Instead of creating a temporary object on the stack and then copying or moving it to the caller's location, the compiler directly constructs the return value in the caller's designated memory location. This significantly impacts performance, especially with large or complex objects.  The compiler's ability to perform RVO/NRVO depends on several factors including the function's return type, the presence of return statements, and the complexity of the return expression.  Understanding how the compiler handles this optimization is crucial for writing high-performance C++ code, as failure to understand its limitations can lead to unexpected copies and performance bottlenecks.  The compiler's choice to apply RVO/NRVO isn't guaranteed; it's a powerful optimization that can't always be relied upon explicitly.  Debugging and profiling tools may not correctly reflect the absence of a copy or move if the optimization occurs.  Assembly-level inspection can confirm whether RVO/NRVO has been applied by the compiler for a given build.",
-  "syntax": "Function returning an object by value:\n\n```c++\nMyClass myFunction() {\n  MyClass obj; \n  // ... some operations on obj ...\n  return obj; \n}\n```\n\nCompiler might perform RVO by directly constructing the `MyClass` object at the caller's memory location, avoiding a copy or move.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "struct MyClass {",
-    "  std::string data; ",
-    "  MyClass(const std::string& d) : data(d) { std::cout << \"MyClass constructor called\\n\"; }",
-    "  MyClass(MyClass&& other) noexcept : data(std::move(other.data)) { std::cout << \"MyClass move constructor called\\n\"; }",
-    "  MyClass(const MyClass& other) : data(other.data) { std::cout << \"MyClass copy constructor called\\n\"; }",
-    "};",
-    "MyClass myFunction() {",
-    "  MyClass obj(\"Hello\");",
-    "  return obj;",
-    "}",
-    "int main() {",
-    "  MyClass result = myFunction();",
-    "  std::cout << result.data << \"\\n\";",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "Compile this code with optimization flags (e.g., -O2 or -O3 with g++). Observe the output.  If RVO is performed, only the `MyClass` constructor will be called; copy and move constructors will be skipped.  If RVO is not applied due to compiler limitations or other factors, you will see calls to copy or move constructors. Examining the generated assembly code will definitively reveal whether the compiler performed the optimization. Note that the output might vary across compilers and optimization levels.  Different compilers may have different heuristics for RVO/NRVO application.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T02:49:46.047341"
-  }
+    "extraction_date": "2025-08-19T02:49:46.047341",
+    "book_metadata_added": "2025-10-28T20:22:06.949254"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

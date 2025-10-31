@@ -1,0 +1,20 @@
+{
+  "topic": "Special Member Function Generation: Interaction with Member Templates",
+  "category": "template",
+  "explanation": "Member function templates, such as a templated constructor or a templated assignment operator, are completely ignored by the compiler when it determines whether to generate special member functions. A template is a blueprint for functions, not a function itself, and the rules for special member generation only consider actual, non-template function declarations.\n\nScott Meyers highlights this as a subtle but critical rule that often surprises programmers. One might logically assume that a templated constructor like `template<typename T> Widget(const T&)` would serve as a user-declared copy constructor when instantiated with `T` as `Widget`. However, the compiler does not see it that way. It will still generate a non-template copy constructor if the conditions are otherwise met, leading to the class having both a member template and a compiler-generated special member.\n\nThe underlying mechanic is a strict separation between templates and non-template functions during the special member generation check. The compiler is looking for an exact signature match for a non-template function, such as `Widget(const Widget&)` for the copy constructor. Since a member template is not a function, it doesn't match, and thus doesn't suppress the generation of any special member function.\n\nThis behavior has profound practical consequences, especially when implementing perfect-forwarding constructors. If you write a templated constructor to accept any arguments, the compiler will still generate its own copy and move constructors. During overload resolution, a call with an object of the same type will prefer the non-template copy/move constructor over an instantiation of your templated constructor. This can subvert the intent of the forwarding constructor and is a key concept explored further in Item 26.\n\nThe primary pitfall is believing that a 'universal' templated constructor or assignment operator makes declaring the standard copy/move operations unnecessary. This incorrect assumption leads to a class with multiple, potentially conflicting, ways to be copied or constructed, causing subtle bugs related to incorrect overload resolution where the compiler-generated function is called instead of the intended template instantiation.",
+  "code_example": "class Widget {\npublic:\n  // Templated constructor - can be instantiated with any type.\n  template<typename T>\n  Widget(const T& rhs) {}\n\n  // Templated assignment operator.\n  template<typename T>\n  Widget& operator=(const T& rhs) { return *this; }\n\n  // EVEN WITH the templates above, the compiler will still generate:\n  // - A copy constructor: Widget(const Widget&)\n  // - A move constructor: Widget(Widget&&)\n  // - And their assignment operator counterparts.\n};\n\nvoid test() {\n  Widget w1;\n  Widget w2 = w1; // Calls the COMPILER-GENERATED copy constructor,\n                  // NOT the templated constructor where T=Widget.\n}",
+  "practical_example": "When designing a class with a perfect-forwarding constructor intended to initialize members from arbitrary arguments, you must also provide overloads for the copy and move constructors. Otherwise, the compiler-generated versions will 'steal' copy and move construction calls, preventing them from being forwarded through your templated constructor as intended.",
+  "keywords": [
+    "member function templates",
+    "special member functions",
+    "compiler-generated functions",
+    "perfect forwarding",
+    "constructor",
+    "overload resolution"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "115",
+  "chapter": "Item 17: Understand special member function generation",
+  "id": "emcpp_template_special_member_function_generation__e4f610",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

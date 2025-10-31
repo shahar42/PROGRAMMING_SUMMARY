@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Minimizing Leak Risks",
+  "explanation": "RAII is a fundamental C++ technique that ties resource management to object lifetime.  It ensures resources (like memory, files, network connections) are automatically acquired when an object is created and released when the object goes out of scope (destructor is called). This dramatically reduces resource leaks and simplifies error handling.  Best practice is to always use RAII for resource management, leveraging smart pointers and other RAII-compliant classes.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:20:40.490909",
+    "book_metadata_added": "2025-10-28T20:22:06.575673"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ManagedResource {\n    void* handle; // Represents an acquired resource\npublic:\n    explicit ManagedResource(size_t s) {\n        handle = malloc(s);\n        if (!handle) throw std::bad_alloc();\n    }\n    ~ManagedResource() {\n        if (handle) free(handle);\n    }\n\n    ManagedResource(const ManagedResource&) = delete;\n    ManagedResource& operator=(const ManagedResource&) = delete;\n};\n// Resource automatically released via destructor, even on exception.\n// Must follow Rule of Zero/Five/Six carefully.\n\n// ---\n\nstruct HeavyData {};\n\n// Preferred RAII usage for heap memory:\nauto safe_ptr = std::make_unique<HeavyData>();\nsafe_ptr->member = 42;\n\n// To release manually (rarely needed):\n// auto raw_ptr = safe_ptr.release();\n\n// Transfer ownership:\nauto new_owner = std::move(safe_ptr);\n// When new_owner goes out of scope, HeavyData is deleted.\n\n// ---\n\nstd::mutex mtx;\n\nvoid critical_section() {\n    // std::lock_guard ensures the lock is released\n    // when the scope exits, guaranteeing resource cleanup.\n    std::lock_guard<std::mutex> lock(mtx);\n\n    // Code requiring mutual exclusion...\n\n} // lock goes out of scope, mtx is unlocked."
+}

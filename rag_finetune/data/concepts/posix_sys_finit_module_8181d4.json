@@ -1,0 +1,16 @@
+{
+  "topic": "finit_module() System Call",
+  "explanation": "finit_module loads a kernel module from a file descriptor, similar to init_module, but reads the module directly from the filesystem. It allows for authenticity verification based on file location and supports flags to ignore version checks, requiring appropriate privileges.\n\n**Parameters:**\n- `fd` (int): File descriptor of the file containing the module to load\n- `param_values` (const char *): String containing space-delimited specifications of module parameter values\n- `flags` (int): Bit mask of flags, such as MODULE_INIT_IGNORE_MODVERSIONS or MODULE_INIT_IGNORE_VERMAGIC, to modify loading behavior\n\n**Common Errors:**\n- `EBADMSG`: Module signature is misformatted\n- `EBUSY`: Timeout while trying to resolve a symbol reference by this module\n- `EFAULT`: An address argument referred to a location outside the process’s accessible address space\n- `ENOKEY`: Module signature is invalid or the kernel does not have a key for this module\n- `ENOMEM`: Out of memory\n\n**Related System Calls:** `create_module()`, `delete_module()`, `query_module()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.224565",
+    "syscall_name": "finit_module",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_finit_module.json",
+    "concept_id": "posix_sys_finit_module_8181d4",
+    "book_metadata_added": "2025-10-28T20:22:06.593242"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int fd = 42; // File descriptor of the module file\nconst char *mod_params = \"param_a=10 param_b='test string'\";\n\n// Flag commonly used to ignore version checks (requires privileges)\n#define FINIT_IGNORE_VERMAGIC 0x1\n\nint flags = FINIT_IGNORE_VERMAGIC;\nlong result;\n\n// Load module directly from file referenced by fd\nresult = finit_module(fd, mod_params, flags);\n\nif (result != 0) {\n    // errno contains specific failure code (e.g., EPERM)\n    // Module loading failed\n}\n\n// close(fd); // File descriptor should be closed regardless of success\nreturn result;\n<ctrl63>",
+  "keywords": "finit_module, load kernel module, module loading system call, init_module alternative"
+}

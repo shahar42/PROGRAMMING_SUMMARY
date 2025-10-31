@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Type Resolution for Overloaded Functions",
+  "category": "lambda",
+  "explanation": "Assumption: `std::bind` handles function names identically to how a lambda closure body handles them. Reality: When binding to an overloaded function name (e.g., `setAlarm`), `std::bind` fails because the compiler cannot determine which specific overload's address to take. This ambiguity requires the user to manually cast the function name to the exact function pointer signature before passing it to `std::bind`. Why It Fails: Lambdas circumvent this issue because the function call occurs within the lambda's defined body (the closure's `operator()`), allowing the compiler's normal overload resolution rules to apply based on the arguments provided inside the lambda body, eliminating the need for complex external casting.",
+  "code_example": "auto setSoundB = std::bind( \n  static_cast<SetAlarm3ParamType>(setAlarm), // Required cast\n  ...);\n\n// Lambda equivalent avoids the cast:\nauto setSoundL = [=](Sound s) {\n  setAlarm(time_point, s, duration); \n};",
+  "practical_example": "A developer attempts to use `std::bind` with a standard library function that has multiple overloads (e.g., `std::pow`) and is immediately met with a compilation error due to ambiguity, forcing them to define a verbose `typedef` or `using` declaration solely for casting purposes.",
+  "keywords": "std::bind overloaded function, ambiguous overload bind, cast function pointer std::bind",
+  "difficulty": "intermediate",
+  "page_reference": "256",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_lambda_lambda_type_resolution_for_overloaded_e7d212",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

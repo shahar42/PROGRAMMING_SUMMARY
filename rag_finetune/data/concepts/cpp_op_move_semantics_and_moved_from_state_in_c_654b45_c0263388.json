@@ -1,0 +1,16 @@
+{
+  "topic": "Move Semantics and Moved-From State in C++",
+  "explanation": "Move semantics in C++ allow the resources of temporary objects or objects explicitly marked for transfer to be moved rather than copied, improving performance especially with resource-intensive objects. When an object is moved from, it enters a valid but unspecified state, enabling efficient resource transfer while maintaining program correctness. This concept is fundamental in modern C++ for optimizing resource management and enabling efficient transfer of ownership, particularly with move constructors and move assignment operators.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "458-459",
+    "extraction_date": "2025-08-19T04:32:53.623233",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.815613"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class ResourceOwner {\n    int* heavy_data = nullptr;\npublic:\n    // Ctor: Acquire resource\n    ResourceOwner(size_t s) : heavy_data(new int[s]) {}\n    // Dtor: Release resource\n    ~ResourceOwner() { delete[] heavy_data; }\n\n    // Disable copy\n    ResourceOwner(const ResourceOwner&) = delete;\n\n    // Move Constructor: Steal resource (Transfer ownership)\n    ResourceOwner(ResourceOwner&& other) noexcept\n        : heavy_data(other.heavy_data)\n    {\n        // MOVED-FROM STATE (Valid but empty/unspecified):\n        // Nullify source pointer so its destructor is safe.\n        other.heavy_data = nullptr;\n    }\n};\n\n// Example usage context:\n// ResourceOwner r1(100);\n// ResourceOwner r2 = std::move(r1); // r1 is now in moved-from state\n// delete[] r1.heavy_data; // This is safe (nullptr)\n// delete[] r2.heavy_data; // This cleans up the actual memory",
+  "keywords": "Move semantics, Moved-from state, Rvalue reference, std::move"
+}

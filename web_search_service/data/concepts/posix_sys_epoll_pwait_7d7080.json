@@ -1,0 +1,16 @@
+{
+  "topic": "epoll_pwait() System Call",
+  "explanation": "epoll_pwait waits for events on an epoll file descriptor, similar to epoll_wait, but allows specifying a signal mask to handle signals atomically. It blocks until an event occurs, a signal is caught, or the timeout expires.\n\n**Parameters:**\n- `epfd` (int): The epoll file descriptor to wait on\n- `events` (struct epoll_event *): Pointer to an array of epoll_event structures to store the events\n- `maxevents` (int): The maximum number of events to be returned\n- `timeout` (int): Timeout value in milliseconds; -1 for indefinite blocking\n- `sigmask` (const sigset_t *_Nullable): Pointer to a signal set to temporarily modify the signal mask\n\n**Common Errors:**\n- `EBADF`: epfd is not a valid file descriptor\n- `EFAULT`: The memory area pointed to by events is not accessible with write permissions\n- `EINTR`: The call was interrupted by a signal handler\n- `EINVAL`: epfd is not an epoll file descriptor, or maxevents is less than or equal to zero\n\n**Related System Calls:** `epoll_create()`, `epoll_ctl()`, `epoll()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.072708",
+    "syscall_name": "epoll_pwait",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_epoll_pwait.json",
+    "concept_id": "posix_sys_epoll_pwait_7d7080",
+    "book_metadata_added": "2025-10-28T20:22:06.670337"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define MAX_EVENTS 64\nint epfd = 42;\nint timeout_ms = 1000;\nint ready_fds;\nstruct epoll_event ev_list[MAX_EVENTS];\nsigset_t mask;\n\n// Setup signal mask (signals to unblock during wait)\nsigemptyset(&mask);\nsigaddset(&mask, SIGHUP);\nsigaddset(&mask, SIGUSR1);\n// (These signals must be blocked in the thread's mask beforehand)\n\nready_fds = epoll_pwait(\n    epfd,\n    ev_list,\n    MAX_EVENTS,\n    timeout_ms,\n    &mask\n);\n<ctrl63>",
+  "keywords": "epoll_pwait, epoll signal mask, atomic signal handling, epoll pselect"
+}

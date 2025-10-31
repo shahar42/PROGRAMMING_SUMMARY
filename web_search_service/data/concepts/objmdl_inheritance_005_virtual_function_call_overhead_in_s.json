@@ -1,0 +1,14 @@
+{
+  "topic": "Virtual Function Call Overhead in Single and Multiple Inheritance: Compiler Implementation Details",
+  "explanation": "This analysis delves into the performance implications of virtual function calls, particularly focusing on the compiler's implementation choices within single and multiple inheritance hierarchies.  It investigates the hidden costs associated with vptr (virtual pointer) manipulation, constructor overhead (especially in the presence of virtual functions), and the impact of compiler optimizations (or lack thereof). The discussion highlights how seemingly innocuous code, like default constructors, can significantly impact performance when called repeatedly within loops, a factor often overlooked in performance analysis. It also touches upon compiler-specific behaviors and backward compatibility considerations influencing constructor implementations.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "chapter": "inheritance",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "extraction_date": "2025-09-17T15:07:38.311433",
+    "book_metadata_added": "2025-10-28T20:22:06.688428"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "// Multiple Inheritance Vptr Adjustment Overhead\nclass B1 { virtual void f1() = 0; }; // vptr at offset 0\nclass B2 { virtual void f2() = 0; }; // vptr at offset > 0\nclass Derived : public B1, public B2 {\n    void f1() override {}\n    void f2() override {}\n};\n// MI Constructor Overhead:\n// 1. B1::B1() -> sets vptr0\n// 2. B2::B2() -> sets vptr_offset\n// 3. Derived::Derived() -> sets both final vptrs\n// B2* ptr = new Derived(); // Pointer adjustment (thunk) required\n// Cost: Extra arithmetic for 'this' pointer calculation in MI calls."
+}

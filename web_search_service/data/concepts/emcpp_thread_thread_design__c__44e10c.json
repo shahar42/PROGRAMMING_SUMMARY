@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Design: C++11 Lacks Native Support for Interruptible Threads",
+  "category": "thread",
+  "explanation": "The ideal solution for safely shutting down an asynchronous task (to prevent hangs from forced `join` or resource leaks from `detach`) is to communicate to the running thread that its work is no longer needed and that it should return early. C++11, however, provides no standard, built-in mechanism for interrupting or signaling a running thread to stop gracefully. Why It Fails: Developers must manually implement interruption using shared state (e.g., condition variables, atomic flags, or `std::promise`/`std::future` communication), which adds complexity and boilerplate to the thread function implementation, especially requiring the developer to periodically check the state.",
+  "code_example": "// Must be implemented manually:\nstd::atomic<bool> stop_flag{false};\nstd::thread t([&] {\n  while (!stop_flag) { /* do work */ }\n});\n// ... later ...\nstop_flag = true;",
+  "practical_example": "A long-running computation thread needs to be cancelled when the user closes the application window. Without native interruption support, the developer must ensure every loop iteration or major processing step checks a custom cancellation flag.",
+  "keywords": [
+    "interruptible threads",
+    "cancellation",
+    "C++11 limitation",
+    "signaling"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "256",
+  "chapter": "Item 37",
+  "id": "emcpp_thread_thread_design__c__44e10c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

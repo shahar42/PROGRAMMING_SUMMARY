@@ -1,0 +1,17 @@
+{
+  "topic": "Using std::istream::unget() to Push Back Characters into Input Stream",
+  "explanation": "In C++, the 'unget()' member function of 'std::istream' allows the programmer to push back a single character onto the input stream, effectively 'unreading' it. This is useful in parsing scenarios where a character read ahead needs to be reconsidered or reprocessed. Modern C++ handles stream states and exceptions carefully, and 'unget()' interacts with the stream buffer to restore characters, potentially throwing exceptions if stream state changes occur. Proper use of 'unget()' ensures flexible and robust input handling in C++ programs.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1057-1057",
+    "extraction_date": "2025-08-19T08:55:46.162499",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.887295"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::stringstream ss(\"DataXEnd\");\nchar lookahead;\n\n// Read 'D', 'a', 't', 'a'\nstd::string result;\nss >> result; // result = \"Data\"\n\n// Read 'X'\nif (ss.get(lookahead)) {\n    // If 'X' is the delimiter, put it back\n    if (lookahead == 'X') {\n        ss.unget();\n    }\n}\n\n// Check stream state after unget()\n// unget() may set failbit if the buffer is full\nif (ss.fail() && !ss.eof()) {\n    // Clear only failbit, keeping others (like eof)\n    ss.clear(ss.rdstate() & ~std::ios::failbit);\n}\n\n// Next read will retrieve 'X'\nss.get(lookahead); // lookahead is 'X'\ndata >> result; // result = \"End\""
+}

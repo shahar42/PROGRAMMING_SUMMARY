@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Hardware Resource Requests",
+  "explanation": "System calls provide the mechanism for an application program to request services from the operating system kernel.  These services are essential for interacting with hardware resources, such as files, networks and other peripherals, which are typically inaccessible directly by user-level processes for security and resource management reasons. Exceptional control flow, in this context, refers to how the program handles situations arising from system call interactions, including errors and end-of-file conditions.  Understanding how these interfaces work is crucial for building efficient and reliable applications that interact with the underlying hardware and operating system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "914-914",
+    "extraction_date": "2025-07-29T11:54:38.321280",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.694458"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "ssize_t rio_readn(int fd, void *usrbuf, size_t n) {\n    size_t nleft = n;\n    ssize_t nread;\n    char *bufp = usrbuf;\n\n    while (nleft > 0) {\n        if ((nread = read(fd, bufp, nleft)) < 0) {\n            if (errno == EINTR) continue; // ECF: Interrupted by signal\n            return -1; // ECF: Fatal syscall error\n        }\n        if (nread == 0) break; // ECF: End of file (EOF)\n\n        nleft -= nread;\n        bufp += nread;\n    }\n    return (n - nleft);\n}\n\n// System call failure check template\nif (syscall_result < 0) {\n    // errno contains specific failure reason (e.g., EACCES, ENOENT)\n    fprintf(stderr, \"Error: %s\\n\", strerror(errno));\n    exit(1);\n}"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "bpf() System Call",
+  "explanation": "The bpf() system call performs operations related to extended Berkeley Packet Filters (eBPF), such as creating and managing eBPF maps and programs. It allows user-space applications to interact with the kernel for tasks like packet filtering, tracing, and accessing shared data structures.\n\n**Parameters:**\n- `cmd` (int): The command to perform, such as BPF_MAP_CREATE or BPF_PROG_LOAD.\n- `attr` (union bpf_attr *): Pointer to a union containing attributes specific to the command.\n- `size` (unsigned int): The size of the attr structure in bytes.\n\n**Common Errors:**\n- `E2BIG`: The eBPF program is too large or a map reached the max_entries limit.\n- `EACCES`: The program has been rejected as unsafe, possibly due to invalid memory access or constraints.\n- `EAGAIN`: Needed resources are blocked; try the call again.\n- `EBADF`: The file descriptor is not open.\n- `EFAULT`: One of the pointers is outside the accessible address space.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.153316",
+    "syscall_name": "bpf",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_bpf.json",
+    "concept_id": "posix_sys_bpf_f4fdd8",
+    "book_metadata_added": "2025-10-28T20:22:06.646532"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "union bpf_attr attr = {\n    .map_type    = BPF_MAP_TYPE_HASH,\n    .key_size    = sizeof(u32),\n    .value_size  = sizeof(u64),\n    .max_entries = 100,\n    .map_flags   = 0,\n};\n\nint map_fd = bpf(\n    BPF_MAP_CREATE,         // cmd\n    &attr,                  // attr (Specific attributes for cmd)\n    sizeof(attr)            // size\n);\n\n// Check if map_fd >= 0 for success.\n// Other common commands: BPF_PROG_LOAD, BPF_MAP_LOOKUP_ELEM",
+  "keywords": "bpf system call, eBPF kernel interface, BPF_PROG_LOAD, BPF_MAP_CREATE"
+}

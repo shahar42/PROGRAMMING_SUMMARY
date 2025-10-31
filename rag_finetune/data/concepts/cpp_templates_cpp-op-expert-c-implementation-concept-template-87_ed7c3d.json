@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Template Metaprogramming and Expression Evaluation",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, leveraging the compiler's ability to generate code based on template parameters.  This contrasts sharply with runtime computations.  Understanding how the compiler performs these compile-time computations, including the potential for recursion, instantiation, and the impact on generated code size and execution speed is crucial. Compile-time computations avoid runtime overhead but can significantly increase compilation time and code size if not carefully managed.  The compiler effectively transforms template code into specialized code for each set of template arguments before generating the final executable.  This process involves complex transformations often involving recursion and instantiation of multiple template instances which can impact the compilation time significantly depending on the complexity of the template.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:14:58.065390",
+    "book_metadata_added": "2025-10-28T20:22:06.864295"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <int N>\nstruct Factorial {\n    static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n    static const int value = 1;\n};\n// Factorial<5>::value resolves at compile time\n\nconstexpr long long CT_Factorial(int n) {\n    return (n == 0) ? 1 : n * CT_Factorial(n - 1);\n}\n\n[[maybe_unused]]\nconstexpr auto result = CT_Factorial(10);\n// Compile-Time Function Execution (CTFE) via constexpr\n\ntemplate <typename T>\nstruct has_foo {\nprivate:\n    template <typename C>\n    static auto check(int) -> decltype(std::declval<C>().foo(), std::true_type{});\n\n    template <typename>\n    static std::false_type check(...);\n\npublic:\n    static constexpr bool value = decltype(check<T>(0))::value;\n};\n// SFINAE based evaluation of expression validity\n// requires std::true_type, std::false_type, std::declval"
+}

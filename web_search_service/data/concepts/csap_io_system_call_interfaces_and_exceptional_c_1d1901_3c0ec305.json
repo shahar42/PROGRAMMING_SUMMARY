@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: File Hardware Access",
+  "explanation": "System calls provide an interface between a process running in user mode and the operating system kernel, which runs in privileged mode.  They allow user-level programs to request services from the kernel, such as accessing hardware resources (like files), managing memory, or interacting with other processes. Exceptional control flow refers to situations where the normal flow of a program's execution is interrupted, such as by a system call, an exception (like a divide-by-zero), or a signal (like a Ctrl+C). Handling these exceptions correctly is crucial for system stability and robustness.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "916-916",
+    "extraction_date": "2025-07-29T11:55:02.763856",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.734886"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. File Access: Opening and Data Transfer (via syscalls)\n\nint fd = open(\"device.log\", O_WRONLY | O_APPEND, 0600);\nchar data[] = \"Log entry.\\n\";\n\n// System call to write data (requires kernel mediation)\nif (fd >= 0) {\n    ssize_t bytes_written = write(fd, data, sizeof(data) - 1);\n\n    // Check for ECF/error states\n    if (bytes_written < 0) {\n        perror(\"Write failed\");\n    }\n    close(fd);\n} else {\n    // ECF: Open failure (permissions, path not found)\n    perror(\"Open failed\");\n}\n\n\n// 2. Hardware Position Control (lseek)\n\nint fd_data = open(\"binary.dat\", O_RDONLY);\noff_t offset;\n\n// Reposition the file pointer using syscall\noffset = lseek(fd_data, 1024, SEEK_SET);\n\n// ECF: Kernel error during seek\nif (offset == (off_t)-1) {\n    // Handle error (e.g., file not seekable)\n    close(fd_data);\n}\n\n// Read from the new position\nchar buffer[32];\nread(fd_data, buffer, 32);\n\n\n// 3. ECF: Handling Signals (Software Interrupts)\n\n// Handler function triggered by ECF (signal)\nvoid handle_sigterm(int signum) {\n    if (signum == SIGTERM) {\n        cleanup_resources();\n        _exit(1); // Use safe syscall exit\n    }\n}\n\n// Register the handler\nstruct sigaction sa;\nsa.sa_handler = handle_sigterm;\nsigemptyset(&sa.sa_mask);\nsa.sa_flags = 0;\n\nsigaction(SIGTERM, &sa, NULL);\n// Program flow interrupted when SIGTERM is delivered"
+}

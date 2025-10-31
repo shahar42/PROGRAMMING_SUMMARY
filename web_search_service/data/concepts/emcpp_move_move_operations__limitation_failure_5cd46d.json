@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operations [Limitation/Failure]: Moving `const` Objects Forces Copy",
+  "category": "move",
+  "explanation": "A critical failure point in move semantics, often missed by developers, is the interaction between moving and const correctness. The anti-pattern is the assumption that `std::move` will always result in a resource transfer regardless of the source object's mutability. The reality is that if an object is declared `const`, applying `std::move` to it merely casts it to a `const T&&` (an rvalue reference to a const object). Standard library move constructors and move assignment operators are almost universally defined to accept non-const rvalue references (`T&&`). This is because the fundamental purpose of a move is to modify the source object (e.g., setting its internal pointers to null) to steal its resources, which inherently requires the source object to be non-const. When the compiler performs overload resolution and finds a `const T&&` argument, it checks the available move operations, finds they require a non-const source, and rejects them as viable candidates. It then falls back to the copy operations (copy constructor/assignment), which are typically defined to accept `const T&` inputs. The failure is that the programmer invokes `std::move` intending an efficient resource transfer but silently receives a full, deep copy because the source object's `const` qualification makes it ineligible for resource stealing. This failure is particularly deceptive because the code compiles without error and executes correctly (by copying), hiding a significant performance degradation resulting from the misapplication of `std::move` to a constant value.",
+  "code_example": "// Since source is const, std::move(source) yields const T&&, forcing copy.\nconst std::vector<int> source = {1, 2, 3};\nstd::vector<int> target = std::move(source); // Hidden full copy!",
+  "practical_example": "A function accepts a `const` reference to a large data payload (`const DataPayload&`). Inside, the developer tries to 'move' this payload into a thread-local queue using `std::move`. Because the function parameter was `const`, the move operation is rejected, and a full copy of the gigabyte-sized payload is performed unnecessarily, leading to high latency and memory pressure.",
+  "keywords": [
+    "const",
+    "move failure",
+    "rvalue reference",
+    "copy fallback",
+    "type"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "229-232",
+  "chapter": "Item 30: Understand the alternatives to perfect forwarding",
+  "id": "emcpp_move_move_operations__limitation_failure_5cd46d",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

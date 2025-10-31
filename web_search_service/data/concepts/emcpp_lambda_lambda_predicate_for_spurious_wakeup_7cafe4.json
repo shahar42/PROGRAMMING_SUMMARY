@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Predicate for Spurious Wakeup Prevention",
+  "category": "lambda",
+  "explanation": "When using `std::condition_variable::wait`, it is critical to ensure that a task only proceeds if the condition it is waiting for is actually met, even if the thread is awakened by a spurious notification (a kernel or system event that wakes the thread without a corresponding `notify_one` or `notify_all`). The preferred modern C++ mechanism is to pass a lambda (or any callable predicate) to the `wait` function. This lambda automatically checks the synchronization flag upon initial entry and whenever the wait is interrupted. The thread only proceeds if the lambda returns `true`, thereby correctly and safely handling spurious wakeups without requiring a manual `while` loop.",
+  "code_example": "cv.wait(lk, [] { return flag; }) ; // Lambda checks 'flag' automatically",
+  "practical_example": "A thread waiting for data availability might be spuriously awakened. If it immediately proceeds without re-checking the data flag, it could attempt to access empty resources, leading to undefined behavior. The lambda predicate ensures the thread only leaves the waiting state when the flag explicitly confirms the resource is ready.",
+  "keywords": "Spurious wakeup, Condition variable predicate, C++ wait lambda, Condition_variable guard",
+  "difficulty": "intermediate",
+  "page_reference": "265",
+  "chapter": "Item 39",
+  "id": "emcpp_lambda_lambda_predicate_for_spurious_wakeup_7cafe4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

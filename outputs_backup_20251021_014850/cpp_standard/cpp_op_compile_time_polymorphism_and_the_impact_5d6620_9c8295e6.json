@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism and the Impact of `virtual` Functions on vtables",
+  "explanation": "This delves into the intricate implementation of virtual functions in C++, focusing on the creation and manipulation of vtables (virtual function tables) by the compiler.  We'll explore how the compiler generates vtables, how these tables impact memory layout and object sizes, and the performance implications of virtual function calls (dynamic dispatch) compared to static dispatch.  We'll also touch upon how different compilers (like GCC and Clang) might implement these features slightly differently, leading to subtle variations in generated assembly code.",
+  "syntax": "The key syntax element is the `virtual` keyword preceding a member function declaration in a base class.  This signals to the compiler that this function should be handled using dynamic dispatch through a vtable.  \nExample:\n`class Base { public: virtual void foo() { ... } };`\n`class Derived : public Base { public: void foo() override { ... } };`",
+  "code_example": "#include <iostream>\nclass Base {\npublic:\n  virtual void foo() { std::cout << \"Base::foo()\\n\"; }\n  virtual ~Base() {} // Important for proper destruction in inheritance hierarchies\n};\nclass Derived : public Base {\npublic:\n  void foo() override { std::cout << \"Derived::foo()\\n\"; }\n};\nint main() {\n  Base* basePtr = new Derived();\n  basePtr->foo(); // Dynamic dispatch through vtable\n  delete basePtr;\n  return 0;\n}",
+  "example_explanation": "The compiler generates a vtable for `Base` containing pointers to `Base::foo()` and the destructor. `Derived` inherits the vtable, but it overrides `foo()`, so the vtable pointer for `foo()` in the `Derived` object points to `Derived::foo()`.  When `basePtr->foo()` is called, the runtime uses the vtable pointer stored within the `Derived` object to call the correct function.  This results in runtime overhead compared to a static call, but enables polymorphism.  Analyzing the generated assembly (e.g., using `g++ -S` or `clang++ -S`) reveals the indirect function call through the vtable pointer, highlighting the dynamic nature of the dispatch.  The size of the object increases due to the hidden vtable pointer member. Different compilers might vary in vtable placement within the object's memory layout and how they handle multiple inheritance scenarios, causing variations in performance and memory usage.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:53:18.158990"
+  }
+}

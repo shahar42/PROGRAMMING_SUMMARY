@@ -1,0 +1,19 @@
+{
+  "topic": "Pass-by-Value Failure: Hidden Cost of Mandatory Copies",
+  "category": "perf",
+  "explanation": "A proposed alternative to the complexity of universal references is the pass-by-value idiom (`void func(T param)`), where the function takes its argument by value, relying on RVO/copy elision to minimize overhead for temporaries, and using the argument as its internal copy. The anti-pattern here is assuming this technique is universally beneficial or even viable when the object's copy or move construction is non-trivial. The failure lies in the mandatory creation of a temporary object. Even if a move occurs into the function parameter (if an rvalue is passed), for an lvalue input, a full copy *must* be performed to create the function parameter, regardless of whether the function actually modifies or needs a local copy. If the class has expensive deep copy operations, using pass-by-value guarantees this cost. This contrasts sharply with passing by `const T&`, which incurs zero overhead on entry, or using perfect forwarding, which chooses a copy only when necessary (lvalue) or a move when possible (rvalue). The pass-by-value idiom fails spectacularly for large, non-trivially copyable types, where the mandatory copy penalty for lvalue inputs outweighs the simplicity gain. The overall impact is unnecessary resource usage and performance degradation when compared to the zero-cost invocation of reference parameters.",
+  "code_example": "void process_expensive(ExpensiveResource res) { // Resource must be copied or moved here\n    // ... logic\n}\nExpensiveResource r;\nprocess_expensive(r); // Mandatory copy is expensive.",
+  "practical_example": "A function that processes high-resolution image buffers is refactored to use pass-by-value for simplicity. When called with lvalue buffers, the mandatory copy of gigabytes of pixel data into the function parameter immediately causes stack exhaustion and massive performance slowdown, proving that 'simpler' syntax does not guarantee efficient execution.",
+  "keywords": [
+    "pass-by-value",
+    "mandatory copy",
+    "performance anti-pattern",
+    "lvalue cost",
+    "zero overhead principle"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "205-208",
+  "chapter": "Item 27: Use std::forwarding references to distinguish overloads for rvalue and lvalue arguments",
+  "id": "emcpp_perf_pass_by_value_failure__ca23bb",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "ioctl_fslabel() System Call",
+  "explanation": "These ioctl operations allow getting or setting the filesystem label for the filesystem associated with the file descriptor fd, if the filesystem supports online label manipulation. The FS_IOC_SETFSLABEL operation requires CAP_SYS_ADMIN privilege.\n\n**Parameters:**\n- `fd` (int): File descriptor for the filesystem\n- `request` (unsigned long): The ioctl command, such as FS_IOC_GETFSLABEL or FS_IOC_SETFSLABEL\n- `label` (char[FSLABEL_MAX]): Buffer to hold or provide the label string\n\n**Common Errors:**\n- `EFAULT`: label references an inaccessible memory area\n- `EINVAL`: The specified label exceeds the maximum label length for the filesystem\n- `ENOTTY`: The filesystem does not support online label manipulation\n- `EPERM`: The calling process does not have sufficient permissions to set the label",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.230166",
+    "syscall_name": "ioctl_fslabel",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_fslabel.json",
+    "concept_id": "posix_sys_ioctl_fslabel_663acc",
+    "book_metadata_added": "2025-10-28T20:22:06.656859"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define FSLABEL_MAX 64\n\n/* Getting the Filesystem Label */\nchar label_buf[FSLABEL_MAX];\nint fd = /* open device or mountpoint */;\n\nif (ioctl(fd, FS_IOC_GETFSLABEL, label_buf) == 0) {\n    // label_buf contains the null-terminated label\n} else {\n    // EOPNOTSUPP: FS does not support online labels\n    // ENOTTY: fd does not refer to a filesystem\n    // EINVAL: Bad parameters\n}\n\n\n/* Setting the Filesystem Label */\n#define NEW_LABEL \"Data_Store_v1\"\nint fd_rw = /* open O_RDWR */;\n\n// Requires CAP_SYS_ADMIN privilege\nstrncpy(label_buf, NEW_LABEL, FSLABEL_MAX);\n\nif (ioctl(fd_rw, FS_IOC_SETFSLABEL, label_buf) == -1) {\n    // EPERM: Missing CAP_SYS_ADMIN\n    // EROFS: fd opened O_RDONLY\n    // EINVAL: Label too long (must be < FSLABEL_MAX)\n}\n\nclose(fd_rw);\n<ctrl63>",
+  "keywords": "FS_IOC_SETFSLABEL, filesystem label ioctl, set fs label"
+}

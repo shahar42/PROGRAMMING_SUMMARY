@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Init Capture for Moving Non-Copyable Resources",
+  "category": "capture",
+  "explanation": "Assumption: Only copyable or reference-captured objects can be stored inside a lambda closure (C++11 limitation). Reality: C++14's init capture (generalized capture) allows for the initialization of a closure's data member using an arbitrary expression, including invoking move semantics. This is essential for transferring ownership of non-copyable resource-owning types, such as `std::unique_ptr` or `std::thread`, into the lambda's closure object. The syntax uses `[ capture_name = std::move(resource) ]` to ensure the move constructor is called for the closure member.",
+  "code_example": "auto ptr = std::make_unique<Widget>();\nauto func = [ pw = std::move(ptr) ] { \n  return pw->isValidated(); \n}; // Ownership of Widget moved to func's closure",
+  "practical_example": "A developer needs to launch an asynchronous task using `std::async` which requires temporary ownership of a large buffer managed by a `std::unique_ptr`. Init capture provides the clean, standard way to move the pointer into the callable object passed to `std::async` without resorting to shared state or mutable lambda hacks.",
+  "keywords": "Lambda move capture, Generalized capture unique_ptr, C++14 init capture move, Non-copyable lambda capture",
+  "difficulty": "intermediate",
+  "page_reference": "241-247",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_capture_lambda_init_capture_for_moving_9cc0f8",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "getgroups() System Call",
+  "explanation": "getgroups() returns the supplementary group IDs of the calling process and stores them in the provided list array. The size parameter specifies the maximum number of items that can be stored; if size is zero, it returns the total number without modifying the list.\n\n**Parameters:**\n- `size` (int): The maximum number of supplementary group IDs to store in the list, or zero to retrieve the total count.\n- `list` (gid_t []): Array to store the supplementary group IDs.\n\n**Common Errors:**\n- `EFAULT`: list has an invalid address.\n- `EINVAL`: size is less than the number of supplementary group IDs but not zero.\n\n**Related System Calls:** `getgid()`, `setgid()`, `getegid()`, `setgroups()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.115402",
+    "syscall_name": "getgroups",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getgroups.json",
+    "concept_id": "posix_sys_getgroups_7ac26e",
+    "book_metadata_added": "2025-10-28T20:22:06.623966"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int count;\ngid_t* group_list;\n\n// Step 1: Determine the total number of groups\ncount = getgroups(0, NULL);\n// Error check needed if count < 0\n\nif (count > 0) {\n    // Step 2: Allocate buffer\n    group_list = malloc(sizeof(gid_t) * count);\n\n    // Step 3: Populate the array\n    if (group_list != NULL) {\n        getgroups(count, group_list);\n        \n        // group_list now holds 'count' GIDs\n        free(group_list);\n    }\n}\n<ctrl63>",
+  "keywords": "getgroups, supplementary groups, process group IDs, Linux group list"
+}

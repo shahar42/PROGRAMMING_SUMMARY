@@ -1,0 +1,21 @@
+{
+  "topic": "Decltype(auto): Exact Value Category Preservation",
+  "category": "type",
+  "explanation": "The `decltype(auto)` specifier, introduced in C++14, instructs the compiler to deduce a function's return type using the rules of `decltype` applied to its return expression. This mechanism enables perfect forwarding of return types, ensuring the function's return type exactly matches the type of the expression being returned, including its reference and const qualifiers.\n\nScott Meyers presents `decltype(auto)` as the definitive solution for generic functions that need to transparently return the result of an internal operation without altering its type. He emphasizes that `auto` by itself is insufficient because it applies template-style deduction, which would decay a returned reference into a value, breaking the chain of reference-ness required for operations like modifying a container element through a wrapper function.\n\nThe mechanics are straightforward: `auto` signals that type deduction should occur, while `decltype` specifies the set of rules to use. When a function returning `decltype(auto)` executes a return statement, the compiler applies `decltype` to the expression in the statement. If that expression is an lvalue (like the result of most container subscript operators), `decltype` deduces an lvalue reference type. If the expression is an rvalue (a temporary object), it deduces a value type. This allows a single function signature to correctly return both references and values based on context.\n\nThis feature is crucial for writing forwarding wrappers and factory functions. For example, a function that performs some action (like logging or authentication) before granting access to a container element must return a reference if the container's subscript operator returns a reference, allowing the caller to modify the element. If it returned a value by mistake, any modification would be lost on a temporary copy. `decltype(auto)` makes this generic proxying behavior possible and correct.\n\nThe most common pitfall is misunderstanding the distinction between `auto` and `decltype(auto)` for return types. Developers may use `auto` and be surprised when their function returns a copy instead of a reference, leading to subtle bugs where modifications are silently discarded. Conversely, using `decltype(auto)` can lead to unintended dangling references if the function returns a reference to a local variable, a mistake that the strict rules of `decltype` will not prevent.",
+  "code_example": "template<typename Container, typename Index>\ndecltype(auto) authAndAccess(Container& c, Index i)\n{\n  // authenticateUser();\n  return c[i]; // Return type is exactly the type of c[i]\n}\n\nstd::vector<int> v = {1, 2, 3};\n\n// authAndAccess returns int&, so we can modify the element\nauthAndAccess(v, 1) = 20; // v is now {1, 20, 3}\n\nstd::vector<bool> boolVec; // operator[] returns a temporary object (value)\nauto proxy = authAndAccess(boolVec, 0); // Correctly returns a value type",
+  "practical_example": "When implementing a generic data access layer that adds behavior like caching or validation, `decltype(auto)` allows the access function to perfectly forward the return type of the underlying data source's accessor, whether it's a direct reference to data or a temporary proxy object.",
+  "keywords": [
+    "decltype(auto)",
+    "return type deduction",
+    "perfect forwarding",
+    "C++14",
+    "type deduction",
+    "reference preservation",
+    "proxy types"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "26-27",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_type_decltype_with_auto_in_return_599d77",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "C++ Preprocessor Token Concatenation and Macro Expansion",
+  "explanation": "C++ preprocessor token concatenation using the ## operator is a compile-time feature that allows macros to combine tokens into a single identifier. The preprocessor, which runs before the actual compilation phase, processes directives like #define and handles macro expansion in a specific order as per the C++ standard (e.g., [cpp.replace]). When ## is used, it concatenates its arguments without further expansion, which can lead to issues if the arguments themselves are macros that need to expand first. This is why helper macros (e.g., xglue) are often employed—to ensure arguments are fully expanded before concatenation. \n\nCompiler implementation: The preprocessor scans the source code, expands macros in a single pass per invocation, and the ## operator forces immediate concatenation. For example, in glue(HIGH, LOW), if HIGH and LOW are macros, they won't expand before concatenation unless a helper is used. This behavior is governed by the preprocessor's token-based parsing, where ## glues tokens directly, potentially bypassing further macro substitution. \n\nMemory layout and performance implications: As a compile-time operation, token concatenation has no direct runtime memory layout effects, but it can influence the final binary by generating more or larger code if overused (e.g., creating unique identifiers leads to code bloat). Performance-wise, it's negligible at compile-time but can slow compilation due to complex macro dependencies. At runtime, there's no overhead since the result is baked into the object code. \n\nAssembly-level behavior: The concatenated tokens become part of the source code fed to the compiler, so in assembly, you might see the resulting identifier used directly (e.g., a variable name like 'HIGHLOW' translated to a memory address or register). For instance, if the macro creates a function call, the assembler will reference the symbol as generated. \n\nRuntime vs compile-time behavior: This is purely compile-time; the preprocessor resolves everything before the compiler generates object code. If errors occur (e.g., undefined identifiers post-concatenation), they manifest as compile-time errors, not runtime exceptions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:18:43.807839",
+    "book_metadata_added": "2025-10-28T20:22:06.814881"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "",
+  "keywords": "## operator, C++ token pasting, Macro expansion order, Preprocessor concatenation"
+}

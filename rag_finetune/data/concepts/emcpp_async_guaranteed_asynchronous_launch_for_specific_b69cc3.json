@@ -1,0 +1,13 @@
+{
+  "topic": "Guaranteed Asynchronous Launch for Specific Concurrency Needs",
+  "category": "async",
+  "explanation": "The default launch policy of `std::async` is non-deterministic (it uses `std::launch::async | std::launch::deferred`). If a task relies on specific concurrency guarantees—such as running concurrently with the calling thread, needing correct access to thread_local storage, or requiring execution even if the future is never waited upon—the default policy is insufficient. Explicitly passing `std::launch::async` as the first argument guarantees that the task is scheduled immediately for execution on a separate thread, bypassing the possibility of deferral. This is necessary when relying on true concurrent execution behavior.",
+  "code_example": "// Default: May defer execution to the caller thread\nauto fut_default = std::async(f);\n\n// Guaranteed Asynchronous: Always runs on a new thread\nauto fut_guaranteed = std::async(std::launch::async, f);",
+  "practical_example": "A system uses thread-local variables for caching session data. If a function is launched using the default policy and is deferred, it runs on the calling thread, accessing the wrong thread's session data. Using `std::launch::async` ensures the task runs on a unique thread, correctly accessing its own thread-local cache.",
+  "keywords": "std::launch::async, std::async immediate execution, std::async guaranteed thread",
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 36: Prefer std::launch::async if asynchronous execution is necessary",
+  "id": "emcpp_async_guaranteed_asynchronous_launch_for_specific_b69cc3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

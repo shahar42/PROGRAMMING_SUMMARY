@@ -1,0 +1,127 @@
+{
+  "name": "fallocate",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <fcntl.h>",
+    "int fallocate(int fd, int mode, off_t offset, off_t len);"
+  ],
+  "description": "fallocate() is a Linux-specific system call that manipulates allocated disk space for a file. It allows operations like allocating, deallocating, or zeroing a specified byte range based on the mode provided.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the file to manipulate."
+    },
+    {
+      "name": "mode",
+      "type": "int",
+      "description": "Mode of operation, such as allocating space or punching holes."
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "Starting offset in bytes for the operation."
+    },
+    {
+      "name": "len",
+      "type": "off_t",
+      "description": "Length of the byte range in bytes."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid file descriptor, or is not opened for writing."
+    },
+    {
+      "code": "EFBIG",
+      "description": "offset + len exceeds the maximum file size."
+    },
+    {
+      "code": "EFBIG",
+      "description": "mode is FALLOC_FL_INSERT_RANGE, and the current file size + len exceeds the maximum file size."
+    },
+    {
+      "code": "EINTR",
+      "description": "A signal was caught during execution."
+    },
+    {
+      "code": "EINVAL",
+      "description": "offset was less than 0, or len was less than or equal to 0."
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode is FALLOC_FL_COLLAPSE_RANGE and the range specified by offset plus len reaches or passes the end of the file."
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode is FALLOC_FL_INSERT_RANGE and the range specified by offset reaches or passes the end of the file."
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode is FALLOC_FL_COLLAPSE_RANGE or FALLOC_FL_INSERT_RANGE, but either offset or len is not a multiple of the filesystem block size."
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode contains one of FALLOC_FL_COLLAPSE_RANGE or FALLOC_FL_INSERT_RANGE and also other flags."
+    },
+    {
+      "code": "EINVAL",
+      "description": "mode is FALLOC_FL_COLLAPSE_RANGE, FALLOC_FL_ZERO_RANGE, or FALLOC_FL_INSERT_RANGE, but the file referred to by fd is not a regular file."
+    },
+    {
+      "code": "EIO",
+      "description": "An I/O error occurred while reading from or writing to a filesystem."
+    },
+    {
+      "code": "ENODEV",
+      "description": "fd does not refer to a regular file or a directory."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "There is not enough space left on the device containing the file referred to by fd."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "This kernel does not implement fallocate()."
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem containing the file referred to by fd does not support this operation; or the mode is not supported by the filesystem."
+    },
+    {
+      "code": "EPERM",
+      "description": "The file referred to by fd is marked immutable."
+    },
+    {
+      "code": "EPERM",
+      "description": "mode specifies FALLOC_FL_PUNCH_HOLE, FALLOC_FL_COLLAPSE_RANGE, or FALLOC_FL_INSERT_RANGE and the file referred to by fd is marked append-only."
+    },
+    {
+      "code": "EPERM",
+      "description": "The operation was prevented by a file seal."
+    },
+    {
+      "code": "ESPIPE",
+      "description": "fd refers to a pipe or FIFO."
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "mode specifies FALLOC_FL_COLLAPSE_RANGE or FALLOC_FL_INSERT_RANGE, but the file referred to by fd is currently being executed."
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "extraction_metadata": {
+    "syscall_file": "fallocate.pdf",
+    "extraction_date": "2025-07-26T23:44:47.421462",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

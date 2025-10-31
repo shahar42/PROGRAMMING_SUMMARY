@@ -1,37 +1,12 @@
 {
-  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its Implementation Details",
+  "topic": "Template Metaprogramming: Type-Specific Polymorphism",
   "explanation": "Compile-time polymorphism, achieved through template metaprogramming, allows for code generation specific to types at compile time, unlike runtime polymorphism with virtual functions.  This avoids the runtime overhead of virtual function calls, potentially leading to significant performance gains.  The compiler's implementation involves sophisticated recursive template instantiation and potentially specialized code generation for different types.  Memory layout is impacted because the compiler generates specialized code for each type, potentially leading to larger binary sizes but faster execution.  The lack of runtime function lookups means no indirect jumps in assembly, resulting in more efficient machine code.  We can contrast this with runtime polymorphism, where the assembly code would include an indirect jump through a virtual function table.",
-  "syntax": "C++ templates, specializing using `template<>`, partial specialization, `std::enable_if`, `constexpr` functions for compile-time computations.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <type_traits>",
-    "template <typename T>",
-    "constexpr size_t size_of_array() {",
-    "  if constexpr (std::is_array_v<T>) {",
-    "    return std::extent_v<T>;",
-    "  } else {",
-    "    return 0; // Handle non-array types appropriately",
-    "  }",
-    "}",
-    "template <typename T, size_t N>",
-    "constexpr size_t array_size(const T (&arr)[N]) { return N; }",
-    "template <typename T>",
-    "void print_size(const T& val) {",
-    "  std::cout << \"Size: \" << size_of_array<T>() << std::endl; //compile time evaluation",
-    "}",
-    "int main() {",
-    "  int arr[] = {1, 2, 3};",
-    "  print_size(arr); // array size evaluated at compile time",
-    "  int x = 5;",
-    "  print_size(x); // 0, because it's not an array",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The `size_of_array` function uses `if constexpr` to conditionally compile code based on whether `T` is an array. If it is, `std::extent_v<T>` (a compile-time constant expression) provides the array size. Otherwise, it returns 0. The compiler generates different versions of `print_size` for each type at compile time.  In assembly, you would see that the size is directly embedded into the code for `print_size(arr)`, avoiding any runtime calculations. For `print_size(x)`, the 0 will be directly embedded. This showcases the compile-time evaluation resulting in efficient code execution without runtime overhead. The specialized template `array_size` shows another approach to compile-time evaluation.  Observe that no runtime branching or function calls related to size determination are present; the calculation is fully resolved at compile time.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:08:04.882282"
-  }
+    "extraction_date": "2025-08-19T05:08:04.882282",
+    "book_metadata_added": "2025-10-28T20:22:06.866558"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

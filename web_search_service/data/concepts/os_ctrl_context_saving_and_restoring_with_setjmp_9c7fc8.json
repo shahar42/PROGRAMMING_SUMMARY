@@ -1,0 +1,15 @@
+{
+  "topic": "Context Saving and Restoring with setjmp and longjmp",
+  "explanation": "setjmp and longjmp are C standard library functions that allow a program to save the current execution context (including registers and stack pointer) and later restore it to perform a non-local jump. They are used for error handling, simulating context switches, or escaping deeply nested functions without unwinding the stack manually, providing a way to manage control flow in a manner similar to low-level context switching in operating systems.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "76-76",
+    "extraction_date": "2025-07-16T23:02:47.398290",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.791838"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "jmp_buf env;\nvolatile int jump_status = 0;\n\nvoid escape_function() {\n    // Return value passed to setjmp (must be non-zero)\n    longjmp(env, 101);\n}\n\nvoid execution_flow() {\n    jump_status = setjmp(env);\n\n    if (jump_status == 0) {\n        // Initial call: Context saved\n        // (Execution continues forward)\n        escape_function();\n    } else {\n        // Non-local jump return: Context restored\n        // jump_status == 101\n    }\n}",
+  "keywords": "setjmp longjmp, C non-local jump, C execution context saving"
+}

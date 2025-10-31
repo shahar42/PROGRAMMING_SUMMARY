@@ -1,0 +1,19 @@
+{
+  "topic": "Move Semantics: Embedded Resource Transfer Cost",
+  "category": "perf",
+  "explanation": "Assumption: Programmers often assume that applying `std::move` guarantees an O(1) resource transfer because most well-known types like `std::vector` and `std::string` achieve this by swapping pointers. Reality: This assumption is fundamentally flawed for aggregate types, small objects, or types relying on specific optimization techniques. If a type's internal representation requires embedded resources rather than heap allocation (e.g., `std::array`), or if it employs optimizations like Small String Optimization (SSO), the 'move' operation must copy the contained data block element by element. Why It Fails: The move constructor for an `std::array<T, N>` is defined as copying N elements, making the move operation O(N) instead of O(1). Similarly, when `std::string` or `std::function` uses SSO because the payload is small, invoking the move constructor results in a bitwise copy of the data, potentially wasting effort. The failure occurs when performance-critical code relies on move semantics for large data structures, but the structure's intrinsic design (or SSO trigger) forces a copy cost equal to a standard deep copy. This anti-pattern leads to silent performance regressions, violating the expectation that move semantics eliminate expensive allocation/deallocation overhead.",
+  "code_example": "// Failure case: std::array has O(N) move cost\nstd::array<int, 10000> arr;\nauto moved = std::move(arr);  // Still copies all 10000 elements!",
+  "practical_example": "A high-performance library uses `std::move` on structs containing fixed-size buffers, expecting quick relocation during resizing of an encompassing container. Because the fixed-size buffer necessitates a full copy, the relocation cost explodes, leading to unexpected latency spikes.",
+  "keywords": [
+    "move semantics",
+    "std::array",
+    "SSO",
+    "O(N) move",
+    "anti-pattern"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "226-229",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_move_operations_not_always_cheap_29299c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

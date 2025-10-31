@@ -1,0 +1,15 @@
+{
+  "topic": "membarrier() System Call",
+  "explanation": "The membarrier() system call reduces the overhead of memory barriers in multi-threaded applications by allowing replacement of barriers on frequently executed paths with compiler barriers and using membarrier on less frequent paths. It ensures memory accesses match program order for targeted threads, improving performance on multi-core systems.\n\n**Parameters:**\n- `cmd` (int): The command to execute, such as MEMBARRIER_CMD_QUERY, MEMBARRIER_CMD_GLOBAL, or others\n- `flags` (unsigned int): Flags for the command, typically set to 0\n- `cpu_id` (int): CPU ID for specific commands, if applicable\n\n**Common Errors:**\n- `EINVAL`: cmd is invalid, or flags is nonzero, or certain commands are disabled\n- `ENOSYS`: The membarrier() system call is not implemented by the kernel\n- `EPERM`: The current process was not registered prior to using private expedited commands",
+  "syntax": "int syscall(SYS_membarrier, int cmd, unsigned int flags, int cpu_id);",
+  "code_example": "static int membarrier(int cmd, unsigned int flags, int cpu_id) { return syscall(__NR_membarrier, cmd, flags, cpu_id); }\nret = membarrier(MEMBARRIER_CMD_QUERY, 0, 0); if (ret < 0) { perror(\"membarrier\"); }\nstatic void slow_path(int *read_a) { b = 1; membarrier(MEMBARRIER_CMD_GLOBAL, 0, 0); *read_a = a; }",
+  "example_explanation": "This example demonstrates the basic usage of the membarrier() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.065195",
+    "syscall_name": "membarrier",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_membarrier.json",
+    "concept_id": "posix_sys_membarrier_ca1ab9"
+  }
+}

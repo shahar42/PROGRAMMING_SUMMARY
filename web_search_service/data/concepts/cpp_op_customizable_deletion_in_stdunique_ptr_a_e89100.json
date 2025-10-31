@@ -1,0 +1,13 @@
+{
+  "topic": "Customizable Deletion in `std::unique_ptr` and Compiler Optimization",
+  "explanation": "The `std::unique_ptr` offers customizable deletion via a custom deleter.  This goes beyond simple `delete` and impacts compiler optimization, memory management, and potentially runtime performance. Understanding how the compiler handles custom deleters, especially in relation to optimization and inlining, is crucial for advanced C++ development.  The compiler might perform significant optimizations depending on the nature of the custom deleter (e.g., a simple function pointer vs. a complex functor).  Memory layout isn't directly affected by the deleter itself, but the deleter's *behavior* influences memory deallocation strategies and therefore the overall performance and correctness of memory management.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:11:03.693244",
+    "book_metadata_added": "2025-10-28T20:22:06.918081"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Stateless Custom Deleter (Optimization via EBO)\n// Deleter type: closure type (usually zero-size)\nauto resource_deleter = [](int* p) {\n    if (p) std::cout << \"Deleting\"; delete p;\n};\n\nusing OptimizedPtr = \n    std::unique_ptr<int, decltype(resource_deleter)>;\n\n// If resource_deleter is stateless (no captures):\n// sizeof(OptimizedPtr) == sizeof(int*) \n// (Zero size overhead via Empty Base Optimization)\n\nOptimizedPtr p(new int(42), resource_deleter);\n\n// Compiler knows the deleter type at compile time,\n// enabling potential inlining of the deletion call.\n<ctrl63>"
+}

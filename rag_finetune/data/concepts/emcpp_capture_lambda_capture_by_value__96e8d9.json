@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture By-Value: Dangling Pointer Risk",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-value capture (`[=]`) guarantees that the lambda closure is self-contained and safe from external changes, especially concerning lifetime. Reality: This is only true for non-pointer types (primitives, value types). Why It Fails: If a raw pointer is captured by value, the pointer address is copied into the closure, but the memory it points to (the pointee) is not managed or copied. If the original resource owner deletes the pointee before the lambda executes, the pointer inside the lambda becomes dangling, resulting in undefined behavior. This danger persists even in modern C++ code where raw pointers might be hidden within complex library constructs or smart pointer implementations.",
+  "code_example": "int* p = new int(10);\nauto bad_lambda = [=] { std::cout << *p; };\ndelete p; // Resource deleted\n// Executing bad_lambda now uses a dangling pointer.",
+  "practical_example": "A developer creates a list of asynchronous tasks (lambdas) that capture a pointer to temporary configuration data using `[=]`. If the main thread deletes the configuration data before the asynchronous tasks execute, the tasks will fail silently or crash when attempting to dereference the now-invalid pointer.",
+  "keywords": [
+    "default capture",
+    "by-value",
+    "raw pointer",
+    "dangling",
+    "closure lifetime"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "233-234",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_by_value__96e8d9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,45 +1,12 @@
 {
   "topic": "Move Semantics in C++",
   "explanation": "Move semantics is a practical C++ feature introduced in C++11 that allows for the efficient transfer of resources (like memory or file handles) from one object to another, avoiding expensive deep copies. In real-world programming, this is crucial for performance in scenarios involving large objects or containers, such as when returning objects from functions or swapping elements in a vector. Best practices include implementing move constructors and move assignment operators for classes that manage resources, using std::move to explicitly indicate that an object can be moved from an lvalue. Common pitfalls include accidentally moving from an lvalue without proper checks, which can lead to undefined behavior; to avoid this, always ensure that moved-from objects are left in a valid state and use noexcept where appropriate for exception safety.",
-  "syntax": "To define a move constructor: ClassName(ClassName&& other) noexcept; // Transfers resources from 'other' to the new object\nTo define a move assignment: ClassName& operator=(ClassName&& other) noexcept; // Transfers resources and returns *this\nPractical usage note: Use std::move<T>(object) to cast an lvalue to an rvalue reference, enabling moves in functions or containers, but only when the object is no longer needed to avoid unexpected modifications.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "#include <utility>  // For std::move",
-    "",
-    "class ZooAnimal {",
-    "private:",
-    "    std::string name;  // Resource: a string that owns memory",
-    "",
-    "public:",
-    "    ZooAnimal(const std::string& n) : name(n) {}  // Constructor",
-    "    ZooAnimal(ZooAnimal&& other) noexcept : name(std::move(other.name)) {",
-    "        // Move constructor: Transfer ownership of 'name' from 'other'",
-    "        std::cout << \"Move constructor called for \" << name << std::endl;",
-    "    }",
-    "    ZooAnimal& operator=(ZooAnimal&& other) noexcept {",
-    "        if (this != &other) {",
-    "            name = std::move(other.name);  // Move assignment",
-    "            std::cout << \"Move assignment called for \" << name << std::endl;",
-    "        }",
-    "        return *this;",
-    "    }",
-    "    ~ZooAnimal() { std::cout << \"Destructor called for \" << name << std::endl; }",
-    "    const std::string& getName() const { return name; }",
-    "};",
-    "",
-    "int main() {",
-    "    ZooAnimal bear(\"Bear\");  // Creates a ZooAnimal object",
-    "    ZooAnimal anotherBear(std::move(bear));  // Moves resources from 'bear' to 'anotherBear'",
-    "    std::cout << \"After move, original bear name: \" << bear.getName() << std::endl;  // Moved-from object is in a valid but unspecified state",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this real-world example, we define a simple ZooAnimal class to represent an animal with a name, mimicking scenarios where objects manage resources like strings. The move constructor and move assignment operator are implemented to transfer the 'name' resource efficiently, which is a common pattern in applications dealing with dynamic data, such as game entities or network packets. By using std::move in main(), we avoid a deep copy of the string, improving performance\u2014especially for large objects. Best practices here include marking the functions as noexcept for efficiency in standard library containers and ensuring the moved-from object (e.g., 'bear') remains valid (though its state is unspecified). This avoids common pitfalls like dangling pointers or unexpected copies, making it ideal for scenarios like returning large objects from functions in performance-critical code.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "copy",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T07:39:43.879751"
-  }
+    "extraction_date": "2025-08-20T07:39:43.879751",
+    "book_metadata_added": "2025-10-28T20:22:06.544785"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

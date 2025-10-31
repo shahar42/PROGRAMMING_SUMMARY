@@ -1,0 +1,27 @@
+{
+  "topic": "Move Semantics and Rvalue References: STL Usage",
+  "explanation": "Move semantics and rvalue references are advanced C++ features introduced in C++11 that enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying. They are essential for writing high-performance code, especially when managing dynamic resources like memory, file handles, or network connections. By allowing objects to 'move' rather than copy their internal data, C++ developers can optimize resource management and improve program efficiency.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature introduced in C++11 that allow functions to distinguish between lvalues (named objects) and rvalues (temporary objects), facilitating move semantics and perfect forwarding.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature introduced in C++11 that allow functions to distinguish between lvalues and rvalues, facilitating move semantics and perfect forwarding in generic code.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying. Introduced in C++11, this feature allows developers to optimize performance, especially in resource-intensive applications, by implementing move constructors and move assignment operators that 'steal' resources from rvalue objects instead of copying them.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "16-17",
+    "extraction_date": "2025-08-19T01:22:28.508371",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "merged_on": "2025-09-11T12:12:38.571925",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "163-163",
+      "extraction_date": "2025-09-11T12:12:32.988584",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8890455961227417,
+    "book_metadata_added": "2025-10-28T20:22:06.904550"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::vector<int> source = {1, 2, 3};\n// std::move casts source to an rvalue reference\nstd::vector<int> dest = std::move(source);\n\n// Dest's internal resources are swapped with source's.\n// source is now empty (moved-from state).\n\n// --- Perfect Forwarding ---\ntemplate <typename T, typename... Args>\nT create_object(Args&&... args) {\n    // std::forward preserves the value category (lvalue/rvalue)\n    return T(std::forward<Args>(args)...);\n}\n\n// --- Custom Move Assignment ---\nclass Resource {\n    int* data;\npublic:\n    Resource& operator=(Resource&& other) noexcept {\n        if (this != &other) {\n            delete[] data;\n            data = other.data;  // Steal resource\n            other.data = nullptr; // Nullify source\n        }\n        return *this;\n    }\n};"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Init Capture for Moving Move-Only Objects",
+  "category": "lambda, capture",
+  "explanation": "Problem: C++11 capture modes (`[=]`, `[&]`) cannot handle move-only types (like `std::unique_ptr` or `std::future`) that must be incorporated into a closure. By-value capture requires a copy constructor (which move-only types lack), and by-reference capture doesn't transfer ownership. Solution: C++14 introduced init capture (generalized capture) which allows developers to define a new member variable within the closure and initialize it using an arbitrary expression, typically `std::move` of a local variable. This facilitates transferring ownership of resources into the lambda's closure state.",
+  "code_example": "// C++14 Init Capture\nstd::unique_ptr<int> p(new int(10));\nauto lambda = [p_copy = std::move(p)] { \n  return *p_copy; \n}; // p is now null, p_copy holds ownership",
+  "practical_example": "A service needs to run a task asynchronously that requires exclusive access to a file handle managed by a `std::unique_ptr<File>`. Init capture is used to move the `unique_ptr` directly into the asynchronous lambda, ensuring ownership is transferred and the file is correctly managed and released when the lambda finishes.",
+  "keywords": "init capture, unique_ptr lambda capture, move into lambda, generalized capture",
+  "difficulty": "intermediate",
+  "page_reference": "241-242",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_lambda, capture_lambda_init_capture_for_moving_fede99",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Custom Hash Specialization for `std::unique_ptr`",
+  "explanation": "This concept delves into the expert-level implementation details of specializing the `std::hash` template for `std::unique_ptr`.  It highlights how compilers handle custom hash functions, the interplay between compile-time and runtime behavior, and the memory implications.  Understanding this requires a deep grasp of template metaprogramming, how the standard library's hashing mechanism works, and the underlying memory management of `std::unique_ptr`.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:26:16.945949",
+    "book_metadata_added": "2025-10-28T20:22:06.852201"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <class T, class D>\nstruct std::hash<std::unique_ptr<T, D>> {\n    using argument_type = std::unique_ptr<T, D>;\n    using result_type = std::size_t;\n\n    result_type operator()(const argument_type& p) const {\n        // Hashing the unique_ptr requires hashing the raw pointer\n        using RawPtr = T*;\n        return std::hash<RawPtr>{}(p.get());\n    }\n};\n<ctrl63>"
+}

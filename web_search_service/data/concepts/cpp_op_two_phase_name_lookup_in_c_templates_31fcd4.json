@@ -1,0 +1,14 @@
+{
+  "topic": "Two-Phase Name Lookup in C++ Templates",
+  "explanation": "Two-phase name lookup is an advanced C++ feature that governs how compilers resolve identifiers in templates, ensuring type safety and flexibility while introducing potential pitfalls. In the first phase, during template definition parsing, the compiler performs name lookup for non-dependent names (those not relying on template parameters) based on the context where the template is defined. Dependent names (those that depend on template arguments) are deferred to the second phase, which occurs during template instantiation when the actual types are known. This two-phase approach is implemented by compilers like GCC and Clang through separate parsing and instantiation passes: the first phase builds a symbol table for non-dependent entities, while the second phase re-evaluates dependent expressions in the instantiation context. Memory layout implications are minimal at runtime, as this is primarily a compile-time process, but it can affect binary size if templates lead to multiple instantiations. Performance-wise, the first phase optimizes compilation by catching errors early, but the second phase can increase build times for complex templates due to repeated lookups and code generation. Assembly-level behavior is indirect; for instance, if a non-dependent name resolves incorrectly, it may lead to compilation errors rather than runtime issues, as templates are expanded into concrete code. Overall, this is a compile-time mechanism, contrasting with runtime polymorphism, and it underscores C++'s emphasis on static typing for efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:40:01.681610",
+    "book_metadata_added": "2025-10-28T20:22:06.905319"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct S { using Type = int; };\n\n// PHASE 1: Non-dependent names resolved during definition\nvoid non_dependent_func() {}\n\ntemplate<typename T>\nstruct TemplateClass {\n    void setup() {\n        // Non-dependent call (Phase 1 lookup)\n        non_dependent_func();\n    }\n\n    void process() {\n        // ERROR: T::Type is a dependent name, assumed not a type.\n        // T::Type x;\n\n        // PHASE 2: Dependent names resolved during instantiation\n        // Keyword required for dependent nested types\n        typename T::Type y = 0;\n    }\n};\n\n// Usage: TemplateClass<S> tc;\n// Lookup for 'Type' happens when S is known.",
+  "keywords": "Two-Phase Name Lookup, Dependent Name Lookup, C++ Template Resolution, Non-Dependent Name"
+}

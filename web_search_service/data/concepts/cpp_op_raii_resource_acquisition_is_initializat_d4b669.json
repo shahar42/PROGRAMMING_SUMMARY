@@ -1,0 +1,14 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) and Exception Safety with Smart Pointers",
+  "explanation": "RAII is a cornerstone of exception safety and resource management in C++.  It dictates that resources (memory, files, network connections, etc.) are acquired in constructors and released in destructors.  This ensures deterministic cleanup, even in the presence of exceptions. Smart pointers, like `std::unique_ptr` and `std::shared_ptr`, are prime examples of RAII in action.  The compiler's role is crucial: it guarantees the destructor of a smart pointer (and consequently the resource it manages) is called when the smart pointer goes out of scope, regardless of whether the code execution reaches the end of the block or throws an exception.  This is implemented through the compiler's handling of stack unwinding during exception handling. Memory layout is directly affected – smart pointers themselves are stored on the stack, while the managed resources can be on the heap. Performance implications are generally minimal (a few extra instructions for pointer management) but the correctness and safety benefits are significant. Assembly-level examination would reveal stack frame setup/teardown, destructor calls, and potential exception handling calls within the compiler-generated code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:46:54.944499",
+    "book_metadata_added": "2025-10-28T20:22:06.992300"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "class ExpensiveResource {};\n\nvoid throwing_op();\n\nvoid manage_lifetime_safely() {\n    // RAII via std::unique_ptr:\n    // Resource acquired in constructor (make_unique)\n    std::unique_ptr<ExpensiveResource> p = \n        std::make_unique<ExpensiveResource>();\n\n    // If throwing_op() throws, stack unwinds\n    // and p's destructor is guaranteed to run.\n    throwing_op(); \n\n} // Resource released in smart pointer destructor.\n\n// std::shared_ptr provides the same exception safety guarantee.",
+  "keywords": "RAII, smart pointers, exception safety C++, resource acquisition initialization"
+}

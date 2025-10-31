@@ -1,0 +1,29 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: CPU Proximity",
+  "explanation": "The memory hierarchy is a multi-level storage architecture designed to mitigate the CPU-DRAM latency gap. It arranges storage components based on speed and capacity, placing smaller, faster cache levels (L1, L2, L3) progressively closer to the CPU core. Caching strategies exploit the principle of locality of reference, moving frequently used data into these faster tiers. A cache hit results in low-latency access, whereas a cache miss requires fetching data from the next slower level, incurring a significant performance penalty. Effective cache management is essential for optimizing system throughput and instruction execution rate.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "210-210",
+    "extraction_date": "2025-07-24T19:55:58.260239",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-28T11:23:30.511191",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "644-645",
+      "extraction_date": "2025-07-28T11:23:23.940328",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8533207178115845,
+    "book_metadata_added": "2025-10-28T20:22:06.696667",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:18:47",
+    "original_length": 949,
+    "refined_length": 638
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define CACHE_LINE_SIZE 64\n\n// 1. Spatial Locality (Sequential Memory Access)\n#define N 100\nint matrix[N][N];\n\n// Excellent Spatial Locality (Row-Major access in C/C++)\n// Loads cache line containing several adjacent matrix elements\nfor (int i = 0; i < N; ++i) {\n    for (int j = 0; j < N; ++j) {\n        matrix[i][j] *= 2; // Data accessed sequentially (fast)\n    }\n}\n// Note: Column-major access (matrix[j][i]) degrades spatial locality dramatically\n\n// ----------------------------------------------------\n\n// 2. Mitigating False Sharing (Cache Line Padding/Alignment)\n// False Sharing: Unrelated data used by different threads share one cache line\n// Fix: Use alignment to guarantee separate cache lines\nstruct alignas(CACHE_LINE_SIZE) ThreadCounter {\n    long hits;\n    // PADDING implicitly added up to 64 bytes\n};\n\nThreadCounter core_stats[4]; \n\n// Thread 1 accesses core_stats[0].hits\n// Thread 2 accesses core_stats[1].hits\n// No cache line invalidation required between threads\n\n// ----------------------------------------------------\n\n// 3. Temporal Locality (Data Reuse)\n// Data recently accessed is stored in L1 cache (fastest access)\nint sum = 0;\nint x = 5; \nint y = 10;\n\n// High Temporal Locality: x and y reused frequently\nfor (int i = 0; i < 1000; ++i) {\n    if (i % 2 == 0) {\n        sum += x;\n    } else {\n        sum += y;\n    }\n}\n// Variables x, y likely remain resident in L1 cache for the loop duration"
+}

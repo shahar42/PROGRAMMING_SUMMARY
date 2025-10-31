@@ -1,0 +1,13 @@
+{
+  "topic": "Function Pointer to Functor Adaptation using std::ptr_fun",
+  "explanation": "In C++, std::ptr_fun is a template function from the <functional> header that adapts a pointer to a unary function into a function object (functor). This concept involves template metaprogramming and function object wrappers, where the compiler generates a specialized class to encapsulate the function pointer. Internally, the compiler instantiates the std::pointer_to_unary_function template, creating a class with a member function operator() that invokes the stored function pointer. This process occurs at compile-time through template instantiation, allowing for type-safe adaptation. Memory layout-wise, the functor object typically consists of a single member: a function pointer (e.g., Result (*)(Arg)), which occupies the size of a pointer (usually 8 bytes on 64-bit systems), plus any potential padding or vtable if derived from std::unary_function. Performance implications include a slight overhead due to indirection: calling the functor involves accessing the function pointer and performing an indirect call, which can increase instruction count and cache misses compared to a direct function call. At the assembly level, a direct call might use a 'call' instruction with an immediate address, while a functor call involves loading the pointer from memory (e.g., 'mov' to a register) followed by an indirect 'call' (e.g., 'call rax' on x86-64), potentially affecting branch prediction. Runtime behavior handles the actual function invocation, whereas compile-time behavior ensures type matching and code generation for the functor class.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:28:43.431916",
+    "book_metadata_added": "2025-10-28T20:22:06.914766"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Function Pointer Target\nint increment(int x) { return x + 1; }\n\n// Adapt Function Pointer to Functor (Wrapper generation)\nauto inc_functor = std::ptr_fun(increment);\n\n// Internal Mechanism: std::pointer_to_unary_function instantiated\nusing Inc_Wrapper = std::pointer_to_unary_function<int, int>;\nInc_Wrapper explicit_functor(increment);\n\n// Usage: Call through operator()\nint val = 99;\nint result_A = inc_functor(val);     // 100\nint result_B = explicit_functor(val); // 100\n\n// Result: A type safe function object (functor) is generated."
+}

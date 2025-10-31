@@ -1,0 +1,15 @@
+{
+  "topic": "Virtual Memory: Concurrency Without Interference",
+  "explanation": "Virtual memory is a memory-management technique that provides each process with its own private address space, independent of physical memory. This allows processes to run concurrently without interfering with each other and enables efficient use of physical memory.  Address translation, implemented via mechanisms like paging and segmentation, maps virtual addresses used by processes to physical addresses in RAM.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "854-854",
+    "extraction_date": "2025-07-28T16:47:48.221309",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.726523"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Paging: Mapping Virtual Address (VA) to Physical Address (PA)\n\n#define PAGE_SHIFT 12  // 4KB pages\n#define PAGE_SIZE (1 << PAGE_SHIFT)\ntypedef uintptr_t address_t;\n\n// Context Register (per process)\naddress_t PTBR = 0x100000; // Page Table Base Register\n\n// 1. Virtual Address used by Process\naddress_t virtual_addr = 0x7FF01234;\n\n// 2. Decompose VA\naddress_t VPN = virtual_addr >> PAGE_SHIFT;   // Virtual Page Number\naddress_t Offset = virtual_addr & (PAGE_SIZE - 1);\n\n// 3. Page Table Lookup (PTE address calculation)\n// Assuming 64-bit PTEs (8 bytes)\naddress_t PTE_addr = PTBR + (VPN * 8);\n\n// 4. Extract Physical Frame Number (PFN)\nuint64_t PTE_val = /* Read memory at PTE_addr */;\nuint64_t PFN = PTE_val >> 12; // Assuming lowest 12 bits are flags\n\n// 5. Construct Physical Address (PA)\naddress_t physical_addr = (PFN << PAGE_SHIFT) | Offset;"
+}

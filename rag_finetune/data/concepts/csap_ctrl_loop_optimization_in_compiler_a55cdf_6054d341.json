@@ -1,0 +1,16 @@
+{
+  "topic": "Loop Optimization in Compiler",
+  "explanation": "Compilers optimize loops to improve performance by transforming the control flow to reduce branching overhead.  This is a crucial aspect of hardware-software interaction, as efficient loop execution directly impacts CPU utilization and overall program speed.  The compiler analyzes loop conditions and potentially restructures them to minimize checks or eliminate unnecessary branches.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "254-254",
+    "extraction_date": "2025-07-25T23:48:38.213636",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.710589"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Loop Unrolling (Reduces branch checks overhead)\n// Compiler transforms N checks into N/K checks\n// K=4 in this example\nfor (int i = 0; i < N; i += 4) {\n    A[i]   = F(B[i]);\n    A[i+1] = F(B[i+1]);\n    A[i+2] = F(B[i+2]);\n    A[i+3] = F(B[i+3]);\n}\n// Requires epilogue loop for N % 4 != 0 remainder\n\n// Loop Invariant Code Motion (LACM)\n// Moves constant computations outside the loop check\nint calculate_limit(int n, int k) {\n    return (n * k) + 5;\n}\n\nvoid process(int N, int K, int* arr) {\n    int limit = calculate_limit(N, K); // Invariant moved\n    for (int i = 0; i < limit; ++i) {\n        arr[i] = arr[i] * 2;\n    }\n}\n\n// Branch Prediction Hint (GCC/Clang extension)\n// Helps the hardware predict control flow path\n#define likely(x)   __builtin_expect(!!(x), 1)\n#define unlikely(x) __builtin_expect(!!(x), 0)\n\nvoid error_check(int status) {\n    if (unlikely(status < 0)) {\n        // This block rarely executes (misprediction cost minimized)\n        handle_error(status);\n    }\n}",
+  "keywords": "Loop optimization, Loop unrolling, Compiler optimization, Loop transformation"
+}

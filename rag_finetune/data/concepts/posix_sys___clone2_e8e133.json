@@ -1,0 +1,16 @@
+{
+  "topic": "__clone2() System Call",
+  "explanation": "Creates a new child process similar to fork(2), but with more precise control over shared execution context, such as memory, file descriptors, and signal handlers. The child process can be configured to share specific resources via flags.\n\n**Parameters:**\n- `fn` (int (*)(void *_Nullable)): Function to be executed by the child process\n- `stack` (void *): Pointer to the stack for the child process\n- `flags` (int): Bit mask of flags to control shared resources and behavior\n- `arg` (void *_Nullable): Argument passed to the function fn\n- `parent_tid` (pid_t *_Nullable): Pointer to store the child's TID in the parent's memory (vararg)\n- `tls` (void *_Nullable): Location of the new thread-local storage (vararg)\n- `child_tid` (pid_t *_Nullable): Pointer to store the child's TID in the child's memory (vararg)\n\n**Common Errors:**\n- `EACCES`: CLONE_INTO_CGROUP specified but restrictions not met (clone3 only)\n- `EAGAIN`: Too many processes are running\n- `EBUSY`: CLONE_INTO_CGROUP specified but cgroup has a domain controller (clone3 only)\n- `EEXIST`: One or more PIDs in set_tid already exist (clone3 only)\n- `EINVAL`: Invalid flags or arguments specified",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.209473",
+    "syscall_name": "__clone2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix___clone2.json",
+    "concept_id": "posix_sys___clone2_e8e133",
+    "book_metadata_added": "2025-10-28T20:22:06.604437"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define STACK_SZ 0x10000\n\nint child_entry(void *arg) {\n    return 0;\n}\n\n// Allocate stack space (grows downward)\nchar stack[STACK_SZ];\nvoid *stack_top = stack + STACK_SZ;\n\n// Flags: Share VM, File Descriptors, Signals, Become a thread group member\nint thread_flags = CLONE_VM | CLONE_FILES | CLONE_SIGHAND | CLONE_THREAD;\n\npid_t child_pid = clone2(\n    child_entry,        // fn\n    stack_top,          // stack\n    thread_flags,       // flags\n    (void*)0            // arg\n);\n<ctrl63>",
+  "keywords": "__clone2, clone system call, Linux thread creation, clone flags"
+}

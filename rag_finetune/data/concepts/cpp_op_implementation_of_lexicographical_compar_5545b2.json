@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of Lexicographical Comparison for std::deque",
+  "explanation": "Lexicographical comparison for std::deque, as exemplified by the operator>=, is a runtime operation that compares two sequences element-wise until a mismatch is found or one sequence is a prefix of the other. The compiler implements this by instantiating the template function based on the types T and Allocator, typically leveraging the Standard Library's std::lexicographical_compare algorithm or an equivalent internal mechanism. During compilation, the template is specialized for the provided types, generating code that iterates through the deque's elements. std::deque maintains a memory layout of a doubly-linked list of fixed-size blocks (usually arrays), which allows efficient insertions and deletions at both ends but introduces overhead in random access due to pointer indirection. This layout impacts performance: comparisons require traversing the blocks, leading to potential cache misses and non-contiguous memory access, making the operation O(N) in time complexity where N is the number of elements up to the first difference. At the assembly level, this translates to loops that load elements via pointers (e.g., using MOV instructions to access memory), perform CMP instructions for element-wise comparisons, and use conditional jumps (JBE or similar) to handle early termination. Runtime behavior dominates here, as the actual comparison occurs at execution time based on dynamic data, though the compiler may optimize with loop unrolling or inline expansions if the deque size is known. Performance implications include higher latency for large deques due to memory access patterns, potentially mitigated by CPU prefetching, but it's generally less cache-friendly than for std::vector.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:55:45.416216",
+    "book_metadata_added": "2025-10-28T20:22:06.810371"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::deque<int> d1 = {1, 2, 3};\nstd::deque<int> d2 = {1, 2, 4};\nstd::deque<int> d3 = {1, 2};\n\nbool result1 = (d2 >= d1); // true (4 >= 3)\nbool result2 = (d1 >= d3); // true (d3 is a prefix of d1)\n\n// Underlying Mechanism (Conceptual):\n// Uses std::lexicographical_compare internally.\n\n/*\nTemplate instantiation:\nbool operator>=(const deque<T>& L, const deque<T>& R)\n*/"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Using longjmp in Signal Handlers",
+  "explanation": "Longjmp is a function in C that performs a non-local jump to a point previously saved by setjmp, allowing a program to exit a function or handler abruptly. It is used in signal handlers to escape from signal interruptions and resume execution elsewhere, but this can lead to unexpected behavior, such as aborting other ongoing code or handlers, making it risky in programs handling multiple signals.",
+  "syntax": "longjmp(jmp_buf env, int val)",
+  "code_example": "#include <setjmp.h>\n#include <signal.h>\n#include <stdio.h>\n\njmp_buf env;\n\nvoid sig_handler(int signo) {\n    printf(\"Signal handler starting\\n\");\n    longjmp(env, 1);  // Perform non-local jump\n}\n\nint main() {\n    if (setjmp(env) == 0) {\n        signal(SIGINT, sig_handler);  // Set handler for SIGINT\n        printf(\"Waiting for SIGINT...\\n\");\n        while(1) {};\n    } else {\n        printf(\"Longjmp executed from signal handler\\n\");\n    }\n    return 0;\n}",
+  "example_explanation": "This program uses setjmp in main to save the execution environment and sets a signal handler for SIGINT. When SIGINT is received (e.g., by pressing Ctrl+C), the handler prints a message and calls longjmp to jump back to main, skipping the infinite loop. This demonstrates how longjmp in a signal handler can abruptly exit and resume execution, potentially interfering with other code.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "375-375",
+    "extraction_date": "2025-07-23T00:05:53.192270",
+    "has_code": true,
+    "has_explanation": true
+  }
+}

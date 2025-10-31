@@ -1,0 +1,15 @@
+{
+  "topic": "Processor Pipelining: Identifying Dependencies",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, data dependencies between instructions can limit performance.  A data dependency exists when the result of one instruction is needed as an operand for another instruction.  Identifying and optimizing these dependencies is crucial for performance tuning.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "554-556",
+    "extraction_date": "2025-07-27T18:11:06.450867",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.743725"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "typedef struct {\n    int W; // Destination Register (Write)\n    int R1, R2; // Source Registers (Read)\n} Instruction;\n\n// I_Prev executes before I_Next\nbool check_dependencies(Instruction I_Prev, Instruction I_Next) {\n    // 1. RAW (Read After Write - True Dependency: I_Prev writes, I_Next reads)\n    if (I_Prev.W == I_Next.R1 || I_Prev.W == I_Next.R2) return true; // Hazard\n\n    // 2. WAW (Write After Write - Output Dependency: Both write same register)\n    if (I_Prev.W == I_Next.W && I_Prev.W != 0) return true;\n\n    // 3. WAR (Write After Read - Anti Dependency: I_Prev reads, I_Next writes)\n    if (I_Prev.R1 == I_Next.W || I_Prev.R2 == I_Next.W) return true;\n\n    return false;\n}"
+}

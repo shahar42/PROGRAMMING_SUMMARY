@@ -1,0 +1,17 @@
+{
+  "topic": "Move Semantics in Modern C++",
+  "explanation": "Move semantics in modern C++ (introduced in C++11) allow the resources of temporary objects or objects explicitly marked as movable to be transferred rather than copied. This improves performance by avoiding unnecessary deep copies, especially for resource-intensive objects like containers. Move semantics are implemented via move constructors and move assignment operators, which enable efficient transfer of resources from rvalue objects, facilitating optimal resource management and performance in C++ programs.",
+  "syntax": "Class with move constructor and move assignment:\n\nclass ClassName {\npublic:\n    // Move constructor\n    ClassName(ClassName&& other) noexcept;\n    // Move assignment operator\n    ClassName& operator=(ClassName&& other) noexcept;\n};\n\n// Usage with std::move\n#include <utility>\n\nClassName obj1;\nClassName obj2 = std::move(obj1);",
+  "code_example": "#include <iostream>\n#include <vector>\n#include <utility>\n\nclass Buffer {\npublic:\n    std::vector<int> data;\n    // Constructor\n    Buffer(size_t size) : data(size) {\n        std::cout << \"Constructed Buffer of size \" << size << std::endl;\n    }\n    // Move constructor\n    Buffer(Buffer&& other) noexcept : data(std::move(other.data)) {\n        std::cout << \"Move constructor called\" << std::endl;\n    }\n    // Move assignment\n    Buffer& operator=(Buffer&& other) noexcept {\n        if (this != &other) {\n            data = std::move(other.data);\n            std::cout << \"Move assignment called\" << std::endl;\n        }\n        return *this;\n    }\n    // Deleted copy constructor and copy assignment to emphasize move semantics\n    Buffer(const Buffer&) = delete;\n    Buffer& operator=(const Buffer&) = delete;\n};\n\nint main() {\n    Buffer buf1(10);\n    Buffer buf2 = std::move(buf1); // Transfer resources from buf1 to buf2\n    Buffer buf3(5);\n    buf3 = std::move(buf2); // Transfer resources from buf2 to buf3\n    return 0;\n}",
+  "example_explanation": "This example defines a Buffer class that manages a vector of integers and implements move semantics via a move constructor and move assignment operator. In main(), std::move is used to transfer resources from one Buffer object to another without copying. The move constructor and move assignment are invoked, demonstrating efficient resource transfer. This showcases how move semantics optimize performance by avoiding unnecessary deep copies, which is essential for resource-heavy objects in modern C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1257-1257",
+    "extraction_date": "2025-08-27T00:04:08.765152",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level"
+  }
+}

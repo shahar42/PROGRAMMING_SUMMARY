@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture Emulation using `std::bind` for C++11 Move Semantics",
+  "category": "capture",
+  "explanation": "C++11 lambdas lacked the ability to directly move-construct objects into their closure scope (a feature introduced as 'init capture' in C++14). To handle resource-owning types like `std::unique_ptr` or large `std::vector`s efficiently, developers used `std::bind` as a workaround. The object is explicitly move-constructed during the call to `std::bind` using `std::move(object)`. Since `std::bind` stores copies of all arguments, the resource is moved into the resulting bind object. The lambda itself then accepts this stored object via a non-const reference parameter, effectively granting the lambda access to the moved resource without requiring a copy.",
+  "code_example": "std::vector<double> data;\n// C++11 emulation of move-capture:\nauto func = std::bind(\n    [](std::vector<double>& data) { /* use data */ },\n    std::move(data) // Moves into the bind object\n);",
+  "practical_example": "A developer needs to create a thread-safe task that requires ownership of a `std::unique_ptr` holding connection data. In C++11, direct capture of the `unique_ptr` by copy fails, and capturing by reference is unsafe if the original object goes out of scope. Using `std::bind` and `std::move` ensures the `unique_ptr` is moved into the callable object (the bind result) and remains valid for the task's lifetime.",
+  "keywords": [
+    "std::bind",
+    "C++11",
+    "move-capture emulation",
+    "closure lifetime",
+    "init capture"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "250-257",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_emulation_using__43ee16",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

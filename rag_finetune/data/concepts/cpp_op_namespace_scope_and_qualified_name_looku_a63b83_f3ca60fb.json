@@ -1,0 +1,14 @@
+{
+  "topic": "Namespace Scope and Qualified Name Lookup in C++",
+  "explanation": "In C++, namespaces are a compile-time construct used to organize code and prevent name conflicts. The compiler performs name lookup based on the scope resolution rules, which involve searching for identifiers in the current namespace and its enclosing scopes. For qualified names like Q::V::g(), the compiler must resolve each qualifier sequentially, ensuring that Q is accessible from the current scope. If Q is not defined within or visible to the enclosing namespace (e.g., R in the provided code), the compiler issues an error due to the one-definition rule and scope isolation.\n\nImplementation-wise, compilers like GCC or Clang translate namespaces into mangled symbols during compilation. For instance, a function like Q::V::g() might be mangled to something like '_ZN1Q1V1gEv' in the object file, incorporating the namespace and class names to ensure unique linkage. This mangling happens at compile-time and affects the linker, not runtime memory layout directly, as namespaces are purely organizational and do not generate runtime code or data structures.\n\nPerformance implications are minimal since namespace lookup is a compile-time operation, typically involving symbol table searches in the compiler's internal representation. However, deeply nested namespaces can slightly increase compilation time due to more extensive lookup paths, though this is negligible compared to runtime performance. At the assembly level, the mangled name appears in the generated assembly code, ensuring that the linker can resolve external references correctly without conflicts. There are no direct runtime behaviors associated with namespaces, as they are resolved entirely at compile-time, unlike virtual functions or dynamic memory allocation which involve runtime overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:33:49.375425",
+    "book_metadata_added": "2025-10-28T20:22:06.915827"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "namespace System {\n    namespace Internal {\n        int resource_count = 0;\n    }\n    void cleanup() {\n        Internal::resource_count = 0;\n    }\n}\n\nnamespace Application {\n    // Fully Qualified Name Lookup required.\n    // 1. System resolved from global/enclosing scope.\n    // 2. Internal resolved from System scope.\n    void use_resource() {\n        System::Internal::resource_count++;\n    }\n}\n\n// Global scope access uses ::\nvoid global_access() {\n    ::System::Internal::resource_count = 10;\n}",
+  "keywords": "Qualified name lookup, C++ namespace lookup, Scope resolution rules"
+}

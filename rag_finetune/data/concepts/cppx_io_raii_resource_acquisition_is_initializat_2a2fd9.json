@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Automatic Lifetime Binding",
+  "explanation": "RAII is a fundamental C++ programming idiom that tightly couples resource management with object lifetime.  It ensures that resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object is destroyed, regardless of how the object's lifetime ends (normal termination, exception). This prevents resource leaks and simplifies error handling. Best practice dictates using RAII for all resource management to ensure deterministic cleanup.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:19:08.601151",
+    "book_metadata_added": "2025-10-28T20:22:06.553211"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "std::unique_ptr<Resource> create_resource() {\n    // Automatic resource management upon scope exit\n    return std::make_unique<Resource>();\n    // No explicit delete required\n}\n\n\nclass Lock {\n    Mutex& m;\npublic:\n    explicit Lock(Mutex& mtx) : m(mtx) { m.acquire(); }\n    ~Lock() { m.release(); }\n    // Rule of Five/Zero dictates non-copyable\n    Lock(const Lock&) = delete;\n};\n\n\n// Standard Library Example: Mutex Guard\n// Ensures deterministic release even under exceptions\nstd::mutex mtx;\nvoid safe_operation() {\n    std::lock_guard<std::mutex> lock(mtx);\n    // ... thread-safe work ...\n    // lock is released automatically upon return/exception.\n}"
+}

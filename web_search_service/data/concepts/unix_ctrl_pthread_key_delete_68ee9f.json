@@ -1,0 +1,15 @@
+{
+  "topic": "pthread_key_delete",
+  "explanation": "pthread_key_delete is a function in POSIX threads that deletes a thread-specific data key. It is used to break the association of the key with thread-specific data for all threads, allowing the process to clean up resources and prevent further use of the key, which helps avoid memory leaks and manage thread data efficiently.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "481-482",
+    "extraction_date": "2025-07-23T17:39:25.508948",
+    "has_code": true,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.963475"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "typedef void* tsd_data_t;\npthread_key_t key_handle;\n\n/* Destructor run on thread exit if value set */\nvoid cleanup_tsd(tsd_data_t data) { free(data); }\n\n/* Key creation */\nvoid setup() {\n    pthread_key_create(&key_handle, cleanup_tsd);\n    /* ... usage: pthread_setspecific(key_handle, data) */\n}\n\n/* --- Focus: Deleting the Key --- */\n\nvoid shutdown_tsd_system() {\n    /* Invalidates 'key_handle' globally.\n       Prevents further use of the key.\n       Destructors still run on active thread exit. */\n    pthread_key_delete(key_handle);\n}",
+  "keywords": "pthread_key_delete, TSD key removal, pthread key cleanup"
+}

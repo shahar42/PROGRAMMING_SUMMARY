@@ -1,0 +1,16 @@
+{
+  "topic": "Pipelining Stages and Performance Hazards",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  Each instruction progresses through a series of stages (fetch, decode, execute, memory access, writeback) concurrently.  However, hazards (data, control, structural) can occur, hindering performance.  Hazard handling techniques, such as data forwarding and stalling, are crucial for maintaining pipeline efficiency and correctness in computer architecture.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "435-435",
+    "extraction_date": "2025-07-26T23:43:32.188986",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.690993"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 5-Stage Classic Pipeline Structure (MIPS/RISC)\n// Clock Cycle t\nenum Stage {\n    IF,   // Instruction Fetch (PC access, Instruction Read)\n    ID,   // Instruction Decode (Register Read, Hazard Check)\n    EX,   // Execute (ALU operation, Address calculation)\n    MEM,  // Memory Access (Load/Store operation)\n    WB    // Write Back (Write result to Register File)\n};\n\n// Throughput: IPC = 1 (Ideal CPI = 1)\n// Latency: 5 cycles per instruction\n\n// Data Hazard (RAW) Detection and Forwarding Check\n// i-1 (EX/MEM) result needed by i (EX)\nbool Hazard_EX_MEM = (ID.Rs == EX_MEM.WriteReg) && EX_MEM.RegWrite;\nbool Hazard_MEM_WB = (ID.Rs == MEM_WB.WriteReg) && MEM_WB.RegWrite;\n\n// Forwarding Logic Priority (Newest data first)\nif (Hazard_EX_MEM) {\n    ForwardA = EX_MEM.ALU_Result; // Bypass\n} else if (Hazard_MEM_WB) {\n    ForwardA = MEM_WB.Data_Out;\n}\n\n\n// Control Hazard Handling (Simple 1-Cycle Stall/Flush)\n// Branch condition typically resolved in ID or EX stage.\nif (Instruction_i.is_branch) {\n    // Branch taken resolved in ID\n    if (ID.Condition_Met) {\n        // Pipeline Flush (Bubble insertion)\n        EX_Stall = true;\n        ID_Stall = true;\n        // PC is updated to Target Address\n        PC = ID.Branch_Target;\n    }\n}\n// Prediction methods reduce penalty but add hardware complexity.",
+  "keywords": "Pipeline Hazards, Data Forwarding, Processor Pipelining, Pipeline Stall"
+}

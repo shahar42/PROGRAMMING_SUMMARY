@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Modes for Concurrency Safety",
+  "category": "capture",
+  "explanation": "When launching a thread using a lambda, careful selection of capture modes is essential for thread safety and preventing dangling references. The provided example captures `maxVal` by value (safe for primitives) and `filter` and `goodVals` by reference. Capturing function objects (`filter`) and shared mutable data (`goodVals`) by reference is necessary if those objects need to be modified or called back in the main scope, but it introduces strict requirements: the lifetime of the referenced objects must exceed the lifetime of the asynchronous thread execution. Capturing primitives by value ensures the thread gets its own copy, preventing data races if the original primitive changes.",
+  "code_example": "std::thread([&filter, maxVal, &goodVals] { ... });\n// &filter: Requires 'filter' to live until thread finishes.\n// maxVal: Safe copy.\n// &goodVals: Requires 'goodVals' to live until thread finishes AND requires external synchronization (e.g., mutex) if written to.",
+  "practical_example": "A developer captures a loop counter by reference (`&i`) inside a thread lambda launched inside a loop. Since the loop counter quickly increments and goes out of scope, the thread begins processing an invalid or rapidly changing memory location, leading to incorrect results or crashes.",
+  "keywords": "Thread safe lambda capture, Lambda capture lifetime, Dangling reference lambda",
+  "difficulty": "beginner",
+  "page_reference": "233-240",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_modes_for_concurrency_5cceb2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

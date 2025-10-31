@@ -1,0 +1,12 @@
+{
+  "topic": "Guaranteed Copy Elision and RVO/NRVO: Core Standard",
+  "explanation": "Guaranteed Copy Elision (since C++17) and its predecessors, Return Value Optimization (RVO) and Named Return Value Optimization (NRVO), are compiler optimizations that eliminate unnecessary object copies.  Understanding their implementation details reveals crucial insights into compiler behavior and performance.  The compiler analyzes the return statement of a function. If it detects a return by value where the returned object is constructed directly in the function's scope and the caller is expecting a copy of that object, the compiler can *elide* the copy entirely.  Instead of constructing the object, copying it, and then destroying the temporary, the compiler constructs the object directly in the caller's memory location. This dramatically improves performance, especially with large objects. \n\nThe implementation relies heavily on the compiler's ability to perform sophisticated static analysis. It doesn't involve any runtime checks or flags.  The level of optimization applied varies between compilers and optimization levels.  Disabling optimizations (e.g., using `-O0` with g++) will prevent copy elision. \n\nMemory layout is affected because no temporary object is created on the stack.  The memory for the returned object is allocated directly in the caller's context.  Assembly-level behavior would show a significant difference: With copy elision, there would be no instructions for copying the object's data; instead, there'd be instructions only for constructing the object directly in the destination location.\n\nThe behavior is entirely compile-time. There's no runtime overhead because the decision to perform copy elision is made by the compiler during the compilation process. The resulting machine code effectively omits the copy operation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:47:46.718108",
+    "book_metadata_added": "2025-10-28T20:22:06.885182"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

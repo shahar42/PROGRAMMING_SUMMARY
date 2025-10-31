@@ -1,0 +1,13 @@
+{
+  "topic": "Move Semantics: Handling Moved-From Objects",
+  "explanation": "In C++, move semantics allow for efficient transfer of resources from one object to another using operations like std::move. A key concept is that after an object is moved from, it enters a valid but unspecified state, meaning it remains usable but its exact value or content is not defined. This is crucial in real-world scenarios, such as working with containers (e.g., std::string or std::vector), where moves can optimize performance by avoiding copies. Best practices include never relying on the state of a moved-from object to prevent bugs, always reinitializing it if further use is needed, and understanding that operations like empty() or size() may work but yield unpredictable results. This pattern helps in writing idiomatic C++ code that is efficient and robust, especially in performance-critical applications like game development or data processing.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:27:36.721877",
+    "book_metadata_added": "2025-10-28T20:22:06.573798"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class Resource {\n    int* data;\n    size_t size;\n\npublic:\n    // Move Constructor: Steal resource, zero out source\n    Resource(Resource&& other) noexcept\n        : data(other.data), size(other.size)\n    {\n        // Moved-from object (other) must be valid and destructible\n        other.data = nullptr; // Critical step\n        other.size = 0;       // Valid but unspecified state\n    }\n\n    // Move Assignment: Release old, steal new\n    Resource& operator=(Resource&& other) noexcept {\n        if (this != &other) {\n            delete[] data;\n            data = other.data;\n            size = other.size;\n            other.data = nullptr;\n            other.size = 0;\n        }\n        return *this;\n    }\n};"
+}

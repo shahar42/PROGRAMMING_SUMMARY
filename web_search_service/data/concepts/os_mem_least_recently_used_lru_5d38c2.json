@@ -1,0 +1,15 @@
+{
+  "topic": "Least Recently Used (LRU)",
+  "explanation": "LRU (Least Recently Used) is a page replacement policy in operating systems that evicts the page that has not been accessed for the longest time when memory needs to be freed. It is used because programs often exhibit locality, meaning they are likely to reuse recently accessed pages, making LRU more efficient than policies like FIFO or Random by basing decisions on historical access patterns.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "256-256",
+    "extraction_date": "2025-07-21T22:28:13.387368",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.784200"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "class LRUCache {\n    using Node = pair<int, int>; // {Key, Value}\n    list<Node> dll;\n    unordered_map<int, list<Node>::iterator> map;\n    int capacity;\n\n    void move_to_front(int key) {\n        dll.splice(dll.begin(), dll, map[key]);\n    }\n\npublic:\n    LRUCache(int cap) : capacity(cap) {}\n\n    int get(int key) {\n        if (map.find(key) == map.end()) return -1;\n        move_to_front(key);\n        return map[key]->second;\n    }\n\n    void put(int key, int val) {\n        if (map.count(key)) {\n            map[key]->second = val;\n            move_to_front(key);\n        } else {\n            dll.push_front({key, val});\n            map[key] = dll.begin();\n            if (map.size() > capacity) {\n                map.erase(dll.back().first);\n                dll.pop_back(); // Evict LRU node\n            }\n        }\n    }\n};",
+  "keywords": "LRU cache, Least Recently Used, Cache replacement algorithm, Page replacement policy"
+}

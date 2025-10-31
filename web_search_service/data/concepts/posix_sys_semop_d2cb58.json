@@ -1,0 +1,16 @@
+{
+  "topic": "semop() System Call",
+  "explanation": "semop() performs atomic operations on a set of System V semaphores as specified in an array of sembuf structures. It supports incrementing, waiting for zero, or decrementing semaphore values based on sem_op. The operations are executed atomically or not at all.\n\n**Parameters:**\n- `semid` (int): Semaphore set identifier\n- `sops` (struct sembuf *): Pointer to an array of sembuf structures, each specifying an operation with sem_num, sem_op, and sem_flg\n- `nsops` (size_t): Number of operations in the sops array\n- `timeout` (const struct timespec *_Nullable): Optional timeout structure for semtimedop, specifying the maximum wait time\n\n**Common Errors:**\n- `E2BIG`: The argument nsops is greater than SEMOPM, the maximum number of operations allowed per system call\n- `EACCES`: The calling process does not have the required permissions and lacks CAP_IPC_OWNER capability\n- `EAGAIN`: An operation could not proceed immediately due to IPC_NOWAIT or timeout expiration\n- `EFAULT`: An address specified in sops or timeout is not accessible\n- `EFBIG`: For some operation, the value of sem_num is out of range\n\n**Related System Calls:** `shmop()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.140882",
+    "syscall_name": "semop",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_semop.json",
+    "concept_id": "posix_sys_semop_d2cb58",
+    "book_metadata_added": "2025-10-28T20:22:06.591081"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct sembuf {\n    unsigned short sem_num;\n    short sem_op;\n    short sem_flg;\n};\n\nint semid = 42; // Semaphore Set Identifier\n\n// 1. Lock (Decrement, Wait)\nstruct sembuf P_op = {\n    0,    // sem_num (Index 0)\n    -1,   // sem_op (Decrement)\n    SEM_UNDO // sem_flg\n};\n\n// 2. Unlock (Increment)\nstruct sembuf V_op = { 0, 1, SEM_UNDO };\n\n// 3. Wait For Zero\nstruct sembuf Z_op = { 0, 0, IPC_NOWAIT };\n\n// Execute one atomic operation (Lock)\nint ret = semop(semid, &P_op, 1);\n\n// Execute a sequence of operations (e.g., Lock then Wait for Zero)\nstruct sembuf ops[] = { P_op, Z_op };\n// ret = semop(semid, ops, 2);",
+  "keywords": "semop, System V semaphores, atomic semaphore operations"
+}

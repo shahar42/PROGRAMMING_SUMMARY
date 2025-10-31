@@ -1,0 +1,15 @@
+{
+  "topic": "ioctl_ficlone() System Call",
+  "explanation": "This ioctl operation allows sharing physical storage between files on supported filesystems by reflinking data ranges or entire files, which is faster than copying. It ensures that writes to shared regions are handled with copy-on-write, keeping changes private to the modified file.\n\n**Parameters:**\n- `dest_fd` (int): File descriptor of the destination file\n- `request` (int): The ioctl request code, such as FICLONERANGE or FICLONE\n- `arg` (struct file_clone_range *): Pointer to a structure containing source file details (src_fd, src_offset, src_length, dest_offset) for FICLONERANGE\n- `src_fd` (int): File descriptor of the source file for FICLONE or within the structure for FICLONERANGE\n\n**Common Errors:**\n- `EBADF`: src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem which src_fd resides on does not support reflink\n- `EINVAL`: The filesystem does not support reflinking the ranges of the given files, or either file descriptor represents a device, FIFO, or socket; offsets and lengths may need to be aligned\n- `EISDIR`: One of the files is a directory and the filesystem does not support shared regions in directories\n- `EOPNOTSUPP`: The filesystem does not support reflinking either file descriptor, or either refers to special inodes\n- `EPERM`: dest_fd is immutable\n\n**Related System Calls:** `ioctl()`",
+  "syntax": "#include <linux/fs.h> /* Definition of FICLONE* constants */",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = ioctl_ficlone(...);  // Call the system call\nif (result == -1) {\n    perror(\"ioctl_ficlone\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the ioctl_ficlone() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.147843",
+    "syscall_name": "ioctl_ficlone",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_ficlone.json",
+    "concept_id": "posix_sys_ioctl_ficlone_337eef"
+  }
+}

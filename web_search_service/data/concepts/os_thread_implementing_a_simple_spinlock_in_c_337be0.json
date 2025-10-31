@@ -1,0 +1,15 @@
+{
+  "topic": "Implementing a Simple Spinlock in C",
+  "explanation": "A spinlock is a low-level synchronization mechanism in multi-threaded programming where a thread repeatedly checks (spins) until it can acquire a lock on a shared resource. It is used to ensure mutual exclusion, preventing multiple threads from accessing the same critical section simultaneously, which helps avoid data races and maintain program correctness in concurrent environments.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "331-331",
+    "extraction_date": "2025-07-22T08:36:43.165936",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.791380"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "typedef _Atomic int spinlock_t;\n\n// Acquire: Spin until CAS succeeds (0 -> 1)\nvoid spin_lock(spinlock_t *lock) {\n    int expected = 0;\n    int desired = 1;\n    while (!atomic_compare_exchange_weak(\n            lock, &expected, desired)) {\n        expected = 0;\n    }\n}\n\n// Release: Set lock state to 0 (unlocked)\nvoid spin_unlock(spinlock_t *lock) {\n    atomic_store_explicit(lock, 0, memory_order_release);\n}\n\n// Initialization example\n// spinlock_t my_lock = ATOMIC_VAR_INIT(0);",
+  "keywords": "C spinlock, atomic lock, busy waiting, mutual exclusion"
+}

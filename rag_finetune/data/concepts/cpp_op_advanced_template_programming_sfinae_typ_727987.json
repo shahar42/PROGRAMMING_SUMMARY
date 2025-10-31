@@ -1,0 +1,11 @@
+{
+  "topic": "Advanced Template Programming (SFINAE & Type Traits)",
+  "explanation": "Modern C++ templates, combined with features like type deduction, decltype, and SFINAE (Substitution Failure Is Not An Error), allow for powerful metaprogramming. SFINAE enables or disables function templates based on type traits, facilitating advanced template specialization and conditional compilation. Together, these features enable highly flexible, efficient, and type-safe generic programming aligned with modern C++ idioms.",
+  "book": "C++ STL Containers",
+  "extraction_metadata": {
+    "source": "C++ STL Containers",
+    "book_metadata_added": "2025-10-28T20:22:06.998945"
+  },
+  "code_example": "template <typename T>\nauto safe_invoke(T t) ->\n    std::enable_if_t<std::is_invocable_v<T>, void>\n{\n    t(); // Only callable objects allowed\n}\n\ntemplate <typename T>\nstruct HasBegin {\nprivate:\n    template <typename U>\n    static auto check(U* p) -> decltype(p->begin(), std::true_type{});\n    template <typename U>\n    static std::false_type check(...);\npublic:\n    static constexpr bool value =\n        decltype(check<T>(nullptr))::value;\n};\n\ntemplate <typename T>\nvoid print_impl(T t, std::true_type /* Is Integral */) {\n    // Optimized numeric output\n}\n\ntemplate <typename T>\nvoid print_impl(T t, std::false_type /* Is Complex */) {\n    // Generic stream output\n}\n\ntemplate <typename T>\nvoid print_value(T t) {\n    print_impl(t, std::is_integral<T>{});\n}",
+  "keywords": "SFINAE, C++ type traits, template metaprogramming, conditional template specialization"
+}

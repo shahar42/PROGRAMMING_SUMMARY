@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Safety: Atomic Guarantees are Local to the Operation",
+  "category": "sync",
+  "explanation": "Assumption: Using an `std::atomic` variable within a complex statement (e.g., `std::cout << ai;`) guarantees that the entire statement executes atomically. Reality: The atomicity guarantee applies strictly to the read or write operation on the atomic object itself, not the surrounding context or statement. Why It Fails: In `std::cout << ai;`, only the read of `ai` is atomic. Between the read and the invocation of `operator<<`, another thread may modify `ai`. While the specific value outputted is safe (because it was read by value), relying on the guarantee extending beyond the basic memory operation leads to incorrect synchronization assumptions in complex expressions.",
+  "code_example": "// Only the read of 'ai' is atomic, the stream output is not\nstd::atomic<int> ai(10);\nstd::cout << ai; \n// Another thread can modify ai right after the read, but before << is called.",
+  "practical_example": "A developer uses an atomic counter to track active processes and attempts to log the counter's value and then increment it. If these two steps are treated as a single conceptual unit without an external mutex, the logged value may already be stale by the time the increment occurs, leading to inconsistent system state reports.",
+  "keywords": [
+    "std::atomic",
+    "partial atomicity",
+    "read integrity",
+    "compound statement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "290-291",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_sync_thread_safety__atomic_guarantees_8c3f9a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Smart Pointers and Automatic Memory Management in Modern C++",
+  "explanation": "Smart pointers are template classes in C++ that automate memory management by ensuring proper resource deallocation when objects go out of scope. They help prevent memory leaks and dangling pointers, which are common pitfalls in manual memory management. Modern C++ (C++11 and beyond) introduces smart pointers such as std::unique_ptr, std::shared_ptr, and std::weak_ptr, each suited for different ownership semantics, promoting safer and more expressive code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "421-422",
+    "extraction_date": "2025-08-19T04:16:42.233776",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.810030"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Data { int x = 0; };\n\n// 1. Creation (Exclusive ownership)\nauto u_ptr = std::make_unique<Data>();\n\n// 2. Access\nu_ptr->x = 5;\n\n// 3. Ownership transfer via move (cannot copy)\nauto u_ptr_2 = std::move(u_ptr); \n\n// 4. u_ptr is now null\nif (!u_ptr) { \n    // u_ptr_2 now owns the Data object\n}\n\n// 5. Manual release (stops automated management)\nData* raw_ptr = u_ptr_2.release();\ndelete raw_ptr; \n// Resource deleted when u_ptr_2 goes out of scope\n\n// --- Shared Ptr ---\n\nstruct Resource {};\n\n// 1. Creation (Reference counted ownership)\nauto s_ptr_A = std::make_shared<Resource>();\n\n// 2. Copying increases reference count (A and B share)\nauto s_ptr_B = s_ptr_A; \n\n// 3. Access reference count\nsize_t count = s_ptr_A.use_count(); // Returns 2\n\n// 4. Resetting one pointer (count becomes 1)\ns_ptr_A.reset();\n\n// 5. Resource is deleted only when count hits 0\n\n// --- Weak Ptr (Non-Owning) ---\n\nauto primary = std::make_shared<int>(100);\n\n// 1. Weak pointer created from shared_ptr\nstd::weak_ptr<int> secondary(primary);\n\n// 2. Check validity and temporarily gain ownership\nif (auto temp = secondary.lock()) {\n    int value = *temp; // Valid access\n} \n\n// 3. Destroy primary owner\nprimary.reset(); \n\n// 4. Check if resource still exists\nif (secondary.expired()) { \n    // Resource destroyed\n}\n<ctrl63>",
+  "keywords": "Smart Pointers, C++ memory management, std::unique_ptr, std::shared_ptr"
+}

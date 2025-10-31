@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Exception-Resistant Cleanup",
+  "explanation": "RAII is a fundamental C++ idiom where resource management (like memory, files, network connections, locks, etc.) is tied to the object's lifetime.  Resources are acquired in the constructor and released in the destructor. This ensures resources are always cleaned up, even in the face of exceptions or premature exits, preventing resource leaks and improving program stability.  It's a cornerstone of exception safety and makes your code more robust and easier to reason about.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:06:24.521245",
+    "book_metadata_added": "2025-10-28T20:22:06.555929"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceGuard {\n    Resource* r; // Hypothetical C-style resource\n\npublic:\n    explicit ResourceGuard(Resource* res) : r(res) {} // Acquire\n    \n    // Destructor guarantees release, even on exceptions\n    ~ResourceGuard() { \n        if (r) r->release_resource();\n    }\n    // No copy/move operations allowed (Rule of 5 implied)\n};\n\n// --- Standard Library RAII (Memory) ---\nstruct Data {};\n\nvoid safe_function() {\n    // Resource acquisition initializes object 'd'\n    std::unique_ptr<Data> d = std::make_unique<Data>(); \n    \n    // ... code that might throw ...\n    \n    // d->~unique_ptr() called automatically on scope exit\n}\n\n// --- Standard Library RAII (Synchronization) ---\nstd::mutex mtx;\n\nvoid thread_safe_op() {\n    // Lock acquired in ctor\n    std::lock_guard<std::mutex> lock(mtx); \n    \n    // Critical Section: Exception safe\n    \n    // Lock released in dtor (guaranteed)\n}"
+}

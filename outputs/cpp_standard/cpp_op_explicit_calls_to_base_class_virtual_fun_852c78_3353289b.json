@@ -1,0 +1,12 @@
+{
+  "topic": "Explicit Calls to Base Class Virtual Functions in Derived Classes",
+  "explanation": "In C++, when a derived class overrides a virtual function from its base class, the compiler typically uses virtual function tables (vtables) for runtime polymorphism. However, when you explicitly qualify a function call with the base class name (e.g., B::f()), the compiler treats it as a non-virtual call, directly invoking the base class implementation. This bypasses the vtable lookup, which is normally performed at runtime to determine the correct function based on the object's dynamic type. \n\nUnder the hood, the compiler implements virtual functions using a vtable, a hidden array of function pointers associated with each class that has virtual members. Each object of such a class contains a vpointer (vptr), typically the first member in its memory layout, which points to the vtable. For a virtual call like obj.f(), the compiler generates code that dereferences the vptr to access the vtable and jumps to the appropriate function pointer, incurring a runtime overhead due to indirect branching.\n\nIn contrast, an explicit call like B::f() is resolved at compile-time. The compiler recognizes the qualification and generates a direct call to the base class function, similar to a static dispatch. This means no vtable lookup occurs, reducing overhead and improving performance in performance-critical code. Memory layout-wise, the vptr remains part of the object, but this specific call doesn't access it. Assembly-level behavior shows a direct function call instruction (e.g., CALL in x86) for B::f(), versus an indirect call (e.g., via a memory load from the vptr) for unqualified virtual calls. Performance implications include faster execution for explicit calls, but they must be used carefully to avoid bypassing intended polymorphic behavior. This is a compile-time decision for the call site, though the function itself might still involve runtime elements if it's virtual elsewhere.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:05:57.678069",
+    "book_metadata_added": "2025-10-28T20:22:06.817918"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

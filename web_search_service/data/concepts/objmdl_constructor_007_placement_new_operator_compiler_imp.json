@@ -1,0 +1,14 @@
+{
+  "topic": "Placement New Operator: Compiler Implementation and Memory Management",
+  "explanation": "The placement `new` operator in C++ allows constructing objects at specific memory locations.  This seemingly simple operation involves intricate compiler actions beyond a simple memory copy.  The compiler doesn't merely copy bytes; it ensures proper constructor execution and handles potential type mismatches. Understanding this requires examining the interplay between the `new` operator's allocation phase (handled by the programmer) and the constructor's initialization phase (handled implicitly by the compiler).  The compiler generates code to invoke the object's constructor at the specified address, ensuring the object is correctly initialized according to its class definition.  Failure to properly invoke the constructor leads to undefined behavior, even if memory appears to be allocated correctly.  Furthermore, the type of the pointer used as the placement argument is critical.  A simple `void*` might suffice for allocation but will likely require an explicit cast to the correct object type for constructor invocation, opening doors for potential type-related errors. The compiler's handling of these casts and type-checking at compile and runtime is paramount to its successful and safe operation.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "chapter": "constructor",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "extraction_date": "2025-09-17T15:12:50.935073",
+    "book_metadata_added": "2025-10-28T20:22:06.679762"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "struct Object {\n    int id;\n    Object(int i) : id(i) {}\n    // Compiler only executes Ctor/Dtor\n};\n\n// 1. Allocation phase (User handles memory acquisition)\n// Must be aligned for the object type\nalignas(Object) char fixed_mem[sizeof(Object)];\nvoid* buffer = fixed_mem;\n\n// 2. Initialization phase (Placement new)\n// Calls standard overload: operator new(size_t, void*)\n// Compiler executes Object(10) using 'buffer' location\nObject* ptr = new (buffer) Object(10);\n\n// 3. Destruction phase (User handles cleanup)\n// No matching `delete`; destructor must be called manually\nptr->~Object();\n\n// 4. Deallocation phase (User handles release of fixed_mem)\n// (In this case, memory is stack allocated, cleanup automatic)"
+}

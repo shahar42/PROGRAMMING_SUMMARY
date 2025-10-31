@@ -1,0 +1,18 @@
+{
+  "topic": "Task-Based Management: Decoupling Future Creation via `std::packaged_task`",
+  "category": "async",
+  "explanation": "When a developer needs a future associated with a task but wants to control when and how that task runs (or specifically, wants to avoid the implicit destructor blocking behavior of `std::async`), `std::packaged_task` is the preferred tool. `std::packaged_task` wraps a callable object, creating a shared state and providing a future via `get_future()`. Since the shared state is not created directly by `std::async`, the resulting future's destructor does not implement the special blocking behavior, giving the developer explicit control over task execution and synchronization.",
+  "code_example": "int calcValue();\nstd::packaged_task<int()> pt(calcValue);\nauto fut = pt.get_future(); // Future obtained without std::async rules\n// Task execution is now explicit, e.g., in a separate thread:\n// std::thread t(std::move(pt));",
+  "practical_example": "A library needs to queue computations and provide futures immediately, but it cannot risk blocking client code when those futures are destroyed. By using `std::packaged_task` to create the future/shared state pair, the library guarantees that future destruction is non-blocking, regardless of the task's execution status.",
+  "keywords": [
+    "std::packaged_task",
+    "future creation",
+    "shared state",
+    "explicit execution"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "261-262",
+  "chapter": "Item 38: Differentiate between thread-based and task-based programming",
+  "id": "emcpp_async_task_based_management__decoupling_0af7f6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

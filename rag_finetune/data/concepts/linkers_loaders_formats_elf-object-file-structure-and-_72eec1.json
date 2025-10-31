@@ -1,0 +1,16 @@
+{
+  "topic": "ELF Object File Structure and Linking",
+  "explanation": "ELF (Executable and Linkable Format) is a common object file format. Understanding its structure is crucial for comprehending the linking and loading process.  ELF files contain various sections, each with a specific purpose. The linker combines these sections from different object files and libraries to create an executable.  The arrangement of these sections and their interaction during loading impacts program execution.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "151-152",
+    "extraction_date": "2025-07-19T15:45:21.651250",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.759795"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// ELF Header (Ehdr)\n// File layout and initial metadata\ntypedef struct {\n    unsigned char e_ident[EI_NIDENT]; // Magic, Class (32/64 bit), Endianness\n    uint16_t e_type;                  // ET_REL (Object), ET_EXEC (Exec), ET_DYN (Shared)\n    uint16_t e_machine;               // Architecture (EM_X86_64)\n    Elf64_Addr e_entry;               // Program entry point VMA\n    Elf64_Off e_shoff;                // Section Header table offset\n    Elf64_Off e_phoff;                // Program Header table offset\n} Elf64_Ehdr;\n\n// Symbol Table Entry (Sym)\n// Used by linker for name resolution and address assignment\ntypedef struct {\n    Elf64_Word st_name;   // Offset into the String Table (.strtab)\n    unsigned char st_info; // Binding (Global, Local) and Type (Func, Obj)\n    Elf64_Half st_shndx;  // Section index (e.g., .text, .data)\n    Elf64_Addr st_value;  // Address/Offset relative to section start\n    Elf64_Xword st_size;  // Size of the object\n} Elf64_Sym;\n\n// Relocation Entry (Rel)\n// Specifies locations that need address fixing during linking\ntypedef struct {\n    Elf64_Addr r_offset; // Location within the section requiring adjustment\n    Elf64_Xword r_info;  // Index of the target symbol + Relocation Type\n} Elf64_Rel;\n\n// Program Header (Phdr) - Load View\n// Specifies how segments are mapped into memory at runtime\ntypedef struct {\n    Elf64_Word p_type;    // Segment type (PT_LOAD is loadable)\n    Elf64_Off p_offset;   // Offset in file\n    Elf64_Addr p_vaddr;   // Target Virtual Memory Address\n    Elf64_Xword p_filesz; // Size of data in file\n    Elf64_Xword p_memsz;  // Size required in memory (memsz >= filesz for .bss)\n    Elf64_Word p_flags;   // Access permissions (R, W, X)\n} Elf64_Phdr;",
+  "keywords": "ELF format, Object file structure, ELF sections, Linking process"
+}

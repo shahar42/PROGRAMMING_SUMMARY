@@ -1,0 +1,26 @@
+{
+  "topic": "Concurrency and Synchronization Primitives using Pthreads in Single Processes",
+  "explanation": "Concurrency allows multiple threads of execution within a single process to run seemingly simultaneously, improving performance by overlapping computation.  Synchronization primitives are mechanisms to coordinate these threads, preventing race conditions and ensuring data consistency.  Pthreads (POSIX threads) is a widely used standard for creating and managing threads in Unix-like systems. This is crucial in computer systems architecture for maximizing CPU utilization and handling multiple tasks efficiently.\n\nConcurrency allows multiple threads to execute seemingly simultaneously, improving performance by utilizing multi-core processors.  Synchronization primitives are crucial mechanisms that coordinate the execution of these concurrent threads, preventing race conditions and ensuring data consistency.  Pthreads (POSIX threads) provide a common standard for creating and managing threads in a Unix-like environment.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:34:45.193801",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T16:27:47.294060",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1049-1049",
+      "extraction_date": "2025-07-29T16:27:46.211834",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8956719636917114,
+    "book_metadata_added": "2025-10-28T20:22:06.731306"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "void* worker(void* arg) {\n    int id = *(int*)arg;\n    return (void*)((long)id + 1);\n}\n\n// Thread Creation and Join\npthread_t t1;\nint worker_id = 1;\nvoid* result;\n\npthread_create(&t1, NULL, worker, &worker_id);\npthread_join(t1, &result);\n// result holds 2\n\n// Mutex (Mutual Exclusion)\npthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;\nint shared_count = 0;\n\nvoid safe_increment() {\n    pthread_mutex_lock(&lock);\n    shared_count++; // Critical section\n    pthread_mutex_unlock(&lock);\n}\n\n// Condition Variable (Wait/Signal)\npthread_cond_t data_ready;\nvolatile int produced = 0;\n\nvoid consumer_wait(pthread_mutex_t* m) {\n    pthread_mutex_lock(m);\n    while (produced == 0)\n        pthread_cond_wait(&data_ready, m);\n    pthread_mutex_unlock(m);\n}\n\nvoid producer_signal(pthread_mutex_t* m) {\n    pthread_mutex_lock(m);\n    produced = 1;\n    pthread_mutex_unlock(m);\n    pthread_cond_signal(&data_ready);\n}",
+  "keywords": "Pthreads, POSIX threads, C/C++ concurrency, Pthread synchronization"
+}

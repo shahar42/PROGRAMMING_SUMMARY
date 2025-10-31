@@ -1,0 +1,14 @@
+{
+  "topic": "Implementing Copy Constructors in C++ Classes",
+  "explanation": "A copy constructor in C++ is a special member function that creates a copy of an existing object. It is invoked during object initialization from another object of the same class, such as in pass-by-value function parameters, returning objects by value, or explicit copies. This concept is crucial for managing resources like pointers or dynamic memory to ensure deep copies instead of shallow ones, preventing issues like double deletion or data corruption. Best practices include defining a copy constructor when your class manages resources (e.g., raw pointers, file handles), following the Rule of Three/Five to handle all special member functions consistently, and using modern C++ features like std::unique_ptr or copy constructors in classes to promote exception safety and avoid common pitfalls like unintended shallow copying, which can lead to bugs in multi-threaded or resource-intensive applications.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:12:16.467110",
+    "book_metadata_added": "2025-10-28T20:22:06.518830"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceHandle {\n    int* dataPtr;\n    size_t length;\npublic:\n    ResourceHandle(size_t len) : length(len), dataPtr(new int[len]) {}\n    ~ResourceHandle() { delete[] dataPtr; }\n\n    // Copy Constructor: Essential for Deep Copy\n    ResourceHandle(const ResourceHandle& source) \n        // 1. Copy simple members\n        : length(source.length) \n    {\n        // 2. Allocate new memory for resource\n        dataPtr = new int[length];\n        \n        // 3. Copy contents (Deep Copy)\n        for (size_t i = 0; i < length; ++i) {\n            dataPtr[i] = source.dataPtr[i];\n        }\n    }\n    \n    // Usage: ResourceHandle b = a;\n};\n<ctrl63>",
+  "keywords": "Copy constructor, deep copy, shallow copy, Rule of Three"
+}

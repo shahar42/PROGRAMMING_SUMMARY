@@ -1,0 +1,14 @@
+{
+  "topic": "pthread_atfork",
+  "explanation": "pthread_atfork is a function in C that allows registering three handler functions to manage resources during a fork operation. It is used to ensure consistency of shared states, such as locks, by running a prepare handler before the fork, a child handler in the child process after the fork, and a parent handler in the parent process after the fork, helping to avoid issues like deadlocks in multithreaded programs.",
+  "syntax": "int pthread_atfork(void (*prepare)(void), void (*parent)(void), void (*child)(void));",
+  "code_example": "#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n#include <pthread.h>\n\nvoid prepare() {\n    printf(\"preparing locks...\\n\");\n}\n\nvoid parent() {\n    printf(\"parent unlocking locks...\\n\");\n}\n\nvoid child() {\n    printf(\"child unlocking locks...\\n\");\n}\n\nint main() {\n    if (pthread_atfork(prepare, parent, child) != 0) {\n        fprintf(stderr, \"pthread_atfork failed\\n\");\n        return 1;\n    }\n    printf(\"parent about to fork...\\n\");\n    pid_t pid = fork();\n    if (pid == 0) {\n        printf(\"child returned from fork\\n\");\n    } else if (pid > 0) {\n        printf(\"parent returned from fork\\n\");\n    } else {\n        perror(\"fork failed\");\n        return 1;\n    }\n    return 0;\n}",
+  "example_explanation": "This example registers three handlers with pthread_atfork: prepare runs before the fork, child runs in the child process after the fork, and parent runs in the parent process after the fork. When the program executes, it calls fork in main, triggering the handlers in sequence, which demonstrates how pthread_atfork maintains resource consistency by showing the order of handler execution relative to the fork operation.",
+  "extraction_metadata": {
+    "source": "The C Programming Language - Kernighan & Ritchie",
+    "page_range": "495-495",
+    "extraction_date": "2025-07-23T23:50:44.412519",
+    "has_code": false,
+    "has_explanation": false
+  }
+}

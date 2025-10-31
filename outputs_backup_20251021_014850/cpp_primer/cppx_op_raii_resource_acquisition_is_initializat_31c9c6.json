@@ -1,0 +1,13 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ programming idiom that ties resource management to object lifetime.  It ensures resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object is destroyed, regardless of how the object's lifetime ends (normal execution, exception, etc.). This eliminates resource leaks and simplifies error handling.  Best practice involves using RAII consistently to avoid manual resource management, which is error-prone.",
+  "syntax": "RAII is not a single syntactic construct but a design pattern.  It's implemented through classes whose constructors acquire resources and whose destructors release them.  The key is the automatic invocation of the destructor.",
+  "code_example": "#include <iostream>\n#include <fstream>\nclass FileHandler {\npublic:\n  FileHandler(const std::string& filename) : file_(filename) {\n    if (!file_.is_open()) {\n      throw std::runtime_error(\"Could not open file\");\n    }\n  }\n  ~FileHandler() {\n    if (file_.is_open()) {\n      file_.close();\n    }\n  }\n  std::ofstream& get_file() { return file_; }\nprivate:\n  std::ofstream file_;\n};\nint main() {\n  try {\n    FileHandler file(\"mydata.txt\");\n    file.get_file() << \"Hello, RAII!\\n\";\n  } catch (const std::runtime_error& error) {\n    std::cerr << \"Error: \" << error.what() << std::endl;\n  }\n  return 0;\n}",
+  "example_explanation": "The `FileHandler` class demonstrates RAII. The constructor opens the file; the destructor closes it.  Even if an exception is thrown, the destructor is guaranteed to execute, closing the file and preventing resource leaks.  Error handling is centralized in the constructor, improving code clarity and maintainability. This is far superior to manual `fopen` and `fclose` which are prone to errors if exceptions are thrown or the program terminates prematurely.  The example showcases best practice by using exceptions for error handling and consistently applying RAII to file resources.  Common pitfalls include forgetting to handle resource allocation failure in the constructor or neglecting exceptions, leading to resource leaks.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "strings",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:28:54.444846"
+  }
+}

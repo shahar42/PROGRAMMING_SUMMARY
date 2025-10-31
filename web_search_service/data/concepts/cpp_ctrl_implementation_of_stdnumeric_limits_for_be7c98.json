@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::numeric_limits for Floating-Point Types",
+  "explanation": "std::numeric_limits, defined in the <limits> header, provides compile-time constants and functions to query the properties of fundamental types, including floating-point types like float and double. For floating-point types, the implementation relies on the IEEE 754 standard, which the compiler enforces through hardware-specific floating-point units (FPUs). The minimum finite value (e.g., via std::numeric_limits<T>::min()) for types supporting denormalization returns the smallest positive normalized value, while denormalized (subnormal) numbers extend the range below this. The compiler implements this by specializing the numeric_limits template for each type, often using built-in compiler intrinsics or predefined constants from the standard library. At compile-time, these values are resolved as constexpr, allowing for zero-cost abstraction in constant expressions. Memory layout for floating-point types typically follows IEEE 754: a single-precision float uses 32 bits (1 sign bit, 8 exponent bits, 23 mantissa bits), and double uses 64 bits (1 sign bit, 11 exponent bits, 52 mantissa bits). This layout implies that denormalized numbers have an exponent of zero and a non-zero mantissa, which can lead to performance implications\u2014hardware may handle them with slower microcode paths or traps, increasing execution time in loops or computations involving very small values. Assembly-level behavior varies by architecture; for example, on x86-64, accessing these limits might involve loading constants directly into FPU registers (e.g., via MOVSS for SSE instructions), bypassing runtime calculations. Runtime behavior occurs only if the value is used in dynamic computations, potentially triggering floating-point exceptions for underflow, whereas compile-time evaluation (e.g., in templates) avoids any runtime overhead entirely.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:36:25.166220",
+    "book_metadata_added": "2025-10-28T20:22:06.807890"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "using L = std::numeric_limits<float>;\n\n// Normalized Range\nconstexpr float f_max = L::max();\nconstexpr float f_min_norm = L::min();\n\n// IEEE 754 Special Values\nconstexpr float f_inf = L::infinity();\nconstexpr float f_nan = L::quiet_NaN();\n\n// Precision and Representation\nconstexpr float f_eps = L::epsilon();\nconstexpr int base = L::radix; // Usually 2\n\n// Denormalized Range\nconstexpr bool has_denorm = L::has_denorm;\nconstexpr float f_min_denorm = L::denorm_min();\n<ctrl63>"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Signal-Triggered Interruptions",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel.  Exceptional control flow, triggered by signals or exceptions, allows the OS to interrupt normal process execution to handle events like interrupts, errors, or user-defined signals. This is crucial for handling asynchronous events and ensuring system stability and responsiveness.  Understanding how processes interact with the OS through system calls and react to signals is fundamental to building robust and reliable systems.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "824-824",
+    "extraction_date": "2025-07-28T12:39:47.862569",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.730015"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Syscall: Basic File Descriptor Write\n// Uses FD 1 (stdout)\n#define STDOUT_FILENO 1\nchar message[] = \"System Call Test\\n\";\nssize_t count = write(STDOUT_FILENO, message, 17);\nif (count < 0) {\n    // Handle EFAULT, EINTR, etc.\n}\n\n\n// Syscall: Process Creation (fork)\npid_t pid = fork();\nif (pid == 0) {\n    // Child: Overwrite process image\n    execl(\"/bin/echo\", \"echo\", \"In Child\", NULL);\n    _exit(1); // Should only happen on error\n} else if (pid > 0) {\n    // Parent: Wait for child ECF termination\n    waitpid(pid, NULL, 0);\n}\n\n\n// Signal Handler Definition (ECF Setup)\nvoid termination_handler(int sig) {\n    // Async-safe operations only\n    if (sig == SIGTERM) {\n        // Clean shutdown logic\n        _exit(0);\n    }\n}\n\nstruct sigaction sa;\nsa.sa_handler = termination_handler;\nsigemptyset(&sa.sa_mask);\nsa.sa_flags = 0;\nsigaction(SIGTERM, &sa, NULL);\n\n\n// System Call: Sending a Signal (Interruption)\npid_t target_pid = 12345;\nint status = kill(target_pid, SIGKILL);\n\nif (status == 0) {\n    // Signal delivery successful\n} else {\n    // E.g., ESRCH (PID doesn't exist) or EPERM\n}\n\n\n// Blocking Signals Temporarily\nsigset_t old_mask, block_mask;\nsigemptyset(&block_mask);\nsigaddset(&block_mask, SIGINT);\n\n// Block SIGINT\nsigprocmask(SIG_BLOCK, &block_mask, &old_mask);\n\n// Critical section execution...\n\n// Restore original mask (unblock SIGINT)\nsigprocmask(SIG_SETMASK, &old_mask, NULL);\n<ctrl63>"
+}

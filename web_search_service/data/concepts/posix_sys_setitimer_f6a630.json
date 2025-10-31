@@ -1,0 +1,16 @@
+{
+  "topic": "setitimer() System Call",
+  "explanation": "The setitimer() system call sets the value of an interval timer for the calling process. It specifies the initial expiration time and optional interval for periodic expiration, after which a signal is generated.\n\n**Parameters:**\n- `which` (int): Specifies the type of timer (ITIMER_REAL, ITIMER_VIRTUAL, or ITIMER_PROF)\n- `new_value` (const struct itimerval *): Pointer to the structure containing the new timer value, including initial value and interval\n- `old_value` (struct itimerval *): Pointer to a structure where the previous timer value will be stored, or NULL if not needed\n\n**Common Errors:**\n- `EFAULT`: new_value or old_value is not a valid pointer\n- `EINVAL`: which is not one of ITIMER_REAL, ITIMER_VIRTUAL, or ITIMER_PROF; or a tv_usec field in new_value is outside the range [0, 999999]\n\n**Related System Calls:** `timer_create()`, `timer_gettime()`, `sigaction()`, `signal()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.064855",
+    "syscall_name": "setitimer",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setitimer.json",
+    "concept_id": "posix_sys_setitimer_f6a630",
+    "book_metadata_added": "2025-10-28T20:22:06.664236"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct timeval { long tv_sec, tv_usec; };\n\nstruct itimerval {\n    struct timeval it_interval; // Periodic interval\n    struct timeval it_value;    // Initial value\n};\n\n// Set ITIMER_REAL (wall clock) for 1 second initial expiration\nconst int WHICH = ITIMER_REAL;\n\nstruct itimerval new_timer = {\n    .it_interval = {0, 0},   // Non-periodic\n    .it_value = {1, 0}       // 1 second initial delay\n};\n\nstruct itimerval old_timer;\n\n// Set timer; retrieves previous settings into &old_timer\nsetitimer(WHICH, &new_timer, &old_timer);\n<ctrl63>",
+  "keywords": "setitimer, interval timer, itimerval, ITIMER_REAL"
+}

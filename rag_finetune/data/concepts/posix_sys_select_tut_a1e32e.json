@@ -1,0 +1,16 @@
+{
+  "topic": "select_tut() System Call",
+  "explanation": "The select() and pselect() system calls are used to monitor multiple file descriptors for readiness, allowing programs to wait for I/O events or exceptional conditions efficiently. This page provides tutorial information on their use, including handling signals and data events.\n\n**Parameters:**\n- `nfds` (int): The highest-numbered file descriptor plus one to be monitored\n- `readfds` (fd_set *): Set of file descriptors to monitor for readability\n- `writefds` (fd_set *): Set of file descriptors to monitor for writability\n- `exceptfds` (fd_set *): Set of file descriptors to monitor for exceptional conditions\n- `timeout` (struct timeval *): Timeout for the select() call\n- `sigmask` (const sigset_t *): Signal mask for pselect() to handle signals\n\n**Common Errors:**\n- `EINTR`: A signal was caught, interrupting the call\n\n**Related System Calls:** `pselect()`, `sigprocmask()`, `sigaction()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.152399",
+    "syscall_name": "select_tut",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_select_tut.json",
+    "concept_id": "posix_sys_select_tut_a1e32e",
+    "book_metadata_added": "2025-10-28T20:22:06.665994"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "fd_set reads;\nstruct timeval tv;\nint max_fd = 4;\n\n// 1. Initialize and Set File Descriptors\nFD_ZERO(&reads);\nFD_SET(0, &reads);  // Monitor stdin\nFD_SET(4, &reads);  // Monitor fd 4\n\n// 2. Set Timeout (NULL means infinite wait)\ntv.tv_sec = 5;      // 5 second timeout\ntv.tv_usec = 0;\n\n// 3. Call select()\nint ready = select(max_fd + 1, &reads, NULL, NULL, &tv);\n\nif (ready == 0) {\n    /* Timeout occurred */\n} else if (ready > 0) {\n    if (FD_ISSET(0, &reads)) {\n        /* fd 0 is ready for reading */\n    }\n}\nfd_set reads;\nstruct timespec ts = { .tv_sec = 10 };\nsigset_t sigmask;\nint max_fd = 4;\n\nFD_ZERO(&reads);\nFD_SET(0, &reads);\n\n// Prepare mask of signals to *unblock* during pselect wait\n// Signals normally blocked are temporarily unblocked here\nsigemptyset(&sigmask);\nsigaddset(&sigmask, SIGTERM);\n\n// pselect uses timespec and sigmask\nint ready = pselect(max_fd + 1,\n                    &reads, NULL, NULL,\n                    &ts, &sigmask);\n\n// Check for signal interruption\nif (ready == -1 && errno == EINTR) {\n    /* Signal caught and handled */\n}\n<ctrl63>",
+  "keywords": "select, I/O multiplexing, pselect, fd_set"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Symbol Resolution and Relocation for Unknown Final Addresses",
+  "explanation": "Symbol resolution and relocation are crucial steps in the linking and loading process.  Symbol resolution involves matching up references to functions and variables (symbols) in one object file to their actual definitions in other object files or libraries. Relocation addresses the fact that the final memory addresses of code and data sections are not known until the linker or loader performs its work.  Relocation involves adjusting addresses within the object files to reflect their correct locations in the final program's memory space. This ensures that all parts of the program can correctly access each other, even if they're located at different memory addresses during execution.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "225-225",
+    "extraction_date": "2025-07-21T17:35:37.256932",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.762063"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// External references require Symbol Resolution\n// Linker must find definition of 'ext_data' in another object file\nextern int ext_data;\n\n// Compiler generates instruction code that references 'ext_data'\n// This address will be marked with a Relocation Entry\nint use_data() {\n    return ext_data + 1;\n}\n\n// --- Relocation Entry Structure (e.g., ELF Rela) ---\ntypedef struct {\n    uint64_t r_offset;  // Address offset within the section needing fixup\n    uint64_t r_info;    // Type (32 bits) | Symbol Index (32 bits)\n    int64_t  r_addend;  // Constant value added to the final address\n} Elf_Rela;\n\n// Common Relocation Types (How to calculate the final value V)\n// PC32: V = Symbol_Value + Addend - Offset_of_Reference (For PIC)\n// ABS64: V = Symbol_Value + Addend (For absolute addressing)\n\n// --- Handling Unknown Final Address (Global Offset Table/PIC) ---\n// The loader/runtime linker fixes GOT entries using relocation entries.\nvoid fixup_got_entry(Elf_Rela entry, uintptr_t resolved_sym_addr) {\n    uintptr_t* got_slot = (uintptr_t*)(\n        module_load_base + entry.r_offset\n    );\n    // Write the final, known address into the indirection table slot\n    *got_slot = resolved_sym_addr + entry.r_addend;\n}",
+  "keywords": "Symbol Resolution, Linker Relocation, Linking Process"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation Details of std::strstreambuf in C++",
+  "explanation": "std::strstreambuf is a deprecated class in the C++ standard library, inheriting from basic_streambuf<char>, designed to manage a stream buffer tied to a character array. The compiler implements this feature by extending the virtual function interface of basic_streambuf, where functions like overflow() (for writing when the buffer is full) and underflow() (for reading when the buffer is empty) are overridden to handle dynamic buffer management. Internally, strstreambuf maintains pointers (e.g., eback(), gptr(), egptr() for get area, and pbase(), pptr(), epptr() for put area) that track the buffer's state, involving pointer arithmetic at runtime. Memory layout typically involves a contiguous array of characters, which may be dynamically allocated via new[] or provided by the user, leading to potential fragmentation and overhead in memory management. Performance implications include the cost of reallocations during buffer growth (e.g., in overflow()), which can trigger memory copies and degrade performance in loops with frequent I/O; modern alternatives like std::string avoid this by using more efficient growth strategies. At the assembly level, operations like buffer overflow might involve calls to malloc/realloc equivalents, pointer increments (e.g., INC instructions), and memory copy loops (e.g., REP MOVSB), making it runtime-heavy as stream operations depend on dynamic data flow rather than compile-time evaluation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:07:13.429860",
+    "book_metadata_added": "2025-10-28T20:22:06.939405"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class std::strstreambuf : public basic_streambuf<char> {\n    // Internal state: control flags (dynamic vs fixed, free vs frozen)\n    int _str_flags; \n    \n    // Overrides handle dynamic resizing or fixed buffer boundaries:\n    int_type overflow(int_type c) override;\n    int_type underflow() override;\n    pos_type seekoff(off_type off, std::ios_base::seekdir dir, \n                     std::ios_base::openmode which) override;\n    \n    // Internally manages basic_streambuf pointers:\n    // Put area manipulation:\n    void setp(char* p_beg, char* p_end); // Setup pbase() to epptr()\n    \n    // Get area manipulation:\n    void setg(char* g_beg, char* g_curr, char* g_end); \n    \n    // Example: Overflow triggers if pptr == epptr()\n    // New buffer is allocated, data copied, setp() called.\n};"
+}

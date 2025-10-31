@@ -1,0 +1,15 @@
+{
+  "topic": "getdents() System Call",
+  "explanation": "The system call getdents() reads several directory entries from the directory referred to by the open file descriptor fd into the buffer pointed to by dirp. The argument count specifies the size of that buffer. It is a low-level interface, and users are generally advised to use readdir(3) for POSIX-conforming operations.\n\n**Parameters:**\n- `fd` (unsigned int): File descriptor of the directory to read from\n- `dirp` (struct linux_dirent *): Pointer to the buffer to hold the directory entries\n- `count` (unsigned int): Size of the buffer pointed to by dirp\n\n**Common Errors:**\n- `EBADF`: Invalid file descriptor fd\n- `EFAULT`: Argument points outside the calling process\u2019s address space\n- `EINVAL`: Result buffer is too small\n- `ENOENT`: No such directory\n- `ENOTDIR`: File descriptor does not refer to a directory\n\n**Related System Calls:** `readdir()`",
+  "syntax": "long syscall(SYS_getdents, unsigned int fd, struct linux_dirent *dirp, unsigned int count);",
+  "code_example": "#define _GNU_SOURCE\n#include <dirent.h>\n#include <fcntl.h>\n#include <unistd.h>\nint main() {\n    int fd = open(\".\", O_RDONLY | O_DIRECTORY);\n    char buf[1024];\n    long nread = syscall(SYS_getdents, fd, buf, 1024);\n    // Process the buffer...\n}",
+  "example_explanation": "This example demonstrates the basic usage of the getdents() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.085240",
+    "syscall_name": "getdents",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_getdents.json",
+    "concept_id": "posix_sys_getdents_fed716"
+  }
+}

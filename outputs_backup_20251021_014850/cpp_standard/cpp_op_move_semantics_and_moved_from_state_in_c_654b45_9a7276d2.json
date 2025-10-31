@@ -1,0 +1,17 @@
+{
+  "topic": "Move Semantics and Moved-From State in C++",
+  "explanation": "Move semantics in C++ allow the resources of temporary objects or objects explicitly marked for transfer to be moved rather than copied, improving performance especially with resource-intensive objects. When an object is moved from, it enters a valid but unspecified state, enabling efficient resource transfer while maintaining program correctness. This concept is fundamental in modern C++ for optimizing resource management and enabling efficient transfer of ownership, particularly with move constructors and move assignment operators.",
+  "syntax": "class ClassName {\npublic:\n    // Move constructor\n    ClassName(ClassName&& other) noexcept;\n    // Move assignment operator\n    ClassName& operator=(ClassName&& other) noexcept;\n};\n\n// Usage\nClassName obj1;\nClassName obj2 = std::move(obj1);",
+  "code_example": "#include <iostream>\n#include <vector>\n\nclass Buffer {\npublic:\n    int* data;\n    size_t size;\n    // Constructor\n    Buffer(size_t s) : data(new int[s]), size(s) {\n        std::cout << \"Constructed\" << std::endl;\n    }\n    // Destructor\n    ~Buffer() { delete[] data; }\n    // Move constructor\n    Buffer(Buffer&& other) noexcept : data(other.data), size(other.size) {\n        other.data = nullptr;\n        other.size = 0;\n        std::cout << \"Moved\" << std::endl;\n    }\n    // Move assignment\n    Buffer& operator=(Buffer&& other) noexcept {\n        if (this != &other) {\n            delete[] data;\n            data = other.data;\n            size = other.size;\n            other.data = nullptr;\n            other.size = 0;\n            std::cout << \"Move assigned\" << std::endl;\n        }\n        return *this;\n    }\n    // Disable copy semantics\n    Buffer(const Buffer&) = delete;\n    Buffer& operator=(const Buffer&) = delete;\n};\n\nint main() {\n    Buffer buf1(10);\n    Buffer buf2 = std::move(buf1); // Move constructor invoked\n    std::cout << \"buf1 data pointer: \" << buf1.data << std::endl;\n    std::cout << \"buf2 data pointer: \" << buf2.data << std::endl;\n    return 0;\n}",
+  "example_explanation": "This example demonstrates move semantics by defining a Buffer class with a move constructor and move assignment operator. When std::move is used to transfer buf1 into buf2, the move constructor is invoked, transferring ownership of the internal data pointer. After the move, buf1 is left in a valid but unspecified state (here, its data pointer is null). This illustrates how move semantics enable efficient resource transfer without copying, which is essential for performance optimization in modern C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "458-459",
+    "extraction_date": "2025-08-19T04:32:55.985678",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level"
+  }
+}

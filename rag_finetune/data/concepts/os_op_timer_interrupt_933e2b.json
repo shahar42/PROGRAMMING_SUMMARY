@@ -1,0 +1,15 @@
+{
+  "topic": "Timer Interrupt",
+  "explanation": "A timer interrupt is a hardware mechanism that periodically interrupts the CPU to allow the operating system to regain control, even if user processes are not yielding the CPU voluntarily. It is used to prevent any single process from monopolizing system resources, ensuring fair scheduling and system stability by returning control to the OS at regular intervals.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "76-76",
+    "extraction_date": "2025-07-16T23:02:29.989662",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.796898"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "// PCB stores necessary state for context switch\nstruct PCB {\n    int pid;\n    Registers cpu_state; // Saved CPU registers/PC\n    int quantum;         // Time remaining until forced yield\n};\n\n// The Timer Interrupt Service Routine (ISR)\nvoid timer_interrupt_handler(Registers* r) {\n    // 1. Save context of the interrupted process\n    CurrentProcess->cpu_state = *r;\n    CurrentProcess->quantum--;\n\n    if (CurrentProcess->quantum <= 0) {\n        CurrentProcess->state = READY;\n\n        // 2. Run the scheduler (Time slice expired)\n        NextProcess = Scheduler.select_next();\n\n        // 3. Load context of the new process\n        CurrentProcess = NextProcess;\n        *r = CurrentProcess->cpu_state;\n    }\n\n    // 4. Reset/Acknowledge the hardware timer\n    HW_TIMER_ACK();\n}\n<ctrl63>",
+  "keywords": "Timer Interrupt, Clock Interrupt, Preemption, Hardware Timer"
+}

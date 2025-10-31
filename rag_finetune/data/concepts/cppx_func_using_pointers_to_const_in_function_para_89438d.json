@@ -1,0 +1,16 @@
+{
+  "topic": "Pointers to Const in C Function Parameters",
+  "explanation": "In advanced C programming, passing a pointer to a const object to a function ensures that the function cannot modify the data pointed to, enforcing data integrity and enabling safe read-only access. This technique is crucial when designing APIs or callback functions that should not alter the input data, especially in complex systems where data immutability guarantees are necessary for correctness and maintainability.\n\nCONST STRUCT VARIANTS AND MEMORY PLACEMENT: Beyond const pointers, C supports several const struct patterns: 1) const struct instances (const struct Account acc = {...}) are placed in .rodata (read-only data segment) and cannot be modified after initialization, 2) struct members can be const (struct { const int id; int balance; }) making individual fields immutable while allowing other fields to change, 3) const struct pointers (const struct Account* ptr) prevent modification through that pointer but allow the struct itself to be modified via other pointers. The compiler enforces const correctness at compile-time, generating errors for attempted modifications. Memory-wise, const structs in .rodata are shared across program instances and provide better cache locality for read-only data. This is particularly useful for lookup tables, configuration data, and vtables in C-based object systems where immutability guarantees are essential for program correctness.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "306-306",
+    "extraction_date": "2025-08-20T03:02:49.827673",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.522568"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "typedef struct {\n    int id;\n    char name[16];\n} Config;\n\n// Pointer to Const: Ensures data pointed to is read-only\nvoid safe_read(const Config* cfg) {\n    // cfg->id = 10; // Compile Error: Cannot modify const data\n    int value = cfg->id; // OK\n    (void)value;\n}\n\n// Function usage\nConfig global_config = {1, \"System A\"};\nsafe_read(&global_config);\n\n// Key distinction:\nconst Config* ptr1; // Data is const\nConfig* const ptr2 = 0; // Pointer is const, data mutable\n(void)ptr1;\n(void)ptr2;",
+  "keywords": "const correctness, pointer to const, read-only parameter, const function argument"
+}

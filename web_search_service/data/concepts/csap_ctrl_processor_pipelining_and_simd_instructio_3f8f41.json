@@ -1,0 +1,16 @@
+{
+  "topic": "Processor Pipelining and SIMD Instructions",
+  "explanation": "Modern processors employ pipelining to execute instructions concurrently, improving performance.  Simultaneous multithreading (SIMD) instructions operate on multiple data elements simultaneously using specialized vector registers. This significantly accelerates operations on arrays and other data structures commonly used in scientific computing and multimedia applications. Understanding these features is crucial for writing efficient code that leverages the full potential of the hardware.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "376-376",
+    "extraction_date": "2025-07-26T21:47:01.695681",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.718981"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Pipeline Dependency Hazard Example\nint a, b;\na = value + 1; // Stage 1 (Write-back)\nb = a * 2;     // Stage 2 (Read A too soon, potential stall)\n\n// Avoiding Stalls via Interleaving/Loop Unrolling\nint i1, i2;\nfor (int i=0; i<N; i+=2) {\n  i1 = arr[i];    // Load 1\n  i2 = arr[i+1];  // Load 2 (Independent instruction fills pipe)\n  i1 = i1 + 10;\n  i2 = i2 + 10;   // Independent operations\n}\n\n\n// SIMD Vectorization (SSE/AVX Intrinsics)\n// Operate on 4 single-precision floats simultaneously (__m128 = 128 bits)\n__m128 va, vb, vc;\nfloat* A_ptr, *B_ptr, *C_ptr;\n\n// Load data into vector registers\nva = _mm_loadu_ps(A_ptr);\nvb = _mm_loadu_ps(B_ptr);\n\n// Vector Addition (e.g., VADDPS on AVX)\n// 4 parallel additions executed in one cycle\nvc = _mm_add_ps(va, vb);\n\n// Store results\n_mm_storeu_ps(C_ptr, vc);",
+  "keywords": "SIMD, Vectorization, Processor Pipelining, Instruction Pipelining"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Header File Inclusion and Preprocessor Behavior",
+  "explanation": "Header files in C++ are processed during the preprocessing phase, which occurs before actual compilation. The preprocessor handles directives like #include by performing textual substitution: it inserts the contents of the specified header file into the source file at the point of inclusion. This is managed by the compiler's frontend, such as GCC's cpp or Clang's preprocessor, which scans the source code for preprocessor directives. The compiler searches for header files in predefined paths (e.g., via -I flags in GCC) or standard locations, resolving relative paths based on the current file's directory. To prevent multiple inclusions, which could lead to redefinition errors, include guards are used—macros like #ifndef HEADER_NAME_H that wrap the header's content. This is crucial for performance, as repeated inclusions can inflate the translation unit size, increasing compilation time and memory usage during preprocessing. Memory layout implications are indirect: headers declare types, variables, and functions that influence the final executable's layout, but the headers themselves are not present at runtime. At the assembly level, the preprocessor's output (after inclusion and macro expansion) feeds into the compiler, which generates assembly code for the declarations (e.g., global symbols for functions). Behavior is strictly compile-time, with no runtime overhead, but poor header design can lead to longer link times due to duplicated symbols or larger object files.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:38:37.403340",
+    "book_metadata_added": "2025-10-28T20:22:06.998606"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// System header search (predefined paths)\n#include <vector>\n\n// User header search (local path priority)\n#include \"my_config.h\"\n\n// --- Header Guard Example (In my_config.h) ---\n#ifndef MY_CONFIG_H\n#define MY_CONFIG_H\n\n// Declarations/definitions here\n\n#endif // MY_CONFIG_H\n\n// Alternative, non-standard but common practice\n#pragma once\n\n\n// Conditional compilation example\n#define VERSION 3\n\n#if VERSION >= 3\n    #define SUPPORT_NEW_FEATURE\n#endif\n<ctrl63>",
+  "keywords": "C++ preprocessor, #include directive, Textual substitution, Header inclusion behavior"
+}

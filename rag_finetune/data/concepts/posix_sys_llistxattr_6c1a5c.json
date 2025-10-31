@@ -1,0 +1,16 @@
+{
+  "topic": "llistxattr() System Call",
+  "explanation": "llistxattr() retrieves the list of extended attribute names associated with the specified path, treating symbolic links by their own attributes rather than the target file. It places the null-terminated list of names into a provided buffer and returns the size of the list.\n\n**Parameters:**\n- `path` (const char *): Pathname of the file or symbolic link to query.\n- `list` (char *_Nullable): Buffer to store the list of extended attribute names.\n- `size` (size_t): Size of the buffer in bytes; if zero, returns the required size without filling the buffer.\n\n**Common Errors:**\n- `E2BIG`: The size of the list of extended attribute names is larger than the maximum size allowed; the list cannot be retrieved.\n- `ENOTSUP`: Extended attributes are not supported by the filesystem, or are disabled.\n- `ERANGE`: The size of the list buffer is too small to hold the result.\n\n**Related System Calls:** `getxattr()`, `removexattr()`, `setxattr()`, `open()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.054713",
+    "syscall_name": "llistxattr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_llistxattr.json",
+    "concept_id": "posix_sys_llistxattr_6c1a5c",
+    "book_metadata_added": "2025-10-28T20:22:06.592854"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "const char *path = \"/var/s.link\";\nssize_t len;\nchar *list_buffer = NULL;\n\n// 1. Get required size (attributes of the link itself)\nlen = llistxattr(path, NULL, 0);\n\nif (len > 0) {\n    list_buffer = malloc(len);\n    // 2. Retrieve attribute names into buffer\n    len = llistxattr(path, list_buffer, len);\n    \n    // list_buffer holds null-separated names\n}\n\nfree(list_buffer);\n<ctrl63>",
+  "keywords": "llistxattr, list extended attributes, non-dereferencing attributes, symlink xattr"
+}

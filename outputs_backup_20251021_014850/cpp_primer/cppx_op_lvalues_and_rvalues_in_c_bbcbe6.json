@@ -1,0 +1,13 @@
+{
+  "topic": "Lvalues and Rvalues in C++",
+  "explanation": "Understanding lvalues and rvalues is crucial for writing correct and efficient C++ code.  Lvalues represent objects that have a persistent memory location (like named variables), while rvalues represent temporary values that may or may not have a persistent location (like literals or the result of an expression).  This distinction impacts how operators behave and how expressions are evaluated.  Incorrectly using lvalues and rvalues can lead to errors, including dangling references and undefined behavior.",
+  "syntax": "The `decltype` keyword can help determine whether an expression yields an lvalue or an rvalue.  For example:\n\n```c++\nint x = 10;\nint& ref_x = x; // ref_x is an lvalue reference to x\nint&& rref_x = 10; // rref_x is an rvalue reference to a temporary value\n\ndecltype(x) val1 = 20; // val1 is an int\ndecltype(ref_x) val2 = x; // val2 is an int&\ndecltype(*&x) val3 = x; // val3 is an int&\ndecltype(&x) val4 = &x; // val4 is an int*\n```\n\nNote that lvalue references (`&`) bind to lvalues, and rvalue references (`&&`) bind to rvalues.  The behavior of operators, such as assignment (`=`), often depends on whether the operands are lvalues or rvalues.",
+  "code_example": "#include <iostream>\n#include <string>\nint main() {\n  int x = 10; \n  int y = 20; \n  int& lref = x; // lvalue reference\n  int&& rref = x + y; // rvalue reference to the temporary result\n  lref = 30; // Modifies x\n  // rref = 40; // Error: cannot assign to rvalue reference\n  std::string str = \"hello\";\n  decltype(str) str2 = str; //str2 is an lvalue\n  decltype(str + \"world\") str3 = str + \"world\"; //str3 is an lvalue\n  return 0;\n}",
+  "example_explanation": "The example demonstrates lvalue and rvalue references. `lref` is an lvalue reference, allowing modification of the original variable `x`.  `rref` is an rvalue reference, bound to the temporary result of `x + y`.  Attempting to assign to `rref` after its initialization would be an error.  The `decltype` examples showcase how it determines the type of the expression as either lvalue or rvalue reference or value depending on the context.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T02:14:07.365982"
+  }
+}

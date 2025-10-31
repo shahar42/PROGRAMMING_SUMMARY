@@ -1,0 +1,16 @@
+{
+  "topic": "Floating-Point Arithmetic and its Implications for Performance",
+  "explanation": "Floating-point arithmetic is crucial for scientific computing and graphics, but its non-associative nature poses challenges for compiler optimization and program correctness.  Understanding how floating-point operations are handled by hardware (FPUs) and the implications of rounding errors is vital for writing efficient and accurate numerical programs. This is a hardware-software interaction problem as the hardware's handling of floating-point operations directly impacts the software's results.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "151-152",
+    "extraction_date": "2025-07-23T08:34:05.629235",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.704584"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "float a=1e20f, b=1.0f, c=-1e20f;\n\n// Mathematically equivalent, numerically different due to rounding\n// (a + c) evaluates to 0.0f, result is 1.0f\nfloat res1 = (a + c) + b; // 1.0f\n\n// (c + b) evaluates to -1e20f (1.0 is absorbed)\n// result is 0.0f (or 1e20)\nfloat res2 = a + (c + b); // 0.0f\n// res1 != res2\n// ---\n// Compiler optimization flags (GCC/Clang)\n\n// Strict adherence to IEEE 754 (Safer, slower)\ngcc -O3 -fno-fast-math file.c\n\n// Allows aggressive FPU reordering (Faster, less precise)\n// Violates FP associativity rules (a+b)+c != a+(b+c)\ngcc -O3 -ffast-math file.c\n// ---\n// Handling rounding errors (Comparison)\n\nconst double EPSILON = 1e-9;\ndouble x = 0.1 + 0.2; // Not exactly 0.3\ndouble y = 0.3;\n\n// DO NOT use standard equality: x == y\n// Use tolerance (absolute error check)\nbool isEqual = (std::abs(x - y) < EPSILON);\n\n// ULP (Units in the Last Place) comparison preferred for robustness\n// ---\n// FPU Environment Status (fenv.h)\n\n// Check if FPU exceptions occurred (e.g., inexact result)\n// Note: Checking FPU status can stall execution pipeline\nint status = fetestexcept(FE_ALL_EXCEPT);\n\nif (status & FE_OVERFLOW) {\n    // Handle hardware overflow flag\n}\n\nfeclearexcept(FE_ALL_EXCEPT); // Reset flags\n// ---\n// Extended precision registers (x86 default FPU mode)\n\n// long double (80-bit) often used internally on x86\n// If results are stored back to 64-bit double, extra precision is lost.\n\n// For maximum determinism across architectures,\n// enforce 64-bit arithmetic using specific compiler flags\n// (e.g., -mfpmath=sse on GCC/Clang x86_64)",
+  "keywords": "Floating point performance, Rounding errors, FPU, IEEE 754"
+}

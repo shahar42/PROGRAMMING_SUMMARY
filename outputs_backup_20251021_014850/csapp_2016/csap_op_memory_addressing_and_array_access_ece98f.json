@@ -1,0 +1,15 @@
+{
+  "topic": "Memory Addressing and Array Access",
+  "explanation": "Understanding how memory addresses are calculated and accessed is fundamental to systems programming.  This involves translating high-level array indexing into low-level memory addresses, directly impacting performance.  Efficient array access leverages the memory hierarchy (cache) for speed.",
+  "syntax": "Array element access in C: `array[index]`;  Equivalent memory address calculation: `base_address + index * element_size` where `base_address` is the starting address of the array and `element_size` is the size of each element in bytes.",
+  "code_example": "section .data\nP: times 8 dq 1, 2, 3, 4, 5, 6, 7, 8 ; Array P of 8 doublewords (64-bit integers)\nsection .text\nglobal _start\n_start:\nmov rax, [P+8] ; Access P[1] (second element)\nmov rbx, [P+24] ; Access P[3] (fourth element)\nmov rcx, 6 ; calculating index * element size\nmov rdx, rcx\nimul rdx, 8 ;index = i = 3; size = 8 bytes per element\nsub rdx, 40 ;offset = i*6 - 5  ; 18-40 = -22\nadd rdx, P ;base address\nmov r8,[rdx] ; Access P[i*6-5]  assuming i=3\nmov rax, 60 ; sys_exit\nxor rdi, rdi\nsyscall",
+  "example_explanation": "The example demonstrates accessing elements of an array `P` in x86-64 assembly.  `mov rax, [P+8]` loads the second element (P[1]) by calculating its address as the base address of `P` plus 8 bytes (1 element * 8 bytes/element). Similarly, it accesses other array elements using address calculations based on the array's base address and the element size. The example shows how an array's index is translated into a memory address which illustrates a direct hardware-software interaction crucial for performance.  The calculation for P[i*6-5] shows the flexibility and necessity to translate complex index calculations into effective memory accesses. Inefficient address calculations can significantly hinder performance",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "286-286",
+    "extraction_date": "2025-07-26T00:05:08.604818",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

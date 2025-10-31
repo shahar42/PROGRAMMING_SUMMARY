@@ -1,0 +1,15 @@
+{
+  "topic": "Template Class Specialization and Type Traits for Compile-Time Predicate Negation",
+  "explanation": "In modern C++, templates enable generic programming by allowing classes and functions to operate with types specified at compile time. This example demonstrates how to define template classes and functions that manipulate predicate types, specifically implementing compile-time logical negation of predicates using template classes and constexpr functions. Such techniques are essential for creating flexible, type-safe, and efficient code that adapts behavior based on type traits or compile-time conditions.",
+  "syntax": "template <typename Predicate> constexpr unary_negate<Predicate> not1(const Predicate& pred); \ntemplate <typename Predicate> class binary_negate; \n// where unary_negate and binary_negate are template classes that implement predicate negation logic",
+  "code_example": "#include <type_traits>\n\ntemplate <typename Predicate>\nclass unary_negate {\npublic:\n    explicit constexpr unary_negate(Predicate pred) : pred_(pred) {}\n    constexpr bool operator()(auto&&... args) const {\n        return !pred_(std::forward<decltype(args)>(args)...);\n    }\nprivate:\n    Predicate pred_;\n};\n\ntemplate <typename Predicate>\nconstexpr unary_negate<Predicate> not1(const Predicate& pred) {\n    return unary_negate<Predicate>(pred);\n}\n\ntemplate <typename Predicate>\nclass binary_negate {\npublic:\n    explicit constexpr binary_negate(Predicate pred) : pred_(pred) {}\n    constexpr bool operator()(auto&&... args) const {\n        return !pred_(std::forward<decltype(args)>(args)...);\n    }\nprivate:\n    Predicate pred_;\n};\n\nint main() {\n    auto is_even = [](int n) { return n % 2 == 0; };\n    auto is_odd = not1(is_even); // Negates the predicate at compile time\n    static_assert(!is_even(3), \"3 is not even\");\n    static_assert(is_odd(3), \"3 is odd after negation\");\n    return 0;\n}",
+  "example_explanation": "This example defines a template class 'unary_negate' that takes a predicate and provides a negated version of it via operator(). The 'not1' function creates an instance of 'unary_negate', effectively negating the predicate. In 'main', a lambda predicate 'is_even' is negated to produce 'is_odd', demonstrating how template classes and constexpr functions enable compile-time predicate manipulation. This showcases C++'s powerful template metaprogramming capabilities for creating flexible, type-safe, and efficient code that operates on predicates at compile time.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "579-579",
+    "extraction_date": "2025-08-19T05:27:15.078879",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

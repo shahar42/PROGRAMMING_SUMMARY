@@ -1,0 +1,15 @@
+{
+  "topic": "Ownership Transfer with std::auto_ptr (Deprecated Smart Pointer)",
+  "explanation": "In C++, std::auto_ptr was a smart pointer introduced to manage dynamic object lifetime with ownership semantics. It ensures that only one auto_ptr owns a given object at a time, transferring ownership during assignment or copy operations. This transfer of ownership is explicit and prevents multiple pointers from owning the same resource, thus avoiding double deletions. However, auto_ptr's ownership transfer semantics can lead to unexpected null pointers after assignment, making it unsafe and deprecated in modern C++ standards in favor of std::unique_ptr. Understanding auto_ptr's transfer semantics is crucial for grasping resource management and ownership transfer in C++.",
+  "syntax": "template<typename T>\nclass auto_ptr {\npublic:\n    explicit auto_ptr(T* p = nullptr); // Constructor\n    auto_ptr(const auto_ptr& other); // Copy constructor (transfers ownership)\n    auto_ptr& operator=(auto_ptr& other); // Assignment operator (transfers ownership)\n    ~auto_ptr(); // Destructor\n    T* release(); // Releases ownership\n    T* get() const; // Access raw pointer\n    void reset(T* p = nullptr); // Replace managed object\nprivate:\n    T* ptr;\n};",
+  "code_example": "#include <memory>\nclass ClassA {\npublic:\n    void doSomething() {}\n};\nint main() {\n    std::auto_ptr<ClassA> ptr1(new ClassA);\n    std::auto_ptr<ClassA> ptr2(new ClassA);\n    ptr2 = ptr1; // Transfer ownership from ptr1 to ptr2\n    // At this point, ptr1 is null, and ptr2 owns the object\n    if (ptr1.get() == nullptr) {\n        // ptr1 no longer owns the object\n    }\n    if (ptr2.get() != nullptr) {\n        ptr2->doSomething();\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how assigning one std::auto_ptr to another transfers ownership of the managed object. After 'ptr2 = ptr1;', ptr1 becomes null, and ptr2 now owns the object originally created for ptr1. This transfer semantics is characteristic of auto_ptr, which ensures only one owner at a time but can lead to null pointers if not carefully managed. The example highlights the ownership transfer behavior, illustrating why auto_ptr is deprecated in favor of safer alternatives like std::unique_ptr.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "43-43",
+    "extraction_date": "2025-09-11T09:48:46.477339",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

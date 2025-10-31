@@ -1,0 +1,16 @@
+{
+  "topic": "Solid State Drive (SSD) Performance Characteristics and Wear Leveling",
+  "explanation": "Solid State Drives (SSDs) are non-volatile storage devices utilizing flash memory.  Understanding their performance characteristics, particularly read/write speeds and endurance limits, is crucial for system design and performance optimization.  Wear leveling is a crucial technique to extend SSD lifespan.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "629-630",
+    "extraction_date": "2025-07-28T11:17:01.345278",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.743558"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// SSD Performance Metrics (Conceptual)\nstruct SSD_Metrics {\n    // Sequential Performance (Large transfers)\n    long SeqRead_MBps;\n    long SeqWrite_MBps;\n\n    // Random Performance (Small 4KB I/O)\n    long RandRead_IOPS;\n    long RandWrite_IOPS;\n\n    // Latency\n    int ReadLatency_us;      // Microseconds\n    int WriteLatency_us;\n};\n\n// Endurance and Write Amplification Factor (WAF)\ntypedef long long TBW_Value; // Total Bytes Written capacity\n\n// Data written by host vs actual data written to flash\nfloat HOST_WRITES = 100.0e9;\nfloat FLASH_WRITES = 150.0e9;\n\n// WAF = Actual Writes / Host Writes (WAF >= 1.0)\nconst float WAF = FLASH_WRITES / HOST_WRITES;\n\nconst float DWPD_RATING = 1.0; // Drive Writes Per Day\n\n// Wear Leveling Data Structure (Flash Block Tracking)\n#define MAX_P_E_CYCLES 3000 // Program/Erase Cycles (Endurance)\n\nstruct FlashBlock {\n    int logical_page_map_id;\n    int physical_block_id;\n    int erase_count;        // Key metric for wear leveling\n    bool is_free;\n};\n\n// Core wear leveling goal: Select the block with the lowest erase count\nFlashBlock* select_write_target(FlashBlock blocks[]) {\n    FlashBlock* target = blocks[0];\n    for (int i = 1; i < N_BLOCKS; i++) {\n        if (blocks[i].erase_count < target->erase_count)\n            target = blocks[i];\n    }\n    return target;\n}",
+  "keywords": "SSD wear leveling, SSD endurance, Flash memory performance"
+}

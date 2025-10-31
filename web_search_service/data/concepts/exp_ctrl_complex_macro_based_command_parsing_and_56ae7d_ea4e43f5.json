@@ -1,0 +1,16 @@
+{
+  "topic": "Complex Macro-Based Command Parsing and State Management",
+  "explanation": "In advanced C programming, especially in embedded or command-driven systems, macros are often employed to implement complex command parsing, state management, and control flow without incurring runtime overhead. This technique leverages the C preprocessor's capabilities to generate flexible, efficient, and maintainable code for command sequences, such as 'RUN', 'LIST', 'NEW', 'BYE', 'OLD', 'filename', 'SAVE', etc. By combining macros with token pasting, conditional compilation, and macro expansion tricks, developers can create sophisticated command interpreters that handle variable initialization, command sequencing, and control flow in a highly optimized manner, often mimicking domain-specific languages within C.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "196-196",
+    "extraction_date": "2025-07-21T22:59:18.542383",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "expert_c_programming",
+    "book_metadata_added": "2025-10-28T20:22:07.006131"
+  },
+  "book": "Expert C Programming: Deep C Secrets",
+  "code_example": "#define CMD_MAP(X) \\\n    X(INIT,  RUN,   ACTIVE) \\\n    X(ACTIVE, SAVE,  IDLE) \\\n    X(IDLE,  LIST,  ACTIVE) \\\n    X(IDLE,  BYE,   DONE)\n\n// Generate State Enums (S, N)\n#define GEN_STATE_ENUM(S, C, N) S, N,\nenum State { CMD_MAP(GEN_STATE_ENUM) DONE };\n\n// Macro generates unique command handlers using token pasting\n#define TRANSITION_FUNC(S, C, N) \\\n    int S##_handler(int command_id) { \\\n        if (command_id == C) return N; \\\n        return S; /* Stay in current state */ \\\n    }\n\n// Generates specific state handler implementations\nCMD_MAP(TRANSITION_FUNC)\n\n// Transition lookup table (Example: mapping (Current State, Command) to function)\ntypedef int (*Transition_t)(int);\nTransition_t Table[] = {\n    #define TABLE_ENTRY(S, C, N) S##_handler,\n    CMD_MAP(TABLE_ENTRY)\n};",
+  "keywords": "C Macro Command Parser, Preprocessor DSL, Zero-overhead parsing, Macro state machine"
+}

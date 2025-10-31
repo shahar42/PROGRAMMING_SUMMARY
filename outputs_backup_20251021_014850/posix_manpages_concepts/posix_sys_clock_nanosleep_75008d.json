@@ -1,0 +1,15 @@
+{
+  "topic": "clock_nanosleep() System Call",
+  "explanation": "clock_nanosleep() allows a thread to sleep for a specified interval with nanosecond precision, using a chosen clock. It supports both relative and absolute time specifications, and can return the remaining time if interrupted.\n\n**Parameters:**\n- `clockid` (clockid_t): Specifies the clock to use for measuring the sleep interval, such as CLOCK_REALTIME or CLOCK_MONOTONIC.\n- `flags` (int): Flags to indicate if the time is relative (0) or absolute (TIMER_ABSTIME).\n- `t` (const struct timespec *): Pointer to a timespec structure specifying the sleep interval or absolute time.\n- `remain` (struct timespec *_Nullable): If not NULL and flags is not TIMER_ABSTIME, stores the remaining unslept time if the call is interrupted.\n\n**Common Errors:**\n- `EFAULT`: t or remain specified an invalid address.\n- `EINTR`: The sleep was interrupted by a signal handler.\n- `EINVAL`: The value in the tv_nsec field was not in the range [0, 999999999], tv_sec was negative, or clockid was invalid.\n- `ENOTSUP`: The kernel does not support sleeping against this clockid.\n\n**Related System Calls:** `clock_getres()`, `nanosleep()`, `restart_syscall()`, `timer_create()`, `sleep()`, `timespec()`, `usleep()`, `time()`",
+  "syntax": "int clock_nanosleep(clockid_t clockid, int flags, const struct timespec *t, struct timespec *_Nullable remain);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = clock_nanosleep(...);  // Call the system call\nif (result == -1) {\n    perror(\"clock_nanosleep\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the clock_nanosleep() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.077779",
+    "syscall_name": "clock_nanosleep",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_clock_nanosleep.json",
+    "concept_id": "posix_sys_clock_nanosleep_75008d"
+  }
+}

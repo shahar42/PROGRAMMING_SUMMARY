@@ -1,0 +1,19 @@
+{
+  "topic": "Atomic vs Volatile: Optimization Differences",
+  "category": "sync",
+  "explanation": "Assumption: Because `std::atomic` manages concurrent access, it must be suitable for all low-level memory operations, including hardware interaction. Reality: `std::atomic` guarantees atomicity and memory ordering for *threads*, but compilers are explicitly permitted to eliminate redundant loads and dead stores on `std::atomic` variables. Why It Fails: This optimization allowance makes `std::atomic` unsuitable for memory-mapped I/O. If a register access is optimized away, the program fails to interact with the hardware device correctly, defeating the purpose of using special memory.",
+  "code_example": "std::atomic<int> x;\n// Compiler is permitted to optimize away redundant reads/writes:\nauto y = x;           \ny = x;                // May be optimized away\nx = 10;               \nx = 20;               // Write to 10 may be optimized away",
+  "practical_example": "A programmer attempts to use `std::atomic<int>` to interact with a custom ASIC register. The compiler collapses two consecutive writes into a single final write, leading to a hardware malfunction because the necessary intermediate state transition was skipped.",
+  "keywords": [
+    "std::atomic",
+    "volatile misuse",
+    "compiler optimization",
+    "hardware registers",
+    "atomicity scope"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "291-292",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_sync_atomic_vs_volatile__optimization_92b674",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

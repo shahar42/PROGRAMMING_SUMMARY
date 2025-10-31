@@ -1,0 +1,16 @@
+{
+  "topic": "Lazy Binding in Dynamic Linking",
+  "explanation": "Lazy binding is a technique used in dynamic linking where the resolution of symbols from a shared library is delayed until the symbol is actually accessed during program execution. This contrasts with eager binding, where all symbols are resolved when the program loads. Lazy binding improves startup time and reduces memory consumption because only the necessary symbols are resolved, and it allows for faster loading of applications that depend on many shared libraries.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "270-270",
+    "extraction_date": "2025-07-21T22:29:12.173148",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.750710"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Core mechanism uses Procedure Linkage Table (PLT) and Global Offset Table (GOT)\n\n// Initial State (Unresolved)\n// GOT[X] points back to PLT[N]'s internal resolver stub\nGOT[func_entry] = Address_of_PLT_Stub\n\n// 1. First Call (Slow Path)\nfunc_call:\n    JMP *GOT[func_entry]    // Jump to PLT Stub\n\n// PLT Stub executes:\n    PUSH relocation_ID\n    JMP *GOT[2]             // Call Dynamic Linker (ld.so)\n\n// Dynamic Linker Resolves Address:\n    ld.so determines Real_Func_Address\n    ld.so rewrites GOT[func_entry] = Real_Func_Address\n\n// 2. Subsequent Calls (Fast Path)\nfunc_call:\n    JMP *GOT[func_entry]    // Jump directly to Real_Func_Address\n\n// Benefits: Startup time reduced; memory saved if symbols unused.",
+  "keywords": "Lazy binding, PLT GOT, Delay symbol resolution, Dynamic linking optimization"
+}

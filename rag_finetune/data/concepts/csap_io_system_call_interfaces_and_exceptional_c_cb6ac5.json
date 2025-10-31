@@ -1,0 +1,25 @@
+{
+  "topic": "System Calls and ECF: Memory Allocation Services",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow applications to request services from the OS (e.g., file I/O, network communication, memory allocation) that they cannot perform directly. Exceptional control flow refers to the mechanisms by which the CPU handles events that deviate from normal instruction execution, such as interrupts, exceptions, and signals.  These mechanisms are crucial for handling system calls and other asynchronous events efficiently and reliably within a computer system.\n\nSystem calls provide an interface between user-level processes and the operating system kernel. They allow programs to request services from the OS, such as reading files, opening network connections, or managing memory. Exceptional control flow refers to the mechanisms by which the OS handles interrupts, signals, and exceptions, transferring control from the currently executing program to a kernel handler for processing.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "747-747",
+    "extraction_date": "2025-07-28T12:14:44.405326",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T14:49:48.224916",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "975-975",
+      "extraction_date": "2025-07-29T14:49:45.248037",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8551080822944641,
+    "book_metadata_added": "2025-10-28T20:22:06.721281"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Malloc based on brk/sbrk or mmap (Standard library wrapper)\nint* array = (int*)malloc(sizeof(int) * 50);\n\nif (array == NULL) {\n    // Handle ENOMEM or other failures\n    exit(EXIT_FAILURE);\n}\n\narray[0] = 100;\nfree(array);\n\n// Direct System Call Allocation (mmap)\n// Used for large blocks, anonymous memory, or file mapping\nvoid* mem_region = mmap(\n    NULL,                     // Address hint\n    4096 * 5,                 // 5 pages size\n    PROT_READ | PROT_WRITE,   // Protection flags\n    MAP_PRIVATE | MAP_ANONYMOUS,\n    -1, 0\n);\n\nif (mem_region == MAP_FAILED) {\n    perror(\"mmap error\");\n}\n\n// Release the mapped memory\nmunmap(mem_region, 4096 * 5);\n\n// Allocating via sbrk (Older method, modifies program break)\n// Rarely used directly anymore\nvoid* current_break = sbrk(0);\nvoid* new_memory = sbrk(4096);\n\nif (new_memory == (void*)-1) {\n    // Failure\n}\n<ctrl63>"
+}

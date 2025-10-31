@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operations Failure: Moving Arguments Prevents Forwarding",
+  "category": "forward",
+  "explanation": "A common design anti-pattern involves attempting to both consume an argument via move semantics and subsequently forward that same argument down to another function call, leading inevitably to corruption or defined-but-useless behavior. The failure stems from the fundamental concept that a move operation, once executed, leaves the source object in a valid but unspecified state\u2014its resources have been potentially stolen. Programmers, seeking maximal efficiency, often try to apply `std::move` to an argument immediately upon receipt, assuming they can then safely pass that argument, perhaps via `std::forward`, to a nested function call. The reality is that applying `std::move` to an incoming parameter ensures that the subsequent function call receives an rvalue, likely triggering a move operation if available. Once that move operation occurs, the original argument inside the forwarding function is depleted. If that forwarding function then attempts to use `std::forward` on the same, now-depleted argument to call a second function, the second function will receive a reference to an object whose state is compromised. While C++ guarantees the object is valid, using it (especially if it's a container) results in accessing zeroed-out or null resources. For example, if a wrapper function moves an argument to initialize a member variable and then attempts to forward the same argument to a logging function or validation check, the logging or validation logic will be operating on a moved-from state, which is almost certainly not the desired behavior and breaks the principle of perfect forwarding, whose goal is to preserve the exact value category and state of the argument for its intended recipient. This pattern fails because it conflates two mutually exclusive goals: consumption (via move) and preservation (via forwarding).",
+  "code_example": "// Anti-pattern: Argument 'w' is moved into 'member' then forwarded.\nvoid wrapper(Widget&& w) {\n    member = std::move(w); // w is now depleted.\n    // Forwarding depleted state: CRITICAL FAILURE.\n    log_status(std::forward<Widget>(w)); \n}",
+  "practical_example": "A smart pointer wrapper attempts to optimize construction. A function takes an rvalue `unique_ptr` argument. The function first moves the pointer into a member variable for ownership and then tries to forward the argument to a helper function that registers the pointer's original address with a global registry. The move operation sets the argument's internal pointer to null. The subsequent forwarding call registers a null pointer address, causing catastrophic failure when the registry attempts to dereference the address later.",
+  "keywords": [
+    "double move",
+    "forwarding failure",
+    "depleted state",
+    "std::move",
+    "design"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "186-195",
+  "chapter": "Item 25: Familiarize yourself with the move-and-forward trap",
+  "id": "emcpp_forward_move_operations_failure__moving_4c4fcd",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

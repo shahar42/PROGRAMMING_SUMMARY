@@ -1,0 +1,18 @@
+{
+  "topic": "Destructor Invocation Order and Resource Cleanup in Complex Inheritance Hierarchies",
+  "explanation": "In advanced C programming, especially when simulating object-oriented patterns or managing complex resource lifecycles, understanding the precise order of destructor calls in inheritance hierarchies is crucial. This ensures proper cleanup of resources allocated at various levels of the hierarchy, prevents resource leaks, and maintains program correctness. Although C does not natively support destructors, advanced techniques involve manual function pointers, vtables, or macros to emulate destructor behavior, making the invocation order and resource management critical for robust design.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "986-986",
+    "extraction_date": "2025-08-20T07:38:11.553775",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.535764"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class BaseResource {\npublic:\n    virtual ~BaseResource() { /* Base cleanup done last */ }\n};\n\nclass Intermediate : public BaseResource {\n    int* ptr_mid;\npublic:\n    Intermediate() : ptr_mid(new int(1)) {}\n    ~Intermediate() override { delete ptr_mid; /* Order 2 */ }\n};\n\nclass Final : public Intermediate {\n    char* ptr_final;\npublic:\n    Final() : ptr_final(new char('a')) {}\n    ~Final() override { delete ptr_final; /* Order 1 (First called) */ }\n};\n\n// Deletion order (with virtual Base ~): Final -> Intermediate -> Base\n// B* obj = new Final(); delete obj;\n// Mandatory: Base destructor MUST be virtual.",
+  "keywords": "Destructor invocation order, Base class destructor order, C++ destruction sequence, Virtual destructors inheritance"
+}

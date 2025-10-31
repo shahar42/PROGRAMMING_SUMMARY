@@ -1,29 +1,12 @@
 {
   "topic": "Exception Specifications (and their deprecation)",
   "explanation": "Exception specifications, particularly dynamic exception specifications, offer a fascinating glimpse into compiler behavior and runtime performance.  While deprecated in modern C++, understanding their implementation reveals crucial insights into exception handling and the compiler's role in optimization.  Dynamic exception specifications, using `throw()`, promised to enforce which exceptions a function could throw. The compiler, however, couldn't reliably guarantee this at compile time for all scenarios (e.g., exceptions thrown from called functions).  Instead, the compiler would often generate runtime checks. These checks involved examining the exception type during exception propagation and potentially terminating the program if a disallowed exception was encountered.  This runtime overhead could significantly impact performance, especially in performance-critical sections.  Static exception specifications, while less problematic, still influenced the compiler's ability to perform optimizations. The lack of guarantees in dynamic exception specifications, combined with the performance overhead of runtime checks, ultimately led to their deprecation in C++11.  Modern exception handling relies on more robust and compile-time-friendly techniques, such as RAII and careful exception handling practices.",
-  "syntax": "void myFunction() throw(); // Dynamic exception specification (deprecated)\nvoid myFunction() noexcept; // noexcept specifier (modern alternative)",
-  "code_example": [
-    "#include <iostream>",
-    "#include <stdexcept>",
-    "void myFunction() throw() {",
-    "  // Code that was intended to not throw exceptions",
-    "  // ... but might throw unexpectedly from a called function.",
-    "  if (true) throw std::runtime_error(\"oops!\");",
-    "}",
-    "int main() {",
-    "  try {",
-    "    myFunction();",
-    "  } catch (const std::exception& e) {",
-    "    std::cerr << \"Caught exception: \" << e.what() << std::endl;",
-    "  }",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The compiler, when encountering `throw()`, would typically generate code to perform runtime checks.  In a scenario where `myFunction` unexpectedly throws an exception, the runtime check would detect this violation, potentially triggering a termination of the program (using `std::terminate`). The assembly-level instructions would include checks comparing exception type information against the specification at runtime.  The `noexcept` specifier, in contrast, allows for better compiler optimization since it provides a guarantee at compile time.  While `noexcept` doesn't guarantee that an exception won't be thrown (exceptions from called functions are an issue), it provides crucial information for optimizations like exception-handling code elimination in contexts where exceptions are explicitly disallowed.  Failure to meet `noexcept` results in `std::terminate` being called (similar to deprecated `throw()`). This contrasts with the `throw()` specification, which couldn't make the same compiler optimization guarantees and often imposed unnecessary runtime costs.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T04:15:38.118416"
-  }
+    "extraction_date": "2025-08-19T04:15:38.118416",
+    "book_metadata_added": "2025-10-28T20:22:06.909268"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

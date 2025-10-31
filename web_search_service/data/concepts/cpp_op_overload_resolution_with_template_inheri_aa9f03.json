@@ -1,0 +1,14 @@
+{
+  "topic": "Overload Resolution with Template Inheritance in C++",
+  "explanation": "In C++, overload resolution for functions involving template-inherited classes is a compile-time process that depends on template instantiation, implicit conversions, and the best viable function. The compiler generates separate instantiations of templates like B<T> and D<T> for each unique template argument (e.g., T = int, char, double), creating distinct types. For inheritance, D<T> contains a subobject of B<T>, and the compiler ensures that a pointer to D<T> can be implicitly converted to a pointer to B<T> only if the template parameters match exactly (e.g., D<int>* to B<int>*). This is handled during overload resolution by evaluating conversion sequences: the compiler ranks overloads based on exact matches, derived-to-base conversions, and pointer conversions, as per the standard (e.g., [over.best.ics]). Memory layout involves the derived class D<T> embedding the base class B<T> as a subobject, potentially optimized with Empty Base Optimization (EBO) if B<T> is empty, reducing memory overhead. Performance implications include faster compile-time decisions but potential code bloat from multiple template instantiations. At the assembly level, resolved calls translate to direct jumps or calls without runtime checks, unless virtual functions are involved. Runtime behavior is minimal here, as everything occurs at compile-time, but misconfigurations could lead to linker errors if instantiations are not generated.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:58:10.943983",
+    "book_metadata_added": "2025-10-28T20:22:06.915277"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T> struct Base {};\ntemplate <typename T> struct Derived : Base<T> {};\n\n// Overload Set (instantiated for 'int')\nvoid handle(Base<int>) { /* Base match */ }\nvoid handle(Derived<int>) { /* Derived match (best viable) */ }\n\nDerived<int> d_int;\n\n// Calls handle(Derived<int>) because it is an exact match,\n// preferred over the conversion path to Base<int>.\n// handle(d_int);\n// Type D<int> is distinct from B<int>.",
+  "keywords": "Template overload resolution, template inheritance, derived-to-base conversion template, template instantiation types"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Exhaustion: Resource Limits and Deadlock Potential",
+  "category": "thread, design",
+  "explanation": "Relying purely on `std::thread` creation can lead to resource exhaustion if the system or OS imposes limits on the number of concurrent threads. When thread creation fails, the inability to start necessary asynchronous work (e.g., `doAsyncWork`) can lead to severe responsiveness issues. Critically, if existing running threads are waiting for results or notifications from the task that failed to launch, thread exhaustion can directly result in system-wide deadlock or indefinite blocking.",
+  "code_example": "// Failure to construct std::thread throws std::system_error\nvoid execute_task() {\n  try {\n    std::thread t(some_function); \n    // If system is exhausted, program terminates or catches error\n  } catch (const std::system_error& e) {\n    // Handling is complex: waiting might cause deadlock if existing threads depend on t\n  }\n}",
+  "practical_example": "A high-load server uses `std::thread` to handle incoming connections. During a spike, the system hits its thread limit. The thread creation fails for new connections, and simultaneously, existing worker threads are waiting on condition variables that were supposed to be notified by the failed-to-launch threads, resulting in a cascading deadlock.",
+  "keywords": [
+    "thread limits",
+    "resource exhaustion",
+    "deadlock",
+    "std::thread failure"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "259-263",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_thread, design_thread_exhaustion__resource_limits_0795a6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

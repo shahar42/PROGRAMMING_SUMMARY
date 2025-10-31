@@ -1,0 +1,15 @@
+{
+  "topic": "modify_ldt() System Call",
+  "explanation": "modify_ldt() reads or writes the local descriptor table (LDT) for a process, which is an array of segment descriptors referenced by user code. Depending on the func parameter, it either reads the LDT into memory or modifies an LDT entry using a user_desc structure.\n\n**Parameters:**\n- `func` (int): Function code: 0 to read the LDT, 1 or 0x11 to modify an LDT entry, or 2 for a legacy operation.\n- `ptr` (void*): Pointer to the memory buffer for reading or writing LDT data, or to a user_desc structure for modifications.\n- `bytecount` (unsigned long): Number of bytes to read or write; for modifications, it must equal the size of the user_desc structure when func is 1 or 0x11.\n\n**Common Errors:**\n- `EFAULT`: ptr points outside the address space.\n- `EINVAL`: ptr is 0, or func is 1 and bytecount is not equal to the size of user_desc, or func is 1 or 0x11 and the new LDT entry has invalid values.\n- `ENOSYS`: func is neither 0, 1, 2, nor 0x11.\n\n**Related System Calls:** `arch_prctl()`, `set_thread_area()`, `vm86()`",
+  "syntax": "int syscall(SYS_modify_ldt, int func, void *ptr, unsigned long bytecount);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = modify_ldt(...);  // Call the system call\nif (result == -1) {\n    perror(\"modify_ldt\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the modify_ldt() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.221131",
+    "syscall_name": "modify_ldt",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_modify_ldt.json",
+    "concept_id": "posix_sys_modify_ldt_dacabf"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Perfect Forwarding Failure in Class Templates with Value Parameters",
+  "category": "forward",
+  "explanation": "Assumption: The forwarding reference pattern (`T&&` parameter used with `std::forward`) is the only viable method for perfect forwarding, and must be applied everywhere forwarding is needed. Reality: Perfect forwarding can only be applied to parameters that are universal references (`T&&`). Attempting to use `std::forward` on a parameter passed by value fails the forwarding guarantee and may result in an unwanted move. Why It Fails: If a function receives an argument by value (e.g., `void f(Widget w)`), the argument `w` is already a distinct local object, regardless of whether the caller passed an lvalue (copied) or an rvalue (moved). Since `w` is a named variable, it is an lvalue within the function body. Applying `std::forward` (which requires a deduced type `T`) is incorrect, and applying `std::move(w)` is necessary if the goal is to transfer ownership. The failure is the misconception that the *forwarding mechanism* (i.e., using `std::forward`) applies to value parameters. If a parameter is passed by value, its original value category is already lost, making 'perfect' forwarding impossible. The value parameter can only be moved, not perfectly forwarded.",
+  "code_example": "// Failure: Value parameter cannot be perfectly forwarded\ntemplate<typename T>\nvoid log_and_pass(T arg) { // arg is passed by value\n  // ... log arg ...\n  sink(std::forward<T>(arg)); // Incorrect use of forward\n  sink(std::move(arg)); // Correct way to transfer value parameter\n}",
+  "practical_example": "A templated logging wrapper accepts arguments by value to ensure they are available for logging before transfer. The developer uses `std::forward` believing they are preserving the original category, but since the category was lost upon entry, the move operation is often missed or misused, leading to a copy fallback within the sink function.",
+  "keywords": "std::forward value failure, forwarding T parameter, universal reference requirement, T&& vs T forwarding",
+  "difficulty": "intermediate",
+  "page_reference": "186-188",
+  "chapter": "Item 25: Use std::move on rvalue references and std::forward on universal references",
+  "id": "emcpp_forward_perfect_forwarding_failure_in_class_ba4346",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

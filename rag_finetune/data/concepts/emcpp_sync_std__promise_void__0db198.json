@@ -1,0 +1,18 @@
+{
+  "topic": "std::promise<void>: `set_value()` as Event Trigger",
+  "category": "sync",
+  "explanation": "When using the `void` specialization of `std::promise`, the method `set_value()` does not involve moving or copying any data. Its sole operational effect is to fulfill the promise, transitioning the associated `std::future<void>` to the 'ready' state. This action immediately unblocks any threads currently calling `wait()` or `get()` on that future. This mechanism is crucial for implementing synchronization barriers or simple event notifications where the timing of the signal, not the content, is important.",
+  "code_example": "void detecting_task(std::promise<void>& p) {\n  // Perform long operation...\n  p.set_value(); // Signal completion\n}\n// The reacting thread is released when set_value() is called.",
+  "practical_example": "Implementing a producer/consumer pattern where the consumers must wait for the producer to signal that the shared queue is ready for initial reads. The producer uses `set_value()` as the 'queue ready' flag.",
+  "keywords": [
+    "set_value",
+    "promise fulfillment",
+    "barrier release",
+    "void specialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 38: Be mindful of the assumptions in std::future's continuations",
+  "id": "emcpp_sync_std__promise_void__0db198",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

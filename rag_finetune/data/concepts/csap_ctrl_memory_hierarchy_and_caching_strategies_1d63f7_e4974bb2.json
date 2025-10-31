@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Exploiting Locality",
+  "explanation": "The memory hierarchy is a multi-level storage structure designed to mitigate the latency disparity between the high-speed CPU and slower main memory (DRAM). Caching strategies exploit the principle of locality to store frequently accessed data in faster, smaller cache levels (L1, L2, L3) closer to the processor core. Temporal locality predicts future access to recently used data, while spatial locality predicts access to data physically near recently used addresses. Maximizing the cache hit rate through effective locality exploitation minimizes the average memory access time (AMAT), which is critical for sustaining high instruction throughput.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "29-29",
+    "extraction_date": "2025-07-22T23:57:24.252149",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.703980",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:22",
+    "original_length": 469,
+    "refined_length": 651
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define MATRIX_SIZE 1024\n\n// 1. Spatial Locality: GOOD access pattern (C/C++ Row-Major)\n// Ensures cache line is fully utilized before moving on.\nint mat[MATRIX_SIZE][MATRIX_SIZE];\n\nvoid spatial_good() {\n    for (int i = 0; i < MATRIX_SIZE; i++) {\n        for (int j = 0; j < MATRIX_SIZE; j++) {\n            mat[i][j] = i + j; // Adjacent access\n        }\n    }\n}\n\n// 2. Spatial Locality: POOR access pattern (High Stride)\n// Forces immediate cache line replacement (cache misses).\nvoid spatial_bad() {\n    for (int j = 0; j < MATRIX_SIZE; j++) {\n        for (int i = 0; i < MATRIX_SIZE; i++) {\n            // Strides by MATRIX_SIZE * sizeof(int) bytes\n            mat[i][j] = i + j;\n        }\n    }\n}\n\n// 3. Temporal Locality: Cache Blocking/Tiling\n// Reuses sub-matrix elements (A_block, B_block) multiple times\n// while they reside in faster L1/L2 cache.\n#define BLOCK 32\n\nvoid blocked_mm(int N, int A[N][N], int B[N][N], int C[N][N]) {\n    for (int kk = 0; kk < N; kk += BLOCK) {\n        for (int jj = 0; jj < N; jj += BLOCK) {\n            for (int i = 0; i < N; i++) {\n                // Focus: Blocked inner loops\n                for (int k = kk; k < kk + BLOCK; k++) {\n                    for (int j = jj; j < jj + BLOCK; j++) {\n                        C[i][j] += A[i][k] * B[k][j];\n                    }\n                }\n            }\n        }\n    }\n}"
+}

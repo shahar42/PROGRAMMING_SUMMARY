@@ -1,0 +1,25 @@
+{
+  "topic": "System Calls and ECF: Non-Linear Execution Paths",
+  "explanation": "System calls are the interface between a process running in user space and the operating system kernel.  They provide a mechanism for applications to request services from the kernel, such as accessing files, managing memory, or performing I/O operations. Exceptional control flow refers to the non-linear flow of execution caused by events like exceptions (hardware or software generated), signals (software interrupts), and system calls.  Understanding this interface and how the kernel manages exceptions is crucial for building robust and efficient systems programs.\n\nSystem calls provide the interface between user-level processes and the operating system kernel. They allow programs to request services from the kernel, such as reading from a file, accessing network resources, or managing processes. Exceptional control flow refers to situations where the normal execution sequence of a program is interrupted, often due to events like system calls, signals, or exceptions.  Understanding how these mechanisms interact is crucial for building robust and efficient systems-level programs.\n\nSystem calls provide the interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing files, network communication, or managing memory, which are privileged operations not directly accessible to user programs. Exceptional control flow refers to the mechanism by which the system handles events that disrupt the normal sequential execution of a program, including system calls, interrupts, and exceptions.  Understanding this interaction is crucial for building robust and efficient systems.\n\nSystem calls provide the interface between user-level processes and the operating system kernel. They allow applications to request services from the kernel, such as accessing hardware, managing files, or creating processes. Exceptional control flow refers to the mechanism by which the CPU transfers control to a specific handler when an exceptional event occurs, such as a system call, interrupt, or exception. This is crucial for managing hardware-software interaction and handling asynchronous events.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "764-764",
+    "extraction_date": "2025-07-28T12:21:38.565981",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T15:40:51.858307",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1004-1004",
+      "extraction_date": "2025-07-29T15:40:47.202917",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8626282215118408,
+    "book_metadata_added": "2025-10-28T20:22:06.730637"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Synchronous Blocking Syscall (User -> Kernel -> User transition)\nssize_t written = write(\n    STDOUT_FILENO,      // System Call Number via Register/Stack\n    data_buffer,        // User space data pointer\n    buffer_size\n);\n\nif (written == -1) {\n    // Syscall failed, kernel sets error code\n    int err = errno;\n}\n\n// Syscalls and ECF Interruption (Non-linear path)\nunsigned int remaining = sleep(10);\n\nif (remaining > 0) {\n    // The sleep syscall was interrupted by an ECF (e.g., a signal)\n    // The kernel returns control prematurely (EINTR)\n    handle_interruption();\n}\n\n// Clean termination vs Pure Syscall termination\n// exit(): User-space cleanup (atexit, buffers) then _exit() syscall\nvoid normal_exit() { exit(0); }\n\n// _exit(): Immediate pure syscall (minimal ECF path)\nvoid fast_exit() { _exit(0); }\n<ctrl63>"
+}

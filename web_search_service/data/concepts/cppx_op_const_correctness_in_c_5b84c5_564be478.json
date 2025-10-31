@@ -1,0 +1,14 @@
+{
+  "topic": "Const Correctness in C++",
+  "explanation": "Const correctness is a fundamental best practice in C++ that involves using the const keyword to declare objects, pointers, references, and function parameters as immutable where appropriate. This technique helps prevent accidental modifications, catches errors at compile time, and improves code readability and maintainability. In real-world programming, it's essential for writing robust, thread-safe code and reusable libraries. For instance, marking parameters as const in functions ensures they aren't changed unintentionally, which is particularly useful in performance-critical applications like game development or scientific simulations, where it also enables compiler optimizations.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:40:32.072759",
+    "book_metadata_added": "2025-10-28T20:22:06.515545"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "int x = 5;\n\n// Data is const (cannot modify *p)\nconst int* p_data = &x;\n// *p_data = 6; // Error\n\n// Pointer is const (cannot modify p_ptr)\nint* const p_ptr = &x;\n// p_ptr = nullptr; // Error\n\n// Both are const\nconst int* const p_both = &x;\n\n// Const reference parameter (input only)\nvoid print(const int& ref) {\n    // ref = 10; // Error\n}\n//----------------------------------\nclass Logger {\n    mutable int access_count = 0; // Can change in const functions\n    int data = 0;\npublic:\n    // This function guarantees 'data' is not modified\n    int getData() const {\n        access_count++; // OK (mutable field)\n        // data = 1; // Error (non-mutable field)\n        return data;\n    }\n    void setData(int val) { data = val; }\n};\n\nconst Logger c_log;\nc_log.getData(); // OK\n// c_log.setData(5); // Error\n//----------------------------------\n// Removing constness (use with extreme caution)\nvoid update_legacy(const int* ptr) {\n    // Requires that the object was not originally defined const\n    int* writable_ptr = const_cast<int*>(ptr);\n    *writable_ptr = 42;\n}\n\n// Function returns a const reference\n// Prevents modifying the object through the return value\nconst std::string& getName() {\n    static std::string name = \"A\";\n    return name;\n}\n//----------------------------------",
+  "keywords": "Const Correctness, C++ const keyword, const reference, const functions"
+}

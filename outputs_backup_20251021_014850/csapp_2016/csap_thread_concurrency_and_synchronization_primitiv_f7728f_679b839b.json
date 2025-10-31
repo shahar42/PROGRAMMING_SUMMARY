@@ -1,0 +1,25 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency involves multiple threads executing seemingly simultaneously.  In computer systems, this requires careful management to avoid race conditions (where the outcome depends on unpredictable thread interleaving) and ensure data consistency. Synchronization primitives are mechanisms that coordinate concurrent threads, allowing them to share resources safely and predictably.  They are crucial for building robust and efficient multithreaded applications within the context of a shared memory architecture.",
+  "syntax": "Various synchronization primitives exist, including mutexes (mutual exclusion locks), semaphores, and condition variables.  Their usage typically involves acquiring a lock before accessing shared resources and releasing it afterward.  This ensures that only one thread can access the resource at a time.",
+  "code_example": "/* C code illustrating mutex usage */\n#include <pthread.h>\n#include <stdio.h>\npthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;  // Initialize mutex\nint shared_variable = 0;\nvoid *increment(void *arg) {\n  for (int i = 0; i < 1000; i++) {\n    pthread_mutex_lock(&mutex);  // Acquire lock\n    shared_variable++;\n    pthread_mutex_unlock(&mutex); // Release lock\n  }\n  return NULL;\n}\nint main() {\n  pthread_t thread1, thread2;\n  pthread_create(&thread1, NULL, increment, NULL);\n  pthread_create(&thread2, NULL, increment, NULL);\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n  printf(\"Final value: %d\\n\", shared_variable);\n  return 0;\n}",
+  "example_explanation": "This C code demonstrates the use of a mutex to protect a shared variable from race conditions. Two threads concurrently increment `shared_variable`.  The `pthread_mutex_lock` and `pthread_mutex_unlock` calls ensure that only one thread can access and modify `shared_variable` at any given time. Without the mutex, the final value would likely be less than 2000 due to race conditions. This example illustrates the hardware-software interaction of threads, memory access, and synchronization primitives to achieve correct concurrent execution. The underlying architecture provides the thread management and memory access mechanisms, while the mutex provides the software-level synchronization.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:40:07.750575",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T16:10:18.860398",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1021-1021",
+      "extraction_date": "2025-07-29T16:10:18.565182",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.9014644026756287
+  }
+}

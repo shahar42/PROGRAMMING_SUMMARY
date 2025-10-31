@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism: Impact on Code Size and Speed",
+  "explanation": "Template metaprogramming allows for compile-time polymorphism, enabling the compiler to generate specialized code for different data types at compile time, eliminating runtime overhead associated with virtual functions. This significantly impacts code size and execution speed, especially in performance-critical applications.  The compiler's behavior revolves around recursive template instantiation and substitution, effectively creating different versions of functions or classes based on template arguments. This process happens before runtime and results in optimized machine code tailored to specific types.  Understanding the compiler's template instantiation mechanism, including potential recursion depth limits and the resulting increase in compile time, is crucial for effective use of this technique. Memory layout depends entirely on the instantiated types and their alignment requirements, meaning that different instantiations may have significantly different memory layouts. The impact on performance is highly beneficial due to the elimination of virtual function calls, but it necessitates careful consideration of the compile time and the potential increase in binary size due to code duplication.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:14:06.125164",
+    "book_metadata_added": "2025-10-28T20:22:06.847690"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T, typename U>\nstruct MultiplyOp {\n    static T execute(T a, U b) { return a * static_cast<T>(b); }\n};\n\n// Compiler generates distinct code paths for each type pairing (T, U)\nfloat f_res = MultiplyOp<float, int>::execute(3.5f, 2);\nint i_res = MultiplyOp<int, int>::execute(10, 5);\n\n// Optimization: Eliminates runtime dispatch mechanisms (Vtables).\n// Code size impact: Code bloat possible due to specialized instantiations."
+}

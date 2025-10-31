@@ -1,0 +1,15 @@
+{
+  "topic": "Signals",
+  "explanation": "Signals are a mechanism in UNIX systems for notifying processes of asynchronous events, such as keyboard interrupts or errors. In C programming, they are used to handle these events gracefully, allowing programs to respond without crashing or to perform cleanup operations.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "346-346",
+    "extraction_date": "2025-07-22T01:45:06.383075",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.971876"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "void basic_handler(int sig) {\n    if (sig == SIGINT) {\n        /* cleanup */\n    }\n}\n\n// Basic Handler Registration\nvoid register_sigint() {\n    signal(SIGINT, basic_handler);\n}\n\n// Reset signal action to default\nvoid reset_sigquit() {\n    signal(SIGQUIT, SIG_DFL);\n}\n\n// Ignore a signal\nvoid ignore_sighup() {\n    signal(SIGHUP, SIG_IGN);\n}\n// ---\n\nstruct sigaction sa;\n\nvoid robust_handler(int sig) { /* ... */ }\n\nvoid setup_sigterm_robust() {\n    // Zero out the structure\n    memset(&sa, 0, sizeof(sa));\n    \n    sa.sa_handler = robust_handler;\n    sigemptyset(&sa.sa_mask); // No signals blocked during execution\n    sa.sa_flags = SA_RESTART; // Restart syscalls\n    \n    // Install the handler for SIGTERM\n    sigaction(SIGTERM, &sa, NULL);\n}\n// ---\n\nsigset_t block_set, old_set;\n\nvoid critical_section() {\n    sigemptyset(&block_set);\n    sigaddset(&block_set, SIGUSR1);\n    \n    // Block SIGUSR1 (add to current mask)\n    sigprocmask(SIG_BLOCK, &block_set, &old_set);\n    \n    // Protected code here\n    \n    // Restore previous mask (unblock)\n    sigprocmask(SIG_SETMASK, &old_set, NULL);\n}\n// ---\n\npid_t target_pid = 1234;\nint error_check;\n\n// Send SIGKILL to another process\nerror_check = kill(target_pid, SIGKILL);\n\n// Send signal to self (same as kill(getpid(), SIGUSR2))\nerror_check = raise(SIGUSR2);\n\n// Pause execution until a signal arrives\npause();\n<ctrl63>",
+  "keywords": "signal.h, POSIX signals, C signal handling, asynchronous events"
+}

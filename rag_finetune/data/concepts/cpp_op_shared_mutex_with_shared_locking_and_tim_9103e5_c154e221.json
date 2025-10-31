@@ -1,0 +1,18 @@
+{
+  "topic": "Shared Mutex with Shared Locking and Timed Locking",
+  "explanation": "In modern C++, shared mutexes (such as std::shared_timed_mutex) enable multiple threads to acquire shared (read) access concurrently while ensuring exclusive (write) access is mutually exclusive. This allows for efficient read-heavy scenarios by permitting multiple readers simultaneously, while writers obtain exclusive access. The timed locking functions, like try_lock_shared_until, provide a way to attempt acquiring shared ownership with a timeout, enhancing control over thread synchronization and avoiding deadlocks in concurrent programming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1184-1184",
+    "extraction_date": "2025-08-19T09:49:59.295262",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.845606"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::shared_timed_mutex rw_mtx;\nint data = 0;\n\nvoid exclusive_write() {\n    std::unique_lock<std::shared_timed_mutex> lock(rw_mtx);\n    data = 10; // Exclusive access\n}\n\nvoid shared_read() {\n    std::shared_lock<std::shared_timed_mutex> lock(rw_mtx);\n    int val = data; // Concurrent shared access\n}\n\nbool timed_read() {\n    using namespace std::chrono;\n    if (rw_mtx.try_lock_shared_for(milliseconds(50))) {\n        rw_mtx.unlock_shared();\n        return true;\n    }\n    return false;\n}\n<ctrl63>",
+  "keywords": "Reader-Writer Lock, std::shared_mutex, Shared Locking, Timed Mutex"
+}

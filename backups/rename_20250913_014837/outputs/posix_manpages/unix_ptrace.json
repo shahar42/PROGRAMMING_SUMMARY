@@ -1,0 +1,65 @@
+{
+  "name": "ptrace",
+  "synopsis": [
+    "#include <sys/ptrace.h>",
+    "long ptrace(enum __ptrace_request op, pid_t pid, void *addr, void *data);"
+  ],
+  "description": "The ptrace() system call allows a parent process (the tracer) to observe and control the execution of another process (the tracee), including examining and modifying its memory and registers. It is primarily used for debugging, breakpoint implementation, and system call tracing.",
+  "parameters": [
+    {
+      "name": "op",
+      "type": "enum __ptrace_request",
+      "description": "The operation to be performed, such as PTRACE_TRACEME, PTRACE_ATTACH, or PTRACE_CONT."
+    },
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The process ID (thread ID) of the tracee to act upon."
+    },
+    {
+      "name": "addr",
+      "type": "void *",
+      "description": "Address in the tracee's memory space, used for operations like reading or writing data."
+    },
+    {
+      "name": "data",
+      "type": "void *",
+      "description": "Data for the operation, such as a value to set, options, or additional parameters."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the requested data or 0 on success, depending on the operation.",
+    "failure": "Returns -1 on error, and sets errno to indicate the error."
+  },
+  "errors": [
+    {
+      "code": "ESRCH",
+      "description": "No process with the given PID exists, or it is not traced by the caller."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid operation or arguments provided."
+    }
+  ],
+  "bugs": "Known bugs include races with concurrent SIGSTOP signals, issues with PTRACE_SETOPTIONS, and potential loss of signals during attach operations.",
+  "versions": "Linux-specific, with features introduced since Linux 2.4.6 and later versions for options like PTRACE_O_TRACEEXEC.",
+  "posix_compliance": null,
+  "examples": [
+    "ptrace(PTRACE_ATTACH, pid, 0, 0);",
+    "ptrace(PTRACE_TRACEME, 0, 0, 0); raise(SIGSTOP);"
+  ],
+  "related_calls": [
+    "fork",
+    "execve",
+    "waitpid",
+    "clone",
+    "tgkill"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ptrace.pdf",
+    "extraction_date": "2025-07-29T16:16:39.864484",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

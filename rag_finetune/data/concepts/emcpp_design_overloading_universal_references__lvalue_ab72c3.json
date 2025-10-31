@@ -1,0 +1,19 @@
+{
+  "topic": "Overloading Universal References: Lvalue Theft Conflict",
+  "category": "design",
+  "explanation": "A severe anti-pattern arises when mixing function overloads designed for specific types (especially those accepting `const T&` or `T&`) with an overload accepting a universal reference (`T&&`). Programmers often expect the most specific, non-templated overload to be chosen when an exact match is available. However, due to the rules governing template argument deduction and universal references, the universal reference overload is extremely 'greedy' and often 'steals' calls intended for the lvalue reference overloads. When an lvalue is passed to a set of functions including both a `const T&` overload and a universal reference overload, the universal reference (via template instantiation) can often be deemed a better or equally viable candidate. In many cases, the universal reference overload is considered a perfect match (an identity conversion, `T&&` deducing to `Type&`), which is prioritized over binding a non-const lvalue to a `const` reference, or potentially preferred over a non-template function that takes an lvalue reference to a base class. This failure in overload resolution leads to two major issues: first, the intended semantics of the specific overload are bypassed, leading to incorrect behavior; and second, if the universal reference overload is improperly implemented (e.g., using `std::move` instead of `std::forward` or simply mismanaging the parameters), it can accidentally treat the passed lvalue as an rvalue, modifying or invalidating an object the caller still expects to use. The primary failure is introducing ambiguity or unintended resolution paths by failing to recognize the high precedence and template nature of the universal reference.",
+  "code_example": "class Widget {};\ntemplate<typename T> void process(T&& arg); // Universal Ref (greedy)\nvoid process(Widget& arg); // Specific lvalue overload\n\nWidget w;\nprocess(w); // Overload resolution might unexpectedly pick the template (T&&) based on type deduction rules, stealing the call.",
+  "practical_example": "A logging system defines overloads for different message types (`log(const std::string&)`, `log(int)`). Introducing a generic forwarding overload `log(T&&)` meant to handle temporaries unexpectedly broke existing code by redirecting lvalue string inputs to the generic template, bypassing crucial pre-processing logic implemented only in the `const std::string&` overload.",
+  "keywords": [
+    "overload resolution",
+    "universal reference",
+    "template greediness",
+    "lvalue theft",
+    "SFINAE"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "195-197",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_overloading_universal_references__lvalue_ab72c3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

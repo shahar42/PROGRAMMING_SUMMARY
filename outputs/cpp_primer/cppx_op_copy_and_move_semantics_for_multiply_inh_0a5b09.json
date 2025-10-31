@@ -1,48 +1,12 @@
 {
   "topic": "Copy and Move Semantics for Multiply Inherited Classes",
   "explanation": "When a class inherits from multiple base classes, understanding how copy, move, and assignment operations behave is crucial.  The default synthesized versions of these operations (copy constructor, move constructor, copy assignment, move assignment, destructor) will recursively handle the base classes.  However, if you define any of these operations yourself in the derived class, the compiler will *not* automatically handle the base classes; you must explicitly manage them to prevent errors and ensure correct resource management.",
-  "syntax": "Defining custom copy/move operations in a multiply inherited class requires explicitly calling the base class constructors/assignment operators using the member initializer list (for constructors) and assignment operator within the body (for assignment operators).  Failure to do so leads to undefined behavior or resource leaks.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "class Base1 {",
-    "public:",
-    "  std::string data1;",
-    "  Base1(const std::string& d) : data1(d) { std::cout << \"Base1 constructor called\\n\"; }",
-    "  Base1(Base1&& other) noexcept : data1(std::move(other.data1)) { std::cout << \"Base1 move constructor called\\n\"; }",
-    "  Base1& operator=(Base1&& other) noexcept { data1 = std::move(other.data1); std::cout << \"Base1 move assignment called\\n\"; return *this; }",
-    "  ~Base1() { std::cout << \"Base1 destructor called\\n\"; }",
-    "};",
-    "class Base2 {",
-    "public:",
-    "  std::string data2;",
-    "  Base2(const std::string& d) : data2(d) { std::cout << \"Base2 constructor called\\n\"; }",
-    "  Base2(Base2&& other) noexcept : data2(std::move(other.data2)) { std::cout << \"Base2 move constructor called\\n\"; }",
-    "  Base2& operator=(Base2&& other) noexcept { data2 = std::move(other.data2); std::cout << \"Base2 move assignment called\\n\"; return *this; }",
-    "  ~Base2() { std::cout << \"Base2 destructor called\\n\"; }",
-    "};",
-    "class Derived : public Base1, public Base2 {",
-    "public:",
-    "  Derived(const std::string& d1, const std::string& d2) : Base1(d1), Base2(d2) { std::cout << \"Derived constructor called\\n\"; }",
-    "  Derived(Derived&& other) noexcept : Base1(std::move(other)), Base2(std::move(other)) { std::cout << \"Derived move constructor called\\n\"; }",
-    "  Derived& operator=(Derived&& other) noexcept {",
-    "    Base1::operator=(std::move(other));",
-    "    Base2::operator=(std::move(other));",
-    "    std::cout << \"Derived move assignment called\\n\";",
-    "    return *this; }",
-    "  ~Derived() { std::cout << \"Derived destructor called\\n\";}",
-    "};",
-    "int main() {",
-    "  Derived d1(\"hello\", \"world\");",
-    "  Derived d2 = std::move(d1);",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates correct implementation of move semantics for a multiply inherited class.  Notice how the derived class's move constructor and move assignment operator explicitly call the corresponding operations in each base class using `std::move`.  This ensures proper resource transfer.  Failure to do so would lead to double-deletion or memory leaks when the object goes out of scope.  The output clearly shows the correct sequence of constructor and destructor calls, demonstrating the correct handling of resources throughout the object's lifecycle.  If the move operations in `Derived` were omitted, only the base class destructors would be called, potentially leading to memory leaks in `Base1` and `Base2`.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "classes",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T07:38:18.920309"
-  }
+    "extraction_date": "2025-08-20T07:38:18.920309",
+    "book_metadata_added": "2025-10-28T20:22:06.560678"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

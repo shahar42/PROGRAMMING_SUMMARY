@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time vs. Runtime Function Evaluation with constexpr and References",
+  "explanation": "This example explores the subtle interaction between `constexpr`, references, and function overloading, highlighting how the compiler chooses between compile-time and runtime evaluation and the resulting memory layout and performance implications.  The key lies in the compiler's ability to determine, at compile time, whether a function call can be evaluated during compilation. This decision heavily influences whether the function's return value is computed and stored in memory at compile time or at runtime, affecting both the program's size and speed.  The use of references adds another layer of complexity, as the compiler must manage the lifetime and addressability of the returned reference in both scenarios.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:04:48.905941",
+    "book_metadata_added": "2025-10-28T20:22:06.925601"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "constexpr int compute(const int& val) { return val + 1; }\n\n// Context 1: Compile-Time Evaluation (Reference target is constexpr)\nconstexpr int Base_CT = 10;\nconstexpr const int& Ref_CT = Base_CT;\nconstexpr int Result_CT = compute(Ref_CT); // Fully CT\n\n// Context 2: Runtime Evaluation (Reference target is not constexpr)\nint Base_RT = 20;\nconst int& Ref_RT = Base_RT;\n// Result is computed at runtime, even though compute is constexpr\nconst int Result_RT = compute(Ref_RT);\n// (Result_RT cannot be marked constexpr because Ref_RT is not)",
+  "keywords": "constexpr references, Compile-time evaluation, C++ constant expression optimization"
+}

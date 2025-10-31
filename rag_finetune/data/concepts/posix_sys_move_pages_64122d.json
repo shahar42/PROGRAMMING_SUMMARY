@@ -1,0 +1,16 @@
+{
+  "topic": "move_pages() System Call",
+  "explanation": "move_pages moves individual pages of a specified process to another NUMA node. The result of the move is reflected in a status array, and flags control the constraints on the pages to be moved.\n\n**Parameters:**\n- `pid` (int): The ID of the process in which pages are to be moved; 0 for the calling process.\n- `count` (unsigned long): The number of pages to move, defining the size of the pages, nodes, and status arrays.\n- `pages` (void *pages[.count]): An array of pointers to the pages that should be moved, aligned to page boundaries.\n- `nodes` (const int nodes[.count]): An array of integers specifying the desired node for each page; can be NULL to get current node status.\n- `status` (int status[.count]): An array that returns the status of each page after the operation.\n- `flags` (int): Flags specifying the types of pages to move, such as MPOL_MF_MOVE or MPOL_MF_MOVE_ALL.\n\n**Common Errors:**\n- `E2BIG`: Too many pages to move.\n- `EACCES`: One of the target nodes is not allowed by the current cpuset.\n- `EFAULT`: Parameter array could not be accessed.\n- `EINVAL`: Invalid flags specified or attempt to migrate pages of a kernel thread.\n- `ENODEV`: One of the target nodes is not online.\n\n**Related System Calls:** `get_mempolicy()`, `mbind()`, `set_mempolicy()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.074269",
+    "syscall_name": "move_pages",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_move_pages.json",
+    "concept_id": "posix_sys_move_pages_64122d",
+    "book_metadata_added": "2025-10-28T20:22:06.628517"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define PAGE_COUNT 4\n#define MP_FLAGS 0 // e.g., MPOL_MF_MOVE_ALL\n\npid_t target_pid = 0;\nunsigned long count = PAGE_COUNT;\n\n// Array of page pointers (must be page aligned)\nvoid *pages[PAGE_COUNT]; \n\n// Array of target NUMA nodes for each page\nint target_nodes[PAGE_COUNT] = {1, 1, 2, 2};\n\n// Output: status of the move attempt for each page\nint page_status[PAGE_COUNT]; \n\nlong result = move_pages(\n    target_pid,\n    count,\n    pages,\n    target_nodes,\n    page_status,\n    MP_FLAGS\n);\n\n// Examine page_status for results (e.g., MRT_MIGRATED)",
+  "keywords": "move_pages, NUMA page migration, memory affinity control"
+}

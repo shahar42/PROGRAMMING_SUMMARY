@@ -1,0 +1,16 @@
+{
+  "topic": "renameat2() System Call",
+  "explanation": "renameat2() renames a file or directory, similar to renameat(), but allows additional flags to control the operation, such as exchanging files or creating whiteouts. It operates atomically and supports features like RENAME_NOREPLACE to avoid overwriting existing files.\n\n**Parameters:**\n- `olddirfd` (int): File descriptor for the directory containing oldpath, or AT_FDCWD for current working directory\n- `oldpath` (const char *): Path to the file or directory to rename\n- `newdirfd` (int): File descriptor for the directory containing newpath, or AT_FDCWD for current working directory\n- `newpath` (const char *): New path for the file or directory\n- `flags` (unsigned int): Flags to modify the rename behavior, such as RENAME_NOREPLACE, RENAME_EXCHANGE, or RENAME_WHITEOUT\n\n**Common Errors:**\n- `EACCES`: Write permission is denied for the directory containing oldpath or newpath\n- `EBUSY`: oldpath or newpath is a directory in use by some process or the system\n- `EDQUOT`: User's quota of disk blocks has been exhausted\n- `EFAULT`: oldpath or newpath points outside accessible address space\n- `EINVAL`: Invalid flag specified in flags, or incompatible flags used",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.216545",
+    "syscall_name": "renameat2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_renameat2.json",
+    "concept_id": "posix_sys_renameat2_b996eb",
+    "book_metadata_added": "2025-10-28T20:22:06.650687"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Function signature essence\nint renameat2(int olddfd, const char *oldp,\n              int newdfd, const char *newp,\n              unsigned int flags);\n\n// Standard constants (Requires headers like <fcntl.h>, <linux/fs.h>)\n#define AT_FDCWD          (-100)\n#define RENAME_NOREPLACE  1\n#define RENAME_EXCHANGE   2\n\nconst char* file_a = \"data.old\";\nconst char* file_b = \"data.new\";\n\n// Example 1: Atomically exchange file A and file B\nint status = renameat2(AT_FDCWD, file_a,\n                       AT_FDCWD, file_b,\n                       RENAME_EXCHANGE);\n\n// Example 2: Rename, but fail if target exists\nstatus = renameat2(AT_FDCWD, \"tmp.file\",\n                   AT_FDCWD, \"final.file\",\n                   RENAME_NOREPLACE);\n<ctrl63>",
+  "keywords": "renameat2, atomic file rename, Linux rename flags"
+}

@@ -1,0 +1,79 @@
+{
+  "name": "arm_sync_file_range",
+  "synopsis": [
+    "#define _GNU_SOURCE",
+    "#define _FILE_OFFSET_BITS 64",
+    "#include <fcntl.h>",
+    "int arm_sync_file_range(int fd, off_t offset, off_t nbytes, unsigned int flags);"
+  ],
+  "description": "arm_sync_file_range() provides fine control for synchronizing a specified range of an open file with disk on ARM architectures. It synchronizes the range starting from offset for nbytes bytes, with behavior controlled by flags. This call is architecture-specific and should be used cautiously due to potential data integrity risks.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the open file to synchronize."
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "Starting byte of the file range to synchronize; rounded down to a page boundary."
+    },
+    {
+      "name": "nbytes",
+      "type": "off_t",
+      "description": "Length of the range to synchronize; if zero, synchronizes from offset to the end of the file."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Bit-mask of flags, such as SYNC_FILE_RANGE_WAIT_BEFORE, SYNC_FILE_RANGE_WRITE, or SYNC_FILE_RANGE_WAIT_AFTER, to control the synchronization behavior."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid file descriptor."
+    },
+    {
+      "code": "EINVAL",
+      "description": "flags specifies an invalid bit; or offset or nbytes is invalid."
+    },
+    {
+      "code": "EIO",
+      "description": "I/O error."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "Out of disk space."
+    },
+    {
+      "code": "ESPIPE",
+      "description": "fd refers to something other than a regular file, a block device, or a directory."
+    }
+  ],
+  "bugs": "This system call is extremely dangerous and should not be used in portable programs, as it does not write out file metadata, may not ensure data integrity after a crash, and does not flush disk write caches.",
+  "versions": "Linux 2.6.20",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "fdatasync",
+    "fsync",
+    "msync",
+    "sync"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "arm_sync_file_range.pdf",
+    "extraction_date": "2025-07-26T00:06:26.123694",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "The Rule of Three in C++ Classes",
+  "explanation": "The Rule of Three is a fundamental C++ guideline that states if a class defines any of the destructor, copy constructor, or copy assignment operator, it should probably define all three to ensure proper resource management. This concept arises in scenarios where a class manages resources like dynamic memory, file handles, or other non-trivial objects. In real-world programming, failing to follow this rule can lead to issues like shallow copies (where pointers are copied instead of the data they point to), resulting in double deletion or memory leaks. Best practices include: always consider resource ownership, use smart pointers (e.g., std::unique_ptr or std::shared_ptr) in modern C++ to automate management, and prefer the Rule of Five in C++11+ which includes move operations. Common pitfalls include assuming compiler-generated defaults are sufficient for classes with pointers, which can cause undefined behavior; avoid this by explicitly defining these operations when necessary.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:20:30.580383",
+    "book_metadata_added": "2025-10-28T20:22:06.573047"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ResourceHolder {\n    int* data;\n    size_t count;\n\n    ResourceHolder(size_t c) : count(c), data(new int[c]) {}\n\n    // 1. Destructor (Delete owned resource)\n    ~ResourceHolder() { delete[] data; }\n\n    // 2. Copy Constructor (Deep copy required)\n    ResourceHolder(const ResourceHolder& other)\n      : count(other.count), data(new int[other.count]) {\n        for (size_t i = 0; i < count; ++i) data[i] = other.data[i];\n    }\n\n    // 3. Copy Assignment (Handle self-assignment, reallocate)\n    ResourceHolder& operator=(const ResourceHolder& other) {\n        if (this == &other) return *this;\n        delete[] data;\n        count = other.count;\n        data = new int[count];\n        for (size_t i = 0; i < count; ++i) data[i] = other.data[i];\n        return *this;\n    }\n};",
+  "keywords": "Rule of Three, Rule of Five, copy control members, C++ shallow copy"
+}

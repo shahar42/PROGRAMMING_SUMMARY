@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Array Access with std::get and Template Metaprogramming",
+  "explanation": "The concept revolves around the implementation of std::get for std::array, which leverages C++ template metaprogramming to enable compile-time array element access. The compiler instantiates the template <size_t I, class T, size_t N> constexpr T& get(array<T, N>& arr) noexcept; by substituting the template parameters at compile time. This results in a specialized function for each unique combination of I, T, and N, allowing for static checks like bounds validation (e.g., ensuring I < N) to occur during compilation, preventing runtime errors. Under the hood, the compiler optimizes this by generating code that directly accesses the array element via pointer arithmetic or offset calculation, as std::array is a thin wrapper around a fixed-size array. Memory layout-wise, std::array<T, N> is typically contiguous in memory, identical to a C-style array, which means no additional overhead for indirection; the get function simply returns a reference to arr[I]. Performance implications are minimal, with O(1) access time, as the compiler can inline the access and eliminate bounds checks in release builds if I is a constant expression. At the assembly level, this translates to instructions like 'mov' for loading the element from memory (e.g., [rdi + I * sizeof(T)] on x86-64), with potential for further optimization like dead code elimination if the result is used in a constexpr context. Runtime behavior is rare for this function since it's designed for compile-time evaluation; if I is not a constant, it falls back to runtime execution, but in practice, it's used with constexpr indices for maximum efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:54:07.985602",
+    "book_metadata_added": "2025-10-28T20:22:06.807327"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// std::get Template Signature (Concept)\ntemplate <size_t I, class T, size_t N>\nconstexpr T& get(std::array<T, N>& arr) noexcept;\n\n// std::array initialization\nstd::array<long, 3> dimensions = {100L, 200L, 300L};\n\n// Compile-time instantiation (I=1, T=long, N=3)\nconstexpr long width = std::get<1>(dimensions);\n\n// The compiler performs bounds checking (I < N) statically:\n// std::get<5>(dimensions); // ERROR: Compile-time validation failure"
+}

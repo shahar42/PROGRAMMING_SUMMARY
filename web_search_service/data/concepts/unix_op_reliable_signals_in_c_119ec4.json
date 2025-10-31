@@ -1,0 +1,15 @@
+{
+  "topic": "Reliable Signals in C",
+  "explanation": "Reliable signals in C refer to a mechanism for handling asynchronous events, such as interrupts or errors, in a way that ensures signals are not lost or duplicated. They are used to improve the robustness of programs by providing more control over signal delivery and handling compared to basic signal functions, which can lead to unreliable behavior in multi-threaded or concurrent environments. This concept is essential for writing safe system-level code that responds predictably to external events.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "16-16",
+    "extraction_date": "2025-07-13T00:33:24.850339",
+    "has_code": false,
+    "has_explanation": false,
+    "book_metadata_added": "2025-10-28T20:22:06.957281"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "void reliable_handler(int sig, siginfo_t *info, void *ucontext) {\n    if (sig == SIGTERM) { /* Use only async-safe functions */ }\n}\n\nstruct sigaction sa;\nsigemptyset(&sa.sa_mask);\n\n// SA_SIGINFO requires sa_sigaction handler type\nsa.sa_sigaction = reliable_handler;\n\n// SA_RESTART attempts to restart interrupted syscalls\n// SA_NOCLDSTOP prevents signals when child stops/continues\nsa.sa_flags = SA_RESTART | SA_SIGINFO;\n\n// Install the reliable signal handler\nsigaction(SIGTERM, &sa, NULL);\n\n\nsigset_t block_set;\nsigset_t old_set;\n\n// 1. Initialize the mask\nsigemptyset(&block_set);\nsigaddset(&block_set, SIGINT);\nsigaddset(&block_set, SIGQUIT);\n\n// 2. Block signals (Critical Section START)\n// SIG_BLOCK adds signals in 'block_set' to the current mask\nsigprocmask(SIG_BLOCK, &block_set, &old_set);\n\n/* Access global/shared resources safely here */\n\n// 3. Unblock signals (Critical Section END)\n// SIG_SETMASK restores the previous mask ('old_set')\nsigprocmask(SIG_SETMASK, &old_set, NULL);",
+  "keywords": "sigaction, POSIX signals, reliable signal handling"
+}

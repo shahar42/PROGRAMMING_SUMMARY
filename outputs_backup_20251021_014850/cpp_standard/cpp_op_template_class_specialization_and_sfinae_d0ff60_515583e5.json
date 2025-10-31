@@ -1,0 +1,17 @@
+{
+  "topic": "Template Class Specialization and SFINAE for Type Traits",
+  "explanation": "In modern C++, template specialization and SFINAE (Substitution Failure Is Not An Error) are powerful techniques that enable compile-time type introspection and conditional compilation. They allow developers to write generic code that adapts to different types or conditions, improving code flexibility, safety, and efficiency. These features are essential for creating highly generic libraries, such as the Standard Template Library (STL), and for implementing type traits, enable_if conditions, and optimized algorithms.",
+  "syntax": "template <typename T>\nstruct TypeTrait {\n    static constexpr bool value = false;\n};\ntemplate <typename T>\nstruct TypeTrait<int> {\n    static constexpr bool value = true;\n};\n\n// SFINAE example with enable_if\n\ntemplate <typename T>\ntypename std::enable_if<TypeTrait<T>::value, void>::type\nfoo(T t) {\n    // Implementation for types where TypeTrait<T>::value == true\n}\n\n// Specialization for specific types\n\ntemplate <typename T>\nstruct MyClass {\n    // General template\n};\ntemplate <>\nstruct MyClass<int> {\n    // Specialization for int\n};",
+  "code_example": "#include <type_traits>\n#include <iostream>\n\ntemplate <typename T>\nstruct IsInteger {\n    static constexpr bool value = false;\n};\ntemplate <>\nstruct IsInteger<int> {\n    static constexpr bool value = true;\n};\n\ntemplate <typename T>\ntypename std::enable_if<IsInteger<T>::value, void>::type\nprocess(T t) {\n    std::cout << t << \" is an integer type.\" << std::endl;\n}\n\ntemplate <typename T>\ntypename std::enable_if<!IsInteger<T>::value, void>::type\nprocess(T t) {\n    std::cout << t << \" is not an integer type.\" << std::endl;\n}\n\nint main() {\n    process(42);        // Calls the integer version\n    process(3.14);      // Calls the non-integer version\n    process(\"hello\"); // Calls the non-integer version\n    return 0;\n}",
+  "example_explanation": "This example defines a type trait 'IsInteger' to determine if a type is an integer. It then uses SFINAE with 'std::enable_if' to conditionally compile different 'process' function overloads depending on whether the type is an integer. In 'main', calling 'process' with different types demonstrates how template specialization and SFINAE enable compile-time selection of appropriate function implementations based on type traits, exemplifying advanced template programming techniques in modern C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "818-818",
+    "extraction_date": "2025-08-19T07:12:48.018591",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "library",
+    "extraction_type": "expert_level"
+  }
+}

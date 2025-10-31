@@ -1,0 +1,16 @@
+{
+  "topic": "Modern C++ Smart Pointers",
+  "explanation": "Modern C++ introduces smart pointers as a safer and more expressive alternative to raw pointers for resource management. They automate memory management through RAII (Resource Acquisition Is Initialization), ensuring proper deallocation and preventing common issues like memory leaks and dangling pointers. Smart pointers such as std::unique_ptr, std::shared_ptr, and std::weak_ptr enable clear ownership semantics and facilitate exception-safe code, making resource management explicit and less error-prone in C++ programming.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "422-424",
+    "extraction_date": "2025-08-19T04:17:07.389777",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.895872"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Resource {};\n// Preferred creation method\nstd::unique_ptr<Resource> p1 = std::make_unique<Resource>();\n\n// Access via -> or *\np1->method();\n\n// Transfer ownership via move\nstd::unique_ptr<Resource> p2 = std::move(p1);\n\n// p1 is now nullptr\nif (!p1) {}\n\n// Custom deleter (lambda)\nauto custom_del = [](Resource* r) { delete r; };\nstd::unique_ptr<Resource, decltype(custom_del)> p3(new Resource(), custom_del);\n\n// ----------------------------------------\n\nstruct Task {};\n// Creation\nstd::shared_ptr<Task> s1 = std::make_shared<Task>();\n\n// Copying is allowed (reference count +1)\nstd::shared_ptr<Task> s2 = s1;\n\n// Current reference count\nlong count = s1.use_count(); // count == 2\n\n// Resource deleted when count reaches zero\ns1.reset(); // count == 1\n\n// ----------------------------------------\n\nauto s_owner = std::make_shared<int>(42);\n\n// Create non-owning reference\nstd::weak_ptr<int> w_ref = s_owner;\n\n// Check validity and acquire temporary ownership\nif (auto s_locked = w_ref.lock()) {\n    // Use s_locked\n    int val = *s_locked;\n}\n\ns_owner.reset(); // Resource deleted\n\nif (w_ref.expired()) {\n    // Cannot lock, resource gone\n}",
+  "keywords": "unique_ptr shared_ptr, C++ smart pointers, RAII C++, std::weak_ptr"
+}

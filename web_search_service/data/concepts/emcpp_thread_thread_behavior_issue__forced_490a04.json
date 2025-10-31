@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Behavior/Issue: Forced `join` on Destruction Can Lead to Program Hangs",
+  "category": "thread",
+  "explanation": "Assumption: Implementing RAII for `std::thread` by forcing a `join` in the destructor is the safest way to guarantee thread completion. Reality: While `join` ensures termination, if the thread being joined is currently blocked, waiting on a resource, or deadlocked, the thread performing the RAII destruction (often the main thread or a stack unwinding thread) will hang indefinitely. Why It Fails: The synchronous nature of `join` means the program cannot proceed until the thread finishes. If the thread is destroyed during exception handling or scope exit, this can lead to a catastrophic program halt, which is worse than the potential performance anomalies associated with `detach`.",
+  "code_example": "class ThreadRAII {\n  // ... ensures join() in destructor ...\n};\n// If the thread 't' is blocked on a mutex here, \n// the destructor call will cause the program to hang.",
+  "practical_example": "A RAII wrapper for a thread is destroyed during stack unwinding caused by an exception. The thread holds a lock needed by the unwinding code. The destructor attempts to `join`, resulting in an unrecoverable deadlock.",
+  "keywords": [
+    "ThreadRAII",
+    "join",
+    "deadlock",
+    "program termination",
+    "synchronous wait"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "256",
+  "chapter": "Item 37",
+  "id": "emcpp_thread_thread_behavior_issue__forced_490a04",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

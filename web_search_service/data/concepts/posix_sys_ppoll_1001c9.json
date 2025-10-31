@@ -1,0 +1,16 @@
+{
+  "topic": "ppoll() System Call",
+  "explanation": "ppoll() waits for one of a set of file descriptors to become ready for I/O operations, similar to poll(), while allowing safe signal handling through a signal mask. It provides a more precise timeout using a timespec structure.\n\n**Parameters:**\n- `fds` (struct pollfd *): Array of structures specifying the file descriptors to monitor for events\n- `nfds` (nfds_t): Number of items in the fds array\n- `tmo_p` (const struct timespec *_Nullable): Pointer to a timespec structure specifying the timeout, or NULL for indefinite blocking\n- `sigmask` (const sigset_t *_Nullable): Pointer to a signal set for temporarily modifying the signal mask, or NULL for no change\n\n**Common Errors:**\n- `EFAULT`: fds points outside the process’s accessible address space\n- `EINTR`: A signal occurred before any requested event\n- `EINVAL`: The nfds value exceeds the RLIMIT_NOFILE value\n- `EINVAL`: The timeout value expressed in *tmo_p is invalid (negative)\n- `ENOMEM`: Unable to allocate memory for kernel data structures\n\n**Related System Calls:** `poll()`, `select()`, `pselect()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.192080",
+    "syscall_name": "ppoll",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ppoll.json",
+    "concept_id": "posix_sys_ppoll_1001c9",
+    "book_metadata_added": "2025-10-28T20:22:06.619038"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct pollfd pfd = { .fd = 0, .events = POLLIN };\nstruct timespec tmo = { .tv_sec = 2, .tv_nsec = 0 };\nsigset_t block_mask;\nint ready_fds;\n\nsigemptyset(&block_mask);\nsigaddset(&block_mask, SIGINT);\nsigaddset(&block_mask, SIGQUIT);\n\nready_fds = ppoll(\n    &pfd,               // Array of pollfd structures\n    1,                  // Number of FDs\n    &tmo,               // Timespec timeout\n    &block_mask         // Signal mask to apply\n);\n\nif (ready_fds > 0) {\n    if (pfd.revents & POLLIN) { /* Data available */ }\n}\n<ctrl63>",
+  "keywords": "ppoll, poll signal mask, poll timespec, safe signal handling"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Signal Handling in C Programs",
+  "explanation": "Signal handling in C allows a program to respond to asynchronous events, such as interrupts or errors.  This is crucial for robust program design, enabling graceful handling of unexpected situations instead of abrupt termination.  The operating system sends signals to a process to indicate events like invalid memory access or user interrupts (e.g., Ctrl+C).  By defining signal handlers, a program can choose how to react to these signals rather than simply crashing.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "211-211",
+    "extraction_date": "2025-07-21T10:43:55.592000",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "c_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.772185"
+  },
+  "book": "The C Programming Language - Kernighan & Ritchie",
+  "code_example": "void handler(int signum) {\n    // Only use async-safe functions!\n    // Set a global volatile sig_atomic_t flag\n    if (signum == SIGINT) { /* cleanup flag = 1 */ }\n}\n\n// Legacy function: volatile, non-portable\nsignal(SIGINT, handler);\n\n// Ignore the signal\nsignal(SIGHUP, SIG_IGN);\n\n// Default behavior (usually termination)\nsignal(SIGSEGV, SIG_DFL);\nsig_atomic_t flag = 0;\n// ---\n\nstruct sigaction sa;\n\nvoid sa_handler(int sig, siginfo_t *info, void *ucontext) {\n    // Use sa_sigaction instead of sa_handler for robust handling\n}\n\n// 1. Setup the structure\nsa.sa_flags = SA_RESTART | SA_SIGINFO;\nsa.sa_sigaction = sa_handler;\nsigemptyset(&sa.sa_mask);\nsigaddset(&sa.sa_mask, SIGTERM); // Block SIGTERM during handling\n\n// 2. Apply the action\nsigaction(SIGUSR1, &sa, NULL);\n// ---\n\nsigset_t set, oldset;\n\n// Initialize set to block SIGQUIT\nsigemptyset(&set);\nsigaddset(&set, SIGQUIT);\n\n// Temporarily block (mask) SIGQUIT\nsigprocmask(SIG_BLOCK, &set, &oldset);\n\n// Critical section...\n\n// Restore original signal mask (unblock)\nsigprocmask(SIG_SETMASK, &oldset, NULL);",
+  "keywords": "signal handling, C signals, sigaction, catch signal C"
+}

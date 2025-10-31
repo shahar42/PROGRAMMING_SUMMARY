@@ -1,0 +1,14 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) and the Rule of Five",
+  "explanation": "RAII is a fundamental C++ programming technique that tightly couples resource management with object lifetime.  It ensures that resources (like dynamically allocated memory, files, network connections, etc.) are automatically acquired when an object is created and released when the object is destroyed, even in the face of exceptions.  The Rule of Five dictates that if you define any of the special member functions (copy constructor, copy assignment operator, move constructor, move assignment operator, or destructor), you should explicitly define *all* of them to prevent subtle bugs and resource leaks.  Failing to do so can lead to double deletion, memory leaks, or other undefined behavior.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:13:33.326547",
+    "book_metadata_added": "2025-10-28T20:22:06.564772"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class ManualResource {\n    int* data;\npublic:\n    ManualResource(int v) : data(new int(v)) {}  // 1. Acquisition\n    ~ManualResource() { delete data; }           // 2. Release (RAII core)\n\n    // === Rule of Five (needed because destructor defined) ===\n    \n    // 3. Copy Constructor (Deep copy required)\n    ManualResource(const ManualResource& other)\n        : data(new int(*other.data)) {}\n\n    // 4. Move Constructor (Transfer ownership)\n    ManualResource(ManualResource&& other) noexcept\n        : data(std::exchange(other.data, nullptr)) {}\n\n    // 5. Copy Assignment Operator (Idiomatic implementation uses copy/swap)\n    ManualResource& operator=(const ManualResource& other) { /* ... */ return *this; }\n    \n    // (Move Assignment also required)\n};\n<ctrl63>",
+  "keywords": "RAII, Rule of Five, C++ resource management"
+}

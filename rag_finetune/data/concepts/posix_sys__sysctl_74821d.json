@@ -1,0 +1,16 @@
+{
+  "topic": "_sysctl() System Call",
+  "explanation": "The _sysctl() system call reads and writes kernel parameters using a structured argument. It searches a tree of system variables and invokes routines to access or modify them. However, this call is deprecated and has been removed in recent kernels.\n\n**Parameters:**\n- `args` (struct __sysctl_args *): Pointer to a structure containing the parameters: int *name (vector describing the variable), int nlen (length of the vector), void *oldval (address to store old value or 0), size_t *oldlenp (available room for old value), void *newval (address of new value or 0), and size_t newlen (size of new value)\n\n**Common Errors:**\n- `EACCES`: No search permission for one of the encountered directories, or no read permission where oldval was nonzero, or no write permission where newval was nonzero\n- `EPERM`: No search permission for one of the encountered directories, or no read permission where oldval was nonzero, or no write permission where newval was nonzero\n- `EFAULT`: The invocation asked for the previous value by setting oldval non-NULL, but allowed zero room in oldlenp\n- `ENOTDIR`: The specified name was not found",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.123477",
+    "syscall_name": "_sysctl",
+    "converted_from": "posix_manpage",
+    "original_file": "unix__sysctl.json",
+    "concept_id": "posix_sys__sysctl_74821d",
+    "book_metadata_added": "2025-10-28T20:22:06.583308"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct __sysctl_args {\n    int *name;\n    int nlen;\n    void *oldval;\n    size_t *oldlenp;\n    void *newval;\n    size_t newlen;\n};\n\nint cpu_temp_mib[] = {CTL_HW, HW_SENSOR_TEMP};\nsize_t len = sizeof(int);\nint result;\n\nstruct __sysctl_args arg_data = {\n    .name = cpu_temp_mib,\n    .nlen = 2,\n    .oldval = &result,\n    .oldlenp = &len,\n    .newval = NULL,\n    .newlen = 0\n};\n\n// Deprecated: Reads kernel variable\nint status = _sysctl(&arg_data);\n<ctrl63>",
+  "keywords": "_sysctl, sysctl system call, __sysctl_args, kernel parameters"
+}

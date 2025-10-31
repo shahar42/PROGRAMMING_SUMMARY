@@ -1,0 +1,13 @@
+{
+  "topic": "Move Operations [Limitation/Failure] on Lvalue Parameters",
+  "category": "move",
+  "explanation": "Assumption: If a function receives an rvalue reference parameter, that parameter inherently maintains its rvalue status throughout the function body and should be moved implicitly or explicitly without complex boilerplate. Reality: All named parameters within a function are treated as lvalues, regardless of whether their declared type is an rvalue reference (`T&&`). Why It Fails: C++ enforces this rule primarily for safety and predictability. If a parameter named `w` (even if declared as `Widget&& w`) were treated as an rvalue, subsequent uses of `w` within the function would consume its resources, leading to unpredictable or dangerous use-after-move scenarios if the programmer intended to use `w` later in the same function. Consequently, attempting to pass `w` to another function (e.g., a constructor) without explicitly casting it via `std::move(w)` will invoke a copy operation, not a move operation, failing the goal of resource transfer. The programmer must remember that the rvalue-ness is only a property of the *expression* that called the function, not the *name* within the function scope.",
+  "code_example": "// Failure to forward the move intent\nvoid f(Widget&& w) { \n  // w is an lvalue here, despite the type\n  process(w); // Calls copy constructor\n  process(std::move(w)); // Correctly calls move constructor\n}",
+  "practical_example": "Implementing a move constructor for a complex class that correctly handles its own members but forgets to cast the base class reference (`Base&&`) to an rvalue via `std::move` when calling the base class move constructor, resulting in an unexpected and expensive base class copy.",
+  "keywords": "T&& is lvalue, named rvalue lvalue, rvalue reference parameter lvalue, lvalue conversion rvalue reference",
+  "difficulty": "intermediate",
+  "page_reference": "178-180",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_move_move_operations__limitation_failure_d1e2cf",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "setuid32() System Call",
+  "explanation": "setuid32 sets the user ID for the calling process, supporting 32-bit IDs as an extension in Linux kernels. It is used to change the effective user ID, and if privileged, also affects real and saved user IDs. This call is handled transparently by glibc wrappers.\n\n**Parameters:**\n- `uid` (uid_t): The user ID to set for the process\n\n**Common Errors:**\n- `EAGAIN`: The call would change the caller’s real UID, but there was a temporary failure allocating kernel data structures, or it would exceed the RLIMIT_NPROC resource limit\n- `EINVAL`: The user ID specified in uid is not valid in this user namespace\n- `EPERM`: The user is not privileged and uid does not match the real UID or saved set-user-ID of the calling process\n\n**Related System Calls:** `getuid()`, `seteuid()`, `setfsuid()`, `setreuid()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.155086",
+    "syscall_name": "setuid32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setuid32.json",
+    "concept_id": "posix_sys_setuid32_533278",
+    "book_metadata_added": "2025-10-28T20:22:06.647063"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "uid_t target = 1000; // Unprivileged user ID\nint result;\n\n// Attempt to set Real, Effective, and Saved UIDs\nresult = setuid(target);\n\nif (result == -1) {\n    // Check for EPERM (not root, no capabilities)\n    // Check for EAGAIN (resource failure during change)\n    return -1;\n}\n\n// Success: Process identity changed fully",
+  "keywords": "setuid32, setuid, change process UID, 32-bit UID linux"
+}

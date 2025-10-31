@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Requirement: Move-Only Construction for Wrappers",
+  "category": "thread",
+  "explanation": "Since `std::thread` objects are resource handles that are non-copyable, they must be treated as move-only types. When constructing an RAII wrapper or container around a `std::thread`, the wrapper\u2019s constructor must accept the thread object as an rvalue reference (`std::thread&&`) and use `std::move` in the member initialization list to transfer ownership safely. Why It Fails: Attempting to pass a `std::thread` by const reference or copy into the wrapper will result in a compilation error because `std::thread` lacks a copy constructor. The move operation ensures the resource handle is transferred cleanly.",
+  "code_example": "ThreadRAII(std::thread&& t, DtorAction a)\n: action(a), t(std::move(t)) {}",
+  "practical_example": "A developer attempts to pass a local `std::thread` instance to an RAII manager by value, leading to a compiler error due to the attempted copy. The developer must explicitly cast the local thread variable to an rvalue using `std::move` when calling the constructor, or the constructor must accept the rvalue directly.",
+  "keywords": [
+    "move-only",
+    "std::thread&&",
+    "rvalue reference",
+    "non-copyable"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "270",
+  "chapter": "Item 37: Make std::thread Objects Unjoinable on All Paths",
+  "id": "emcpp_thread_thread_requirement__move_only_641638",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

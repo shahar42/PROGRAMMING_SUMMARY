@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time String Concatenation and Preprocessing Tokens",
+  "explanation": "C++ compilers perform significant optimizations during preprocessing and compilation.  One such optimization involves the concatenation of string literals.  While seemingly simple, understanding its implementation reveals intricacies related to preprocessing tokens, memory layout, and potential performance gains.  The compiler doesn't merely concatenate strings at runtime; instead, it leverages the preprocessor and its token pasting operator (`##`) to merge string literals *before* the actual compilation stage. This happens during translation phase 4, where placemarker preprocessing tokens are created and manipulated before being discarded. This avoids runtime string manipulation, leading to improved performance.  The behavior differs significantly depending on whether the strings are literals or variables, impacting how the compiler can optimize.  Memory-wise, the result is a single, contiguous string literal in the data segment, rather than separate strings requiring concatenation at runtime.  At the assembly level, accessing the concatenated string is a simple memory load instruction, as opposed to the more complex instructions needed for runtime concatenation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:17:15.342168",
+    "book_metadata_added": "2025-10-28T20:22:06.940226"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Standard compile-time concatenation (C/C++)\nconst char* S1 = \"Hello, \" \"World!\";\n// Equivalent to: const char* S1 = \"Hello, World!\";\n\n// Wide character concatenation\nconst wchar_t* WS = L\"Wide \" L\"String\";\n\n// Mixed encoding concatenation (Illegal in C++11+, often implementation defined pre-C++11)\n// const char* ES = \"A\" L\"B\"; // Error\n\n// Macro using token pasting for string generation (Advanced Preprocessing)\n#define MSG_PART(N) \"Part_\" #N\n#define CONCAT_STR(A, B) A ## B\n\nconst char* FinalString = MSG_PART(1) MSG_PART(2); // \"Part_1Part_2\"",
+  "keywords": "Adjacent string literals, Compile-time string concatenation, String literal merging, C++ string optimization"
+}

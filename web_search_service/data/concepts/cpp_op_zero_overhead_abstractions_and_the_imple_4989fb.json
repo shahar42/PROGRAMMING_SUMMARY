@@ -1,0 +1,13 @@
+{
+  "topic": "Zero-Overhead Abstractions and the Implementation of std::ostream_iterator",
+  "explanation": "This concept explores how `std::ostream_iterator` achieves zero-overhead abstraction, a cornerstone of effective C++ design.  We'll analyze its implementation, focusing on how the compiler eliminates unnecessary runtime costs associated with iterators by leveraging operator overloading and inlining.  Memory layout is minimal, as the iterator essentially only stores a pointer to the output stream and a delimiter. The performance is highly dependent on the compiler's ability to optimize away the indirection, converting it to direct stream writes.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:36:11.562193",
+    "book_metadata_added": "2025-10-28T20:22:06.979084"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <typename T>\nclass OStream_Iter_ZeroOverhead {\n    std::ostream* os_ptr;\n    const char* delimiter; // Minimal memory state (2 pointers)\n\npublic:\n    OStream_Iter_ZeroOverhead(std::ostream& s, const char* d=\"\")\n        : os_ptr(&s), delimiter(d) {}\n\n    // No-Op operations (Abstraction layer)\n    // Compiler optimizes these away via inlining.\n    OStream_Iter_ZeroOverhead& operator*() { return *this; }\n    OStream_Iter_ZeroOverhead& operator++() { return *this; }\n    void operator++(int) {}\n\n    // Assignment performs the work: output + delimiter\n    void operator=(const T& value) {\n        *os_ptr << value << delimiter;\n    }\n    // Performance: Cost equals direct stream write.\n};\n<ctrl63>"
+}

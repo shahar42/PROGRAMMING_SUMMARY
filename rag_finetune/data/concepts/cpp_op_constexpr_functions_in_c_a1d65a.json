@@ -1,0 +1,14 @@
+{
+  "topic": "Constexpr Functions in C++",
+  "explanation": "Constexpr functions in C++ allow for compile-time evaluation of expressions, as specified in sections like 17.6.5.6 of the C++ standard. The compiler implements constexpr by analyzing the function's body during compilation to determine if it can be evaluated at compile-time using constant expressions. If all inputs are known at compile-time, the compiler performs eager evaluation, effectively inlining and computing the result as a constant, which reduces runtime overhead. This involves the compiler's constant expression evaluator, which checks for compliance with rules (e.g., no dynamic memory allocation, no side effects). Memory layout implications include that constexpr variables can be stored in read-only memory (like .rodata section in ELF binaries), avoiding runtime allocation and improving cache performance. Performance-wise, successful compile-time evaluation eliminates runtime function calls, leading to faster execution and smaller binaries. At the assembly level, a constexpr function might not generate any code at all if used in a constant context; instead, it's replaced with the computed value (e.g., via immediate operands). Runtime behavior occurs only if the function is called with non-constant arguments, falling back to a regular function call. This compile-time vs. runtime dichotomy allows for metaprogramming and optimization, but requires strict adherence to constexpr rules to avoid compilation errors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:32:43.164402",
+    "book_metadata_added": "2025-10-28T20:22:06.922682"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "constexpr int fib(int n) {\n    return (n <= 1) ? n : (fib(n - 1) + fib(n - 2));\n}\n\n// Forces compile-time evaluation\nconstexpr int CT_RESULT = fib(10);\nconst int ARRAY_SIZE = fib(5);\n\n// Allowed in array context\nint cache[ARRAY_SIZE];\n\n// Runtime evaluation (if 'runtime_input' is not constant)\nint runtime_input = 7;\nint RT_RESULT = fib(runtime_input);\n\n// Constexpr classes (C++11/14+)\nclass ConstData {\n    int val;\npublic:\n    constexpr ConstData(int v) : val(v) {}\n    constexpr int getVal() const { return val; }\n};\nconstexpr ConstData cd(10);\nconstexpr int v = cd.getVal();",
+  "keywords": "constexpr function, compile time evaluation, C++ constant expression"
+}

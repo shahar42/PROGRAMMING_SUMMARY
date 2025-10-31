@@ -1,0 +1,19 @@
+{
+  "topic": "Task Deferral Failure: The Necessity of Resolving `std::async` Futures",
+  "category": "async",
+  "explanation": "Assumption: A task launched via `std::async` with the default policy will run eventually. Reality: The default launch policy includes `std::launch::deferred`. If the task is deferred, it only executes when `wait()` or `get()` is called on the future returned by `std::async`. Why It Fails: If the future is allowed to go out of scope (e.g., the future object is destroyed) without one of these functions being called, the task is never executed. This behavior must be explicitly accepted (that the task may not run) or the programmer must guarantee that the future is resolved, otherwise critical work may be silently skipped.",
+  "code_example": "std::async(f); // Future is returned but immediately destroyed.\n// If f was deferred, it never runs. No exception is thrown.\n\n// Correct usage to guarantee deferred execution:\nauto fut = std::async(f);\nfut.wait();",
+  "practical_example": "A developer uses `std::async` to launch a background logging or cleanup task, but immediately discards the returned future, assuming the OS scheduler will handle it. If the implementation defers the launch, the cleanup task never runs, leading to resource leaks or unlogged events.",
+  "keywords": [
+    "std::launch::deferred",
+    "future destruction",
+    "non-execution",
+    "wait",
+    "get"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 36: Prefer std::launch::async if asynchronous execution is necessary",
+  "id": "emcpp_async_task_deferral_failure__the_060fe5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

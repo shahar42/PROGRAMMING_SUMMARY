@@ -1,0 +1,14 @@
+{
+  "topic": "Lvalue-to-Rvalue Conversion in C++",
+  "explanation": "Lvalue-to-rvalue conversion is a fundamental C++ mechanism where an lvalue expression (which typically refers to an object in memory) is converted to a prvalue (a temporary value) when used in a context that requires a prvalue, such as in arithmetic operations or function arguments. The compiler implements this by recognizing the context at compile-time and generating code to read the value from the lvalue's memory location. For non-class types, this involves stripping cv-qualifiers (like const) from the type, effectively allowing a const lvalue to be used where a non-const prvalue is expected. Under the hood, the compiler performs this conversion during semantic analysis, ensuring that the expression's type is adjusted before code generation. Memory layout implications include potential temporary storage for the rvalue, which can lead to performance overhead due to memory reads; for instance, accessing a global variable as an lvalue and converting it might involve a load instruction, increasing cache misses. In assembly, this often translates to instructions like MOV in x86, where the lvalue's address is dereferenced to load the value into a register. Performance-wise, this conversion is generally cheap for simple types but can be costly for large objects due to copying or aliasing issues. It's a compile-time decision (determined by the AST during parsing), but the actual value access occurs at runtime, making it a hybrid behavior that optimizes for expression evaluation without unnecessary evaluations in unevaluated contexts.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:59:04.528665",
+    "book_metadata_added": "2025-10-28T20:22:06.832066"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// LVALUE-TO-RVALUE CONVERSION (LVR)\n\n// 1. Source: Lvalue refers to object in memory\nvolatile const int memory_lvalue = 10;\n\n// Type of memory_lvalue: volatile const int\n\n// 2. Context requiring prvalue (e.g., arithmetic)\n// LVR occurs before '*' operation\nauto result_int = memory_lvalue * 2;\n\n// 3. Result of LVR: temporary prvalue (value read)\n// Volatile/const qualifiers stripped during conversion\n\n// Type of result_int: int (not volatile const int)\n\n// LVR is standard for non-class types used as operands.",
+  "keywords": "Lvalue-to-rvalue, Value category conversion, Implicit Lvalue conversion"
+}

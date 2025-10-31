@@ -1,0 +1,26 @@
+{
+  "topic": "Concurrency and Sync Primitives Avoiding Thread Interleaving",
+  "explanation": "Concurrency involves multiple threads executing seemingly simultaneously.  In computer systems, this requires careful management to avoid race conditions (where the outcome depends on unpredictable thread interleaving) and ensure data consistency. Synchronization primitives are mechanisms that coordinate concurrent threads, allowing them to share resources safely and predictably.  They are crucial for building robust and efficient multithreaded applications within the context of a shared memory architecture.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:40:07.750575",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T16:10:18.860398",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1021-1021",
+      "extraction_date": "2025-07-29T16:10:18.565182",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.9014644026756287,
+    "book_metadata_added": "2025-10-28T20:22:06.735733"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "std::mutex io_mutex;\nint shared_data = 0;\n\nvoid access_resource() {\n    // RAII lock ensures release, prevents deadlock on exceptions\n    std::lock_guard<std::mutex> lock(io_mutex);\n    // Critical Section Start\n    shared_data += 1;\n    // Critical Section End\n}\n\n// ------------------------------------\n\nstd::mutex mtx;\nstd::condition_variable cv;\nstd::queue<Data> buffer;\nbool processing_done = false;\n\nvoid consumer() {\n    std::unique_lock<std::mutex> lock(mtx);\n    // Wait blocks until condition is true, releases lock temporarily\n    cv.wait(lock, []{ return !buffer.empty() || processing_done; });\n    \n    if (processing_done) return;\n    \n    Data d = buffer.front();\n    buffer.pop();\n}\n\nvoid producer() {\n    std::lock_guard<std::mutex> lock(mtx);\n    buffer.push(new_data);\n    cv.notify_one(); // Wake up one waiting thread\n}\n\n// ------------------------------------\n\nstd::atomic<int> txn_count(0);\n\nvoid increment_safe() {\n    // Lock-free read-modify-write operation\n    txn_count.fetch_add(1);\n}\n\n// Guaranteed ordering via memory barriers\nstd::atomic<bool> flag = false;\nvoid writer() {\n    // ... write data ...\n    flag.store(true, std::memory_order_release);\n}\nvoid reader() {\n    if (flag.load(std::memory_order_acquire)) {\n        // ... read data ...\n    }\n}",
+  "keywords": "Thread synchronization, Synchronization primitives, Race condition, Data race"
+}

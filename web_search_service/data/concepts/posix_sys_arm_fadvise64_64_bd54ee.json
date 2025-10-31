@@ -1,0 +1,16 @@
+{
+  "topic": "arm_fadvise64_64() System Call",
+  "explanation": "arm_fadvise64_64 is an architecture-specific system call on ARM that allows programs to advise the kernel about intended access patterns for file data. It functions similarly to posix_fadvise, enabling optimizations based on the provided advice.\n\n**Parameters:**\n- `fd` (int): File descriptor of the file\n- `advice` (int): Advice about the access pattern for the data region\n- `offset` (loff_t): Starting offset of the data region\n- `len` (loff_t): Length of the data region in bytes\n\n**Common Errors:**\n- `EBADF`: The fd argument was not a valid file descriptor\n- `EINVAL`: An invalid value was specified for advice\n- `ESPIPE`: The specified file descriptor refers to a pipe or FIFO\n\n**Related System Calls:** `mincore()`, `readahead()`, `sync_file_range()`, `posix_fallocate()`, `posix_madvise()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.250654",
+    "syscall_name": "arm_fadvise64_64",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_arm_fadvise64_64.json",
+    "concept_id": "posix_sys_arm_fadvise64_64_bd54ee",
+    "book_metadata_added": "2025-10-28T20:22:06.668628"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int fd = 42;             // Existing file descriptor\ntypedef long long loff_t;\nloff_t start = 0;\nloff_t len = 4096;\n\n// --- Advice Constants ---\n#define FADV_NORMAL     0  // Default access pattern\n#define FADV_RANDOM     1  // Expect random access\n#define FADV_SEQUENTIAL 2  // Expect sequential access\n#define FADV_WILLNEED   3  // Pre-fetch data\n#define FADV_DONTNEED   4  // Release cached pages (cache drop)\n\n// --- Usage Example 1: Sequential Read Optimization ---\nint ret = arm_fadvise64_64(\n    fd,\n    FADV_SEQUENTIAL,\n    start,\n    len\n);\n\n// --- Usage Example 2: Releasing Cache (Until EOF) ---\n// len == 0 advises until the end of the file.\nloff_t len_eof = 0;\narm_fadvise64_64(fd, FADV_DONTNEED, start, len_eof);\n\n// Common Error: Advising on a non-regular file (e.g., pipe/socket) returns ESPIPE.\n// Check ret for failure (-1).",
+  "keywords": "posix_fadvise ARM, ARM syscall fadvise, arm_fadvise64_64"
+}

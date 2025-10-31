@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::basic_string::assign Method",
+  "explanation": "The std::basic_string::assign method in C++ is a key operation for string manipulation, involving dynamic memory management, substring extraction, and potential optimizations like Small String Optimization (SSO). Under the hood, compilers like GCC or Clang implement assign by first evaluating the input parameters to determine the source data and length. For overloads like assign(const basic_string& str, size_type pos, size_type n), the compiler generates code that checks the current string's capacity against the required size (n characters from str starting at pos). If the string's capacity is insufficient, a reallocation occurs, typically involving a call to an allocator (e.g., std::allocator<charT>) to request heap memory, which follows an exponential growth strategy for amortized efficiency. Memory layout-wise, std::basic_string often uses a structure with a pointer to the character array, size, and capacity fields; for SSO, short strings (e.g., up to 15-23 characters depending on the implementation) are stored directly in the string object on the stack, avoiding heap allocation. Performance implications include O(1) time for assignments within existing capacity but O(n) for copies and potential reallocations, with assembly-level behavior involving instructions like memcpy for bulk data transfer (e.g., rep movsb on x86). This is purely runtime behavior, as assign's execution depends on dynamic inputs, though overload resolution is resolved at compile-time via template instantiation and function overloading.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:01:49.886640",
+    "book_metadata_added": "2025-10-28T20:22:06.921876"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "void basic_string::assign(const basic_string& str, size_type pos, size_type n) {\n    // Check source boundaries\n    if (pos > str._M_length) _M_throw_out_of_range();\n\n    size_type count = std::min(n, str._M_length - pos);\n\n    // Dynamic memory check: Do we need a bigger buffer?\n    if (count > _M_capacity()) {\n        _M_reallocate(count); // Allocate new buffer, update capacity\n    } else if (count < _M_length && _M_is_sso()) {\n        // Handle shrink when using SSO\n    }\n\n    // Copy the substring data\n    std::copy(str._M_data() + pos, str._M_data() + pos + count, _M_data());\n    \n    _M_set_length(count);\n}"
+}

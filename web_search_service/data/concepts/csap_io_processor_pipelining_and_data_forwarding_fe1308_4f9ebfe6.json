@@ -1,0 +1,16 @@
+{
+  "topic": "Pipelining and Forwarding for Dependency Hazards",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, data dependencies between instructions can create hazards, stalling the pipeline. Data forwarding is a technique to mitigate these hazards by supplying the result of a preceding instruction directly to a dependent instruction, avoiding the need to wait for the result to be written back to the register file. This significantly improves performance by reducing pipeline stalls.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "479-479",
+    "extraction_date": "2025-07-27T17:05:53.530564",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.736191"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "int rs1_idx, rs2_idx;    // Source Registers required by ID/EX\nint dest_ex, data_ex;    // EX/MEM stage output result (Newest)\nint dest_mem, data_mem;  // MEM/WB stage output result (Older)\nint reg_file[32];        // Register file snapshot\n\n// Forwarding Decision Logic for Operand A (RS1)\nint operand_a = reg_file[rs1_idx]; // Default: Read RF\n\nif (rs1_idx == dest_mem && dest_mem != 0) {\n    // Hazard 2: Result in MEM/WB register ready for use\n    operand_a = data_mem;\n}\n\nif (rs1_idx == dest_ex && dest_ex != 0) {\n    // Hazard 1: Result in EX/MEM register ready for use\n    // This takes priority (data is fresher)\n    operand_a = data_ex;\n}\n\n// Logic repeats for Operand B (RS2)",
+  "keywords": "Data Forwarding, Pipeline Bypassing, Data Hazard, Pipeline Stall"
+}

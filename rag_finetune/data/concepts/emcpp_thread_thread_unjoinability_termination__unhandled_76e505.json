@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Unjoinability Termination: Unhandled Joinable Threads",
+  "category": "thread",
+  "explanation": "Assumption: If a `std::thread` object goes out of scope without explicit handling, the operating system or runtime will safely clean up the associated execution context. Reality: C++ mandates that if a `std::thread` object is joinable (i.e., it represents an executing thread and neither `join()` nor `detach()` has been called) when its destructor runs, the program is terminated via a call to `std::terminate()`. Why It Fails: This rule prevents the `std::thread` object from being destroyed while its underlying OS thread is still running, which would result in dangling resources and potential crashes. However, failing to manage the thread lifecycle explicitly (e.g., using RAII wrappers or explicit `join`/`detach` calls) leads to abrupt program termination instead of graceful shutdown.",
+  "code_example": "void background_work();\n{\n  std::thread t(background_work);\n  // No join or detach here\n} // t's destructor runs, calls std::terminate()",
+  "practical_example": "A developer creates a short-lived thread inside a utility function to perform logging. If an exception prevents the code from reaching the intended `join()` call, the thread object is destroyed when the exception unwinds the stack, leading to immediate program failure rather than just a missed log entry.",
+  "keywords": [
+    "joinable",
+    "terminate",
+    "scope exit",
+    "thread destructor"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276 (Referenced by context)",
+  "chapter": "Item 37",
+  "id": "emcpp_thread_thread_unjoinability_termination__unhandled_76e505",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

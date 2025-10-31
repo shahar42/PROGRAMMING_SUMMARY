@@ -1,0 +1,16 @@
+{
+  "topic": "Implicit Generation and Deletion of Move Operations in C++ Classes",
+  "explanation": "In advanced C programming techniques, understanding how compilers synthesize move constructors and move assignment operators is crucial for optimizing resource management and avoiding subtle bugs. When a class does not explicitly define its own copy-control members, the compiler automatically generates move operations if all data members support move semantics. However, if certain members prevent move operations from being synthesized—such as having user-defined copy constructors without corresponding move constructors, or members with deleted or inaccessible move operations—the compiler will delete the move functions. Recognizing these rules allows developers to control object transfer semantics precisely, optimize performance, and prevent unintended deletions of move capabilities.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "667-667",
+    "extraction_date": "2025-08-20T05:29:31.435083",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.520847"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class MoveDeleted {\n    int resource;\npublic:\n    // User-defined Copy Constructor (CC)\n    MoveDeleted(const MoveDeleted& other)\n        : resource(other.resource) {}\n\n    // RESULT: Move Constructor (MC) and\n    // Move Assignment Operator (MAO) are implicitly deleted.\n\n    // MoveDeleted(MoveDeleted&&) = delete;\n    // MoveDeleted& operator=(MoveDeleted&&) = delete;\n};\n\nclass MoveSuppressedByDestructor {\n    // Defines Destructor (D)\n    ~MoveSuppressedByDestructor() = default;\n\n    // RESULT: If D is defined, MC and MAO are only generated\n    // if CAO/CC are implicitly generated or defaulted.\n    // Generally, D definition suppresses implicit generation.\n};",
+  "keywords": "Implicit move operations, Rule of Five C++, Move operations deleted, Synthesized move operations"
+}

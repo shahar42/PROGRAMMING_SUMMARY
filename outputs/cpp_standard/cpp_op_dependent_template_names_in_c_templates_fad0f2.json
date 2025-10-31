@@ -1,21 +1,12 @@
 {
   "topic": "Dependent Template Names in C++ Templates",
   "explanation": "In C++, dependent template names occur when a template name depends on a template parameter, requiring the compiler to delay parsing until instantiation. The 'template' keyword is used to disambiguate such names, indicating that a dependent qualified name is a template. For instance, in the code, T::template C specifies that C is a template member of T. The compiler implements this through a two-phase lookup process: during the first phase, it performs non-dependent name lookup, and in the second phase (instantiation), it resolves dependent names. This ensures that the template is only instantiated when the actual type is known, preventing errors in generic code. Memory layout implications are minimal since this is a compile-time feature, but excessive template instantiations can lead to code bloat, increasing binary size and potentially affecting cache performance at runtime. Performance-wise, the compiler generates specialized code for each instantiation, which can optimize execution but increase compilation time due to the need for multiple compilations of the same template with different parameters. Assembly-level behavior is not directly observable here, as template resolution happens before code generation, but the resulting instantiated code will reflect the specialized functions or classes. Overall, this is a compile-time mechanism, with no runtime overhead once the code is generated, contrasting with runtime polymorphism like virtual functions.",
-  "syntax": "template <class T, template <class X> class TT = T::template C> struct D { };\n// Implementation notes: Here, 'T::template C' uses the 'template' keyword to inform the compiler that 'C' is a template when accessed through the dependent type T. Without it, the compiler might misinterpret 'C' as a non-template member, leading to errors during instantiation.",
-  "code_example": [
-    "#include <iostream>",
-    "template <class T> struct B {",
-    "    template <class T2> struct C { };",
-    "};",
-    "// OK: T::template C names a class template:",
-    "template <class T, template <class X> class TT = T::template C> struct D { };",
-    "D<B<int>> db;"
-  ],
-  "example_explanation": "In this example, the compiler first parses the template definition of D, recognizing T::template C as a dependent template name due to the 'template' keyword. During instantiation of D<B<int>>, the compiler performs dependent name lookup on B<int>::C, confirming it's a template, and uses it as the default template template parameter for TT. This process occurs entirely at compile-time, triggering template instantiation for D<B<int>>, which generates a specialized version of D where TT is B<int>::C. If the 'template' keyword were omitted, the compiler would fail with an error, as it couldn't deduce that C is a template in a dependent context. Performance implications include potential increases in compilation time due to instantiation, but the resulting code is highly optimized with no runtime checks for template parameters, unlike runtime generics in other languages.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "templates",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T03:41:27.721727"
-  }
+    "extraction_date": "2025-08-19T03:41:27.721727",
+    "book_metadata_added": "2025-10-28T20:22:06.917348"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

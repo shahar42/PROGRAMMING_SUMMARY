@@ -1,0 +1,15 @@
+{
+  "topic": "Zombie Process and wait Function",
+  "explanation": "A zombie process is a terminated child process that still occupies a slot in the kernel's process table because its parent has not yet retrieved its termination status. It occurs when a child ends before the parent checks its status. The wait function is used by the parent to retrieve this status, allowing the kernel to fully remove the child process and free resources, preventing system resource waste from accumulating zombies.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "271-272",
+    "extraction_date": "2025-07-21T22:11:39.408963",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.962843"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "pid_t pid = fork();\nint status;\n\nif (pid == 0) {\n    // Child: Terminates immediately (becomes ZOMBIE pending wait)\n    _exit(42);\n}\n\nif (pid > 0) {\n    // Parent: Use wait() to retrieve status\n    // and fully reap the terminated child process.\n    pid_t reaped_pid = wait(&status);\n\n    // WIFEXITED(status) check determines exit type\n}\n<ctrl63>",
+  "keywords": "zombie process, defunct process, process reaping, waitpid"
+}

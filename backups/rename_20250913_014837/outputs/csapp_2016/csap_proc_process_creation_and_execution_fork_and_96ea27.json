@@ -1,0 +1,47 @@
+{
+  "topic": "Process Creation and Execution (fork() and execve())",
+  "explanation": "In operating systems, a program is a passive entity – a collection of code and data.  A process, however, is an active instance of a program running within the context of the operating system.  `fork()` and `execve()` are system calls that manage process creation and execution, crucial for multitasking and efficient resource utilization within a computer system.  Understanding these calls is key to building robust and interactive applications.",
+  "syntax": "int pid = fork();\n/* ... error handling ... */\nif (pid == 0) { \n  // Child process\n  execve(filename, argv, envp);\n  // execve only returns on error\n} else { \n  // Parent process\n  // ... wait for child (if foreground) ...\n}",
+  "code_example": [
+    "#include <unistd.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "int main() {",
+    "  pid_t pid = fork();",
+    "  if (pid < 0) {",
+    "    perror(\"fork failed\");",
+    "    exit(1);",
+    "  }",
+    "  else if (pid == 0) {",
+    "    char *args[] = {\"ls\", \"-l\", NULL};",
+    "    execve(\"/bin/ls\", args, NULL);",
+    "    perror(\"execve failed\"); //only reached if execve fails",
+    "    exit(1);",
+    "  }",
+    "  else {",
+    "    printf(\"Child process created with PID: %d\\n\", pid);",
+    "    wait(NULL); //wait for child to finish",
+    "  }",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates `fork()` and `execve()`. `fork()` creates a child process. The child process then uses `execve()` to replace its image with the `/bin/ls` program, executing the `ls -l` command.  The parent process waits for the child to complete using `wait()`. This showcases how these system calls enable a process to run another program within the operating system's context, a crucial component of modern computer systems' ability to manage multiple programs concurrently.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "779-779",
+    "extraction_date": "2025-07-28T12:28:59.557781",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-28T12:29:10.685501",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "779-780",
+      "extraction_date": "2025-07-28T12:29:09.893875",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8647529482841492
+  }
+}

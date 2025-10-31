@@ -1,0 +1,29 @@
+{
+  "topic": "Virtual Function Table (vtable) Implementation and Dispatch Mechanism",
+  "explanation": "In C++, when a class declares or inherits virtual functions, the compiler creates a virtual function table (vtable) for that class. The vtable is a runtime data structure that enables dynamic dispatch, allowing the program to invoke the correct function implementation based on the actual object type at runtime. Internally, each polymorphic object contains a pointer to its class's vtable, which the compiler manages during object construction, destruction, and function calls. This mechanism is fundamental to supporting runtime polymorphism, enabling the correct function to be called even when accessed through a base class pointer or reference.",
+  "syntax": "For a class with virtual functions:\n\n// Class declaration\nclass ClassName {\npublic:\n    virtual void functionName();\n    // ... other members\n};\n\n// Compiler-generated internal structures\n// Each class with virtual functions has a vtable:\n// vtable for ClassName: array of function pointers\n// Each object of ClassName contains a hidden pointer to its vtable\n\n// During object creation, the constructor sets the vtable pointer\n// Virtual function calls are dispatched via the vtable pointer\n\n// Example of a virtual function call:\n// objectPtr->functionName(); // internally: *(objectPtr->vptr)[index]()",
+  "code_example": [
+    "class Base {",
+    "public:",
+    "    virtual void foo() { /* implementation */ }",
+    "};",
+    "class Derived : public Base {",
+    "public:",
+    "    void foo() override { /* derived implementation */ }",
+    "};",
+    "// Object creation",
+    "Base* pBase = new Derived();",
+    "// At runtime, pBase's vtable pointer points to Derived's vtable",
+    "// Virtual call dispatch:",
+    "pBase->foo(); // internally uses pBase's vtable to call Derived::foo()"
+  ],
+  "example_explanation": "This example demonstrates how the compiler sets up a vtable for classes with virtual functions. When a Derived object is assigned to a Base pointer, the object contains a pointer to Derived's vtable. The virtual call 'pBase->foo()' is dispatched via this vtable pointer, ensuring the correct Derived implementation executes at runtime. Internally, the vtable mechanism enables dynamic dispatch by associating each class with a table of function pointers, which are used during virtual function calls to resolve the correct function based on the actual object type, not the static type.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "102-103",
+    "extraction_date": "2025-09-17T15:08:17.614526",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model"
+  }
+}

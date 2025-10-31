@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: std::string Optimization and Implementation",
+  "explanation": "The `std::string` class in C++ is a fundamental data structure, but its efficient implementation involves several sophisticated techniques that significantly impact performance and memory usage.  This goes beyond simple character arrays.  A key aspect is the Small String Optimization (SSO) and how the compiler manages memory allocation and deallocation for strings of varying lengths.  Understanding how SSO interacts with dynamic memory allocation (using `new` and `delete` or an allocator) is crucial for optimizing memory and performance.  The compiler's role in generating efficient code for string operations (concatenation, substring extraction, etc.) is also critical.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:01:08.370122",
+    "book_metadata_added": "2025-10-28T20:22:06.854910"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::string s_sso(\"Short String\");\n// Implementation uses internal object storage (SSO buffer).\n// Capacity: Usually 16-24 bytes, architecture dependent.\n// Heap allocation (operator new) AVOIDED.\n\nstd::string s_heap(100, 'Z');\n// Length > SSO_CAPACITY. Heap allocation required.\n// Internal structure switches to pointer/capacity model.\n\n// Internal Deallocation Logic Concept:\n// if (s.size() > SSO_CAPACITY) {\n//     delete[] s.internal_pointer;\n// }\n// else {\n//     // NO-OP: Heap deallocation skipped entirely (Performance Gain).\n// }\n\nstd::string s_moved = std::move(s_sso);\n// SSO: Trivial copy of internal buffer, no pointer adjustment needed.\n// Heap: Pointer ownership transferred (zeroing source pointer)."
+}

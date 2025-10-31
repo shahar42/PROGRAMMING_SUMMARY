@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operation Costs: O(1) Assumption Failure",
+  "category": "perf",
+  "explanation": "Programmers frequently assume that a move operation is equivalent to a shallow copy of pointers and metadata, resulting in an O(1) time complexity. This is a dangerous assumption that constitutes a major performance anti-pattern. The reality is that many standard library types and custom classes can have moves that are significantly more expensive than O(1). This failure occurs primarily in two scenarios: First, when dealing with small buffer optimization (SSO) used by containers like `std::string` or specialized types. If the string data fits within the internal buffer, a 'move' operation must copy the character data, making the move operation O(N) rather than O(1), just like a copy. If the SSO buffer is large, this cost can be substantial. Second, aggregate types like `std::array` or structs containing large raw arrays lack internal pointers to swap. Moving these types requires member-wise moves, which for raw arrays, translates directly into a sequence of element copies, resulting in an overall O(N) operation. The developer's failure to profile and verify the actual move cost for specific types, relying solely on the general concept of 'move semantics,' leads to performance budgets being exceeded, especially in code dealing with large collections of small objects or fixed-size buffers, where the supposed zero-cost move is actually an expensive memory transfer.",
+  "code_example": "// A move of a small std::string that uses SSO is a deep copy.\nstd::string s1 = \"short string\";\nauto s2 = std::move(s1); // Still copies the string data!",
+  "practical_example": "A high-frequency trading system uses `std::array<int, 1000>` extensively, believing that passing them to processing functions via move semantics is instantaneous. Due to the lack of pointer manipulation capability in `std::array`, every single 'move' operation forces the copy of 1000 integers, dramatically increasing latency and compromising the real-time requirements of the system.",
+  "keywords": [
+    "move semantics",
+    "std::array",
+    "SSO",
+    "O(N) move",
+    "anti-pattern"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "226-229",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_move_operations_not_always_cheap_346aed",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

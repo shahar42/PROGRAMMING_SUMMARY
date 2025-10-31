@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Spurious Wakeups in Condition Variables",
+  "category": "thread",
+  "explanation": "In concurrent programming, threads waiting on a `std::condition_variable` may be awakened even when the condition variable was not explicitly notified. These are known as spurious wakeups. Failure to account for this behavior leads to race conditions or tasks proceeding based on false assumptions. Proper code must confirm that the condition being waited for has truly occurred as its first action after waking, typically via a check inside a loop or, preferably, by using the predicate overload of `cv.wait`.",
+  "code_example": "// Incorrect (fails on spurious wakeup):\ncv.wait(lk); \nif (condition) { /* proceed */ }\n\n// Correct pattern:\ncv.wait(lk, []{ return condition_is_met; });",
+  "practical_example": "A consumer thread wakes up spuriously and attempts to access a queue that is still empty, leading to undefined behavior or immediate crashes, because the developer failed to wrap the `cv.wait` call in a robust condition-checking loop or predicate.",
+  "keywords": "Spurious wakeups, std::condition_variable wait, condition variable loop, spurious wakeup fix",
+  "difficulty": "intermediate",
+  "page_reference": "276-289",
+  "chapter": "Item 38/39",
+  "id": "emcpp_thread_thread_spurious_wakeups_in_condition_963c83",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

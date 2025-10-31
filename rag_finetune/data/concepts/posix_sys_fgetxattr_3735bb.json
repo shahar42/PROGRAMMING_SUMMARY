@@ -1,0 +1,16 @@
+{
+  "topic": "fgetxattr() System Call",
+  "explanation": "fgetxattr() retrieves the value of an extended attribute associated with an open file descriptor. It places the attribute value into a specified buffer. This function is used for files that are already open via a file descriptor.\n\n**Parameters:**\n- `fd` (int): File descriptor of the open file to interrogate\n- `name` (const char *): Name of the extended attribute to retrieve\n- `value` (void *): Buffer to store the attribute value\n- `size` (size_t): Size of the buffer in bytes\n\n**Common Errors:**\n- `E2BIG`: The size of the attribute value is larger than the maximum size allowed\n- `ENODATA`: The named attribute does not exist, or the process has no access\n- `ENOTSUP`: Extended attributes are not supported by the filesystem\n- `ERANGE`: The size of the value buffer is too small to hold the result\n\n**Related System Calls:** `listxattr()`, `open()`, `removexattr()`, `setxattr()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.081682",
+    "syscall_name": "fgetxattr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fgetxattr.json",
+    "concept_id": "posix_sys_fgetxattr_3735bb",
+    "book_metadata_added": "2025-10-28T20:22:06.654947"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int fd; // Open file descriptor\nconst char *name = \"user.mimetype\";\nchar value_buf[512];\nsize_t size = sizeof(value_buf);\nssize_t ret;\n\n// Retrieve attribute value into buffer\nret = fgetxattr(fd, name, value_buf, size);\n\nif (ret > 0) {\n    // Success: ret is the size of the retrieved value (bytes)\n    // value_buf contains ret bytes of data\n} else if (ret == 0) {\n    // Attribute exists but is empty\n} else {\n    // Error Handling (ret == -1)\n    // Common Errors: ENOATTR (Name not found),\n    // ENODATA (Same as ENOATTR, depending on filesystem),\n    // ERANGE (Buffer size too small)\n}",
+  "keywords": "fgetxattr, C extended attribute, Linux xattr fd, get file attribute by fd"
+}

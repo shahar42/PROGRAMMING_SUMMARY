@@ -1,0 +1,16 @@
+{
+  "topic": "epoll_pwait2() System Call",
+  "explanation": "epoll_pwait2 waits for I/O events on an epoll file descriptor, allowing specification of a timeout using a timespec structure and a signal mask to block signals during the wait. It is similar to epoll_pwait but provides more precise timeout handling.\n\n**Parameters:**\n- `epfd` (int): The epoll file descriptor\n- `events` (struct epoll_event *): Pointer to a buffer to store the events\n- `maxevents` (int): The maximum number of events to return\n- `timeout` (const struct timespec *_Nullable): Pointer to a timespec structure for the timeout, or NULL for indefinite\n- `sigmask` (const sigset_t *_Nullable): Pointer to a signal set to block signals, or NULL\n\n**Common Errors:**\n- `EBADF`: epfd is not a valid file descriptor\n- `EFAULT`: The memory area pointed to by events is not accessible with write permissions\n- `EINTR`: The call was interrupted by a signal handler before events occurred or timeout expired\n- `EINVAL`: epfd is not an epoll file descriptor, or maxevents is less than or equal to zero\n\n**Related System Calls:** `epoll_create()`, `epoll_ctl()`, `epoll()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.079283",
+    "syscall_name": "epoll_pwait2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_epoll_pwait2.json",
+    "concept_id": "posix_sys_epoll_pwait2_d6aa10",
+    "book_metadata_added": "2025-10-28T20:22:06.652032"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define MAX_EVENTS 10\nstruct epoll_event events[MAX_EVENTS];\nstruct timespec ts = {\n    .tv_sec = 1,\n    .tv_nsec = 500000000\n}; // 1.5 seconds\n\nsigset_t ss;\nint epfd = ...; // Existing epoll fd\nint ready;\n\nsigemptyset(&ss);\nsigaddset(&ss, SIGTERM);\n\nready = epoll_pwait2(\n    epfd,\n    events,\n    MAX_EVENTS,\n    &ts,\n    &ss\n);\n<ctrl63>",
+  "keywords": "epoll_pwait2, epoll timespec timeout, epoll signal mask wait"
+}

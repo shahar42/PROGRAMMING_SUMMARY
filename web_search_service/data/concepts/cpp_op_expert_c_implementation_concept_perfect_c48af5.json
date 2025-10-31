@@ -1,0 +1,14 @@
+{
+  "topic": "Perfect Forwarding via Template Metaprogramming",
+  "explanation": "Perfect forwarding efficiently passes arguments to another function, preserving their value categories (lvalue or rvalue).  This is achieved using universal references, which are references that can bind to both lvalues and rvalues. The compiler's implementation relies heavily on template metaprogramming and its understanding of expression categories to achieve this.  Crucially, the compiler uses reference collapsing rules to determine the final type of the forwarded argument, impacting both memory layout and performance.  Rvalue references enable move semantics, significantly impacting performance by avoiding unnecessary copies.  Compile-time behavior involves the generation of specialized function templates based on the argument types, leading to optimized code. Runtime behavior depends on whether the forwarded argument is an lvalue or rvalue, affecting memory management and function call overheads.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:28:54.057183",
+    "book_metadata_added": "2025-10-28T20:22:06.824805"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "void target(int& a) {}\nvoid target(int&& a) {}\n\n// Universal Reference (T&&)\ntemplate <typename T>\nvoid perfect_forward(T&& arg) {\n    // T is deduced type (int, int&, const int&)\n    \n    // Reference Collapsing Rule:\n    // T = Lvalue Ref => (int&) && => int&\n    // T = Value      => (int)  && => int&&\n    \n    // std::forward restores original value category\n    target(std::forward<T>(arg));\n}\n<ctrl63>",
+  "keywords": "Perfect Forwarding, std::forward, Universal References, Forwarding References"
+}

@@ -1,0 +1,81 @@
+{
+  "name": "dup",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int dup(int oldfd);",
+    "int dup2(int oldfd, int newfd);",
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <fcntl.h> /* Definition of O_* constants */",
+    "#include <unistd.h>",
+    "int dup3(int oldfd, int newfd, int flags);"
+  ],
+  "description": "The dup() system call creates a copy of a file descriptor. dup2() duplicates a file descriptor to a specified new descriptor, closing the new one if it was open. dup3() is similar to dup2() but allows additional flags and disallows duplicating to the same descriptor.",
+  "parameters": [
+    {
+      "name": "oldfd",
+      "type": "int",
+      "description": "The file descriptor to be duplicated"
+    },
+    {
+      "name": "newfd",
+      "type": "int",
+      "description": "The new file descriptor number to use (for dup2 and dup3)"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags for dup3, such as O_CLOEXEC to set close-on-exec"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the new file descriptor",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "oldfd isn’t an open file descriptor"
+    },
+    {
+      "code": "EBADF",
+      "description": "newfd is out of the allowed range for file descriptors"
+    },
+    {
+      "code": "EBUSY",
+      "description": "This may be returned by dup2() or dup3() during a race condition with open(2) and dup()"
+    },
+    {
+      "code": "EINTR",
+      "description": "The dup2() or dup3() call was interrupted by a signal"
+    },
+    {
+      "code": "EINVAL",
+      "description": "flags contain an invalid value (dup3)"
+    },
+    {
+      "code": "EINVAL",
+      "description": "oldfd was equal to newfd (dup3)"
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached"
+    }
+  ],
+  "bugs": "dup2() does not report errors from closing newfd, and implementing equivalent functionality with close and dup may lead to race conditions.",
+  "versions": "dup() and dup2(): POSIX.1-2001; dup3(): Linux 2.6.27",
+  "posix_compliance": "POSIX.1-2008 for dup and dup2",
+  "examples": [],
+  "related_calls": [
+    "close",
+    "fcntl",
+    "open",
+    "pidfd_getfd"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "dup.pdf",
+    "extraction_date": "2025-07-26T21:48:07.518931",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

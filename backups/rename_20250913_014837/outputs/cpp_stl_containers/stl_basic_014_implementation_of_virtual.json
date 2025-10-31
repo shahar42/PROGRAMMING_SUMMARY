@@ -1,0 +1,32 @@
+{
+  "topic": "Implementation of Virtual Functions in C++",
+  "explanation": "Virtual functions in C++ enable runtime polymorphism, allowing derived class methods to be called through a base class pointer or reference. Under the hood, compilers implement this using a virtual table (vtable), which is an array of function pointers for each virtual function in a class. Each object of a class with virtual functions contains a hidden pointer (vptr) that points to the vtable of its actual type. When a virtual function is called, the compiler generates code that dereferences the vptr to access the correct function pointer from the vtable and invokes it. This happens at runtime, making virtual function calls indirect and potentially slower due to the extra indirection (e.g., an additional memory access). Memory layout-wise, the vptr is typically placed at the beginning of the object in memory, which can increase the object's size by the size of a pointer (e.g., 8 bytes on 64-bit systems). Performance implications include a slight overhead in function calls due to the vtable lookup, which involves indirect jumps in assembly (e.g., using instructions like 'call [rax]' in x86-64 assembly, where rax holds the function pointer). This contrasts with non-virtual functions, which are resolved at compile-time via direct calls. Compilers optimize this where possible, such as devirtualization if the exact type is known, but generally, it's a runtime behavior. Assembly-level behavior shows that a virtual call might look like: load vptr from object, load function pointer from vtable using vptr, and then call the function pointer.",
+  "syntax": "class Base {\n    public:\n        virtual void virtualFunction() { /* implementation */ }  // Declares a virtual function\n};\n\nclass Derived : public Base {\n    public:\n        void virtualFunction() override { /* overridden implementation */ }  // Overrides the virtual function\n};\n\n// Implementation note: The compiler adds a vptr to Base and Derived objects, and the vtable is generated for each class with virtual functions.",
+  "code_example": [
+    "#include <iostream>",
+    "",
+    "class Base {",
+    "public:",
+    "    virtual void show() { std::cout << \"Base class\" << std::endl; }  // Virtual function",
+    "};",
+    "",
+    "class Derived : public Base {",
+    "public:",
+    "    void show() override { std::cout << \"Derived class\" << std::endl; }  // Overridden virtual function",
+    "};",
+    "",
+    "int main() {",
+    "    Base* ptr = new Derived();  // Pointer to Base, pointing to Derived object",
+    "    ptr->show();  // Runtime polymorphism: Calls Derived::show()",
+    "    delete ptr;",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "In this code, when 'ptr->show()' is called, the compiler generates assembly that first accesses the vptr in the 'ptr' object (which actually points to a Derived object), uses the vptr to locate the Derived class's vtable, and then jumps to the address of Derived::show(). At compile-time, the call is not resolved; instead, it's marked as virtual, leading to runtime dispatching. Memory-wise, both Base and Derived objects will have an additional vptr member, increasing their size (e.g., sizeof(Base) might be sizeof(void*) due to the vptr). Performance-wise, this indirect call adds overhead compared to a direct call, as seen in assembly where a non-virtual call might be 'call show_function' versus 'mov rax, [rcx] ; call qword ptr [rax + offset]' for virtual calls, highlighting the extra instructions for vtable access.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:57:00.354237"
+  }
+}

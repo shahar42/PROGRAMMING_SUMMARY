@@ -1,0 +1,24 @@
+{
+  "topic": "siglongjmp for Signal Handler Management",
+  "explanation": "The siglongjmp function is used in C programming to perform a non-local jump to a previously saved environment, similar to longjmp, but it is designed for use with signals. It ensures that signal handlers are properly managed, preventing issues like interrupted signals, and is essential for robust error handling and control flow in programs that deal with asynchronous events.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "390-390",
+    "extraction_date": "2025-07-23T00:26:31.745450",
+    "has_code": true,
+    "has_explanation": false,
+    "merged_on": "2025-07-23T00:27:05.561441",
+    "merged_from": {
+      "source": "The C Programming Language - Kernighan & Ritchie",
+      "page_range": "390-390",
+      "extraction_date": "2025-07-23T00:27:00.315320",
+      "has_code": true,
+      "has_explanation": true
+    },
+    "merge_similarity_score": 0.9144203066825867,
+    "book_metadata_added": "2025-10-28T20:22:06.952184"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "sigjmp_buf env;\n#define JUMP_VAL 42\n\n// Signal handler\nvoid jump_handler(int sig) {\n    if (sig == SIGALRM) {\n        // Jumps back to sigsetjmp call site\n        siglongjmp(env, JUMP_VAL);\n    }\n}\n\n// Main logic entry\nint ret = sigsetjmp(env, 1); // 1 = save signal mask\n\nif (ret == 0) {\n    // Normal flow: Initial setup\n    // Set up sigaction for jump_handler\n} else if (ret == JUMP_VAL) {\n    // Flow resumed via siglongjmp\n    // Signal mask is restored to state when sigsetjmp was called\n}\n\n// Note: Use '1' in sigsetjmp to save/restore the signal mask.",
+  "keywords": "siglongjmp, sigsetjmp siglongjmp, non-local jump signal handler"
+}

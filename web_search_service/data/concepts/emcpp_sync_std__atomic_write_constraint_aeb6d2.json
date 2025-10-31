@@ -1,0 +1,18 @@
+{
+  "topic": "std::atomic Write Constraint: Enforcing Sequential Ordering Before Write",
+  "category": "sync",
+  "explanation": "Using `std::atomic` variables imposes strict memory ordering constraints that prevent the reordering pitfalls common with standard variables. A fundamental restriction imposed by `std::atomic` is that no code that precedes a write to an `std::atomic` variable in the source code may be reordered (or appear to other cores to be reordered) to take place afterwards. This ensures that prerequisite operations (like computing a value) complete and their effects are visible before the atomic flag indicating availability is set, guaranteeing sequential consistency (by default).",
+  "code_example": "// std::atomic prevents the write to valAvailable from moving up:\nauto imptValue = computeImportantValue(); \nstd::atomic<bool> valAvailable(false);\nvalAvailable = true; // This write acts as a barrier, guaranteeing imptValue is computed first.",
+  "practical_example": "A developer uses an `std::atomic<bool>` flag to signal the completion of a complex calculation. The atomic write ensures that the results of the calculation (stored in regular memory) are fully committed and visible to any reading thread before that thread observes the flag being set.",
+  "keywords": [
+    "std::atomic",
+    "memory ordering",
+    "sequential consistency",
+    "ordering constraint"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "296",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_sync_std__atomic_write_constraint_aeb6d2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

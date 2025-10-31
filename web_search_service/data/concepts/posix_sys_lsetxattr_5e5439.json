@@ -1,0 +1,16 @@
+{
+  "topic": "lsetxattr() System Call",
+  "explanation": "lsetxattr sets the value of an extended attribute for a file or symbolic link specified by path. It operates directly on symbolic links without following them, unlike setxattr. The function allows specifying flags to control whether the attribute is created or replaced.\n\n**Parameters:**\n- `path` (const char *): Path to the file, directory, or symbolic link.\n- `name` (const char *): Name of the extended attribute, including a namespace prefix.\n- `value` (const void *): Pointer to the value data to set for the attribute.\n- `size` (size_t): Size in bytes of the value data.\n- `flags` (int): Flags to modify behavior, such as XATTR_CREATE or XATTR_REPLACE.\n\n**Common Errors:**\n- `EDQUOT`: Disk quota limits meant that there is insufficient space remaining to store the extended attribute.\n- `EEXIST`: XATTR_CREATE was specified, and the attribute exists already.\n- `ENODATA`: XATTR_REPLACE was specified, and the attribute does not exist.\n- `ENOSPC`: There is insufficient space remaining to store the extended attribute.\n- `ENOTSUP`: The namespace prefix of name is not valid, or extended attributes are not supported by the filesystem.\n\n**Related System Calls:** `setxattr()`, `fsetxattr()`, `getxattr()`, `listxattr()`, `removexattr()`, `open()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.083798",
+    "syscall_name": "lsetxattr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_lsetxattr.json",
+    "concept_id": "posix_sys_lsetxattr_5e5439",
+    "book_metadata_added": "2025-10-28T20:22:06.644154"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "const char *link_path = \"/tmp/link_file\";\nconst char *attr_name = \"user.description\";\nconst char *value = \"Direct link manipulation\";\nsize_t len = strlen(value);\n\n// Flag XATTR_REPLACE: Change attribute value if it exists.\n// Returns 0 on success, -1 on error.\nint status = lsetxattr(\n    link_path,\n    attr_name,\n    value,\n    len,\n    XATTR_REPLACE\n);\n\nif (status == -1) {\n    // Handle EPERM, ENOTSUP, etc.\n}\n<ctrl63>",
+  "keywords": "lsetxattr, set extended attribute symlink, C extended attributes, xattr no follow"
+}

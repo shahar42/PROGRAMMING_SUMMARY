@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigsuspend() System Call",
+  "explanation": "rt_sigsuspend() temporarily replaces the signal mask of the calling thread with the mask provided and suspends the thread until a signal is delivered. It supports an enlarged sigset_t for real-time signals and requires the size of the signal set as an argument.\n\n**Parameters:**\n- `mask` (const sigset_t *): Pointer to the new signal mask\n- `sigsetsize` (size_t): Size in bytes of the signal set in mask\n\n**Common Errors:**\n- `EFAULT`: mask points to memory which is not a valid part of the process address space\n- `EINTR`: The call was interrupted by a signal\n- `EINVAL`: sigsetsize is not equal to sizeof(sigset_t)\n\n**Related System Calls:** `kill()`, `pause()`, `sigaction()`, `sigprocmask()`, `sigwaitinfo()`, `sigsetops()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.153740",
+    "syscall_name": "rt_sigsuspend",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigsuspend.json",
+    "concept_id": "posix_sys_rt_sigsuspend_de32d7",
+    "book_metadata_added": "2025-10-28T20:22:06.585453"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "sigset_t wait_for;\nsize_t set_size;\nint ret;\n\n// Assuming wait_for is initialized (signals to unblock)\n// Example: sigemptyset(&wait_for); sigaddset(&wait_for, SIGTERM);\n\nset_size = sizeof(sigset_t);\n\n// Atomically changes signal mask to wait_for and sleeps.\n// Returns -1 upon interrupt (EINTR) or error (EFAULT).\nret = rt_sigsuspend(&wait_for, set_size);\n\nif (ret == -1) {\n    // E.g., errno == EINTR (signal caught)\n    // or errno == EFAULT (invalid mask pointer)\n}\n<ctrl63>",
+  "keywords": "rt_sigsuspend, real-time sigsuspend, change signal mask, wait for signal"
+}

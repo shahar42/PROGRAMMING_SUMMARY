@@ -1,0 +1,17 @@
+{
+  "topic": "Future Destructor Safety: Avoiding Implicit Blocking",
+  "category": "async",
+  "explanation": "Assumption: All `std::future` objects behave identically upon destruction. Reality: Futures obtained from manually created concurrency objects (`std::packaged_task` or `std::promise`) have a 'normal' destructor behavior, meaning they simply release the reference to the shared state without blocking. Why It Matters: This contrasts sharply with futures returned directly by `std::async` (the focus of Item 38), which might implicitly block in their destructor if they hold the last reference to the shared state, forcing the caller to wait for task completion. Using `std::packaged_task` and `std::thread` manually guarantees that the future destructor is non-blocking.",
+  "code_example": "std::packaged_task pt(calcValue);\nauto fut = pt.get_future();\n// fut's destructor is guaranteed non-blocking.",
+  "keywords": [
+    "std::future",
+    "destructor behavior",
+    "blocking",
+    "std::async distinction"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "261",
+  "chapter": "Item 38: Be mindful of varying thread handle destructor behaviors",
+  "id": "emcpp_async_future_destructor_safety__avoiding_e481e5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

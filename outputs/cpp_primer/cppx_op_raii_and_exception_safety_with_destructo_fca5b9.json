@@ -1,40 +1,12 @@
 {
   "topic": "RAII and Exception Safety with Destructors",
   "explanation": "Resource Acquisition Is Initialization (RAII) is a fundamental C++ principle that tightly couples resource management with object lifetime.  This is achieved primarily through destructors.  Exception safety, particularly strong exception safety, relies heavily on RAII to ensure that resources are properly released even when exceptions are thrown.  A key aspect is that destructors should *never* throw exceptions. If a destructor throws, and that exception isn't caught within the destructor itself, it can lead to program termination (often with undefined behavior) due to unpredictable stack unwinding.",
-  "syntax": "Classes should define destructors (~ClassName()) to manage resources. Destructors are automatically called when an object goes out of scope or is explicitly deleted.  Avoid throwing exceptions from destructors. If exceptional situations can occur, handle them within the destructor itself.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <fstream>",
-    "class FileOpener {",
-    "public:",
-    "  FileOpener(const std::string& filename) : file_(filename) {",
-    "    if (!file_) {",
-    "      throw std::runtime_error(\"Could not open file\");",
-    "    }",
-    "  }",
-    "  ~FileOpener() {",
-    "    // Always close the file, even if an exception occurred earlier",
-    "    file_.close();",
-    "  }",
-    "  std::ofstream& getFile() { return file_; }",
-    "private:",
-    "  std::ofstream file_;",
-    "};",
-    "int main() {",
-    "  try {",
-    "    FileOpener myFile(\"example.txt\");",
-    "    myFile.getFile() << \"Hello, world!\\n\";",
-    "  } catch (const std::runtime_error& error) {",
-    "    std::cerr << \"Error: \" << error.what() << std::endl;",
-    "  }",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The `FileOpener` class demonstrates RAII. The constructor opens the file; the destructor closes it.  This ensures the file is always closed, even if an exception is thrown during file operations (e.g., the file doesn't exist).  The destructor does not throw; it handles potential issues (like already-closed files) silently.  This is crucial for strong exception safety: the program's state remains consistent even in the face of errors.  If the destructor *did* throw, the `file_.close()` might not execute, leaving the file potentially open, leading to resource leaks and program instability.  The `try-catch` block in `main` demonstrates how to handle potential exceptions from the constructor, maintaining robust error handling.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "classes",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T07:23:37.193747"
-  }
+    "extraction_date": "2025-08-20T07:23:37.193747",
+    "book_metadata_added": "2025-10-28T20:22:06.522356"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

@@ -1,0 +1,13 @@
+{
+  "topic": "Perfect Forwarding Failure with Initialization Lists",
+  "category": "forward",
+  "explanation": "Assumption: Perfect forwarding, when implemented using `T&&` parameters and `std::forward`, flawlessly transfers the original arguments' identity, including their ability to be constructed via aggregate initialization or initializer lists. Reality: Perfect forwarding fails fundamentally when the argument passed is an expression contained within brace initialization syntax (`{...}`). Why It Fails: When a call involves an argument like `f({1, 2, 3})`, the type deduction rules for universal references do not recognize the braced initializer list as a distinct type that can be forwarded transparently. Instead, `T` is deduced as the type corresponding to the initializer list, but C++ rules prohibit deducing a type from an initializer list (`std::initializer_list` is often instantiated only if specifically requested or if it's the only viable option). Since forwarding references require type deduction to instantiate `T&&`, and deduction fails for `{...}` expressions unless the target function specifically takes a `std::initializer_list`, the perfect forwarding mechanism breaks down. This forces the programmer to implement explicit overloads accepting `std::initializer_list` to handle this specific value category, revealing the imperfection of 'perfect' forwarding.",
+  "code_example": "// The forwarding template fails to bind the initializer list\ntemplate<typename T>\nvoid forwarder(T&& arg) { /*...*/ }\n\nforwarder({1, 2, 3}); // Error: Template argument deduction failed.",
+  "practical_example": "A templated factory function designed to perfectly forward arguments to a constructor fails when the user attempts to construct a container (like `std::vector<int>`) using a standard brace list, necessitating a special non-forwarding overload just for initialization lists.",
+  "keywords": "forwarding initializer list, perfect forwarding failure braces, T&& initializer_list deduction",
+  "difficulty": "advanced",
+  "page_reference": "194-195",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_forward_perfect_forwarding_failure_with_initialization_08fd2a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

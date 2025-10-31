@@ -1,0 +1,16 @@
+{
+  "topic": "Processor Pipelining and Branch Prediction",
+  "explanation": "Processor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, conditional branches disrupt the pipeline's flow, causing stalls. Branch prediction attempts to anticipate the outcome of a branch instruction before it's fully executed, minimizing pipeline stalls and improving performance.  Accurate prediction is crucial for achieving high instruction-level parallelism.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "495-496",
+    "extraction_date": "2025-07-27T17:09:47.090806",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.702716"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "typedef enum { IF, ID, EX, MEM, WB } PipelineStage;\n\n// Example Instruction Flow\nstruct Instruction {\n    int PC;\n    PipelineStage current_stage;\n};\n\n// Data Hazard (RAW Dependency)\n// I1: R1 = R2 + R3;\n// I2: R4 = R1 * R5; \n\n// Stall (Bubble): Wait for I1 WB or MEM\n// Forwarding: Pipe I1 EX result directly to I2 EX input\n\n// Control Hazard (Branch) requires prediction\n// Fetch instructions speculatively based on guess\ntypedef enum { TAKEN, NOT_TAKEN } Prediction;\n\n// 2-bit predictor state machine (Strongly/Weakly)\ntypedef struct {\n    int Branch_Address;\n    Prediction history; // 00=Strongly NT, 11=Strongly T\n    int Target_Address;\n} BTB_Entry; // Branch Target Buffer\n\n// Pipelining Latency\n\nconst int PIPE_DEPTH = 5; // e.g., 5 stages\nconst int MISPREDICT_PENALTY = PIPE_DEPTH; // Cost to recover\n\n// When prediction is wrong (MISPREDICT):\n// 1. Flush/Squash all instructions currently in the pipe\n// 2. Fetch from the correct target address\n// 3. Loss of throughput = MISPREDICT_PENALTY cycles/branch",
+  "keywords": "Branch prediction, processor pipelining, pipeline stall"
+}

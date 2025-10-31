@@ -1,0 +1,13 @@
+{
+  "topic": "Impact of `std::setlocale` on C++ Program Behavior",
+  "explanation": "The `std::setlocale` function, while seemingly simple, reveals intricate interactions between the C++ standard library, the C library's locale handling, and the underlying operating system.  Its implementation-defined aspects highlight the non-portability of relying on specific compiler behaviors.  Understanding its implications requires examining compiler-specific optimizations, memory management, and potential runtime overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:20:12.762566",
+    "book_metadata_added": "2025-10-28T20:22:06.858994"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// C locale is the minimal, guaranteed standard\nsetlocale(LC_ALL, \"C\");\n\n// Use system locale (implementation-defined behavior)\nconst char* current = setlocale(LC_ALL, \"\");\n// Resulting string (current) dictates OS handling\n\ndouble pi = 3.14159;\n\n// LC_NUMERIC controls number formatting (decimal separator)\nsetlocale(LC_NUMERIC, \"C\");\nprintf(\"%.3f\", pi); // Output: 3.142\n\n// If system locale uses comma (e.g., \"fr_FR\"):\nsetlocale(LC_NUMERIC, current);\nprintf(\"%.3f\", pi); // Output may be: 3,142\n\n// Warning: C++ streams (std::cout) ignore C setlocale\n// unless synchronized or explicit std::locale is used.\n\n// Changing locale incurs runtime overhead and memory usage\n// due to loading locale-specific data tables."
+}

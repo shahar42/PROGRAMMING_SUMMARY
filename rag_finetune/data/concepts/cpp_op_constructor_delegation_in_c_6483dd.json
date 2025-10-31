@@ -1,0 +1,14 @@
+{
+  "topic": "Constructor Delegation in C++",
+  "explanation": "Constructor delegation, introduced in C++11, allows one constructor in a class to delegate its initialization responsibilities to another constructor of the same class. This feature is particularly useful in template classes like std::set to avoid code duplication and ensure consistent initialization logic. From a compiler implementation perspective, when a constructor delegates (e.g., via a member initializer list), the compiler generates code that first invokes the delegated constructor as if it were a base class constructor. This involves the compiler resolving the call at compile-time, ensuring that the object's memory is initialized by the delegated constructor before any code in the delegating constructor's body executes. \n\nMemory layout implications are tied to the order of initialization: the delegated constructor fully constructs the object, including allocating any necessary memory for members (e.g., in std::set, this might involve node allocation via the allocator). Performance-wise, delegation can reduce binary size by reusing code, potentially improving cache locality and reducing compilation times, but it may introduce a slight overhead if the delegated constructor is not inlined. At the assembly level, the compiler typically translates a delegated constructor into a direct function call to the target constructor, followed by the delegating code, which might manifest as a JMP or CALL instruction in x86 assembly, depending on optimization flags. For instance, with -O2 in GCC, the compiler might inline the delegation if the functions are small. Runtime behavior involves the delegated constructor executing first, with any exceptions propagating normally, while compile-time behavior ensures that the delegation is resolved during overload resolution, making it a static feature not subject to runtime polymorphism.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:13:12.613779",
+    "book_metadata_added": "2025-10-28T20:22:06.896054"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class DelegationExample {\n    int value;\n\npublic:\n    // Target constructor\n    DelegationExample(int v) : value(v) {}\n\n    // Delegating constructor\n    DelegationExample() : DelegationExample(42) {}\n    \n    // Delegating constructor (multiple arguments)\n    DelegationExample(int a, int b) : DelegationExample(a + b) {}\n    \n    // Cannot delegate and initialize members:\n    // DelegationExample(double d) : DelegationExample(0), value(d) {} // ERROR\n};\n\n// Note: Delegation must occur in the member initializer list.",
+  "keywords": "Delegating Constructors, Constructor Delegation, C++11 Delegation"
+}

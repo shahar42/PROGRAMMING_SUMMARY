@@ -1,0 +1,15 @@
+{
+  "topic": "set_thread_area() System Call",
+  "explanation": "set_thread_area() provides architecture-specific support for thread-local storage, allowing the storage of a pointer or setting of a TLS entry in the GDT on supported architectures like x86, m68k, MIPS, and C-SKY. It is primarily used by threading libraries to manage thread-specific data.\n\n**Parameters:**\n- `u_info` (struct user_desc *): Pointer to a user_desc structure containing TLS entry details (on x86); varies by architecture, e.g., unsigned long tp on m68k\n\n**Common Errors:**\n- `EFAULT`: u_info is an invalid pointer\n- `EINVAL`: u_info->entry_number is out of bounds\n- `ENOSYS`: get_thread_area() or set_thread_area() was invoked as a 64-bit system call\n- `ESRCH`: A free TLS entry could not be located\n\n**Related System Calls:** `arch_prctl()`, `modify_ldt()`, `ptrace()`",
+  "syntax": "int syscall(SYS_set_thread_area, struct user_desc *u_info);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = set_thread_area(...);  // Call the system call\nif (result == -1) {\n    perror(\"set_thread_area\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the set_thread_area() system call. The function takes 1 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.082013",
+    "syscall_name": "set_thread_area",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_set_thread_area.json",
+    "concept_id": "posix_sys_set_thread_area_3f1a59"
+  }
+}

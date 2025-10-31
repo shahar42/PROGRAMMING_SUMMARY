@@ -1,0 +1,16 @@
+{
+  "topic": "Adjustment After File Combination",
+  "explanation": "Relocation entries are crucial during the linking and loading process.  They identify places within an object file where addresses need to be adjusted after the linker combines multiple object files into a single executable.  This adjustment is necessary because the final memory addresses of functions and data are not known until linking is complete.  Address patching, using relocation entries, resolves these addresses, ensuring that all references within the program correctly point to their intended targets.  Without relocation, the program wouldn't know where to find functions or data defined in other object files or libraries.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "31-31",
+    "extraction_date": "2025-07-13T23:45:48.983218",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.753198"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// --- Relocation Entry (Input to Linker) ---\nstruct Relocation {\n    uint64_t offset;    // Location in section needing adjustment (P)\n    uint32_t symbol_idx; // Symbol table index (S)\n    uint8_t  type;      // Type of adjustment (e.g., PC-relative)\n    int64_t  addend;    // Constant offset (A)\n};\n\n// --- Linker Address Patching Logic ---\nuint64_t resolve_address(\n    struct Relocation R, uint64_t SymAddr, uint64_t PatchLoc)\n{\n    // Common Relocation Types:\n    if (R.type == R_ABS64) {\n        // Absolute: Value = S + A\n        return SymAddr + R.addend;\n    }\n    if (R.type == R_PC32) {\n        // PC-Relative: Value = (S + A) - P\n        return (SymAddr + R.addend) - PatchLoc;\n    }\n    return 0; // Unhandled type\n}",
+  "keywords": "Relocation entries, Linker address resolution, Address patching, Relocation table"
+}

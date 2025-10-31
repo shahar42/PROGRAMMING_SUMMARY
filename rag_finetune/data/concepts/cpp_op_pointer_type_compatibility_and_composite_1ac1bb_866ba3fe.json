@@ -1,0 +1,14 @@
+{
+  "topic": "Pointer Type Compatibility and Composite Types in C++",
+  "explanation": "In C++, pointer type compatibility involves determining whether two pointer types can be used interchangeably in operations like assignment or casting, often requiring the concept of a composite pointer type as per the C++ standard (e.g., [expr] section). A composite pointer type is derived when combining pointers in expressions, such as in the conditional operator, and must adhere to strict rules for cv-qualifiers (const, volatile) and levels of indirection. The compiler implements this by performing type unification during semantic analysis: if no compatible composite type can be formed, the program is ill-formed, as specified in the standard. For instance, when assigning or casting pointers, the compiler checks for exact matches in pointee types, cv-qualifiers, and pointer depth. \n\nUnder the hood, compilers like GCC or Clang represent pointers as machine addresses (e.g., 64-bit values on x86-64), but enforce type rules at compile-time to prevent undefined behavior. Memory layout for pointers is uniform—typically 8 bytes on 64-bit systems—regardless of the pointee type, but the compiler inserts checks or errors based on type compatibility, which can influence code generation. Performance implications include potential compile-time errors that avoid runtime segmentation faults, though mismatched pointers can lead to undefined behavior if casts bypass checks. At the assembly level, compatible pointers might generate identical code for address manipulation (e.g., MOV instructions), but incompatible ones trigger compiler diagnostics. This is primarily a compile-time behavior, as type checking occurs during parsing and semantic phases, whereas runtime behavior involves actual memory access, where pointers are dereferenced as raw addresses without inherent type information.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:59:56.045675",
+    "book_metadata_added": "2025-10-28T20:22:06.806954"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "using T = int;\nT val = 1;\nconst T c_val = 2;\n\nT* p_non_const = &val;\nconst T* p_const = &c_val;\n\n// Conditional operator (?:) requires a Composite Pointer Type.\n// Composite(T*, const T*) must be the common qualified type: const T*\nauto p_comp = true ? p_non_const : p_const; // p_comp is const T*\n\n// Failure example: Cannot assign Composite (const T*) back to T*\n// T* p_err = p_comp; // Error: incompatible cv-qualifiers\n                      // (Discards 'const')",
+  "keywords": "Pointer type compatibility, Composite pointer type, C++ pointer conversions"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Smart Pointers and Automatic Memory Management in Modern C++",
+  "explanation": "Smart pointers are template classes in C++ that automate memory management by ensuring proper resource deallocation when objects go out of scope. They help prevent memory leaks and dangling pointers, which are common pitfalls in manual memory management. Modern C++ (C++11 and beyond) introduces smart pointers such as std::unique_ptr, std::shared_ptr, and std::weak_ptr, each suited for different ownership semantics, promoting safer and more expressive code.",
+  "syntax": "std::unique_ptr<T> ptr = std::make_unique<T>(constructor_args); // exclusive ownership\nstd::shared_ptr<T> ptr = std::make_shared<T>(constructor_args); // shared ownership\nstd::weak_ptr<T> wp = std::weak_ptr<T>(shared_ptr); // non-owning reference",
+  "code_example": "#include <iostream>\n#include <memory>\n\nclass Resource {\npublic:\n    Resource() { std::cout << \"Resource acquired\" << std::endl; }\n    ~Resource() { std::cout << \"Resource destroyed\" << std::endl; }\n    void do_something() { std::cout << \"Doing something with resource\" << std::endl; }\n};\n\nint main() {\n    {\n        auto ptr = std::make_unique<Resource>(); // unique_ptr manages Resource\n        ptr->do_something();\n    } // Resource is automatically destroyed here when ptr goes out of scope\n\n    std::shared_ptr<Resource> sharedPtr1 = std::make_shared<Resource>();\n    {\n        std::shared_ptr<Resource> sharedPtr2 = sharedPtr1; // shared ownership\n        sharedPtr2->do_something();\n        std::cout << \"Shared pointers count: \" << sharedPtr1.use_count() << std::endl;\n    } // sharedPtr2 goes out of scope, but Resource remains until sharedPtr1 is destroyed\n    std::cout << \"Shared pointer still exists with count: \" << sharedPtr1.use_count() << std::endl;\n    return 0;\n}",
+  "example_explanation": "This example demonstrates modern C++ smart pointers: 'std::unique_ptr' for exclusive ownership, which automatically deletes the managed object when it goes out of scope, and 'std::shared_ptr' for shared ownership, which keeps track of how many pointers refer to the same object and deletes it when the last shared pointer is destroyed. The code shows how smart pointers simplify resource management, prevent memory leaks, and improve safety compared to raw pointers.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "421-422",
+    "extraction_date": "2025-08-19T04:16:37.282811",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

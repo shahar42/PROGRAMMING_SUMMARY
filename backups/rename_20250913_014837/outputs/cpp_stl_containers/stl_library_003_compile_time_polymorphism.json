@@ -1,0 +1,33 @@
+{
+  "topic": "Compile-Time Polymorphism with `constexpr` and its Impact on Memory Layout and Performance",
+  "explanation": "This concept explores how `constexpr` functions and variables enable compile-time computation, influencing memory layout and runtime performance.  We'll examine how compilers optimize `constexpr` code, potentially eliminating runtime overhead entirely and leading to significant performance gains. We will also discuss the limitations of `constexpr` and situations where compile-time evaluation might not be possible, focusing on the interaction between `constexpr` and external factors, such as I/O or dynamic memory allocation.",
+  "syntax": "```c++\nconstexpr int square(int x) { return x * x; }\n\nint main() {\n  constexpr int value = square(5); // Compile-time computation\n  int runtime_value = square(10); // Runtime computation\n  // ... further use of value and runtime_value\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "constexpr int fibonacci(int n) {",
+    "  return n <= 1 ? n : fibonacci(n - 1) + fibonacci(n - 2);",
+    "}",
+    "int main() {",
+    "  constexpr std::array<int, 10> fib_sequence = []() {",
+    "    std::array<int, 10> arr; ",
+    "    for (int i = 0; i < 10; ++i) arr[i] = fibonacci(i);",
+    "    return arr;",
+    "  }();",
+    "  for (int i = 0; i < 10; ++i) {",
+    "    std::cout << fib_sequence[i] << \" \"; //No runtime computation",
+    "  }",
+    "  std::cout << std::endl;",
+    "  int runtime_fib = fibonacci(20); //Runtime computation",
+    "  std::cout << \"Runtime fibonacci(20): \" << runtime_fib << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `constexpr` fibonacci function demonstrates compile-time computation.  In the `main` function, `fib_sequence` is initialized with the results of `fibonacci` calls at compile time. The compiler directly substitutes the calculated values into the array, avoiding any runtime computation for accessing elements of `fib_sequence`. Accessing `fib_sequence[i]` will involve a simple array access at runtime.  Conversely, the call to `fibonacci(20)` occurs at runtime, resulting in recursive function calls and the associated overhead.  The compiler's optimization will heavily favor the `constexpr` version, potentially reducing the compiled code size and improving execution speed. The difference becomes significant for larger values of `n`, where the runtime cost of the recursive calls in `fibonacci(20)` will be substantial.  Examining the assembly code would reveal the absence of function calls for accessing `fib_sequence` (it would be directly embedded in the code), while the `fibonacci(20)` call will translate into actual function calls and stack operations.  Note that the feasibility of compile-time evaluation is tightly coupled to the complexity of the `constexpr` function; excessively complex computations might exceed the compiler's capacity for compile-time resolution.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:29:24.555500"
+  }
+}

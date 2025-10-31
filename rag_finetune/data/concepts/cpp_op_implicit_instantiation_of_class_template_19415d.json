@@ -1,0 +1,14 @@
+{
+  "topic": "Implicit Instantiation of Class Templates and its Implications",
+  "explanation": "C++ compilers employ a technique called \"implicit instantiation\" for class templates.  This means that a class template is only instantiated (translated into actual machine code) when it's explicitly used. However, the *decision* of whether or not to instantiate can have profound implications for compile time, memory usage, and runtime performance.  Understanding how the compiler makes this decision is crucial for optimizing template-heavy code. The compiler's behavior isn't entirely standardized, leading to potential portability issues if code relies on specific instantiation behavior across different compilers.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:58:25.947393",
+    "book_metadata_added": "2025-10-28T20:22:06.871510"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\nstruct ResourceHolder {\n    // This member function requires T to define operator<<\n    void log() const {\n        // Failure if operator<< is missing, but ONLY if called\n        // std::cout << data;\n    }\n\n    // T must be default constructible\n    T data = T{};\n};\n\n// 1. Class structure instantiation (Minimal)\n// Does not instantiate ResourceHolder<int>::log()\nResourceHolder<int> rh;\n\n// 2. Full implicit instantiation of the class\n// The default constructor for T is needed here\nResourceHolder<double> rd = {};\n\n// 3. Member instantiation (Code Generation Triggered)\n// rd.log(); // Compile error IF T (double) lacks operator<<\n//           // But compiles fine if this line is omitted (Lazy)\nrh.data = 42;\n<ctrl63>",
+  "keywords": "Template instantiation, implicit instantiation, C++ instantiation model"
+}

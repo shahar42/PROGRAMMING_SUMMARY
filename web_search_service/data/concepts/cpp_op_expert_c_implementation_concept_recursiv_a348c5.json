@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Recursive Mutexes and Compiler Optimization",
+  "explanation": "This explores the implementation of recursive mutexes (e.g., `std::recursive_timed_mutex`), focusing on how compilers handle the complexities of ownership tracking, potential compiler optimizations, and the resulting memory layout and performance implications.  We will examine the interplay between compile-time and runtime behavior, and consider assembly-level details where relevant.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:49:00.395989",
+    "book_metadata_added": "2025-10-28T20:22:06.903484"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct RecursiveMutexInternalState {\n    // Ownership tracking (critical for fast path reentry)\n    std::thread::id owner_id;\n    \n    // Recursion count (must be volatile/atomic to avoid optimization)\n    std::atomic<int> recursion_depth = 0;\n\n    // Compiler optimization relies on the runtime check:\n    bool is_owner(std::thread::id current) const {\n        return owner_id == current;\n    }\n\n    // Assembly detail: recursion path bypasses kernel/OS wait.\n    void recursive_lock() {\n        recursion_depth.fetch_add(1, std::memory_order_relaxed);\n    }\n};"
+}

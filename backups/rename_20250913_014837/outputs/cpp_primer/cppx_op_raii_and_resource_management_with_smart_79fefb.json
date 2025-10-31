@@ -1,0 +1,35 @@
+{
+  "topic": "RAII and Resource Management with Smart Pointers (using `unique_ptr` for a dynamically allocated array)",
+  "explanation": "Resource Acquisition Is Initialization (RAII) is a fundamental C++ idiom that ties resource management (like memory allocation) to the object's lifecycle.  This ensures resources are automatically released when the object goes out of scope, preventing memory leaks and other resource-related errors.  `unique_ptr` is a smart pointer that perfectly embodies this. It gives you exclusive ownership of a dynamically allocated object, and it automatically deletes the managed object when it is destroyed.  This eliminates manual `delete` calls and their associated risks, leading to more robust and maintainable code.  Using `unique_ptr` with arrays requires a slightly different approach than managing single objects.",
+  "syntax": "```c++\n#include <memory>\n\nstd::unique_ptr<int[]> ptr = std::make_unique<int[]>(size);\n// ... use ptr[i] ...\n// No need for delete[] ptr;  The destructor handles it.\n```\n\n**Practical Usage Notes:**\n* Always use `std::make_unique` to create `unique_ptr` objects; it's safer and avoids manual allocation and initialization.\n* `unique_ptr` does not support copying or assigning; this ensures exclusive ownership.  Use `std::move` to transfer ownership if necessary.\n* Understand that accessing the raw pointer is sometimes necessary (e.g., passing to legacy APIs), but handle it carefully, using `ptr.get()`.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "#include <vector>",
+    "",
+    "int main() {",
+    "  size_t size = 5;",
+    "  std::unique_ptr<int[]> data = std::make_unique<int[]>(size);",
+    "  for (size_t i = 0; i < size; ++i) {",
+    "    data[i] = i * 10;",
+    "  }",
+    "  for (size_t i = 0; i < size; ++i) {",
+    "    std::cout << data[i] << \" \";",
+    "  }",
+    "  std::cout << std::endl;",
+    "  // data is automatically deleted when it goes out of scope",
+    "  std::vector<int> vec(data.get(), data.get() + size); //example of getting raw pointer",
+    "  std::cout << \"Vector: \";",
+    "  for(int x : vec){ std::cout << x << \" \";}",
+    "  std::cout << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates allocating an array of integers dynamically using `std::unique_ptr<int[]>`. The `make_unique` function handles allocation and initialization.  The loop populates the array, and another loop prints its contents.  Crucially, there's no manual `delete[]` needed. The `unique_ptr`'s destructor automatically releases the memory when `data` goes out of scope.  The `std::vector` example shows how to get the raw pointer only when absolutely necessary, which is good practice for interoperability with legacy code.  Attempting to copy the `unique_ptr` would result in a compilation error, reinforcing its exclusive ownership characteristic and preventing potential double deletion issues, a common pitfall when managing raw pointers manually.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:44:51.526715"
+  }
+}

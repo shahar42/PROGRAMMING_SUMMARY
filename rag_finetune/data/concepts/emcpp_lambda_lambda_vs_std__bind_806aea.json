@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda vs std::bind: Argument Expressions Are Evaluated Eagerly",
+  "category": "lambda",
+  "explanation": "Assumption: Arguments passed to `std::bind` are evaluated only when the resulting callable object is invoked. Reality: `std::bind` evaluates all arguments immediately at the time `std::bind` itself is called. The resulting values (or copies of the values) are stored within the generated bind object. Why It Fails: This eagerness causes logical errors for time-sensitive or state-dependent expressions (e.g., calculating a future time based on `steady_clock::now()`). If the bind object is invoked later, it uses the stale, pre-calculated value rather than re-evaluating the expression relative to the new current time. Lambdas, conversely, naturally defer the evaluation of expressions used in the body until the lambda is called.",
+  "code_example": "auto setAlarmB = std::bind(setAlarm, steady_clock::now() + 1h, ...);\n// The time is fixed one hour from *this* line, not one hour from when setAlarmB is called.",
+  "practical_example": "A developer attempts to create a reusable timer task using `std::bind` that should execute one hour from the execution time. Because the time expression is evaluated at the binding setup, the timer always fires based on the initial setup time, regardless of how long the setup object was stored before use.",
+  "keywords": [
+    "std::bind",
+    "eager evaluation",
+    "deferred execution",
+    "time dependency"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "250-257",
+  "chapter": "Item 34: Prefer lambdas to std::bind",
+  "id": "emcpp_lambda_lambda_vs_std__bind_806aea",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

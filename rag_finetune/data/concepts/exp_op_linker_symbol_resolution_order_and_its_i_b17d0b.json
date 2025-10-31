@@ -1,0 +1,16 @@
+{
+  "topic": "Linker Symbol Resolution Order and Its Impact on Static Linking",
+  "explanation": "In advanced C programming, understanding how the linker resolves symbols during static linking is crucial for managing symbol conflicts, ensuring correct linkage, and optimizing build processes. The order of static libraries on the command line affects symbol resolution because the linker processes libraries from left to right, resolving undefined symbols as it encounters them. Misordering can lead to unresolved references or multiple definitions, especially when libraries contain overlapping symbols or when linking with libraries like libm that are often statically linked for performance. Mastery of this concept enables developers to control linkage behavior precisely, avoid subtle bugs, and optimize application startup and runtime performance.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "107-107",
+    "extraction_date": "2025-07-21T17:23:41.029660",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "expert_c_programming",
+    "book_metadata_added": "2025-10-28T20:22:07.020487"
+  },
+  "book": "Expert C Programming: Deep C Secrets",
+  "code_example": "# Linker Symbol Resolution Order (Static Link Libraries)\n# Order matters: Libraries must appear AFTER objects/libraries\n# that reference the symbols they define. (Left-to-Right processing)\n\n# Scenario: main.o needs B, B needs A\n\n# CORRECT ORDER: B defined before A is satisfied\ngcc main.o -lB -lA -o program\n\n# INCORRECT ORDER: A is defined, but later B requires A.\n# Linker 'forgets' unused symbols from A when processing main/B.\ngcc main.o -lA -lB -o program\n# (Result: Unresolved reference to func_A)\n\n# Handling Circular Dependencies (Mutual Needs): Use Grouping\ngcc main.o -Wl,--start-group -lA -lB -Wl,--end-group -o program\n# (Forces repeated search through all libraries in the group)",
+  "keywords": "Linker library order, static linking order, ld library search order"
+}

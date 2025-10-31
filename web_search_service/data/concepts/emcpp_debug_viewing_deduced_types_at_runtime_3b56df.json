@@ -1,0 +1,22 @@
+{
+  "topic": "typeid Operator: Decay of Deduced Qualifiers",
+  "category": "debug",
+  "explanation": "The `typeid` operator offers a runtime mechanism to inspect the type of an expression by returning a `std::type_info` object, whose `name` member function provides a string representation. While this seems like a direct way to debug type deduction for `auto` variables or template parameters, it comes with a significant and misleading limitation.\n\nScott Meyers' crucial insight is that `typeid` is fundamentally unreliable for viewing the exact types deduced by the compiler. He stresses that the C++ standard mandates a behavior that systematically erases the very details programmers often want to inspect. Specifically, `typeid` treats its argument as if it were being passed by value to a function template, which means it strips away all reference qualifiers and often top-level `const` and `volatile` qualifiers.\n\nThe mechanics behind this behavior are rooted in the language specification itself. When you apply `typeid` to an expression, say a variable `param` whose deduced type is `const Widget&`, the compiler first strips the reference, leaving `const Widget`. It then strips the top-level `const`, leaving just `Widget`. The resulting `std::type_info` object corresponds to this simplified, decayed type, not the variable's actual type. Consequently, `typeid` will report the same type for a `Widget`, a `const Widget`, a `Widget&`, and a `const Widget&`.\n\nIn practice, this makes `typeid` a deceptive tool for debugging template metaprogramming or forwarding logic. If you are trying to verify that a universal reference correctly deduced its parameter as an lvalue reference, `typeid` will incorrectly report a non-reference type, hiding the success of the deduction. This can lead you to misdiagnose problems with perfect forwarding, const-correctness, or value category preservation, as the tool actively conceals the information you need.\n\nA common and serious pitfall is trusting the output of `typeid(...).name()` as an accurate representation of a variable's type. Programmers are often surprised when `typeid` reports the same type for a template parameter `T` and a function parameter of type `const T&`, which should be distinct. This misunderstanding stems from not being aware of `typeid`'s value-semantic treatment of types, leading to incorrect assumptions and frustrating debugging sessions.",
+  "code_example": "#include <iostream>\n#include <typeinfo>\n\nclass Widget {};\n\ntemplate<typename T>\nvoid f(const T& param) {\n    // typeid treats param as if passed by value, stripping its reference\n    // and const qualifiers for the purpose of type identification.\n    std::cout << \"T's type name:     \" << typeid(T).name() << '\\n';\n    std::cout << \"param's type name: \" << typeid(param).name() << '\\n';\n}\n\nint main() {\n    Widget w;\n    const Widget& rw = w;\n    \n    f(rw); // T is deduced as Widget, param's type is const Widget&\n           // Yet, typeid reports the same (or similar) name for both,\n           // misleadingly hiding the reference on param's type.\n    return 0;\n}",
+  "practical_example": "A developer trying to debug why a generic function is making an unexpected copy might use `typeid` to check the parameter's type. If the parameter is `const T&`, they expect to see a reference type. `typeid` will instead report the base type `T`, leading the developer to incorrectly believe the function is taking the argument by value, sending them on a wild goose chase.",
+  "keywords": [
+    "typeid",
+    "runtime type information",
+    "rtti",
+    "type viewing",
+    "debugging",
+    "type deduction",
+    "reference stripping",
+    "const stripping"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "32-33",
+  "chapter": "Item 4: Know how to view deduced types",
+  "id": "emcpp_debug_viewing_deduced_types_at_runtime_3b56df",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

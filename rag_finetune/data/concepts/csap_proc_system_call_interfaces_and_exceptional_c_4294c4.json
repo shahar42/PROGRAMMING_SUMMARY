@@ -1,0 +1,25 @@
+{
+  "topic": "System Calls and ECF: User Mode Transitions",
+  "explanation": "System calls provide the interface between a process running in user mode and the operating system kernel. They allow user-level programs to request services from the kernel, such as accessing files, managing memory, or creating new processes.  Exceptional control flow refers to situations where the normal flow of execution is interrupted, such as by a system call, signal, or exception.  Understanding how these mechanisms work is crucial for writing robust and efficient systems-level programs that interact correctly with the operating system and handle unexpected events.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "764-764",
+    "extraction_date": "2025-07-28T12:21:38.565981",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-28T12:31:05.420771",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "794-794",
+      "extraction_date": "2025-07-28T12:31:04.536089",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8789173364639282,
+    "book_metadata_added": "2025-10-28T20:22:06.693607"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// SYSCALL: User -> Kernel Mode Transition for I/O\n// read() wrapper executes the SYSCALL instruction/trap\n#define FD STDIN_FILENO\n#define SIZE 1024\nchar buf[SIZE];\n\n// CPU transitions from user mode to kernel mode (ring 0)\n// RAX register holds the syscall number (e.g., 0 for read)\nssize_t count = read(FD, buf, SIZE);\n\n// Kernel executes the handler, then returns to user mode\nif (count < 0) {\n    // Error handling\n}\n\n\n// ECF: Process Creation (fork/exec)\n// System call resulting in exceptional control flow (new process)\npid_t pid = fork();\n\nif (pid == 0) {\n    // Child process: New execution thread\n    char *args[] = {\"/bin/echo\", \"Hello\", NULL};\n    // execv replaces the current process image\n    execv(args[0], args);\n    _exit(1);\n} else if (pid > 0) {\n    // Parent process\n    int status;\n    // Parent blocks, waiting for child ECF completion\n    waitpid(pid, &status, 0);\n}"
+}

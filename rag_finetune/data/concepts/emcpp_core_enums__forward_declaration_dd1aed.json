@@ -1,0 +1,22 @@
+{
+  "topic": "Enums: Forward Declaration",
+  "category": "core",
+  "explanation": "C++11 introduces the ability to forward-declare enumerations, a feature that was absent in C++98. This applies to both scoped enums, declared with 'enum class', and traditional unscoped enums. A forward declaration allows you to use an enum's name in function signatures or data members without providing its full definition, which includes its list of enumerators.\n\nScott Meyers emphasizes that this capability is a crucial tool for reducing compilation dependencies in large projects. In C++98, using an enum in a header file required including the enum's full definition, creating a tight coupling. If the enum's definition changed (e.g., adding an enumerator), all files including that header had to be recompiled. C++11's forward-declarable enums break this dependency, behaving more like classes and structs in this regard.\n\nThe mechanics behind this feature rely on the compiler knowing the size of the enum at the point of its forward declaration. This is achieved by ensuring every forward-declared enum has a known underlying integral type. For a scoped enum, the default underlying type is 'int'. For an unscoped enum, the underlying type must be explicitly specified in the forward declaration. This guarantee of a known size is what makes the feature possible.\n\nIn practice, this significantly improves build times and code organization. You can place a forward declaration of an enum in a widely-used header file that declares a function using it, while keeping the enum's full definition in a more localized source file. This prevents a ripple effect of recompilations when the enum's implementation details change but the public interface remains stable. For example, a function's implementation might not need to be recompiled if a new enumerator is added that it doesn't interact with.\n\nA common pitfall is attempting to forward-declare an unscoped enum without specifying its underlying type. The compiler has no default to fall back on for unscoped enums in this context, so the type must be explicitly provided. Forgetting this results in a compilation error, as the compiler cannot determine the enum's size.",
+  "code_example": "// Header file (e.g., processing.h)\n\n// Forward declaration of a scoped enum (underlying type defaults to int)\nenum class Status;\n\n// Forward declaration of an unscoped enum (underlying type must be specified)\nenum Color : unsigned char;\n\n// Function using the forward-declared enums\nvoid process(Status s);\nColor getCurrentColor();",
+  "practical_example": "In a large system, a widely included header file for a `TaskManager` class can declare a function `setTaskStatus` that takes a `TaskStatus` enum. By forward-declaring `enum class TaskStatus;` in the header, the full definition of all possible statuses can be confined to the `TaskManager`'s implementation file, reducing build times for all clients of the task manager.",
+  "keywords": [
+    "enum",
+    "enum class",
+    "forward declaration",
+    "scoped enum",
+    "unscoped enum",
+    "compilation dependencies",
+    "underlying type",
+    "decoupling"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "70-71",
+  "chapter": "Item 10",
+  "id": "emcpp_core_enums__forward_declaration_dd1aed",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

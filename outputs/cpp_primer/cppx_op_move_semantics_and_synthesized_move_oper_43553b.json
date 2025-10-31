@@ -1,38 +1,12 @@
 {
   "topic": "Move Semantics and Synthesized Move Operations",
   "explanation": "Move semantics provide an efficient way to transfer resources (like dynamically allocated memory) between objects, avoiding unnecessary copies.  Instead of copying data, move semantics transfer ownership. This is crucial for performance, especially with large objects or containers. The compiler can *synthesize* (automatically generate) move constructors and move assignment operators, but only under specific conditions. Understanding these conditions is key to writing efficient and correct C++ code.",
-  "syntax": "Move constructors and move assignment operators are declared using rvalue references (`&&`).\n\nExample:\n`MyClass(MyClass&& other);` // Move constructor\n`MyClass& operator=(MyClass&& other);` // Move assignment operator",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "#include <vector>",
-    "class MyClass {",
-    "public:",
-    "  std::string data;",
-    "  MyClass(std::string s) : data(std::move(s)) {}  // Constructor taking string by value",
-    "  MyClass(MyClass&& other) : data(std::move(other.data)) { other.data = \"\"; } //Move constructor",
-    "  MyClass& operator=(MyClass&& other) {",
-    "    if (this != &other) {",
-    "      data = std::move(other.data);",
-    "      other.data = \"\";",
-    "    }",
-    "    return *this;",
-    "  }",
-    "  ~MyClass() { std::cout << \"Destructor called for: \" << data << std::endl; }",
-    "};",
-    "int main() {",
-    "  MyClass a(\"Hello\");",
-    "  MyClass b = std::move(a); // Move assignment",
-    "  MyClass c{\"World\"};",
-    "  c = std::move(b); // Move assignment",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The example demonstrates a `MyClass` with a string member. The move constructor and move assignment operator efficiently transfer ownership of the string, avoiding a costly copy.  Notice how the moved-from object's `data` is set to an empty string to avoid double deletion. The `std::move` function explicitly casts an lvalue to an rvalue, enabling the compiler to use the move operations.  Crucially, if we defined a copy constructor or copy assignment operator for `MyClass`, the compiler would *not* synthesize the move operations.  Failure to provide or properly utilize move semantics can lead to significant performance degradation when dealing with large objects or frequent object transfers.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "copy",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T05:28:32.573330"
-  }
+    "extraction_date": "2025-08-20T05:28:32.573330",
+    "book_metadata_added": "2025-10-28T20:22:06.540973"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

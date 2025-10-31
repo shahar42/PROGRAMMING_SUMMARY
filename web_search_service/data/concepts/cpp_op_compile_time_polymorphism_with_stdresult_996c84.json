@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism with `std::result_of` and Perfect Forwarding in Custom Random Number Generators",
+  "explanation": "It highlights how the compiler deduces return types at compile time, avoiding runtime overhead, and showcases the importance of perfect forwarding to maintain flexibility in argument passing. The compiler's implementation leverages template metaprogramming to generate specialized code for different RNG types and their associated return types, thus optimizing performance by eliminating runtime type checking and dispatch.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:19:50.984853",
+    "book_metadata_added": "2025-10-28T20:22:06.882858"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct RNG_Int { int operator()() { return 10; } };\nstruct RNG_Double { double operator()(int) const { return 1.0; } };\n\ntemplate <typename Gen, typename... Args>\nauto invoke_poly(Gen&& g, Args&&... a)\n-> decltype(std::forward<Gen>(g)(std::forward<Args>(a)...))\n{\n    // Compiler determines return type (decltype) and optimal call\n    return std::forward<Gen>(g)(std::forward<Args>(a)...);\n}\n\n// Result types determined at compile-time:\nauto val_i = invoke_poly(RNG_Int{});      // int\nauto val_d = invoke_poly(RNG_Double{}, 5);// double"
+}

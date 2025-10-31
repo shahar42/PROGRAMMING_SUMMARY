@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Crucial Technique",
+  "explanation": "The memory hierarchy structures storage devices (registers, L1/L2/L3 cache, DRAM) by decreasing speed and increasing latency to mitigate the CPU-DRAM performance gap. Caching is the fundamental optimization technique where subsets of data from a slower memory level are duplicated into a faster, smaller cache. Modern architectures utilize multi-level caches (L1, L2, L3) proximal to the CPU core to maximize the *cache hit rate*. Maximizing the hit rate minimizes the average memory access time (AMAT) by avoiding high-latency main memory fetches. Effective caching strategies rely on exploiting the principles of *temporal locality* (reusing data soon) and *spatial locality* (accessing nearby data) to ensure data presence when needed.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "129-129",
+    "extraction_date": "2025-07-23T01:15:25.756264",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.707553",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:32",
+    "original_length": 434,
+    "refined_length": 738
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define CACHE_LINE_SIZE 64\n#define N 100\n\n// 1. Spatial Locality: Row-Major Access (C/C++ default)\nint matrix[N][N];\nvoid optimize_access() {\n    for (int i = 0; i < N; i++) {\n        for (int j = 0; j < N; j++) {\n            matrix[i][j] += 1; // Excellent cache line utilization\n        }\n    }\n}\n\n// 2. Avoidance of False Sharing (Padding)\n// Ensures unrelated variables accessed by different threads\n// reside on separate cache lines, preventing contention.\nstruct AlignedCounter {\n    long value;\n    char pad[CACHE_LINE_SIZE - sizeof(long)];\n};\nAlignedCounter shared_data[4];\n\n// 3. Cache Control Hint (Manual Pre-fetching)\n// Tells the CPU to load data into the cache before needed\n// (Specific intrinsic varies by compiler/ISA)\nvoid process_with_prefetch(int* arr) {\n    for (int i = 0; i < N; i++) {\n        // Prefetch data needed in the next few iterations (e.g., 8 iterations ahead)\n        __builtin_prefetch(&arr[i + 8], 0 /* read */, 3 /* high locality */);\n        arr[i] *= 2;\n    }\n}"
+}

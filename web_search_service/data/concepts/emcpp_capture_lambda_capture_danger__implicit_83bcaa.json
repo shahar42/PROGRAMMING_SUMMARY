@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture Danger: Implicit `this` Capture with Default By-Value",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-value capture (`[=]`) inside a member function guarantees that all necessary data members (like `divisor`) are copied into the lambda closure. Reality: If a lambda uses a class data member, C++ rules dictate that the compiler implicitly captures the owning object's `this` pointer by value, not the member data itself. Why It Fails: If the resulting lambda (often stored in a container like `filters`) outlives the original class object, the captured `this` pointer becomes dangling. Dereferencing this pointer later results in undefined behavior. This danger is masked by the convenience of the default capture mode.",
+  "code_example": "class Widget {\n  int divisor = 5;\n  void addFilter() {\n    filters.emplace_back([=](int v) { \n      return v % divisor == 0; \n    }); // Dangling pointer risk if Widget is destroyed\n  }\n};",
+  "practical_example": "A developer uses `[=]` within a class method to create a callback intended for a long-running background task queue. When the originating object goes out of scope, the lambda's subsequent execution attempts to access memory via the stale `this` pointer, causing intermittent crashes.",
+  "keywords": [
+    "default capture",
+    "this pointer",
+    "dangling pointer",
+    "lifetime mismatch",
+    "Item 31"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-237",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_danger__implicit_83bcaa",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

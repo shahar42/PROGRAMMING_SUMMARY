@@ -1,0 +1,21 @@
+{
+  "topic": "Auto Deduction: Literal Proxy Type Capture",
+  "category": "type",
+  "explanation": "When an initializing expression returns a proxy class object, `auto` will deduce the type of the proxy class itself, not the type it emulates. This behavior, while technically correct, can be a significant source of subtle bugs, as programmers often expect `auto` to deduce the underlying, or 'semantic,' type.\n\nScott Meyers highlights this as a critical pitfall where `auto`'s technically correct type deduction can violate programmer intent. The core insight is that these proxy objects, particularly 'invisible' ones like the reference object for a vector of booleans, often have lifetimes tied to a temporary object. If `auto` deduces the proxy type and that temporary is destroyed, the `auto`-deduced variable will be left holding a proxy with dangling internal pointers or references, leading to undefined behavior upon use.\n\nThe mechanics are straightforward but have dangerous implications. For example, when you access an element of a temporary vector of booleans, the indexing operator doesn't return a reference to a boolean but rather a proxy object of a special reference type. This proxy contains information, like a pointer and a bit offset, to locate the specific bit within the vector's internal storage. If you initialize an `auto` variable with this result, its type becomes that proxy class. At the end of the statement, the temporary vector is destroyed, invalidating the pointer held by the proxy object.\n\nThis issue has practical implications beyond just the standard library's boolean vector specialization. It's a common pattern in libraries that use expression templates, such as those for high-performance matrix arithmetic. These libraries return proxy objects representing unevaluated operations (e.g., the sum of two matrices) to improve efficiency. Using `auto` to capture the result of such an operation will store the proxy object, not the computed result, which can lead to similar lifetime and dangling reference problems if the operands were temporaries.\n\nThe most common pitfall is being unaware that an API returns a proxy object. Programmers see an expression that looks like it should yield a simple value (like a boolean or a matrix) and use `auto` with that expectation, inadvertently creating a variable of the proxy type. The subsequent undefined behavior can be exceptionally difficult to debug because the variable's type looks correct at a glance, and the crash may occur far from the site of initialization.",
+  "code_example": "// A function returning a temporary vector of bools\nstd::vector<bool> makeVector() {\n    return {false, true, false, true, true};\n}\n\n// auto deduces the proxy type, std::vector<bool>::reference\nauto problematic_val = makeVector()[0]; \n\n// At this point, the temporary vector from makeVector() is destroyed.\n// `problematic_val` now holds a proxy object with a dangling pointer\n// to the temporary's internal storage.\n// Using `problematic_val` results in undefined behavior.\n\n// The fix: Use an explicit cast to force the proxy's conversion\nauto correct_val = static_cast<bool>(makeVector()[0]);\n// `correct_val` is now a safe, independent bool.",
+  "practical_example": "In a linear algebra library using expression templates, adding two matrices might return a proxy object representing the sum operation rather than a new matrix. If a programmer writes `auto sum = m1 + m2;` where `m1` or `m2` are temporaries, `sum` becomes this proxy. If the temporary matrices are destroyed, the proxy becomes invalid, leading to crashes when it is later used to compute the final result.",
+  "keywords": [
+    "auto",
+    "proxy class",
+    "type deduction",
+    "dangling reference",
+    "std::vector<bool>",
+    "expression templates",
+    "undefined behavior"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "44-45",
+  "chapter": "Item 6: Use the explicitly typed initializer idiom when auto deduces undesired types",
+  "id": "emcpp_type_auto_type_deduction_for_proxy_0c3725",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Noexcept in C++ Copy Constructors",
+  "explanation": "The noexcept specifier in C++ copy constructors, as seen in std::locale's copy constructor, informs the compiler that the function will not throw exceptions, enabling various optimizations and affecting exception safety. Under the hood, compilers like GCC or Clang treat noexcept functions differently during code generation: they omit exception handling mechanisms, such as stack unwinding code, which reduces binary size and improves performance. For std::locale, the copy constructor constructs a new locale by copying the facets from the source object, often involving reference-counted or shared pointers to avoid deep copies, thus optimizing memory layout. This means the internal state (e.g., locale facets like character classification or collation) is shared or shallow-copied, minimizing allocation overhead. Performance implications include faster execution due to the absence of exception handling runtime checks; for instance, in assembly, a noexcept function might lack prologue/epilogue code for EH frames, as seen in generated x86-64 assembly where calls to noexcept functions bypass EH tables. At compile-time, noexcept is a static assertion that influences inlining decisions and enables copy elision in C++17+, whereas at runtime, any unexpected exception leads to undefined behavior, enforcing safer code design. Overall, this feature balances safety and efficiency, especially in standard library classes like std::locale, where performance-critical operations benefit from predictable behavior.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "special",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:17:24.553913",
+    "book_metadata_added": "2025-10-28T20:22:06.875673"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class LocaleDataHandle {\n    long facet_counter; // Simple state copy\n\npublic:\n    LocaleDataHandle() : facet_counter(0) {}\n\n    // Copy constructor required to be noexcept\n    // if used in standard library contexts (like std::locale).\n    LocaleDataHandle(const LocaleDataHandle& other) noexcept\n        : facet_counter(other.facet_counter)\n    {\n        // Optimization: Compiler omits stack unwinding code.\n        // If an exception occurs, std::terminate() is called.\n    }\n};\n\n// Runtime check for guarantee:\nstatic_assert(noexcept(LocaleDataHandle(\n    std::declval<const LocaleDataHandle&>())), \n    \"Copy must be non-throwing\");",
+  "keywords": "noexcept copy constructor, C++ noexcept optimization, noexcept performance"
+}

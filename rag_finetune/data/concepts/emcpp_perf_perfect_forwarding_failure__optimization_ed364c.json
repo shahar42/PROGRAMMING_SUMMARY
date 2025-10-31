@@ -1,0 +1,19 @@
+{
+  "topic": "Perfect Forwarding Failure: Optimization Obstruction",
+  "category": "perf",
+  "explanation": "While perfect forwarding is designed to eliminate copies and achieve maximum efficiency by preserving the exact value category, the implementation complexity of universal references can paradoxically obstruct compiler optimization, leading to runtime inefficiency. The anti-pattern is the belief that forwarding templates are always the fastest path. The reality is that forwarding requires intense template metaprogramming complexity, particularly involving `std::forward` and the deep instantiation of function templates. This complexity makes aggressive optimization techniques like function inlining harder for the compiler to achieve reliably. In non-optimized debug builds, forwarding introduces significant overhead due to the multiple layers of function calls required (the outer wrapper calling `std::forward`, which then calls the inner function). Even in production builds, if the compiler cannot fully inline the entire forwarding chain due to the complexity or translation unit boundaries, the runtime performance degrades because the overhead of extra function calls (pointer chasing, stack manipulation) exceeds the cost of a simple, optimized copy. The explicit goal of perfect forwarding\u2014zero copies\u2014is often achieved, but at the cost of complicating the code generation enough that the compiler cannot perform its own internal optimization magic (like fusing operations or eliminating temporary variables), resulting in a net negative performance impact compared to a simpler pass-by-value or pass-by-reference solution where the compiler has a clearer control flow to optimize.",
+  "code_example": "// The complexity of forwarding templates hinders inlining and optimization.\ntemplate<typename T>\nvoid wrapper(T&& arg) {\n    // Compiler struggles to inline the full chain across compilation units.\n    final_call(std::forward<T>(arg));\n}",
+  "practical_example": "A micro-benchmark reveals that a wrapper function utilizing perfect forwarding for passing small, simple structs (which are cheap to copy anyway) runs slightly slower than a wrapper that simply passes the struct by value. This is because the overhead of setting up and resolving the template instantiation and the inability of the compiler to inline the complex forwarding path outweighs the cost saved by avoiding the copy.",
+  "keywords": [
+    "optimization",
+    "inlining",
+    "compiler failure",
+    "perf",
+    "forward"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "226-229",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_perfect_forwarding_failure__optimization_ed364c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

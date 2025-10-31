@@ -1,0 +1,14 @@
+{
+  "topic": "Functor and Callable Types Implementation in C++",
+  "explanation": "In C++, a callable type includes function pointers, classes with an overloaded operator() (functors), or classes convertible to function pointers. The compiler implements these by allowing objects of such types to be invoked like functions. For functors, the compiler generates code that treats the operator() as a member function call, involving an implicit 'this' pointer for accessing member data. This means functors can maintain state, unlike plain function pointers, which are just addresses to executable code. Memory layout-wise, functors are objects with their own memory footprint (e.g., storing member variables), potentially leading to heap or stack allocation, which introduces overhead compared to stateless function pointers. Performance implications include indirection: calling a functor involves object construction and a virtual or direct member function dispatch, which can be slower than a direct function call due to the 'this' pointer setup. At the assembly level, invoking a functor might translate to loading the object into a register, setting up arguments, and jumping to the operator() code, often visible as a 'call' instruction with object context. In contrast, function pointers result in a simple indirect jump. Runtime behavior dominates, as calls occur at execution time, but template specializations (like those in <functional>) enable compile-time optimizations for generic code. For standard library functors like std::logical_and, the compiler instantiates templates at compile time, reducing runtime overhead for simple operations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:27:04.996240",
+    "book_metadata_added": "2025-10-28T20:22:06.907064"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "int basic_callable(int x) {\n    return x * 2;\n}\n\n// Function pointer implementation\nusing FuncPtr = int(*)(int);\nFuncPtr fp = &basic_callable;\nint result = fp(5);\n\n\nclass StatefulFunctor {\n    int factor_;\npublic:\n    // Functors maintain internal state\n    explicit StatefulFunctor(int f) : factor_(f) {}\n\n    // Overloaded function call operator\n    // Compiler treats this as a member function call (implicit 'this')\n    int operator()(int x) const {\n        return x * factor_;\n    }\n};\n\nStatefulFunctor m(10);\nint res = m(5); // Invocation looks like a function call",
+  "keywords": "Functor, Callable types C++, Function object"
+}

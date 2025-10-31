@@ -1,0 +1,14 @@
+{
+  "topic": "Lvalues and Rvalues in C++",
+  "explanation": "Understanding lvalues and rvalues is crucial for writing correct and efficient C++ code.  Lvalues represent objects that have a persistent memory location (like named variables), while rvalues represent temporary values that may or may not have a persistent location (like literals or the result of an expression).  This distinction impacts how operators behave and how expressions are evaluated.  Incorrectly using lvalues and rvalues can lead to errors, including dangling references and undefined behavior.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T02:14:07.365982",
+    "book_metadata_added": "2025-10-28T20:22:06.543460"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "int i = 5;\nint j = 10;\n// i is an lvalue (has persistent memory address)\n\nint k = i + j;\n// (i + j) is an rvalue (temporary result, prvalue)\n\n// Lvalue reference MUST bind to an lvalue\nint& lref = i;\n\n// A const Lvalue reference CAN bind to an rvalue\nconst int& clref = i + j;\n\n// int& bad_ref = i + j; // ERROR: cannot bind lvalue ref to rvalue\nint* addr = &i; // Lvalue allows address-of operator\n// int* temp_addr = &(i + j); // ERROR: Rvalue is non-addressable\n---\nstruct Resource {};\nResource r1;\n\n// Rvalue reference (&&) binds exclusively to rvalues/temporaries\nResource&& rref_temp = Resource{};\n\n// int&& rref_literal = 42;\n\n// Rvalue reference allows binding an lvalue (r1) if converted:\nResource&& rref_moved = std::move(r1); // r1 becomes an xvalue\n\n// Function overload distinction:\nvoid process(Resource& l) {}   // For named objects (lvalues)\nvoid process(Resource&& r) {}  // For temporaries (rvalues)\n\nprocess(r1);               // Calls Lvalue overload\nprocess(Resource{});       // Calls Rvalue overload\nprocess(std::move(r1));    // Calls Rvalue overload",
+  "keywords": "Lvalue, Rvalue, Rvalue reference, Lvalue Rvalue distinction"
+}

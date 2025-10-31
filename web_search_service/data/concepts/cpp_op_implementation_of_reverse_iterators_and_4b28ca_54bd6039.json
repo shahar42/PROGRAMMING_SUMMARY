@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Reverse Iterators and their Addition Operator",
+  "explanation": "This focuses on the implementation of the `operator+` for `std::reverse_iterator`, highlighting how compilers handle adding an integer to a reverse iterator, the memory layout implications, and potential performance optimizations.  Understanding this reveals intricacies of iterator adaptation and compiler-level optimizations that are often overlooked.  The key is that adding to a reverse iterator doesn't simply increment the underlying iterator; it *decrements* it. This seemingly simple operation necessitates careful handling by the compiler to ensure correctness and efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:30:21.100970",
+    "book_metadata_added": "2025-10-28T20:22:06.808257"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename Iter>\nclass reverse_iterator {\n    Iter current; // Underlying base iterator\npublic:\n    using difference_type = typename Iter::difference_type;\n\n    // RI + N operation (forward movement in reverse sequence)\n    reverse_iterator operator+(difference_type n) const\n    {\n        // Compiler maps +N steps in reverse to:\n        // -N steps on the base iterator.\n        return reverse_iterator(current - n);\n    }\n};\n\n// Requires underlying iterator (Iter) to support operator- (Random Access)\n// Memory Implications: No extra storage required, only offset translation.",
+  "keywords": "reverse iterator arithmetic, std::reverse_iterator operator+, reverse_iterator base iterator, iterator adaptation"
+}

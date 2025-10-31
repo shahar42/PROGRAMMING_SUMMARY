@@ -1,0 +1,115 @@
+{
+  "name": "getrlimit",
+  "synopsis": [
+    "#include <sys/resource.h>",
+    "int getrlimit(int resource, struct rlimit *rlim);",
+    "int setrlimit(int resource, const struct rlimit *rlim);",
+    "int prlimit(pid_t pid, int resource, const struct rlimit *_Nullable new_limit, struct rlimit *_Nullable old_limit);"
+  ],
+  "description": "The getrlimit() and setrlimit() system calls retrieve and set resource limits for a process. Each resource has a soft limit, which the kernel enforces, and a hard limit, which acts as a ceiling for the soft limit and can only be raised by privileged processes.",
+  "parameters": [
+    {
+      "name": "resource",
+      "type": "int",
+      "description": "The resource to get or set limits for, such as RLIMIT_AS or RLIMIT_CPU."
+    },
+    {
+      "name": "rlim",
+      "type": "struct rlimit *",
+      "description": "Pointer to a rlimit structure containing the soft and hard limits."
+    },
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The process ID for which to get or set limits (for prlimit)."
+    },
+    {
+      "name": "new_limit",
+      "type": "const struct rlimit *_Nullable",
+      "description": "Pointer to a new rlimit structure to set limits (for prlimit, can be NULL)."
+    },
+    {
+      "name": "old_limit",
+      "type": "struct rlimit *_Nullable",
+      "description": "Pointer to a rlimit structure to store the old limits (for prlimit, can be NULL)."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "A pointer argument points to a location outside the accessible address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The value specified in resource is not valid; or, for setrlimit() or prlimit(): rlim->rlim_cur was greater than rlim->rlim_max."
+    },
+    {
+      "code": "EPERM",
+      "description": "An unprivileged process tried to raise the hard limit; the CAP_SYS_RESOURCE capability is required to do this."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller tried to increase the hard RLIMIT_NOFILE limit above the maximum defined by /proc/sys/fs/nr_open."
+    },
+    {
+      "code": "EPERM",
+      "description": "(prlimit()) The calling process did not have permission to set limits for the process specified by pid."
+    },
+    {
+      "code": "ESRCH",
+      "description": "Could not find a process with the ID specified in pid."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux-specific; prlimit requires _GNU_SOURCE; RLIMIT_NICE since Linux 2.6.12",
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE",
+    "#define _FILE_OFFSET_BITS 64",
+    "#include <err.h>",
+    "#include <stdint.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <sys/resource.h>",
+    "#include <time.h>",
+    "int main(int argc, char *argv[]) {",
+    "    pid_t pid;",
+    "    struct rlimit old, new;",
+    "    struct rlimit *newp;",
+    "    if (!(argc == 2 || argc == 4)) {",
+    "        fprintf(stderr, \"Usage: %s <pid> [<new-soft-limit> <new-hard-limit>]\\n\", argv[0]);",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    pid = atoi(argv[1]);",
+    "    newp = NULL;",
+    "    if (argc == 4) {",
+    "        new.rlim_cur = atoi(argv[2]);",
+    "        new.rlim_max = atoi(argv[3]);",
+    "        newp = &new;",
+    "    }",
+    "    if (prlimit(pid, RLIMIT_CPU, newp, &old) == -1) err(EXIT_FAILURE, \"prlimit-1\");",
+    "    printf(\"Previous limits: soft=%jd; hard=%jd\\n\", (intmax_t) old.rlim_cur, (intmax_t) old.rlim_max);",
+    "    if (prlimit(pid, RLIMIT_CPU, NULL, &old) == -1) err(EXIT_FAILURE, \"prlimit-2\");",
+    "    printf(\"New limits: soft=%jd; hard=%jd\\n\", (intmax_t) old.rlim_cur, (intmax_t) old.rlim_max);",
+    "    exit(EXIT_SUCCESS);",
+    "}"
+  ],
+  "related_calls": [
+    "brk",
+    "mmap",
+    "mremap",
+    "setpriority",
+    "nice"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "getrlimit.pdf",
+    "extraction_date": "2025-07-28T11:18:52.511957",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

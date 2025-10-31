@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time vs. Runtime Polymorphism with `std::variant` and its Implementation Details",
+  "explanation": "This explores the implementation differences between compile-time polymorphism achieved using `std::variant` and runtime polymorphism using virtual functions.  We'll delve into how compilers handle `std::variant`'s internal storage, the impact on memory layout and access, and the resulting performance characteristics compared to virtual function calls.  The focus will be on the trade-offs between compile-time safety and runtime flexibility.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:25:48.858196",
+    "book_metadata_added": "2025-10-28T20:22:06.823253"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Heavy { char big_data[100]; };\nstruct Light { int val; };\n\n// 1. Runtime Polymorphism (RTP): Heap Indirection\n// Base class needs VPtr. Payload lives on heap.\nstruct Base { virtual void run() = 0; };\nstruct Derived : Base { void run() override { /* ... */ } };\n\n// 2. Compile-Time Polymorphism (CTP): Stack Storage\n// Memory: max(sizeof(Heavy), sizeof(Light)) + Index byte\nusing PolyType = std::variant<Heavy, Light>;\n\nvoid execute(PolyType& p) {\n    // Dispatch mechanism: Internal index check (switch statement)\n    std::visit([](auto& obj) {\n        // Static dispatch: No V-table lookup overhead\n        // Better cache locality due to stack storage\n    }, p);\n}"
+}

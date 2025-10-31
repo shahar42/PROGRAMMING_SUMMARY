@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming and its Impact on Compile-Time Code Generation",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code for different template instantiations. This results in significant performance improvements and potentially smaller executables by avoiding runtime overhead.  The compiler's implementation involves recursive template instantiation and potentially significant code bloat if not carefully managed.  Understanding how the compiler handles TMP is crucial for avoiding unexpected compilation times and code size issues.  Memory layout is affected because the compiler generates unique code for each template type, and the performance impact depends on the complexity of the metaprogram.  In some cases, the assembly code generated might show extensive inlining and unrolling, reflecting the compile-time nature of the calculations.  The behavior is entirely compile-time: any computation that can be resolved at compile time using templates will be, resulting in zero runtime cost for those calculations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:32:35.764244",
+    "book_metadata_added": "2025-10-28T20:22:06.995285"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <int N>\nstruct Factorial {\n    // Compile-time recursion via instantiation depth\n    static constexpr long value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n    // Base case stops instantiation, preventing stack overflow/bloat\n    static constexpr long value = 1;\n};\n\n// Example of type traits: conditional specialization\ntemplate <typename T, typename U>\nstruct MaxSize {\n    static constexpr bool T_is_larger = (sizeof(T) > sizeof(U));\n    using Type = std::conditional_t<T_is_larger, T, U>;\n};\n\n// Usage: MaxSize<int, short>::Type\n// Compiler calculates size differences and selects Type at compile time.",
+  "keywords": "TMP, Template Metaprogramming, Compile-time computation"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Guaranteed Move Elision Assumption Failure",
+  "category": "perf",
+  "explanation": "Assumption: Since C++17, copy/move elision is guaranteed in contexts like NRVO (Named Return Value Optimization), rendering custom move constructors unnecessary or obsolete for performance optimization. Reality: Guaranteed elision only applies to very specific circumstances, primarily initialization from a temporary returned by value. In many other scenarios, especially parameter passing or conditional return statements, elision is merely an *optimization* that the compiler is allowed, but not required, to perform. Why It Fails: Relying solely on guaranteed elision and omitting custom move constructors leaves the code vulnerable to performance cliffs in non-guaranteed contexts (e.g., passing a temporary by value to a function, or when interfacing with libraries compiled with different optimization flags). If elision fails, the performance fallback is dictated by the presence or absence of efficient move semantics, often resulting in an expensive copy. This anti-pattern leads to misplaced confidence that performance optimization is handled solely by the compiler, minimizing the importance of explicit move definitions.",
+  "code_example": "// Elision is guaranteed for 'r' initialization, but not necessarily for passing 'r' later\nWidget func() { return Widget{}; }\nWidget r = func(); // Guaranteed elision\nprocess(r); // Elision not guaranteed if r were passed to another function call.",
+  "practical_example": "A build system compiles core logic with an older compiler where elision is not guaranteed, or disables aggressive optimization. Code that relies on C++17 guaranteed elision suffers massive performance losses because the explicit move constructors needed for the fallback scenario were never implemented.",
+  "keywords": "NRVO limitations, Mandatory elision exceptions, Conditional return elision, Guaranteed copy elision failure",
+  "difficulty": "intermediate",
+  "page_reference": "229-231",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_perf_guaranteed_move_elision_assumption_failure_134bff",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

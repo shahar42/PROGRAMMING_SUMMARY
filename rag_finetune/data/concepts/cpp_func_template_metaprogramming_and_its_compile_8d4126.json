@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming and its Compile-Time Execution",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code based on template arguments.  This differs significantly from runtime computation.  The compiler essentially acts as a Turing-complete machine during compilation, performing complex logic and generating optimized code without runtime overhead.  Implementation details vary across compilers, but generally involve recursive template instantiations and potentially significant compile-time processing.  Memory layout is impacted as the compiler generates different code paths based on template arguments, avoiding runtime branching.  Performance implications are crucial; efficient TMP can lead to dramatically faster execution and smaller binaries by eliminating runtime calculations.  Conversely, poorly designed TMP can lead to extremely long compile times and potentially code bloat if not carefully managed. Assembly-level behavior will show specialized instructions generated for specific template instantiations, optimized for the target architecture, often avoiding runtime function calls and data structures that would otherwise be needed. Compile-time behavior includes extensive code generation and type checking, while runtime behavior is minimal; the compiled code already contains the results of the compile-time computations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:15:16.196232",
+    "book_metadata_added": "2025-10-28T20:22:06.990308"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <int N>\nstruct Factorial {\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\n// Compile-time calculation:\n// Factorial<4>::value == 24\n\n\ntemplate <bool Condition, typename TrueT, typename FalseT>\nstruct Conditional {\n    using type = TrueT;\n};\n\ntemplate <typename TrueT, typename FalseT>\nstruct Conditional<false, TrueT, FalseT> {\n    using type = FalseT;\n};\n\nusing SelectedType = Conditional<true, int, double>::type;\n// SelectedType is int\n\n\ntemplate <typename T>\nstruct IsPointer {\n    static constexpr bool value = false;\n};\n\ntemplate <typename T>\nstruct IsPointer<T*> {\n    static constexpr bool value = true;\n};\n\nconstexpr bool is_ptr = IsPointer<char*>::value;\n// is_ptr == true",
+  "keywords": "Template Metaprogramming, Compile-Time Computation, C++ TMP, Compile-Time Logic"
+}

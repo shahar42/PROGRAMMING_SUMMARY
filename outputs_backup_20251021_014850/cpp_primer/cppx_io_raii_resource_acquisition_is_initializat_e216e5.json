@@ -1,0 +1,13 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ idiom where resource management is tied to an object's lifetime.  Resources (like dynamically allocated memory, file handles, network connections, mutexes) are acquired in the object's constructor and released in its destructor. This guarantees that resources are always released, even in the face of exceptions, simplifying code and preventing resource leaks.  It's a cornerstone of exception safety and robust C++ programs.",
+  "syntax": "RAII is implemented by ensuring that resource acquisition happens in the constructor and release in the destructor.  This often involves using smart pointers (e.g., `std::unique_ptr`, `std::shared_ptr`, `std::weak_ptr`) for memory management, and classes that wrap other resources.",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <memory>\n\nclass FileHandler {\npublic:\n  FileHandler(const std::string& filename) : file_(filename) {\n    if (!file_.is_open()) {\n      throw std::runtime_error(\"Could not open file\");\n    }\n  }\n  ~FileHandler() {\n    if (file_.is_open()) {\n      file_.close();\n    }\n  }\n  std::ofstream& get_file() { return file_; }\nprivate:\n  std::ofstream file_;\n};\n\nint main() {\n  try {\n    FileHandler handler(\"my_file.txt\");\n    handler.get_file() << \"Hello, RAII!\\n\";\n  } catch (const std::runtime_error& e) {\n    std::cerr << \"Error: \" << e.what() << std::endl;\n  }\n  return 0;\n}",
+  "example_explanation": "This example demonstrates RAII using a custom `FileHandler` class.  The constructor opens the file, and the destructor ensures the file is closed regardless of whether an exception occurs.  This prevents resource leaks.  Using `std::ofstream` directly might leave the file open if an exception happens before closing.  The `try-catch` block handles potential exceptions during file opening. Smart pointers like `std::unique_ptr` could further improve this by managing dynamically allocated objects automatically.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:46:10.405792"
+  }
+}

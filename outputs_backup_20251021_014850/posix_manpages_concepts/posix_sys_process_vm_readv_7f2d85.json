@@ -1,0 +1,15 @@
+{
+  "topic": "process_vm_readv() System Call",
+  "explanation": "The process_vm_readv() system call transfers data from the address space of a remote process to the local process using specified iovec structures. It allows direct data movement without passing through kernel space. The process_vm_writev() performs the reverse transfer.\n\n**Parameters:**\n- `pid` (pid_t): The process ID of the remote process.\n- `local_iov` (const struct iovec *): Pointer to an array of iovec structures describing address ranges in the local process.\n- `liovcnt` (unsigned long): Number of elements in the local_iov array.\n- `remote_iov` (const struct iovec *): Pointer to an array of iovec structures describing address ranges in the remote process.\n- `riovcnt` (unsigned long): Number of elements in the remote_iov array.\n- `flags` (unsigned long): Currently unused and must be set to 0.\n\n**Common Errors:**\n- `EFAULT`: The memory described by local_iov is outside the caller\u2019s accessible address space.\n- `EFAULT`: The memory described by remote_iov is outside the accessible address space of the process pid.\n- `EINVAL`: The sum of the iov_len values of either local_iov or remote_iov overflows a ssize_t value.\n- `EINVAL`: Flags is not 0.\n- `EINVAL`: Liovcnt or riovcnt is too large.\n\n**Related System Calls:** `readv()`, `writev()`",
+  "syntax": "ssize_t process_vm_readv(pid_t pid, const struct iovec *local_iov, unsigned long liovcnt, const struct iovec *remote_iov, unsigned long riovcnt, unsigned long flags);",
+  "code_example": "#define _GNU_SOURCE\n#include <stdlib.h>\n#include <sys/types.h>\n#include <sys/uio.h>\n\nint main(void) {\n    char buf1[10];\n    char buf2[10];\n    pid_t pid = 10;  /* PID of remote process */\n    struct iovec local[2];\n    struct iovec remote[1];\n    local[0].iov_base = buf1;\n    local[0].iov_len = 10;\n    local[1].iov_base = buf2;\n    local[1].iov_len = 10;\n    remote[0].iov_base = (void *) 0x10000;\n    remote[0].iov_len = 20;\n    ssize_t nread = process_vm_readv(pid, local, 2, remote, 1, 0);\n    if (nread != 20) exit(EXIT_FAILURE);\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the process_vm_readv() system call. The function takes 6 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.109172",
+    "syscall_name": "process_vm_readv",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_process_vm_readv.json",
+    "concept_id": "posix_sys_process_vm_readv_7f2d85"
+  }
+}

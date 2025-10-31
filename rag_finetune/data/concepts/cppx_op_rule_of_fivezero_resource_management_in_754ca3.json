@@ -1,0 +1,13 @@
+{
+  "topic": "Rule of Five/Zero: Resource Management in Classes",
+  "explanation": "Many classes manage resources beyond their internal data members, such as dynamically allocated memory or file handles.  The compiler-generated copy constructor, copy assignment operator, move constructor, move assignment operator, and destructor (the \"Rule of Five\") might not correctly handle these resources, leading to memory leaks, double deletion, or other errors.  If your class doesn't manage external resources, you can rely on the compiler-generated special member functions (the \"Rule of Zero\").  Understanding when to define these functions explicitly is crucial for writing robust and correct C++ code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:21:12.747102",
+    "book_metadata_added": "2025-10-28T20:22:06.563957"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class Resource {\n    int* data;\npublic:\n    explicit Resource(size_t s) : data(new int[s]) {}\n    ~Resource() { delete[] data; } // 1: Destructor\n\n    // 2: Copy Constructor (Deep Copy)\n    Resource(const Resource& other) : data(new int[other.size]) {\n        std::copy(other.data, other.data + other.size, data);\n    }\n\n    // 3: Copy Assignment (Copy and Swap)\n    Resource& operator=(const Resource& other) {\n        Resource temp(other);\n        std::swap(data, temp.data);\n        return *this;\n    }\n\n    // 4: Move Constructor\n    Resource(Resource&& other) noexcept : data(other.data) {\n        other.data = nullptr;\n    }\n\n    // 5: Move Assignment\n    Resource& operator=(Resource&& other) noexcept {\n        delete[] data;\n        data = other.data;\n        other.data = nullptr;\n        return *this;\n    }\n};\n\n// --- Rule of Zero ---\n\nclass RAIIResource {\n    std::unique_ptr<int[]> data;\npublic:\n    // No custom definitions needed for Dtor or Move.\n    // Copy ops automatically deleted.\n    RAIIResource(size_t s) : data(std::make_unique<int[]>(s)) {}\n};\n<ctrl63>"
+}

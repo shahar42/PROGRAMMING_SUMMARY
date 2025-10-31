@@ -1,0 +1,13 @@
+{
+  "topic": "Exception Handling: Practical Recovery Techniques",
+  "explanation": "Exception handling is a practical technique in C++ for managing errors and unexpected events during program execution. It allows developers to write robust code that can recover from failures without abrupt termination, promoting reliability in real-world applications like servers, games, or financial software. Best practices include using try-catch blocks to handle exceptions, catching exceptions by const reference to avoid slicing, and deriving custom exceptions from std::exception for better error reporting. Common pitfalls to avoid are swallowing exceptions (catching without handling), not using specific catch clauses, and failing to clean up resources, which can lead to memory leaks or undefined behavior\u2014always ensure exceptions are caught at an appropriate level and resources are managed with RAII patterns.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T02:12:57.557950",
+    "book_metadata_added": "2025-10-28T20:22:06.579908"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "void operation(int value) {\n    if (value < 0) throw std::out_of_range(\"Value negative\");\n}\n\ntry {\n    operation(-1);\n} catch (const std::out_of_range& e) {\n    std::cerr << \"Specific: \" << e.what();\n} catch (const std::exception& e) {\n    std::cerr << \"General: \" << e.what();\n}\n\nclass CustomError : public std::exception {\npublic:\n    const char* what() const noexcept override {\n        return \"Custom hardware failure\";\n    }\n};\n\nvoid check_hardware() {\n    throw CustomError();\n}\n\nclass FileHandle {\n    FILE* fp;\npublic:\n    FileHandle(const char* name) : fp(fopen(name, \"r\")) {}\n    ~FileHandle() { if (fp) fclose(fp); }\n};\n\nvoid process_file() {\n    FileHandle h(\"data.txt\");\n    if (/* condition */) throw std::bad_function_call();\n    // Destructor of FileHandle called automatically (RAII)\n}"
+}

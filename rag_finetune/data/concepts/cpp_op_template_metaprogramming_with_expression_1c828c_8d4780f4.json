@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming with Expression Templates and Compile-Time Evaluation",
+  "explanation": "Expression templates are a powerful C++ metaprogramming technique that allows for the compile-time evaluation of expressions, significantly improving performance, particularly in numerical computation.  They avoid the creation of temporary objects during expression evaluation by representing expressions as abstract syntax trees (ASTs) at compile time.  The compiler then optimizes the expression directly into efficient machine code, often eliminating unnecessary intermediate results and memory allocations. This contrasts sharply with traditional operator overloading, which typically involves the creation of temporary objects for each operation.  The implementation relies heavily on template specialization and recursion to build and evaluate the AST at compile time.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:40:15.603383",
+    "book_metadata_added": "2025-10-28T20:22:06.888994"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template<typename E> struct Expression {};\n\n// Node representing vector addition (AST Composite Node)\ntemplate<typename L, typename R>\nstruct VectorAdd : public Expression<VectorAdd<L, R>> {\n    const L& lhs;\n    const R& rhs;\n\n    VectorAdd(const L& l, const R& r) : lhs(l), rhs(r) {}\n\n    // Lazy evaluation: Calculation occurs only when indexed\n    auto operator[](size_t i) const { return lhs[i] + rhs[i]; }\n};\n\n// Operator overload constructs the AST (Abstract Syntax Tree)\ntemplate<typename L, typename R>\nauto operator+(const Expression<L>& l, const Expression<R>& r) {\n    return VectorAdd<L, R>(static_cast<const L&>(l),\n                          static_cast<const R&>(r));\n}\n\n// Vector class (The sink that triggers evaluation)\nclass Vector : public Expression<Vector> {\n    // T* data;\n    // ... data storage definition ...\n\n    template<typename E>\n    Vector& operator=(const Expression<E>& expr) {\n        // Eager evaluation loop: compiler optimizes access\n        for (size_t i = 0; i < N; ++i) {\n            data[i] = static_cast<const E&>(expr)[i];\n        }\n        return *this;\n    }\n    double operator[](size_t i) const { return data[i]; }\n};\n\n// Usage: Vector C = A + B; (A+B builds the VectorAdd AST, assignment triggers calculation)",
+  "keywords": "Expression Templates, Template Metaprogramming, Compile-Time Evaluation, zero-overhead abstraction"
+}

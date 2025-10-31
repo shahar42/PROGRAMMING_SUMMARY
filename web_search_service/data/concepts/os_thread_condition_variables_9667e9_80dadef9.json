@@ -1,0 +1,15 @@
+{
+  "topic": "Condition Variables",
+  "explanation": "A condition variable is a synchronization primitive in C used in multithreaded programming to allow threads to wait until a specific condition is met, avoiding busy-waiting and ensuring efficient coordination. It works with mutexes to prevent race conditions and signal events between threads.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "346-346",
+    "extraction_date": "2025-07-23T00:06:25.450872",
+    "has_code": false,
+    "has_explanation": false,
+    "book_metadata_added": "2025-10-28T20:22:06.784405"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "// Initialization (Static or Dynamic)\npthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;\npthread_cond_t cond = PTHREAD_COND_INITIALIZER;\nint resource_ready = 0;\n\n// Dynamic setup alternative:\n// pthread_mutex_init(&mtx, NULL);\n// pthread_cond_init(&cond, NULL);\n\n// Cleanup:\n// pthread_mutex_destroy(&mtx);\n// pthread_cond_destroy(&cond);\n\n// ---\n\n// Waiting Thread (Consumer) Logic\npthread_mutex_lock(&mtx);\n\n// Wait loop protects against spurious wakeups\nwhile (resource_ready == 0) {\n    // Atomically releases lock and blocks.\n    // Reacquires lock upon wakeup.\n    pthread_cond_wait(&cond, &mtx);\n}\n\n// Critical section processing:\nresource_ready = 0;\n// Use resource...\n\npthread_mutex_unlock(&mtx);\n\n// ---\n\n// Signaling Thread (Producer) Logic\npthread_mutex_lock(&mtx);\n\n// Set the condition\n// data production...\nresource_ready = 1;\n\n// Wake up one waiting thread\npthread_cond_signal(&cond);\n\n// Use pthread_cond_broadcast(&cond)\n// to wake up all waiting threads\n\npthread_mutex_unlock(&mtx);",
+  "keywords": "condvar, thread synchronization, pthread condition variable, CV"
+}

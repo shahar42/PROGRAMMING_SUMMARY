@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Unjoinability Termination: Destructor Invocation Danger",
+  "category": "thread",
+  "explanation": "Assumption: A `std::thread` object falling out of scope cleans up automatically, similar to RAII principles for owning resources. Reality: If a `std::thread` object is *joinable* (meaning it currently corresponds to an underlying thread of execution that has not finished or been explicitly handled) when its destructor is invoked, the C++ standard requires the program to call `std::terminate()`. Why It Fails: This rule prevents two dangerous scenarios: 1) Implicitly calling `detach()`, which would leave a background thread running with no way to manage its resources, and 2) Implicitly calling `join()`, which could cause unexpected program blocking. Therefore, failure to explicitly manage a joinable thread (via `join()` or `detach()`) before its scope ends results in immediate program termination.",
+  "code_example": "void risky_func() {\n  std::thread t([]{ /* long running task */ });\n  // Exception thrown here, destructor called\n} // Program terminates if t is joinable",
+  "practical_example": "A developer places a `std::thread` inside a function intended to execute a task concurrently. If the function exits via an exception, the thread's destructor is called while the thread is still active and joinable, causing the entire application to crash instead of handling the exception gracefully.",
+  "keywords": [
+    "joinable",
+    "destructor",
+    "std::terminate",
+    "RAII failure",
+    "scope exit"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Make std::thread s unjoinable on all paths.",
+  "id": "emcpp_thread_thread_unjoinability_termination__destructor_c8ae0e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

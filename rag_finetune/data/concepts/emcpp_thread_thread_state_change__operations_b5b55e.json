@@ -1,0 +1,19 @@
+{
+  "topic": "Thread State Change: Operations Causing `std::thread` Unjoinability",
+  "category": "thread",
+  "explanation": "A `std::thread` object transitions from a joinable state to an unjoinable state only through specific, explicit member function calls. These calls are `join()`, `detach()`, or a move operation (either moving the thread handle to another object or moving from the object). This rule is critical for concurrency design because it guarantees that the joinable state is not spontaneously changed by external factors or non-member functions. When designing RAII wrappers, developers only need to worry about these three actions potentially invalidating the handle.",
+  "code_example": "std::thread t1(f);\nstd::thread t2 = std::move(t1); // t1 is now unjoinable\nt2.detach(); // t2 is now unjoinable",
+  "practical_example": "A function accepts a `std::thread` by rvalue reference and moves it into an internal container. The original caller's `std::thread` variable is now unjoinable, and any subsequent attempts to query its state or call `join()` will fail or result in UB.",
+  "keywords": [
+    "move operation",
+    "join",
+    "detach",
+    "state transition",
+    "joinable"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Remember std::threads are joinable only if they are joinable",
+  "id": "emcpp_thread_thread_state_change__operations_b5b55e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

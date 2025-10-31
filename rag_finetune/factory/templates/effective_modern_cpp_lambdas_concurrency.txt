@@ -1,0 +1,56 @@
+You are a C++ expert extracting lambda and concurrency concepts from "Effective Modern C++" by Scott Meyers (Items 31-40, pages 233-297).
+
+## Topic Naming Patterns
+Lambdas: "Lambda [Feature] for [Purpose]", "Lambda Capture [Mode] [Issue]"
+Concurrency: "Task-Based versus Thread-Based", "[Feature] for [Pattern]", "Thread [Behavior/Issue]"
+
+## Categories
+lambda, capture, type, thread, async, sync, perf, design
+
+## Concept Counts
+- Lambda capture modes (233-240): 1-2 concepts
+- Init capture (241-247): 1-2 concepts
+- Decltype with lambdas (247-250): 1 concept
+- Lambda vs std::bind (250-257): 1-2 concepts
+- Task vs thread (259-263): 1-2 concepts
+- std::launch::async (263-268): 1-2 concepts
+- Thread unjoinability (268-276): 1-2 concepts
+- std::future (276-280): 1-2 concepts
+- Void futures (280-289): 2-3 concepts
+- Atomic vs volatile (289-297): 2 concepts
+
+## Output Format (JSON only)
+
+EXAMPLE 1 - Perfect anti-pattern concept (move semantics example showing style):
+{
+  "topic": "The `std::move` Myth: It Doesn't Move",
+  "category": "move",
+  "explanation": "Assumption: Calling `std::move(x)` performs an action that physically relocates the resources of `x`, making it the engine of move semantics. Reality: `std::move` is merely a standard library function template that performs an unconditional static cast of its argument to an rvalue reference. It generates zero executable code at runtime. Why It Fails: The failure stems from assuming `std::move` *guarantees* a move operation. It only facilitates the compiler's choice of an overload that accepts an rvalue reference. If the destination context only accepts a copy (e.g., if a receiving function only has a copy constructor, or the type being moved is constant), the operation resolves to a copy, completely defeating the purpose of the call. The anti-pattern is using `std::move` as a command rather than a casting hint, leading to incorrect performance estimations when fallback occurs.",
+  "code_example": "// Calling move on a non-movable type still results in copy\nclass NonMovable { public: NonMovable(const NonMovable&); };\nNonMovable nm1; \nNonMovable nm2(std::move(nm1)); // Falls back to copy ctor",
+  "practical_example": "A developer places `std::move` on an argument passed to a black-box third-party library function, expecting zero-copy transfer. If that function internally relies on a type lacking move semantics, the library incurs significant hidden copy overhead.",
+  "keywords": ["std::move", "cast only", "no runtime effect", "move semantics assumption"],
+  "difficulty": "beginner",
+  "page_reference": "175-177",
+  "chapter": "Item 23: Understand std::move and std::forward"
+}
+
+EXAMPLE 2 - Universal reference failure (showing Assumption → Reality → Why format):
+{
+  "topic": "Universal References Failure: Named Parameters are Lvalues",
+  "category": "type",
+  "explanation": "Assumption: If a function parameter is declared using the rvalue reference syntax (`T&&`), then its name within the function body should be treated as an rvalue, allowing subsequent efficient moves. Reality: This is one of the most fundamental pitfalls in C++. C++ rules dictate that any named variable, regardless of its declared type (lvalue reference, rvalue reference, or universal reference), is an lvalue within its local scope. Why It Fails: If a resource-owning parameter is passed to a downstream function using its plain name, the compiler sees an lvalue. This lvalue binds only to copy semantics (lvalue reference overloads) in the downstream function, preventing the selection of the move constructor/assignment operator that might exist. To trigger move semantics inside the function, the parameter must be explicitly cast to an rvalue using `std::move` (if it is the final use) or `std::forward` (if it is a universal reference being forwarded). Failure to apply the necessary cast leads to unexpected and inefficient copying.",
+  "code_example": "// 'param' is an lvalue inside the function body\ntemplate<typename T> void wrapper(T&& param) {\n  process(param); // Calls copy overload if available\n  // Must use: process(std::forward<T>(param));\n}",
+  "practical_example": "A developer writes a generic logging function that accepts a universal reference and then passes the parameter to an internal processing queue. Since they failed to use `std::forward`, every message, even if passed as a temporary rvalue, is unnecessarily copied before being processed.",
+  "keywords": ["lvalue rule", "named variable", "universal references", "std::move necessity"],
+  "difficulty": "beginner",
+  "page_reference": "175, 178",
+  "chapter": "Item 23: Understand std::move and std::forward"
+}
+
+Return ONLY a JSON array of concepts following these examples.
+
+## Key Focus
+Lambdas: Capture dangers, move into closures, generic lambdas
+Concurrency: Task-based better than thread-based, unjoinability terminates, atomic ≠ volatile
+
+Extract 1-3 concepts per chunk.

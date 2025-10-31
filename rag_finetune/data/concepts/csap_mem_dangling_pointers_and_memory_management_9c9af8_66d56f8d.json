@@ -1,0 +1,16 @@
+{
+  "topic": "Dangling Pointers and Memory Management",
+  "explanation": "A dangling pointer arises when a pointer variable refers to a memory location that has been deallocated or freed. This is a critical issue in computer systems and architecture because it leads to unpredictable program behavior and potential crashes.  Understanding memory management, particularly stack and heap allocation, is crucial to preventing dangling pointers.  Failing to manage memory correctly can lead to data corruption, security vulnerabilities, and program instability.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "899-899",
+    "extraction_date": "2025-07-29T11:07:21.019727",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.716466"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Classic Dangling Pointer (Manual Heap Allocation)\nint* ptr = new int(100);\n\n// Use the memory\n*ptr = 42;\n\ndelete ptr;\n// ptr now refers to deallocated memory (Dangling)\n\n// ptr = nullptr; // Mitigation step: Resetting the pointer\n\n// 2. Dangling Pointer via Stack Scope Exit\nint* create_dangle() {\n    int stack_val = 50;\n    // Warning: Returning the address of a local variable\n    return &stack_val;\n} // stack_val goes out of scope (destroyed)\n\nint* dp = create_dangle();\n// *dp access leads to Undefined Behavior\n\n// 3. Preventing Dangling Pointers using RAII/Smart Pointers\n// std::unique_ptr ensures automatic memory cleanup\nclass Resource {};\n\nvoid safe_function() {\n    std::unique_ptr<Resource> safe_ptr(new Resource());\n    // Safe usage\n} // safe_ptr goes out of scope; Resource memory is freed\n  // automatically via delete (no dangle possible)",
+  "keywords": "Dangling pointer, Use after free, Deallocated pointer, Invalid memory access"
+}

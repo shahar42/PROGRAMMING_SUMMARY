@@ -1,0 +1,15 @@
+{
+  "id": "cppx_inherit_private_inheritance_member_access_95878d",
+  "topic": "Private Inheritance and Member Access Transformation",
+  "explanation": "When you use private inheritance with `class Derived : private Base`, all inherited members undergo access control transformation: public members of Base become private in Derived, protected members of Base become private in Derived, and private members of Base remain completely inaccessible in Derived (as with all inheritance types). This transformation means that while the derived class can access the base class's public and protected members internally, these members are completely hidden from external code—even former public members cannot be accessed through a Derived object. Only members and friends of the derived class can see that private inheritance exists; it's completely hidden from external code. This differs fundamentally from public inheritance, where public members remain public and the derived class maintains an 'is-a' relationship with the base. Private inheritance breaks this relationship at the interface level while maintaining it at the implementation level. The derived class essentially says 'I'm implemented in terms of Base, but I don't expose that fact to my users.' This visibility transformation is enforced at compile time and affects method calls, member access, and pointer conversions—you cannot implicitly convert a Derived* to a Base* with private inheritance.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "inheritance",
+    "extraction_type": "technical_deep_dive",
+    "extraction_date": "2025-10-29T00:00:00.000000",
+    "book_metadata_added": "2025-10-29T00:00:00.000000"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class Base {\nprivate:\n    int pvt = 1;\nprotected:\n    int prot = 2;\npublic:\n    int pub = 3;\n    int getPVT() { return pvt; }\n};\n\nclass PrivateDerived : private Base {\npublic:\n    // Can access protected (now private here)\n    int getProt() { return prot; }\n    \n    // Can access public (now private here)\n    int getPub() { return pub; }\n    \n    // Can call public methods (now private here)\n    int getBasePVT() { return getPVT(); }\n};\n\nint main() {\n    PrivateDerived obj;\n    \n    // obj.pub;        // ERROR: pub is now private\n    // obj.getPVT();   // ERROR: getPVT is now private\n    // obj.prot;       // ERROR: prot is now private\n    \n    obj.getPub();      // OK: wrapped in public method\n    obj.getProt();     // OK: wrapped in public method\n    \n    // Base* ptr = &obj;  // ERROR: private inheritance\n}",
+  "keywords": "private inheritance, C++ access transformation, private derivation"
+}

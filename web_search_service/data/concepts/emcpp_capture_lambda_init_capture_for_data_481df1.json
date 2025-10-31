@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Init Capture for Data Member Lifetime Independence",
+  "category": "capture",
+  "explanation": "Purpose: To safely copy a class data member into a lambda closure, ensuring the lambda's validity extends beyond the lifetime of the original object, thereby eliminating the need to capture the dangerous `this` pointer. Mechanism: C++14's generalized lambda capture (init capture) allows moving or copying values directly into the closure object via an initializer syntax (e.g., `[local_copy = member_name]`). This explicit action ensures that the closure owns a copy of the data member (`divisor = divisor`), rather than relying on an implicit, potentially dangling reference via `this`. This method is the preferred way to manage object lifetime boundaries within asynchronous or stored lambdas.",
+  "code_example": "void Widget::addFilter() const {\n  filters.emplace_back(               \n    [divisor = divisor] (int value)    // C++14 Init Capture\n    { return value % divisor == 0; }  // 'divisor' is now owned by the closure\n  );\n}",
+  "practical_example": "Instead of relying on a pre-C++14 workaround (creating a local copy outside the lambda and capturing it), a modern C++ developer uses init capture to concisely and safely transfer ownership of configuration variables (like timeouts or divisors) into a future-bound task.",
+  "keywords": "Init capture C++14, Generalized lambda capture, Lambda capture member copy, Avoid dangling this",
+  "difficulty": "intermediate",
+  "page_reference": "241-242",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_capture_lambda_init_capture_for_data_481df1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

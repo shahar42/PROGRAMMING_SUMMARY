@@ -1,0 +1,18 @@
+{
+  "topic": "Universal References Failure: Named Parameters are Lvalues",
+  "category": "type",
+  "explanation": "Assumption: If a function parameter is declared using the rvalue reference syntax (`T&&`), then its name within the function body should be treated as an rvalue, allowing subsequent efficient moves. Reality: This is one of the most fundamental pitfalls in C++. C++ rules dictate that any named variable, regardless of its declared type (lvalue reference, rvalue reference, or universal reference), is an lvalue within its local scope. Why It Fails: If a resource-owning parameter is passed to a downstream function using its plain name, the compiler sees an lvalue. This lvalue binds only to copy semantics (lvalue reference overloads) in the downstream function, preventing the selection of the move constructor/assignment operator that might exist. To trigger move semantics inside the function, the parameter must be explicitly cast to an rvalue using `std::move` (if it is the final use) or `std::forward` (if it is a universal reference being forwarded). Failure to apply the necessary cast leads to unexpected and inefficient copying.",
+  "code_example": "// 'param' is an lvalue inside the function body\ntemplate<typename T> void wrapper(T&& param) {\n  process(param); // Calls copy overload if available\n  // Must use: process(std::forward<T>(param));\n}",
+  "practical_example": "A developer writes a generic logging function that accepts a universal reference and then passes the parameter to an internal processing queue. Since they failed to use `std::forward`, every message, even if passed as a temporary rvalue, is unnecessarily copied before being processed.",
+  "keywords": [
+    "lvalue rule",
+    "named variable",
+    "universal references",
+    "std::move necessity"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "175, 178",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_type_universal_references_failure__named_2b496b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

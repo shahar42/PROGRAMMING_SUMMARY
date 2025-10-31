@@ -1,0 +1,16 @@
+{
+  "topic": "Dynamic Linking with Shared Libraries",
+  "explanation": "Dynamic linking is a mechanism where a program's dependencies (shared libraries or DLLs) are loaded into memory only when the program is executed, rather than being linked statically at compile time. This allows for efficient memory usage, as multiple programs can share the same library in memory.  It also enables updating libraries independently of the programs that use them.  The operating system's loader is responsible for locating and loading these libraries at runtime.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "271-271",
+    "extraction_date": "2025-07-21T22:29:37.751195",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.762274"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "/* 1. Creating the Shared Library (libutil.so) */\n// util.c: Must use -fPIC (Position Independent Code)\nint shared_operation(int x) { return x * x; }\n\n/* CLI Compilation Command */\ngcc -c -fPIC util.c\ngcc -shared -o libutil.so util.o\n\n/* 2. Dynamic Linking at Compile Time */\n// main.c: Uses the library reference\nextern int shared_operation(int);\n\n/* CLI Linking Command */\n// -lutil: link against libutil.so\n// -L.: Specify library search path (current directory)\ngcc main.c -L. -lutil -o app_dyn\n\n/* 3. Runtime Library Resolution Setup */\n/* OS Loader must find the .so file at runtime */\n\n/* Environment Variable (Temporary, POSIX) */\nexport LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH\n./app_dyn\n\n/* 4. Explicit Runtime Loading (dlopen/dlsym) */\nvoid* handle = dlopen(\"libutil.so\", RTLD_NOW);\nif (!handle) { /* Handle error */ }\n\n// Define function pointer type\ntypedef int (*SharedFunc)(int);\n\n// Resolve symbol (function address)\nSharedFunc func = (SharedFunc)dlsym(handle, \"shared_operation\");\nint result = func(12);\n\ndlclose(handle);\n<ctrl63>",
+  "keywords": "Dynamic linking, shared libraries, DLL, SO files"
+}

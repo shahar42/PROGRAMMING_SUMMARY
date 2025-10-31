@@ -1,0 +1,18 @@
+{
+  "topic": "Init Capture: Moving Unique Ownership into Lambda State.",
+  "category": "capture",
+  "explanation": "Assumption: Lambda capture syntax is limited to copying or referencing existing variables. Reality: C++14 introduced generalized lambda capture (init capture) allowing arbitrary expressions to initialize closure members, including using `std::move`. Why It Works: Init capture allows the creation of a new variable within the closure scope, initialized via assignment semantics (`[localName = expression]`). This is the standard, clean way to move resource-owning objects (like `std::unique_ptr` or `std::thread`) into the lambda's internal state, a capability that was cumbersome or impossible for move-only types in C++11.",
+  "code_example": "auto func = [ pw = std::make_unique<Widget>() ] { \n  return pw->isValidated(); \n};",
+  "practical_example": "A developer needs a lambda to manage a dynamically created resource (`std::unique_ptr`) whose lifetime must match the lambda's lifetime. Using init capture ensures the `unique_ptr` is moved into the closure, guaranteeing proper resource management.",
+  "keywords": [
+    "init capture",
+    "generalized capture",
+    "move capture",
+    "std::unique_ptr"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-240 (Item 31 context)",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_capture_lambda_init_capture_for_moving_c4b0b9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

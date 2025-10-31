@@ -1,0 +1,15 @@
+{
+  "topic": "setrlimit() System Call",
+  "explanation": "The setrlimit() system call sets resource limits for a process. It uses a structure to specify soft and hard limits for resources such as memory or CPU time. An unprivileged process can only lower limits or set soft limits up to the hard limit.\n\n**Parameters:**\n- `resource` (int): The resource to set, such as RLIMIT_AS for address space or RLIMIT_CPU for CPU time.\n- `rlim` (const struct rlimit *): Pointer to a rlimit structure containing the new soft and hard limits for the resource.\n\n**Common Errors:**\n- `EFAULT`: A pointer argument points to a location outside the accessible address space.\n- `EINVAL`: The value specified in resource is not valid, or rlim->rlim_cur was greater than rlim->rlim_max.\n- `EPERM`: An unprivileged process tried to raise the hard limit; or the caller tried to increase the hard RLIMIT_NOFILE limit above the maximum.\n\n**Related System Calls:** `getrlimit()`, `prlimit()`",
+  "syntax": "int setrlimit(int resource, const struct rlimit *rlim);",
+  "code_example": "pid_t pid = atoi(argv[1]);\nstruct rlimit new;\nif (argc == 4) { new.rlim_cur = atoi(argv[2]); new.rlim_max = atoi(argv[3]); newp = &new; }\nif (prlimit(pid, RLIMIT_CPU, newp, &old) == -1) err(EXIT_FAILURE, \"prlimit-1\");",
+  "example_explanation": "This example demonstrates the basic usage of the setrlimit() system call. The function takes 2 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.249653",
+    "syscall_name": "setrlimit",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setrlimit.json",
+    "concept_id": "posix_sys_setrlimit_786dc6"
+  }
+}

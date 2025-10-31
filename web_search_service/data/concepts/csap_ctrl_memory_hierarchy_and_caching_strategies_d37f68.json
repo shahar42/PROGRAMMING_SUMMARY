@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Effective Use",
+  "explanation": "Computer systems utilize a memory hierarchy—a tiered structure of storage devices—to optimize the trade-off between access latency, capacity, and cost. This structure places smaller, faster, volatile memory (registers, L1/L2 caches) closer to the CPU core. Effective performance hinges on exploiting the principle of locality of reference (temporal and spatial). Caching strategies dictate the policies for block placement, replacement (e.g., LRU, FIFO), and write propagation (write-through vs. write-back). The primary goal is maximizing the cache hit rate and minimizing the miss penalty, thereby reducing the average memory access time (AMAT).",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "374-375",
+    "extraction_date": "2025-07-26T21:46:48.768859",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.745218",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:21:57",
+    "original_length": 348,
+    "refined_length": 647
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define DIM 1024\nint arr[DIM][DIM];\n\n// Poor Spatial Locality (Stride DIM, accessing columns)\n// High rate of cache misses\nfor (int j = 0; j < DIM; j++) {\n    for (int i = 0; i < DIM; i++) {\n        arr[i][j] = 0;\n    }\n}\n\n// Good Spatial Locality (Stride 1, accessing rows)\n// High cache line utilization\nfor (int i = 0; i < DIM; i++) {\n    for (int j = 0; j < DIM; j++) {\n        arr[i][j] = 0;\n    }\n}\n\n#define N 512\n#define TILE 32 // Block size optimized for L1/L2\nfloat A[N][N], B[N][N], C[N][N];\n\n// Cache Blocking (Tiling) for Matrix Multiplication\n// Maximizes Temporal Locality of TILE x TILE blocks\nfor (int ii = 0; ii < N; ii += TILE) {\nfor (int jj = 0; jj < N; jj += TILE) {\nfor (int kk = 0; kk < N; kk += TILE) {\n    // Core calculation restricted to current block\n    for (int i = ii; i < ii + TILE; i++) {\n        for (int j = jj; j < jj + TILE; j++) {\n            for (int k = kk; k < kk + TILE; k++) {\n                C[i][j] += A[i][k] * B[k][j];\n            }\n        }\n    }\n}}}\n<ctrl63>"
+}

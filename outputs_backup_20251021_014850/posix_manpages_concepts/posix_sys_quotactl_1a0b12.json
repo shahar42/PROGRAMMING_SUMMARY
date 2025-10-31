@@ -1,0 +1,15 @@
+{
+  "topic": "quotactl() System Call",
+  "explanation": "The quotactl() system call manipulates disk quotas for users, groups, or projects on a filesystem. It allows operations such as turning quotas on or off, setting limits, and retrieving quota information. Quotas enforce limits on disk space and inodes, with soft and hard limits that can trigger warnings or restrictions.\n\n**Parameters:**\n- `op` (int): Operation to be performed, constructed using the QCMD(subop, type) macro, specifying suboperation and quota type (e.g., USRQUOTA, GRPQUOTA).\n- `special` (const char *_Nullable): Pointer to a null-terminated string containing the pathname of the mounted block special device for the filesystem.\n- `id` (int): User, group, or project ID, or quota format identifier for certain operations like Q_QUOTAON.\n- `addr` (caddr_t): Address of an optional, operation-specific data structure that is used for input or output depending on the operation.\n\n**Common Errors:**\n- `EACCES`: op is Q_QUOTAON, and the quota file pointed to by addr exists, but is not a regular file or is not on the filesystem pointed to by special.\n- `EBUSY`: op is Q_QUOTAON, but another Q_QUOTAON has already been performed.\n- `EFAULT`: addr or special is invalid.\n- `EINVAL`: op or type is invalid.\n- `EINVAL`: op is Q_QUOTAON, but the specified quota file is corrupted.",
+  "syntax": "int quotactl(int op, const char *_Nullable special, int id, caddr_t addr);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = quotactl(...);  // Call the system call\nif (result == -1) {\n    perror(\"quotactl\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the quotactl() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.063698",
+    "syscall_name": "quotactl",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_quotactl.json",
+    "concept_id": "posix_sys_quotactl_1a0b12"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Procedure Linkage Table (PLT) and Global Offset Table (GOT)",
+  "explanation": "The Procedure Linkage Table (PLT) and Global Offset Table (GOT) are crucial mechanisms for implementing dynamic linking in position-independent code (PIC).  They allow a program to call functions from shared libraries without knowing their exact memory addresses at compile time.  The PLT acts as an intermediary, resolving function addresses at runtime, while the GOT stores these resolved addresses. This is essential for shared libraries, allowing multiple programs to use the same library code in memory without conflicts.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "212-213",
+    "extraction_date": "2025-07-21T17:30:36.163058",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.747659"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "; Global Offset Table (GOT)\n; Used for accessing external data or resolved func addresses (PIC)\n; %rip is the Instruction Pointer (IP-relative addressing)\n\n    call_label:\n        lea     (%rip), %rbx        ; Get current address (Base)\n        add     $GOT_OFFSET, %rbx   ; Calculate GOT base address\n\n    ; Read external data 'g_ext_var' address from GOT\n        movq    g_ext_var@GOTPCREL(%rbx), %rax\n        movl    (%rax), %ecx        ; Load data value\n\n; Procedure Linkage Table (PLT)\n; Trampoline used to resolve function addresses at runtime\n\n    external_func@PLT:\n        ; 1. Jump via the GOT entry (Indirection)\n        jmp     qword ptr [external_func@GOTPCREL]\n\n        ; If first call, GOT points here for dynamic resolution:\n        ; 2. Push required relocation index onto stack\n        push    $RELOC_INDEX\n\n        ; 3. Jump to the dynamic linker resolver (GOT[2])\n        jmp     qword ptr [PLT_RESOLVER_ENTRY]\n        ; Linker updates GOT entry; subsequent calls skip steps 2/3",
+  "keywords": "PLT GOT, Position Independent Code, Procedure Linkage Table, Global Offset Table"
+}

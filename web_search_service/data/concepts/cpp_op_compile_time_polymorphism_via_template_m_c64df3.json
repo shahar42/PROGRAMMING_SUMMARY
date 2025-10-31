@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism for STL Computations",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, leveraging the compiler to generate specialized code for different types. This contrasts with runtime polymorphism achieved through virtual functions and inheritance.  The compiler's implementation involves recursive template instantiation, potentially resulting in significant code bloat if not carefully managed.  Understanding how the compiler expands templates is crucial for optimizing performance and avoiding unexpected behavior.  Compile-time polymorphism eliminates runtime overhead associated with virtual function calls (vtable lookups), leading to faster execution, but at the cost of increased compile time and potentially larger binary sizes. Assembly-level examination reveals the absence of runtime function pointers and indirect calls characteristic of runtime polymorphism.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:36:59.086209",
+    "book_metadata_added": "2025-10-28T20:22:06.998782"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <int N>\nstruct Factorial {\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\n// Specialization provides the base case (polymorphism point)\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\n// Trait usage in a static context\ntemplate <typename T>\nstruct is_pointer {\n    static constexpr bool value = false;\n};\n\ntemplate <typename T>\nstruct is_pointer<T*> {\n    static constexpr bool value = true;\n};\n\nconstexpr int fact_val = Factorial<5>::value;\n// fact_val == 120 (Compile-time computation)\n\n// Compile-time trait check\nconstexpr bool check = is_pointer<int*>::value; // true",
+  "keywords": "TMP, Static Polymorphism, Compile Time Computation, Template Metaprogramming"
+}

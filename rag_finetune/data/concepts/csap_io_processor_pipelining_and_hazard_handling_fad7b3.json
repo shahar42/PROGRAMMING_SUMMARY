@@ -1,0 +1,16 @@
+{
+  "topic": "Resource Conflicts and Data Dependencies",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the stages of multiple instructions.  Each instruction progresses through a series of stages (fetch, decode, execute, memory, writeback) concurrently. Hazards, such as data dependencies, structural hazards (resource conflicts), and control hazards (branch prediction issues), can impede this parallelism.  Handling these hazards efficiently is crucial for achieving high performance.  Techniques like forwarding, stalling, and branch prediction are employed to mitigate these issues.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "31-31",
+    "extraction_date": "2025-07-22T23:57:38.727996",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.724529"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Data Hazard (RAW): Register R1 read depends on previous write\ntypedef struct {\n    int id;          // Instruction ID\n    int src1, src2;  // Source registers\n    int dest;        // Destination register\n} Instruction;\n\n// Pipeline registers carry data results\ntypedef struct {\n    int reg_index;\n    int value;\n} ResultRegister;\n\nResultRegister EX_MEM_Buffer; // E stage output\nResultRegister MEM_WB_Buffer; // M stage output\n\n// Forwarding Check (I2 depends on I1's write to R1)\n// I1: ADD R1, R2, R3 (WB stage)\n// I2: SUB R4, R1, R5 (E stage)\n\nif (I2.src1 == EX_MEM_Buffer.reg_index) {\n    // Forward data from the Execute stage buffer\n    I2.operand1 = EX_MEM_Buffer.value;\n}\n\n\n// 2. Structural Hazard: Resource Conflict (Memory Unit)\nenum ResourceType { ALU, MEMORY, REG_FILE };\nbool resource_available[3]; // Track usage\n\n// Instructions I1 and I2 both need the MEMORY resource in cycle N\n// I1: LW R1, 0(R2) (M Stage)\n// I2: SW 0(R3), R4 (M Stage)\n\nif (!resource_available[MEMORY]) {\n    // Stall the later instruction (I2)\n    // Insert NOPs into the pipeline stream\n    insert_bubble(I2);\n} else {\n    resource_available[MEMORY] = false; // Claim resource\n}\n\n\n// 3. Control Hazard: Branch Misprediction\ntypedef enum { PREDICTED_TAKEN, PREDICTED_NOT } Prediction;\n\nstruct BranchHistoryTable {\n    uint32_t PC;\n    uint32_t target_PC;\n    Prediction status;\n};\n\n// Check BTB on Instruction Fetch (F stage)\nPrediction guess = lookup_BHT(Current_PC);\n\nif (Instruction_is_Branch && guess == PREDICTED_TAKEN) {\n    // Speculatively fetch from the target address\n    // Insert instructions into the speculative path\n}\n\n// If actual outcome != guess (Misprediction)\nif (is_misprediction()) {\n    flush_pipeline(F, D, E); // Clear speculative instructions\n    branch_penalty = 3;      // Typical 3-cycle penalty\n}",
+  "keywords": "Pipeline Hazards, Data Hazards, Structural Hazards, Instruction Pipelining"
+}

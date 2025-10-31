@@ -1,0 +1,32 @@
+{
+  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its Impact on Code Generation",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, leveraging the compiler to generate specialized code for different types. This contrasts with runtime polymorphism achieved through virtual functions and inheritance.  The compiler's implementation involves recursive template instantiation, potentially resulting in significant code bloat if not carefully managed.  Understanding how the compiler expands templates is crucial for optimizing performance and avoiding unexpected behavior.  Compile-time polymorphism eliminates runtime overhead associated with virtual function calls (vtable lookups), leading to faster execution, but at the cost of increased compile time and potentially larger binary sizes. Assembly-level examination reveals the absence of runtime function pointers and indirect calls characteristic of runtime polymorphism.",
+  "syntax": "```c++\ntemplate <typename T, size_t N>\nconstexpr size_t arraySize(const T (&)[N]) { return N; }\n\ntemplate <typename T, size_t N>\nvoid printArray(const T (&arr)[N]) {\n  for (size_t i = 0; i < N; ++i) {\n    std::cout << arr[i] << (i < N - 1 ? \", \" : \"\");\n  }\n  std::cout << std::endl;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <typename T, size_t N>\nconstexpr size_t arraySize(const T (&)[N]) { return N; }",
+    "template <typename T, size_t N>\nvoid printArray(const T (&arr)[N]) {",
+    "  for (size_t i = 0; i < N; ++i) {",
+    "    std::cout << arr[i] << (i < N - 1 ? \", \" : \"\");",
+    "  }",
+    "  std::cout << std::endl;",
+    "}",
+    "int main() {",
+    "  int intArray[] = {1, 2, 3, 4, 5};",
+    "  double doubleArray[] = {1.1, 2.2, 3.3};",
+    "  std::cout << \"Size of intArray: \" << arraySize(intArray) << std::endl;",
+    "  std::cout << \"Size of doubleArray: \" << arraySize(doubleArray) << std::endl;",
+    "  printArray(intArray);",
+    "  printArray(doubleArray);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler generates separate, specialized versions of `printArray` and `arraySize` for each type and array size used at compile time.  No runtime type checking or virtual function calls are needed.  The assembly code will show direct access to array elements without any indirect addressing through function pointers.  This improves performance, but multiple instantiations can increase code size.  The `constexpr` keyword on `arraySize` ensures the size calculation happens at compile time, further enhancing efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:36:59.086209"
+  }
+}

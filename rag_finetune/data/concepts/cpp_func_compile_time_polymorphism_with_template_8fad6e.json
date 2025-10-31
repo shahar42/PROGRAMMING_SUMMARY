@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism with Template Metaprogramming and its Implementation Details",
+  "explanation": "Compile-time polymorphism, achieved through template metaprogramming, allows for code generation to be customized based on template arguments at compile time.  This differs significantly from runtime polymorphism (virtual functions) as it avoids the runtime overhead of virtual function tables (vtables) and dynamic dispatch.  The compiler performs significant code generation and optimization during compilation, often resulting in highly efficient code. Understanding how the compiler handles template instantiation, recursion, and specialization is crucial for effective use and optimization.  Memory layout is directly determined by the template arguments; no runtime overhead related to polymorphism is introduced.  Assembly-level behavior will vary widely depending on the specific template implementation and the compiler's optimization strategies but will generally show inlined function calls and the absence of indirect function calls through vtables. The behavior is entirely compile-time; no runtime type information or dispatch is involved.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:38:38.228916",
+    "book_metadata_added": "2025-10-28T20:22:06.810544"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename Derived>\nstruct PolymorphicBase {\n    // Defines a common interface\n    void call_interface() const {\n        // Static dispatch via CRTP (zero runtime overhead)\n        static_cast<const Derived*>(this)->call_impl();\n    }\n};\n\nstruct OptimizedTypeA : PolymorphicBase<OptimizedTypeA> {\n    void call_impl() const {\n        // Compiler generates unique code for A\n    }\n};\n\nstruct OptimizedTypeB : PolymorphicBase<OptimizedTypeB> {\n    void call_impl() const {\n        // Compiler generates unique code for B\n    }\n};\n\nvoid usage_example() {\n    OptimizedTypeA a;\n    a.call_interface(); // Resolved entirely at compile time\n}",
+  "keywords": "Compile-Time Polymorphism, Template Metaprogramming, Static Dispatch, C++ Templates"
+}

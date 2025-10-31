@@ -1,43 +1,12 @@
 {
-  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "topic": "RAII: Handling Exceptions Safely",
   "explanation": "RAII is a fundamental C++ programming idiom where resource management is tied to the object's lifetime.  Resources (like memory, files, network connections, mutexes) are acquired in the object's constructor and released in its destructor. This ensures resources are always released, even in the presence of exceptions, preventing resource leaks and improving program robustness.  It's a cornerstone of exception safety and promotes cleaner, more maintainable code.  Best practices involve using RAII consistently for all resource management, avoiding manual resource handling whenever possible.",
-  "syntax": "RAII is not a specific syntax but a design pattern implemented using constructors and destructors.  Consider the example below where a file is opened in the constructor and closed in the destructor.  The crucial aspect is that the destructor is automatically called even if exceptions are thrown.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <fstream>",
-    "",
-    "class FileHandler {",
-    "public:",
-    "  FileHandler(const std::string& filename) : file_(filename) {",
-    "    if (!file_.is_open()) {",
-    "      throw std::runtime_error(\"Could not open file\");",
-    "    }",
-    "  }",
-    "  ~FileHandler() {",
-    "    if (file_.is_open()) {",
-    "      file_.close();",
-    "    }",
-    "  }",
-    "  std::fstream& getFile() { return file_; }",
-    "private:",
-    "  std::fstream file_;",
-    "};",
-    "",
-    "int main() {",
-    "  try {",
-    "    FileHandler file(\"my_file.txt\");",
-    "    file.getFile() << \"Hello, RAII!\\n\";",
-    "  } catch (const std::runtime_error& e) {",
-    "    std::cerr << \"Error: \" << e.what() << std::endl;",
-    "  }",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The `FileHandler` class demonstrates RAII. The constructor opens the file; the destructor closes it.  If an exception occurs (e.g., the file couldn't be opened), the destructor is still called, guaranteeing the file is closed, preventing a resource leak.  This eliminates the need for explicit `file.close()` calls in multiple locations, which can be error-prone and easily missed.  This approach improves code readability, maintainability, and robustness.  This pattern applies to many resources, not just files\u2014smart pointers (e.g., `unique_ptr`, `shared_ptr`) are prime examples of RAII for managing dynamically allocated memory.  Using smart pointers is a best practice and generally eliminates the risk of memory leaks.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "basics",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T04:23:14.043963"
-  }
+    "extraction_date": "2025-08-20T04:23:14.043963",
+    "book_metadata_added": "2025-10-28T20:22:06.521722"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

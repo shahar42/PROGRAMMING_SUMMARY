@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Recursive Mutexes",
+  "explanation": "Recursive mutexes allow a thread to acquire the same mutex multiple times without deadlocking.  This differs significantly from standard mutexes.  Understanding its implementation reveals intricacies of thread synchronization, memory management, and compiler optimizations.  The key is how the compiler and runtime manage the ownership counter and potential exception handling for exceeding the maximum recursion depth.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:47:46.337895",
+    "book_metadata_added": "2025-10-28T20:22:06.898537"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Recursive Mutex Declaration\nstd::recursive_mutex r_mtx;\nint recursion_level = 0;\n\nvoid safe_recursive_call(int depth) {\n    if (depth <= 0) return;\n    std::lock_guard<std::recursive_mutex> lock(r_mtx);\n    recursion_level++;\n    safe_recursive_call(depth - 1);\n    // Ownership counter decreases on destruction\n}\n\n// Ownership Tracking Mechanism (Internal concept)\nstruct internal_state {\n    std::thread::id owner_id;\n    int recursion_count;\n};"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Controlling Object Initialization: Preventing Default Construction",
+  "explanation": "This concept delves into the compiler's handling of object construction, particularly when a class lacks a user-defined default constructor.  Understanding this is crucial for resource management, avoiding undefined behavior, and optimizing memory layout.  The compiler's actions differ significantly depending on whether a default constructor exists and how objects are initialized.  Without a default constructor, the compiler cannot implicitly create objects, forcing explicit initialization during declaration. This influences memory layout because the compiler cannot assume default-initialized values; it must instead handle the object's initialization explicitly.  Performance is impacted because direct initialization is generally faster than default construction followed by assignment.  At the assembly level, the differences translate into variations in the initialization instructions: direct initialization may involve direct memory assignments, while a default constructor's call necessitates extra function calls and potential stack operations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:24:30.423093",
+    "book_metadata_added": "2025-10-28T20:22:06.908915"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class StrictInit {\n    int resource_id;\npublic:\n    // Definition of any Ctor blocks implicit default Ctor synthesis\n    explicit StrictInit(int id) : resource_id(id) {}\n\n    // Explicitly deleting default Ctor is optional, reinforces prevention\n    // StrictInit() = delete;\n};\n\n// Required Usage: Explicit initialization\nStrictInit r1(42);\n\n// Compilation Error: No default constructor\n// StrictInit r2;\n\n// Array creation fails without default Ctor\n// StrictInit* arr = new StrictInit[10];"
+}

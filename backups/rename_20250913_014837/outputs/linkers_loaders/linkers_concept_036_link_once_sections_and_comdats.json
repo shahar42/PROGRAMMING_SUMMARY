@@ -1,0 +1,30 @@
+{
+  "topic": "Link-Once Sections and COMDATs",
+  "explanation": "Link-once sections (GNU linkers) and COMDATs (Windows linkers) are mechanisms to handle the problem of duplicate code generated from template instantiations, inline functions, and other constructs where multiple object files might contain nearly identical code.  These features allow the linker to eliminate redundant code, reducing the final executable size and improving performance.  The linker identifies sections with the same name (or similar conventions depending on the linker) and keeps only one instance, discarding the others. This is crucial for managing the size and efficiency of executables, especially in C++ programs that heavily utilize templates.",
+  "syntax": "GNU Linkers: `.gnu.linkonce.name`\nWindows Linkers: COMDAT sections with flags (IMAGE_COMDAT_SELECT_NODUPLICATES, IMAGE_COMDAT_SELECT_ANY, etc.)",
+  "code_example": [
+    "// Example illustrating the concept (Illustrative - actual implementation requires assembly and linker specifics)",
+    "// File: template.cpp",
+    "#include <iostream>",
+    "template <typename T>",
+    "void process(T value) {",
+    "  std::cout << \"Processing: \" << value << std::endl;",
+    "}",
+    "// File: main.cpp",
+    "#include \"template.cpp\"",
+    "int main() {",
+    "  process(10);",
+    "  process(3.14);",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates how templates can lead to duplicate code.  If `template.cpp` is compiled twice (e.g., once for `int` and once for `double`), each compilation would produce a separate version of `process`.  However, the linker, upon encountering the two versions of `process` (assuming they are marked as link-once sections or COMDATs), would retain only one, effectively eliminating the redundancy.  Without link-once sections or COMDATs, both versions would be included in the final executable, leading to increased size and potentially slower execution.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "136-138",
+    "extraction_date": "2025-07-19T02:02:45.043921",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

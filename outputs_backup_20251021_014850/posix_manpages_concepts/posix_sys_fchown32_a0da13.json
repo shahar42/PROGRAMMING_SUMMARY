@@ -1,0 +1,15 @@
+{
+  "topic": "fchown32() System Call",
+  "explanation": "The fchown() system call changes the ownership of the file referred to by the open file descriptor fd. Only a privileged process can change the owner of a file, and the owner can change the group if they are a member. If owner or group is specified as -1, that ID is not changed.\n\n**Parameters:**\n- `fd` (int): File descriptor referring to the file whose ownership is to be changed\n- `owner` (uid_t): The user ID of the new owner, or -1 to leave unchanged\n- `group` (gid_t): The group ID of the new group, or -1 to leave unchanged\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix\n- `EBADF`: fd is not a valid open file descriptor\n- `EFAULT`: pathname points outside your accessible address space\n- `EINVAL`: Invalid flag specified in flags (for fchownat)\n- `EIO`: A low-level I/O error occurred while modifying the inode\n\n**Related System Calls:** `chown()`, `lchown()`, `fchownat()`",
+  "syntax": "#include <unistd.h>",
+  "code_example": "#include <pwd.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\nint main(int argc, char *argv[]) {\n    // Code to change ownership using chown, but adaptable for fchown\n    char *endptr;\n    uid_t uid;\n    struct passwd *pwd;\n    if (argc != 3 || argv[1][0] == '\\0') {\n        fprintf(stderr, \"%s <owner> <file>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    uid = strtol(argv[1], &endptr, 10);\n    if (*endptr != '\\0') {\n        pwd = getpwnam(argv[1]);\n        if (pwd == NULL) {\n            perror(\"getpwnam\");\n            exit(EXIT_FAILURE);\n        }\n        uid = pwd->pw_uid;\n    }\n    if (chown(argv[2], uid, -1) == -1) {\n        perror(\"chown\");\n        exit(EXIT_FAILURE);\n    }\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the fchown32() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.184372",
+    "syscall_name": "fchown32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fchown32.json",
+    "concept_id": "posix_sys_fchown32_a0da13"
+  }
+}

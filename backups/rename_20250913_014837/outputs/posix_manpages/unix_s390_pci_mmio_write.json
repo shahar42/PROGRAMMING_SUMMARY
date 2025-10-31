@@ -1,0 +1,66 @@
+{
+  "name": "s390_pci_mmio_write",
+  "synopsis": [
+    "#include <sys/syscall.h> /* Definition of SYS_* constants */",
+    "#include <unistd.h>",
+    "int syscall(SYS_s390_pci_mmio_write, unsigned long mmio_addr, const void *user_buffer, size_t length);",
+    "int syscall(SYS_s390_pci_mmio_read, unsigned long mmio_addr, void *user_buffer, size_t length);"
+  ],
+  "description": "The s390_pci_mmio_write() system call writes a specified number of bytes from a user-space buffer to a PCI MMIO memory location. It must be used on Linux Systemz platforms instead of direct memory access, ensuring the address belongs to a valid PCI MMIO page and does not cross page boundaries.",
+  "parameters": [
+    {
+      "name": "mmio_addr",
+      "type": "unsigned long",
+      "description": "The PCI MMIO memory address to write to"
+    },
+    {
+      "name": "user_buffer",
+      "type": "const void *",
+      "description": "Pointer to the user-space buffer containing the data to write"
+    },
+    {
+      "name": "length",
+      "type": "size_t",
+      "description": "Number of bytes to write, must not exceed the system page size and must not cross a page boundary"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "The address in mmio_addr is invalid"
+    },
+    {
+      "code": "EFAULT",
+      "description": "user_buffer does not point to a valid location in the caller’s address space"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid length argument"
+    },
+    {
+      "code": "ENODEV",
+      "description": "PCI support is not enabled"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 3.19",
+  "posix_compliance": null,
+  "related_calls": [
+    "syscall"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "s390_pci_mmio_write.pdf",
+    "extraction_date": "2025-07-30T23:22:29.806986",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

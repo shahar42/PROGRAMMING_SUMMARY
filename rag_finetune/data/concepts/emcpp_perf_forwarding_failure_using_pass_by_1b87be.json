@@ -1,0 +1,19 @@
+{
+  "topic": "Forwarding Failure using Pass-by-Value: Forces Unnecessary Moves/Copies",
+  "category": "perf",
+  "explanation": "One alternative to the complexity of universal references is the strategy of 'pass-by-value and move-from-it.' The assumption is that defining the parameter as a value type (`T param`) and relying on moves to transfer resources internally simplifies the code while maintaining high performance. The anti-pattern is that this simplification inherently sacrifices perfect forwarding and introduces redundant moves or copies, thereby degrading performance compared to a well-implemented forwarding strategy. The failure occurs in two primary scenarios. First, when an lvalue is passed to the function, the parameter must be initialized via the copy constructor. This immediately incurs a full copy operation, which is the exact performance hit perfect forwarding aims to avoid. Second, when an rvalue is passed, the language rules permit an efficient move construction for the parameter, but this is still a *second* move operation if the input rvalue was itself the result of an earlier move or cheap construction. The internal function logic then executes `std::move(param)` to move the contents out of the parameter, resulting in the desired total of one move into the final destination, but the function signature itself enforced an initial, potentially unnecessary copy or move to initialize the function parameter. This 'Pass-by-Value-and-Move' idiom fails to achieve true perfect forwarding because it cannot preserve the original value category for the initial stage of argument handling, mandating an expensive copy for all lvalue inputs and adding an extra conceptual move step for rvalue inputs, leading to measurable performance regression for large objects compared to zero-copy forwarding.",
+  "code_example": "// Pass-by-value forces a copy for lvalues or an extra move for rvalues.\nvoid process(std::string s) { \n    // If lvalue passed: copy (L->s) + move (s->member).\n    // If rvalue passed: move (R->s) + move (s->member).\n    member = std::move(s);\n}",
+  "practical_example": "A developer refactors a critical component to use pass-by-value to simplify handling string parameters, eliminating complex `T&&` templates. They discover that every time the component is called with a persistent lvalue string from a configuration object, the string is deeply copied into the function stack before being moved to its final destination, doubling the overhead compared to the previous direct lvalue forwarding method.",
+  "keywords": [
+    "pass-by-value",
+    "redundant copy",
+    "performance degradation",
+    "move semantics",
+    "perf"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "205-209",
+  "chapter": "Item 27: Use alternatives to overloading on universal references",
+  "id": "emcpp_perf_forwarding_failure_using_pass_by_1b87be",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

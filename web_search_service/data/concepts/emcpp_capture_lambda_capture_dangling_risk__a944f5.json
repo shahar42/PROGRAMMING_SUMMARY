@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Dangling Risk: By-Reference and `this`",
+  "category": "capture",
+  "explanation": "Default capture modes introduce two primary risks related to lifetime: 1. Default by-reference capture (`[&]`) captures local stack variables. If the lambda outlives the scope of creation (e.g., stored in a global container or returned), the captured references become dangling. 2. Default by-value capture (`[=]`) implicitly captures the `this` pointer by value if a member variable is used. If the object pointed to by `this` is destroyed before the lambda is invoked, the captured `this` pointer becomes dangling, leading to undefined behavior upon invocation.",
+  "code_example": "class Widget {\n  void start() {\n    // 'this' is captured by value if member data is used\n    auto f = [=] { use(data); }; \n    // If Widget is destroyed before f runs, f accesses invalid memory.\n  }\n};\n",
+  "practical_example": "An asynchronous scheduler takes a lambda captured with `[=]`. The lambda uses a member variable. If the host object is destroyed immediately after scheduling the task, the lambda will execute later, dereferencing a stale `this` pointer.",
+  "keywords": [
+    "dangling reference",
+    "dangling pointer",
+    "lifetime",
+    "this capture"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "233",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_dangling_risk__a944f5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Special Member Function Generation: Copy Operations",
+  "category": "core",
+  "explanation": "The compiler can generate a copy constructor and copy assignment operator for a class, but these are suppressed or deleted if the user declares conflicting special member functions. The generated versions perform a straightforward member-wise copy of the class's non-static data members.\n\nScott Meyers' key insight is that the C++11 rules intentionally link copy and move semantics for safety. Specifically, if a programmer explicitly declares a move operation (either a move constructor or move assignment operator), the compiler will delete the implicitly-generated copy operations. This reflects the design principle that if a class has custom logic for moving, a simple member-wise copy is likely incorrect or conceptually inappropriate. The compiler forces the programmer to be explicit about copy semantics in this case.\n\nThe mechanics for copy operations are as follows. The compiler will not generate a copy constructor if the user has already declared one. More importantly, it will implicitly define the copy constructor as *deleted* if the user has declared a move constructor or move assignment operator. The same rules apply to the copy assignment operator. Additionally, Meyers notes that generating copy operations for a class with a user-declared destructor is a deprecated practice, signaling a move towards requiring programmers who manage resources (implied by the destructor) to explicitly define all five special functions.\n\nThis has a significant practical implication: defining move operations makes a class move-only by default. If you intend for the class to be both copyable and movable, you must explicitly provide the copy operations after you've declared the move operations, often by using the 'default' keyword. This prevents bugs where a class designed for efficient moving is accidentally and incorrectly copied using the compiler's naive member-wise logic.\n\nThe most common pitfall is adding move operations to a class to enable optimizations and then being surprised when existing code that copies instances of that class fails to compile. Programmers must remember that declaring move semantics implicitly disables copy semantics, and this decision must be made consciously.",
+  "code_example": "class MoveOnly {\npublic:\n  // User-declared move constructor.\n  MoveOnly(MoveOnly&& other) noexcept = default;\n\n  // Because a move operation is declared, the compiler implicitly\n  // DELETES the copy constructor and copy assignment operator.\n  // MoveOnly m1;\n  // MoveOnly m2 = m1; // Error! Copy constructor is deleted.\n};\n\nclass CopyAndMove {\npublic:\n  CopyAndMove(CopyAndMove&& other) noexcept = default;\n  CopyAndMove(const CopyAndMove& other) = default; // Re-enable copy\n  // This class is now both copyable and movable.\n};",
+  "practical_example": "When creating a resource-owning class that can be either moved (transferring ownership) or copied (deep-copying the resource), you must explicitly define both the move operations and the copy operations. Simply defining the move operations will make it move-only, preventing users from making legitimate copies.",
+  "keywords": [
+    "special member functions",
+    "copy constructor",
+    "copy assignment",
+    "compiler-generated functions",
+    "deleted functions",
+    "rule of five",
+    "move semantics"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "114-115",
+  "chapter": "Item 17: Understand special member function generation",
+  "id": "emcpp_core_special_member_function_generation__5df3d7",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Performance Optimization: Reducing Procedure Call Overhead",
+  "explanation": "Procedure calls introduce overhead due to function prologue/epilogue, stack manipulation, and branch prediction mis-predictions.  In performance-critical sections, this overhead can significantly impact execution time. Reducing procedure calls improves performance by minimizing these overheads, allowing for more efficient instruction execution and better utilization of the processor pipeline.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "540-540",
+    "extraction_date": "2025-07-27T18:02:01.176504",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.744560"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Inline Functions (C++ / C99)\ninline int fast_add(int a, int b) {\n    return a + b;\n}\nvoid caller() {\n    int result = fast_add(5, 7);\n    // Compiler attempts replacement at call site\n}\n// Note: 'inline' is a hint, not a command.\n\n// 2. Macros for Trivial Operations (C/C++)\n#define SQUARE(x) ((x) * (x))\nint val = SQUARE(5);\n// Caution: Macro evaluation order issues (side effects)\n// e.g., SQUARE(++i) evaluates to (++i) * (++i)\n\n// 3. Loop Unrolling (Reducing Iteration Overhead)\n// Original loop: 4 calls to check loop condition\nfor (int i = 0; i < N; i += 4) {\n    a[i] = b[i] + c[i];\n    a[i+1] = b[i+1] + c[i+1];\n    a[i+2] = b[i+2] + c[i+2];\n    a[i+3] = b[i+3] + c[i+3];\n}\n// Note: Increases instruction cache pressure.\n\n// 4. Function Template Specialization (C++)\n// Allows inlining even complex operations known at compile time\ntemplate <typename T>\nT add_default(T a, T b) { return a + b; }\nint x = add_default<int>(1, 2);\n// Monomorphization eliminates run-time dispatch overhead.\n\n// 5. Using __attribute__((always_inline)) (GCC/Clang)\n__attribute__((always_inline))\nint guaranteed_add(int a, int b) {\n    return a + b;\n}\n// Forces inlining if compiler constraints allow.\n\n// 6. Replacing Virtual Calls (C++)\n// Avoids V-Table lookup and indirect branch overhead\n// Change:\n// virtual void foo() { ... }\n// To:\n// void foo() final { ... } // Or remove virtual entirely\n\n// 7. Replacing Recursion with Iteration\n// Recursive: high stack frame overhead\nint fib_rec(int n) {\n    if (n <= 1) return n;\n    return fib_rec(n-1) + fib_rec(n-2);\n}\n// Iterative (reduced overhead):\nint fib_iter(int n) {\n    int a=0, b=1, temp;\n    for (int i=2; i<=n; ++i) {\n        temp = a + b; a = b; b = temp;\n    }\n    return b;\n}"
+}

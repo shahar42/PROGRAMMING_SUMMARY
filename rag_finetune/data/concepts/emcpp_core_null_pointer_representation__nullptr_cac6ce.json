@@ -1,0 +1,23 @@
+{
+  "topic": "Null Pointer Representation: nullptr vs 0 and NULL",
+  "category": "core",
+  "explanation": "The core concept to understand is that the literals `0` and `NULL` are fundamentally integral types, not pointer types. Although the C++ compiler will treat them as a null pointer in a context that exclusively requires one, this is a concession rather than their primary identity. This seemingly minor distinction is the source of significant and subtle bugs, particularly in the context of function overloading.\n\nScott Meyers' key insight is that the compiler's interpretation of `0` as a null pointer is a 'fallback position.' Its primary policy is that `0` is an `int`. This means that when the compiler has a choice between interpreting `0` as an integer or as a pointer, it will always choose the integer interpretation. The same applies to `NULL`, which is a preprocessor macro typically defined as `0`, thus inheriting its integral nature.\n\nThe mechanics of this issue become clear during overload resolution. If a function is overloaded on both an integer type and a pointer type, calling it with `0` or `NULL` will resolve to the integer overload. This is because `0` is a perfect match for an `int` parameter, whereas matching it to a pointer parameter would require an implicit conversion. The compiler always prefers a perfect match over a conversion. In C++11, `nullptr` was introduced to solve this problem. It is a literal of a special type, `std::nullptr_t`, which is implicitly convertible to any pointer type but is not convertible to any integral type. This ensures that passing `nullptr` to an overloaded function will unambiguously select the pointer version.\n\nIn practice, this means you should always use `nullptr` to represent null pointers. This avoids ambiguity and ensures your code behaves as intended. The issue commonly appears in functions that might logically accept either a numerical value or a pointer, such as a logging function, a factory, or a function setting an optional property that could be an integer ID or a pointer to an object. Using `0` or `NULL` in these scenarios can silently route the call to the wrong implementation.\n\nThe most common pitfall is for developers, especially those with a C background, to use `NULL` out of habit, assuming it's a type-safe pointer representation. They are then surprised when their code calls an unexpected function overload, leading to bugs that can be difficult to diagnose because the code compiles without any warnings.",
+  "code_example": "void f(int i) { /* handles integer */ }\nvoid f(bool b) { /* handles boolean */ }\nvoid f(void* p) { /* handles pointer */ }\n\n// Overload resolution behavior\nf(0);         // Calls f(int), not f(void*)\nf(NULL);      // Typically calls f(int), but can be ambiguous and fail to compile\nf(nullptr);   // Calls f(void*)",
+  "practical_example": "When using a third-party library with an overloaded function `set_option(int)` and `set_option(const char*)`, attempting to pass a null C-style string via `set_option(NULL)` would incorrectly call the integer overload. Using `set_option(nullptr)` correctly calls the pointer overload, preventing a subtle bug.",
+  "keywords": [
+    "nullptr",
+    "NULL",
+    "zero",
+    "null pointer",
+    "overload resolution",
+    "type safety",
+    "integral types",
+    "pointer types",
+    "std::nullptr_t"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "58",
+  "chapter": "Item 8: Prefer nullptr to 0 and NULL",
+  "id": "emcpp_core_null_pointer_representation__nullptr_cac6ce",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

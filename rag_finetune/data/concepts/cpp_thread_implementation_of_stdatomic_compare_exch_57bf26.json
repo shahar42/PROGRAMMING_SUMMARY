@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::atomic_compare_exchange_strong in C++",
+  "explanation": "std::atomic_compare_exchange_strong is a member function of std::atomic<T> that atomically compares the value of the atomic object with an expected value and, if they are equal, replaces it with a desired value. Under the hood, compilers implement this using hardware-specific instructions to ensure atomicity, such as the CMPXCHG instruction on x86 architectures, often prefixed with LOCK for memory bus locking to prevent concurrent modifications. This ensures that the operation is indivisible and visible across threads, involving memory fences or barriers to maintain ordering. Memory layout-wise, std::atomic<T> typically has the same layout as T for fundamental types, but the compiler may add padding or alignment requirements to support atomic operations, especially for larger types where lock-free execution isn't guaranteed. Performance implications include potential cache line contention, as atomic operations can invalidate or flush cache lines, leading to higher latency in multi-threaded environments; however, they are generally more efficient than mutex-based synchronization for low-contention scenarios. At the assembly level, the compiler translates this into a loop that checks for success and retries on failure (for strong variants), using instructions like CMPXCHG followed by conditional jumps. Behavior is primarily runtime, as it depends on dynamic thread scheduling and hardware timing, though the compiler can optimize based on compile-time knowledge (e.g., marking variables as volatile-like for optimization barriers). If the hardware doesn't support lock-free operations, the implementation might fall back to mutexes, as per the C++ standard, affecting performance.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "overloading",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:21:10.828394",
+    "book_metadata_added": "2025-10-28T20:22:06.948778"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Basic usage with integers\nstd::atomic<int> shared_val(10);\nint expected = 10;\nint desired = 20;\n\nbool success = shared_val.compare_exchange_strong(\n    expected, desired);\n// If success, shared_val is 20.\n// If fail, expected is updated to the actual value.\n\n// Usage with memory orders\nstd::atomic<void*> ptr(nullptr);\nvoid* old_ptr = nullptr;\nvoid* new_ptr = new int(5);\n\nptr.compare_exchange_strong(\n    old_ptr, new_ptr,\n    std::memory_order_acq_rel,\n    std::memory_order_acquire);\ndelete new_ptr; // Cleanup"
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Unjoinability: Automatic Program Termination via `std::terminate`",
+  "category": "thread",
+  "explanation": "Assumption: If a function scope exits and an `std::thread` object goes out of scope, the thread resource is automatically cleaned up, similar to other RAII objects. Reality: An `std::thread` object must be explicitly joined (`t.join()`) or detached (`t.detach()`) before its destructor runs, provided it represents an actively executing thread (i.e., `t.joinable()` is true). If the destructor is called on a joinable thread, the program immediately calls `std::terminate`. Why It Fails: C++ mandates this behavior to prevent silent resource leakage (if it implicitly detached) or potential deadlock issues (if it implicitly joined). This rule means that raw `std::thread` objects require careful management, usually involving RAII wrappers (like a custom `ThreadGuard`) to guarantee joining or detaching even in the presence of exceptions.",
+  "code_example": "void risky_func() {\n  std::thread t([]{ /* work */ });\n  // If exception occurs here, t's dtor runs and calls std::terminate\n  // t.join(); // Must be called safely\n}",
+  "practical_example": "A complex function uses `std::thread` to launch background processing. An exception is thrown early in the function body. Stack unwinding occurs, the thread object destructor runs on a joinable thread, and the entire application immediately crashes instead of allowing the exception handler to take over.",
+  "keywords": [
+    "joinable",
+    "std::terminate",
+    "RAII wrapper",
+    "thread safety",
+    "detaching"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 38: Be aware of the varying meaning of thread handles",
+  "id": "emcpp_thread_thread_unjoinability__automatic_program_a82771",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

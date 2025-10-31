@@ -1,34 +1,12 @@
 {
   "topic": "Atomic Operations on `shared_ptr` and Compiler/Hardware Interaction",
   "explanation": "This explores the implementation details of atomic operations, specifically `atomic_exchange`, when applied to `std::shared_ptr`.  It delves into how compilers translate this operation into low-level instructions, considering memory models and hardware support for atomicity.  We'll examine the performance implications of different memory orderings and the impact on multi-threaded programs.  Crucially, we'll analyze how the compiler manages the reference counting within `shared_ptr` during atomic exchange, ensuring thread safety and preventing data races.",
-  "syntax": "```cpp\n#include <atomic>\n#include <memory>\n\nstd::shared_ptr<int> atomic_exchange_ptr;\n\n// ... in some thread ...\nstd::shared_ptr<int> old_ptr = std::atomic_exchange(&atomic_exchange_ptr, std::make_shared<int>(10));\n\n// ... in another thread ...\nstd::shared_ptr<int> another_ptr = std::atomic_exchange(&atomic_exchange_ptr, std::make_shared<int>(20));\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <atomic>",
-    "#include <memory>",
-    "#include <thread>",
-    "",
-    "std::atomic<std::shared_ptr<int>> atomic_ptr{nullptr};",
-    "",
-    "void thread_func(int val) {",
-    "  auto old_ptr = std::atomic_exchange(&atomic_ptr, std::make_shared<int>(val));",
-    "  std::cout << \"Thread \" << val << \": Exchanged ptr. Old value: \" << (old_ptr ? std::to_string(*old_ptr) : \"nullptr\") << std::endl;",
-    "}",
-    "",
-    "int main() {",
-    "  std::thread t1(thread_func, 100);",
-    "  std::thread t2(thread_func, 200);",
-    "  t1.join();",
-    "  t2.join();",
-    "  std::cout << \"Final value: \" << (atomic_ptr ? std::to_string(*atomic_ptr) : \"nullptr\") << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates `atomic_exchange` with `shared_ptr`. The compiler will generate code that uses atomic instructions (like `lock xchg` on x86) to ensure that the exchange operation is indivisible.  The crucial point here is the compiler's handling of the reference count within the `shared_ptr`.  The operation must atomically update the pointer *and* handle the reference count update to avoid race conditions where the old `shared_ptr`'s reference count drops to zero prematurely, leading to deallocation before the other thread can access it.  The memory order (implicitly `seq_cst` here) dictates the ordering of these operations relative to other memory accesses in the program. Using a weaker memory order might improve performance in specific cases, but requires careful consideration of potential ordering issues.  The assembly generated will vary by compiler, architecture, and optimization level; however, the core functionality will involve atomic instructions ensuring indivisibility and correctness under concurrency.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:25:19.299373"
-  }
+    "extraction_date": "2025-08-19T05:25:19.299373",
+    "book_metadata_added": "2025-10-28T20:22:06.875926"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

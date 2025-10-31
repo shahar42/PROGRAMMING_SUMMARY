@@ -1,0 +1,13 @@
+{
+  "topic": "Thread Unhandled Exceptions Lead to Termination",
+  "category": "thread",
+  "explanation": "Assumption: If a function running in a new thread throws an exception, the exception can be caught in the main thread or safely ignored. Reality: The `std::thread` API offers no direct mechanism to transmit return values or propagate exceptions back to the calling context. Why It Fails: If an asynchronously run function started via `std::thread` throws an unhandled exception, the program is terminated via `std::terminate()`. Conversely, `std::async` captures exceptions and stores them in the associated `std::future`, allowing the caller to safely retrieve the result or re-throw the exception via `future::get()` without terminating the program.",
+  "code_example": "void risky_op() { throw std::runtime_error(\"Fail\"); }\n\n// Program terminates here\nstd::thread t(risky_op); \nt.join();",
+  "practical_example": "A library uses `std::thread` internally for background processing. If a network operation fails and throws an exception inside the thread function, the entire application crashes unexpectedly, making debugging difficult as the exception is not caught in the expected scope.",
+  "keywords": "std::thread unhandled exception, std::thread exception termination, C++ thread exception propagation",
+  "difficulty": "intermediate",
+  "page_reference": "260",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_thread_thread_unhandled_exceptions_lead_to_84820a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Safe Type Casting in C++",
+  "explanation": "Type casting is a common technique in C++ for converting one data type to another, often necessary when working with pointers, classes, or generic programming. However, C-style casts like (int)*pc can lead to subtle bugs, undefined behavior, or security issues because they bypass some compiler checks and can perform multiple types of conversions implicitly. In real-world scenarios, such as embedded systems or game development, where pointers are frequently used, relying on C-style casts increases the risk of errors like data corruption or crashes. Best practices recommend using modern C++ casts like static_cast for explicit, type-safe conversions. static_cast ensures that only valid casts are performed at compile-time, improving code readability, maintainability, and error detection early in development. Common pitfalls include casting between incompatible types or ignoring constness, which can be avoided by choosing the right cast operator and adding runtime checks where necessary.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T02:30:46.000800",
+    "book_metadata_added": "2025-10-28T20:22:06.568531"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Conversions between related types (arithmetic, inheritance)\ndouble d_val = 5.75;\nint i_val = static_cast<int>(d_val); // i_val == 5\n\nclass Base {};\nclass Derived : public Base {};\nDerived* d_ptr = new Derived;\nBase* b_ptr = static_cast<Base*>(d_ptr);\n\n\n// Runtime-checked polymorphic conversion\nclass VBase { public: virtual ~VBase() = default; };\nclass VDerived : public VBase {};\n\nVBase* vb = new VDerived;\n// Safe downcast; returns nullptr on failure\nVDerived* vd = dynamic_cast<VDerived*>(vb);\n\n\n// Removing constness (use sparingly)\nconst int CONST_VAL = 100;\n\n// Modify a pointer to const data\nint* mutable_ptr = const_cast<int*>(&CONST_VAL);\n// mutable_ptr[0] = 50; // Undefined Behavior if CONST_VAL was immutable\n\n\n// Dangerous, low-level bitwise conversion\nint i_data = 0xDEADBEEF;\nint* i_ptr = &i_data;\n\n// Treat memory address as a different type\nchar* c_ptr = reinterpret_cast<char*>(i_ptr);\nlong l_addr = reinterpret_cast<long>(i_ptr);\n<ctrl63>",
+  "keywords": "C++ casts, static_cast dynamic_cast, C-style cast replacement"
+}

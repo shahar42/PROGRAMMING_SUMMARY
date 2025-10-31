@@ -1,0 +1,36 @@
+{
+  "topic": "Template Metaprogramming and its Compile-Time Execution",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code based on template arguments.  This differs significantly from runtime computation.  The compiler essentially acts as a Turing-complete machine during compilation, performing complex logic and generating optimized code without runtime overhead.  Implementation details vary across compilers, but generally involve recursive template instantiations and potentially significant compile-time processing.  Memory layout is impacted as the compiler generates different code paths based on template arguments, avoiding runtime branching.  Performance implications are crucial; efficient TMP can lead to dramatically faster execution and smaller binaries by eliminating runtime calculations.  Conversely, poorly designed TMP can lead to extremely long compile times and potentially code bloat if not carefully managed. Assembly-level behavior will show specialized instructions generated for specific template instantiations, optimized for the target architecture, often avoiding runtime function calls and data structures that would otherwise be needed. Compile-time behavior includes extensive code generation and type checking, while runtime behavior is minimal; the compiled code already contains the results of the compile-time computations.",
+  "syntax": "#include <iostream>\n\ntemplate <int N>\nstruct Factorial {\n  static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <> \nstruct Factorial<0> {\n  static constexpr int value = 1;\n};\n\nint main() {\n  constexpr int result = Factorial<5>::value; // Compile-time calculation\n  std::cout << \"Factorial of 5: \" << result << std::endl; \n  return 0;\n}",
+  "code_example": [
+    "#include <iostream>",
+    "template <typename T>",
+    "constexpr T add(T a, T b){",
+    "  return a + b;",
+    "}",
+    "template <int N>",
+    "struct Fibonacci {",
+    "  static constexpr int value = Fibonacci<N-1>::value + Fibonacci<N-2>::value;",
+    "};",
+    "template<>",
+    "struct Fibonacci<0> {",
+    "  static constexpr int value = 0;",
+    "};",
+    "template<>",
+    "struct Fibonacci<1> {",
+    "  static constexpr int value = 1;",
+    "};",
+    "int main() {",
+    "  constexpr int fib5 = Fibonacci<5>::value; // Compile-time Fibonacci calculation",
+    "  std::cout << \"Fibonacci(5) = \" << fib5 << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The `Factorial` and `Fibonacci` examples demonstrate recursive template instantiation.  The compiler recursively generates code for each instantiation until the base case is reached (Factorial<0> and Fibonacci<0> and <1>). This entire process happens at compile time. The `constexpr` keyword ensures that the calculations are performed during compilation.  The resulting assembly code will not contain loops or function calls for these calculations; instead, the compiler substitutes the final calculated value directly into the `main` function. This avoids runtime overhead and improves performance.  The compiler's behavior is crucial here; its ability to perform this compile-time recursion directly affects the resulting code size and efficiency.  Poorly designed TMP can lead to exponential compile time due to excessive recursion.  Understanding compiler optimizations and the limits of TMP is essential for effective utilization. Note that extremely deep recursion might exceed the compiler's limits, leading to compilation errors.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:15:16.196232"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Lambda Capture Reference Issue: Lifetime Mismatch in Threads",
+  "category": "capture",
+  "explanation": "Assumption: Capturing local variables by reference (`[&var]`) is efficient and acceptable inside a lambda passed to `std::thread`. Reality: When a lambda is executed on an asynchronously running thread, the thread's execution timeline often extends far beyond the scope where the `std::thread` object was created. If local variables are captured by reference, they may be destroyed (go out of scope) before the thread has finished executing the lambda body. Why It Fails: This results in dangling references and undefined behavior when the thread attempts to read or write the now-destroyed variable (e.g., `goodVals` in the example). For asynchronous execution, variables must generally be captured by value, or the thread must be explicitly synchronized (e.g., joined) to guarantee the captured object\u2019s lifetime.",
+  "code_example": "std::vector<int> results;\nstd::thread t([&results] { /* use results */ }); \n// If 't.join()' is missed, 'results' is destroyed \n// when the current scope ends, while 't' is still running.",
+  "practical_example": "A function launches a thread to populate a local container (`std::vector`). If the thread is detached or delayed, the function returns, destroying the vector. The running thread later attempts to push data into the memory where the vector once lived, causing corruption or segmentation faults.",
+  "keywords": [
+    "dangling reference",
+    "lifetime",
+    "capture by reference",
+    "std::thread",
+    "undefined behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-240",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_reference_issue__95eac0",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

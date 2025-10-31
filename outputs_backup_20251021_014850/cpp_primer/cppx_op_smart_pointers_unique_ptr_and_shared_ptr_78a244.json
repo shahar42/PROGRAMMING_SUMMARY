@@ -1,0 +1,13 @@
+{
+  "topic": "Smart Pointers: `unique_ptr` and `shared_ptr`",
+  "explanation": "Smart pointers (`unique_ptr` and `shared_ptr`) are essential for modern C++ memory management. They automatically handle memory deallocation, preventing memory leaks and dangling pointers.  `unique_ptr` provides exclusive ownership of a dynamically allocated object, while `shared_ptr` allows multiple pointers to share ownership.  Choosing the right smart pointer depends on the ownership semantics required.  Improper usage can lead to crashes or subtle errors; adhering to best practices is crucial.",
+  "syntax": "```cpp\n#include <memory>\n\n// unique_ptr: Exclusive ownership\nstd::unique_ptr<int> up = std::make_unique<int>(10);\n// Access the managed object: *up\n\n// shared_ptr: Shared ownership\nstd::shared_ptr<int> sp = std::make_shared<int>(20);\nstd::shared_ptr<int> sp2 = sp; // sp and sp2 share ownership\n// Access the managed object: *sp or *sp2\n\n//Custom Deleter for resources beyond raw memory\nstruct MyResource {\n  ~MyResource() { /*Resource cleanup*/}\n};\n\nstd::unique_ptr<MyResource, void(*)(MyResource*)> custom_resource(\n    new MyResource(), [](MyResource* ptr){ delete ptr;});\n```",
+  "code_example": "#include <iostream>\n#include <memory>\nvoid processData(std::shared_ptr<int> data) {\n  if (data) {\n    std::cout << \"Data: \" << *data << std::endl;\n  }\n}\nint main() {\n  auto sharedData = std::make_shared<int>(42);\n  processData(sharedData);\n  // sharedData and any copies will automatically delete the int when they go out of scope.\n  std::unique_ptr<int> uniqueData = std::make_unique<int>(100);\n  // uniqueData will automatically delete the int when it goes out of scope.\n  return 0;\n}",
+  "example_explanation": "The example demonstrates `unique_ptr` and `shared_ptr` in a function. `processData` safely accepts a `shared_ptr`, ensuring the data is correctly managed even if the function throws an exception.  The `main` function illustrates the creation and usage of both smart pointer types, showcasing the automatic memory management.  The shared pointer `sharedData` is passed to the function, and the memory will be freed properly when the program exits because the shared pointer counts go to zero.  The unique pointer `uniqueData` automatically manages its own object and will also free the memory appropriately. This avoids manual `delete` calls, reducing the risk of memory leaks and dangling pointers.  Note the use of `std::make_unique` and `std::make_shared` for safe and efficient object creation.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:56:34.230658"
+  }
+}

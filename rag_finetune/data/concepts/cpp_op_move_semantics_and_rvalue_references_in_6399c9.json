@@ -1,0 +1,27 @@
+{
+  "topic": "Move Semantics and Rvalue References: Fundamentals",
+  "explanation": "Move semantics and rvalue references are advanced C++ features introduced in C++11 that enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying. They are essential for writing high-performance code, especially when managing dynamic resources like memory, file handles, or network connections. By allowing objects to 'move' rather than copy their internal data, C++ developers can optimize resource management and improve program efficiency.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature introduced in C++11 that allow functions to distinguish between lvalues (named objects) and rvalues (temporary objects), facilitating move semantics and perfect forwarding.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature introduced in C++11 that allow functions to distinguish between lvalues and rvalues, facilitating move semantics and perfect forwarding in generic code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "16-17",
+    "extraction_date": "2025-08-19T01:22:28.508371",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "merged_on": "2025-08-19T02:51:20.194047",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "220-220",
+      "extraction_date": "2025-08-19T02:51:19.234216",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8821285367012024,
+    "book_metadata_added": "2025-10-28T20:22:06.847411"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class HighResource {\n    int* ptr_;\npublic:\n    // Move Constructor: Steal the resource\n    HighResource(HighResource&& other) noexcept\n        : ptr_(other.ptr_)\n    {\n        other.ptr_ = nullptr; // Nullify source\n    }\n\n    // Rule of Five (often implemented for safety)\n    HighResource(const HighResource&) = delete;\n    ~HighResource() { delete[] ptr_; }\n};\n\nclass DataContainer {\n    int* data;\npublic:\n    // Move Assignment Operator\n    DataContainer& operator=(DataContainer&& other) noexcept {\n        if (this != &other) {\n            delete[] data;          // 1. Release own resource\n            data = other.data;      // 2. Steal\n            other.data = nullptr;   // 3. Nullify source\n        }\n        return *this;\n    }\n};\n\nvoid sink(std::string&& rval) {}\n\nvoid demo_move() {\n    std::string s1 = \"source_data\"; // Lvalue\n    \n    // Explicit Move (Casts Lvalue to Rvalue reference)\n    std::string s2 = std::move(s1); \n    \n    // s1 is now valid but empty/unspecified state\n    \n    // Using Rvalue directly\n    sink(\"temporary\"); \n    \n    // Must use std::move for Lvalues to call rvalue function\n    sink(std::move(s2)); \n}"
+}

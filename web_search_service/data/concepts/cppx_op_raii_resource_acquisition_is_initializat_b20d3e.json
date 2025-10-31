@@ -1,0 +1,14 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) Pattern",
+  "explanation": "RAII is a fundamental C++ idiom that links the lifetime of a resource to the lifetime of an object. In practical terms, resources (like memory, files, or locks) are acquired in a class's constructor and released in its destructor. This ensures automatic resource cleanup when the object goes out of scope, even if an exception is thrown. Best practices include using RAII to avoid manual resource management, which can lead to leaks or errors in real-world scenarios. Common pitfalls include forgetting to release resources in all code paths, but RAII mitigates this by relying on destructors. In real-world usage, RAII is essential for exception-safe code, as seen in standard library components like std::unique_ptr or std::lock_guard.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:23:22.714025",
+    "book_metadata_added": "2025-10-28T20:22:06.573376"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class AutoResource {\n    int* resource_data;\npublic:\n    AutoResource(size_t size)\n        : resource_data(new int[size]) {} // Resource Acquisition\n    ~AutoResource() {\n        delete[] resource_data;           // Resource Release (Guaranteed)\n    }\n\n    // Essential ownership rule: Prevent copying raw resource pointers\n    AutoResource(const AutoResource&) = delete;\n    AutoResource& operator=(const AutoResource&) = delete;\n};\n\n// Usage Example (Modern C++ Standard Library RAII)\nvoid manage_lock(Mutex& m) {\n    std::lock_guard<Mutex> lock(m);\n    // Mutex automatically released upon exiting scope/exception\n}\n<ctrl63>",
+  "keywords": "RAII, automatic resource management, resource cleanup, destructor idiom"
+}

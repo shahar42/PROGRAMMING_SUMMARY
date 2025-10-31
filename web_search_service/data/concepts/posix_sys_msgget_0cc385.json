@@ -1,0 +1,16 @@
+{
+  "topic": "msgget() System Call",
+  "explanation": "The msgget() system call returns the identifier for a System V message queue associated with the given key. It can be used to obtain the identifier of an existing queue or create a new one if specified in the flags.\n\n**Parameters:**\n- `key` (key_t): The key value used to identify or create the message queue.\n- `msgflg` (int): Flags that specify options for creation, exclusivity, and permissions of the message queue.\n\n**Common Errors:**\n- `EACCES`: A message queue exists for the key, but the calling process lacks permission to access it.\n- `EEXIST`: IPC_CREAT and IPC_EXCL were specified in msgflg, but a message queue already exists for the key.\n- `ENOENT`: No message queue exists for the key and IPC_CREAT was not specified in msgflg.\n- `ENOMEM`: Insufficient memory to create a new message queue.\n- `ENOSPC`: The system limit for the maximum number of message queues would be exceeded.\n\n**Related System Calls:** `msgctl()`, `msgrcv()`, `msgsnd()`, `ftok()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.234677",
+    "syscall_name": "msgget",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_msgget.json",
+    "concept_id": "posix_sys_msgget_0cc385",
+    "book_metadata_added": "2025-10-28T20:22:06.598646"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "key_t msg_key = ftok(\"/tmp\", 'A');\nint perms = 0666;\nint msqid;\n\n// Attempt to access existing queue\nmsqid = msgget(msg_key, 0);\n\n// Create new queue if it doesn't exist (mode 0666)\nmsqid = msgget(msg_key, IPC_CREAT | perms);\n\n// Create new queue ONLY if it doesn't exist (Exclusive)\n// Fails with EEXIST if key already associated with a queue ID.\nmsqid = msgget(msg_key, IPC_CREAT | IPC_EXCL | perms);\n\nif (msqid == -1) {\n    // Check errno for EACCES, EEXIST, ENOMEM, etc.\n}\n<ctrl63>",
+  "keywords": "msgget, System V message queues, IPC msgget"
+}

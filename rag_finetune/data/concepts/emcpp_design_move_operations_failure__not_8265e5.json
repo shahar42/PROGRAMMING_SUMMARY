@@ -1,0 +1,18 @@
+{
+  "topic": "Move Operations Failure: Not Present or Used",
+  "category": "design",
+  "explanation": "Assumption: If a class manages resources, the compiler or the developer has provided efficient move constructors and move assignment operators, and the standard library containers will utilize them when available. Reality: Move semantics are not guaranteed. For older classes or those lacking user-defined move operations, the compiler will only synthesize move operations if they are implicitly defined and not deleted (e.g., if a user declares a copy constructor, the implicit move constructor is deleted). If move operations are missing, any attempt to move falls back silently to calling the copy constructor or copy assignment operator. Why It Fails: This failure results in a profound performance degradation where the programmer intends a cheap resource transfer but receives an expensive deep copy. The failure is insidious because it often produces correct code (via the fallback copy), but violates all performance expectations set by modern C++ practices. This anti-pattern requires manual auditing to ensure all resource-owning classes define explicit, correct move semantics.",
+  "code_example": "// Class 'A' lacks defined move operations due to custom copy ctor\nclass A { public: int* data; A(const A&); };\nstd::vector<A> vec(100); \nstd::vector<A> moved_vec = std::move(vec); // Uses copy constructor of A",
+  "practical_example": "When upgrading a large legacy codebase to use C++11/14 features, new uses of `std::move` on legacy objects results in no performance gain because the original class structure deleted or suppressed implicit move operations, forcing expensive copies.",
+  "keywords": [
+    "fallback to copy",
+    "missing move",
+    "implicit deletion",
+    "performance regression"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "221-224",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_design_move_operations_failure__not_8265e5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

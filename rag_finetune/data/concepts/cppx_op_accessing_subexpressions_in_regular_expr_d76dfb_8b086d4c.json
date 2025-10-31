@@ -1,0 +1,18 @@
+{
+  "topic": "Accessing Subexpressions in Regular Expression Match Results Using Pointers and Indexing",
+  "explanation": "In advanced C programming, especially when working with regex libraries like PCRE or POSIX regex, understanding how to access matched subexpressions efficiently is crucial. The match results are often stored in a structure or array of pointers, where each element points to a specific subexpression match within the original string. Properly navigating this structure allows for precise extraction of matched patterns, enabling complex parsing and pattern analysis. This technique leverages pointer arithmetic and array indexing to access submatches directly, which is essential for high-performance regex processing and avoiding common pitfalls such as off-by-one errors or incorrect memory access.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "908-908",
+    "extraction_date": "2025-08-20T07:07:54.990048",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.547318"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "#define N_GROUPS 2\nregmatch_t pmatch[N_GROUPS];\nchar *source = \"Version: 1.5.0\";\n\n// After successful regexec():\n// pmatch[1].rm_so, pmatch[1].rm_eo holds Group 1 offsets\n\nint group_idx = 1;\nlong start_offset = pmatch[group_idx].rm_so;\nlong end_offset = pmatch[group_idx].rm_eo;\n\n// Subexpression length calculation\nsize_t len = end_offset - start_offset;\n\n// Pointer arithmetic to find start of match\nconst char *match_start_ptr = source + start_offset;\n\n// Extraction using length and pointer\nchar submatch_buffer[32];\nstrncpy(submatch_buffer, match_start_ptr, len);\nsubmatch_buffer[len] = '\\0'; // Null-terminate\n// Accessing source[pmatch[1].rm_so] gives the first character\n// Accessing source[pmatch[1].rm_eo - 1] gives the last character\n// The full match is source[pmatch[0].rm_so ... pmatch[0].rm_eo - 1]",
+  "keywords": "Regex capture groups C, Accessing regex submatches, `regmatch_t`, C regex match result"
+}

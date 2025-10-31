@@ -1,0 +1,14 @@
+{
+  "topic": "Safe Usage of const_cast in C++",
+  "explanation": "Const_cast is a C++ casting operator used to add or remove constness from an expression, typically for pointers or references. In real-world scenarios, such as function overloads or library implementations, it allows casting a const reference back to a non-const one when you're certain the underlying object is not truly const, as might occur in string operations from C++ Primer. Best practices include using const_cast only when absolutely necessary and with full knowledge of the object's origin to avoid undefined behavior; always prefer const-correct designs to minimize its use. Common pitfalls include applying const_cast to genuinely const objects, which can lead to runtime errors or crashes—avoid this by ensuring the object was not declared const originally.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:05:16.295842",
+    "book_metadata_added": "2025-10-28T20:22:06.574138"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct Data { int val = 0; };\n\n// Legacy function requires non-const pointer\nvoid legacy_func(Data* d) { d->val = 100; }\n\nvoid call_legacy_adapter(const Data& d) {\n    // Safe only if 'd' was not defined as const originally\n    Data* writable = const_cast<Data*>(&d);\n    legacy_func(writable);\n}\n\nData runtime_data;\ncall_legacy_adapter(runtime_data); // Legal usage\n\n// const Data compile_data;\n// call_legacy_adapter(compile_data); // UB if modification occurs",
+  "keywords": "const_cast, C++ remove const, casting away const, const_cast safety"
+}

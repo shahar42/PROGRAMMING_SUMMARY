@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Creation Failure: Resource Exhaustion Risk",
+  "category": "thread, perf",
+  "explanation": "Software threads are a limited, system-dependent resource. Attempting to create a `std::thread` when the system cannot provide more resources (e.g., due to OS limits or memory exhaustion) results in a `std::system_error` exception being thrown by the `std::thread` constructor. This exception risk exists even if the asynchronous function being executed is declared `noexcept`. Consequently, concurrent code must always be prepared to catch or handle exceptions during thread creation, which complicates raw thread management compared to using task-based approaches like `std::async`.",
+  "code_example": "int doAsyncWork() noexcept { /* ... */ };\ntry {\n  std::thread t(doAsyncWork);\n} catch (const std::system_error& e) {\n  // Handle resource exhaustion\n  // e.g., run task synchronously or log failure\n}",
+  "practical_example": "A server handling high concurrent load attempts to spawn a new thread for every incoming connection. If the connection rate exceeds the system's capacity for thread creation, the server begins crashing or failing to handle requests due to unhandled `std::system_error` exceptions.",
+  "keywords": [
+    "std::system_error",
+    "limited resource",
+    "thread constructor exception",
+    "noexcept"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "242",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_thread, perf_thread_creation_failure__resource_0dc54c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

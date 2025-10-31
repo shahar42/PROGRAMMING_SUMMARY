@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Destruction: Joining Avoids Undefined Behavior",
+  "category": "thread",
+  "explanation": "When an RAII wrapper manages a joinable thread, the destructor must choose between joining (waiting for the thread to finish) or detaching (letting the thread run in the background). Detaching leads to potential undefined behavior if the detached thread accesses resources (like stack variables or references captured by the lambda) that go out of scope when the main thread function returns. While joining can introduce performance anomalies or deadlocks by blocking the main thread, it guarantees synchronization and prevents access to invalidated resources. Given the choice between undefined behavior (detach), program termination (raw thread destruction), and performance anomalies (join), joining is generally considered the safest default action in RAII destructors.",
+  "code_example": "ThreadRAII t(\n  std::thread([&local_var]{ /* use local_var */ }), \n  ThreadRAII::DtorAction::join // Safest choice\n);\n// If DtorAction::detach were used, 'local_var' could be accessed after main scope exit.",
+  "practical_example": "A lambda captures a reference to a local vector (`&goodVals`). If the main thread detaches and then returns, the vector is destroyed. The detached thread, still running, attempts to call `goodVals.push_back(i)`, resulting in immediate, difficult-to-trace memory corruption.",
+  "keywords": [
+    "join",
+    "detach",
+    "undefined behavior",
+    "performance anomalies",
+    "RAII destructor"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Remember to make std::threads unjoinable on all paths",
+  "id": "emcpp_thread_thread_destruction__joining_avoids_1e80b9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Advanced Pointer-Based Serialization and Object Initialization",
+  "explanation": "This concept involves using pointer dereferencing and function overloading techniques to perform complex serialization or initialization of objects directly from input streams, leveraging advanced pointer manipulation and function call semantics in C. It, enabling flexible and high-performance data processing in systems programming.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "347-347",
+    "extraction_date": "2025-08-20T03:20:10.257249",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.541413"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct StreamCtx { void* current; };\n\n// Base initialization (direct copy into target T)\ntemplate<typename T>\nsize_t StreamInit(T* target, StreamCtx& ctx) {\n    memcpy(target, ctx.current, sizeof(T));\n    ctx.current = (char*)ctx.current + sizeof(T);\n    return sizeof(T);\n}\n\n// Specialization for initializing a dynamically sized pointer field (T**)\nsize_t StreamInit(char** data_ptr, StreamCtx& ctx) {\n    size_t len;\n    StreamInit(&len, ctx); // Read length marker\n    \n    // Allocate and initialize target buffer directly via dereference\n    *data_ptr = (char*)malloc(len); \n    memcpy(*data_ptr, ctx.current, len);\n    \n    ctx.current = (char*)ctx.current + len;\n    return len;\n}\n<ctrl63>",
+  "keywords": "In-place Deserialization, Stream Pointer Manipulation, Zero-copy Deserialization"
+}

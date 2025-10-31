@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Feather2 - Base Llama 3.1 8B Instruct model
+# Usage: feather2 "your question here"
+# Or: feather2 (for interactive mode)
+
+MODEL="/mnt/external/models/Meta-Llama-3.1-8B-Instruct-Q5_K_M.gguf"
+LLAMA_BIN="/home/shahar42/Suumerizing_C_holy_grale_book/llama_finetuning/llama.cpp/build/bin/llama-cli"
+
+if [ ! -f "$MODEL" ]; then
+    echo "❌ Model not found at: $MODEL"
+    echo ""
+    echo "📀 Is your external hard drive plugged in?"
+    echo "   Expected location: /mnt/external/models/"
+    echo ""
+    echo "To mount, run:"
+    echo "   sudo mount /dev/sdX /mnt/external  (replace sdX with your drive)"
+    echo "   Or check: lsblk"
+    exit 1
+fi
+
+# Single question mode
+if [ -n "$1" ]; then
+    $LLAMA_BIN -m "$MODEL" -p "$1" -n 1536 -t 4 --temp 0.3 -ngl 0 2>/dev/null
+else
+    # Interactive mode
+    echo "        ✨"
+    echo "       /"
+    echo "      /"
+    echo "     /"
+    echo "    /___"
+    echo "   /____\\"
+    echo "  /_____/"
+    echo " /______\\"
+    echo "/________\\"
+    echo ""
+    echo "🦙 Feather2 - Base Llama 3.1 8B Instruct"
+    echo "================================================"
+    echo "Type your questions. Press Ctrl+D to exit."
+    echo ""
+
+    # Check if rlwrap is available for better line editing
+    if command -v rlwrap &> /dev/null; then
+        rlwrap $LLAMA_BIN -m "$MODEL" -cnv --reverse-prompt "User:" -n 1536 -t 4 --temp 0.7 -ngl 0 2>/dev/null
+    else
+        echo "💡 Tip: Install 'rlwrap' for arrow key support (sudo apt install rlwrap)"
+        echo ""
+        $LLAMA_BIN -m "$MODEL" -cnv --reverse-prompt "User:" -n 1536 -t 4 --temp 0.7 -ngl 0 2>/dev/null
+    fi
+fi

@@ -1,0 +1,62 @@
+{
+  "name": "modify_ldt",
+  "synopsis": [
+    "#include <asm/ldt.h>",
+    "#include <sys/syscall.h>",
+    "#include <unistd.h>",
+    "int syscall(SYS_modify_ldt, int func, void *ptr, unsigned long bytecount);",
+    "Note: glibc provides no wrapper for modify_ldt(), necessitating the use of syscall(2)."
+  ],
+  "description": "modify_ldt() reads or writes the local descriptor table (LDT) for a process, which is an array of segment descriptors referenced by user code. Depending on the func parameter, it either reads the LDT into memory or modifies an LDT entry using a user_desc structure.",
+  "parameters": [
+    {
+      "name": "func",
+      "type": "int",
+      "description": "Function code: 0 to read the LDT, 1 or 0x11 to modify an LDT entry, or 2 for a legacy operation."
+    },
+    {
+      "name": "ptr",
+      "type": "void*",
+      "description": "Pointer to the memory buffer for reading or writing LDT data, or to a user_desc structure for modifications."
+    },
+    {
+      "name": "bytecount",
+      "type": "unsigned long",
+      "description": "Number of bytes to read or write; for modifications, it must equal the size of the user_desc structure when func is 1 or 0x11."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the actual number of bytes read (for reading) or 0 (for writing)",
+    "failure": "Returns -1 and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "ptr points outside the address space."
+    },
+    {
+      "code": "EINVAL",
+      "description": "ptr is 0, or func is 1 and bytecount is not equal to the size of user_desc, or func is 1 or 0x11 and the new LDT entry has invalid values."
+    },
+    {
+      "code": "ENOSYS",
+      "description": "func is neither 0, 1, 2, nor 0x11."
+    }
+  ],
+  "bugs": "On 64-bit kernels before Linux 3.19, setting the \"lm\" bit in user_desc prevents the descriptor from being considered empty, even though it does not create a long mode segment.",
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "arch_prctl",
+    "set_thread_area",
+    "vm86"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "modify_ldt.pdf",
+    "extraction_date": "2025-07-29T11:02:00.245502",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

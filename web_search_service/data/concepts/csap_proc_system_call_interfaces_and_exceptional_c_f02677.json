@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: External Event Disruptions",
+  "explanation": "Exceptional control flow refers to changes in a program's execution path caused by events outside the normal instruction sequence.  In computer systems, this is crucial for handling events like hardware interrupts, software exceptions (e.g., division by zero), and system calls. System calls provide a controlled interface for applications to request services from the operating system kernel, altering the flow to interact with system resources.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "749-750",
+    "extraction_date": "2025-07-28T12:17:02.006830",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.699528"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. System Call: Controlled ECF (User->Kernel Transition)\n\nint fd = 1; // STDOUT_FILENO\nconst char *message = \"Requesting IO\\n\";\nsize_t length = 15;\n\n// Syscall wrapper invokes 'trap' instruction\n// ECF triggers CPU transition to Ring 0\nssize_t written = write(fd, message, length);\n\nif (written < 0) {\n    // Kernel returns control (ECF complete)\n    // Error state handled\n}\n\n// 2. Synchronous Fault: Uncontrolled ECF (Exception)\n\nvolatile int dividend = 100;\nvolatile int divisor = 0;\n\n// CPU attempts instruction execution\n// HW generates Divide-by-Zero fault (trap)\n// ECF diverts flow to Kernel Fault Handler\nint result = dividend / divisor;\n\n// Execution halted or diverted by OS (e.g., SIGFPE)\n\n\n// 3. Asynchronous ECF: Handling External Events (Signals)\n\n// Kernel translates hardware interrupt into a signal\nvoid cleanup_handler(int sig) {\n    // ECF Response: Context saved, handler executes\n    if (sig == SIGTERM) { /* Resource release */ }\n}\n\n// Registering the custom ECF path\nsignal(SIGTERM, cleanup_handler);\n\n// Normal program flow continues until external ECF\nwhile (1) { /* Execution loop */ }"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Constexpr User-Defined Literals in C++",
+  "explanation": "Constexpr user-defined literals in C++ allow developers to extend the language's literal syntax to create custom types directly from literals, with the key advantage of compile-time evaluation when marked as constexpr. The compiler implements this feature by parsing the literal suffix (e.g., 'if' in operator\"\"if) during the lexical analysis phase and then invoking the corresponding operator function. For constexpr versions, the compiler evaluates the function at compile-time if all inputs and operations are constant expressions, leveraging the constexpr machinery to generate a constant value without runtime overhead. This involves the compiler's constant expression evaluator, which simulates execution of the function in a restricted environment, ensuring no side effects or dynamic memory access. Memory layout implications are minimal since constexpr literals often result in compile-time constants, avoiding runtime memory allocation; for instance, a complex<float> created via a constexpr literal is typically embedded as a constant in the data section of the binary. Performance-wise, this leads to zero runtime cost for the literal creation, as the value is baked into the code, potentially reducing executable size and improving execution speed. At the assembly level, a constexpr literal might simply manifest as an immediate value or a pre-initialized constant in the object code, bypassing function calls entirely. For non-constexpr literals, evaluation occurs at runtime, involving a function call that could appear as a standard procedure call in assembly (e.g., a CALL instruction). The distinction between runtime and compile-time behavior hinges on whether the literal's arguments are known at compile-time; in the provided example, using an integer literal like 4if allows full compile-time evaluation, whereas a non-constant expression would defer to runtime.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:03:09.653196",
+    "book_metadata_added": "2025-10-28T20:22:06.858333"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Meters { unsigned long long m; };\n\n// UDL definition for integer literals\nconstexpr Meters operator\"\"_m(unsigned long long val) {\n    return Meters{ val };\n}\n\n// UDL definition for float literals\nconstexpr Meters operator\"\"_m(long double val) {\n    return Meters{ (unsigned long long)(val) };\n}\n\nconstexpr Meters d1 = 42_m;        // Compile-time integer UDL\nconstexpr Meters d2 = 10.5_m;      // Compile-time float UDL\n// d1.m == 42\n// d2.m == 10",
+  "keywords": "constexpr UDL, constexpr user-defined literals, compile-time literals"
+}

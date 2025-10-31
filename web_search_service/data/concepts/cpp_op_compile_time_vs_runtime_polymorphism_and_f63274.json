@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time vs. Runtime Polymorphism and its Implementation Details",
+  "explanation": "This explores the differences between compile-time polymorphism (achieved through function overloading and templates) and runtime polymorphism (achieved through virtual functions and inheritance).  We'll delve into how compilers implement these, focusing on the differences in generated code and memory layout, and the performance implications of each approach. Compile-time polymorphism resolves at compile time, leading to efficient, inlined code. Runtime polymorphism necessitates virtual function tables (vtables) and indirection through pointers, resulting in a performance overhead but enabling flexibility and extensibility.  The discussion will include the memory layout of objects with virtual functions (including the vtable pointer), the assembly-level instructions involved in virtual function calls, and the impact on program size and execution speed.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T17:18:33.182680",
+    "book_metadata_added": "2025-10-28T20:22:06.997448"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// 1. Compile-Time Polymorphism (Function Overloading)\n\nvoid print(int i) { /* int implementation */ }\nvoid print(const char* s) { /* string implementation */ }\n// Resolution: Done by the compiler based on argument types.\n// Implementation: Name mangling creates unique internal function names.\n\n// 2. Compile-Time Polymorphism (Templates/Static Duck Typing)\n\ntemplate <typename T>\nT add(T a, T b) { return a + b; }\n// Resolution: Compiler generates specialized code for used types (Monomorphization).\n// Performance: High, often inlined code; no runtime overhead.\n\n// 3. Runtime Polymorphism (Virtual Functions)\n\nclass Base {\npublic:\n    virtual void draw() const = 0; // Requires vtable setup\n    virtual ~Base() {} // Virtual destructor is crucial\n};\n\nclass Derived : public Base {\npublic:\n    void draw() const override { /* Derived implementation */ }\n};\n\n// 4. Implementation Detail: VTable and VPTR\n\n// Memory layout of Derived object:\n// [ VPTR (4/8 bytes) ] -> Points to VTable\n// [ Member Data... ]\n\n// VTable structure (per class):\n// [ Address of ~Base() ]\n// [ Address of draw() ]\n\n// Cost: One extra pointer (VPTR) per object; indirection cost (lookup) at call site.",
+  "keywords": "Static vs Dynamic Polymorphism C++, Compile-time vs Runtime Polymorphism, Templates vs virtual functions, Virtual functions overhead"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming and its Compilation Impact",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed during compilation, leveraging the compiler to generate specialized code.  This differs drastically from runtime computations.  Understanding how compilers handle TMP is crucial for performance optimization and avoiding unexpected behavior.  The compiler's implementation involves recursive template instantiation, potentially leading to significant compile times for complex TMP code. The memory layout is impacted as the compiler generates different code for each template instantiation, avoiding runtime polymorphism overhead.  However, this can lead to code bloat if not carefully managed. Assembly-level behavior will show specialized instructions generated for each instantiation, tailored to the specific template arguments, leading to highly optimized, but potentially larger, executables.  Compile-time errors related to TMP often manifest as long, complex error messages stemming from the recursive instantiation process. Runtime behavior is largely determined at compile time; the generated code performs the computations specified in the TMP expressions without runtime overhead for those calculations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:40:48.156682",
+    "book_metadata_added": "2025-10-28T20:22:06.833617"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template<int N>\nstruct Factorial {\n    // Compile-time recursion\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate<>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\n// Computation performed during compilation\nstatic_assert(Factorial<7>::value == 5040);\n// Impact: Requires 8 template instantiations.\n\ntemplate<int N>\nstruct DeepInstantiate {\n    // Used to test instantiation depth limits\n    using Prev = typename DeepInstantiate<N - 1>::Type;\n};\n\ntemplate<>\nstruct DeepInstantiate<0> {\n    using Type = void;\n};\n// Impact: Compilers limit template depth (e.g., 900) to prevent OOM/hangs.\n\ntemplate<typename T>\nstruct is_ptr { static constexpr bool value = false; };\n\ntemplate<typename T>\nstruct is_ptr<T*> { static constexpr bool value = true; };\n\n// Using constexpr if for conditional code generation (C++17)\ntemplate<typename T>\nvoid compile_time_branch(T val) {\n    if constexpr (is_ptr<T>::value) {\n        // This block is only compiled/present if T is a pointer\n    } else {\n        // This block is only compiled/present otherwise\n    }\n}",
+  "keywords": "TMP, template metaprogramming, compile-time evaluation, C++ compile time computation"
+}

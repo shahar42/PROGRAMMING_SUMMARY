@@ -1,0 +1,13 @@
+{
+  "topic": "std::call_once Implementation and Thread Synchronization Mechanics",
+  "explanation": "std::call_once is a function in the C++ Standard Library (defined in <mutex>) that ensures a given callable is executed exactly once, even in the presence of multiple threads attempting to invoke it simultaneously. Under the hood, the compiler and runtime environment implement this using atomic operations and synchronization primitives to manage the state of the std::once_flag object. Typically, std::once_flag is backed by an atomic variable (e.g., std::atomic_flag or a similar low-level construct), which tracks whether the function has already been executed. The compiler translates calls to std::call_once into assembly that involves atomic compare-exchange operations (like CMPXCHG on x86) to check and update the flag's state in a thread-safe manner. If the flag indicates the function hasn't run, the calling thread attempts to claim ownership atomically; if successful, it executes the callable and updates the flag. This process is entirely runtime behavior, as the actual execution depends on thread scheduling and shared memory access, which cannot be determined at compile-time. Performance implications include potential cache line contention in multi-core systems, where atomic operations may lead to bus locks or cache invalidations, increasing latency. Memory layout-wise, std::once_flag is likely a POD (Plain Old Data) type with minimal overhead (e.g., a single byte for the atomic flag), but its use in conjunction with the callable can lead to stack or heap allocations depending on the function's arguments. Assembly-level behavior often results in fences or memory barriers to ensure visibility of changes across threads, which can serialize execution and impact performance in high-concurrency scenarios.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:46:56.760248",
+    "book_metadata_added": "2025-10-28T20:22:06.856938"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct ExpensiveResource { /* data */ };\n\n// State tracking object\nstatic std::once_flag init_state;\n\n// Resource pointer (null until initialized)\nExpensiveResource* resource_ptr = nullptr;\n\n// The thread-safe initialization function\nvoid get_resource() {\n    // callable (lambda) is executed by only one thread\n    std::call_once(init_state, []() {\n        resource_ptr = new ExpensiveResource();\n    });\n    // All threads now safely access resource_ptr\n}\n// Synchronization: std::once_flag state managed by atomic operations."
+}

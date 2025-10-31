@@ -1,0 +1,16 @@
+{
+  "topic": "s390_guarded_storage() System Call",
+  "explanation": "The s390_guarded_storage() system call enables the use of the Guarded Storage Facility on s390 architecture for user-space processes. It provides commands to manage features like enabling guarded storage, marking memory regions, and handling events via specific instructions.\n\n**Parameters:**\n- `command` (int): Specifies the operation to perform, such as GS_ENABLE, GS_DISABLE, GS_SET_BC_CB, GS_CLEAR_BC_CB, or GS_BROADCAST.\n- `gs_cb` (struct gs_cb *): Pointer to a guarded storage control block structure, used by commands like GS_SET_BC_CB; ignored by others.\n\n**Common Errors:**\n- `EFAULT`: command was GS_SET_BC_CB and the copying of the guarded storage control block structure pointed by gs_cb has failed.\n- `EINVAL`: The value provided in the command argument was not valid.\n- `ENOMEM`: command was one of GS_ENABLE or GS_SET_BC_CB, and the allocation of a new guarded storage control block has failed.\n- `EOPNOTSUPP`: The guarded storage facility is not supported by the hardware.\n\n**Related System Calls:** `syscall()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.169783",
+    "syscall_name": "s390_guarded_storage",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_s390_guarded_storage.json",
+    "concept_id": "posix_sys_s390_guarded_storage_b6ae73",
+    "book_metadata_added": "2025-10-28T20:22:06.669138"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define GS_ENABLE 0\n#define GS_SET_BC_CB 2\n#define GS_BROADCAST 5\n\nstruct gs_cb {\n    unsigned long flags;\n    void *start_addr;\n    // ...\n};\n\n// Enable guarded storage globally\nlong rc_enable = s390_guarded_storage(GS_ENABLE, NULL);\n\n// Set a Control Block for a guarded region\nstruct gs_cb control_block = { .start_addr = 0x4000 };\nlong rc_set = s390_guarded_storage(GS_SET_BC_CB, &control_block);\n\n// Trigger broadcast event\nlong rc_bcast = s390_guarded_storage(GS_BROADCAST, NULL);",
+  "keywords": "s390_guarded_storage, s390 Guarded Storage Facility, s390 GS, GS control block"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Name Lookup and Argument-Dependent Lookup (ADL) in Namespaces",
+  "explanation": "Namespaces in C++ are a crucial mechanism for managing the scope of identifiers, preventing naming collisions, and organizing code.  While seemingly straightforward, their implementation involves complex interactions with the compiler's name lookup process, particularly Argument-Dependent Lookup (ADL) which significantly impacts compile-time behavior and can lead to subtle performance effects if not understood.  The compiler performs name lookup in phases, starting with the immediate scope and traversing outward.  For ADL, the types of function arguments are considered, widening the search scope to include namespaces associated with those types.  This can dramatically impact which function overload is selected, especially when dealing with template functions and user-defined types. This impacts not just which code executes, but how the compiler optimizes function calls and potential inlining.\n\nMemory layout isn't directly affected by namespaces themselves, as namespaces don't allocate memory. However, the choice of functions due to ADL can influence memory layout through the impact on the generated code for data structures or external functions called. Performance is influenced significantly by the compiler's ability to resolve overloaded function calls efficiently. Inefficient name lookup due to poorly designed namespaces or complex ADL scenarios can lead to slower compile times and reduced performance at runtime, particularly for complex template metaprogramming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:38:08.876690",
+    "book_metadata_added": "2025-10-28T20:22:06.985197"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "namespace MyTypeNS {\n    struct Handle {};\n    // Function definition is associated with its argument's namespace\n    void swap(Handle& a, Handle& b) { /* ... */ }\n}\n\nvoid standard_context() {\n    using T = MyTypeNS::Handle;\n    T h1, h2;\n\n    // 1. Standard name lookup fails here:\n    // swap is not found in the local scope.\n\n    // 2. Argument Dependent Lookup (ADL/Koenig Lookup):\n    // Searches associated namespaces of T (MyTypeNS).\n    swap(h1, h2); // SUCCESS via ADL\n\n    // Explicit qualification bypasses lookup complexity:\n    MyTypeNS::swap(h1, h2);\n}"
+}

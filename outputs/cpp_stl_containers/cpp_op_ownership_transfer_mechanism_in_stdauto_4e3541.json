@@ -1,0 +1,12 @@
+{
+  "topic": "Ownership Transfer Mechanism in std::auto_ptr",
+  "explanation": "std::auto_ptr, a deprecated smart pointer from the C++ Standard Library (pre-C++11), implements ownership transfer through its copy constructor and assignment operator, which behave like move operations. Under the hood, the compiler treats std::auto_ptr's 'copy' as a transfer of ownership: when an std::auto_ptr is returned from a function, the compiler generates code to invoke the copy constructor, which swaps the internal raw pointer and sets the source object's pointer to nullptr, effectively transferring ownership without duplicating the managed resource. This is achieved at runtime through the copy constructor's implementation, which is not a true copy but a steal operation. The compiler optimizes this during function return value optimization (RVO) where possible, but in cases without RVO, it involves temporary objects and destructor calls. Memory layout-wise, std::auto_ptr is a thin wrapper around a raw pointer (e.g., a single member variable of type T*), resulting in minimal overhead—typically the size of a pointer (e.g., 8 bytes on 64-bit systems). Performance implications include efficient O(1) transfer time since it only manipulates pointers, but it can lead to issues like dangling pointers if not handled carefully, and it's not thread-safe or exception-safe for multiple references. At the assembly level, the return involves instructions for pointer assignment and nullification (e.g., MOV instructions to copy the pointer address and XOR to set it to null), followed by potential destructor calls. This behavior is primarily runtime-based, as the transfer occurs when the copy constructor is invoked, though the compiler may inline or optimize these operations during compilation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:50:20.226187",
+    "book_metadata_added": "2025-10-28T20:22:06.979619"
+  },
+  "book": "C++ STL Containers"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its impact on Code Generation",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, generating highly optimized code. This contrasts with runtime polymorphism (virtual functions) where the function call is resolved at runtime, incurring overhead.  The compiler's ability to perform these calculations during compilation affects code size, execution speed, and memory layout significantly.  Crucially, understanding how the compiler instantiates templates and performs template argument deduction is critical for optimizing performance and avoiding unexpected behavior.  Failure to properly manage template instantiation can lead to code bloat, compilation errors, or unexpected runtime behavior related to name mangling and symbol resolution.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:55:14.226021",
+    "book_metadata_added": "2025-10-28T20:22:06.980493"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// --- Static Polymorphism via Policy-Based Design ---\n// Behavior chosen at compile time (Zero overhead)\n\nstruct DiskPolicy { void log() {} };\nstruct NetworkPolicy { void log() {} };\n\ntemplate <typename LoggerPolicy>\nclass Service {\n    LoggerPolicy policy;\npublic:\n    void execute() {\n        // Direct method call, resolved statically.\n        policy.log();\n    }\n};\n\n// Compiler generates specialized Service classes\n// Service<DiskPolicy> S1;\n// Service<NetworkPolicy> S2;\n\n\n// --- Template Metaprogramming for Compile-Time Calculation ---\n// Calculation occurs during compilation; results injected as constants\n\n// General recursive template\ntemplate <int N>\nstruct Factorial {\n    static constexpr int value = N * Factorial<N - 1>::value;\n};\n\n// Specialization (Base Case)\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\n// 'Result' is a hardcoded constant (720) in the final binary\nconstexpr int Result = Factorial<6>::value;\n\n\n// --- CRTP (Curiously Recurring Template Pattern) for Static Interfaces ---\n// Avoids virtual tables while enforcing interface structure\n\ntemplate <typename Derived>\nclass Base {\npublic:\n    void call_impl() {\n        // Compile-time static cast forces dispatch\n        static_cast<Derived*>(this)->implementation();\n    }\n};\n\nclass Concrete : public Base<Concrete> {\npublic:\n    // Required method enforced by Base\n    void implementation() {}\n};\n<ctrl63>",
+  "keywords": "Static Polymorphism, Template Metaprogramming, Zero-Overhead Abstraction, TMP"
+}

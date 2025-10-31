@@ -1,0 +1,16 @@
+{
+  "topic": "linkat() System Call",
+  "explanation": "The linkat() system call creates a new hard link to an existing file, similar to link(), but allows specifying directories via file descriptors and additional flags. It interprets paths relative to the provided directory file descriptors.\n\n**Parameters:**\n- `olddirfd` (int): Directory file descriptor for oldpath, or AT_FDCWD for current working directory\n- `oldpath` (const char *): Pathname of the existing file to link\n- `newdirfd` (int): Directory file descriptor for newpath, or AT_FDCWD for current working directory\n- `newpath` (const char *): New pathname for the link\n- `flags` (int): Flags to control behavior, such as AT_SYMLINK_FOLLOW or AT_EMPTY_PATH\n\n**Common Errors:**\n- `EACCES`: Write access to the directory containing newpath is denied, or search permission is denied for one of the directories in the path prefix of oldpath or newpath\n- `EDQUOT`: The user’s quota of disk blocks on the filesystem has been exhausted\n- `EEXIST`: newpath already exists\n- `EFAULT`: oldpath or newpath points outside your accessible address space\n- `EIO`: An I/O error occurred\n\n**Related System Calls:** `open()`, `rename()`, `stat()`, `symlink()`, `unlink()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.203169",
+    "syscall_name": "linkat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_linkat.json",
+    "concept_id": "posix_sys_linkat_29ed87",
+    "book_metadata_added": "2025-10-28T20:22:06.677986"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int old_dir_fd, new_dir_fd;\nconst char *src = \"original_file\";\nconst char *dst = \"hard_link_file\";\n\n// 1. Linking relative to the Current Working Directory (CWD)\nint ret1 = linkat(AT_FDCWD, src,\n                  AT_FDCWD, dst, 0);\n\n// 2. Linking using explicit directory file descriptors\n//    (oldpath and newpath are relative to the FDs)\nold_dir_fd = open(\"SourceDir\", O_RDONLY | O_DIRECTORY);\nnew_dir_fd = open(\"DestDir\", O_RDONLY | O_DIRECTORY);\n\nif (old_dir_fd > 0 && new_dir_fd > 0) {\n    int ret2 = linkat(old_dir_fd, src,\n                      new_dir_fd, dst, 0);\n    close(old_dir_fd);\n    close(new_dir_fd);\n}\n<ctrl63>",
+  "keywords": "linkat, C hard link, AT_FDCWD"
+}

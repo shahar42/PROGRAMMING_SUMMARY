@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::vector::erase",
+  "explanation": "The std::vector::erase function is a member of the std::vector container in the C++ Standard Library, designed for sequence containers with contiguous memory storage. Under the hood, the compiler implements erase by first invoking the destructor of the element at the specified position to handle resource cleanup, then shifting the subsequent elements leftward to fill the gap using an efficient memory operation like std::memmove (or equivalent assembly-level instructions). This maintains the vector's contiguous memory layout, which is a dynamic array managed internally with a capacity and size pointer. Performance implications include O(1 + (last - position)) time complexity due to the element shift, potentially leading to O(n) in the worst case for large vectors, as it involves linear-time memory copying. Memory layout affects this: vectors store elements contiguously, so shifts can trigger cache misses and increase CPU cycles, but it's cache-friendly for sequential access. At the assembly level, the compiler (e.g., GCC or Clang) might generate code involving loops with instructions like MOV for element copying, and calls to realloc or internal vector resizing if the vector is part of a larger allocation. Runtime behavior dominates, as erase occurs at execution time and can throw exceptions if element copy operations fail, whereas compile-time aspects are limited to template instantiation for the vector's type T. This contrasts with compile-time tools like constexpr, which don't apply directly to erase.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:28:51.195938",
+    "book_metadata_added": "2025-10-28T20:22:06.992114"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "std::vector<int> v = {10, 20, 30, 40, 50};\n\n// Erase a single element (O(N) complexity)\nauto it_20 = v.begin() + 1;\nv.erase(it_20); // v = {10, 30, 40, 50}\n\n// Erase a range of elements (O(N) complexity)\nauto first = v.begin() + 1; // Iterator to 30\nauto last = v.begin() + 3;  // Iterator to 50\nv.erase(first, last);  // v = {10, 50}\n// Returns iterator to element following the last element removed"
+}

@@ -1,0 +1,34 @@
+{
+  "topic": "Smart Pointers in Modern C++",
+  "explanation": "Smart pointers in C++ provide automatic memory management by encapsulating raw pointers, ensuring proper resource deallocation and preventing memory leaks. They are essential in modern C++ programming to manage dynamic resources safely and efficiently, following RAII principles. std::unique_ptr offers exclusive ownership semantics, while std::shared_ptr allows shared ownership with reference counting.",
+  "syntax": "std::unique_ptr<Type> ptr = std::make_unique<Type>(constructor_args);\nstd::shared_ptr<Type> ptr = std::make_shared<Type>(constructor_args);",
+  "code_example": [
+    "#include <iostream>",
+    "#include <memory>",
+    "",
+    "class Resource {",
+    "public:",
+    "   Resource() { std::cout << \"Resource acquired\" << std::endl; }",
+    "   ~Resource() { std::cout << \"Resource destroyed\" << std::endl; }",
+    "   void do_something() { std::cout << \"Doing something\" << std::endl; }",
+    "};
+",
+    "int main() {",
+    "   // Using std::unique_ptr for exclusive ownership",
+    "   auto uniqueRes = std::make_unique<Resource>();",
+    "   uniqueRes->do_something();",
+    "",
+    "   // Using std::shared_ptr for shared ownership",
+    "   auto sharedRes1 = std::make_shared<Resource>();",
+    "   {",
+    "       auto sharedRes2 = sharedRes1; // shared ownership",
+    "       sharedRes2->do_something();",
+    "       std::cout << \"Shared pointers in scope\" << std::endl;",
+    "   } // sharedRes2 goes out of scope, but resource remains because sharedRes1 still owns it",
+    "   sharedRes1->do_something();",
+    "   // sharedRes1 goes out of scope here, resource is destroyed",
+    "   return 0;",
+    "}"
+  ],
+  "example_explanation": "This example demonstrates the use of modern C++ smart pointers: std::unique_ptr for exclusive ownership, ensuring automatic deletion when the pointer goes out of scope, and std::shared_ptr for shared ownership, managing the resource's lifetime through reference counting. The code shows how these smart pointers simplify memory management and prevent leaks, adhering to modern C++ best pract"
+}

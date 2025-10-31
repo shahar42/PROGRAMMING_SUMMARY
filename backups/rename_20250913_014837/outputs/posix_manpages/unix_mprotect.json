@@ -1,0 +1,117 @@
+{
+  "name": "mprotect",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "int mprotect(void *addr, size_t len, int prot);",
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sys/mman.h>",
+    "int pkey_mprotect(void *addr, size_t len, int prot, int pkey);"
+  ],
+  "description": "mprotect() changes the access protections for the calling process's memory pages in the specified address range. The address must be aligned to a page boundary. If access violates the protections, the kernel generates a SIGSEGV signal for the process.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "void*",
+      "description": "Starting address of the memory region to protect, must be aligned to a page boundary"
+    },
+    {
+      "name": "len",
+      "type": "size_t",
+      "description": "Length of the memory region in bytes"
+    },
+    {
+      "name": "prot",
+      "type": "int",
+      "description": "Bitwise OR of protection flags such as PROT_READ, PROT_WRITE, PROT_EXEC, PROT_NONE, PROT_SEM, PROT_SAO, PROT_GROWSUP, or PROT_GROWSDOWN"
+    },
+    {
+      "name": "pkey",
+      "type": "int",
+      "description": "Protection key for pkey_mprotect(), must be allocated with pkey_alloc(2)"
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "The memory cannot be given the specified access, e.g., trying to make a read-only file writable"
+    },
+    {
+      "code": "EINVAL",
+      "description": "addr is not a valid pointer or not a multiple of the system page size"
+    },
+    {
+      "code": "EINVAL",
+      "description": "pkey has not been allocated with pkey_alloc(2) for pkey_mprotect()"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Both PROT_GROWSUP and PROT_GROWSDOWN were specified in prot"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid flags specified in prot"
+    },
+    {
+      "code": "EINVAL",
+      "description": "PROT_SAO was specified but SAO hardware feature is not available (PowerPC)"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Internal kernel structures could not be allocated"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Addresses in the range are invalid or specify unmapped pages"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Changing protection would exceed the maximum number of mappings with distinct attributes"
+    }
+  ],
+  "bugs": null,
+  "versions": "mprotect: POSIX.1-2001, SVr4; pkey_mprotect: Linux 4.9, glibc 2.27",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "#include <malloc.h>",
+    "#include <signal.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "#include <sys/mman.h>",
+    "#include <unistd.h>",
+    "static char *buffer;",
+    "static void handler(int sig, siginfo_t *si, void *unused) {",
+    "    printf(\"Got SIGSEGV at address: %p\\n\", si->si_addr);",
+    "    exit(EXIT_FAILURE);",
+    "}",
+    "int main(void) {",
+    "    int pagesize;",
+    "    struct sigaction sa;",
+    "    sa.sa_flags = SA_SIGINFO;",
+    "    sigemptyset(&sa.sa_mask);",
+    "    sa.sa_sigaction = handler;",
+    "    if (sigaction(SIGSEGV, &sa, NULL) == -1) handle_error(\"sigaction\");",
+    "    pagesize = sysconf(_SC_PAGE_SIZE);",
+    "    if (pagesize == -1) handle_error(\"sysconf\");",
+    "    buffer = memalign(pagesize, 4 * pagesize);",
+    "    if (buffer == NULL) handle_error(\"memalign\");",
+    "    printf(\"Start of region: %p\\n\", buffer);",
+    "    if (mprotect(buffer + pagesize * 2, pagesize, PROT_READ) == -1) handle_error(\"mprotect\");",
+    "    for (char *p = buffer; ; ) *(p++) = 'a';",
+    "    return 0;",
+    "}"
+  ],
+  "related_calls": [
+    "mmap"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "mprotect.pdf",
+    "extraction_date": "2025-07-29T11:08:09.975807",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

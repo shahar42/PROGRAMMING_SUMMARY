@@ -1,28 +1,12 @@
 {
   "topic": "Stack Unwinding in C++ Exception Handling",
   "explanation": "Stack unwinding is a core mechanism in C++ exception handling that occurs when an exception is thrown, involving the runtime destruction of automatic objects and the search for an appropriate handler. The compiler implements this by generating exception handling tables (e.g., in the form of .eh_frame sections in ELF binaries or PDATA in PE files) during compilation, which are used at runtime to track stack frames, active try blocks, and associated destructors. These tables are essentially metadata that map the program's control flow to exception handlers, often using a combination of unwind data and personality routines. For instance, GCC and Clang use DWARF-based unwind information, while MSVC employs its own structured exception handling (SEH) framework. Memory layout implications include additional overhead: each function with try/catch blocks may have extra data in the binary, such as function prologues that register unwind information, increasing binary size and potentially affecting cache performance. Performance-wise, stack unwinding is a runtime operation that can be costly, as it involves walking the call stack, invoking destructors for objects in destroyed scopes, and potentially leading to non-linear code execution, which disrupts CPU branch prediction and increases latency compared to error code propagation. At compile-time, the compiler analyzes code to generate these EH tables and inserts necessary instrumentation (e.g., calls to __cxa_throw in Itanium ABI), but the actual unwinding is runtime-bound, occurring only when an exception is thrown. Assembly-level behavior typically includes instructions for setting up frame pointers and unwind descriptors; for example, in x86-64 assembly, you might see prologue code that pushes registers and sets up the stack frame, with epilogues that interact with the EH runtime to handle jumps to catch blocks.",
-  "syntax": "try {\n    // Code that may throw an exception\n    throw std::runtime_error(\"Example error\");\n} catch (const std::exception& e) {\n    // Handler code\n    std::cout << e.what();\n} // Implementation notes: The compiler generates an exception handling table for the try block, which includes pointers to destructors for automatic variables in scope. For each throw, the runtime uses this table to unwind the stack, calling destructors (e.g., via operator delete for objects) before transferring control to the catch block.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <stdexcept>",
-    "int main() {",
-    "    int* ptr = new int(10);  // Allocated object for demonstration",
-    "    try {",
-    "        std::cout << \"Entering try block\" << std::endl;",
-    "        throw std::runtime_error(\"Simulated exception\");",
-    "    } catch (const std::exception& e) {",
-    "        std::cout << \"Caught exception: \" << e.what() << std::endl;",
-    "    }",
-    "    // Note: If an exception is thrown, the destructor for any automatic objects in the try block would be called during unwinding",
-    "    delete ptr;  // This would be called if no exception occurs",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, when std::runtime_error is thrown, the compiler's generated assembly initiates stack unwinding: the runtime (e.g., libstdc++ on GCC) uses the EH table to identify the call stack frames, invoking destructors for automatic variables (like local objects in the try block) before reaching the catch handler. For instance, if there were a local object with a destructor in the try block, its destructor would be called during unwinding, ensuring proper resource cleanup. Assembly-level, this might manifest as a call to an EH personality routine (e.g., __gxx_personality_v0) that parses the unwind data, potentially using instructions like 'call __cxa_throw' to propagate the exception object. Performance implications include runtime overhead: the EH table lookup and stack traversal can add microseconds of delay per throw, making exceptions unsuitable for performance-critical paths, as opposed to compile-time mechanisms like static_assert. This behavior is purely runtime, as the compiler cannot predict exceptions at compile-time, but it optimizes by omitting EH code in release builds if exceptions are disabled.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "exceptions",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T04:34:21.092360"
-  }
+    "extraction_date": "2025-08-19T04:34:21.092360",
+    "book_metadata_added": "2025-10-28T20:22:06.886340"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

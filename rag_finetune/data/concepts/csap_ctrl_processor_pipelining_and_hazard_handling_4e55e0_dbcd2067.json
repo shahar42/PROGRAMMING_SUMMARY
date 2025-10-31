@@ -1,0 +1,16 @@
+{
+  "topic": "Efficiency through Hazard Techniques",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the execution stages of multiple instructions.  However, this can lead to hazards (data, control, or structural) that disrupt the pipeline's smooth flow.  Hazard handling techniques are crucial for maintaining pipeline efficiency and preventing incorrect results.  Understanding these concepts is vital for optimizing program performance at the hardware level.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "554-554",
+    "extraction_date": "2025-07-27T18:10:57.004655",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.741119"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Data Hazard Resolution: Forwarding/Bypassing\n\n#define WRITEBACK_STAGE 4\n#define EXECUTE_STAGE 2\n\ntypedef struct { int src_reg; int dest_reg; } Instruction;\nint ALU_Output_Latched = 0; // Value ready early\n\n// Logic to check if data can be forwarded from EXE stage\nint resolve_data_dependency(Instruction current, int needed_reg) {\n    // Current instruction needs a result that is still in flight (EXE stage)\n    if (current.src_reg == needed_reg &&\n        current.pipeline_stage < WRITEBACK_STAGE) {\n        return ALU_Output_Latched; // Bypass memory/register file\n    }\n    return -1; // Wait for normal Writeback\n}\n\n\n// 2. Control Hazard Resolution: Branch Prediction and Flushing (Squashing)\n\nenum BranchState { PREDICTED_TAKEN, PREDICTED_NOT_TAKEN };\n#define NOP 0x00000000 // A No Operation instruction\n\nBranchState prediction = PREDICTED_NOT_TAKEN;\nbool outcome_is_taken = false;\n\n// Squashing instructions on misprediction\nvoid flush_pipeline(int fetch_depth) {\n    if ((prediction == PREDICTED_TAKEN) != outcome_is_taken) {\n        // Misprediction detected. Flush subsequent stages\n        for (int i = 0; i < fetch_depth; i++) {\n            pipeline_register[i] = NOP;\n        }\n    }\n}\n\n\n// 3. Data Hazard Resolution: Stalling (Load-Use Hazard)\n\n#define DECODE 1\n#define EXECUTE 2\n\ntypedef struct { int op; int rd; int rs; } PipelineReg;\nPipelineReg ID_IR, EX_IR; // Instruction Registers\n\n// Check for necessary stall (e.g., LOAD instruction followed immediately by USE)\nbool check_load_use_stall() {\n    if (EX_IR.op == LOAD &&\n        (ID_IR.rs == EX_IR.rd || ID_IR.rt == EX_IR.rd)) {\n        return true; // Stall (Insert Bubble in DECODE stage)\n    }\n    return false;\n}\n\n// How the bubble is inserted\nvoid advance_pipeline() {\n    if (check_load_use_stall()) {\n        ID_IR.op = NOP; // DECODE stage holds NOP\n    } else {\n        EX_IR = ID_IR;\n    }\n}",
+  "keywords": "Pipeline hazards, instruction pipelining, hazard handling techniques, pipeline stalls"
+}

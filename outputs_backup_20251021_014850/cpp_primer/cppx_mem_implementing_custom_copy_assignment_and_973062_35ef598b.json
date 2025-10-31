@@ -1,0 +1,17 @@
+{
+  "topic": "Implementing Custom Copy-Assignment and Destructor Functions for Complex Object Management in C",
+  "explanation": "In advanced C programming, managing resource lifetimes and object semantics requires implementing custom copy-assignment and destructor functions, especially when simulating object-oriented behaviors. These functions ensure proper deep copying, resource cleanup, and prevent issues like memory leaks or dangling pointers. They are crucial when handling complex data structures, dynamic memory, or external resources, enabling safe and predictable object manipulation in C's procedural paradigm.",
+  "syntax": "void copy_assign(Object *dest, const Object *src); // Performs deep copy of src into dest\nvoid destructor(Object *obj); // Cleans up resources held by obj\n\n// Usage pattern:\nObject obj1, obj2;\ninitialize(&obj1);\ninitialize(&obj2);\ncopy_assign(&obj2, &obj1); // Deep copy\n// ... use objects ...\ndestructor(&obj1);\ndestructor(&obj2);",
+  "code_example": "typedef struct {\n    char *name;\n    int *values;\n    size_t count;\n} Object;\n\nvoid initialize(Object *obj, const char *name, const int *vals, size_t count) {\n    obj->name = strdup(name);\n    obj->values = malloc(count * sizeof(int));\n    memcpy(obj->values, vals, count * sizeof(int));\n    obj->count = count;\n}\n\nvoid copy_assign(Object *dest, const Object *src) {\n    if (dest == src) return; // Handle self-assignment\n    free(dest->name);\n    free(dest->values);\n    dest->name = strdup(src->name);\n    dest->values = malloc(src->count * sizeof(int));\n    memcpy(dest->values, src->values, src->count * sizeof(int));\n    dest->count = src->count;\n}\n\nvoid destructor(Object *obj) {\n    free(obj->name);\n    free(obj->values);\n    obj->name = NULL;\n    obj->values = NULL;\n    obj->count = 0;\n}\n\nint main() {\n    Object obj1, obj2;\n    int vals[] = {1, 2, 3};\n    initialize(&obj1, \"Object1\", vals, 3);\n    initialize(&obj2, \"Object2\", NULL, 0);\n    copy_assign(&obj2, &obj1); // Deep copy of obj1 into obj2\n    // ... use objects ...\n    destructor(&obj1);\n    destructor(&obj2);\n    return 0;\n}",
+  "example_explanation": "This example demonstrates advanced resource management in C by implementing custom copy-assignment and destructor functions for a complex object. The copy_assign function performs a deep copy, ensuring that dynamically allocated resources are duplicated correctly, preventing shared ownership issues. The destructor function cleans up allocated memory, avoiding leaks. This pattern is essential in advanced C programming when managing complex data structures that require explicit control over resource lifetimes, mimicking object-oriented behaviors such as copy constructors and destructors.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "626-626",
+    "extraction_date": "2025-08-20T05:12:23.403135",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "copy",
+    "extraction_type": "practical_programming"
+  }
+}

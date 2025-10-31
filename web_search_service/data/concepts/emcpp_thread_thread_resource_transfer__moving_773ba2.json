@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Resource Transfer: Moving Non-Copyable Tasks",
+  "category": "thread",
+  "explanation": "Assumption: Standard library components used to wrap callables, such as `std::packaged_task`, can be passed by value or reference to a `std::thread` constructor. Reality: `std::packaged_task` (like `std::thread` itself) manages a unique resource (the packaged function and associated state) and is explicitly defined as non-copyable. Why It Fails: Attempting to pass a `std::packaged_task` directly to the `std::thread` constructor results in a compilation error because the constructor requires a copy or a move. Since copying is disallowed, the resource must be explicitly cast to an rvalue using `std::move` to transfer ownership to the new thread's context.",
+  "code_example": "std::packaged_task<int()> pt(calcValue);\n// std::thread t(pt); // ERROR: Attempting copy\nstd::thread t(std::move(pt)); // OK: Transfers ownership",
+  "practical_example": "A developer attempts to launch a complex task wrapper onto a thread pool but forgets the `std::move`, resulting in a hard compiler stop due to the deletion of the copy constructor.",
+  "keywords": [
+    "std::packaged_task",
+    "non-copyable",
+    "std::move",
+    "resource ownership"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "261",
+  "chapter": "Item 38: Be mindful of varying thread handle destructor behaviors",
+  "id": "emcpp_thread_thread_resource_transfer__moving_773ba2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

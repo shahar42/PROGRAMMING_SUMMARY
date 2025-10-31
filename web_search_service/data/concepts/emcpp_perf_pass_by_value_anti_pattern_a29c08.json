@@ -1,0 +1,18 @@
+{
+  "topic": "Pass-by-Value Anti-Pattern: Unnecessary Move Before Internal Move",
+  "category": "perf",
+  "explanation": "Assumption: The 'pass-by-value then move' idiom (like copy-and-swap) is universally the most efficient and safest way to handle both lvalue copies and rvalue moves cleanly. Reality: While this idiom is excellent for code clarity and exception safety, it is fundamentally inefficient when the caller provides an rvalue. Why It Fails: If the function takes `void func(Widget w)`, and the caller passes an rvalue temporary, the parameter binding (initialization of `w`) involves one move operation. Inside the function, the resource is then moved *again* into the member variable (`member = std::move(w);`). This anti-pattern forces two move operations (Move A: Caller's rvalue -> Parameter, Move B: Parameter -> Member) instead of the single direct move achieved by perfect forwarding (Rvalue -> Member). In high-performance scenarios, this extra, unnecessary move operation constitutes significant overhead.",
+  "code_example": "// Inefficient use of pass-by-value for rvalues\nvoid func(std::vector<int> v) { \n  member_ = std::move(v); // Second move operation occurs here\n}\nfunc(std::vector<int>{...}); // First move occurs upon parameter binding",
+  "practical_example": "A high-frequency trading application uses temporary buffer objects created via factory functions and passes them to internal processing components using the pass-by-value idiom for safety. The redundant move operations introduce measurable latency, preventing the system from meeting strict speed requirements.",
+  "keywords": [
+    "pass by value",
+    "copy and swap",
+    "redundant move",
+    "performance overhead"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "205-207",
+  "chapter": "Item 27: Use alternatives to overloading on universal references",
+  "id": "emcpp_perf_pass_by_value_anti_pattern_a29c08",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

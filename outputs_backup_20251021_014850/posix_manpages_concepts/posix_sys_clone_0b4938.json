@@ -1,0 +1,15 @@
+{
+  "topic": "clone() System Call",
+  "explanation": "The clone system call creates a new child process similar to fork(2), but allows more precise control over shared execution contexts such as memory, file descriptors, and namespaces. The child process can execute a specified function with an argument, and various flags determine what resources are shared.\n\n**Parameters:**\n- `fn` (int (*)(void *)): Function pointer to the function executed by the child process\n- `stack` (void *): Pointer to the stack for the child process\n- `flags` (int): Bit mask of flags to control shared resources and behavior\n- `arg` (void *): Argument passed to the function fn\n- `parent_tid` (pid_t *): Optional: Pointer to store the child's TID in the parent's memory\n- `tls` (void *): Optional: Location of the new thread-local storage\n- `child_tid` (pid_t *): Optional: Pointer to store the child's TID in the child's memory\n\n**Common Errors:**\n- `EACCES`: CLONE_INTO_CGROUP was specified but restrictions not met (clone3() only)\n- `EAGAIN`: Too many processes are already running\n- `EBUSY`: CLONE_INTO_CGROUP specified but cgroup has a domain controller enabled (clone3() only)\n- `EEXIST`: One or more PIDs in set_tid already exist (clone3() only)\n- `EINVAL`: Invalid flags or arguments specified\n\n**Related System Calls:** `fork()`, `execve()`, `wait()`",
+  "syntax": "int clone(int (*fn)(void *), void *stack, int flags, void *arg, ...);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = clone(...);  // Call the system call\nif (result == -1) {\n    perror(\"clone\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the clone() system call. The function takes 7 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.114973",
+    "syscall_name": "clone",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_clone.json",
+    "concept_id": "posix_sys_clone_0b4938"
+  }
+}

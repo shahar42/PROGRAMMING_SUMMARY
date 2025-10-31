@@ -1,34 +1,12 @@
 {
   "topic": "Name Lookup in C++ Class Definitions",
   "explanation": "Name lookup in C++ class definitions is a compile-time process governed by the C++ standard, where the compiler resolves identifiers based on scope rules. The compiler maintains a symbol table for each scope (e.g., global, namespace, class) and performs a hierarchical search to locate declarations. For a class X, the compiler first checks the current class scope, then base classes, enclosing classes or namespaces, and finally global scope if applicable. This is implemented through a two-phase lookup mechanism: in phase 1, the compiler looks in the current scope and associated scopes; in phase 2, it considers dependent names (e.g., in templates). Under the hood, compilers like GCC or Clang use abstract syntax trees (ASTs) to track scopes and resolve names, which can involve recursive traversal of the scope chain. Performance-wise, deep nesting or large codebases can increase compilation time due to extensive symbol table searches, potentially leading to O(n) complexity in nested scopes, though optimizations like caching resolved symbols mitigate this. There are no direct runtime or assembly-level implications since this is purely compile-time; however, incorrect lookup can lead to linker errors if symbols aren't found at link time. Memory layout is unaffected, as this pertains to code generation, not data allocation.",
-  "syntax": "In a class definition, unqualified names are looked up as follows:\n\nclass Base {\n    int member;  // Declared in Base scope\n};\n\nclass Derived : public Base {\n    int method() { return member; }  // 'member' is looked up in Derived's scope, then Base's scope\n    // Implementation note: Compiler checks Derived first, then Base per 10.2 of the standard.\n};",
-  "code_example": [
-    "#include <iostream>",
-    "namespace Outer {",
-    "    class Base {",
-    "        public:",
-    "            int value = 10;  // Member of Base",
-    "    };",
-    "",
-    "    class Derived : public Base {",
-    "        public:",
-    "            int getValue() {",
-    "                return value;  // 'value' is an unqualified name; compiler looks in Derived, then Base",
-    "            }",
-    "    };",
-    "",
-    "    int main() {",
-    "        Derived d;",
-    "        std::cout << d.getValue() << std::endl;  // Outputs 10",
-    "        return 0;",
-    "    }",
-    "}"
-  ],
-  "example_explanation": "In this example, the compiler performs name lookup for 'value' in Derived::getValue(). It first searches Derived's scope (not found), then Base's scope (found), adhering to the rule that names must be declared in the class, its base classes, or enclosing scopes. The compiler generates code where 'value' resolves to Base::value during compilation, resulting in an assembly instruction like 'mov' to access the member offset in the object layout (e.g., in x86 assembly: 'mov eax, [rdi + 4]' assuming 'value' is at offset 4 bytes). This is a compile-time resolution, so no runtime overhead occurs; however, if 'value' were not found, the compiler would error out immediately, demonstrating how lookup errors prevent code generation and affect build performance in large projects.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T01:42:29.984710"
-  }
+    "extraction_date": "2025-08-19T01:42:29.984710",
+    "book_metadata_added": "2025-10-28T20:22:06.890917"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

@@ -1,0 +1,16 @@
+{
+  "topic": "Understanding and Manipulating Complex Pointer Arithmetic and Memory Segments in Advanced C",
+  "explanation": "In advanced C programming, mastering complex pointer arithmetic and understanding the memory layout of segments and sections within object files are crucial for low-level system programming, debugging, and performance optimization. This involves precise manipulation of pointers to navigate non-trivial memory structures, awareness of the underlying memory model, and careful handling of segment boundaries to avoid undefined behavior or data corruption. Such techniques enable developers to implement custom memory allocators, perform manual serialization/deserialization, and interface directly with system-level features.",
+  "extraction_metadata": {
+    "source": "Expert C Programming: Deep C Secrets",
+    "page_range": "121-121",
+    "extraction_date": "2025-07-21T17:28:02.665701",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "expert_c_programming",
+    "book_metadata_added": "2025-10-28T20:22:07.004124"
+  },
+  "book": "Expert C Programming: Deep C Secrets",
+  "code_example": "struct SegmentHeader {\n    uint16_t size;\n    uint32_t magic;\n    char payload[1];\n};\n\n// Pointer arithmetic across aligned/unaligned structures\nstruct SegmentHeader* current_seg;\nptrdiff_t stride = sizeof(uint16_t) + sizeof(uint32_t);\n\n// Advance pointer to the start of the next header\ncurrent_seg = (struct SegmentHeader*)\n    ((char*)current_seg + stride + current_seg->size);\n\n\n// --- Segment boundary access/MMIO Simulation ---\n\n#define VEC_TABLE_BASE 0x0000FF00\n\n// Access specific memory address location (e.g., Interrupt Vector)\nvolatile uint32_t* vector_table =\n    (volatile uint32_t*)VEC_TABLE_BASE;\n\n// Read entry 5\nuint32_t vector_entry = vector_table[5];\n\n// Type punning to inspect raw bytes across a boundary\nuint8_t raw_byte = *(uint8_t*)\n    ((char*)&vector_table[1] - 1);\n<ctrl63>",
+  "keywords": "C memory segmentation, Advanced pointer arithmetic, C memory layout, Low-level C pointer"
+}

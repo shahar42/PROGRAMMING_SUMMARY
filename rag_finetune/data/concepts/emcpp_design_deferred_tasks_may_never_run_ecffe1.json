@@ -1,0 +1,13 @@
+{
+  "topic": "Deferred Tasks May Never Run",
+  "category": "design",
+  "explanation": "When `std::async` selects the `std::launch::deferred` policy, the callable object is not executed until a waiting function (`get()`, `wait()`, `wait_for()`, etc.) is invoked on the associated `std::future`. If the program logic allows the `std::future` object to fall out of scope (e.g., via exception handling or specific code paths) without a waiting function being called, the deferred task is never executed. This leads to silent failures or resource leaks if the task was essential.",
+  "code_example": "std::future<void> fut = std::async(f);\n// If no exception occurs, f might run later.\n// If an exception jumps past all fut.wait() calls, f never runs.",
+  "practical_example": "A task designed to clean up temporary files is launched via `std::async` (default policy). If an error occurs in the surrounding code and the future's destructor is called before `get()` is invoked, the cleanup task is silently skipped, leading to accumulated junk files.",
+  "keywords": "std::launch::deferred, Deferred task never runs, future get() missing",
+  "difficulty": "intermediate",
+  "page_reference": "263-268",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming.",
+  "id": "emcpp_design_deferred_tasks_may_never_run_ecffe1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

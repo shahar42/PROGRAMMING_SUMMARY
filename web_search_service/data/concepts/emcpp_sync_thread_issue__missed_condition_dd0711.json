@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Issue: Missed Condition Variable Notifications",
+  "category": "sync",
+  "explanation": "If a task executes a `notify` call on a condition variable before the corresponding reacting task executes its `wait` call, the notification is missed entirely. Because condition variables are non-persistent signals, the waiting task will subsequently block indefinitely (hang), assuming the condition has not yet been met, even though the signaling event already occurred. This critical ordering dependency is a major pitfall of using raw condition variables for task coordination, often necessitating higher-level synchronization primitives like `std::future`.",
+  "code_example": "// Detector task:\n// ... set condition\ncondvar.notify_one(); \n// Reacting task (if delayed):\n// condvar.wait(...) -> hangs if notification happened before this call",
+  "practical_example": "A background thread finishes processing data and calls `notify_one()`. If the main thread takes too long to reach the `wait()` call due to unrelated system latency or context switching, it will miss the signal and freeze waiting for an event that already passed.",
+  "keywords": [
+    "condvar",
+    "missed notification",
+    "wait forever",
+    "synchronization pitfall"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263",
+  "chapter": "Item 39: Be aware of the pitfalls of condition variables",
+  "id": "emcpp_sync_thread_issue__missed_condition_dd0711",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

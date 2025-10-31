@@ -1,0 +1,16 @@
+{
+  "topic": "listxattr() System Call",
+  "explanation": "listxattr() retrieves the list of extended attribute names associated with a specified file path. llistxattr() does the same for symbolic links, while flistxattr() operates on an open file descriptor. The function returns the size of the name list or -1 on error.\n\n**Parameters:**\n- `path` (const char *): Path to the file or directory\n- `list` (char *_Nullable): Buffer to store the null-terminated list of attribute names\n- `size` (size_t): Size of the buffer in bytes\n- `fd` (int): File descriptor for flistxattr()\n\n**Common Errors:**\n- `E2BIG`: The size of the list of extended attribute names is larger than the maximum size allowed\n- `ENOTSUP`: Extended attributes are not supported by the filesystem, or are disabled\n- `ERANGE`: The size of the list buffer is too small to hold the result\n\n**Related System Calls:** `getxattr()`, `open()`, `removexattr()`, `setxattr()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.242038",
+    "syscall_name": "listxattr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_listxattr.json",
+    "concept_id": "posix_sys_listxattr_b3f359",
+    "book_metadata_added": "2025-10-28T20:22:06.659239"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "ssize_t listxattr(const char *path, char *list, size_t size);\nssize_t llistxattr(const char *path, char *list, size_t size);\nssize_t flistxattr(int fd, char *list, size_t size);\n\n// 1. Determine total buffer size needed (size=0)\nssize_t required_sz = listxattr(\"/path/file\", NULL, 0);\n\nif (required_sz > 0) {\n    char *buffer = malloc(required_sz);\n    \n    // 2. Retrieve list of attribute names (null-separated)\n    ssize_t actual_sz = listxattr(\"/path/file\", buffer, required_sz);\n    \n    if (actual_sz == -1) { /* Error */ }\n\n    free(buffer);\n}",
+  "keywords": "listxattr, extended attributes, xattr, file metadata"
+}

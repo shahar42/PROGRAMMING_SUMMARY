@@ -1,0 +1,14 @@
+{
+  "topic": "Dependent Template Names in C++ Templates",
+  "explanation": "In C++, dependent template names occur when a template name depends on a template parameter, requiring the compiler to delay parsing until instantiation. The 'template' keyword is used to disambiguate such names, indicating that a dependent qualified name is a template. For instance, in the code, T::template C specifies that C is a template member of T. The compiler implements this through a two-phase lookup process: during the first phase, it performs non-dependent name lookup, and in the second phase (instantiation), it resolves dependent names. This ensures that the template is only instantiated when the actual type is known, preventing errors in generic code. Memory layout implications are minimal since this is a compile-time feature, but excessive template instantiations can lead to code bloat, increasing binary size and potentially affecting cache performance at runtime. Performance-wise, the compiler generates specialized code for each instantiation, which can optimize execution but increase compilation time due to the need for multiple compilations of the same template with different parameters. Assembly-level behavior is not directly observable here, as template resolution happens before code generation, but the resulting instantiated code will reflect the specialized functions or classes. Overall, this is a compile-time mechanism, with no runtime overhead once the code is generated, contrasting with runtime polymorphism like virtual functions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:41:27.721727",
+    "book_metadata_added": "2025-10-28T20:22:06.917348"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T> struct Container {\n    template <typename U> struct Builder { U val; };\n    template <typename U> void generate() {}\n};\n\ntemplate <typename T>\nvoid use_dependent_template(T t) {\n    // Dependent member class template access\n    T::template Builder<int> b; // Requires 'template'\n\n    // Dependent member function template access\n    t.template generate<double>(); // Requires 'template'\n\n    // Error if 'template' keyword is omitted here.\n}",
+  "keywords": "Dependent template name, template keyword dependent, C++ template disambiguation, Two-phase name lookup"
+}

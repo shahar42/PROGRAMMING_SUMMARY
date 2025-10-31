@@ -1,0 +1,90 @@
+{
+  "name": "fcntl",
+  "synopsis": [
+    "#include <fcntl.h>",
+    "int fcntl(int fd, int op, ... /* arg*/);"
+  ],
+  "description": "The fcntl() system call performs various operations on an open file descriptor, such as duplicating it, setting flags, or managing locks. The operation is determined by the op argument, which may require an optional third argument.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "The file descriptor to operate on"
+    },
+    {
+      "name": "op",
+      "type": "int",
+      "description": "The operation to perform, such as F_DUPFD or F_SETFD"
+    },
+    {
+      "name": "arg",
+      "type": "variable",
+      "description": "Optional third argument, type and requirement depend on the operation (e.g., int for F_DUPFD, struct flock * for F_SETLK)"
+    }
+  ],
+  "return_value": {
+    "success": "Varies by operation, such as the new file descriptor for F_DUPFD or zero for most other operations",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES or EAGAIN",
+      "description": "Operation is prohibited by locks held by other processes"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not an open file descriptor"
+    },
+    {
+      "code": "EBUSY",
+      "description": "op is F_SETPIPE_SZ and the new pipe capacity is smaller than the current buffer, or op is F_ADD_SEALS with conflicting conditions"
+    },
+    {
+      "code": "EDEADLK",
+      "description": "Detected deadlock for F_SETLKW operation"
+    },
+    {
+      "code": "EFAULT",
+      "description": "lock structure is outside accessible address space"
+    },
+    {
+      "code": "EINTR",
+      "description": "Operation interrupted by a signal"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid operation or argument, such as unrecognized op value"
+    },
+    {
+      "code": "EMFILE",
+      "description": "Per-process limit on open file descriptors reached for F_DUPFD"
+    },
+    {
+      "code": "ENOLCK",
+      "description": "Too many segment locks or locking protocol failed"
+    },
+    {
+      "code": "EPERM",
+      "description": "Operation not permitted, such as attempting to add seals without write access"
+    }
+  ],
+  "bugs": "The Linux implementation of mandatory locking is unreliable and has been deprecated in newer kernels; race conditions may occur in multithreaded programs when setting close-on-exec flags.",
+  "versions": "Various operations since Linux 2.4 and later, with specific features like F_DUPFD_CLOEXEC since Linux 2.6.24",
+  "posix_compliance": "POSIX.1-2001",
+  "examples": [],
+  "related_calls": [
+    "dup",
+    "dup2",
+    "execve",
+    "open",
+    "fork",
+    "close"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "fcntl.pdf",
+    "extraction_date": "2025-07-27T01:24:59.636675",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

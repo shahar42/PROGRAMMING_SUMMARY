@@ -1,0 +1,73 @@
+{
+  "name": "pwritev",
+  "synopsis": [
+    "#include <sys/uio.h>",
+    "ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);"
+  ],
+  "description": "The pwritev() system call writes data from multiple buffers to a file descriptor at a specified offset, without changing the file offset. It combines the functionality of writev() and pwrite(2), processing buffers in array order.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor to write to"
+    },
+    {
+      "name": "iov",
+      "type": "const struct iovec *",
+      "description": "Array of iovec structures describing the buffers to write from"
+    },
+    {
+      "name": "iovcnt",
+      "type": "int",
+      "description": "Number of elements in the iov array"
+    },
+    {
+      "name": "offset",
+      "type": "off_t",
+      "description": "The file offset at which the write operation is performed"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes written",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "The sum of the iov_len values overflows an ssize_t value"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The vector count iovcnt is less than zero or greater than the permitted maximum"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "An unknown flag is specified (though not directly applicable to pwritev)"
+    }
+  ],
+  "bugs": "Linux 5.9 and Linux 5.10 have a bug where preadv2() with the RWF_NOWAIT flag may return 0 even when not at end of file, though this is related to similar functions.",
+  "versions": "Linux 2.6.30, glibc 2.10",
+  "posix_compliance": "BSD",
+  "examples": [
+    "char *str0 = \"hello \";",
+    "char *str1 = \"world\\n\";",
+    "struct iovec iov[2];",
+    "iov[0].iov_base = str0;",
+    "iov[0].iov_len = strlen(str0);",
+    "iov[1].iov_base = str1;",
+    "iov[1].iov_len = strlen(str1);",
+    "ssize_t nwritten = pwritev(fd, iov, 2, offset);"
+  ],
+  "related_calls": [
+    "pread",
+    "read",
+    "write"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pwritev.pdf",
+    "extraction_date": "2025-07-29T16:28:21.990748",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

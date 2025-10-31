@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References: Debugging Failure Due to Template Instantiation",
+  "category": "template",
+  "explanation": "The debugging anti-pattern associated with universal reference overloads stems from the difference between compile-time resolution and runtime execution flow. When a template is used, the debugger cannot easily step into the specific instance of the template if it is in a header file and optimized, or if the compiler uses partial specialization which is difficult to track. For non-templated overloads, setting a breakpoint is straightforward. With universal references, especially when they are used to forward to other functions, tracing the execution path requires navigating complex template instantiation chains. If an lvalue unexpectedly triggers the universal reference overload (due to the greediness issue), and that overload then performs an unexpected move via `std::forward`, the runtime error (e.g., an exception or corruption) occurs far down the forwarding chain. Debuggers often struggle to clearly identify *why* the universal reference was chosen over a specific overload, making root cause analysis of overload resolution failures tedious and non-obvious. The failure is the significant increase in cognitive overhead and debugging difficulty introduced by relying on highly generalized template mechanisms to handle specialized tasks, masking runtime behavior behind layers of automatic type deduction and casting.",
+  "code_example": "template<typename T> void process(T&& arg) {\n    // Debugging requires tracing T and the result of std::forward<T>(arg)\n    Logger::log_forward(std::forward<T>(arg)); \n}",
+  "practical_example": "A major production bug involves data corruption after calling a function that was subtly overloaded. Hours are spent debugging the low-level memory usage only to discover that the issue wasn't the memory management code, but the function's overload resolution, where the universal reference template was unintentionally chosen due to complex rules, causing a move of a shared resource instead of a copy.",
+  "keywords": [
+    "debugging difficulty",
+    "template instantiation",
+    "overload resolution",
+    "cognitive overhead"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "195-205 (General complexity)",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_universal_references__debugging_531dd0",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

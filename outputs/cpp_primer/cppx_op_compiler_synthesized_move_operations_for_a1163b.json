@@ -1,27 +1,12 @@
 {
   "topic": "Compiler-Synthesized Move Operations for Classes with Built-in Types",
-  "explanation": "In C++, when a class consists of movable members (such as built-in types like int or std::string), the compiler can automatically generate move constructors and move assignment operators if they are not explicitly defined. This is a practical technique for improving performance in real-world scenarios, such as when working with containers, returning large objects from functions, or managing resources efficiently. Best practices include relying on compiler-synthesized moves to keep code idiomatic and concise, but always check for potential issues like non-movable members (e.g., const objects or references). Common pitfalls include assuming moves will always be synthesized\u2014 if a class has user-defined copy operations or non-movable members, the compiler won't generate them, leading to unnecessary copies or compilation errors. In practice, this pattern enhances efficiency in applications like game development or data processing, where object movement reduces overhead.",
-  "syntax": "For a class like 'struct X { int val; };', the compiler synthesizes:\n- Move constructor: X(X&& other) noexcept;  // Copies/moves members like 'val'\n- Move assignment: X& operator=(X&& other) noexcept;  // Moves members and handles self-assignment\nPractical usage note: Ensure all members are movable (e.g., built-in types or std::vector). If not, define custom moves or delete them explicitly with 'X(X&&) = delete;' to avoid silent fallbacks to copy operations, which can lead to inefficiencies.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <utility>  // For std::move",
-    "struct X {",
-    "    int val;  // Built-in type, which is movable",
-    "    // No user-defined move operations; compiler synthesizes them",
-    "};",
-    "",
-    "int main() {",
-    "    X source{42};  // Create an object",
-    "    X destination = std::move(source);  // Compiler uses synthesized move constructor",
-    "    std::cout << \"Moved value: \" << destination.val << std::endl;  // Outputs: Moved value: 42",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "This code demonstrates a real-world usage where the compiler synthesizes move operations for the 'X' struct, as it only contains a movable built-in type (int). In practice, this pattern is useful for scenarios like transferring ownership in functions or resizing containers, avoiding expensive copies and improving performance. Best practices here include using std::move to explicitly indicate movable objects, which makes the code more readable and idiomatic. A common pitfall is forgetting that if 'X' had a non-movable member (e.g., a const int or a reference), the compiler wouldn't synthesize the moves, potentially causing the program to fall back to copies or fail to compile\u2014always audit class members to ensure they support moves for optimal efficiency.",
+  "explanation": "In C++, when a class consists of movable members (such as built-in types like int or std::string), the compiler can automatically generate move constructors and move assignment operators if they are not explicitly defined. This is a practical technique for improving performance in real-world scenarios, such as when working with containers, returning large objects from functions, or managing resources efficiently. Best practices include relying on compiler-synthesized moves to keep code idiomatic and concise, but always check for potential issues like non-movable members (e.g., const objects or references). Common pitfalls include assuming moves will always be synthesized— if a class has user-defined copy operations or non-movable members, the compiler won't generate them, leading to unnecessary copies or compilation errors. In practice, this pattern enhances efficiency in applications like game development or data processing, where object movement reduces overhead.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "statements",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T05:28:43.261835"
-  }
+    "extraction_date": "2025-08-20T05:28:43.261835",
+    "book_metadata_added": "2025-10-28T20:22:06.566371"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

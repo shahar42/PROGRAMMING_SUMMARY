@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Cost-Performance",
+  "explanation": "The memory hierarchy is a tiered structure of storage devices designed to optimize the cost-performance ratio in computing systems. It exploits the principle of locality by placing frequently accessed data in smaller, faster, and more expensive levels, such as L1, L2, and L3 caches. These cache levels offer significantly lower latency than main memory (DRAM) but have limited capacity. Effective caching strategies, governed by policies like write-back or write-through, aim to maximize the cache hit rate. Maximizing the hit rate minimizes the average memory access time (AMAT), which is the primary metric for optimizing overall program performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "512-512",
+    "extraction_date": "2025-07-27T17:39:51.768740",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.700966",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:10",
+    "original_length": 392,
+    "refined_length": 653
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Spatial Locality Optimization (C/C++ Row-major order)\n#define N 512\nint matrix[N][N];\n\n// GOOD: Unit stride, high spatial locality\nvoid optimal_traverse() {\n    for (int i = 0; i < N; i++) {\n        for (int j = 0; j < N; j++) {\n            matrix[i][j]++; // Efficient cache line utilization\n        }\n    }\n}\n\n// POOR: Stride equals N, cache line thrashing possible\nvoid poor_traverse() {\n    for (int j = 0; j < N; j++) {\n        for (int i = 0; i < N; i++) {\n            matrix[i][j]++; // New cache line likely loaded every iteration\n        }\n    }\n}\n\n// 2. Cache Blocking / Tiling (Temporal Locality for Matrix Ops)\n#define M 1024\n#define BLOCK_SIZE 32 // Tune for L1/L2 cache capacity\n\nvoid blocked_matrix_multiply(float A[M][M], float B[M][M], float C[M][M]) {\n    for (int kk = 0; kk < M; kk += BLOCK_SIZE) {\n        for (int jj = 0; jj < M; jj += BLOCK_SIZE) {\n            // Inner loops operate only on the loaded block\n            for (int i = 0; i < M; i++) {\n                for (int j = jj; j < jj + BLOCK_SIZE; j++) {\n                    for (int k = kk; k < kk + BLOCK_SIZE; k++) {\n                        C[i][j] += A[i][k] * B[k][j];\n                    }}}}\n}\n\n// 3. Avoiding False Sharing (Cache Coherency Penalty)\n#define CACHE_LINE_BYTES 64\n// Uses C11 standard for memory alignment\nstruct _Alignas(CACHE_LINE_BYTES) AlignedCounter {\n    long thread_local_count;\n    // No explicit padding needed if struct size is exactly CACHE_LINE_BYTES\n};\n\n// If 'counters' array is used by different threads,\n// each thread's access modification updates its own clean cache line.\nAlignedCounter counters[8];\n<ctrl63>"
+}

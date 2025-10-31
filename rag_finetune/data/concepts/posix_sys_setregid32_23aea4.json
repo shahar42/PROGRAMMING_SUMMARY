@@ -1,0 +1,16 @@
+{
+  "topic": "setregid32() System Call",
+  "explanation": "setregid32 sets the real and/or effective group ID of the calling process, allowing specification of new values with -1 to leave unchanged. It is used for 32-bit group IDs and follows similar rules to setregid for privileges and behavior.\n\n**Parameters:**\n- `rgid` (gid_t): The new real group ID, or -1 to leave unchanged\n- `egid` (gid_t): The new effective group ID, or -1 to leave unchanged\n\n**Common Errors:**\n- `EAGAIN`: The call would change the caller’s real GID with a temporary failure or resource limit issue\n- `EINVAL`: One or more of the target group IDs is not valid in this user namespace\n- `EPERM`: The calling process is not privileged and a disallowed change was specified\n\n**Related System Calls:** `getgid()`, `getuid()`, `seteuid()`, `setgid()`, `setresuid()`, `setuid()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.113912",
+    "syscall_name": "setregid32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setregid32.json",
+    "concept_id": "posix_sys_setregid32_23aea4",
+    "book_metadata_added": "2025-10-28T20:22:06.639143"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "gid_t new_rgid = 1001;\ngid_t new_egid = 2001;\n\n// Set both Real and Effective GIDs\nint s1 = setregid32(new_rgid, new_egid);\n\n// Change only the Effective GID (using -1 for Real)\n// Useful for temporarily dropping privileges\nint s2 = setregid32(-1, new_rgid);\n\n// Change only the Real GID (requires CAP_SETGID)\nint s3 = setregid32(new_egid, -1);\n\n// Permanently drop privileges (set both to current real GID)\nint s4 = setregid32(getgid(), getgid());\n\nif (s1 == -1) { /* Handle EPERM, EAGAIN, EINVAL */ }",
+  "keywords": "setregid32, setregid, 32 bit group id, change group id"
+}

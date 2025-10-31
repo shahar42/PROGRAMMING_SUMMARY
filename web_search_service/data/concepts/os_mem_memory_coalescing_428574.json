@@ -1,0 +1,15 @@
+{
+  "topic": "Memory Coalescing",
+  "explanation": "Memory coalescing is a technique used in dynamic memory allocators to merge adjacent free memory blocks into a single larger block. It is employed to reduce memory fragmentation, making larger contiguous blocks available for future allocations and improving overall memory efficiency in programs that frequently allocate and deallocate memory.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "181-181",
+    "extraction_date": "2025-07-21T10:45:11.384631",
+    "has_code": false,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.797428"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "// Metadata structure for contiguous heap blocks\ntypedef struct {\n    size_t size;         // Data space size\n    int is_free;         // Status flag (1 = Free)\n} BlockMeta;\n\n// Function to merge adjacent free blocks upon deallocation\nvoid coalesce(BlockMeta* current_block) {\n    // Calculate address of the adjacent block immediately following current_block\n    BlockMeta* next_block = \n        (BlockMeta*)((char*)current_block + current_block->size + sizeof(BlockMeta));\n\n    // Check if the adjacent block is also free\n    if (next_block->is_free) {\n        // Merge adjacent memory blocks\n        // The size of the coalesced block includes the merged block's data AND metadata\n        current_block->size += next_block->size + sizeof(BlockMeta);\n        \n        // Logical step: The next_block is now consumed, update free list management\n        // free_list_relink(current_block, next_block);\n    }\n}",
+  "keywords": "Memory coalescing, free block merging, fragmentation reduction, heap management"
+}

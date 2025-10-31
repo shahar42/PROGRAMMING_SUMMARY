@@ -1,0 +1,25 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies",
+  "explanation": "Modern computer systems employ a memory hierarchy to bridge the performance gap between fast, expensive CPU registers and slower, cheaper main memory.  This hierarchy consists of multiple levels of storage with varying speeds and capacities. Caching strategies aim to exploit locality of reference (temporal and spatial) to improve performance by keeping frequently accessed data in faster levels of the hierarchy. This reduces the number of expensive main memory accesses.",
+  "syntax": "Cache organization is typically described using parameters like cache size, block size (line size), associativity, and replacement policy (e.g., LRU, FIFO).  Performance is often evaluated using metrics like hit rate, miss rate, and average memory access time (AMAT).",
+  "code_example": "; This example doesn't directly show cache behavior in code,\n; but illustrates how data locality impacts performance.\n; Consider two array access patterns:\n.data\narray1: .long 1, 2, 3, 4, 5, 6, 7, 8, 9, 10\narray2: .long 1, 11, 21, 31, 41, 51, 61, 71, 81, 91\n.text\nmain:\n; Accessing array1 sequentially (good spatial locality)\nmovl $0, %ecx        ; loop counter\nloop1:\nmovl array1(,%ecx,4), %eax ; Access array element\naddl $1, %ecx\ncmpl $10, %ecx\njl loop1\n; Accessing array2 with large strides (poor spatial locality)\nmovl $0, %ecx\nloop2:\nmovl array2(,%ecx,4), %eax\naddl $1, %ecx\ncmpl $10, %ecx\njl loop2\nmovl $0, %eax ; Exit code\nret",
+  "example_explanation": "The code demonstrates two loops accessing different arrays. `array1` exhibits good spatial locality: consecutive memory accesses are close together. `array2` has poor spatial locality due to large memory address differences between consecutive accesses.  The former will likely result in a higher cache hit rate and better performance because the processor can efficiently retrieve multiple elements within a single cache line. The latter will lead to many cache misses, forcing the processor to fetch data from main memory, which is significantly slower.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "82-82",
+    "extraction_date": "2025-07-23T00:07:29.858109",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-26T23:43:47.364279",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "435-435",
+      "extraction_date": "2025-07-26T23:43:45.573474",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8619372248649597
+  }
+}

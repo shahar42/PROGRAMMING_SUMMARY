@@ -1,28 +1,12 @@
 {
   "topic": "Access Control for Nested Types in C++ Templates",
   "explanation": "In C++, access control for nested types, such as private structs, interacts complexly with template instantiation due to the language's two-phase lookup mechanism. When a template is declared, the compiler performs an initial name lookup but defers full instantiation and access checking until the template is actually used (point of instantiation). For a private nested type like Y::S, it is accessible within the enclosing class Y because the access is checked in the context of Y's scope. However, when used outside Y, such as in X<Y::S> at global scope, the compiler enforces access rules at instantiation time, resulting in an error. This behavior is compile-time only, as templates are resolved during compilation. Under the hood, compilers like GCC or Clang implement this via symbol resolution in the abstract syntax tree (AST), where access specifiers are verified against the instantiation context. There's no direct memory layout or runtime implication here, as this is purely a compile-time check, but it can affect code generation by preventing invalid instantiations, potentially optimizing binary size by avoiding unnecessary template code bloat. Assembly-level behavior isn't directly relevant, but failed access checks halt compilation, preventing any object code from being produced for the invalid instantiation.",
-  "syntax": "template<typename T> class X { static T staticMember; };  // Declaration with T as template parameter\nclass Y { private: struct S {}; X<S> x;  // OK: S is accessible here due to class scope };  // Implementation note: Access to S is checked at instantiation of X<S> within Y\nX<Y::S> y;  // Error: Y::S is not accessible outside Y; compiler checks access at point of use",
-  "code_example": [
-    "#include <iostream>",
-    "template<typename T>",
-    "class X {",
-    "    static T staticMember;  // Static member of type T",
-    "};",
-    "",
-    "class Y {",
-    "private:",
-    "    struct S { int value; };  // Private nested struct",
-    "    X<S> x;  // OK: S is accessible within Y",
-    "};",
-    "",
-    "// Attempting to use outside Y:",
-    "X<Y::S> y;  // Error: Y::S is private and not accessible here"
-  ],
-  "example_explanation": "In this example, the compiler first parses the template X and notes T as a parameter without immediate access checks. When instantiating X<S> inside Y, the compiler verifies that S is accessible in Y's scope during the instantiation phase, allowing the code to compile. However, for X<Y::S> at global scope, the compiler performs access checking at the point of instantiation, detects that Y::S is private, and emits an error (e.g., 'error: 'S' is a private member of 'Y''). This demonstrates two-phase template lookup: phase one (declaration) doesn't check access, but phase two (instantiation) does, ensuring type safety. Performance-wise, this prevents runtime errors by catching issues at compile-time, though it might increase compilation time for large templates due to repeated lookups.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T03:43:03.693980"
-  }
+    "extraction_date": "2025-08-19T03:43:03.693980",
+    "book_metadata_added": "2025-10-28T20:22:06.874083"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

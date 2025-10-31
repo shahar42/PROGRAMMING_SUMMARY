@@ -1,0 +1,32 @@
+{
+  "topic": "Subexpressions in Regular Expressions",
+  "explanation": "Subexpressions in regular expressions are portions of a regex pattern enclosed in parentheses, allowing you to capture and extract specific parts of a matched string. This is a practical technique for real-world scenarios like input validation, data parsing, and log analysis. For instance, when processing user input such as phone numbers or dates, subexpressions help isolate components (e.g., area code and local number) for further manipulation. Best practices include using subexpressions judiciously to avoid performance overhead, always checking for matches to prevent exceptions, and compiling regex patterns once for reuse. Common pitfalls involve overusing capturing groups, which can lead to unnecessary complexity or errors in multi-threaded environments; avoid this by only capturing what's essential and testing patterns thoroughly.",
+  "syntax": "In C++, use the std::regex class from the <regex> header to define patterns with subexpressions. Syntax example: std::regex pattern(R\"(subexpr1 separator (subexpr2) separator subexpr3)\"); Here, parentheses define subexpressions for capturing, and raw strings (R\"()\") are idiomatic for multi-line or complex patterns to avoid escaping issues. Practical usage notes: Compile the regex once (e.g., in a constructor) for efficiency, and use std::smatch or std::cmatch to access subexpression results via the [index] operator, like match[1] for the first subexpression.",
+  "code_example": [
+    "#include <regex>",
+    "#include <iostream>",
+    "#include <string>",
+    "",
+    "int main() {",
+    "    std::string input = \"(123) 456 7890\";  // Example phone number string",
+    "    std::regex phone_pattern(R\"(\\(\\d{3}\\)\\s?\\d{3}\\s?\\d{4})\");  // Pattern with subexpression for area code",
+    "    std::smatch match;",
+    "    if (std::regex_search(input, match, phone_pattern)) {",
+    "        std::cout << \"Full match: \" << match[0] << std::endl;  // Entire matched string",
+    "        if (match.size() > 1) {",
+    "            std::cout << \"Captured subexpression (area code): \" << match[1] << std::endl;  // First subexpression",
+    "        }",
+    "    } else {",
+    "        std::cout << \"No match found.\" << std::endl;",
+    "    }",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This code demonstrates using subexpressions in std::regex to parse a phone number string, capturing the area code as a subexpression. In real-world usage, such as in a user registration system, this pattern ensures input validity while extracting usable data for storage or formatting. Best practices here include using raw strings to simplify pattern writing, checking match.size() to avoid out-of-range errors when accessing subexpressions, and handling cases where no match occurs to prevent crashes. This approach is idiomatic in C++ for robust string processing, helping avoid common pitfalls like unhandled exceptions from invalid inputs, and promotes efficiency by compiling the regex only once.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:08:11.973309"
+  }
+}

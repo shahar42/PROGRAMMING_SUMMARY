@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics and Rvalue References via Constructors",
+  "explanation": "Move semantics, introduced in C++11, allow for efficient transfer of resources (like memory) from one object to another without copying, primarily through rvalue references (T&&). Under the hood, compilers implement this by generating specialized code for move constructors and move assignment operators, which typically involve shallow copies or direct resource transfers rather than deep copies. For instance, when an rvalue reference is bound, the compiler may optimize by reusing the source object's resources, such as swapping pointers or directly assigning memory blocks, which reduces overhead. Memory layout implications include potential reductions in heap allocations; for example, if a temporary object is moved, its resources can be transferred without invoking a copy constructor, leading to better cache locality and fewer dynamic allocations. Performance-wise, moves can eliminate O(n) copy operations, making them O(1) in many cases, but this depends on compiler optimizations like copy elision (e.g., via NRVO or mandatory elision in C++17+). At the assembly level, a move might translate to simple register transfers or memcpy calls instead of full object duplication, as seen in generated assembly from compilers like GCC or Clang. Runtime behavior occurs when objects are actually constructed or assigned, whereas compile-time aspects involve the compiler's decision to elide copies or generate move calls based on expression categories (lvalue vs. rvalue). However, in C++17 and later, some moves are guaranteed at compile time via mandatory copy elision, blending runtime and compile-time efficiencies.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:37:38.470473",
+    "book_metadata_added": "2025-10-28T20:22:06.979961"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "class UniqueHandle {\n    int* data;\npublic:\n    UniqueHandle(size_t s) : data(new int[s]) {}\n\n    // Destructor: Cleans up OWNED resources\n    ~UniqueHandle() { delete[] data; }\n\n    // Rule of 5: Move Constructor (T&&)\n    UniqueHandle(UniqueHandle&& other) noexcept\n        // 1. Shallow copy pointer\n        : data(other.data)\n    {\n        // 2. Nullify source pointer\n        other.data = nullptr;\n    }\n\n    // Prevents accidental copies when move is possible\n    UniqueHandle(const UniqueHandle&) = delete;\n    UniqueHandle& operator=(const UniqueHandle&) = delete;\n};",
+  "keywords": "Move Semantics, Rvalue Reference, Move Constructor, T&&"
+}

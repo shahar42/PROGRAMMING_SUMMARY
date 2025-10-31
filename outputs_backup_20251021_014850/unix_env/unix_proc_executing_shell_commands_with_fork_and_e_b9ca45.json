@@ -1,0 +1,14 @@
+{
+  "topic": "Executing Shell Commands with fork and exec",
+  "explanation": "In C, fork() creates a new process by duplicating the current one, and exec functions (like execl) replace the process image with a new program. This mechanism is used to run external shell commands from a C program, enabling interaction with the operating system while maintaining process isolation and control.",
+  "syntax": "int system(const char *cmdstring)",
+  "code_example": "#include <stdio.h>\n#include <unistd.h>\n#include <sys/types.h>\n#include <sys/wait.h>\n\nint main() {\n    pid_t pid = fork();\n    if (pid == 0) {  // Child process\n        execl(\"/bin/sh\", \"sh\", \"-c\", \"ls -l\", (char *)0);\n        perror(\"execl failed\");  // This line executes only if execl fails\n        _exit(1);\n    } else if (pid > 0) {  // Parent process\n        wait(NULL);  // Wait for child to finish\n        printf(\"Command executed.\\n\");\n    } else {\n        printf(\"Fork failed.\\n\");\n    }\n    return 0;\n}",
+  "example_explanation": "This program demonstrates executing a shell command by forking a new process. The child process uses execl to run the 'ls -l' command in a shell, replacing its own image. The parent process waits for the child to complete using wait, ensuring the command finishes before proceeding, thus illustrating the fork-exec mechanism in a controlled manner.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "300-300",
+    "extraction_date": "2025-07-21T23:00:46.590018",
+    "has_code": true,
+    "has_explanation": true
+  }
+}

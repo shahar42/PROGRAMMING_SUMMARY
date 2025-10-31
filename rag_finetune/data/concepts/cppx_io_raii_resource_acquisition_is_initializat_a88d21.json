@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Leveraging Constructors Destructors",
+  "explanation": "RAII is a fundamental C++ programming technique that ensures resources (like memory, files, network connections, mutexes) are automatically managed and released when they are no longer needed.  It leverages constructors to acquire resources and destructors to release them, guaranteeing proper cleanup even in exceptional situations.  This prevents resource leaks, a common source of errors in C and other languages.  By tying resource management to object lifetime, RAII enhances code reliability and simplifies error handling.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:40:13.885398",
+    "book_metadata_added": "2025-10-28T20:22:06.553951"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class MemoryGuard {\n    int* data;\npublic:\n    explicit MemoryGuard(size_t s) : data(new int[s]) {}\n    // Disable copying (Rule of Three/Five implication for RAII)\n    MemoryGuard(const MemoryGuard&) = delete;\n\n    ~MemoryGuard() { \n        delete[] data; // Guaranteed cleanup\n    }\n};\n\n// ---\n\nclass FileCloser {\n    void* fp; // Simulate FILE*\npublic:\n    FileCloser(const char* path) { \n        fp = file_open(path); // Acquisition\n    }\n    ~FileCloser() {\n        if (fp) file_close(fp); // Release\n    }\n};\n\n// ---\n\nclass MutexLocker {\n    Mutex& m_ref;\npublic:\n    explicit MutexLocker(Mutex& m) : m_ref(m) {\n        m_ref.lock();   // Lock acquired\n    }\n    ~MutexLocker() {\n        m_ref.unlock(); // Lock released (even on exception)\n    }\n};"
+}

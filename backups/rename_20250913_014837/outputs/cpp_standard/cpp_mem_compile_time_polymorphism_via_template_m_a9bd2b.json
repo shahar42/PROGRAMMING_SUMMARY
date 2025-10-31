@@ -1,0 +1,21 @@
+{
+  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its Impact on Code Generation",
+  "explanation": "Template metaprogramming (TMP) allows for compile-time polymorphism, enabling the compiler to generate specialized code for different types at compile time rather than relying on runtime polymorphism (virtual functions). This significantly impacts performance and memory layout.  The compiler performs significant code generation during compilation, potentially inlining functions and eliminating runtime overhead associated with virtual function calls.  Understanding how the compiler handles TMP is crucial for optimizing performance-critical applications.  Failure to understand potential code bloat or unexpected compiler behavior due to complex TMP can lead to performance issues or subtle bugs.",
+  "syntax": "```c++\ntemplate <typename T>\nstruct SizeOf {\n  static constexpr size_t value = sizeof(T);\n};\n\nint main() {\n  constexpr size_t intSize = SizeOf<int>::value; // Compile-time evaluation\n  constexpr size_t doubleSize = SizeOf<double>::value; // Compile-time evaluation\n  std::cout << \"Size of int: \" << intSize << std::endl;\n  std::cout << \"Size of double: \" << doubleSize << std::endl;\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T, typename U = void>\nstruct is_same_type {\n  static constexpr bool value = false;\n};",
+    "template <typename T>\nstruct is_same_type<T, T> {\n  static constexpr bool value = true;\n};",
+    "int main() {\n  static_assert(is_same_type<int, int>::value, \"Error: int is not equal to int\");\n  static_assert(!is_same_type<int, double>::value, \"Error: int is equal to double\");\n  std::cout << std::is_same_v<int, int> << std::endl; // Using std::is_same_v\n  return 0;\n}",
+    "template<typename T, size_t N> \nstruct StaticArray { \nT arr[N]; \n};",
+    "int main() {\n  StaticArray<int, 10> myArray; \n  // Compiler generates an array of 10 ints. No dynamic allocation at runtime.\n  return 0;\n}"
+  ],
+  "example_explanation": "The `SizeOf` example demonstrates compile-time evaluation of `sizeof`. The compiler substitutes `SizeOf<int>::value` and `SizeOf<double>::value` with their respective sizes during compilation. No runtime computation is needed. The `is_same_type` example shows compile-time type checking.  The compiler uses TMP to generate separate versions of `is_same_type` for each type combination at compile time.  The `StaticArray` example shows how the compiler allocates memory for the array on the stack at compile time based on template parameters, avoiding runtime dynamic memory allocation.  In assembly, you would see direct memory allocation for the array without function calls for dynamic allocation.  Incorrect usage of TMP (e.g., excessively deep recursion) can lead to compiler errors due to exceeding recursion limits or excessive compile times.  Compiler optimization can significantly impact the final generated assembly code; advanced optimizations might further reduce code size and improve performance by removing redundant computations or code duplication introduced by TMP.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:18:08.298245"
+  }
+}

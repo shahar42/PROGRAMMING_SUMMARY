@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: With Disk",
+  "explanation": "The memory hierarchy mitigates the CPU-memory performance gap by organizing storage into tiers of increasing latency and capacity, ranging from CPU registers to L1/L2/L3 caches, main memory (DRAM), and persistent storage (Disk/SSD). Caching strategies exploit temporal and spatial locality by moving frequently accessed data blocks closer to the CPU, primarily into SRAM-based cache levels. Effective caching minimizes average memory access time (AMAT) by maximizing the hit rate in faster tiers, thereby reducing reliance on high-latency disk I/O for data retrieval. This multi-level approach ensures the processor operates efficiently despite the physical limitations of large-scale, high-speed memory.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "300-301",
+    "extraction_date": "2025-07-26T00:07:05.140068",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.700314",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:05",
+    "original_length": 645,
+    "refined_length": 704
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Memory-Mapped File I/O (Disk interaction via Virtual Memory)\n// Uses OS Paging/Demand Paging (Disk <-> RAM)\n\n#define SIZE (1024 * 1024) \n\nint fd = open(\"data.dat\", O_RDWR);\n\n// Map disk file directly into the process address space\nvoid* addr = mmap(\n    NULL, SIZE, \n    PROT_READ | PROT_WRITE, \n    MAP_SHARED, fd, 0\n);\n\n// Accessing addr[i] triggers a Page Fault if data not in RAM\n((char*)addr)[0] = 'A'; \n\n// Forces dirty pages back to disk\nmsync(addr, SIZE, MS_SYNC);\n\nmunmap(addr, SIZE);\nclose(fd);\n\n// Note: Requires sys/mman.h, fcntl.h, unistd.h"
+}

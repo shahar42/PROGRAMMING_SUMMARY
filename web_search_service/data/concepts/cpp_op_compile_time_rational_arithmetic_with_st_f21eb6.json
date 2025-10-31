@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Rational Arithmetic with `std::ratio` via Metaprogramming",
+  "explanation": "The C++ standard library's `std::ratio` provides a powerful mechanism for performing rational arithmetic at compile time.  This avoids runtime overhead and allows for compile-time error detection in calculations involving fractions.  The implementation relies heavily on template metaprogramming and integral constant arithmetic within the compiler, resulting in optimized code generation. The compiler evaluates the ratios and their operations completely during compilation, generating the final result as compile-time constants. This contrasts with runtime fraction handling where division and other arithmetic operations are performed at runtime.  Memory layout is minimal, as only the numerator and denominator (both integral types) are stored.  Performance implications are significant: no runtime division or multiplication is needed; the compiler performs the computations, resulting in extremely fast execution. Potential overflow during intermediate calculations within the template metaprogramming must be carefully managed and is implementation-defined. Also, the complexity of the compile-time calculations can increase compilation time, especially with large or complex ratio expressions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:45:56.115949",
+    "book_metadata_added": "2025-10-28T20:22:06.817460"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "using Half = std::ratio<1, 2>;\nusing Third = std::ratio<1, 3>;\nusing TwoFifths = std::ratio<4, 10>; // Normalized to 2/5\n\n// Compile-time Multiplication: (1/2) * (1/3) = 1/6\nusing Product = std::ratio_multiply<Half, Third>;\nstatic_assert(Product::num == 1 && Product::den == 6);\n\n// Compile-time Addition: (1/3) + (2/5) = 11/15\nusing Sum = std::ratio_add<Third, TwoFifths>;\nstatic_assert(Sum::num == 11 && Sum::den == 15);\n\n// Compile-time Subtraction: (1/2) - (1/3) = 1/6\nusing Difference = std::ratio_subtract<Half, Third>;\nstatic_assert(Difference::num == 1 && Difference::den == 6);\n\n// Compile-time Comparison (using value member)\nconstexpr bool is_smaller = std::ratio_less<Third, Half>::value;\nstatic_assert(is_smaller);\n<ctrl63>"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Function Disabling: Delete Versus Private Access Control",
+  "category": "core",
+  "explanation": "To prevent clients from calling certain functions, especially compiler-generated special member functions like the copy constructor and copy assignment operator, C++11 introduced the `delete` keyword. This provides a clear, direct way to disable a function, making it the modern successor to the C++98 idiom of declaring a member function private and intentionally not providing a definition.\n\nScott Meyers' key insight is that using `delete` is superior because it expresses intent more clearly and provides much better compiler diagnostics. The old private-and-undefined method was a workaround that often resulted in confusing linker errors if a member or friend function tried to use the disabled function. In contrast, `delete` generates a clear, immediate compile-time error, pinpointing the exact location of the invalid call.\n\nThe mechanics of the two approaches differ significantly. The C++98 technique relies on access control: making a function private prevents external code from calling it. By not defining it, any internal calls from members or friends would compile but then fail at the link stage with an 'unresolved external symbol' error. The C++11 approach is more direct. By appending `= delete` to a function's declaration, you explicitly tell the compiler that this function exists but cannot be used. Any attempt to call it is a compilation error, regardless of where the call originates.\n\nIn practical terms, `delete` is the standard way to create non-copyable or non-movable classes. For classes that manage unique resources, such as file handles, network sockets, or mutex locks, deleting the copy operations is essential for correct resource management. A major advantage of `delete` is its versatility: it can be applied to any function, not just member functions. This allows developers to prevent problematic implicit conversions by deleting specific function overloads or to forbid certain template instantiations, offering fine-grained control over function resolution.\n\nThe most common pitfall of the old C++98 method was the delayed error detection. A developer could mistakenly call a private-undefined function from a member function, and the problem would only surface as a cryptic linker error, making it hard to debug. With `delete`, this mistake is caught instantly by the compiler. Another subtle point is that deleted functions are still part of overload resolution; if a deleted function is selected as the best match, the code will fail to compile, which is precisely the intended behavior for preventing certain function calls.",
+  "code_example": "class NonCopyable {\npublic:\n  NonCopyable() = default;\n\n  // C++11: Clearly state that copying is not allowed\n  NonCopyable(const NonCopyable&) = delete;\n  NonCopyable& operator=(const NonCopyable&) = delete;\n\nprivate:\n  // C++98: Old idiom to prevent copying\n  // NonCopyable(const NonCopyable&);\n  // NonCopyable& operator=(const NonCopyable&);\n};\n\nvoid test() {\n  NonCopyable nc1;\n  // NonCopyable nc2 = nc1; // Compile Error: use of deleted function\n  // NonCopyable nc3; nc3 = nc1; // Compile Error: use of deleted function\n}",
+  "practical_example": "A class managing a database connection would delete its copy constructor and copy assignment operator. This ensures that each object corresponds to a single, unique connection, preventing scenarios where multiple objects might try to close the same connection or operate on it concurrently in an undefined way.",
+  "keywords": [
+    "delete",
+    "deleted functions",
+    "special member functions",
+    "non-copyable",
+    "private undefined",
+    "C++98 idiom",
+    "resource management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "74",
+  "chapter": "Item 11: Prefer deleted functions to private undefined ones",
+  "id": "emcpp_core_deleted_functions_versus_private_undefined_52e66e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

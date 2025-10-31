@@ -1,0 +1,16 @@
+{
+  "topic": "s390_sthyi() System Call",
+  "explanation": "The s390_sthyi() system call emulates the STHYI instruction to provide hardware resource information for the machine and its virtualization levels, such as CPU type, capacity, and machine model. It uses a function code to specify the type of information to retrieve and stores results in a response buffer.\n\n**Parameters:**\n- `function_code` (unsigned long): Indicates which function to perform, e.g., STHYI_FC_CP_IFL_CAP for CPU and IFL capacity information.\n- `resp_buffer` (void *): Address of the response buffer to store the results; must be one page (4K) for certain functions.\n- `return_code` (uint64_t *): Pointer to store the return code of the STHYI instruction, such as 0 for success or 4 for unsupported function.\n- `flags` (unsigned long): Reserved for future extensions and must be set to 0.\n\n**Common Errors:**\n- `EFAULT`: The value specified in resp_buffer or return_code is not a valid address.\n- `EINVAL`: The value specified in flags is nonzero.\n- `ENOMEM`: Allocating memory for handling the CPU capacity information failed.\n- `EOPNOTSUPP`: The value specified in function_code is not valid.\n\n**Related System Calls:** `syscall()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.084592",
+    "syscall_name": "s390_sthyi",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_s390_sthyi.json",
+    "concept_id": "posix_sys_s390_sthyi_286288",
+    "book_metadata_added": "2025-10-28T20:22:06.667741"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define STHYI_FC_MODEL_INFO 0x0004\n\n/* Simplified response structure for model data */\nstruct sthyi_model {\n    char name[16];\n    unsigned int type;\n};\n\nstruct sthyi_model model_data;\nunsigned long function_code = STHYI_FC_MODEL_INFO;\n\n/* Emulate STHYI instruction */\nlong rc = s390_sthyi(function_code, &model_data);\n\nif (rc == 0) {\n    /* model_data populated with hardware info */\n}\n<ctrl63>",
+  "keywords": "s390_sthyi, STHYI instruction, z/Architecture capacity"
+}

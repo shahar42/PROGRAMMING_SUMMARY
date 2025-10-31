@@ -1,0 +1,16 @@
+{
+  "topic": "fanotify_init() System Call",
+  "explanation": "fanotify_init() initializes a new fanotify group and returns a file descriptor for the event queue associated with the group. This descriptor is used to monitor specified filesystem objects and receive events via fanotify_mark(2).\n\n**Parameters:**\n- `flags` (unsigned int): Defines the notification class (e.g., FAN_CLASS_PRE_CONTENT, FAN_CLASS_CONTENT, FAN_CLASS_NOTIF) and behavior flags (e.g., FAN_CLOEXEC) for the fanotify group.\n- `event_flags` (unsigned int): Additional flags for event reporting, such as FAN_REPORT_FID or FAN_REPORT_PIDFD, which modify the types of events generated.\n\n**Common Errors:**\n- `EINVAL`: An invalid value was passed in flags or event_flags.\n- `EMFILE`: The number of fanotify groups for this user exceeds the limit, or the per-process limit on open file descriptors has been reached.\n- `ENOMEM`: The allocation of memory for the notification group failed.\n- `ENOSYS`: This kernel does not implement fanotify_init().\n- `EPERM`: The caller lacks a required capability.\n\n**Related System Calls:** `fanotify_mark()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.082485",
+    "syscall_name": "fanotify_init",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fanotify_init.json",
+    "concept_id": "posix_sys_fanotify_init_e690db",
+    "book_metadata_added": "2025-10-28T20:22:06.592114"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int fan_fd;\n\n// FAN_CLASS_NOTIF: Receive standard events (e.g., open, close, access)\n// FAN_CLOEXEC: Close descriptor upon execve()\nunsigned int init_flags = FAN_CLASS_NOTIF | FAN_CLOEXEC;\n\n// FAN_NONBLOCK: Non-blocking event read queue\n// FAN_REPORT_FID: Report file system object identifiers\nunsigned int event_flags = FAN_NONBLOCK | FAN_REPORT_FID;\n\nfan_fd = fanotify_init(init_flags, event_flags);\n\nif (fan_fd < 0) {\n    // Initialization failed\n}\n// fan_fd ready for fanotify_mark()",
+  "keywords": "fanotify_init, fanotify, Linux filesystem monitoring, file system notification"
+}

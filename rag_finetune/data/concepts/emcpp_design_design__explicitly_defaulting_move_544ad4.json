@@ -1,0 +1,18 @@
+{
+  "topic": "Design: Explicitly Defaulting Move Operations After Custom Destructor",
+  "category": "design",
+  "explanation": "C++ rule states that if a class declares a custom destructor (e.g., `~ThreadRAII()`), the compiler will suppress the automatic generation of the move constructor and move assignment operator (as well as copy operations). Why It Fails: For RAII classes managing unique, non-copyable resources (like `std::thread`), move semantics are essential for transferring ownership safely. If the move operations are suppressed, the class cannot be moved, forcing the developer to use inefficient copy operations or preventing the class from being used in standard containers. The solution is to explicitly request the compiler to generate the default move operations using `= default;` if they perform the correct resource transfer.",
+  "code_example": "class ThreadRAII {\npublic:\n  ~ThreadRAII() { /* cleanup logic */ }\n  // Must be explicitly added if destructor is present:\n  ThreadRAII(ThreadRAII&&) = default; \n  ThreadRAII& operator=(ThreadRAII&&) = default;\n};",
+  "practical_example": "A developer creates a thread-managing RAII class with a destructor but forgets to default the move operations. They cannot use `std::vector<ThreadRAII>` because the `push_back` operation requires the element type to be movable.",
+  "keywords": [
+    "destructor suppression",
+    "rule of five",
+    "move semantics",
+    "defaulted functions"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "256 (referencing Item 17)",
+  "chapter": "Item 37",
+  "id": "emcpp_design_design__explicitly_defaulting_move_544ad4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

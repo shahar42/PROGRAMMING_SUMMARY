@@ -1,0 +1,14 @@
+{
+  "topic": "Handling I/O Errors in C++",
+  "explanation": "Handling I/O errors is a fundamental practical concept in C++ for ensuring robust and reliable programs. In real-world scenarios, such as reading user input, processing files, or network operations, I/O operations can fail due to reasons like invalid data, end-of-file, or hardware issues. Best practices include immediately checking the state of streams after operations to avoid undefined behavior or crashes. Common patterns involve using stream state flags (e.g., good(), fail(), eof()) and handling errors gracefully, such as by logging messages or retrying operations. A common pitfall is assuming I/O always succeeds, which can lead to silent failures; to avoid this, always validate I/O results and use idiomatic C++ techniques like conditional checks on stream objects.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "basics",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:37:01.072265",
+    "book_metadata_added": "2025-10-28T20:22:06.527958"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Idiomatic Stream Check (Input Validation)\nint value;\nstd::cin >> value;\n\nif (!std::cin) {\n    std::cerr << \"Input error.\\n\";\n    // Clear error flags (failbit/badbit)\n    std::cin.clear();\n    // Discard remaining input in buffer\n    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\\n');\n}\n\n\n// File Open and Iteration Check\nstd::ifstream file(\"data.txt\");\n\nif (!file.is_open()) {\n    throw std::runtime_error(\"File not found.\");\n}\n\nstd::string line;\nwhile (std::getline(file, line)) {\n    // Process line\n}\n\n// Check state after iteration loop\nif (file.bad()) {\n    std::cerr << \"Fatal I/O error (Device failure).\\n\";\n} else if (file.fail() && !file.eof()) {\n    std::cerr << \"Read failed (Format error).\\n\";\n}\n<ctrl63>",
+  "keywords": "C++ I/O error handling, C++ stream state flags, check input failure, stream error checking"
+}

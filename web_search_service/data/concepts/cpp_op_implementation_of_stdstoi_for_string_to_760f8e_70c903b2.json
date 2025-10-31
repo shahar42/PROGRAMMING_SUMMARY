@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::stoi for String to Integer Conversion",
+  "explanation": "The std::stoi function, defined in the C++ Standard Library (ISO/IEC 14882:2014, section 21.5), performs runtime string-to-integer conversion. Under the hood, compilers like GCC or Clang implement this by leveraging C-style string parsing functions such as strtol from the C standard library. At compile-time, the compiler resolves the function call to a library entry point, but the actual conversion occurs at runtime. The process involves scanning the input string character by character to identify digits based on the specified base (default 10), handling leading whitespace, signs, and potential overflows. If the string is invalid, std::stoi throws a std::invalid_argument or std::out_of_range exception, which adds runtime overhead for exception handling mechanisms.\n\nMemory layout implications include temporary buffers or stack usage for parsing, as the function may need to track the position via the idx parameter. Performance-wise, std::stoi has O(n) time complexity where n is the string length, due to sequential scanning, and it can lead to cache misses if the string is large. Assembly-level behavior typically involves a function call to the library implementation, which might translate to loops (e.g., using cmp and jmp instructions for digit checks) and arithmetic operations for value accumulation. For example, in x86-64 assembly, you might see calls to internal helpers that process strings, with runtime checks for errors, making it less efficient than compile-time evaluated alternatives like constexpr functions in C++11+.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:59:52.082926",
+    "book_metadata_added": "2025-10-28T20:22:06.819025"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::string input = \"  -1234 items\";\nsize_t consumed_chars = 0;\n\nint result = std::stoi(input, &consumed_chars);\n// result == -1234\n// consumed_chars == 8 (space, space, -, 1, 2, 3, 4)\n\n// Conversion stops at first non-digit (' ')\n\ntry {\n    std::stoi(\"Not a number\");\n} catch (const std::invalid_argument& e) {\n    // Conversion failed\n}\n\n// Relies on strtol() implementation via C library call.\n// Resolution occurs at runtime."
+}

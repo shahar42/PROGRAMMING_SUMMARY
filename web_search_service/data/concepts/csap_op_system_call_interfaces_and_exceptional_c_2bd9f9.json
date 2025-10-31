@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Signal-Based Control Flow",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel. They allow processes to request services from the kernel, such as accessing hardware resources or performing operations that require privileged access. Exceptional control flow, handled by signals, allows the OS to interrupt the normal execution of a process to respond to events like user interrupts (e.g., Ctrl+C) or errors.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "824-824",
+    "extraction_date": "2025-07-28T12:39:59.068394",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.745749"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "pid_t pid = fork();\nif (pid == 0) {\n    /* Child process context */\n    _exit(0);\n} else if (pid > 0) {\n    /* Parent process context */\n    waitpid(pid, NULL, 0);\n}\n\nvoid handler(int sig) {\n    /* Safe system call use only! */\n    write(STDOUT_FILENO, \"Signal received.\\n\", 17);\n}\n\n/* Setup: Simple, non-portable signal registration */\nif (signal(SIGUSR1, handler) == SIG_ERR) {\n    /* error */\n}\n\nstruct sigaction sa;\nsa.sa_handler = my_sig_handler;\nsigemptyset(&sa.sa_mask);\nsa.sa_flags = SA_RESTART | SA_NODEFER;\n\n/* Robust signal registration */\nif (sigaction(SIGTERM, &sa, NULL) == -1) {\n    /* error */\n}\n\nsigset_t mask, prev_mask;\nsigemptyset(&mask);\nsigaddset(&mask, SIGINT);\n\n/* BLOCK SIGINT */\nsigprocmask(SIG_BLOCK, &mask, &prev_mask);\n\n/* Critical section */\ncount++;\n\n/* UNBLOCK (restore previous set) */\nsigprocmask(SIG_SETMASK, &prev_mask, NULL);"
+}

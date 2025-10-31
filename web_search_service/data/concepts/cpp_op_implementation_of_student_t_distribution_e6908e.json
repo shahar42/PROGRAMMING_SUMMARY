@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Student T-Distribution in C++ Standard Library",
+  "explanation": "The student_t_distribution is a template class in the C++ Standard Library (<random> header) that implements the Student's t-distribution for generating random numbers. From an implementation perspective, the compiler treats this as a template specialization, where the class is instantiated at compile-time for a specific RealType (e.g., double), allowing for type-safe and efficient code generation. Internally, the class likely stores parameters such as degrees of freedom (n) in its member variables, affecting memory layout: for instance, the object might occupy space for a few floating-point values (e.g., sizeof(RealType) for n), plus any internal state for the distribution, typically a few bytes (e.g., 8-16 bytes on a 64-bit system), minimizing overhead. Performance implications include runtime computations for the probability density function, which involves the gamma function (Γ), square roots, and exponentiation; these are not compile-time evaluable and rely on math library functions (e.g., from libm), leading to potential CPU-bound operations. The compiler may optimize by inlining simple member functions or using SIMD instructions for vectorized math, but the core generation is runtime-dependent on a uniform random bit generator. Assembly-level behavior often includes calls to external math routines (e.g., __gamma or sqrt via FPU instructions), with loops for iterative approximations if needed, resulting in non-deterministic execution times. Overall, this feature exemplifies runtime vs. compile-time trade-offs: templates enable compile-time polymorphism, but random number generation is inherently runtime, impacting predictability and efficiency in high-performance applications.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:19:26.778700",
+    "book_metadata_added": "2025-10-28T20:22:06.861146"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename RealType = double>\nclass student_t_distribution {\npublic:\n    using result_type = RealType;\n\n    // Degrees of freedom parameter (n)\n    explicit student_t_distribution(RealType n = 1.0);\n\n    // Accessor\n    RealType n() const;\n\n    // Generation operator (requires a Random Number Generator/Engine)\n    template <typename Generator>\n    result_type operator()(Generator& g);\n    \n    // Helper accessors\n    static constexpr RealType min();\n    static constexpr RealType max();\n};",
+  "keywords": "student_t_distribution, C++ random distribution, std::student_t_distribution, C++ <random> header"
+}

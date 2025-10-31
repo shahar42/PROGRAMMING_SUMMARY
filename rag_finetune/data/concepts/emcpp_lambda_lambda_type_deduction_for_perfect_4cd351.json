@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Type Deduction for Perfect Forwarding",
+  "category": "lambda",
+  "explanation": "Assumption: Perfect forwarding within a generic lambda (using `auto&&`) can utilize a standard template parameter `T` in `std::forward<T>(x)`. Reality: The type parameter `T` corresponding to the universal reference parameter `x` is defined internally within the compiler-generated closure class's `operator()`, making it inaccessible within the lambda body itself. Why It Fails: Without the correct type `T`, the compiler cannot correctly preserve the lvalue/rvalue nature of the argument using `std::forward`, resulting in potentially inefficient copies or incorrect overload selection downstream. Solution: To achieve perfect forwarding in a generic lambda, the necessary template argument for `std::forward` must be obtained via `decltype(x)`. Because `decltype(x)` captures the exact type of the parameter *including* its reference qualification (lvalue reference for lvalues, rvalue reference for rvalues), it correctly facilitates the forwarding mechanism.",
+  "code_example": "auto f = [](auto && x)\n{\n  // T is unavailable, must use decltype(x)\n  return func(normalize( std::forward<decltype(x)>(x)));\n};",
+  "practical_example": "A developer writes a generic logging lambda that accepts any argument type and perfectly forwards it to a processing function. Failure to use `decltype(x)` means that rvalue temporaries passed to the lambda are treated as lvalues inside the body, forcing unnecessary copy constructors to run in the processing function.",
+  "keywords": "Generic Lambda Forwarding Failure, Universal Reference Lambda Forwarding, std::forward in Lambda",
+  "difficulty": "advanced",
+  "page_reference": "229-230",
+  "chapter": "Item 32: Use init capture for moving objects into closures",
+  "id": "emcpp_lambda_lambda_type_deduction_for_perfect_4cd351",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

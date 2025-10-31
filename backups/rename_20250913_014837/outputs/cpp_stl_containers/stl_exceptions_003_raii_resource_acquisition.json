@@ -1,0 +1,27 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) and Exception Safety with Smart Pointers",
+  "explanation": "RAII is a cornerstone of exception safety and resource management in C++.  It dictates that resources (memory, files, network connections, etc.) are acquired in constructors and released in destructors.  This ensures deterministic cleanup, even in the presence of exceptions. Smart pointers, like `std::unique_ptr` and `std::shared_ptr`, are prime examples of RAII in action.  The compiler's role is crucial: it guarantees the destructor of a smart pointer (and consequently the resource it manages) is called when the smart pointer goes out of scope, regardless of whether the code execution reaches the end of the block or throws an exception.  This is implemented through the compiler's handling of stack unwinding during exception handling. Memory layout is directly affected \u2013 smart pointers themselves are stored on the stack, while the managed resources can be on the heap. Performance implications are generally minimal (a few extra instructions for pointer management) but the correctness and safety benefits are significant. Assembly-level examination would reveal stack frame setup/teardown, destructor calls, and potential exception handling calls within the compiler-generated code.",
+  "syntax": "```c++\n#include <memory>\n#include <iostream>\n\nvoid processData() {\n  // Using unique_ptr for exclusive ownership\n  auto ptr = std::make_unique<Data>(/*...*/);\n  try {\n    // ... process data using ptr ...\n  } catch (const std::exception& e) {\n    std::cerr << \"Error: \" << e.what() << std::endl;\n    // Exception handled; unique_ptr destructor cleans up automatically.\n  } \n  // No need for explicit delete; unique_ptr's destructor is called here\n}\n\nclass Data {\npublic:\n  Data(int val) : value(val) { std::cout << \"Data created: \" << value << std::endl; }\n  ~Data() { std::cout << \"Data destroyed: \" << value << std::endl; }\n  int value;\n};\n```",
+  "code_example": [
+    "#include <memory>",
+    "#include <iostream>",
+    "#include <exception>",
+    "class Data { public: Data(int v) : val(v) { std::cout << \"Data created: \" << val << std::endl; } ~Data() { std::cout << \"Data destroyed: \" << val << std::endl; } int val; };",
+    "void foo() {",
+    "  auto ptr = std::make_unique<Data>(10);",
+    "  try {",
+    "    throw std::runtime_error(\"test\");",
+    "  } catch (...) {",
+    "    //unique_ptr destructor will be called automatically here.",
+    "    throw;",
+    "  }",
+    "}"
+  ],
+  "example_explanation": "The example showcases `std::unique_ptr`.  Compile-time, the compiler generates code that includes the `unique_ptr`'s destructor call in the function's stack unwinding sequence.  At runtime, when an exception is thrown, the stack unwinds, invoking destructors for objects on the stack, including the `unique_ptr`. This automatically deallocates the `Data` object.  The lack of explicit `delete` improves code clarity and reduces the risk of memory leaks.  Examining the assembly would reveal the compiler's implementation of stack unwinding and destructor calls, demonstrating the automatic resource management ensured by RAII.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:46:54.944499"
+  }
+}

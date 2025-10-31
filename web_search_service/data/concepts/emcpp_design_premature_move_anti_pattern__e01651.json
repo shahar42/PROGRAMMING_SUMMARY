@@ -1,0 +1,18 @@
+{
+  "topic": "Premature Move Anti-Pattern: Corrupting Internal State",
+  "category": "design",
+  "explanation": "Assumption: In a complex function or constructor initializing multiple members, applying `std::move` to a resource-owning member variable as soon as it is processed is safe, provided it is the last time the variable is used for transfer. Reality: Once `std::move` is applied to a named object (which is an lvalue), that object is placed into a valid but unspecified state. If the surrounding function logic requires accessing or transferring that member variable again\u2014even implicitly\u2014before the object's lifetime ends, the behavior is undefined or corrupted. Why It Fails: This commonly happens when moving a base class subobject or a member variable early in a constructor initializer list, but a later member initialization or function call implicitly relies on the moved-from resource being intact. The programmer mistakes 'last use within transfer chain' for 'last use within function scope.' The subsequent access to the now-moved-from resource leads to crashes or logically corrupted state, failing the fundamental safety guarantee that moved-from objects remain valid.",
+  "code_example": "// Member 'm1' is moved, then later accessed by another member 'm2'\nstruct S { std::string m1; S m2; };\nS::S(S&& rhs) : m1(std::move(rhs.m1)), m2(rhs) {} // ERROR: rhs.m1 is moved-from!",
+  "practical_example": "A complex assignment operator uses `std::move` to swap resources with a temporary. If the developer moves one member variable, but subsequently uses a helper function that implicitly relies on the consistency of the entire object state (including the now-moved-from member) before the swap is complete, the helper function operates on corrupt data.",
+  "keywords": [
+    "premature move",
+    "moved-from state",
+    "undefined behavior",
+    "initializer list"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "178-180, 229",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_design_premature_move_anti_pattern__e01651",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

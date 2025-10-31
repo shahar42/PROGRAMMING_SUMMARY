@@ -1,0 +1,19 @@
+{
+  "topic": "Template Metaprogramming and Compile-Time Computation with `constexpr` and `if constexpr`",
+  "explanation": "This expert-level C++ concept delves into the compiler's ability to perform computations at compile time using template metaprogramming and `constexpr` functions/variables.  `if constexpr` allows for conditional compilation based on compile-time booleans, leading to significant performance gains and code optimization.  The compiler effectively eliminates branches and unnecessary code at compile time, resulting in smaller and faster executables.  Memory layout is directly impacted as compile-time calculations avoid runtime memory allocation for intermediate results.  The behavior is entirely compile-time; no runtime overhead is incurred for the evaluated expressions.  Assembly-level analysis would reveal the absence of instructions related to the evaluated constexpr computations; they're baked into the generated code.",
+  "syntax": "```c++\ntemplate <typename T, size_t N>\nconstexpr T factorial(size_t n) {\n  if constexpr (n == 0) {\n    return 1;\n  } else {\n    return n * factorial<T, N>(n - 1);\n  }\n}\n\nint main() {\n  constexpr int result = factorial<int, 10>(5); //Compile-time computation\n  std::cout << result << std::endl; //Prints 120 at runtime, but the calculation happened at compile time\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <typename T, size_t N>\nconstexpr T factorial(size_t n) {\n  if constexpr (n == 0) {\n    return 1;\n  } else {\n    return n * factorial<T, N>(n - 1);\n  }\n}",
+    "template<size_t N> \nconstexpr std::array<int, N> fib_sequence(){\n  std::array<int, N> fib; \n  fib[0] = 0;\n  if constexpr (N > 1) fib[1] = 1;\n  if constexpr (N > 2){\n    for(size_t i = 2; i < N; ++i){\n      fib[i] = fib[i-1] + fib[i-2];\n    }\n  }\n  return fib; \n}",
+    "int main() {\n  constexpr int fact_5 = factorial<int, 10>(5);\n  std::cout << \"Factorial of 5: \" << fact_5 << std::endl;\n  constexpr auto fib8 = fib_sequence<8>();\n  for(int val : fib8) std::cout << val << \" \";\n  std::cout << std::endl;\n  return 0;\n}"
+  ],
+  "example_explanation": "The `factorial` function demonstrates compile-time computation using recursion and `constexpr`.  The compiler recursively evaluates the factorial at compile time.  The `fib_sequence` showcases `if constexpr` to conditionally compile the Fibonacci sequence generation loop, only including it when the array size is larger than 2.  The assembly code generated would not contain any runtime loop for calculating factorials or the Fibonacci sequence; the results would be directly embedded within the executable. The memory layout of the resulting executable will have the pre-computed factorial and Fibonacci sequence values already stored in the data section. Note that overly complex constexpr functions might exceed the compiler's ability to fully evaluate them at compile time and fallback to runtime execution.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:33:11.125404"
+  }
+}

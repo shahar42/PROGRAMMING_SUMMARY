@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operations [Assumption Failure]: Custom Copy/Move Suppresses Default Generation of Others",
+  "category": "design",
+  "explanation": "The Rule of Five (or Zero) provides guidelines for resource management, but ignoring its nuances leads to anti-patterns where resource management is incomplete. The failure stems from the assumption that defining one custom special member function only impacts the automatic generation of its symmetric counterpart (e.g., custom copy constructor impacts move constructor). The reality, especially regarding the 'Big Five,' is that defining certain operations prevents the implicit generation of others, necessitating manual declaration or defaulting. Specifically, if a user defines a custom copy constructor or a custom copy assignment operator, the compiler will *not* automatically generate the move constructor or the move assignment operator. This is a deliberate safety mechanism: if the user felt the need to customize copying, the compiler assumes the resource management is non-trivial (e.g., managing raw pointers or external resources) and therefore refuses to guess how to implement the potentially dangerous move semantics. Consequently, if a class defines a custom copy constructor but omits the move constructor, any attempt to move an object of this class will silently fall back to the custom copy constructor, leading to severe, undetected performance degradation. Conversely, defining a move operation does not suppress the default generation of copy operations, highlighting the asymmetry. This anti-pattern forces developers to treat the Big Five as a unified set: if you define one, you must define or explicitly default all five (destructor, copy constructor/assignment, move constructor/assignment) to ensure both correctness and optimal performance, otherwise move semantics are silently negated.",
+  "code_example": "// Custom copy constructor prevents generation of efficient move ops.\nclass Resource { \n    Resource(const Resource& rhs) { /* deep copy */ }\n    // Move constructor missing! Copy used for moves.\n};\nResource r2 = std::move(r1); // Calls deep copy constructor!",
+  "practical_example": "A developer updates an older C++03 class by adding a custom copy constructor optimized for specific hardware. They assume the C++11 compiler will handle the move operations. When the class is used in a high-throughput queue system that relies entirely on moves, the queue performance collapses because every attempted move operation unexpectedly triggers the custom, but still expensive, copy constructor logic, thrashing the memory allocator.",
+  "keywords": [
+    "Rule of Five",
+    "move generation",
+    "copy suppression",
+    "design",
+    "anti-pattern"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "222-226",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_design_move_operations__assumption_failure_5492d1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

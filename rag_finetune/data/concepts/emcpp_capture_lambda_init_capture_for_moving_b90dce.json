@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Init Capture for Moving Resource-Owning Objects",
+  "category": "capture",
+  "explanation": "Assumption: Standard capture modes (`[=]` or `[&]`) are sufficient for all scenarios, and `std::move` can be used inside the capture list to move resources into the closure. Reality: Prior to C++14, it was impossible to move objects (especially move-only types like `std::unique_ptr` or `std::thread`) into a lambda closure because capture by value requires copying, and capture by reference creates dangling references if the lambda outlives the scope. Init capture (C++14 generalized capture) provides the syntax `[name = initial_expression]` which allows the creation of a new data member in the closure initialized by the expression. Why It Fails: Init capture is necessary to move resource-owning objects. The expression `[ptr = std::move(p)]` moves the resource `p` into the closure's data member `ptr`, ensuring the closure owns the resource and preventing copies.",
+  "code_example": "std::unique_ptr<int> up(new int(1));\n// C++14 Init Capture:\nauto f = [p = std::move(up)] { /* use p */ };",
+  "practical_example": "A developer needs a lambda to manage a temporary file handle represented by a move-only type. Without init capture, they cannot safely pass ownership of the handle into the lambda body.",
+  "keywords": "Init capture, Move lambda capture, C++14 generalized capture, unique_ptr lambda",
+  "difficulty": "intermediate",
+  "page_reference": "241-247",
+  "chapter": "Item 32: Use init capture to move objects into closures",
+  "id": "emcpp_capture_lambda_init_capture_for_moving_b90dce",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

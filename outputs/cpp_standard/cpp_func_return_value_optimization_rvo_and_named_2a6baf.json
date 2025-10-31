@@ -1,24 +1,12 @@
 {
   "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
   "explanation": "Return Value Optimization (RVO) and its more specific variant, Named Return Value Optimization (NRVO), are compiler optimizations that eliminate the often-expensive copying of objects when returning them from functions.  Instead of creating a temporary object on the stack, copying it, and then destroying the temporary, the compiler directly constructs the returned object in the memory location where the caller expects it. This significantly improves performance, especially for large objects or objects with complex copy constructors.  The compiler's ability to perform RVO/NRVO depends heavily on the function's return type and the context in which the function is called.  The exact implementation details vary across compilers (GCC, Clang, MSVC) and optimization levels.  Generally, compilers employ sophisticated analysis techniques to determine whether RVO/NRVO is safe and beneficial, often involving control-flow analysis and alias analysis to ensure that no unintended side effects will occur.  Failure to perform RVO/NRVO can result in substantial performance overhead, particularly when dealing with complex object types.",
-  "syntax": "Example demonstrating RVO/NRVO:\n\n```c++\nstruct MyBigObject {\n  int data[10000];\n  MyBigObject() { /* Constructor */ }\n  MyBigObject(const MyBigObject& other) { /* Expensive copy constructor */ }\n  ~MyBigObject() { /* Destructor */ }\n};\n\nMyBigObject createObject() {\n  MyBigObject obj;\n  // ... initialize obj ...\n  return obj; // RVO likely here\n}\n\nint main() {\n  MyBigObject myObj = createObject(); // NRVO likely here\n  return 0;\n}\n```\n\n**Important Note:**  The compiler is *not* obligated to perform RVO/NRVO.  While highly desirable and common with modern compilers at higher optimization levels (-O2 or -O3 for GCC/Clang, /O2 or /Ox for MSVC), relying on it can lead to unpredictable performance if the optimization is not performed. Explicitly using `std::move` can sometimes help guide the compiler in applying RVO/NRVO, but this isn't a guarantee.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <vector>",
-    "std::vector<int> createVector() {",
-    "  std::vector<int> vec = {1, 2, 3, 4, 5};",
-    "  return vec; // RVO likely",
-    "}",
-    "int main() {",
-    "  std::vector<int> myVec = createVector();",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "In this example, a `std::vector` is returned from the `createVector` function.  With appropriate compiler optimization, RVO will likely be applied, constructing `myVec` directly without creating a temporary copy. The assembly code generated would, ideally, show direct initialization of the vector in `main()`'s stack frame, skipping the allocation, copy, and deallocation steps of a normal function return.  If RVO/NRVO is *not* performed, the assembly would show the allocation of a temporary vector on the stack in `createVector()`, a copy operation to `myVec`, and subsequent deallocation of the temporary. The performance difference can be substantial for large vectors.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "basic",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T06:19:37.985938"
-  }
+    "extraction_date": "2025-08-19T06:19:37.985938",
+    "book_metadata_added": "2025-10-28T20:22:06.937676"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

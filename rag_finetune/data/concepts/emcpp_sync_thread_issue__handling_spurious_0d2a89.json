@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Issue: Handling Spurious Wakeups in Condition Variables",
+  "category": "sync",
+  "explanation": "Condition variables are subject to spurious wakeups, meaning a thread waiting on a condition may be awakened even if no explicit notification has occurred. Proper implementation requires confirming that the condition being waited for is actually met after the thread wakes up. This is standardly done by placing the `wait` call inside a `while` loop that checks the condition (or predicate) rather than an `if` statement.",
+  "code_example": "while (!condition_met) {\n  condvar.wait(lock);\n}\n// Failure to use the loop leads to processing invalid state on spurious wakeup.",
+  "practical_example": "A developer uses an `if` statement instead of a `while` loop around `condvar.wait()`. A spurious wakeup occurs. The thread continues execution, processing incomplete or corrupted data because it failed to re-verify the necessary condition before proceeding.",
+  "keywords": [
+    "spurious wakeups",
+    "while loop",
+    "predicate",
+    "condition check"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263",
+  "chapter": "Item 39: Be aware of the pitfalls of condition variables",
+  "id": "emcpp_sync_thread_issue__handling_spurious_0d2a89",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

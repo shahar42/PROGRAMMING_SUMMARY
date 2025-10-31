@@ -1,0 +1,16 @@
+{
+  "topic": "ioctl_ficlone() System Call",
+  "explanation": "This ioctl operation allows sharing physical storage between files on supported filesystems by reflinking data ranges or entire files, which is faster than copying. It ensures that writes to shared regions are handled with copy-on-write, keeping changes private to the modified file.\n\n**Parameters:**\n- `dest_fd` (int): File descriptor of the destination file\n- `request` (int): The ioctl request code, such as FICLONERANGE or FICLONE\n- `arg` (struct file_clone_range *): Pointer to a structure containing source file details (src_fd, src_offset, src_length, dest_offset) for FICLONERANGE\n- `src_fd` (int): File descriptor of the source file for FICLONE or within the structure for FICLONERANGE\n\n**Common Errors:**\n- `EBADF`: src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem which src_fd resides on does not support reflink\n- `EINVAL`: The filesystem does not support reflinking the ranges of the given files, or either file descriptor represents a device, FIFO, or socket; offsets and lengths may need to be aligned\n- `EISDIR`: One of the files is a directory and the filesystem does not support shared regions in directories\n- `EOPNOTSUPP`: The filesystem does not support reflinking either file descriptor, or either refers to special inodes\n- `EPERM`: dest_fd is immutable\n\n**Related System Calls:** `ioctl()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.147843",
+    "syscall_name": "ioctl_ficlone",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_ficlone.json",
+    "concept_id": "posix_sys_ioctl_ficlone_337eef",
+    "book_metadata_added": "2025-10-28T20:22:06.606719"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct file_clone_range {\n    __s64 src_fd;      // Source file descriptor\n    __u64 src_offset;\n    __u64 src_length;  // Length of data to reflink\n    __u64 dest_offset;\n};\n\n// ... Setup dest_fd (O_RDWR) and src_fd (O_RDONLY)\n\nstruct file_clone_range fcr = {\n    .src_fd = src_fd,\n    .src_offset = 0,\n    .src_length = 4096,\n    .dest_offset = 0\n};\n\n// Reflink a specific data range (Copy-on-Write enabled)\nint res = ioctl(dest_fd, FICLONERANGE, &fcr);\n\n// Clone the entire source file contents to destination\n// int res_full = ioctl(dest_fd, FICLONE, src_fd);\n<ctrl63>",
+  "keywords": "reflink, copy-on-write file sharing, FICLONE ioctl, file data cloning"
+}

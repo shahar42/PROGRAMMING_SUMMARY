@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# Feather - Your local C++ programming assistant
+# Usage: feather "your question here"
+# Usage: feather --external "your question here"  (use external drive)
+# Or: feather (for interactive mode)
+
+# Model location selection
+INTERNAL_MODEL="$HOME/models/cpp-instructor-q5.gguf"
+EXTERNAL_MODEL="/mnt/external/models/cpp-instructor-q5.gguf"
+
+# Check for --external flag
+USE_EXTERNAL=false
+if [ "$1" = "--external" ]; then
+    USE_EXTERNAL=true
+    shift  # Remove --external from arguments
+fi
+
+# Select model location
+if [ "$USE_EXTERNAL" = true ]; then
+    MODEL="$EXTERNAL_MODEL"
+    LOCATION="external drive"
+else
+    MODEL="$INTERNAL_MODEL"
+    LOCATION="internal SSD"
+fi
+
+LLAMA_BIN="/home/shahar42/Suumerizing_C_holy_grale_book/llama_finetuning/llama.cpp/build/bin/llama-cli"
+AUTOCORRECT="/home/shahar42/Suumerizing_C_holy_grale_book/llama_finetuning/autocorrect_prompt.py"
+CLEAN_OUTPUT="/home/shahar42/Suumerizing_C_holy_grale_book/llama_finetuning/clean_output.py"
+
+if [ ! -f "$MODEL" ]; then
+    echo "❌ Model not found at: $MODEL ($LOCATION)"
+    echo ""
+    if [ "$USE_EXTERNAL" = true ]; then
+        echo "📀 Is your external hard drive plugged in?"
+        echo "   Expected location: /mnt/external/models/"
+        echo ""
+        echo "To mount, run:"
+        echo "   sudo mount /dev/sdX /mnt/external  (replace sdX with your drive)"
+        echo "   Or try without --external flag to use internal SSD"
+    else
+        echo "💾 Internal model not found. Copy it with:"
+        echo "   mkdir -p $HOME/models"
+        echo "   cp /mnt/external/models/cpp-instructor-q5.gguf $HOME/models/"
+        echo ""
+        echo "Or use --external flag to use external drive model"
+    fi
+    exit 1
+fi
+
+# Single question mode
+if [ -n "$1" ]; then
+    # Autocorrect the prompt
+    CORRECTED_PROMPT=$(python3 "$AUTOCORRECT" "$1")
+    # Add context prefix
+    FINAL_PROMPT="You are a C++ programming expert on x86-64 Linux with GCC. Give concise, technically accurate answers. Avoid speculation. Focus on standard behavior and best practices.
+
+$CORRECTED_PROMPT"
+    $LLAMA_BIN -m "$MODEL" -p "$FINAL_PROMPT" -n 1094 -t 4 --temp 0.2 --min-p 0.1 --repeat-penalty 1.0 -ngl 0 --simple-io -e 2>/dev/null
+else
+    # Interactive mode
+    echo ""
+    echo "      __"
+    echo "     /  \\"
+    echo "    / /\\ \\"
+    echo "   / /  \\ \\"
+    echo "  /_/    \\_\\"
+    echo "  \\ \\ ** / /"
+    echo "   \\ \\  / /"
+    echo "    \\ \\/ /"
+    echo "     \\  /"
+    echo "      \\/"
+    echo ""
+    echo "🪶 Feather - Your C++ Programming Assistant"
+    echo "================================================"
+    echo "Type your questions. Press Ctrl+D to exit and Ctrl+C to stop response."
+    echo ""
+    echo "Commands: /internal | /external | /status | exit"
+    echo "📂 Current: $LOCATION"
+    echo ""
+
+    # Each question is independent (no conversation history)
+    while true; do
+        read -e -r -p "🪶 Ask: " question
+        [ -z "$question" ] && continue
+
+        # Handle special commands
+        if [ "$question" = "exit" ]; then
+            break
+        elif [ "$question" = "/internal" ]; then
+            MODEL="$INTERNAL_MODEL"
+            LOCATION="internal SSD"
+            echo "✅ Switched to internal SSD: $MODEL"
+            echo ""
+            continue
+        elif [ "$question" = "/external" ]; then
+            MODEL="$EXTERNAL_MODEL"
+            LOCATION="external drive"
+            echo "✅ Switched to external drive: $MODEL"
+            echo ""
+            continue
+        elif [ "$question" = "/status" ]; then
+            echo "📍 Current model: $MODEL"
+            echo "📂 Location: $LOCATION"
+            [ -f "$MODEL" ] && echo "✅ Model exists" || echo "❌ Model not found"
+            echo ""
+            continue
+        fi
+
+        echo ""
+        # Add context prefix
+        FINAL_PROMPT="You are a C++ programming expert on x86-64 Linux with GCC. Give concise, technically accurate answers. Avoid speculation. Focus on standard behavior and best practices.
+
+$question"
+        $LLAMA_BIN -m "$MODEL" -p "$FINAL_PROMPT" -n 1094 -t 4 --temp 0.2 --min-p 0.1 --repeat-penalty 1.0 -ngl 0 --simple-io -e 2>/dev/null
+        echo ""
+    done
+fi

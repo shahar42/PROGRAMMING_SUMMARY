@@ -1,0 +1,13 @@
+{
+  "topic": "Implicit Conversion of Unscoped Enumerations to Integers",
+  "explanation": "In C++, unscoped enumerations (defined without the 'enum class' keyword) are implemented by the compiler as distinct types that are implicitly convertible to their underlying integral type, typically 'int' unless specified otherwise. This feature stems from C++'s backward compatibility with C, where enums are essentially named integers. The compiler achieves this by treating unscoped enums as aliases for integers during type promotion and conversion, without generating additional runtime code for the conversion itself—it's a compile-time decision that allows the enum to be used in integral contexts. For instance, when an unscoped enum is assigned to an integer variable, the compiler performs an implicit promotion, mapping the enum's enumerator value to its integral equivalent (e.g., 0 for the first enumerator). \n\nMemory layout-wise, unscoped enums are stored in memory as their underlying type (e.g., a 4-byte integer on most platforms), which means they occupy the same space as an int, leading to no additional overhead. This can have performance implications: conversions are essentially free at runtime since they involve no data transformation, just reinterpretation, potentially improving code efficiency in performance-critical loops. However, this implicit behavior can lead to subtle bugs if not managed, as it bypasses type safety.\n\nAt the assembly level, when an unscoped enum is converted to an int (e.g., assigning an enum value to an int variable), the compiler often generates simple instructions like a register move (e.g., 'mov eax, ebx' in x86 assembly), as no actual conversion is needed—it's just a type cast at compile time. In contrast, scoped enumerations (enum class) enforce stronger type safety, and the compiler does not provide implicit conversions, requiring explicit casts (e.g., static_cast<int>(SColor::Value)), which might introduce a compile-time error or generate explicit conversion code if forced.\n\nBehaviorally, this distinction affects runtime vs. compile-time aspects: implicit conversions for unscoped enums are resolved at compile-time (no runtime checks), making them efficient but less safe, whereas scoped enums promote compile-time error detection, reducing the risk of runtime issues like unintended value assignments.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:30:45.723460",
+    "book_metadata_added": "2025-10-28T20:22:06.805555"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "keywords": "enum to int conversion, unscoped enum conversion, C++ enum promotion"
+}

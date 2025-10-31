@@ -1,0 +1,26 @@
+{
+  "topic": "Pipelining and Forwarding for Data Hazards",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the execution stages of multiple instructions.  Forwarding is a crucial technique within pipelined architectures that addresses data hazards. Data hazards occur when an instruction needs data that hasn't yet been produced by a previous instruction in the pipeline. Forwarding mechanisms provide the necessary data directly from intermediate pipeline stages to avoid stalls, ensuring efficient pipelined execution.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "464-464",
+    "extraction_date": "2025-07-27T01:23:59.865960",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-27T17:06:00.170544",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "479-481",
+      "extraction_date": "2025-07-27T17:05:58.247889",
+      "has_code": false,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8584321737289429,
+    "book_metadata_added": "2025-10-28T20:22:06.700727"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Pipeline Register Fields (Read and Write registers)\nint IDEX_Rs1, IDEX_Rs2;      // Registers needed by current EX instruction\nint EXMEM_Rd, EXMEM_ALUOut;  // Result data one stage back\nint MEMWB_Rd, MEMWB_Data;    // Result data two stages back\n\n// Forwarding Logic (Controls EX Stage Input Muxes)\nenum FwdSrc { REG_FILE, EX_MEM, MEM_WB };\nFwdSrc FWD_A = REG_FILE;\n\n// Check 1: Data available from EX/MEM stage\nif (EXMEM_Rd != 0 && IDEX_Rs1 == EXMEM_Rd) {\n    FWD_A = EX_MEM;\n}\n// Check 2: Data available from MEM/WB stage (priority 2)\nelse if (MEMWB_Rd != 0 && IDEX_Rs1 == MEMWB_Rd) {\n    FWD_A = MEM_WB;\n}\n\n// Data Selection for ALU Operand A\nint OpA = (FWD_A == EX_MEM) ? EXMEM_ALUOut :\n          (FWD_A == MEM_WB)  ? MEMWB_Data :\n                               IDEX_Rs1_Value;\n<ctrl63>",
+  "keywords": "Pipeline Forwarding, Data Hazard, Pipeline Bypassing, Instruction Pipelining"
+}

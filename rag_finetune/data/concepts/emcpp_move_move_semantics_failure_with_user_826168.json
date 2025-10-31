@@ -1,0 +1,13 @@
+{
+  "topic": "Move Semantics Failure with User-Defined Types (Missing Move Assignment)",
+  "category": "move",
+  "explanation": "Assumption: If a programmer defines a move constructor for a class, the companion move assignment operator will automatically be efficient or implicitly generated to handle assignments correctly. Reality: Defining a move constructor does not imply the definition or default generation of a move assignment operator. If the move assignment operator is missing, assignment operations utilizing rvalues will rely on the copy assignment operator (if available) or fail compilation. Why It Fails: The Rule of Five mandates that if you define one of the special members (like the move constructor), you must typically define or explicitly `= default` the others. If the move assignment operator is omitted, rvalue assignment (`a = std::move(b)`) falls back to the copy assignment operator, which performs an unnecessary deep copy. Furthermore, if the move constructor relies on specific initialization logic for safety, but the assignment operator is omitted, the assignment operation will entirely lack that crucial logic, potentially leading to resource leaks or corrupted internal state if the copy assignment operator is poorly written or defaults to simple member-wise copies.",
+  "code_example": "// Failure due to missing move assignment operator\nclass Widget {\n  int* data;\npublic:\n  Widget(Widget&&) noexcept; // Move Ctor defined\n  // Move assignment operator missing!\n};\n\nWidget w1, w2;\nw1 = std::move(w2); // Calls copy assignment operator (slow deep copy) if available.",
+  "practical_example": "A data analytics library optimizes object creation via move constructors, but fails to implement move assignment. When the library is used in an iterative algorithm that frequently reassigns large objects, the performance degrades exponentially because every assignment triggers a full, expensive deep copy.",
+  "keywords": "Missing move assignment, Rule of Five failure, Move constructor only",
+  "difficulty": "intermediate",
+  "page_reference": "222",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_semantics_failure_with_user_826168",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

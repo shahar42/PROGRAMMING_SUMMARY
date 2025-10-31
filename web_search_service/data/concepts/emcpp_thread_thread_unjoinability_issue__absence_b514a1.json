@@ -1,0 +1,20 @@
+{
+  "topic": "Thread Unjoinability Issue: Absence of Standard `std::thread` RAII Wrapper",
+  "category": "thread",
+  "explanation": "Assumption: All resource-owning types in the Standard Library have corresponding RAII wrappers to ensure cleanup (via destruction) regardless of the control flow path (exceptions, returns, jumps). Reality: The Standard Library notably lacks a standard RAII wrapper for `std::thread` objects. Why It Fails: The standardization committee could not agree on a default behavior for a thread object going out of scope\u2014should it automatically `join()` (wait for termination) or `detach()` (run in the background)? This lack of consensus means developers must manually implement RAII wrappers (like a `thread_guard` class) to ensure that every `std::thread` is either joined or detached before its destructor runs, preventing program termination via `std::terminate` when an unjoined, non-detached thread goes out of scope.",
+  "code_example": "std::thread t(some_task);\n// If t goes out of scope here without join/detach,\n// the program terminates via std::terminate.",
+  "practical_example": "A function launches a background thread to calculate a result, but an exception is thrown before the `t.join()` call is reached. Since there is no RAII guard, the thread object is destroyed while still joinable, triggering immediate program termination and losing the application state.",
+  "keywords": [
+    "RAII",
+    "std::thread",
+    "join",
+    "detach",
+    "std::terminate",
+    "cleanup"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "253, 268-276",
+  "chapter": "Item 37: Ensure std::threads are joinable on all paths",
+  "id": "emcpp_thread_thread_unjoinability_issue__absence_b514a1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "flistxattr() System Call",
+  "explanation": "flistxattr() retrieves the list of extended attribute names associated with the file referred to by the file descriptor fd. It places the list of null-terminated names into the provided buffer and returns the size of the list on success. Names of extended attributes to which the process lacks access may be omitted.\n\n**Parameters:**\n- `fd` (int): File descriptor of the file to query for extended attributes.\n- `list` (char *_Nullable): Buffer to store the null-terminated list of extended attribute names.\n- `size` (size_t): Size of the buffer in bytes.\n\n**Common Errors:**\n- `E2BIG`: The size of the list of extended attribute names is larger than the maximum size allowed.\n- `ENOTSUP`: Extended attributes are not supported by the filesystem, or are disabled.\n- `ERANGE`: The size of the list buffer is too small to hold the result.\n\n**Related System Calls:** `getxattr()`, `open()`, `removexattr()`, `setxattr()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.209912",
+    "syscall_name": "flistxattr",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_flistxattr.json",
+    "concept_id": "posix_sys_flistxattr_374602",
+    "book_metadata_added": "2025-10-28T20:22:06.590570"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int fd; // Existing file descriptor\nchar *buf;\nssize_t len;\n\n// 1. Determine required size (Pass list=NULL, size=0)\nlen = flistxattr(fd, NULL, 0);\nif (len < 0) return -1;\n\n// 2. Allocate buffer\nbuf = malloc(len);\nif (!buf) return -1;\n\n// 3. Retrieve list of null-terminated attribute names\nssize_t actual_bytes = flistxattr(fd, buf, len);\n\n// actual_bytes returns the size of the list written to buf\nfree(buf);",
+  "keywords": "flistxattr, extended attribute list, xattr list names, file descriptor xattr"
+}

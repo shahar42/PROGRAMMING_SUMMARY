@@ -1,0 +1,12 @@
+{
+  "topic": "Implementation of std::unique_ptr in C++",
+  "explanation": "std::unique_ptr is a smart pointer from the C++ Standard Library that enforces exclusive ownership of a dynamically allocated object, ensuring it is deleted when the pointer goes out of scope. Under the hood, the compiler implements std::unique_ptr as a template class (std::unique_ptr<T, Deleter>) that typically consists of a raw pointer to the managed object and an optional deleter object. The compiler performs template instantiation at compile-time, generating specialized code for each type T, which optimizes for performance by avoiding virtual functions or unnecessary overhead. Memory layout involves the unique_ptr object itself (usually sizeof(void*) + sizeof(Deleter), around 8-16 bytes on 64-bit systems) and the separately allocated object on the heap. Performance implications include zero runtime overhead compared to raw pointers for basic operations, as moves are implemented via efficient copy-swap or direct pointer transfer, but destruction involves a runtime call to the deleter (e.g., operator delete). At the assembly level, when a std::unique_ptr is destroyed, the compiler generates code to check if the pointer is not nullptr, invoke the deleter (which might translate to a call to ::operator delete()), and then reset the internal pointer, potentially involving instructions like CMP, JE (for null check), CALL for deletion, and MOV for pointer reset. This behavior is runtime-dependent (e.g., actual deletion occurs at runtime), but compile-time aspects like template resolution and inlining of move constructors can eliminate overhead in optimized builds.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:51:17.460124",
+    "book_metadata_added": "2025-10-28T20:22:06.994218"
+  },
+  "book": "C++ STL Containers"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Performance Optimization Techniques: Loop Unrolling and Reassociation",
+  "explanation": "Loop unrolling and reassociation are performance optimization techniques used to improve the efficiency of computations, especially in the context of vector processing and parallel architectures. Loop unrolling reduces loop overhead by replicating the loop body multiple times, while reassociation changes the order of operations to better utilize hardware resources, such as parallel functional units. Both techniques aim to increase instruction-level parallelism and reduce the number of cycles required for computation.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "572-573",
+    "extraction_date": "2025-07-27T18:13:11.855858",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.695383"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Loop Unrolling Example (Factor 4)\n// Reduces loop overhead and increases Instruction Level Parallelism (ILP)\n\nvoid scale_array(double* data, int N, double factor) {\n    int i = 0;\n    const int UNROLL = 4;\n\n    // Core unrolled loop\n    for (i = 0; i <= N - UNROLL; i += UNROLL) {\n        data[i]   *= factor;\n        data[i+1] *= factor;\n        data[i+2] *= factor;\n        data[i+3] *= factor;\n    }\n\n    // Epilogue (handling remainder)\n    for (; i < N; ++i) {\n        data[i] *= factor;\n    }\n}\n\n// Loop Reassociation Example (Accumulation)\n// Breaking serial dependency chains to allow parallel execution (Vectorization)\n\nfloat parallel_sum(const float* V, int N) {\n    // Standard approach: sum += V[i] (High dependency)\n    \n    // Reassociated approach: Two accumulators S0, S1\n    float S0 = 0.0f;\n    float S1 = 0.0f;\n\n    for (int i = 0; i < N; i += 2) {\n        S0 += V[i];\n        S1 += V[i+1];\n    }\n    return S0 + S1; // Final reduction\n}"
+}

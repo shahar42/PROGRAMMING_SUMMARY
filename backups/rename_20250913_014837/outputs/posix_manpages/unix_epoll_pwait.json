@@ -1,0 +1,72 @@
+{
+  "name": "epoll_pwait",
+  "synopsis": [
+    "#include <sys/epoll.h>",
+    "int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *_Nullable sigmask);"
+  ],
+  "description": "epoll_pwait waits for events on an epoll file descriptor, similar to epoll_wait, but allows specifying a signal mask to handle signals atomically. It blocks until an event occurs, a signal is caught, or the timeout expires.",
+  "parameters": [
+    {
+      "name": "epfd",
+      "type": "int",
+      "description": "The epoll file descriptor to wait on"
+    },
+    {
+      "name": "events",
+      "type": "struct epoll_event *",
+      "description": "Pointer to an array of epoll_event structures to store the events"
+    },
+    {
+      "name": "maxevents",
+      "type": "int",
+      "description": "The maximum number of events to be returned"
+    },
+    {
+      "name": "timeout",
+      "type": "int",
+      "description": "Timeout value in milliseconds; -1 for indefinite blocking"
+    },
+    {
+      "name": "sigmask",
+      "type": "const sigset_t *_Nullable",
+      "description": "Pointer to a signal set to temporarily modify the signal mask"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of file descriptors ready for I/O, or zero if no events occurred before timeout",
+    "failure": "Returns -1 and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "epfd is not a valid file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The memory area pointed to by events is not accessible with write permissions"
+    },
+    {
+      "code": "EINTR",
+      "description": "The call was interrupted by a signal handler"
+    },
+    {
+      "code": "EINVAL",
+      "description": "epfd is not an epoll file descriptor, or maxevents is less than or equal to zero"
+    }
+  ],
+  "bugs": "Before Linux 2.6.37, a timeout value larger than approximately LONG_MAX / HZ milliseconds is treated as -1 (i.e., infinity).",
+  "versions": "Linux 2.6.19, glibc 2.6",
+  "posix_compliance": null,
+  "related_calls": [
+    "epoll_create",
+    "epoll_ctl",
+    "epoll"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "epoll_pwait.pdf",
+    "extraction_date": "2025-07-26T22:00:04.229242",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

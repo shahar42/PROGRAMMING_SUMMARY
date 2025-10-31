@@ -1,0 +1,14 @@
+{
+  "topic": "Function Overloading and Overload Resolution",
+  "explanation": "Function overloading in C++ allows multiple functions with the same name but different parameter lists to coexist in the same scope. The compiler implements this through overload resolution, a compile-time process defined in the C++ standard (e.g., §13.3), which determines the best-matching function based on argument types and conversion rules. During compilation, the compiler first identifies candidate functions (all declarations with the matching name in the visible scope), then filters them to viable functions (those where the arguments can be implicitly converted to the parameter types). It ranks viable functions using a set of rules, prioritizing exact matches over promotions or conversions, and selects the most suitable one. If no match or ambiguity exists, a compile-time error occurs. Memory layout is unaffected, as overloading is purely a naming and resolution mechanism; it doesn't alter object layouts or introduce runtime overhead for resolution itself, though the chosen function's implementation can impact performance. At the assembly level, once resolved, a function call translates to a simple CALL instruction to the function's address, with no additional runtime checks. This is a compile-time behavior, contrasting with runtime polymorphism (e.g., virtual functions), making it efficient for performance-critical code by avoiding dynamic dispatch.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:25:17.898705",
+    "book_metadata_added": "2025-10-28T20:22:06.875115"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Function Overloading & Resolution Ranking\n\nvoid resolve(int i) {}\nvoid resolve(double d) {}\nvoid resolve(long l) {}\n\nvoid handle(int i, int j) {}\nvoid handle(int i, double d) {}\n\n// Overload Resolution Examples:\nresolve(10);        // 1. Exact Match (int)\nresolve('c');       // 2. Integral Promotion: char -> int (Preferred over long/double)\nresolve(10.0f);     // 3. Standard Conversion: float -> double\n\n// Conversion Preference (Standard Ranking):\nunsigned short us = 5;\nresolve(us);        // 2. Integral Promotion: unsigned short -> int\n\nhandle(5, 10.0f);   // 3. Standard Conversion: float -> double (Matches (int, double))",
+  "keywords": "Function Overloading, Overload Resolution, C++ Overloading, function signature matching"
+}

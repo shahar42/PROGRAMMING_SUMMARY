@@ -1,0 +1,16 @@
+{
+  "topic": "Translation Lookaside Buffer (TLB)",
+  "explanation": "A Translation Lookaside Buffer (TLB) is a cache that stores recently used address translations from virtual addresses to physical addresses.  It's crucial for performance in virtual memory systems because accessing the page table in main memory for every memory access would be incredibly slow. The TLB acts as a high-speed cache for page table entries, significantly accelerating virtual-to-physical address translation.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "900-901",
+    "extraction_date": "2025-07-29T11:07:43.399998",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.696237"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Simplified TLB Entry (PTE Cache)\ntypedef struct {\n    unsigned int vpn;       // Virtual Page Number (Key)\n    unsigned int pfn;       // Physical Frame Number (Value)\n    bool valid;             // Entry is valid\n    bool dirty;             // Page has been modified\n    unsigned char usage;    // For replacement policies (LRU, etc.)\n} TLB_Entry;\n\n#define TLB_SIZE 128\nTLB_Entry TLB_CACHE[TLB_SIZE];\n\n// Accelerating Virtual-to-Physical Translation\nunsigned int tlb_lookup(unsigned int requested_vpn) {\n    for (int i = 0; i < TLB_SIZE; ++i) {\n        if (TLB_CACHE[i].valid && TLB_CACHE[i].vpn == requested_vpn) {\n            // TLB HIT: Return physical address fast\n            return TLB_CACHE[i].pfn;\n        }\n    }\n    // TLB MISS: Must perform slower Page Table Walk\n    return 0; // Indicates failure/miss\n}",
+  "keywords": "TLB, address translation cache, virtual memory translation"
+}

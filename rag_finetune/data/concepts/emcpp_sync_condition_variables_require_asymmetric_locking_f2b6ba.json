@@ -1,0 +1,13 @@
+{
+  "topic": "Condition Variables Require Asymmetric Locking Infrastructure for Signaling",
+  "category": "sync",
+  "explanation": "When using `std::condition_variable` for simple one-shot event signaling between a detecting task and a reacting task, the complexity is asymmetrical. The detecting task only requires a simple call to `notify_one()` or `notify_all()`. However, the reacting task is significantly more complex, as it must first lock an associated `std::mutex` using a `std::unique_lock` object before it can safely call `wait` on the condition variable. This infrastructure overhead makes condition variables cumbersome for scenarios where only simple event notification is required.",
+  "code_example": "std::condition_variable cv;\nstd::mutex m;\n// Detecting task:\ncv.notify_one();\n// Reacting task: requires std::unique_lock<std::mutex> lock(m); before wait",
+  "practical_example": "A developer needs to signal that a configuration file has finished loading. Using a condition variable forces the waiting thread to manage a mutex and a unique lock, even though the only information being conveyed is a single boolean event (loaded/not loaded).",
+  "keywords": "unique_lock condition variable, condition variable mutex requirement, condition variable boilerplate, CV waiting asymmetry",
+  "difficulty": "intermediate",
+  "page_reference": "262",
+  "chapter": "Item 38: Be mindful of the varying meaning of futures",
+  "id": "emcpp_sync_condition_variables_require_asymmetric_locking_f2b6ba",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

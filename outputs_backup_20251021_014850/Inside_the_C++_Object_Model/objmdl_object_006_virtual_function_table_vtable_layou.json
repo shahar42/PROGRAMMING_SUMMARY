@@ -1,0 +1,18 @@
+{
+  "topic": "Virtual Function Table (vtable) Layout and Dispatch Mechanism",
+  "explanation": "In C++, when a class declares or inherits virtual functions, the compiler typically creates a virtual table (vtable) for that class. The vtable is a static array of pointers to virtual functions, enabling dynamic dispatch at runtime. Each object of such a class contains an implicit pointer to its class's vtable (the vptr). During a virtual function call, the program uses the vptr to locate the vtable and then retrieves the appropriate function pointer, ensuring the correct overridden function executes according to the object's dynamic type. This internal mechanism allows C++ to support polymorphism efficiently and is fundamental to understanding how virtual functions are resolved during program execution.",
+  "syntax": "For a class with virtual functions:\n\n// Class declaration\nclass ClassName {\npublic:\n    virtual void functionName();\n    // ... other members\n};\n\n// Compiler-generated internal layout:\n// Object memory layout:\n// [Object Data Members][Pointer to vtable (vptr)]\n// vtable:\n// static array of function pointers:\n// vtable for ClassName: [pointer to ClassName::functionName, ...]\n\n// During runtime, calling a virtual function:\n// object->vptr[0]()\n\n// The vptr points to the vtable, which contains pointers to the actual function implementations.",
+  "code_example": "class Base {\npublic:\n    virtual void foo() { /* Base implementation */ }\n};\nclass Derived : public Base {\npublic:\n    void foo() override { /* Derived implementation */ }\n};\n\n// Object layout in memory:\n// [Base subobject][vptr pointing to Base's vtable]\n// [Derived subobject][vptr pointing to Derived's vtable]\n\n// Runtime dispatch:\n// When calling obj->foo():\n// 1. Access vptr in the object memory\n// 2. Use vptr to locate vtable\n// 3. Retrieve function pointer for 'foo'\n// 4. Call the function via the pointer",
+  "example_explanation": "This example demonstrates how the compiler sets up a vtable for classes with virtual functions. The object contains an implicit vptr pointing to the class's vtable, which holds pointers to the actual function implementations. When 'foo()' is called on a base class pointer or reference pointing to a derived object, the program uses the vptr to locate the correct function pointer in the vtable, enabling dynamic dispatch. This internal mechanism exemplifies the core of C++'s runtime polymorphism, showing how virtual function calls are resolved through vtable lookup and how the object memory layout includes the vptr as an essential component for this process.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "2-2",
+    "extraction_date": "2025-09-17T14:56:00.351348",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout"
+  }
+}

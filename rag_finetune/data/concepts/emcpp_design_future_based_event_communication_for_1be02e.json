@@ -1,0 +1,13 @@
+{
+  "topic": "Future-Based Event Communication for One-Shot Synchronization",
+  "category": "design",
+  "explanation": "Assumption: `std::condition_variable` is the primary mechanism for blocking event communication between threads. Reality: While effective, `std::condition_variable` requires an external mutex (even if the event data itself is atomic) and requires the waiting task to verify the event state to handle spurious wakeups. Why It Fails: This complexity is unnecessary for single, one-shot events. Using `std::promise` to set a value (or signal an event) and `std::future::wait()` provides a cleaner, blocking mechanism that naturally handles the single-trigger scenario without the need for an explicit mutex or verification loops. The primary tradeoff is that this approach requires heap allocation for the shared state and is limited to signaling a single event completion.",
+  "code_example": "std::promise<void> p;\nauto f = p.get_future();\n// Thread A: p.set_value();\n// Thread B: f.wait(); // Blocks until set_value is called",
+  "practical_example": "A main thread launches several worker threads and needs to wait efficiently for all workers to finish their initialization phase (a single event). Using a vector of futures allows the main thread to block cleanly until all promises are fulfilled, avoiding the boilerplate required for a condition variable and flag setup.",
+  "keywords": "promise future thread sync, future condition_variable alternative, one-shot synchronization C++",
+  "difficulty": "intermediate",
+  "page_reference": "270",
+  "chapter": "Item 39: Consider void futures for one-shot event communication",
+  "id": "emcpp_design_future_based_event_communication_for_1be02e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

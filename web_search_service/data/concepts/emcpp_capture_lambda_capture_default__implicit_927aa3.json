@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Default: Implicit `this` Capture for Member Access",
+  "category": "capture",
+  "explanation": "Assumption: Using default by-value capture (`[=]`) inside a member function captures class data members (like `divisor`) directly by value, isolating the lambda from the object's lifetime. Reality: C++ rules dictate that a lambda can only capture local variables or parameters. Since class members are accessed via `this`, the `[=]` capture clause implicitly captures the `this` pointer by value, not the individual data members. Why It Fails: This ties the closure's viability directly to the lifetime of the original object. If the object containing the data member is destroyed before the lambda is executed, the captured `this` pointer becomes dangling, leading to undefined behavior upon member access.",
+  "code_example": "void Widget::addFilter() const {\n  filters.emplace_back(\n    [=](int value) { return value % divisor == 0; } // Captures 'this'\n  );\n  // Compiler views this as:\n  // [currentObjectPtr] (int value) { ... currentObjectPtr->divisor ... } \n}",
+  "practical_example": "A developer creates a background task using a lambda that captures `[=]` inside a temporary object's method. After the object goes out of scope, the background task attempts to access the object's members via the captured `this` pointer, resulting in a segmentation fault.",
+  "keywords": [
+    "this pointer",
+    "default capture",
+    "lifetime dependency",
+    "member function"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "220",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_default__implicit_927aa3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

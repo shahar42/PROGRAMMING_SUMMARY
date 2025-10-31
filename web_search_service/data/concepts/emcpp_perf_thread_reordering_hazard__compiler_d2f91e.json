@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Reordering Hazard: Compiler/Hardware Reordering of Independent Writes",
+  "category": "perf",
+  "explanation": "Assumption: Assignments in the source code occur in the specified order, even if they involve independent variables. Reality: Compilers and underlying hardware are generally permitted to reorder assignments to independent variables (e.g., `a=b; x=y;` becoming `x=y; a=b;`) to improve execution speed. Why It Fails: In concurrent programming, if one assignment prepares the resource and the subsequent assignment sets a flag, reordering can cause the flag to be set before the resource is fully prepared and visible to other threads, leading to race conditions and incorrect data consumption.",
+  "code_example": "// Potential reordering danger:\nauto imptValue = compute(); \nvalAvailable = true; // If valAvailable is non-atomic, this line may be executed (or appear executed) before imptValue assignment.",
+  "practical_example": "A producer thread computes a complex value and then sets a non-atomic boolean flag. A consumer thread sees the flag set but attempts to read the complex value before the producer's writes to that value have been fully committed or made visible to the consumer core, resulting in partial or stale data.",
+  "keywords": [
+    "reordering",
+    "compiler optimization",
+    "hardware reordering",
+    "data races"
+  ],
+  "difficulty": "expert",
+  "page_reference": "295-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_perf_thread_reordering_hazard__compiler_d2f91e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

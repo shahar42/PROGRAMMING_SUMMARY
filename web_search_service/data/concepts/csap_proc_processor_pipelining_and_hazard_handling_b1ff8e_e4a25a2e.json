@@ -1,0 +1,26 @@
+{
+  "topic": "Result Dependencies in Data Hazards",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the stages of multiple instructions.  However, this can lead to hazards (data, control, or structural) that require handling to maintain correct program execution. Data hazards occur when an instruction depends on the result of a previous instruction that is not yet available. Control hazards arise from branch instructions, where the next instruction to execute is not known until the branch condition is evaluated. Structural hazards occur when multiple instructions require the same hardware resource simultaneously.  Understanding and handling these hazards is crucial for achieving optimal performance in modern processors.\n\nProcessor pipelining improves instruction execution speed by overlapping the execution stages of multiple instructions.  However, this can lead to hazards (data, control, or structural) that require handling to maintain correct program execution. Data hazards occur when an instruction depends on the result of a previous instruction that hasn't completed yet. Control hazards arise from branch instructions where the target address isn't known until the branch condition is evaluated. Structural hazards occur when multiple instructions compete for the same hardware resource.  Understanding and handling these hazards is crucial for efficient processor design and performance optimization.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "389-389",
+    "extraction_date": "2025-07-26T21:58:33.703974",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-27T17:05:49.004073",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "479-479",
+      "extraction_date": "2025-07-27T17:05:42.462302",
+      "has_code": false,
+      "has_explanation": false,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.9018576741218567,
+    "book_metadata_added": "2025-10-28T20:22:06.745394"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Data Hazard: Read After Write (RAW)\n// Instruction dependency requires sequencing\n\ntypedef struct PipelinedInst {\n    int opcode;\n    int source_reg; // Value to be read\n    int dest_reg;   // Value to be written\n} PipelinedInst;\n\n// I1: ADD R1, R2, R3 (R1 is destination)\nPipelinedInst I1 = { 0x20, R2, R1 };\n\n// I2: SUB R4, R1, R5 (R1 is source)\nPipelinedInst I2 = { 0x22, R1, R4 };\n\n// Hazard Condition:\n// (I1.dest_reg == I2.source_reg)\n\n// Timing Conflict:\n// I2 (ID Stage) needs R1 value (Cycle N+1)\n// I1 (EX Stage) produces R1 value (Cycle N+2)\n\n// Solution: Forwarding/Bypassing\n// Data moves from I1's EX/MEM Register to I2's EX Stage input.",
+  "keywords": "Data Hazard, Pipeline Hazards, RAW dependency, Instruction Dependency"
+}

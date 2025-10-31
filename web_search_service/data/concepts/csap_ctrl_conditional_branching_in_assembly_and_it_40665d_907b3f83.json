@@ -1,0 +1,16 @@
+{
+  "topic": "Conditional Branching in Assembly and its impact on CPU Pipeline",
+  "explanation": "Conditional branching is a fundamental control flow mechanism where the CPU executes different instructions based on a condition.  In computer architecture, this impacts CPU pipelining significantly because a branch prediction misprediction can stall the pipeline, leading to performance degradation.  Efficient branch prediction is crucial for high performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "239-239",
+    "extraction_date": "2025-07-25T20:00:30.186400",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.711319"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "mov $0x5, %ecx\ncmp $0x10, %ecx ; Sets EFLAGS (Zero, Carry, etc.)\n\nJL  L_Execute   ; Conditional Branch: Jump if Less\n                ; -> If condition is FALSE, CPU must flush the\n                ;    instruction queue (Pipeline Stall)\n\ncall Func_B     ; Mispredicted path (speculatively executed)\n\njmp L_Finish    ; Unconditional Branch (predictable)\n\nL_Execute:\ncall Func_A     ; Correct path\nL_Finish:\n\n\n\n// CPU Pipeline Impact: Data Locality\nvoid process(int* data, int n, int pivot) {\n    int i;\n    for (i = 0; i < n; i++) {\n        // High Predictability if data is sorted (pattern recognized)\n        if (data[i] < pivot) {\n            // Predictor accuracy > 99%\n        }\n        // Low Predictability if data is random (50/50 split)\n        if ((data[i] & 1) == 0) {\n            // Misprediction rate approaches 50%, forcing pipeline flush\n        }\n    }\n}\n\n\n\n// Mitigation: Branchless Programming\n// Replaces conditional jump (JXX) with Conditional Move (CMOV)\n// CMOV executes both sides, selecting result without stall.\n\n// Standard Branch\nif (a > b) {\n    max_val = a;\n} else {\n    max_val = b;\n}\n\n// Branchless equivalent (Often compiles to CMOV)\nmax_val = (a > b) ? a : b;\n\n// Example Intrinsics (e.g., SIMD select functions)\n__m128 result = _mm_blendv_ps(false_vec, true_vec, mask);\n// Mask determines output; no conditional jump needed.",
+  "keywords": "Branch Prediction, Pipeline Stall, Conditional Branching, Branch Misprediction"
+}

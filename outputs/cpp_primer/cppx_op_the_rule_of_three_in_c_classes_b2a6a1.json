@@ -1,40 +1,12 @@
 {
   "topic": "The Rule of Three in C++ Classes",
   "explanation": "The Rule of Three is a fundamental C++ guideline that states if a class defines any of the destructor, copy constructor, or copy assignment operator, it should probably define all three to ensure proper resource management. This concept arises in scenarios where a class manages resources like dynamic memory, file handles, or other non-trivial objects. In real-world programming, failing to follow this rule can lead to issues like shallow copies (where pointers are copied instead of the data they point to), resulting in double deletion or memory leaks. Best practices include: always consider resource ownership, use smart pointers (e.g., std::unique_ptr or std::shared_ptr) in modern C++ to automate management, and prefer the Rule of Five in C++11+ which includes move operations. Common pitfalls include assuming compiler-generated defaults are sufficient for classes with pointers, which can cause undefined behavior; avoid this by explicitly defining these operations when necessary.",
-  "syntax": "For a class, the syntax includes:\n- Destructor: ~ClassName() { /* cleanup code, e.g., delete pointers */ }\n- Copy Constructor: ClassName(const ClassName& other) { /* deep copy members */ }\n- Copy Assignment Operator: ClassName& operator=(const ClassName& other) { /* handle self-assignment, then deep copy */; return *this; }\nPractical usage notes: Always check for self-assignment in the assignment operator (if (&other != this) { ... }), and ensure deep copies for resources to prevent issues in multi-threaded or long-lived objects.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "",
-    "class Book {  // Example from C++ Primer context, like a bookstore item",
-    "public:",
-    "    Book(const std::string& title) : title(new std::string(title)) {}  // Constructor with dynamic allocation",
-    "    Book(const Book& other) : title(new std::string(*other.title)) {}  // Copy constructor for deep copy",
-    "    Book& operator=(const Book& other) {  // Assignment operator",
-    "        if (this != &other) {  // Check for self-assignment",
-    "            delete title;  // Free existing resource",
-    "            title = new std::string(*other.title);  // Deep copy",
-    "        }",
-    "        return *this;",
-    "    }",
-    "    ~Book() { delete title; }  // Destructor to free resource",
-    "    void display() const { std::cout << *title << std::endl; }",
-    "private:",
-    "    std::string* title;  // Pointer to demonstrate resource management",
-    "};",
-    "",
-    "int main() {",
-    "    Book book1(\"C++ Primer\");",
-    "    Book book2 = book1;  // Invokes copy constructor",
-    "    book2.display();",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this example, the Book class manages a dynamically allocated string, mimicking real-world scenarios like storing book titles in a library system. The copy constructor performs a deep copy to avoid sharing the same resource, preventing issues if one object is destroyed. The assignment operator checks for self-assignment and ensures resources are properly released and copied, adhering to best practices. In practice, this pattern is crucial for classes handling external resources, such as in game development or database connections, to avoid crashes from double-free errors. Using modern C++ (e.g., std::string directly without pointers) could simplify this, but explicitly implementing the Rule of Three here demonstrates idiomatic control and highlights the pitfall of relying on compiler defaults for classes with pointers.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "copy",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T03:20:30.580383"
-  }
+    "extraction_date": "2025-08-20T03:20:30.580383",
+    "book_metadata_added": "2025-10-28T20:22:06.573047"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

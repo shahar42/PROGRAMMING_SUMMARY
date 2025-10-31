@@ -1,0 +1,15 @@
+{
+  "topic": "semtimedop() System Call",
+  "explanation": "semtimedop performs atomic operations on a System V semaphore set, similar to semop, but with an optional timeout to prevent indefinite blocking. It executes the specified operations on the semaphores or fails if the timeout expires.\n\n**Parameters:**\n- `semid` (int): Semaphore set identifier\n- `sops` (struct sembuf *): Pointer to an array of sembuf structures, each specifying an operation on a semaphore\n- `nsops` (size_t): Number of operations in the sops array\n- `timeout` (const struct timespec *_Nullable): Pointer to a timespec structure specifying the timeout, or NULL for no timeout\n\n**Common Errors:**\n- `E2BIG`: The argument nsops is greater than SEMOPM, the maximum number of operations allowed per system call\n- `EACCES`: The calling process does not have the required permissions and does not have the CAP_IPC_OWNER capability\n- `EAGAIN`: An operation could not proceed immediately and either IPC_NOWAIT was specified or the timeout expired\n- `EFAULT`: An address specified in sops or timeout is not accessible\n- `EFBIG`: For some operation, the value of sem_num is less than 0 or greater than or equal to the number of semaphores in the set\n\n**Related System Calls:** `semop()`, `shmop()`",
+  "syntax": "int semtimedop(int semid, struct sembuf *sops, size_t nsops, const struct timespec *_Nullable timeout);",
+  "code_example": "struct sembuf sops[2];\nint semid;\n/* Code to set semid omitted */\nsops[0].sem_num = 0; /* Operate on semaphore 0 */\nsops[0].sem_op = 0; /* Wait for value to equal 0 */\nsops[0].sem_flg = 0;\nsops[1].sem_num = 0; /* Operate on semaphore 0 */\nsops[1].sem_op = 1; /* Increment value by one */\nsops[1].sem_flg = 0;\nif (semop(semid, sops, 2) == -1) {\n    perror(\"semop\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the semtimedop() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.185494",
+    "syscall_name": "semtimedop",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_semtimedop.json",
+    "concept_id": "posix_sys_semtimedop_10d24a"
+  }
+}

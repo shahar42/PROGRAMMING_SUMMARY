@@ -1,0 +1,17 @@
+{
+  "topic": "Proper Management of Dynamic Memory in Custom Destructors for Complex Data Members",
+  "explanation": "In advanced C programming, especially when dealing with complex data structures like classes or structs that manage dynamic memory, it is crucial to explicitly define destructors (or cleanup functions) to free allocated resources. Relying on default destructors or implicit cleanup can lead to memory leaks or dangling pointers. This concept emphasizes the importance of implementing custom destructors to correctly release memory allocated in constructors, ensuring robust resource management and preventing subtle bugs in complex systems.",
+  "syntax": "For a struct managing dynamic memory:\n\nvoid struct_cleanup(struct MyStruct *obj) {\n    if (obj->pointer_member != NULL) {\n        free(obj->pointer_member);\n        obj->pointer_member = NULL;\n    }\n}",
+  "code_example": "typedef struct {\n    int *data;\n} MyStruct;\n\nMyStruct *create_struct() {\n    MyStruct *s = malloc(sizeof(MyStruct));\n    s->data = malloc(100 * sizeof(int)); // allocate dynamic memory\n    return s;\n}\n\nvoid destroy_struct(MyStruct *s) {\n    if (s != NULL) {\n        free(s->data); // explicitly free allocated memory\n        free(s);\n    }\n}",
+  "example_explanation": "This example demonstrates a custom destructor function 'destroy_struct' that explicitly frees the dynamically allocated 'data' pointer within the 'MyStruct' instance. Without this explicit cleanup, the allocated memory would leak when the struct is no longer needed. This pattern is essential in advanced C programming to manage resources correctly, especially when the struct's constructor allocates memory, ensuring proper cleanup and preventing resource leaks.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "627-627",
+    "extraction_date": "2025-08-20T05:12:55.154312",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "classes",
+    "extraction_type": "practical_programming"
+  }
+}

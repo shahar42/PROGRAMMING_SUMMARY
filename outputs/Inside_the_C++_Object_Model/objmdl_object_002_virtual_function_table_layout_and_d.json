@@ -1,0 +1,13 @@
+{
+  "topic": "Virtual Function Table Layout and Dispatch Mechanism",
+  "explanation": "In C++, the compiler implements virtual functions using a virtual table (vtable), which is an array of pointers to virtual functions, and a virtual table pointer (vptr), a hidden pointer added to the object of a class that declares virtual functions. For a class with virtual functions, the compiler synthesizes the vptr as the first member of the object layout (on most platforms like x86 and ARM), pointing to the appropriate vtable. The vtable is generated at compile-time and contains entries for each virtual function in the class's declaration order, including overridden functions from base classes. During runtime, when a virtual function is called (e.g., via a base class pointer), the compiler emits code to dereference the vptr to access the vtable and then invoke the function pointer at the correct offset. For example, if a class has two virtual functions, the vtable might look like: [ptr to func1, ptr to func2]. The vptr is initialized in the constructor to point to the most derived class's vtable, ensuring polymorphic behavior. Memory layout typically places the vptr at the object's start for efficient access, followed by data members, with possible padding for alignment (e.g., 8-byte alignment on 64-bit systems). Assembly-level behavior involves indirect jumps: for instance, a call like ptr->virtFunc() translates to assembly like 'mov rax, [obj + 0]  ; load vptr, then call [rax + offset]', adding overhead (e.g., 5-10 cycles) compared to static calls. Runtime vs compile-time: virtual dispatch is resolved at runtime, while the vtable itself is static. Compiler optimizations include inlining non-virtual calls and devirtualization if the exact type is known. Cross-platform differences: On GCC/Clang, the vptr is usually at the beginning, but on MSVC, it might be placed after certain members in multiple inheritance scenarios, affecting pointer adjustments and performance.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "extraction_date": "2025-09-17T14:45:10.037335",
+    "book_metadata_added": "2025-10-28T20:22:06.686444"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman"
+}

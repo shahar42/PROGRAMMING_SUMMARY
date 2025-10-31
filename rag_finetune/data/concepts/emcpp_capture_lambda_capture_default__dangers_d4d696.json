@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Default: Dangers of Dangling References with `[&]`",
+  "category": "capture",
+  "explanation": "Assumption: Using `[&]` (capture by reference) is a convenient way to access local variables within a lambda, similar to how local references work in normal functions. Reality: If the lambda outlives the scope in which it was created (e.g., stored in an `std::function` or passed to an asynchronous execution facility like `std::thread` or `std::async`), the references captured by `[&]` will dangle when the original variables are destroyed. Why It Fails: The default reference capture mode does not extend the lifetime of the captured variables. If the lambda is executed asynchronously or later, it attempts to access memory that has been reclaimed, leading to undefined behavior, often manifesting as crashes or data corruption.",
+  "code_example": "int x = 10;\nauto f = [&] { std::cout << x; }; // Captures x by reference\n// If f is returned or stored, x might be destroyed before f runs.",
+  "practical_example": "A developer uses `[&]` inside a lambda passed to an `std::thread`. The thread execution is delayed. The scope containing the captured variables exits, cleaning up the stack. When the thread finally runs, it accesses stale stack memory.",
+  "keywords": [
+    "capture by reference",
+    "dangling reference",
+    "scope lifetime",
+    "default capture"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233-236",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_default__dangers_d4d696",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

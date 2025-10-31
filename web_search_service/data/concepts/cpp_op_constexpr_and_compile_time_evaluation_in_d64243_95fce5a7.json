@@ -1,0 +1,14 @@
+{
+  "topic": "constexpr and Compile-Time Evaluation in C++",
+  "explanation": "The `constexpr` keyword in C++ allows for compile-time evaluation of expressions.  This goes beyond simple constant expressions;  a `constexpr` function can perform computations at compile time *if* the compiler can determine all inputs at compile time.  This results in significant performance gains and enables metaprogramming techniques.  The compiler's implementation involves sophisticated constant propagation and expression folding during the compilation process.  If the arguments to a `constexpr` function are not known at compile time, the evaluation is deferred to runtime. This introduces a branch in the generated assembly code, conditional on whether the inputs are known at compile time or not.  The memory layout is impacted subtly:  if the result of a `constexpr` function is used to initialize a global variable, the compiler might place that variable in a read-only section of memory.  However, this is compiler-specific; the standard only guarantees compile-time evaluation if possible, not specific memory placement optimizations.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:54:27.669424",
+    "book_metadata_added": "2025-10-28T20:22:06.907846"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "constexpr int factorial(int n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}\n\n// Guaranteed compile-time evaluation\nconstexpr int FACT_5 = factorial(5);\n\n// Run-time evaluation (if input is dynamic)\nint N = 5;\nint result_rt = factorial(N);\n\n\nstruct Vec3 {\n    const int x, y, z;\n    constexpr Vec3(int a, int b, int c) : x(a), y(b), z(c) {}\n    constexpr int sum() const { return x + y + z; }\n};\n\nconstexpr Vec3 V(1, 2, 3);\nconstexpr int CT_SUM = V.sum();\n\n// C++20: Requires immediate compilation\nconsteval int required_ct(int val) {\n    return val + 10;\n}\nconstexpr int CT_20 = required_ct(5);\n<ctrl63>",
+  "keywords": "constexpr, compile time evaluation C++, constant folding, constexpr functions"
+}

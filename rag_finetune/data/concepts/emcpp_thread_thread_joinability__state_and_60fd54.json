@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Joinability: State and Underlying Execution Association",
+  "category": "thread",
+  "explanation": "Every `std::thread` object is in one of two states: joinable or unjoinable. A thread is 'joinable' if it is associated with an underlying operating system thread of execution, regardless of whether that thread is currently running, blocked, or has already run to completion. Conversely, a thread is 'unjoinable' if it has no associated execution resource. Unjoinable threads include default-constructed threads and threads that have been moved-from (the execution resource ownership was transferred). Understanding this state is critical because the destructor of a joinable thread will implicitly call `std::terminate`, leading to program failure.",
+  "code_example": "std::thread t1(some_function); // t1 is joinable\nstd::thread t2 = std::move(t1); // t1 is now unjoinable, t2 is joinable\nstd::thread t3; // t3 is unjoinable (default constructed)",
+  "practical_example": "A function returns a `std::thread` object. If the caller fails to immediately join or detach it, the thread object goes out of scope while joinable, invoking `std::terminate` and crashing the application.",
+  "keywords": [
+    "joinable",
+    "unjoinable",
+    "std::terminate",
+    "underlying thread"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-270",
+  "chapter": "Item 37: Make std::threads unjoinable on all paths",
+  "id": "emcpp_thread_thread_joinability__state_and_60fd54",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

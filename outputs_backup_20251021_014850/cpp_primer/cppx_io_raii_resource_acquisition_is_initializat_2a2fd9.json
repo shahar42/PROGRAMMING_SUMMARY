@@ -1,0 +1,13 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization)",
+  "explanation": "RAII is a fundamental C++ programming idiom that tightly couples resource management with object lifetime.  It ensures that resources (like memory, files, network connections, mutexes) are automatically acquired when an object is created and released when the object is destroyed, regardless of how the object's lifetime ends (normal termination, exception). This prevents resource leaks and simplifies error handling. Best practice dictates using RAII for all resource management to ensure deterministic cleanup.",
+  "syntax": "RAII is not a specific syntax but a programming pattern implemented using constructors and destructors.  A class managing a resource would typically acquire the resource in its constructor and release it in its destructor.\n\nExample:\n```c++\nclass File { \npublic:\n    File(const std::string& filename) : file_(std::fopen(filename.c_str(), \"r\")) {\n        if (!file_) { \n            throw std::runtime_error(\"Could not open file\");\n        }\n    }\n    ~File() { if (file_) std::fclose(file_); }\n    // ... other methods to work with the file ...\nprivate:\n    FILE* file_;\n};\n```",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <string>\n#include <stdexcept>\n\nclass FileManager {\npublic:\n    FileManager(const std::string& filename) : file_(filename) {\n        file_.open(filename);\n        if (!file_.is_open()) {\n            throw std::runtime_error(\"Could not open file\");\n        }\n    }\n    ~FileManager() {\n        if (file_.is_open()) {\n            file_.close();\n        }\n    }\n    // ... other methods to read and write to the file ...\nprivate:\n    std::fstream file_;\n};\n\nint main() {\n    try {\n        FileManager file(\"mydata.txt\");\n        // ... operations on the file ...\n    } catch (const std::runtime_error& error) {\n        std::cerr << \"Error: \" << error.what() << std::endl;\n        return 1;\n    }\n    return 0;\n}",
+  "example_explanation": "The `FileManager` class demonstrates RAII.  The constructor opens the file, and the destructor closes it.  Even if exceptions occur during file operations, the destructor ensures the file is closed, preventing resource leaks.  The `try-catch` block handles potential errors during file opening. This is a much safer and more robust approach compared to manually managing file handles using `fopen` and `fclose` which is prone to errors if exceptions are thrown before a `fclose` call.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:19:08.601151"
+  }
+}

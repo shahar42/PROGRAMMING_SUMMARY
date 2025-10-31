@@ -1,0 +1,19 @@
+{
+  "topic": "Overloading Universal References: Ambiguity with Initialization Lists",
+  "category": "design",
+  "explanation": "When a class defines a constructor that takes a universal reference and also a constructor that accepts `std::initializer_list`, an anti-pattern of ambiguity arises, particularly during uniform initialization using braces. The core assumption is that braced initialization should unambiguously prefer the `std::initializer_list` constructor, as this is its design intent. However, the universal reference constructor template is so powerful that it can be instantiated to match almost any type or sequence, including sequences of objects that might be convertible to `std::initializer_list` elements. When the compiler processes an initialization list (e.g., `MyClass {10, 20}`), it must decide between invoking the dedicated `std::initializer_list` constructor or deducing the universal reference template. In many non-trivial cases, the instantiation of the universal reference template can result in a constructor that is deemed equally or nearly as good as the initializer list constructor, leading to a hard compilation error due to ambiguity. This failure forces the programmer to either explicitly use parentheses instead of braces for non-list initializations or implement complex SFINAE to disable the universal reference constructor entirely when the arguments provided match the criteria for a valid `std::initializer_list` constructor, thereby frustrating the goal of using the simpler universal reference pattern.",
+  "code_example": "class Widget {\npublic:\n    Widget(std::initializer_list<int> il); // Expected for {1, 2}\n    template<typename T> Widget(T&& arg); // Universal Ref\n};\n\nWidget w{1, 2}; // Potential ambiguity or unexpected selection of T&&",
+  "practical_example": "A class uses a forwarding constructor to support various input data sources (files, streams) and an initializer list constructor for quick setup of small data arrays. Users found that standard brace initialization often resulted in compilation errors due to the ambiguity between the two constructs, forcing them to use non-uniform initialization syntax inconsistently throughout the codebase.",
+  "keywords": [
+    "initializer_list",
+    "uniform initialization",
+    "ambiguity",
+    "constructor conflict",
+    "braced initialization"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "203-205",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_overloading_universal_references__ambiguity_03f4f2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

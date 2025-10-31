@@ -1,0 +1,19 @@
+{
+  "topic": "Template Metaprogramming and Compile-Time Function Execution",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, rather than runtime.  This leverages the compiler's ability to generate specialized code based on template arguments.  The compiler performs these calculations during template instantiation, generating optimized code that avoids runtime overhead.  This is fundamentally different from runtime polymorphism, where function calls are resolved at runtime.  Understanding how the compiler handles TMP involves grasping its recursive template instantiation process, potentially involving significant code bloat if not carefully managed.  Memory layout is impacted because the compiler directly generates specialized code for each template instantiation, potentially leading to a larger executable size but improved performance. The assembly-level behavior will exhibit optimized instructions because the compiler has complete knowledge of the data types and calculations at compile time. Compile-time behavior is heavily involved since the entire process is completed by the compiler before the program runs. Runtime behavior is minimally involved, mostly consisting of simply calling the pre-computed function from the specialized code.",
+  "syntax": "```c++\ntemplate <int N>\nstruct Factorial {\n  static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static constexpr int value = 1;\n};\n\nint main() {\n  constexpr int result = Factorial<5>::value; // Calculated at compile time\n  std::cout << result << std::endl; // Output: 120\n  return 0;\n}\n```",
+  "code_example": [
+    "#include <iostream>",
+    "#include <type_traits>",
+    "template <typename T, typename U>\nstruct is_same_with_message {\n    static const bool value = std::is_same<T, U>::value;\n    static const char * message(){\n        return value? \"Types are the same\": \"Types are different\";\n    }\n};",
+    "int main(){\n    std::cout << is_same_with_message<int, int>::message() << std::endl; //Output: Types are the same\n    std::cout << is_same_with_message<int, double>::message() << std::endl; //Output: Types are different\n    return 0;\n}",
+    "// Demonstrates compile-time type checking and message generation using template metaprogramming."
+  ],
+  "example_explanation": "The `Factorial` example showcases recursive template instantiation. The compiler recursively expands the `Factorial` template until it reaches the base case (`Factorial<0>`).  This generates the factorial value at compile time.  The `is_same_with_message` example demonstrates compile-time type checking with message generation, producing distinct outputs at compile-time based on input types.  The compiler generates different versions of the `message()` function based on the template arguments without runtime overhead.  Assembly-level code would show the result (120) directly embedded, avoiding runtime calculation instructions for the factorial.  Failure to carefully manage recursion depth in TMP can lead to compiler errors due to exceeding recursion limits. The key performance benefit comes from avoiding the runtime overhead of calculating the factorial, improving performance significantly for large values of N. The code size may slightly increase due to the generation of specialized code for each template instantiation. The compilation time may also increase, particularly for complex metaprogramming tasks.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:11:04.649835"
+  }
+}

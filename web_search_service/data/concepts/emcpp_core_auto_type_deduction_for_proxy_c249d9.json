@@ -1,0 +1,22 @@
+{
+  "topic": "Auto Deduction: Unexpected Proxy Type Capture",
+  "category": "core",
+  "explanation": "The core concept is that `auto` deduces the precise type of an initializing expression, which can be surprising and dangerous when the expression returns a 'proxy' object instead of a fundamental type. A proxy object is an instance of a class designed to emulate the behavior of another type. Using `auto` with such expressions results in a variable of the proxy type itself, not the type it emulates, which can violate programmer assumptions.\n\nScott Meyers' key insight is that this technically correct deduction can lead to insidious bugs, most notably undefined behavior from dangling references. The classic example is `std::vector<bool>`'s `operator[]`, which returns a `std::vector<bool>::reference` proxy object, not a `bool&`. If the `std::vector<bool>` is a temporary (e.g., returned from a function), a variable deduced with `auto` will hold a proxy object that points into the now-destroyed temporary vector, leading to a dangling pointer.\n\nThe mechanics behind this are straightforward: `auto` performs type deduction based on the type of the initializer. If an expression, like `features(w)[5]`, returns a proxy object, `auto` deduces the variable's type to be that proxy class. The proxy object itself might be small, but it contains internal state\u2014often a pointer or reference\u2014to the data it represents. The danger arises when the lifetime of this proxy object exceeds the lifetime of the data source it refers to.\n\nIn practical terms, this issue appears in libraries that use expression templates (e.g., for matrix math) or other forms of proxy objects to achieve performance optimizations or to work around language limitations. When interacting with such an API, blindly using `auto` to capture the result of an operation can make your code fragile. A programmer must be aware of the exact return types of the functions they are calling to use `auto` safely.\n\nThe most common pitfall is assuming that an expression that *conceptually* yields a value of a certain type (like a `bool`) will have its type deduced as such by `auto`. The programmer expects the emulated type but gets the proxy class instead. This error is particularly hard to debug because the code compiles without warnings and may even appear to work correctly until the specific conditions for undefined behavior (like using a dangling reference) are met.",
+  "code_example": "// features() returns a temporary vector\nstd::vector<bool> features(const Widget&);\n\nWidget w;\n\n// Undefined behavior! \n// features(w) returns a temporary std::vector<bool>.\n// operator[] returns a std::vector<bool>::reference proxy object.\n// The proxy inside highPriority points to a bit in the temporary vector,\n// which is destroyed at the end of the statement.\nauto highPriority = features(w)[5];\n\nprocessWidget(w, highPriority); // highPriority is a dangling reference",
+  "practical_example": "In a linear algebra library, `Matrix A, B, C; auto result = (A+B)*C;` might not deduce a `Matrix` type for `result`. Instead, `result` could be a complex expression template proxy object that only performs the calculation when it's later assigned to an actual `Matrix`. Storing this proxy and using it after the original matrices go out of scope could lead to errors.",
+  "keywords": [
+    "auto",
+    "type deduction",
+    "proxy types",
+    "proxy class",
+    "std::vector<bool>",
+    "dangling reference",
+    "undefined behavior",
+    "expression templates"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "42-43",
+  "chapter": "Item 6: Use the explicitly typed initializer idiom when auto deduces undesired types.",
+  "id": "emcpp_core_auto_type_deduction_for_proxy_c249d9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

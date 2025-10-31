@@ -1,0 +1,16 @@
+{
+  "topic": "Control Flow in Assembly and C",
+  "explanation": "Control flow dictates the order of execution in a program. Understanding how control flow is implemented at the assembly level is crucial for optimizing performance and interacting directly with hardware.  It reveals how high-level language constructs (like `if` statements and `goto`) translate into low-level machine instructions, impacting program behavior and efficiency within the computer architecture.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "359-359",
+    "extraction_date": "2025-07-26T12:44:33.437495",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.733888"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// C: Conditional Branching (High Level)\nint check(int x) {\n    if (x > 100) {\n        return 1;\n    } else if (x == 100) {\n        return 0;\n    }\n    // Implicit fall-through\n    return -1;\n}\n\n// Assembly (x64): Translating 'if/else' via Jumps\n; Input x is in RDI\ncheck:\n    cmp rdi, 100        ; Compare x to 100\n    jg  L_GREATER       ; Jump if Greater\n\n    cmp rdi, 100        ; Check equality\n    je  L_EQUAL         ; Jump if Equal\n\n    mov rax, -1         ; Default return -1\n    jmp L_END\n\nL_GREATER:\n    mov rax, 1\n    jmp L_END\n\nL_EQUAL:\n    mov rax, 0\n\nL_END:\n    ret\n\n\n// C: Iteration (High Level 'while')\nint sum_to_n(int n) {\n    int i = 0;\n    int sum = 0;\n    while (i < n) {\n        sum += i;\n        i++;\n    }\n    return sum;\n}\n\n// Assembly (x64): Translating 'while' via Backwards Jumps\n; Loop setup: RDI = n, RSI = i=0, RAX = sum=0\nL_LOOP_START:\n    cmp rsi, rdi        ; while (i < n)\n    jge L_LOOP_END      ; Jump if Greater/Equal (Exit condition)\n    add rax, rsi        ; sum += i\n    inc rsi             ; i++\n    jmp L_LOOP_START    ; Unconditional jump back to condition\n\nL_LOOP_END:\n    ret                 ; RAX contains sum\n\n// C: Unconditional Jump (goto)\nvoid error_handler(int status) {\n    if (status != 0) goto HANDLE_ERROR;\n\n    // Normal processing continues\n    goto CLEANUP;\n\nHANDLE_ERROR:\n    // Handle error path\n    status = -1;\n\nCLEANUP:\n    // Finalizing logic\n    status = 0;\n}",
+  "keywords": "assembly control flow, C assembly mapping, conditional jumps"
+}

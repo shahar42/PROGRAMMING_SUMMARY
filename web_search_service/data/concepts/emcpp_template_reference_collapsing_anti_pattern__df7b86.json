@@ -1,0 +1,18 @@
+{
+  "topic": "Reference Collapsing Anti-Pattern: Misunderstanding Template Deduction",
+  "category": "template",
+  "explanation": "Assumption: The double-ampersand syntax `T&&` always means 'rvalue reference' and dictates how the object is treated. Reality: When `T&&` is used in a template parameter (a universal reference), the reference collapsing rules apply. If the argument passed is an lvalue (`X`), then `T` is deduced as an lvalue reference (`X&`). Consequently, the resulting parameter type `T&&` collapses into an lvalue reference (`X&`). Why It Fails: The failure lies in forgetting that when an lvalue is passed, the universal reference parameter itself becomes an lvalue reference, yet its name inside the function remains an lvalue (Item 23). If the developer subsequently treats this collapsed lvalue reference as if it were a strict rvalue reference for internal use (e.g., failing to use `std::forward`), the original lvalue status is lost, resulting in an unintended copy instead of an efficient transfer. Reference collapsing is the mechanism that *enables* universal references, but misunderstanding its result leads to failure in internal function implementation.",
+  "code_example": "// Reference collapsing leads to T being std::string&\ntemplate<typename T> void forwarder(T&& param) { \n  // If param is lvalue, T is string&. T&& collapses to string&.\n  // If not using std::forward, any downstream function will copy.\n}",
+  "practical_example": "A template wrapper function is designed to measure the time taken to construct an object. If the wrapper fails to use `std::forward` internally, passing an existing lvalue object results in a measurement of the copy operation, not the intended lvalue initialization/binding.",
+  "keywords": [
+    "reference collapsing",
+    "universal reference deduction",
+    "lvalue binding",
+    "std::forward necessity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "215-218",
+  "chapter": "Item 28: Understand reference collapsing",
+  "id": "emcpp_template_reference_collapsing_anti_pattern__df7b86",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

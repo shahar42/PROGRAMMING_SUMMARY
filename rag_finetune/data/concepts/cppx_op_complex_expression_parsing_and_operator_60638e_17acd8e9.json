@@ -1,0 +1,16 @@
+{
+  "topic": "Complex Expression Parsing to Avoid Bugs in C",
+  "explanation": "In advanced C programming, understanding how complex expressions are parsed according to operator precedence and associativity is crucial for writing correct and efficient code. Mastery of expression parsing enables developers to predict evaluation order, avoid subtle bugs, and optimize performance when combining multiple operators, especially in macro definitions, pointer manipulations, and callback mechanisms. Recognizing how C interprets intricate expressions ensures precise control over side effects and evaluation sequences in high-level systems programming.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "787-787",
+    "extraction_date": "2025-08-20T06:17:55.005496",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.530237"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Pointer Arithmetic Precedence\nint arr[2] = {10, 20};\nint *p = arr;\n\n// Postfix '++' binds tighter than '*'\n// 1. Value 10 is read (dereference *p)\n// 2. p is incremented (p++)\nint val1 = *p++; // val1 = 10, p points to 20\n\n// Prefix '++' evaluates first\n// 1. p is incremented (p now points past 20)\n// 2. The new *p is dereferenced\nint val2 = *++p; // Undefined behavior (points past end of array)\n\n\n// Precedence Trap: Bitwise vs Comparison\n// '&' has lower precedence than '=='\n#define MASK_A 0x1\n#define MASK_B 0x2\nint flags = MASK_A;\n\n// BUG: Evaluates (MASK_A == MASK_B) first (0)\n// Then: (flags & 0) -> 0\nif (flags & MASK_A == MASK_B) {}\n\n// Correct Precedence: Parentheses force order\nif ((flags & MASK_A) == MASK_B) {} \nif ((flags & MASK_A)) {} // Check if flag is set\n\n\n// Macro Precedence Failure\n#define SQUARE(x) x * x\nint a = 5;\n\n// Expansion: 10 / 5 * 5 (left-to-right associativity)\n// Result: 50. Expected: 4\nint result_fail = 10 / SQUARE(a); \n\n// Safe Macro Definition (Mandatory Parentheses)\n#define SAFE_SQUARE(x) ((x) * (x))\nint result_ok = 10 / SAFE_SQUARE(a); // Result: 10 / 25",
+  "keywords": "Operator Precedence, Expression Evaluation Order, C Operator Associativity, Complex Expression Parsing"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Perf: Explicit Load/Store for Atomic Performance Auditing",
+  "category": "perf",
+  "explanation": "Accessing a `std::atomic` variable is typically much slower than accessing a non-atomic variable because it involves internal synchronization primitives and prevents certain compiler reorderings. Since implicit access (e.g., `int x = a;`) hides this cost, some developers prefer using the explicit member functions `load()` and `store()` for all atomic operations. This style choice clearly signals that the operation is computationally expensive and helps identify potential scalability chokepoints during code review or performance auditing.",
+  "code_example": "std::atomic<int> counter(0);\n// Implicit (hides cost): counter++;\n// Explicit (shows cost): counter.store(counter.load() + 1);",
+  "practical_example": "During a performance review, a team flags several locations where implicit atomic access is causing unexpected latency. Adopting the explicit `load()`/`store()` convention forces future developers to acknowledge the synchronization overhead associated with those lines.",
+  "keywords": [
+    "scalability",
+    "load/store",
+    "performance chokepoints",
+    "atomic overhead"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "296-297",
+  "chapter": "Item 40: Use std::atomic for data accessed from multiple threads without using mutexes.",
+  "id": "emcpp_perf_thread_perf__explicit_load_c8e471",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

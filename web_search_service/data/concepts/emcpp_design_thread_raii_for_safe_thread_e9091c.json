@@ -1,0 +1,13 @@
+{
+  "topic": "Thread RAII for Safe Thread Lifecycle Management",
+  "category": "design",
+  "explanation": "Assumption: A raw `std::thread` object can be left to exit scope naturally if the thread is finished or if the developer ensures explicit cleanup elsewhere. Reality: If a `std::thread` object is destroyed while it is still joinable (i.e., it hasn't been joined or detached), the C++ runtime calls `std::terminate`. Why It Fails: This failure mechanism is designed to prevent silent resource leaks or undefined behavior resulting from an unmanaged thread. The solution is to wrap `std::thread` in an RAII class (like `ThreadRAII`) whose destructor guarantees that the thread is either joined or detached, thereby preventing program termination.",
+  "code_example": "// Raw thread, terminates if not handled\nvoid func() { std::thread t(...); } // t.join() or t.detach() needed here\n\n// RAII wrapper guarantees cleanup\nThreadRAII t(std::thread(...), ThreadRAII::DtorAction::join);",
+  "practical_example": "A function that launches a background thread and then returns early due to an exception. If the thread object was not wrapped in RAII, the stack unwinding destroys the raw `std::thread` object, causing the entire program to immediately terminate instead of handling the exception.",
+  "keywords": "Thread RAII, std::thread terminate, Safe thread wrapper, Joinable thread destructor",
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Remember to make std::threads unjoinable on all paths",
+  "id": "emcpp_design_thread_raii_for_safe_thread_e9091c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

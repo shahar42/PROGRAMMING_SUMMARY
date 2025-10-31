@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Default [Design] for [Explicit Variable Use]",
+  "category": "design",
+  "explanation": "The primary design principle for lambdas is avoiding default capture modes (`[&]` or `[=]`). While `[&]` risks definite runtime failure, `[=]` creates a false sense of security regarding lifetime and self-containment, especially if the captured variable is a resource-owning pointer or reference type (the pointer/reference is copied, but the resource it manages is not). Why It Fails: Using explicit capture lists (e.g., `[x, &y]`) forces the developer to declare exactly what variables are needed and how they are captured, enhancing clarity, reducing accidental dependency on unused variables, and making potential lifetime or sharing issues immediately obvious.",
+  "code_example": "int x = 1; int y = 2;\n// Bad: Obscures dependencies\nauto c1 = [=] { return x + y; };\n// Good: Explicitly declares dependencies and mode\nauto c2 = [x, y] { return x + y; };",
+  "practical_example": "A developer inherits code where a lambda uses `[=]`. Refactoring the surrounding scope becomes dangerous because it is unclear which local variables the lambda truly requires, leading to accidental breakage if an apparently unused variable is removed.",
+  "keywords": "lambda default capture, explicit capture list, [=] lambda risk, C++ lambda lifetime",
+  "difficulty": "intermediate",
+  "page_reference": "233",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_design_lambda_capture_default__design_f02ada",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "adjtimex() System Call",
+  "explanation": "The adjtimex() system call reads and optionally sets adjustment parameters for the kernel clock using the NTP algorithm. It updates kernel values from a timex structure and returns the structure with current kernel values.\n\n**Parameters:**\n- `buf` (struct timex *): Pointer to a timex structure containing clock adjustment parameters such as offset, frequency, and status\n- `clk_id` (clockid_t): Clock ID for the clock to adjust (applies to clock_adjtime)\n\n**Common Errors:**\n- `EFAULT`: buf does not point to writable memory\n- `EINVAL`: Invalid argument, such as out-of-range values or invalid clk_id\n- `ENODEV`: The device represented by clk_id has disappeared\n- `EOPNOTSUPP`: The given clk_id does not support adjustment\n- `EPERM`: Insufficient privileges; requires CAP_SYS_TIME capability\n\n**Related System Calls:** `clock_gettime()`, `clock_settime()`, `settimeofday()`, `adjtime()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.187465",
+    "syscall_name": "adjtimex",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_adjtimex.json",
+    "concept_id": "posix_sys_adjtimex_dcf9fd",
+    "book_metadata_added": "2025-10-28T20:22:06.647581"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct timex tx = {0};\n\n// To read only, modes=0\ntx.modes = 0;\n\n// To set frequency and status\ntx.modes = ADJ_FREQUENCY | ADJ_STATUS;\ntx.freq = 1500;       // Parts per billion\ntx.status = STA_PLL;  // Enable PLL\n\n// Apply adjustments and retrieve current state\nint result = adjtimex(&tx);\n\n// tx now contains current kernel clock values\n// Result >= 0 for success\nlong current_offset = tx.offset;\n<ctrl63>",
+  "keywords": "adjtimex, timex structure, NTP time adjustment, kernel clock adjustment"
+}

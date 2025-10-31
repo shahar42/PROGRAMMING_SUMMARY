@@ -1,0 +1,19 @@
+{
+  "topic": "Task-Based versus Thread-Based: Necessity of Native OS Handles",
+  "category": "design",
+  "explanation": "Assumption: `std::async`/`std::future` (task-based concurrency) is always sufficient for parallel execution. Reality: Task-based APIs intentionally abstract away low-level operating system details. If specific OS control is required\u2014such as setting thread priority, affinity, or accessing thread-local storage mechanisms via the native handle\u2014the developer must fall back to the explicit thread management API, `std::thread`. Why It Fails: Reliance solely on tasks prevents access to `std::thread::native_handle()`, blocking necessary low-level optimizations or integrations (e.g., real-time scheduling requirements). The choice between task-based and thread-based concurrency is dictated by the need for OS control.",
+  "code_example": "std::thread t([...]);\nauto nh = t.native_handle(); // Only accessible via std::thread\n// std::future does not expose the underlying thread handle.",
+  "practical_example": "A developer needs to ensure that a critical background computation runs at a higher OS priority than general application tasks. They must use `std::thread` and its `native_handle()` to call OS-specific functions (like `SetThreadPriority` on Windows) to achieve this.",
+  "keywords": [
+    "native_handle",
+    "thread priority",
+    "OS control",
+    "std::thread API",
+    "std::future"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "259-263",
+  "chapter": "Item 35: Prefer task-based concurrency to thread-based concurrency",
+  "id": "emcpp_design_task_based_versus_thread_based_4f218b",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

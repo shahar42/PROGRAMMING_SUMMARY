@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Sync Primitives for Predictable Behavior",
+  "explanation": "Concurrency arises when multiple threads execute seemingly simultaneously, sharing resources like memory.  Synchronization primitives are mechanisms that ensure correct and predictable behavior when multiple threads access shared resources concurrently, preventing race conditions and data corruption.  In computer architecture, this requires careful management of CPU scheduling, memory access, and cache coherence.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1019-1019",
+    "extraction_date": "2025-07-29T16:09:48.522884",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.743222"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "std::mutex io_mutex;\nint shared_data = 0;\n\nvoid safe_access() {\n    std::lock_guard<std::mutex> lock(io_mutex);\n    shared_data++;\n}\n\n// Deadlock Avoidance (C++17)\nstd::mutex m_a, m_b;\nvoid safe_swap() {\n    std::scoped_lock lock(m_a, m_b);\n}\n\nstd::condition_variable cv;\nbool data_ready = false;\n\nvoid wait_for_data(std::unique_lock<std::mutex>& ul) {\n    // Spurious wakeups possible, requires predicate\n    cv.wait(ul, []{ return data_ready; });\n}\n\nstd::atomic<int> lock_free_counter(0);\n\nvoid update_counter() {\n    lock_free_counter.fetch_add(1);\n}\n\n// CAS (Compare and Swap)\nbool attempt_update(int expected, int desired) {\n    return lock_free_counter.compare_exchange_weak(expected, desired);\n}\n\n// Asynchronous execution and result retrieval\nint compute(int x) { return x * 10; }\n\nstd::future<int> fut = std::async(std::launch::async, compute, 5);\n\n// Blocking retrieval\nint result = fut.get();\n\n// Thread execution\nvoid worker_task() { /* ... */ }\n\nstd::thread t1(worker_task);\nt1.join();\n<ctrl63>",
+  "keywords": "Thread synchronization, Race condition, Concurrency control, Sync primitives"
+}

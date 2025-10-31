@@ -1,0 +1,16 @@
+{
+  "topic": "Dynamic Memory Allocation and Coalescing",
+  "explanation": "Dynamic memory allocation is a crucial computer systems concept where the program requests memory during runtime, rather than at compile time.  This is managed by the heap, a region of memory separate from the stack.  Coalescing is an optimization technique within dynamic memory allocation that merges adjacent free blocks of memory to reduce fragmentation and improve memory utilization. This enhances performance by minimizing wasted space and enabling larger memory allocations.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "875-876",
+    "extraction_date": "2025-07-28T16:57:58.158751",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.744723"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Standard C Dynamic Memory Allocation\n// (The consumer's view of the heap)\nint* buffer;\nsize_t required_bytes = sizeof(int) * 100;\n\nbuffer = (int*)malloc(required_bytes);\n\nif (buffer != NULL) {\n    buffer[0] = 42;\n}\n\n// Releases memory back to the heap manager\nfree(buffer);\n\n// Block Header Structure (Internal Heap Manager View)\ntypedef struct BlockHeader {\n    size_t size;         // Total size (incl. header/footer)\n    bool allocated;      // true if in use, false if free\n    struct BlockHeader* next; // Pointer in the free list\n} BlockHeader;\n\n#define BLOCK_SIZE(b) (b->size)\n\n// Coalescing Logic: Merge Current and Next if Next is Free\nvoid attempt_coalesce(BlockHeader* current) {\n    BlockHeader* next = GET_NEXT_BLOCK(current);\n\n    if (!current->allocated && !next->allocated) {\n        // Merge: Add next block's size to current block\n        current->size += next->size;\n        // Update the boundary tag of the merged block\n        UPDATE_FOOTER(current);\n        // Remove 'next' from the free list\n        REMOVE_FROM_FREE_LIST(next);\n    }\n}",
+  "keywords": "Dynamic memory allocation, Memory coalescing, Heap management, Heap fragmentation"
+}

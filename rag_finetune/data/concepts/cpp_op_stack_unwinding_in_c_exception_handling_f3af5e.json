@@ -1,0 +1,14 @@
+{
+  "topic": "Stack Unwinding in C++ Exception Handling",
+  "explanation": "Stack unwinding is a core mechanism in C++ exception handling that occurs when an exception is thrown, involving the runtime destruction of automatic objects and the search for an appropriate handler. The compiler implements this by generating exception handling tables (e.g., in the form of .eh_frame sections in ELF binaries or PDATA in PE files) during compilation, which are used at runtime to track stack frames, active try blocks, and associated destructors. These tables are essentially metadata that map the program's control flow to exception handlers, often using a combination of unwind data and personality routines. For instance, GCC and Clang use DWARF-based unwind information, while MSVC employs its own structured exception handling (SEH) framework. Memory layout implications include additional overhead: each function with try/catch blocks may have extra data in the binary, such as function prologues that register unwind information, increasing binary size and potentially affecting cache performance. Performance-wise, stack unwinding is a runtime operation that can be costly, as it involves walking the call stack, invoking destructors for objects in destroyed scopes, and potentially leading to non-linear code execution, which disrupts CPU branch prediction and increases latency compared to error code propagation. At compile-time, the compiler analyzes code to generate these EH tables and inserts necessary instrumentation (e.g., calls to __cxa_throw in Itanium ABI), but the actual unwinding is runtime-bound, occurring only when an exception is thrown. Assembly-level behavior typically includes instructions for setting up frame pointers and unwind descriptors; for example, in x86-64 assembly, you might see prologue code that pushes registers and sets up the stack frame, with epilogues that interact with the EH runtime to handle jumps to catch blocks.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:34:21.092360",
+    "book_metadata_added": "2025-10-28T20:22:06.886340"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class ScopeGuard {\n    // Automatic object registered for destruction\npublic:\n    ScopeGuard() {}\n    ~ScopeGuard() { /* Destructor is called during unwind */ }\n};\n\nvoid deep_func() {\n    ScopeGuard G_deep;\n    // Exception tables track G_deep's address and destructor\n    throw 42;\n}\n\nvoid main_func() {\n    ScopeGuard G_main;\n    try {\n        deep_func();\n    } catch (int e) {\n        // Handled: G_deep and G_main destructors already called\n    }\n}",
+  "keywords": "Stack unwinding, Destruction during exception, C++ exception handling"
+}

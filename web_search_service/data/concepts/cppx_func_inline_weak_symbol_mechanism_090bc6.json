@@ -1,0 +1,15 @@
+{
+  "id": "cppx_func_inline_weak_symbol_mechanism_090bc6",
+  "topic": "Inline Functions and Weak Symbol Linking Mechanism",
+  "explanation": "The `inline` keyword's true purpose at the linker level is to convert strong symbol definitions into weak symbols, enabling multiple translation units to contain the same function definition without violating the One Definition Rule (ODR). When you mark a function `inline`, the compiler emits it as a weak symbol instead of a strong one. Normally, every non-inline global function is a strong definition, meaning the linker must see it only once across all translation units—if it appears twice, you get a multiple definition error. However, an inline function changes this rule: each translation unit can emit its own copy marked as weak, and during linking, the linker simply keeps one copy and discards the rest. This transforms what would be an ODR violation into a legal situation by lowering the symbol's strength. Performance inlining (actual code substitution) is a separate compiler optimization that may or may not occur, but the weak symbol behavior is the fundamental reason `inline` exists in the language.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "chapter": "linking",
+    "extraction_type": "technical_deep_dive",
+    "extraction_date": "2025-10-29T00:00:00.000000",
+    "book_metadata_added": "2025-10-29T00:00:00.000000"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// header.h\ninline int compute(int x) {\n    return x * x + 1;\n}\n\n// file1.cpp\n#include \"header.h\"\nint result1 = compute(5);  // Emits weak symbol\n\n// file2.cpp  \n#include \"header.h\"\nint result2 = compute(10); // Emits weak symbol\n\n// Linking: Both translation units have compute().\n// Without inline → multiple definition error\n// With inline → linker keeps one, discards the other\n\n// Check with:\n// $ nm file1.o | grep compute\n// 0000000000000000 W _Z7computei   # W = weak\n// $ nm file2.o | grep compute  \n// 0000000000000000 W _Z7computei   # W = weak",
+  "keywords": "weak symbol linking, inline ODR compliance, strong vs weak symbols"
+}

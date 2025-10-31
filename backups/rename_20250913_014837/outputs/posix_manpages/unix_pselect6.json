@@ -1,0 +1,80 @@
+{
+  "name": "pselect6",
+  "synopsis": [
+    "#include <sys/select.h>",
+    "int pselect(int nfds, fd_set *_Nullable restrict readfds, fd_set *_Nullable restrict writefds, fd_set *_Nullable restrict exceptfds, const struct timespec *_Nullable restrict timeout, const sigset_t *_Nullable restrict sigmask);"
+  ],
+  "description": "pselect() allows a program to monitor multiple file descriptors for I/O readiness while atomically modifying the signal mask to prevent race conditions. It is similar to select() but uses a timespec structure for timeout and includes a sigmask parameter for signal handling.",
+  "parameters": [
+    {
+      "name": "nfds",
+      "type": "int",
+      "description": "The highest-numbered file descriptor in any of the sets, plus 1."
+    },
+    {
+      "name": "readfds",
+      "type": "fd_set *_Nullable restrict",
+      "description": "Set of file descriptors to monitor for readability."
+    },
+    {
+      "name": "writefds",
+      "type": "fd_set *_Nullable restrict",
+      "description": "Set of file descriptors to monitor for writability."
+    },
+    {
+      "name": "exceptfds",
+      "type": "fd_set *_Nullable restrict",
+      "description": "Set of file descriptors to monitor for exceptions."
+    },
+    {
+      "name": "timeout",
+      "type": "const struct timespec *_Nullable restrict",
+      "description": "Timeout period for the wait, or NULL for no timeout."
+    },
+    {
+      "name": "sigmask",
+      "type": "const sigset_t *_Nullable restrict",
+      "description": "Signal mask to be atomically installed during the call."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of file descriptors contained in the three returned descriptor sets.",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "An invalid file descriptor was given in one of the sets."
+    },
+    {
+      "code": "EINTR",
+      "description": "A signal was caught."
+    },
+    {
+      "code": "EINVAL",
+      "description": "nfds is negative or exceeds the RLIMIT_NOFILE resource limit, or the value in timeout is invalid."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Unable to allocate memory for internal tables."
+    }
+  ],
+  "bugs": "The glibc implementation has a fixed FD_SETSIZE limit of 1024, making it unsuitable for monitoring higher file descriptors; use poll(2) or epoll(7) instead. It is vulnerable to race conditions in older versions, and may report spurious readiness on sockets. Additionally, select() modifies timeout on interruption, which applies similarly to pselect().",
+  "versions": "Since glibc 2.1, with _POSIX_C_SOURCE >= 200112L",
+  "posix_compliance": "POSIX.1-2001",
+  "examples": [
+    "#include <stdio.h>\n#include <stdlib.h>\n#include <sys/select.h>\nint main(void) {\n    int retval;\n    fd_set rfds;\n    struct timeval tv;\n    FD_ZERO(&rfds);\n    FD_SET(0, &rfds);\n    tv.tv_sec = 5;\n    tv.tv_usec = 0;\n    retval = select(1, &rfds, NULL, NULL, &tv);\n    if (retval == -1) perror(\"select()\");\n    else if (retval) printf(\"Data is available now.\\n\");\n    else printf(\"No data within five seconds.\\n\");\n    exit(EXIT_SUCCESS);\n}"
+  ],
+  "related_calls": [
+    "select",
+    "poll",
+    "epoll_wait"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pselect6.pdf",
+    "extraction_date": "2025-07-29T16:16:27.686610",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

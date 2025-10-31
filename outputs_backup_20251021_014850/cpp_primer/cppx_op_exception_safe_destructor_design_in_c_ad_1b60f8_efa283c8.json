@@ -1,0 +1,15 @@
+{
+  "topic": "Exception-Safe Destructor Design in C++ (Advanced C Techniques)",
+  "explanation": "In advanced C programming, particularly when interfacing with C++ features or designing resource management routines, understanding how destructors behave during stack unwinding is crucial. Destructors are invoked automatically during exception propagation, and if they throw exceptions themselves, it can lead to program termination. Therefore, destructors must be written to handle potential errors internally, ensuring exception safety and program stability during complex control flows such as stack unwinding. This concept emphasizes designing destructors that are robust against exceptions, a critical aspect of advanced resource management and error handling in C++-style C programming.",
+  "syntax": "void destructor_function(struct Resource *res) {\n    if (res->pointer) {\n        // Perform cleanup\n        free(res->pointer);\n        res->pointer = NULL;\n    }\n    // Wrap operations that might fail in internal error handling\n    try {\n        // e.g., logging or additional cleanup\n    } catch (...) {\n        // Handle errors internally to prevent exceptions from escaping\n    }\n}",
+  "code_example": "struct Resource {\n    void *pointer;\n};\nvoid cleanup_resource(struct Resource *res) {\n    if (res->pointer) {\n        free(res->pointer);\n        res->pointer = NULL;\n    }\n}\nvoid resource_destructor(struct Resource *res) {\n    // Destructor must not throw exceptions\n    // Wrap cleanup in internal error handling\n    if (res) {\n        // Use internal try-catch or error checks if in C++, or ensure no exceptions\n        cleanup_resource(res);\n    }\n}",
+  "example_explanation": "This example demonstrates an advanced destructor pattern where resource cleanup is performed safely within a destructor function. It emphasizes that destructors should handle all potential errors internally, avoiding exceptions escaping during stack unwinding. The pattern ensures exception safety during complex control flows, such as when an exception is propagated, preventing program termination due to unhandled exceptions in destructors. This approach is essential for writing robust, advanced C code that interacts with C++ features or manages critical resources reliably.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "949-949",
+    "extraction_date": "2025-08-20T07:23:28.144086",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}

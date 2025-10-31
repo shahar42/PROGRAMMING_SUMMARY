@@ -1,0 +1,18 @@
+{
+  "topic": "Anti-Pattern: Using Universal References for Non-Constructors",
+  "category": "design",
+  "explanation": "Assumption: If perfect forwarding is good for construction (Item 25), it must be a globally applicable pattern for any function that takes input, leading to cleaner code and optimal efficiency. Reality: The complexity, potential for collision (Item 26), and strict requirements of universal references make them poorly suited for general member functions, especially those intended to operate on non-owned data. The primary domain of universal references is transferring external resources efficiently into a new object (constructors or factory functions). Why It Fails: Applying `T&&` to general functions increases the surface area for template instantiation failures and overload collisions with standard lvalue/const lvalue overloads. Furthermore, since `T&&` binds non-const lvalues, using it often requires complex constraints (`std::enable_if` or concepts) to prevent the function from incorrectly being chosen for types it should not handle, ultimately making the code less maintainable and harder to debug than using dedicated `const T&` and `T&&` strict overloads.",
+  "code_example": "// Overly complex general member function using universal references\nclass Data { \n  template<typename T> \n  void process_data(T&& d); // Unnecessarily complex interface \n};",
+  "practical_example": "A developer refactors several simple getter/setter functions to use universal references for 'maximum efficiency.' This results in an interface that is extremely difficult for other team members to read and maintain, requiring them to constantly check reference collapsing and forwarding rules for simple state manipulation.",
+  "keywords": [
+    "over-application",
+    "design complexity",
+    "general functions",
+    "maintainability failure"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "198-199",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_anti_pattern__using_universal_910a09",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

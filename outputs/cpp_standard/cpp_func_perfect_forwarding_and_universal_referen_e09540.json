@@ -1,32 +1,12 @@
 {
-  "topic": "Perfect Forwarding and Universal References",
+  "topic": "Perfect Forwarding: Preserving Value Categories",
   "explanation": "Perfect forwarding allows a function template to forward its arguments to another function while preserving the original argument's value category (lvalue or rvalue).  This is achieved using universal references, which are references that can bind to both lvalues and rvalues. The key to understanding perfect forwarding lies in the compiler's ability to deduce the reference type based on the argument passed and the subsequent application of forwarding references.  At compile time, the compiler analyzes the argument type and employs template argument deduction.  If the argument is an lvalue, the universal reference decays into an lvalue reference; if it's an rvalue, it decays into an rvalue reference. This allows the function to correctly call other functions expecting either lvalues or rvalues, avoiding unnecessary copies or moves.  Memory layout is not directly impacted, but performance is significantly improved by avoiding unnecessary copies when forwarding rvalues. The absence of unnecessary copies translates to better performance, especially with large or complex objects.  Assembly-level behavior will reflect the use of move semantics if an rvalue is passed, resulting in potentially fewer instructions compared to a scenario where copy semantics are used.  The core runtime behavior hinges on the appropriate selection of copy, move, or reference operations, determined at compile time during template instantiation.",
-  "syntax": "template <typename T> void perfectForward(T&& param) { std::forward<T>(param); }",
-  "code_example": [
-    "#include <iostream>",
-    "#include <utility>",
-    "struct A {",
-    "  A() { std::cout << \"A()\\n\"; }",
-    "  A(const A&) { std::cout << \"A(const A&)\\n\"; }",
-    "  A(A&&) { std::cout << \"A(A&&)\\n\"; }",
-    "  ~A() { std::cout << \"~A()\\n\"; }",
-    "};",
-    "template <typename T>",
-    "void perfectForward(T&& param) {",
-    "  A a = std::forward<T>(param); //std::forward is crucial here",
-    "}",
-    "int main() {",
-    "  A a;",
-    "  perfectForward(a); // lvalue, calls A(const A&)",
-    "  perfectForward(A()); // rvalue, calls A(A&&)",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The `perfectForward` function uses a universal reference `T&&`.  When an lvalue `a` is passed, `T` is deduced as `A&`, and `T&&` becomes `A&`. When an rvalue `A()` is passed, `T` is deduced as `A`, and `T&&` becomes `A&&`. `std::forward` ensures the correct forwarding of the value category.  The compiler generates different code paths based on the type deduction, ensuring optimal efficiency (avoiding unnecessary copies). The output demonstrates the different constructors called depending on whether the argument is an lvalue or rvalue.  Examine the generated assembly code to see the difference between copy and move constructor calls.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "overloading",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T01:58:53.844638"
-  }
+    "extraction_date": "2025-08-19T01:58:53.844638",
+    "book_metadata_added": "2025-10-28T20:22:06.835549"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Name Lookup and the Impact of Nested Classes",
+  "explanation": "This delves into the intricacies of C++ name lookup, particularly focusing on how the compiler resolves names within nested classes, impacting both compile time and runtime performance.  The process involves a complex sequence of steps including argument-dependent lookup (ADL), and the order in which different scopes are searched.  Understanding this is crucial for writing efficient and predictable code, avoiding unexpected behavior and subtle bugs related to name hiding and ambiguity.  The compiler's implementation relies on sophisticated symbol tables and potentially optimized search algorithms.",
+  "syntax": "C++ class definitions with nested classes and member functions.  Demonstrates how unqualified names are resolved in different contexts (member functions, base classes, enclosing namespaces).",
+  "code_example": "#include <iostream>\nnamespace Outer {\n  class Base {\n  public:\n    void print() { std::cout << \"Base::print()\\n\"; }\n  };\n  class Inner : public Base {\n  public:\n    void print() { std::cout << \"Inner::print()\\n\"; }\n    void callPrint() { print(); /*Which print?*/ }\n    void callBasePrint() { Base::print();}\n  };\n}\nint main() {\n  Outer::Inner inner;\n  inner.callPrint();\n  inner.callBasePrint();\n  return 0;\n}",
+  "example_explanation": "The `callPrint()` function in `Outer::Inner` demonstrates name hiding and the order of name lookup. The compiler will first search within the `Inner` class. If it finds a matching name (`print()`), it uses that version (Inner's `print()`).  `callBasePrint()` shows how to explicitly call the base class version. The compiler's implementation details involve constructing symbol tables at compile time, resolving names based on scoping rules, potentially generating additional code for virtual function calls (if `print` were virtual) and managing the symbol table's complexity efficiently, especially within deeply nested structures. The performance impact varies but can involve more complex lookups for deeply nested classes.  The compiler's optimization strategies can mitigate this, but understanding the underlying mechanics helps write more optimized code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:42:42.579083"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "std::string's insert() method implementation and optimization strategies",
+  "explanation": "The `std::string::insert()` method offers several overloads, each presenting unique implementation challenges and optimization opportunities.  Understanding its behavior requires delving into memory management, allocator interactions, and compiler optimizations.  The compiler's choices in implementing these overloads significantly impact performance, particularly with frequent insertions or large strings.  Different compilers (like GCC, Clang, MSVC) may employ diverse strategies, resulting in varying performance characteristics.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:02:05.217860",
+    "book_metadata_added": "2025-10-28T20:22:06.819454"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// 1. Basic C-string insertion (at pos, length n)\n\nvoid insert(size_type pos, const char* s, size_type n) {\n    if (n == 0) return;\n    const size_type current_size = size();\n    const size_type required = current_size + n;\n\n    if (required > capacity()) {\n        // Relocation needed: Reallocate and copy existing data\n        // Optimization: Use growth factor (1.5x or 2x)\n        size_type new_cap = calculate_new_capacity(required);\n        // Copy original prefix, new data, then original suffix\n        reallocate_and_copy(pos, s, n, new_cap);\n    } else {\n        // In-place shift (if capacity sufficient)\n        // memmove: shifts existing suffix right by 'n'\n        std::memmove(data_ + pos + n, data_ + pos, current_size - pos);\n        // memcpy: copy new data 's' into the gap\n        std::memcpy(data_ + pos, s, n);\n    }\n}\n\n// 2. Optimization: Insert specific character 'c' repeatedly 'count' times\n\nvoid insert(size_type pos, size_type count, char c) {\n    // Similar growth check\n    // If relocation: use custom fill function during copy\n    // If in-place:\n    std::memmove(data_ + pos + count, data_ + pos, size() - pos);\n    // Optimization: Use compiler-optimized memset/std::fill\n    std::fill(data_ + pos, data_ + pos + count, c);\n}"
+}

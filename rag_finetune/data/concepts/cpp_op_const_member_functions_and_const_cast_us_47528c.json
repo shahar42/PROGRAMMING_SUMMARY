@@ -1,0 +1,16 @@
+{
+  "topic": "Const Member Functions and const_cast Usage",
+  "explanation": "In C++, member functions can be declared as 'const' to indicate that they do not modify the state of the object. This allows such functions to be called on const instances of classes. Additionally, when a const member function needs to return a non-const pointer or reference to internal data, it can use 'const_cast' to remove the const qualifier, enabling controlled access to internal mutable members. This pattern is useful for providing read-only access to internal resources while maintaining const-correctness in interface design.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1099-1099",
+    "extraction_date": "2025-08-19T09:15:01.221791",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.870411"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class DataManager {\n    int internal_data = 0;\npublic:\n    // Standard const function\n    int get_data() const { return internal_data; }\n\n    // Use const_cast to provide non-const access to internal data\n    // DANGER: Only safe if internal_data is logically mutable\n    int& get_mutable_ref() const {\n        // Casts 'this' (const DataManager*) to (DataManager*)\n        return const_cast<DataManager*>(this)->internal_data;\n    }\n};\n\nvoid access_demo() {\n    const DataManager cdm;\n    // Modifies cdm, bypassing const qualifier\n    cdm.get_mutable_ref() = 42;\n}",
+  "keywords": "const_cast in const function, Casting away constness, const member function access"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Variadic Function Templates with Perfect Forwarding",
+  "explanation": "This concept involves defining function templates that can accept a variable number of arguments (variadic templates) and forwarding those arguments perfectly to other functions or constructors. It enables writing highly generic and efficient code by allowing functions to handle any number and types of arguments while preserving their value categories (lvalues or rvalues). This is particularly useful in modern C++ for creating flexible APIs, such as custom bind functions or wrapper utilities, that work seamlessly with diverse argument types without unnecessary copying or moves.",
+  "syntax": "template<class R, class F, class... BoundArgs>\nunspecified bind(F&& f, BoundArgs&&... args);",
+  "code_example": "#include <iostream>\n#include <utility>\n\ntemplate<typename R, typename F, typename... BoundArgs>\nauto my_bind(F&& f, BoundArgs&&... args) {\n    return [f = std::forward<F>(f), ...args = std::forward<BoundArgs>(args)]() {\n        return f(std::forward<BoundArgs>(args)...);\n    };\n}\n\nint add(int a, int b) { return a + b; }\n\nint main() {\n    auto bound_func = my_bind<int>(add, 3, 4);\n    std::cout << \"Result: \" << bound_func() << std::endl;\n    return 0;\n}",
+  "example_explanation": "This example defines a variadic template function 'my_bind' that accepts a callable 'f' and any number of arguments, forwarding them perfectly into a lambda that calls 'f' with those arguments. In 'main', 'my_bind' is used to create a bound function that calls 'add' with specific arguments. When invoked, it executes 'add(3, 4)', demonstrating how variadic templates combined with perfect forwarding enable flexible, efficient function binding in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "579-579",
+    "extraction_date": "2025-08-19T05:27:46.421876",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Implementation of Const Reference Parameters in C++ Templates",
+  "explanation": "In C++, when using const reference parameters (e.g., const T&) in template functions, the compiler performs template instantiation at compile-time for each unique set of template arguments. This involves generating specialized code for each instantiation, which can lead to code bloat if not managed properly. Under the hood, a const reference (const T&) is typically implemented as a pointer by the compiler, meaning it occupies the size of a pointer (e.g., 8 bytes on a 64-bit system) rather than the full size of the object it references. This avoids copying the object, improving performance for large types by reducing memory allocation and copy operations. Memory layout-wise, the reference itself is not stored as a separate object but is used directly in the generated assembly, often as a register or memory address. Performance implications include faster function calls due to no object copying, but it requires the referenced object to exist for the duration of the function, potentially leading to dangling reference issues if not careful. At the assembly level, the compiler might translate a const T& parameter into a pointer load and indirect access, as seen in instructions like 'mov' to load the address and 'access via [reg]'. This is a compile-time feature for template instantiation, but runtime behavior involves the actual function execution, where the reference is resolved to the original object's memory location. For example, in a template function, the compiler checks for type compatibility during instantiation, and if T is a large class, using const T& prevents unnecessary copies, enhancing efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:08:17.678137",
+    "book_metadata_added": "2025-10-28T20:22:06.834422"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\nvoid process(const T& item) {\n    // Compiler treats const T& internally like T* (Pointer)\n    // Argument slot size: sizeof(void*) (e.g., 8 bytes)\n    // Instantiation cost incurred per unique T\n}\n\nstruct LargeData { char buffer[512]; };\n\nvoid caller() {\n    int i = 1;\n    LargeData d;\n    \n    process(i); // Instantiate process<int>\n    process(d); // Instantiate process<LargeData>\n                // Argument passing is cheap (fixed pointer size)\n}\n\n// Result: Template bloat is possible, but runtime argument cost is minimal.",
+  "keywords": "Template code bloat, const reference template, C++ reference as pointer"
+}

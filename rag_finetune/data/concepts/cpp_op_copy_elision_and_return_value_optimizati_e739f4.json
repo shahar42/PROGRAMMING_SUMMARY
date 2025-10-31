@@ -1,0 +1,14 @@
+{
+  "topic": "Copy Elision and RVO for Local Objects",
+  "explanation": "Copy elision and return value optimization (RVO) are compiler optimizations that avoid unnecessary copies of objects, significantly impacting performance and memory usage.  The compiler analyzes the code to determine if a copy can be omitted.  If a function returns a locally created object by value, RVO eliminates the creation of a temporary object and the subsequent copy into the caller's variable.  Copy elision, a broader term, encompasses RVO and also applies to other scenarios where copies can be avoided (e.g., passing objects to functions by value).  The implementation details vary across compilers, but generally involve analyzing the control flow and object lifetimes at compile time. The absence of explicit copy constructors and assignment operators doesn't guarantee RVO; the compiler’s ability to perform these optimizations depends heavily on the code structure.  Failure to perform RVO might lead to observable overhead in terms of memory allocation, deallocation, and the execution time of the copy constructor/assignment operator.  In scenarios involving complex objects with expensive copy operations (e.g., large vectors or custom-defined classes with intricate member variables), the performance gains from RVO can be substantial.  Assembly level analysis might show that the expected instructions for copying are missing, instead showing direct memory assignments. It's critical to understand that while RVO is encouraged, it's not guaranteed.  Code should not rely on RVO for correctness.  The standard only guarantees the *semantic* equivalence, not the absence of copies.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:14:36.103407",
+    "book_metadata_added": "2025-10-28T20:22:06.912619"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct HeavyResource {\n    long data[100];\n    HeavyResource() {}\n};\n\n// Named Return Value Optimization (NRVO)\nHeavyResource factory_nrvo() {\n    HeavyResource result; // Local named object\n    return result;       // Copy/Move elided (Optimization)\n}\n\n// Guaranteed Copy Elision (C++17+)\nHeavyResource factory_temp() {\n    return HeavyResource(); // Prvalue directly constructed\n}\n\nHeavyResource obj_a = factory_nrvo();\nHeavyResource obj_b = factory_temp();\n// obj_a and obj_b are constructed directly in place\n// No temporary objects or copies/moves occur.",
+  "keywords": "RVO, Copy Elision, Return Value Optimization"
+}

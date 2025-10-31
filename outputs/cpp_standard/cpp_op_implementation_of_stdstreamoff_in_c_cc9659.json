@@ -1,25 +1,12 @@
 {
   "topic": "Implementation of std::streamoff in C++",
   "explanation": "std::streamoff is an implementation-defined type in the C++ Standard Library, typically defined in the <ios> header, and serves as a synonym for a signed integral type capable of representing the maximum possible file size or stream offset on the operating system. According to the C++ standard (e.g., [streamoff.synopsis]), it is required to be a signed integer type with sufficient size to handle offsets, often mapping to types like long long or int64_t on 64-bit systems. The compiler implements this by typedef-ing it to an appropriate built-in type based on the platform's architecture; for instance, GCC and Clang on x86_64 Linux typically define it as long long, which is 64 bits, to accommodate large files. Memory layout-wise, std::streamoff inherits the layout of its underlying type, meaning it occupies the same space (e.g., 8 bytes on 64-bit systems) and has the same alignment requirements, which ensures efficient storage and access in stream operations. Performance implications include fast arithmetic operations, as it's used for seeking and positioning in streams; compilers optimize these as simple integer additions/subtractions in assembly (e.g., ADD or SUB instructions), minimizing overhead. At compile-time, the type is resolved during translation (e.g., via typedef expansion), but its behavior is primarily runtime-dependent, as operations like file seeking involve I/O hardware interactions. Assembly-level behavior shows that expressions involving std::streamoff are lowered to native integer operations; for example, a seek operation might translate to a system call like lseek on POSIX systems, where the offset is passed as a register value. This runtime aspect can introduce performance hits if large offsets are involved, due to potential cache misses or I/O latency, but the compiler's inline optimizations often mitigate this for in-memory operations.",
-  "syntax": "typedef std::streamoff;  // Implementation-defined; typically: typedef long long streamoff; or similar, depending on the compiler and platform. Usage example: std::streamoff offset = 1024; // Represents a stream offset",
-  "code_example": [
-    "#include <iostream>",
-    "#include <fstream>",
-    "int main() {",
-    "    std::ifstream file(\"example.txt\");",
-    "    if (file.is_open()) {",
-    "        std::streamoff currentPos = file.tellg();  // Get current position as streamoff",
-    "        file.seekg(currentPos + 10);  // Seek forward by 10 units",
-    "        std::cout << \"New position: \" << file.tellg() << std::endl;",
-    "    }",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, std::streamoff is used to handle file positions. The compiler (e.g., GCC) will expand std::streamoff to its underlying type, such as long long, during compilation. For file.tellg(), the compiler generates code that invokes the underlying stream's position query, which at assembly level might involve a call to std::basic_istream::tellg, ultimately translating to a system call like lseek on Linux. This results in assembly instructions such as MOV to load the offset into registers, ADD for arithmetic (e.g., currentPos + 10 becomes an ADDQ instruction on x86_64), and SYSENTER for the kernel call. Runtime behavior depends on I/O operations, which can cause delays due to disk access, whereas compile-time checks ensure type compatibility. Performance-wise, arithmetic on std::streamoff is optimized as integer ops, but seeking large files may lead to page faults or cache evictions, highlighting the trade-off between precision and speed in stream handling.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "basic",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T08:38:48.438393"
-  }
+    "extraction_date": "2025-08-19T08:38:48.438393",
+    "book_metadata_added": "2025-10-28T20:22:06.815951"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

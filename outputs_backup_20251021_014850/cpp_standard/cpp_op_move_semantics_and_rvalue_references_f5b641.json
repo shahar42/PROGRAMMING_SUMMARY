@@ -1,0 +1,25 @@
+{
+  "topic": "Move Semantics and Rvalue References",
+  "explanation": "In modern C++, move semantics enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. Rvalue references (denoted by &&) are a key feature that allow functions and constructors to distinguish between lvalues and rvalues, facilitating move semantics. This is especially important in resource-managing classes, such as containers and smart pointers, to optimize resource transfer without expensive copying.\n\nMove semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, reducing unnecessary copying and improving performance. This is achieved through rvalue references (&&) and move constructors or move assignment operators, which 'move' resources instead of copying them. Modern C++ leverages move semantics to optimize resource management, especially in container classes and performance-critical applications.",
+  "syntax": "Class with move constructor:\n\nclass ClassName {\npublic:\n    // Move constructor\n    ClassName(ClassName&& other) noexcept;\n    // Move assignment operator\n    ClassName& operator=(ClassName&& other) noexcept;\n};\n\nFunction returning rvalue reference:\n\nType&& functionName();",
+  "code_example": "#include <iostream>\n#include <vector>\n\nclass Buffer {\npublic:\n    int* data;\n    size_t size;\n    // Constructor\n    Buffer(size_t s) : data(new int[s]), size(s) {\n        std::cout << \"Constructed\" << std::endl;\n    }\n    // Destructor\n    ~Buffer() {\n        delete[] data;\n        std::cout << \"Destroyed\" << std::endl;\n    }\n    // Move constructor\n    Buffer(Buffer&& other) noexcept : data(other.data), size(other.size) {\n        other.data = nullptr;\n        other.size = 0;\n        std::cout << \"Moved\" << std::endl;\n    }\n    // Move assignment operator\n    Buffer& operator=(Buffer&& other) noexcept {\n        if (this != &other) {\n            delete[] data;\n            data = other.data;\n            size = other.size;\n            other.data = nullptr;\n            other.size = 0;\n            std::cout << \"Move assigned\" << std::endl;\n        }\n        return *this;\n    }\n    // Disable copy semantics for clarity\n    Buffer(const Buffer&) = delete;\n    Buffer& operator=(const Buffer&) = delete;\n};\n\nint main() {\n    std::vector<Buffer> buffers;\n    buffers.push_back(Buffer(10)); // Move constructor invoked\n    Buffer b1(20);\n    Buffer b2(30);\n    b2 = std::move(b1); // Move assignment invoked\n    return 0;\n}",
+  "example_explanation": "This example demonstrates move semantics by defining a Buffer class with a move constructor and move assignment operator. When a temporary Buffer object is pushed into a vector, the move constructor is called, efficiently transferring resources. Similarly, using std::move to assign one Buffer to another invokes the move assignment operator. This showcases how modern C++ uses move semantics to optimize resource management and avoid unnecessary copying.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "296-296",
+    "extraction_date": "2025-08-19T03:22:25.406716",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "merged_on": "2025-08-19T06:18:34.881896",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "698-698",
+      "extraction_date": "2025-08-19T06:18:34.237692",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.8993903398513794
+  }
+}

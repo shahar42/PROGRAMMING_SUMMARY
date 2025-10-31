@@ -1,0 +1,29 @@
+{
+  "topic": "Vtable Layout in Polymorphic Classes",
+  "explanation": "In C++, when a class declares or inherits virtual functions, the compiler creates a virtual table (vtable) for each polymorphic class. The vtable is a runtime data structure that enables dynamic dispatch of virtual functions. Internally, each object of such a class contains a pointer to its class's vtable, which the compiler initializes during object construction. The vtable layout and the associated mechanism allow the program to determine, at runtime, which function implementation to invoke, supporting polymorphism. Understanding the internal structure of vtables and how they are referenced within objects is crucial for grasping how C++ achieves dynamic dispatch and runtime type identification.\n\nIn C++, when a class declares or inherits virtual functions, the compiler creates a virtual table (vtable) for that class, which is a static array of pointers to virtual functions. Each object of such a class contains a hidden pointer to its class's vtable, enabling dynamic dispatch at runtime. This mechanism allows the program to invoke the correct overridden function based on the actual object's type, supporting polymorphism. Internally, the vtable layout and the vptr (vtable pointer) placement are critical for understanding how C++ achieves runtime polymorphism efficiently and how the compiler manages function calls through indirect memory references.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "2-2",
+    "extraction_date": "2025-09-17T14:59:17.694591",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "object",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "merged_on": "2025-09-17T14:59:55.636885",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "2-2",
+      "extraction_date": "2025-09-17T14:59:55.305146",
+      "has_code": false,
+      "has_explanation": false,
+      "book_context": "Inside_the_C++_Object_Model"
+    },
+    "merge_similarity_score": 0.8640331029891968,
+    "book_metadata_added": "2025-10-28T20:22:06.682349"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "// Base VTable: [&Base::v1, &Base::v2, &Base::~Base]\nclass Base {\npublic:\n    // Object Layout: [ vptr | data members ]\n    virtual void v1() {}  // VTable Index 0\n    virtual void v2() {}  // VTable Index 1\n    virtual ~Base() {}    // VTable Index 2 (Destructor)\n};\n\n// Derived VTable: [&Derived::v1, &Base::v2, &Derived::~Derived]\nclass Derived : public Base {\n    int d_data;\npublic:\n    // Replaces entry at VTable Index 0\n    void v1() override {}\n\n    // Inherits v2 (Index 1 points to Base::v2)\n\n    // Replaces entry at VTable Index 2\n    ~Derived() override {}\n};\n\n// Runtime Call Mechanism (Conceptual):\n// p->v1() => (*(p->vptr))[0]();",
+  "keywords": "vtable, vptr, C++ dynamic dispatch, Virtual function table layout"
+}

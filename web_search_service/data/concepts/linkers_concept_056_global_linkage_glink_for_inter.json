@@ -1,0 +1,16 @@
+{
+  "topic": "Global Linkage (glink) for Inter-Module Calls",
+  "explanation": "In systems like AIX, modules (often compiled from single source files or groups of related files) contain a Table of Contents (TOC) holding pointers to routines and static data.  Intra-module calls are direct and fast because both caller and callee share the same TOC.  However, inter-module calls require a mechanism to switch between TOCs.  Global Linkage (glink) is this mechanism: a short routine that handles the TOC switching for inter-module function calls, optimizing intra-module calls while managing the overhead of inter-module calls efficiently.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "213-214",
+    "extraction_date": "2025-07-21T17:30:40.768442",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.757075"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// R2 holds the current Table of Contents (TOC) pointer\n\n// INTER-MODULE CALL: Module A calls Func F (in Module B)\n\n// 1. Caller Side (Module A)\nCALL F_glink_stub  // Jump to linker-generated glue\n\n// 2. Glink Stub (Handles linkage/TOC switch)\nF_glink_stub:\n    PUSH R2          // Save CallerTOC (A)\n    LOAD R2, TOC_B   // Load CalleeTOC (B)\n    JUMP F_RealEntry // Direct branch to function body\n\n// 3. Callee Entry (Module B)\nF_RealEntry:\n    // Func F executes using R2=TOC_B\n    POP R2           // Restore CallerTOC (A)\n    RETURN           // Return to caller in Module A",
+  "keywords": "glink, TOC switching, AIX global linkage"
+}

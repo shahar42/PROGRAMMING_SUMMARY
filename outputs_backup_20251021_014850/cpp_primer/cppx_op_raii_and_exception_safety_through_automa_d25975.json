@@ -1,0 +1,13 @@
+{
+  "topic": "RAII and Exception Safety through Automatic Object Destruction",
+  "explanation": "Resource Acquisition Is Initialization (RAII) is a fundamental C++ technique that leverages automatic object destruction to manage resources (memory, files, network connections, etc.) safely and efficiently.  When an exception occurs, the C++ runtime performs stack unwinding, automatically destroying objects in the reverse order of their construction. This ensures resources are released even if errors occur, preventing resource leaks and promoting exception safety.  Properly designed classes using RAII guarantee that their destructors release held resources, regardless of how the function exits (normally or via exception).",
+  "syntax": "RAII is not a specific syntax but a design principle. It's implemented by ensuring that resource management is tied to object lifetime.  The key is writing classes whose destructors reliably release resources.  This often involves using smart pointers (e.g., `std::unique_ptr`, `std::shared_ptr`) to manage dynamically allocated memory.",
+  "code_example": "#include <iostream>\n#include <fstream>\n#include <memory>\n\nclass FileOpener {\npublic:\n  FileOpener(const std::string& filename) : file_(new std::ofstream(filename)) {\n    if (!*file_) {\n      throw std::runtime_error(\"Could not open file\");\n    }\n  }\n  ~FileOpener() {\n    if (file_) {\n      file_->close();\n      delete file_;\n    }\n  }\n  std::ofstream* getStream() { return file_; }\nprivate:\n  std::ofstream* file_;\n};\n\nvoid processFile(const std::string& filename) {\n  try {\n    FileOpener file(filename);\n    *file.getStream() << \"This is some data.\";\n    // ... further file operations ...\n  } catch (const std::runtime_error& e) {\n    std::cerr << \"Error: \" << e.what() << std::endl;\n  }\n}\n\nint main() {\n  processFile(\"mydata.txt\");\n  return 0;\n}",
+  "example_explanation": "The `FileOpener` class demonstrates RAII.  The constructor opens the file; the destructor closes it.  Even if an exception occurs within `processFile`, the destructor is guaranteed to close the file, preventing resource leaks.  Using `std::unique_ptr` instead of raw pointers would further enhance this example by removing the need for manual memory management.  This illustrates how RAII simplifies error handling and promotes exception safety.  The use of `try-catch` block ensures that even if `FileOpener`'s constructor throws an exception, the partially constructed object is automatically destroyed, freeing the resource.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:23:09.712245"
+  }
+}

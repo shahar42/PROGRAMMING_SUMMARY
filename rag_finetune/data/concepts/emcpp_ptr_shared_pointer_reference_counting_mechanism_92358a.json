@@ -1,0 +1,20 @@
+{
+  "topic": "Shared Ownership: Reference Counted Lifetime Management",
+  "category": "ptr",
+  "explanation": "Shared pointers provide a mechanism for managing resources with non-exclusive, or shared, ownership. They work by maintaining a reference count that tracks how many shared pointers are currently pointing to a specific resource. This solves the classic C++ problem of determining which part of a program is responsible for deleting a dynamically allocated object when multiple, independent parts of the code need access to it.\n\nScott Meyers frames this as the primary solution for situations where an object's lifetime is inherently shared and cannot be managed by a single owner. The reference counting is automatic and integrated into the lifecycle of the shared pointer objects themselves, providing a robust RAII wrapper for shared resources. Unlike a unique pointer, which enforces a single owner, a shared pointer allows for flexible, multi-owner scenarios, making it indispensable in certain designs.\n\nOwnership and lifetime are managed collectively. When a shared pointer is created from a raw pointer, a control block containing the reference count is allocated, and the count is initialized to one. Copying a shared pointer, either through construction or assignment, atomically increments this reference count. When a shared pointer is destroyed or reassigned, it atomically decrements the count. The crucial guarantee is that the managed resource is automatically deleted only when the reference count drops to zero, which occurs when the last shared pointer pointing to it is destroyed.\n\nIn practice, shared pointers are the tool of choice for data structures with complex relationships, such as graphs where a node may have multiple parents. They are also common in asynchronous programming and event-driven systems where an object must be kept alive until the last callback or handler has finished using it. The key benefit is that no single component needs to know if it is the last user; the reference counting mechanism handles this determination automatically and safely, even in the presence of exceptions.\n\nThe main trade-off for this convenience is performance overhead, which is absent in unique pointers. Furthermore, the simple reference counting scheme is vulnerable to reference cycles, where two or more objects hold shared pointers to each other. In such a cycle, the reference counts will never drop to zero, leading to a memory leak. This specific problem is addressed by weak pointers.",
+  "code_example": "class Widget {};\n\nvoid useWidget(std::shared_ptr<Widget> spw) {\n    // spw is a copy, reference count is now at least 2.\n    // ... uses the widget ...\n} // spw goes out of scope, reference count is decremented.\n\n// 1. Resource is created, managed by a shared_ptr.\n//    Reference count is 1.\nauto spw1 = std::make_shared<Widget>();\n\n// 2. A copy is made.\n//    Reference count becomes 2.\nauto spw2 = spw1;\n\n// 3. A temporary copy is passed to a function.\n//    Reference count becomes 3 inside useWidget, then drops back to 2.\nuseWidget(spw1);\n\n// 4. One shared_ptr is reset.\n//    Reference count drops to 1.\nspw2.reset();\n\n// 5. The last shared_ptr goes out of scope.\n//    Reference count drops to 0, and the Widget is deleted automatically.\n// spw1 is destroyed at the end of its scope.",
+  "practical_example": "In a UI framework, multiple event listeners might need access to a shared data model object. Using a shared pointer to manage the model ensures it remains alive as long as at least one listener is active. When the last listener is deregistered and its shared pointer is destroyed, the model is automatically cleaned up.",
+  "keywords": [
+    "shared_ptr",
+    "reference counting",
+    "shared ownership",
+    "RAII",
+    "thread safety",
+    "resource management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "142-144",
+  "chapter": "Item 19: Use std::shared_ptr for shared-ownership resource management",
+  "id": "emcpp_ptr_shared_pointer_reference_counting_mechanism_92358a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

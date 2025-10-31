@@ -1,0 +1,16 @@
+{
+  "topic": "Symbol Resolution Connecting References",
+  "explanation": "Symbol resolution is the process of matching up symbolic references in a program's object files (like function and variable names) with their actual memory addresses during the linking and loading process.  It's crucial because object files are compiled independently, so the linker needs to connect these disparate pieces.  Without symbol resolution, the program wouldn't know where to find the code or data it needs to execute.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "165-165",
+    "extraction_date": "2025-07-20T01:10:38.536772",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.759585"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// 1. External Linkage (Strong Symbols)\n// Definition must reside in exactly one translation unit (TU).\n\n// TU 1: Definition\nint shared_variable = 42;\nvoid external_func(int a) { /* ... */ }\n\n// TU 2: Declaration/Reference\nextern int shared_variable;\nextern void external_func(int);\n\nvoid caller() {\n    // Linker resolves symbol names to addresses\n    external_func(shared_variable);\n}\n\n\n// 2. Internal Linkage (Symbol Hiding)\n// 'static' prevents symbol resolution outside the TU.\n\n// TU 1\nstatic int local_only = 5;\n\nvoid process() {\n    // Linker does not export 'local_only'\n    // or 'static_helper' for external use.\n}\n\n\n// 3. Weak Symbols (Handling Multiple Definitions)\n// Often used for common definitions (e.g., templates/inline).\n// Strong definitions override weak ones during linking.\n\n__attribute__((weak))\nvoid user_hook() { /* default implementation */ }\n\n// In another TU: Strong definition overrides the weak one\nvoid user_hook() {\n    // Custom specialized implementation\n}\n\n// Reference point: Linker chooses the strong symbol.\nvoid execute_hook() {\n    user_hook();\n}\n<ctrl63>",
+  "keywords": "symbol resolution, linker symbol resolution, external symbols, symbol lookup"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "pidfd_send_signal() System Call",
+  "explanation": "The pidfd_send_signal() system call sends a signal to a process identified by a PID file descriptor. It allows specifying additional signal information via a siginfo_t structure if provided. The caller must be in the appropriate PID namespace, and flags must be set to 0.\n\n**Parameters:**\n- `pidfd` (int): File descriptor referring to the target process\n- `sig` (int): The signal number to send\n- `info` (siginfo_t *_Nullable): Pointer to a siginfo_t structure for additional information, or NULL for default values\n- `flags` (unsigned int): Reserved for future use; must be set to 0\n\n**Common Errors:**\n- `EBADF`: pidfd is not a valid PID file descriptor\n- `EINVAL`: sig is not a valid signal\n- `EINVAL`: The calling process is not in a PID namespace from which it can send a signal to the target process\n- `EINVAL`: flags is not 0\n- `EPERM`: The calling process does not have permission to send the signal to the target process\n\n**Related System Calls:** `clone(2)()`, `kill(2)()`, `pidfd_open(2)()`, `rt_sigqueueinfo(2)()`, `sigaction(2)()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.146660",
+    "syscall_name": "pidfd_send_signal",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pidfd_send_signal.json",
+    "concept_id": "posix_sys_pidfd_send_signal_e85abc",
+    "book_metadata_added": "2025-10-28T20:22:06.668452"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Signature: (pidfd, signal, siginfo, flags=0)\nint pidfd_send_signal(int pidfd, int sig,\n                      const siginfo_t *info, unsigned int flags);\n\nint pfd = 3;\n\n// Send standard SIGTERM (info=NULL, flags=0)\nint ret = pidfd_send_signal(pfd, SIGTERM, NULL, 0);\n\n// Send Realtime Signal with custom data\nsiginfo_t si = { .si_code = SI_USER };\nsi.si_value.sival_int = 101;\nsi.si_signo = SIGRTMIN + 5;\n\npidfd_send_signal(pfd, SIGRTMIN + 5, &si, 0);",
+  "keywords": "pidfd_send_signal, pidfd signal, send signal file descriptor, siginfo_t"
+}

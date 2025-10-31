@@ -1,0 +1,15 @@
+{
+  "topic": "delete_module() System Call",
+  "explanation": "The delete_module() system call attempts to remove an unused loadable kernel module specified by name. If the module has an exit function, it is executed before unloading, and flags can modify the behavior. This call requires privilege and follows specific rules for dependencies and references.\n\n**Parameters:**\n- `name` (const char *): The name of the module to delete.\n- `flags` (unsigned int): Flags to modify behavior, such as O_NONBLOCK or O_TRUNC, affecting how module unloading handles references and dependencies.\n\n**Common Errors:**\n- `EBUSY`: The module is not 'live' or has an init function but no exit function, and O_TRUNC was not specified.\n- `EFAULT`: name refers to a location outside the process's accessible address space.\n- `ENOENT`: No module by that name exists.\n- `EPERM`: The caller was not privileged or module unloading is disabled.\n- `EWOULDBLOCK`: Other modules depend on this module, or O_NONBLOCK was specified but the reference count is nonzero and O_TRUNC was not specified.\n\n**Related System Calls:** `create_module()`, `init_module()`, `query_module()`",
+  "syntax": "int syscall(SYS_delete_module, const char *name, unsigned int flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = delete_module(...);  // Call the system call\nif (result == -1) {\n    perror(\"delete_module\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the delete_module() system call. The function takes 2 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.188249",
+    "syscall_name": "delete_module",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_delete_module.json",
+    "concept_id": "posix_sys_delete_module_e86a96"
+  }
+}

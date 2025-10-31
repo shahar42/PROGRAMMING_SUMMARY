@@ -1,0 +1,17 @@
+{
+  "topic": "Smart Pointers: RAII Resource Lifetime Binding",
+  "explanation": "Smart pointers are template classes in C++ that manage dynamic memory automatically, ensuring proper resource deallocation and preventing memory leaks. They are used to implement RAII (Resource Acquisition Is Initialization) idiom, which ties resource lifetime to object lifetime, simplifying memory management and exception safety in modern C++ programming.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1260-1262",
+    "extraction_date": "2025-08-27T00:05:13.034021",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "book_metadata_added": "2025-10-28T20:22:06.918809"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Foo {};\nvoid func() {\n    // Unique ownership\n    std::unique_ptr<Foo> p1 = std::make_unique<Foo>();\n\n    // Ownership transfer (move semantics)\n    std::unique_ptr<Foo> p2 = std::move(p1);\n    // p1 is now null.\n\n} // Resource deleted automatically when p2 scope ends.\n\nstd::shared_ptr<int> s1 = std::make_shared<int>(42);\nstd::shared_ptr<int> s2 = s1; // Copy: Ref count = 2\n\n// Access raw pointer (dangerous if misused)\nint* raw = s1.get();\n\n// Ref count drops to 1\ns1.reset();\n\n// Resource deleted when s2 scope ends (Ref count reaches 0).\n\nauto s_ptr = std::make_shared<Data>(99);\nstd::weak_ptr<Data> w_ptr = s_ptr;\n\nif (auto locked = w_ptr.lock()) {\n    // Safe access: ensures resource still exists\n    locked->value += 1;\n}\n\n// Resource deleted. w_ptr.lock() will now return null.\n\n// RAII for custom non-memory resources (e.g., C handles)\nstruct FileCloser {\n    void operator()(FILE* f) const { fclose(f); }\n};\n\nusing FilePtr = std::unique_ptr<FILE, FileCloser>;\nFilePtr logFile(fopen(\"log.txt\", \"w\"));\n\nif (logFile) {\n    fprintf(logFile.get(), \"Started.\");\n}\n// FileCloser called automatically on destruction."
+}

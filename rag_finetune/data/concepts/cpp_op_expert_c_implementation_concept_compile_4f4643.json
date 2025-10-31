@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Compile-Time Polymorphism with Template Metaprogramming",
+  "explanation": "Compile-time polymorphism, achieved through template metaprogramming, allows for code generation at compile time based on template arguments.  This differs drastically from runtime polymorphism (virtual functions) as the compiler generates specialized code for each template instantiation.  The key here lies in understanding how the compiler handles template instantiation, recursion within templates, and the resulting impact on code size and execution speed.  The compiler performs significant expansion and optimization, potentially inlining functions and eliminating branches. The memory layout is affected as no virtual function table (vtable) is needed \u2013 each instantiation results in a separate, optimized code path.  This approach avoids the runtime overhead of virtual function calls, but increases code size if many instantiations occur.\n\nCrucially, the compiler's ability to perform these optimizations depends heavily on the specific template code and compiler optimization levels.  Complex template metaprogramming can lead to long compile times and increased executable size if not carefully managed. At the assembly level, the generated code directly reflects the specialized logic for each instantiation, resulting in highly optimized, but potentially large, machine code.\n\nRuntime behavior is entirely determined at compile time. No dynamic dispatch occurs. Error handling also shifts to the compile stage; incorrect template arguments lead to compile-time errors rather than runtime exceptions.  Understanding how the compiler's template instantiation and expansion process leads to efficient, but potentially large, machine code is paramount to using this technique effectively.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "declarators",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T09:33:55.492754",
+    "book_metadata_added": "2025-10-28T20:22:06.980256"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "struct FastPolicy {\n    static void execute() { /* Optimized C++ Path */ }\n};\n\nstruct SafePolicy {\n    static void execute() { /* Checked C++ Path */ }\n};\n\ntemplate <typename Strategy>\nstruct Dispatcher {\n    void invoke() { Strategy::execute(); } // Static dispatch via template argument\n};\n\n// Compiler generates specialized code for each instantiation:\nDispatcher<FastPolicy> fast_executor;\nDispatcher<SafePolicy> safe_executor;\n\n// Result: Zero runtime overhead, specialized compiled routines."
+}

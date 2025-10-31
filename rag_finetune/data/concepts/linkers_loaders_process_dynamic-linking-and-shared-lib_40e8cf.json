@@ -1,0 +1,16 @@
+{
+  "topic": "Dynamic Linking and Shared Libraries",
+  "explanation": "Dynamic linking is a mechanism where a program's required libraries are not linked into its executable at compile time, but rather loaded at runtime.  This allows multiple programs to share a single copy of a library in memory, saving memory and disk space. Shared libraries (like .so files on Linux or .dll files on Windows) are essential for this.  The loader resolves symbols from the shared library at runtime, linking the program's code to the library's functions.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "240-240",
+    "extraction_date": "2025-07-21T21:00:29.276275",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.760012"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// POSIX Dynamic Loading (Run-time linking via the Loader)\n\n// Define the function signature expected from the shared library\ntypedef int (*calc_func)(int, int);\n\n// 1. Open the shared library (.so)\nvoid* lib_handle = dlopen(\"libgeometry.so\", RTLD_LAZY | RTLD_GLOBAL);\n\nif (!lib_handle) {\n    // Handle error: Library not found or inaccessible\n    return;\n}\n\n// 2. Resolve the symbol (find the function entry point)\ncalc_func area_ptr = (calc_func)dlsym(lib_handle, \"calculate_area\");\n\nconst char* error = dlerror();\nif (error != NULL) {\n    // Handle error: Function not found in library\n    dlclose(lib_handle);\n    return;\n}\n\n// 3. Use the loaded function\nint result = area_ptr(10, 5);\n\n// 4. Close the library handle\ndlclose(lib_handle);\n\n// Note: Requires compiling with -ldl\n// ----------------------------------------------------------------\n// Windows equivalent uses LoadLibrary/GetProcAddress/FreeLibrary\n// ----------------------------------------------------------------",
+  "keywords": "Dynamic Linking, Shared Libraries, DLL, .so"
+}

@@ -1,0 +1,106 @@
+{
+  "name": "semtimedop",
+  "synopsis": [
+    "#include <sys/sem.h>",
+    "int semop(int semid, struct sembuf *sops, size_t nsops);",
+    "int semtimedop(int semid, struct sembuf *sops, size_t nsops, const struct timespec *_Nullable timeout);"
+  ],
+  "description": "semtimedop performs atomic operations on a System V semaphore set, similar to semop, but with an optional timeout to prevent indefinite blocking. It executes the specified operations on the semaphores or fails if the timeout expires.",
+  "parameters": [
+    {
+      "name": "semid",
+      "type": "int",
+      "description": "Semaphore set identifier"
+    },
+    {
+      "name": "sops",
+      "type": "struct sembuf *",
+      "description": "Pointer to an array of sembuf structures, each specifying an operation on a semaphore"
+    },
+    {
+      "name": "nsops",
+      "type": "size_t",
+      "description": "Number of operations in the sops array"
+    },
+    {
+      "name": "timeout",
+      "type": "const struct timespec *_Nullable",
+      "description": "Pointer to a timespec structure specifying the timeout, or NULL for no timeout"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "E2BIG",
+      "description": "The argument nsops is greater than SEMOPM, the maximum number of operations allowed per system call"
+    },
+    {
+      "code": "EACCES",
+      "description": "The calling process does not have the required permissions and does not have the CAP_IPC_OWNER capability"
+    },
+    {
+      "code": "EAGAIN",
+      "description": "An operation could not proceed immediately and either IPC_NOWAIT was specified or the timeout expired"
+    },
+    {
+      "code": "EFAULT",
+      "description": "An address specified in sops or timeout is not accessible"
+    },
+    {
+      "code": "EFBIG",
+      "description": "For some operation, the value of sem_num is less than 0 or greater than or equal to the number of semaphores in the set"
+    },
+    {
+      "code": "EIDRM",
+      "description": "The semaphore set was removed"
+    },
+    {
+      "code": "EINTR",
+      "description": "While blocked, the thread caught a signal"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The semaphore set doesn’t exist, or semid is less than zero, or nsops has a non-positive value"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "The sem_flg of some operation specified SEM_UNDO and the system does not have enough memory"
+    },
+    {
+      "code": "ERANGE",
+      "description": "For some operation, sem_op + semval is greater than SEMVMX"
+    }
+  ],
+  "bugs": "When a process terminates with SEM_UNDO operations, semaphore values are decreased as far as possible (to zero) but not below, which may not fully undo the operations, potentially leading to inconsistencies.",
+  "versions": "Linux 2.5.52 (backported into Linux 2.4.22), glibc 2.3.3",
+  "posix_compliance": "POSIX.1-2001",
+  "examples": [
+    "struct sembuf sops[2];",
+    "int semid;",
+    "/* Code to set semid omitted */",
+    "sops[0].sem_num = 0; /* Operate on semaphore 0 */",
+    "sops[0].sem_op = 0; /* Wait for value to equal 0 */",
+    "sops[0].sem_flg = 0;",
+    "sops[1].sem_num = 0; /* Operate on semaphore 0 */",
+    "sops[1].sem_op = 1; /* Increment value by one */",
+    "sops[1].sem_flg = 0;",
+    "if (semop(semid, sops, 2) == -1) {",
+    "    perror(\"semop\");",
+    "    exit(EXIT_FAILURE);",
+    "}"
+  ],
+  "related_calls": [
+    "semop",
+    "shmop"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "semtimedop.pdf",
+    "extraction_date": "2025-08-02T11:40:50.098742",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "PIC Supporting Concurrent Library Use",
+  "explanation": "Position Independent Code (PIC) is a programming technique that allows code to be loaded and executed at any memory address without requiring modification.  This is crucial for shared libraries (DLLs, .so files) because multiple programs might load the same library concurrently, each requiring it at a different address in their own memory space.  Without PIC, the library would need to be relocated for each program, impacting performance and potentially causing conflicts.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "61-63",
+    "extraction_date": "2025-07-16T12:07:40.304131",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.761421"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "# Enabling PIC for Shared Libraries (.so/.dll)\n\ngcc -c -fPIC my_lib.c\ngcc -shared -o libmy_lib.so my_lib.o\n# -fPIC: Generates Position Independent Code\n# -fPIE: Generates Position Independent Executable\n\n# Core Mechanism: Indirection via Tables\n\n// 1. Accessing Global Data (Read/Write)\n// Uses Global Offset Table (GOT)\n// Address calculated relative to current Instruction Pointer (RIP)\n\n// Assembly concept:\n// mov global_var@GOTPCREL(%rip), %rax\n// mov (%rax), %ebx  (Load data via GOT pointer)\n\n// 2. Calling External Functions\n// Uses Procedure Linkage Table (PLT)\n\nvoid call_external(void (*func)()) {\n    // Jump to PLT entry\n    // PLT redirects to GOT entry (which holds the resolved address)\n    func();\n}\n// Internal calls use RIP-relative jumps directly.",
+  "keywords": "PIC, Position Independent Code, Shared library concurrency, Dynamic library relocation"
+}

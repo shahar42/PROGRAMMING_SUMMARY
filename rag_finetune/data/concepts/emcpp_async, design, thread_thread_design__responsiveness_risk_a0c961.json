@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Design: Responsiveness Risk in Default `std::async`",
+  "category": "async, design, thread",
+  "explanation": "Assumption: Since `std::async` utilizes the runtime scheduler, it inherently handles load balancing, preventing synchronous execution of heavy tasks on responsiveness-critical threads (like GUI threads). Reality: The scheduler does not possess semantic knowledge about which application threads have strict responsiveness requirements. If a GUI thread initiates an `std::async` task and subsequently calls `get()` or `wait()` on the resulting `future`, and the scheduler has deferred the task, the task will execute synchronously on the GUI thread itself. Why It Fails: The GUI thread is blocked entirely while the deferred computation runs, leading to noticeable freezing or unresponsiveness in the user interface. Developers must manually manage launch policies or thread affinity if guaranteed responsiveness is required, as the default policy prioritizes system stability over application-specific thread responsiveness.",
+  "code_example": "// Called from the GUI thread\nauto fut = std::async(heavy_computation);\n// If the scheduler deferred execution, this line blocks the GUI thread:\nfut.get(); ",
+  "practical_example": "A desktop application uses `std::async` to initiate file parsing. If the main event loop thread calls `get()` to retrieve the result, and the OS is busy, the entire UI freezes for the duration of the parsing operation.",
+  "keywords": [
+    "GUI thread",
+    "responsiveness",
+    "std::async",
+    "synchronous execution",
+    "blocking"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "262-263",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_async, design, thread_thread_design__responsiveness_risk_a0c961",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

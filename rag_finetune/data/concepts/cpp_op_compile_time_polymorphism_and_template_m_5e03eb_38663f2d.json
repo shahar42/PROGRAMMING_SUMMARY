@@ -1,0 +1,13 @@
+{
+  "topic": "Compile-Time Polymorphism and Template Metaprogramming: Specialization and Partial Specialization",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, leveraging the compiler to generate specialized code based on template parameters.  Partial specialization allows creating variations of a template based on specific combinations of template arguments, enabling fine-grained control over generated code.  This contrasts with runtime polymorphism, where decisions are made during program execution.  Compiler behavior involves sophisticated template instantiation and substitution, impacting code size, performance, and potentially leading to compile-time errors if not handled carefully.  Memory layout depends on the instantiated type; if a partially specialized template leads to a different type than a primary template, this will reflect in different memory layouts.  Assembly-level behavior can vary greatly, showing different instructions and register usage based on the specialized template that is finally instantiated.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:56:20.501792",
+    "book_metadata_added": "2025-10-28T20:22:06.820180"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T, typename U>\nstruct TypeID {\n    static constexpr int Value = 0; // Primary template (Generic)\n};\n\n// Full Specialization: Exact match\ntemplate <>\nstruct TypeID<int, float> {\n    static constexpr int Value = 1;\n};\n\n// Partial Specialization 1: Second argument is a pointer (U=V*)\ntemplate <typename T, typename V>\nstruct TypeID<T, V*> {\n    static constexpr int Value = 2;\n};\n\n// Partial Specialization 2: Arguments are the same type (T=U)\ntemplate <typename T>\nstruct TypeID<T, T> {\n    static constexpr int Value = 3;\n};\n\n// Compile-time evaluation example\nconstexpr int ID_A = TypeID<char, bool>::Value;     // 0\nconstexpr int ID_B = TypeID<int, float>::Value;    // 1\nconstexpr int ID_C = TypeID<double, int*>::Value;  // 2\nconstexpr int ID_D = TypeID<long, long>::Value;    // 3"
+}

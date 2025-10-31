@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture Default By-Value `[=]` Implicitly Captures `this` Pointer",
+  "category": "capture",
+  "explanation": "Assumption: When using the default by-value capture mode (`[=]`) inside a class member function, developers assume that class member variables (like `divisor`) used within the lambda are copied into the closure object, ensuring safety if the closure outlives the enclosing object. Reality: C++ capture rules state that captures apply only to non-static local variables and parameters. Member variables are accessed via the implicit `this` pointer. When `[=]` is used in a member function, it causes the implicit capture of the `this` pointer by value (`[this]`), *not* the member data itself. Why It Fails: If the resulting lambda closure outlives the specific object instance whose member function created it, the captured `this` pointer becomes dangling. Subsequent execution of the lambda attempting to access member data via the captured pointer results in Undefined Behavior.",
+  "code_example": "class Widget {\n  int divisor = 5;\n  std::vector<std::function<bool(int)>> filters;\npublic:\n  void addFilter() {\n    // DANGER: [=] captures 'this' by value\n    filters.emplace_back( [=](int value) { \n      return value % divisor == 0; \n    }); \n  }\n};\n// If the Widget object is destroyed, the filter becomes invalid.",
+  "practical_example": "A GUI application registers a lambda as a callback handler for a button click, and this lambda uses member data. If the main window object (which owns the member data) is closed and destroyed before the button is clicked again, the lambda attempts to access memory via the dangling `this` pointer, leading to a crash.",
+  "keywords": "[=] captures this, lambda implicit this capture, default capture member variables, lambda this by value",
+  "difficulty": "intermediate",
+  "page_reference": "233-235",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_default_by_value_8257c4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

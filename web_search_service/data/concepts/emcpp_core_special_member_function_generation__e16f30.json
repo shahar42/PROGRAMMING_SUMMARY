@@ -1,0 +1,22 @@
+{
+  "topic": "Special Member Function Generation: Move Operations",
+  "category": "core",
+  "explanation": "The compiler will automatically generate a move constructor and a move assignment operator for a class, but only under very specific conditions. These generated functions perform a member-wise move of the class's non-static data members, providing an efficient way to transfer resources. This is a cornerstone of modern C++ performance.\n\nScott Meyers emphasizes that the generation of move operations is suppressed if the class has any user-declared functions that manage its lifecycle or copying behavior. The key insight is that if you, the programmer, take control of copying, moving, or destruction, the compiler conservatively assumes that its default member-wise move logic is insufficient or incorrect. This prevents the compiler from silently generating faulty move operations for classes that manage resources like raw pointers or file handles.\n\nThe mechanics are straightforward: the compiler checks for the presence of any user-declared copy constructor, copy assignment operator, move constructor, move assignment operator, or destructor. If any of these five functions are explicitly declared by the programmer (even if defaulted or deleted), the compiler will *not* generate a move constructor or a move assignment operator. This behavior is designed to support the 'Rule of Zero,' where simple classes that don't manage resources get all the special members for free, while resource-managing classes are forced to be explicit.\n\nIn practice, this means that simply adding a destructor to a class, perhaps for logging purposes, will silently disable move semantics for that class. This can lead to unexpected performance penalties as objects are copied instead of moved. To re-enable move operations in such a class, you must explicitly declare them, for example, by defining them or using the 'default' keyword.\n\nA common and significant pitfall is adding a custom destructor to an otherwise simple class and not realizing that this has disabled move semantics. Developers often assume that if a class's members are all movable, the class itself will be movable, but the presence of a user-declared destructor breaks this assumption, leading to silent and potentially expensive copies.",
+  "code_example": "class RuleOfZero {\n  // No user-declared special members.\n  // Compiler generates default/copy/move/destructor.\n  std::string s;\n};\n\nclass SuppressedMove {\npublic:\n  ~SuppressedMove() {} // User-declared destructor\n\n  // Because of the destructor, the compiler will NOT generate\n  // a move constructor or move assignment operator.\n  // This class is copyable but not movable.\nprivate:\n  std::string s;\n};",
+  "practical_example": "When implementing a simple wrapper around an RAII object like a `std::unique_ptr`, you should avoid declaring any special member functions. This allows the compiler to correctly generate the move operations, making your wrapper class efficiently movable and preserving the move-only nature of the underlying smart pointer.",
+  "keywords": [
+    "special member functions",
+    "move semantics",
+    "move constructor",
+    "move assignment",
+    "compiler-generated functions",
+    "rule of five",
+    "rule of zero",
+    "destructor"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "114",
+  "chapter": "Item 17: Understand special member function generation",
+  "id": "emcpp_core_special_member_function_generation__e16f30",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

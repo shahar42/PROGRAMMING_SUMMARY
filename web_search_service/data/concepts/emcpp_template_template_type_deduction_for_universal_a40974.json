@@ -1,0 +1,21 @@
+{
+  "topic": "Template Deduction: Universal Reference Collapse",
+  "category": "template",
+  "explanation": "Universal references, which Scott Meyers also terms forwarding references, are a special template parameter form that can bind to both lvalue and rvalue arguments. They arise when a function template parameter is declared as an rvalue reference to a deduced type, enabling the creation of a single function that can accept arguments of any value category.\n\nMeyers' core insight is that this mechanism eliminates the need for manual overloading to handle lvalues (via const lvalue reference) and rvalues (via rvalue reference). This dramatically reduces code duplication and maintenance overhead in generic code. The goal is to write a single template that transparently accepts any kind of argument and forwards it with its original value category intact.\n\nThe mechanics are based on special type deduction rules combined with reference collapsing. When an lvalue is passed to a universal reference parameter, the template type `T` is deduced as an lvalue reference type. For example, if you pass an `int` lvalue, `T` becomes `int&`. The parameter type then becomes an rvalue reference to an lvalue reference, which collapses to a single lvalue reference. If an rvalue is passed, `T` is deduced as a non-reference type (`int`), and the parameter becomes a normal rvalue reference. This is the key to preserving the argument's original nature.\n\nIn practice, this is the cornerstone of perfect forwarding. To correctly pass the argument on to another function, you must use `std::forward` on the universal reference. This utility casts the parameter to the appropriate value category based on the originally deduced type. This pattern is essential for writing efficient factory functions, generic constructors, and wrappers that avoid unnecessary copies and correctly handle object lifetime.\n\nA common pitfall is to either mistake a universal reference for a standard rvalue reference or to forget to apply `std::forward` to it before passing it on. Inside the function, the parameter itself is always an lvalue. Failing to use `std::forward` will cause all arguments, even those that were originally rvalues, to be forwarded as lvalues, defeating the purpose of the pattern.",
+  "code_example": "// A single function template using a universal reference to handle both lvalues and rvalues.\ntemplate<typename Container, typename Index>\nauto& authAndAccess(Container&& c, Index i)\n{\n  // authenticateUser();\n  // std::forward preserves the value category (lvalue/rvalue) of the container\n  return std::forward<Container>(c)[i];\n}\n\nstd::vector<int> v = {10, 20};\n\n// 1. Pass an lvalue: c is an lvalue, so we get an lvalue reference back.\nint& item1 = authAndAccess(v, 0);\n\n// 2. Pass an rvalue: c is an rvalue (a temporary).\n// The return type would be an rvalue reference, but we can't bind it to a non-const lvalue ref.\n// auto&& captures it correctly.\nauto&& item2 = authAndAccess(std::vector<int>{30, 40}, 1);\n",
+  "practical_example": "The `std::vector::emplace_back` member function uses universal references to accept constructor arguments for a new element. This allows it to perfectly forward those arguments to the element's constructor, enabling in-place construction and avoiding any temporary object creation, regardless of whether the arguments are lvalues or rvalues.",
+  "keywords": [
+    "universal references",
+    "forwarding references",
+    "template type deduction",
+    "perfect forwarding",
+    "rvalue references",
+    "std::forward",
+    "reference collapsing"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "27",
+  "chapter": "Item 3: Understand decltype",
+  "id": "emcpp_template_template_type_deduction_for_universal_a40974",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

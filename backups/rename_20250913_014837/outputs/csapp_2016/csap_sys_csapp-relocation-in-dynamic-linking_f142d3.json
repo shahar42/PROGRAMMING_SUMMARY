@@ -1,0 +1,21 @@
+{
+  "topic": "Relocation in Dynamic Linking",
+  "explanation": "Relocation is a crucial step in dynamic linking, where the program's final addresses are determined at runtime.  This is necessary because shared libraries (like .so files on Linux) and executables might load at different memory locations each time they run. Relocation adjusts the addresses of code and data within a program to reflect their actual runtime locations.  It ensures that code references, such as function calls or data accesses, correctly point to the loaded addresses, guaranteeing correct program execution regardless of the program's load address in memory.",
+  "syntax": "The general relocation process involves iterating through a relocation table which contains entries specifying the type of relocation needed (e.g., PC-relative), the target address, and any necessary adjustments (addends).  For each entry, the relocation logic computes the final address and updates the appropriate memory location.",
+  "code_example": [
+    "/* Relocate a PC-relative reference */",
+    "if (r.type == R_X86_64_PC32) {",
+    "  refaddr = ADDR(s) + r.offset; /* ref’s run-time address */",
+    "  *refptr = (unsigned) (ADDR(r.symbol) + r.addend - refaddr);",
+    "}"
+  ],
+  "example_explanation": "This code snippet demonstrates a PC-relative relocation.  `r.type == R_X86_64_PC32` checks if the relocation type is a 32-bit PC-relative relocation (common in x86-64).  `refaddr` calculates the runtime address of the reference.  The core relocation is performed in the line `*refptr = (unsigned) (ADDR(r.symbol) + r.addend - refaddr);`. It calculates the difference between the symbol's address (`ADDR(r.symbol) + r.addend`) and the reference's address (`refaddr`). This difference, representing the offset from the instruction's PC to the target symbol, is then stored at `*refptr`, effectively updating the instruction to point to the correct address at runtime. This ensures that the program can correctly access the symbol regardless of where it is loaded in memory.  The example highlights the adjustment (addend) and the calculation based on the program counter (PC).",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "718-718",
+    "extraction_date": "2025-07-28T12:08:31.105752",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

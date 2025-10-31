@@ -1,0 +1,19 @@
+{
+  "topic": "Move Operations [Failure]: Moving Containers of Polymorphic Objects",
+  "category": "move",
+  "explanation": "The core failure mode when applying move semantics to containers of polymorphic types (e.g., `std::vector<Base*>`) arises from the confusion between moving the container itself and moving the objects within it. The anti-pattern is the assumption that moving a container of pointers to polymorphic objects will efficiently transfer the actual underlying objects. The reality is that move semantics only moves the top-level container structure (e.g., swapping the internal buffer pointers of the `std::vector`) but does nothing to the polymorphism itself or the objects pointed to. The real problem emerges when containers of *owning* smart pointers (like `std::vector<std::unique_ptr<Base>>`) are involved. If such a container is copied, the required semantics are deep copy: every `unique_ptr` must clone the object it points to. Since `std::unique_ptr` explicitly forbids copying (it's move-only), attempting to copy a container of `unique_ptr`s results in a compilation error. Conversely, moving such a container (`std::vector<std::unique_ptr<Base>>`) is perfectly legal and efficient, as it only swaps the vector's buffer pointers, transferring ownership of all smart pointers simultaneously. The critical failure occurs when developers define move operations for polymorphic containers that involve heterogeneous resource management (e.g., raw pointers managed manually) where a move *should* transfer object ownership, but the underlying move operation is complex and not implicitly generated. If the user expects a deep-polymorphic move (moving the objects themselves based on their derived type) when moving the container, the standard library move operation will fail this expectation, as it only handles the container's shallow structure. To achieve true polymorphic movement/copying, complex manual cloning (via virtual copy/move functions) is required, demonstrating that standard move semantics often fail to address the complexities inherent in polymorphism and resource ownership.",
+  "code_example": "// Moving the vector is cheap (pointer swap), but the objects remain where they are.\nstd::vector<std::unique_ptr<Base>> v1;\nauto v2 = std::move(v1); // Only moves the vector buffer, not the polymorphic objects.",
+  "practical_example": "A game engine stores all active entities polymorphically in a `std::vector<std::unique_ptr<Entity>>`. When a level load requires transferring all entities to a new game state object, the developers use `std::move` on the vector. While the transfer is fast, a bug is discovered where the old game state object still retains pointers to the entities (in legacy systems), causing dangling references, because the core objects themselves were never conceptually 'moved' based on derived type, only their owning smart pointers were transferred.",
+  "keywords": [
+    "polymorphism",
+    "unique_ptr",
+    "container move",
+    "deep copy",
+    "design"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "221-232",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_operations__failure__e7e5c3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

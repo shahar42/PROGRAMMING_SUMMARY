@@ -1,0 +1,14 @@
+{
+  "topic": "Template Metaprogramming and Compile-Time Function Execution",
+  "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, rather than runtime.  This leverages the compiler's ability to generate specialized code based on template arguments.  The compiler performs these calculations during template instantiation, generating optimized code that avoids runtime overhead.  This is fundamentally different from runtime polymorphism, where function calls are resolved at runtime.  Understanding how the compiler handles TMP involves grasping its recursive template instantiation process, potentially involving significant code bloat if not carefully managed.  Memory layout is impacted because the compiler directly generates specialized code for each template instantiation, potentially leading to a larger executable size but improved performance. The assembly-level behavior will exhibit optimized instructions because the compiler has complete knowledge of the data types and calculations at compile time. Compile-time behavior is heavily involved since the entire process is completed by the compiler before the program runs. Runtime behavior is minimally involved, mostly consisting of simply calling the pre-computed function from the specialized code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:11:04.649835",
+    "book_metadata_added": "2025-10-28T20:22:06.999691"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template<int N>\nstruct Factorial {\n    static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate<>\nstruct Factorial<0> {\n    static const int value = 1;\n};\n\n// Result is computed at compile time\n// int result = Factorial<5>::value;\n\nconstexpr unsigned long long factorial_ct(int n) {\n    return (n <= 1) ? 1 : (n * factorial_ct(n - 1));\n}\n\nconstexpr unsigned long long FIVE_FACT = factorial_ct(5);\n\n\ntemplate<typename T>\nstruct is_pointer_type : std::false_type {};\n\ntemplate<typename T>\nstruct is_pointer_type<T*> : std::true_type {};\n\n// Compile-time type selection\nusing ResultType = std::conditional_t<\n    is_pointer_type<int*>::value,\n    long,\n    float>; // ResultType is long",
+  "keywords": "Template Metaprogramming, TMP, Compile Time Computation, C++ Metaprogramming"
+}

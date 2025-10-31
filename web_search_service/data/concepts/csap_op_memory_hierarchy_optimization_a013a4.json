@@ -1,0 +1,16 @@
+{
+  "topic": "Memory Hierarchy Optimization",
+  "explanation": "Modern computer systems utilize a memory hierarchy to bridge the speed gap between CPU and main memory.  This hierarchy consists of multiple levels of storage with varying speeds and capacities (registers, L1 cache, L2 cache, L3 cache, main memory, disk).  Understanding and exploiting this hierarchy is crucial for optimizing program performance, as accessing data from faster levels significantly reduces execution time.  Techniques involve data locality (temporal and spatial) to maximize cache hits and minimize costly accesses to slower memory levels.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "44-44",
+    "extraction_date": "2025-07-22T23:59:10.135890",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.717582"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Spatial Locality (Row-Major Access)\nvoid optimal_access(int matrix[R][C]) {\n    for (int i = 0; i < R; i++) {\n        for (int j = 0; j < C; j++) {\n            matrix[i][j] *= 2; // Sequential memory access\n        }\n    }\n}\n\n// 2. Poor Spatial Locality (Column-Major Access)\nvoid suboptimal_access(int matrix[R][C]) {\n    for (int j = 0; j < C; j++) {\n        for (int i = 0; i < R; i++) {\n            matrix[i][j] *= 2; // Large strides, cache misses\n        }\n    }\n}\n\n// 3. Temporal Locality (Loop Interchange/Tiling Concept)\n// Reuse of B[k][j] and A[i][k] before eviction\nvoid tiled_matmul(int A[N][N], int B[N][N], int C[N][N]) {\n    const int TILE = 32;\n    for (int ii = 0; ii < N; ii += TILE)\n    for (int jj = 0; jj < N; jj += TILE)\n    for (int kk = 0; kk < N; kk += TILE)\n    for (int i = ii; i < ii + TILE; i++)\n    for (int j = jj; j < jj + TILE; j++)\n    for (int k = kk; k < kk + TILE; k++) {\n        C[i][j] += A[i][k] * B[k][j];\n    }\n}\n\n// 4. Struct vs. Array of Structs (Cache Line Padding/Alignment)\n// Data often accessed together should be kept close\nstruct aligned_data {\n    int x;\n    int y;\n    char status; // Padding ensures alignment efficiency\n    // Cache line effects minimized\n};\n\n// 5. Cache Conflict Avoidance (Power-of-Two Strides)\n// If array size N is a power of 2, array indices N and 2N\n// may map to the same cache set (direct mapped/set-associative)\nconst int NON_POWER_OF_2 = 1001;\nint array[NON_POWER_OF_2];\nvoid access_pattern() {\n    // Avoids repeated set conflicts common with N=1024\n    for (int i = 0; i < NON_POWER_OF_2; i += 64) {\n        array[i]++;\n    }\n}",
+  "keywords": "Cache optimization, Data locality, Memory hierarchy"
+}

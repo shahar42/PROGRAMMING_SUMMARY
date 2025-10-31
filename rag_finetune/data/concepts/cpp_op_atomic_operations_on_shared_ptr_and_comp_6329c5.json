@@ -1,0 +1,14 @@
+{
+  "topic": "Atomic Operations on `shared_ptr` and Compiler/Hardware Interaction",
+  "explanation": "This explores the implementation details of atomic operations, specifically `atomic_exchange`, when applied to `std::shared_ptr`.  It delves into how compilers translate this operation into low-level instructions, considering memory models and hardware support for atomicity.  We'll examine the performance implications of different memory orderings and the impact on multi-threaded programs.  Crucially, we'll analyze how the compiler manages the reference counting within `shared_ptr` during atomic exchange, ensuring thread safety and preventing data races.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:25:19.299373",
+    "book_metadata_added": "2025-10-28T20:22:06.875926"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Data {};\nusing SP = std::shared_ptr<Data>;\n\nstd::atomic<SP> atomic_p(std::make_shared<Data>());\nSP incoming_p(std::make_shared<Data>());\n\n// atomic_exchange implementation analysis:\n// Requirement: Atomically swap the pointer and control block (128 bits).\n// Requirement: Atomic Ref Count updates for both pointers.\n\n// 1. incoming_p ref count is incremented (non-atomically w.r.t the store).\n// 2. Atomic 128-bit Compare-and-Swap (CAS2/DCAS) or internal lock.\n// 3. returned_old ref count is decremented (non-atomically w.r.t the load).\n\nSP returned_old = atomic_p.exchange(\n    incoming_p,\n    std::memory_order_acq_rel\n);\n\n// Lock-free check:\n// std::atomic_is_lock_free(&atomic_p)\n// Generally true on x86-64 due to CMPXCHG16B support.",
+  "keywords": "atomic shared_ptr, shared_ptr atomicity, lock-free shared_ptr, atomic reference counting"
+}

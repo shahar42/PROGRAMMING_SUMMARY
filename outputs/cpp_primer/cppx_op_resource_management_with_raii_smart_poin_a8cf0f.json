@@ -1,38 +1,12 @@
 {
   "topic": "Resource Management with RAII: Smart Pointers and Destructors",
   "explanation": "Resource Acquisition Is Initialization (RAII) is a cornerstone of modern C++ design.  It dictates that resources (memory, files, network connections, etc.) should be managed by objects whose destructors automatically release those resources. This prevents resource leaks and simplifies error handling. Smart pointers, like `std::shared_ptr` and `std::unique_ptr`, embody this principle, providing automatic resource management and avoiding the pitfalls of manual memory management with `new` and `delete`.  The `std::unique_ptr` represents exclusive ownership; when it goes out of scope, the managed resource is automatically deleted. `std::shared_ptr` allows shared ownership; the resource is deleted only when the last `shared_ptr` pointing to it is destroyed. Using smart pointers significantly reduces the risk of memory leaks and dangling pointers, making code more robust and easier to maintain.  This is especially crucial when dealing with complex data structures or exceptions, ensuring consistent resource cleanup regardless of how the code execution path ends.",
-  "syntax": "```c++\n#include <memory>\n\n// Unique ownership\nstd::unique_ptr<int> upInt = std::make_unique<int>(10);\n// Shared ownership\nstd::shared_ptr<int> spInt = std::make_shared<int>(20);\n\n//Custom deleter for unique_ptr managing non-heap allocated resources. This is also beneficial for external resources like files. \nstruct FileDeleter {\n  void operator()(FILE* f) { fclose(f); }\n};\nstd::unique_ptr<FILE, FileDeleter> file(fopen(\"myfile.txt\", \"w\"), FileDeleter());\n// ... work with the file ... \n// file's destructor will ensure fclose is called even if exceptions are thrown.\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <memory>",
-    "#include <fstream>",
-    "class FileHandler {",
-    "public:",
-    "  FileHandler(const std::string& filename) : file_(std::make_unique<std::ofstream>(filename)) {",
-    "    if (!*file_) {",
-    "      throw std::runtime_error(\"Could not open file\");",
-    "    }",
-    "  }",
-    "  ~FileHandler() { std::cout << \"File closed automatically\" << std::endl; }",
-    "  std::ofstream& get_file() { return *file_; }",
-    "private:",
-    "  std::unique_ptr<std::ofstream> file_;",
-    "};",
-    "int main() {",
-    "  try {",
-    "    FileHandler fh(\"mydata.txt\");",
-    "    fh.get_file() << \"This will be written to the file.\" << std::endl;",
-    "  } catch (const std::runtime_error& e) {",
-    "    std::cerr << \"Error: \" << e.what() << std::endl;",
-    "  }",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates RAII with `std::unique_ptr`. The `FileHandler` class manages an `std::ofstream`.  The constructor attempts to open the file; if it fails, an exception is thrown. The destructor ensures the file is closed, even if exceptions occur during file operations. This prevents resource leaks and simplifies error handling. Using `std::unique_ptr` avoids the manual call to `file_.close()` in multiple locations, reducing redundancy and improving code clarity. The `try-catch` block handles potential file opening errors.  This is a much more robust and safer approach compared to manual file handling.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "classes",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T05:11:32.757555"
-  }
+    "extraction_date": "2025-08-20T05:11:32.757555",
+    "book_metadata_added": "2025-10-28T20:22:06.571034"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

@@ -1,0 +1,19 @@
+{
+  "topic": "Task-Based versus Thread-Based: Managing Return Values",
+  "category": "async",
+  "explanation": "Assumption: Creating a direct `std::thread` is the most straightforward way to run a function asynchronously. Reality: While `std::thread` initiates concurrency, it provides no built-in mechanism for retrieving the function's return value or handling exceptions thrown during execution. Why It Fails: The thread-based approach forces the developer to manually implement complex synchronization primitives (e.g., `std::promise` and shared data) to communicate results back to the caller. Task-based programming via `std::async` simplifies this significantly, as the function object (the 'task') is executed and its result (or exception) is automatically packaged into the returned `std::future` object, accessible via `future.get()` without manual setup.",
+  "code_example": "int doAsyncWork();\n\n// Thread-based: Need complex setup to get result\nstd::thread t(doAsyncWork);\n\n// Task-based: Result is easily accessible\nauto fut = std::async(doAsyncWork);\nint result = fut.get();",
+  "practical_example": "A developer needs to calculate a large prime number asynchronously. Using `std::thread`, they must pass a reference to a `std::promise<int>` into the thread function. Using `std::async`, they simply call `fut.get()` to retrieve the calculated result.",
+  "keywords": [
+    "std::async",
+    "std::thread",
+    "task",
+    "future",
+    "return value"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "241",
+  "chapter": "Item 35: Prefer task-based programming to thread-based.",
+  "id": "emcpp_async_task_based_versus_thread_based_294b17",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

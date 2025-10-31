@@ -1,0 +1,14 @@
+{
+  "topic": "Template Instantiation and Specialization Naming",
+  "explanation": "In C++, template instantiation and specialization naming involve the compiler's process of creating concrete instances from generic templates based on provided arguments. When a template-id is encountered (e.g., template-name <template-argument-list>), the compiler performs name lookup to associate it with a template declaration. This happens entirely at compile-time, as part of the template instantiation model. The compiler generates specialized code for each unique set of template arguments, which can include types, constant expressions, or id-expressions. Under the hood, this involves the compiler parsing the template definition and substituting the arguments, potentially creating multiple versions of the same template (e.g., for different types). This leads to code bloat in the object file, as each instantiation results in duplicated code, impacting binary size and load times. Memory layout implications are significant for class templates; for instance, the layout of a templated class depends on the size and alignment of the substituted types, which the compiler determines during instantiation. Performance-wise, while instantiation is compile-time only, runtime execution benefits from type-specific optimizations, but excessive instantiations can increase compilation time and executable size. At the assembly level, each instantiation translates to distinct machine code; for example, a templated function might generate separate assembly blocks for each type, with the linker merging or discarding duplicates based on optimization flags. This compile-time behavior contrasts with runtime polymorphism (e.g., virtual functions), as templates enable static dispatch for better performance.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:40:30.578434",
+    "book_metadata_added": "2025-10-28T20:22:06.861845"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Primary Template Declaration\ntemplate <typename T, int N>\nstruct Container {\n    static constexpr bool specialized = false;\n    T data[N];\n};\n\n// Full Template Specialization (Template ID: Container<bool, 1>)\ntemplate <>\nstruct Container<bool, 1> {\n    static constexpr bool specialized = true;\n    bool b; // Optimized structure\n};\n\n// Usage (Implicit Instantiation)\nContainer<int, 10> generic_C;\nContainer<bool, 1> specialized_C;\n\n// Explicit Instantiation\ntemplate struct Container<float, 5>; // Forces Container<float, 5> generation",
+  "keywords": "template instantiation, template specialization, template name lookup, template name resolution"
+}

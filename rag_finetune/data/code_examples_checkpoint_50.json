@@ -1,0 +1,256 @@
+{
+  "total_examples": 50,
+  "checkpoint": 50,
+  "examples": {
+    "cpp_io_using_seekg_to_reposition_the_input_posi_162d5c": {
+      "topic": "Using seekg() to reposition the input position indicator in std::istream",
+      "example_type": "demonstration",
+      "code": "std::ifstream file(\"data.dat\");\n\n// Absolute positioning (from beginning)\nfile.seekg(100);\n\n// Relative positioning (forward from current)\nfile.seekg(20, std::ios::cur);\n\n// Relative positioning (backward from end)\nfile.seekg(-10, std::ios::end);\n\n// Save current position\nstd::streampos saved_pos = file.tellg();\n\n// Restore position\nfile.seekg(saved_pos);\n\n// seekg clears eofbit, sets failbit on error\nif (file.fail()) {\n    file.clear();\n}"
+    },
+    "cpp_op_implicit_conversion_of_unscoped_enumerat_11abc5_42090ed5": {
+      "topic": "Implicit Conversion of Unscoped Enumerations to Integers",
+      "example_type": "demonstration",
+      "code": "// Unscoped enumerations (C compatibility)\nenum Color {\n    RED = 1,\n    GREEN,      // 2\n    BLUE        // 3\n};\n\nColor c = GREEN;\n\n// Implicit conversion to underlying type (int)\nint i = c; // i == 2\n\n// Used directly in arithmetic\nint sum = RED + 10; // sum == 11\n\n// Also compares implicitly against integers\nif (c > 1) { /* true */ }\n\n// Explicit underlying type forces conversion type\nenum Flags : long { X = 1L };\nlong l = X;\n// int j = X; // Implicit conversion still works"
+    },
+    "cpp_func_compile_time_function_execution_with_con_29887c_e930b8d3": {
+      "topic": "Compile-Time Function Execution with `constexpr` and Implications for Static Initialization",
+      "example_type": "demonstration",
+      "code": "constexpr int Factorial(int n) {\n    return (n <= 1) ? 1 : n * Factorial(n - 1);\n}\n\n// Result guaranteed to be evaluated at compile time\nconstexpr int STATIC_INIT_VAL = Factorial(6); // 720\n\n// Usage in context requiring a constant expression\ntemplate<int N>\nstruct LookupTable {};\n\n// Template argument deduction at compile time\nusing Table = LookupTable< Factorial(3) >;\n\n// Array size determined at compile time\nvoid use_array() {\n    int arr[STATIC_INIT_VAL];\n}\n\n// Runtime call still possible if arguments aren't constant\nint runtime_call(int x) { return Factorial(x); }"
+    },
+    "cpp_op_compile_time_polymorphism_and_expression_7d70c3_e26a98bb": {
+      "topic": "Compile-Time Polymorphism and Expression Templates",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "csap_mem_memory_hierarchy_and_caching_strategies_0f7c7f_223630ff": {
+      "topic": "Memory Hierarchy and Caching Strategies: Cache Utilization",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "csap_ctrl_global_offset_table_got_and_position_ind_b1bb6b": {
+      "topic": "Global Offset Table (GOT) and Position-Independent Code (PIC)",
+      "example_type": "demonstration",
+      "code": ".global my_pic_func\n.type my_pic_func, @function\n\nmy_pic_func:\n# Access external symbol 'target_var' via GOT/PIC\n\n# 1. Calculate address of target_var's entry in the GOT\n#    (Using PC-relative addressing: RIP + offset)\n    movq    target_var@GOTPCREL(%rip), %rax\n\n# 2. Load the absolute address (resolved by dynamic loader)\n#    from the Global Offset Table entry pointed to by RAX\n    movq    (%rax), %rbx\n\n# 3. Access the data using the resolved absolute address\n    movl    (%rbx), %ecx\n\n    ret\n.size my_pic_func, .-my_pic_func"
+    },
+    "objmdl_object_001_virtual_function_table_vtable_imple": {
+      "topic": "Virtual Function Table (vtable) Implementation and Virtual Function Dispatch",
+      "example_type": "demonstration",
+      "code": "class VBase {\n// Object layout: [vptr | members...]\n// VTABLE Layout: [0: f1, 1: f2, 2: ~VBase]\npublic:\n    virtual void f1() {}\n    virtual void f2() {}\n    virtual ~VBase() = default;\n};\n\nclass VDerived : public VBase {\n// VDerived VTABLE entry 0 points to D::f1\npublic:\n    void f1() override {}\n};\n\n// Dispatch: ptr->vptr->vtable[index]->function_address\nvoid invoke_dispatch(VBase* ptr) {\n    // Runtime lookup required\n    ptr->f1();\n    \n    // Constant offset lookup (if known not overridden)\n    ptr->f2(); \n}"
+    },
+    "kernighan_ritchie_functions_main_function_005": {
+      "topic": "main function",
+      "example_type": "demonstration",
+      "code": "int main(void) {\n    /* Required entry point */\n    /* Must return int */\n    return 0; // Success\n}\n\nint main(int argc, char *argv[]) {\n    /* argc: argument count */\n    /* argv: argument vector (array of C strings) */\n    \n    // argv[0] is the program name\n    \n    if (argc > 1) {\n        // Handle command-line arguments\n    }\n    \n    return 0;\n}"
+    },
+    "linkers_and_loaders_default_symbol_resolution_027": {
+      "topic": "Symbol Resolution Across Compilation Units",
+      "example_type": "demonstration",
+      "code": "// Snippet 1: Basic External Linkage (Default behavior)\n// Requires definition in one compilation unit (A)\n// and declaration (using extern) in another (B).\n// --- Unit A (Definition) ---\nint application_status = 0;\nvoid start_engine() { /* ... */ }\n\n// --- Unit B (Reference) ---\nextern int application_status; // Declaration for the linker\nextern void start_engine();     // Matches Unit A's definition\n\nvoid init() {\n    application_status = 1;\n    start_engine();\n}\n\n// Snippet 2: Internal Linkage (Hiding Symbols)\n// Prevents symbol definition from being resolved externally.\n// --- Unit A ---\nstatic int local_counter = 5; // C style internal linkage\n\nnamespace {\n    // C++ style internal linkage (via anonymous namespace)\n    void private_utility() { /* ... */ }\n}\n\n// --- Unit B ---\n// extern int local_counter; // Linker error: cannot resolve\n// Cannot reference symbols defined internally in Unit A\n\n// Snippet 3: `extern \"C\"` (Resolving C++/C Conflicts)\n// Forces non-mangled symbol names for cross-language linking.\nextern \"C\" {\n    // Defines an external symbol using C linkage conventions\n    void shared_interface_call(int x);\n\n    int shared_config = 10;\n}\n\n// In a C source file, these are referenced simply:\nextern void shared_interface_call(int x);"
+    },
+    "posix_sys_munmap_79b5a7": {
+      "topic": "munmap() System Call",
+      "example_type": "demonstration",
+      "code": "#define PAGE_SIZE 4096\n\nvoid *addr;\nsize_t length = PAGE_SIZE * 10;\n\n// 1. Create a region to unmap\naddr = mmap(NULL, length, PROT_READ | PROT_WRITE, \n            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);\n\nif (addr == MAP_FAILED) { /* handle error */ }\n\n// 2. Remove the virtual memory mapping\nint status = munmap(addr, length);\n\nif (status == -1) {\n    // EINVAL: addr not page aligned or length is zero/invalid.\n    // EFAULT: Internal kernel error.\n    perror(\"munmap failed\");\n}\n\n// addr is now an invalid pointer."
+    },
+    "cppx_op_using_custom_deleters_with_smart_pointer_0f064e": {
+      "topic": "Using Custom Deleters with Smart Pointers for Resource Management",
+      "example_type": "demonstration",
+      "code": "void file_closer(FILE* f) { if (f) fclose(f); }\n\n// Define unique_ptr type with the deleter's signature\nusing FilePtr = std::unique_ptr<FILE, decltype(&file_closer)>;\n\n// Instantiate: Passes raw pointer and the deleter function address\nFILE* raw = fopen(\"config.cfg\", \"r\");\nFilePtr managed_file(raw, &file_closer); // RAII\n\n// --- Using a lambda deleter for heap management ---\n\n// Custom deleter (e.g., calling specialized close API or delete[])\nauto resource_deleter = [](int* p) {\n    std::cout << \"Custom cleanup called.\\n\";\n    delete[] p;\n};\n\n// Define type based on lambda's signature\nusing ResourcePtr = std::unique_ptr<int, decltype(resource_deleter)>;\n\nResourcePtr buffer(new int[5], resource_deleter);\n<ctrl63>"
+    },
+    "cpp_op_expert_c_implementation_concept_compile_9edb31_c479135e": {
+      "topic": "Expert C++ Implementation Concept:  Compile-Time Polymorphism with Template Metaprogramming and its Performance Implications",
+      "example_type": "demonstration",
+      "code": "template <typename Derived>\nstruct PolicyBase {\n    // Static Dispatch: Compile-time polymorphism (CRTP)\n    void execute() const {\n        // Compiler generates specialized 'execute' for each Derived\n        static_cast<const Derived*>(this)->implementation();\n    }\n};\n\nstruct OptimizedPolicyA : PolicyBase<OptimizedPolicyA> {\n    void implementation() const {\n        // Specialized code path A\n    }\n};\n\nstruct OptimizedPolicyB : PolicyBase<OptimizedPolicyB> {\n    void implementation() const {\n        // Specialized code path B (Aggressive Inlining Possible)\n    }\n};\n\n// Runtime Overhead: Zero (No vtable lookup, compiler knows exact type)\n// Cost: Increased Compilation Time, Code Bloat (if many Derived types)"
+    },
+    "cpp_op_nullptr_t_and_nullptr_in_modern_c_431b9a_5e55ed46": {
+      "topic": "nullptr_t and nullptr in Modern C++",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "linkers_and_loaders_default_symbol_resolution_and_relocation_028": {
+      "topic": "Symbol Resolution and Relocation Across Object Files",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "posix_sys_mremap_2d7a52": {
+      "topic": "mremap() System Call",
+      "example_type": "demonstration",
+      "code": "void *old_addr = ...; // Page aligned\nsize_t old_size = 4096;\nsize_t new_size = 8192;\nvoid *target_addr = (void *)0x200000; // New requested location\n\n// Resize mapping, allowing relocation (MAYMOVE)\nint flags_resize = MREMAP_MAYMOVE;\n\nvoid *new_addr = mremap(\n    old_addr,\n    old_size,\n    new_size,\n    flags_resize\n);\n\n// Resize and forcibly move (requires 5th argument)\nint flags_reloc = MREMAP_MAYMOVE | MREMAP_FIXED;\n\nnew_addr = mremap(\n    old_addr,\n    old_size,\n    new_size,\n    flags_reloc,\n    target_addr\n);\n\nif (new_addr == (void *)-1) { /* error */ }\n<ctrl63>"
+    },
+    "cpp_func_template_function_specialization_and_def_ad53b7": {
+      "topic": "Template Function Specialization and Default Parameters in C++",
+      "example_type": "demonstration",
+      "code": "template <typename T>\nT process(T value) { return value; }\n\n// Explicit specialization for float\ntemplate <>\nfloat process(float value) { return value * 10.0f; }\n\n// Template function specialization using a specialized class/type\ntemplate <typename T, typename U = int>\nT calculate(T a, U b) { return a + b; }\n\n// Template function with a default *value* argument\ntemplate <typename T>\nT scale(T val, float factor = 1.0f) {\n    return val * factor;\n}\n\n// Example calls imply behavior:\n// int a = scale(5);      // factor = 1.0f\n// float f = process(2.0f); // Uses specialization\n// int c = calculate(5, 5); // U defaults to int"
+    },
+    "cppx_op_using_the_subscript_operator_with_stdmap_4a2f0e": {
+      "topic": "Using the Subscript Operator with std::map for Key-Value Access and Insertion",
+      "example_type": "demonstration",
+      "code": "std::map<std::string, int> counts;\n\n// 1. Insertion/Assignment\ncounts[\"apple\"] = 5;\n\n// 2. Access/Modification\ncounts[\"apple\"]++;\n\n// 3. Implicit Insertion (Default Initialization)\n// If key \"banana\" missing, it is created (value initialized to 0).\nint current_count = counts[\"banana\"];\n\n// count[\"banana\"] is now 0 (and exists in map)\ncounts[\"banana\"] = 10;"
+    },
+    "cpp_op_template_function_specialization_and_sfi_3294df": {
+      "topic": "Template Function Specialization and SFINAE for Conditional Compilation",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "cpp_op_using_smart_pointers_for_automatic_resou_a3d3ff": {
+      "topic": "Using Smart Pointers for Automatic Resource Management",
+      "example_type": "demonstration",
+      "code": "struct HeavyData { ~HeavyData() { /* Cleanup happens here */ } };\n\n// Exclusive Ownership (std::unique_ptr)\nauto u_ptr = std::make_unique<HeavyData>();\n\n// Cannot copy unique_ptr (move semantics required)\nauto u_ptr_moved = std::move(u_ptr);\n\n// Shared Ownership (std::shared_ptr)\nauto s_ptr1 = std::make_shared<HeavyData>();\nauto s_ptr2 = s_ptr1; // Reference count is 2\n\n// Access underlying raw pointer (use sparingly)\nHeavyData* raw = s_ptr1.get();\n\n// Check count\nlong count = s_ptr1.use_count(); // 2\n\n// Custom Deleter for unique_ptr (RAII for non-memory resources)\nauto file_closer = [](FILE* f){ fclose(f); };\nstd::unique_ptr<FILE, decltype(file_closer)>\n    log_file(fopen(\"log.txt\", \"w\"), file_closer);\n<ctrl63>"
+    },
+    "cpp_op_compile_time_string_manipulation_and_its_2a16d7_c8123aea": {
+      "topic": "Compile-Time String Manipulation and its Optimization using Template Metaprogramming",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "kernighan_ritchie_memory_arrays_of_pointers_028": {
+      "topic": "Arrays of Pointers",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "cpp_op_c_preprocessor_token_concatenation_and_m_0d3fe0": {
+      "topic": "C++ Preprocessor Token Concatenation and Macro Expansion",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "csap_ctrl_memory_hierarchy_and_caching_strategies_b810a0_e4ccbc2e": {
+      "topic": "Memory Hierarchy and Caching Strategies: To Disk",
+      "example_type": "demonstration",
+      "code": "// OS Paging/Disk Caching via Memory Mapping (POSIX)\n\nint fd = open(\"persistent_data.dat\", O_RDWR);\nsize_t file_size = 1024 * 1024 * 100; // 100MB\n\n// Map disk file directly into virtual memory\nvoid *mem_region = mmap(NULL, file_size, \n                        PROT_READ | PROT_WRITE, \n                        MAP_SHARED, fd, 0);\n\n// Accessing mem_region triggers demand paging (Disk -> RAM)\n((int*)mem_region)[0] = 42; \n\n// Hint to the kernel about access pattern (optional optimization)\nmadvise(mem_region, file_size, MADV_SEQUENTIAL);\n\n// Force modified (\"dirty\") pages back to disk\nmsync(mem_region, file_size, MS_SYNC);\n\nmunmap(mem_region, file_size);\nclose(fd);\n<ctrl63>"
+    },
+    "cpp_func_inheriting_constructors_in_c_993704_3907e0bb": {
+      "topic": "Inheriting Constructors via Using-Declaration",
+      "example_type": "demonstration",
+      "code": "struct Base {\n    Base(int a) {}\n    Base(const char* s) {}\n    template <typename T>\n    Base(T&& t) {} // Template constructors inherited\n};\n\nstruct Derived : Base {\n    using Base::Base; // Inherit all constructors\n\n    // Can define own constructors alongside inherited ones\n    Derived(bool flag) : Base(flag ? 1 : 0) {}\n};\n\n// Derived d1(10);         // Uses inherited Base(int)\n// Derived d2(\"hello\");    // Uses inherited Base(const char*)\n// Derived d3(true);       // Uses derived ctor\n// Derived d4(4.5f);       // Uses inherited template ctor\n// Note: Explicitly deleted or private ctors are NOT inherited."
+    },
+    "cpp_op_runtime_locale_facets_and_virtual_dispat_db2b83_a0379051": {
+      "topic": "Runtime Locale Facets and Virtual Dispatch in C++ String Parsing",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "cpp_op_name_lookup_and_argument_dependent_looku_1a7e4c": {
+      "topic": "Argument-Dependent Lookup (ADL) for Functions in C++",
+      "example_type": "demonstration",
+      "code": "namespace Library {\n    struct TagType {};\n    // Function defined in the namespace of TagType\n    void process(TagType t) { /* ... */ }\n}\n\n// Global scope, Library::process is not in scope\nvoid call_process() {\n    Library::TagType arg;\n    \n    // ADL kicks in: Looks in namespace of 'arg' (Library)\n    process(arg); \n}\n\n// ADL only works for function calls, not for variables or types."
+    },
+    "cppx_op_complex_declaration_parsing_and_preceden_e62d52_3e3f5722": {
+      "topic": "Rules for Multi-Level Data Structures",
+      "example_type": "demonstration",
+      "code": "// Declaration Precedence & Parsing Rules (C/C++)\n\n// 1. Array of 10 pointers to int ([] binds first)\nint* ptr_arr[10];\n\n// 2. Pointer to an array of 10 ints\nint (*arr_ptr)[10];\n\n// 3. Pointer to a const int (data is const)\nconst int *pci;\n\n// 4. Const pointer to an int (pointer itself is const)\nint * const cip;\n\n// 5. Function Pointer: ptr to func taking float, returning char*\nchar* (*func_ptr)(float);\n\n// 6. Pointer to an array of 5 function pointers\n// (Functions take double, return int)\nint (*(*complex_arr_ptr)[5])(double);\n\n// 7. Type aliasing for readability\ntypedef char* (*LoggerFunc)(const char*);\nLoggerFunc global_log_fnc;"
+    },
+    "posix_sys_memfd_secret_28871d": {
+      "topic": "memfd_secret() System Call",
+      "example_type": "demonstration",
+      "code": "const size_t SECRET_SIZE = 4096;\n\n// Create secret file, ensuring FD is closed on exec\nint fd = memfd_secret(FD_CLOEXEC);\n\nif (fd < 0) { /* Check errno: EINVAL, EMFILE */ }\n\n// Set required size for the secret memory region\nftruncate(fd, SECRET_SIZE);\n\n// Map the secret memory into the process address space\nvoid* secret_ptr = mmap(\n    NULL,\n    SECRET_SIZE,\n    PROT_READ | PROT_WRITE,\n    MAP_SHARED, // Required for memfd_secret mapping\n    fd,\n    0\n);\n\n// Use secret_ptr...\n\nmunmap(secret_ptr, SECRET_SIZE);\nclose(fd); // File released automatically when all FDs close"
+    },
+    "cpp_func_instantiation_of_default_arguments_in_c_c11228_431ffc69": {
+      "topic": "Instantiation of Default Arguments in C++ Templates",
+      "example_type": "demonstration",
+      "code": "template <class T>\nstruct DefaultProvider {\n    static T value() { return T{}; }\n};\n\ntemplate <class T>\nT utility_func() { return DefaultProvider<T>::value(); }\n\ntemplate <class T>\nvoid worker(T arg,\n            T def_arg = utility_func<T>()) {\n    // def_arg's default expression (utility_func<T>())\n    // is dependent on T.\n\n    // Instantiation Timing:\n    // This default argument is compiled/instantiated\n    // *per specialization* (e.g., worker<int>, worker<float>)\n    // when the call omits the argument.\n}"
+    },
+    "cpp_func_compile_time_vs_runtime_polymorphism_wit_a4bc6b_3b917cdb": {
+      "topic": "Compile-Time vs. Runtime Polymorphism with `std::variant` and its Implementation Details",
+      "example_type": "demonstration",
+      "code": "struct Heavy { char big_data[100]; };\nstruct Light { int val; };\n\n// 1. Runtime Polymorphism (RTP): Heap Indirection\n// Base class needs VPtr. Payload lives on heap.\nstruct Base { virtual void run() = 0; };\nstruct Derived : Base { void run() override { /* ... */ } };\n\n// 2. Compile-Time Polymorphism (CTP): Stack Storage\n// Memory: max(sizeof(Heavy), sizeof(Light)) + Index byte\nusing PolyType = std::variant<Heavy, Light>;\n\nvoid execute(PolyType& p) {\n    // Dispatch mechanism: Internal index check (switch statement)\n    std::visit([](auto& obj) {\n        // Static dispatch: No V-table lookup overhead\n        // Better cache locality due to stack storage\n    }, p);\n}"
+    },
+    "csap_ctrl_memory_hierarchy_and_caching_strategies_037945_60778b7b": {
+      "topic": "Memory Hierarchy and Caching Strategies: Temporal Locality",
+      "example_type": "demonstration",
+      "code": "// Exploiting Temporal Locality in Caching\n\nconst int REUSE_COUNT = 10000;\nconst int CACHE_SET_SIZE = 8; // Small data set likely fits in L1/L2\n\nint data[CACHE_SET_SIZE] = {0};\nlong sum = 0;\n\nfor (int iter = 0; iter < REUSE_COUNT; ++iter) {\n    // Inner loop repeatedly accesses the *same* small set of memory\n    // Data loaded in the first iteration stays hot in cache lines.\n    for (int i = 0; i < CACHE_SET_SIZE; ++i) {\n        data[i] = data[i] + 1; // High Temporal Locality (Cache Hit)\n        sum += data[i];\n    }\n}\n<ctrl63>"
+    },
+    "posix_sys_get_thread_area_435821": {
+      "topic": "get_thread_area() System Call",
+      "example_type": "demonstration",
+      "code": "struct user_desc {\n    unsigned int entry_number;\n    unsigned int base_addr;\n    // ... GDT flags and limit\n};\n\nstruct user_desc u_tls_info;\n\n// Target entry index (e.g., specific TLS slot)\nu_tls_info.entry_number = 6;\n\n// Architecture-specific syscall invocation (e.g., SYS_get_thread_area on x86)\nlong result = syscall(SYS_get_thread_area, &u_tls_info);\n\n// Success: u_tls_info contains the segment descriptor data\nif (result == 0) {\n    // Retrieve base_addr or limit\n}\n\n// Common errors: EFAULT (invalid pointer), EINVAL"
+    },
+    "cpp_op_return_value_optimization_rvo_and_named_137f99": {
+      "topic": "Return Value Optimization (RVO) and Named Return Value Optimization (NRVO)",
+      "example_type": "demonstration",
+      "code": "struct BigData {\n    // Note: Presence of Move/Copy operations triggers optimization checks\n};\n\n// RVO: Return Value Optimization (Guaranteed since C++17)\n// Object constructed directly in the caller's memory location.\nBigData factory_rvo() {\n    return BigData{}; // Returning an unnamed temporary object\n}\n\n// NRVO: Named Return Value Optimization (Optional optimization)\n// Compilers try to eliminate the copy/move of the named local variable.\nBigData factory_nrvo() {\n    BigData local_obj;\n    // ... operations on local_obj ...\n    return local_obj;  // Returning the named local object\n}\n\n// Usage: Both calls result in only one constructor call (no copy/move)\n// BigData data1 = factory_rvo();\n// BigData data2 = factory_nrvo();"
+    },
+    "cpp_func_c_name_lookup_and_declaration_order_ce73b3_b40c10cb": {
+      "topic": "C++ Name Lookup and Declaration Order",
+      "example_type": "demonstration",
+      "code": "int i = f(5);     // ERROR: 'f' not visible/declared\n\n// Declaration required before use (Global/Namespace scope)\nint f(int x) {\n    return x * 2;\n}\n\nint j = f(10);    // OK: 'f' is now visible\n\nstruct A {\n    int val = j;      // 'j' must be visible at definition point\n};\n\nclass B;          // Forward declaration (Name only)\nclass A_user {\n    B* b_ptr;     // OK: B is incomplete type\n};\n\n// Full definition of B must follow usage\nclass B {};\n<ctrl63>"
+    },
+    "csap_op_conditional_moves_and_processor_pipelini_e14bb8_969f44f4": {
+      "topic": "Conditional Moves and Processor Pipelining",
+      "example_type": "demonstration",
+      "code": "; CONDITIONAL MOVES (CMOV) - Avoiding Pipeline Stalls\n\n; Traditional Branch (High Latency Risk)\n    cmp r10, r11\n    jg .L_Target         ; Branch: Flushes pipeline on mispredict\n    mov r12, r13\n.L_Target:\n\n; Conditional Move (Pipelining Friendly)\n    mov r12, 0           ; Setup default\n    cmp r10, r11\n    cmovg r12, r13       ; Move r13 -> r12 only IF Greater\n                         ; No control flow change\n                         ; Allows continuous instruction flow\n                         ; Reduces penalty of unknown conditions"
+    },
+    "cpp_op_inheriting_constructors_in_c_ca0db6_c393acbf": {
+      "topic": "Inheriting Constructors for Code Reuse",
+      "example_type": "demonstration",
+      "code": "class Base {\n    int data;\npublic:\n    Base(int v) : data(v) {}\n    Base(std::string s) : data(s.length()) {}\n};\n\nclass Derived : public Base {\npublic:\n    // Inherit constructors from Base (C++11 feature)\n    using Base::Base;\n\n    // Can still define new constructors\n    Derived(double d) : Base(int(d)) {}\n};\n\n// Usage implied:\n// Derived d1(10);\n// Derived d2(\"Hello\");"
+    },
+    "cpp_mem_efficient_memory_management_in_stdbasic_387626_0f72b235": {
+      "topic": "Efficient Memory Management in std::basic_string",
+      "example_type": "demonstration",
+      "code": "std::string s;\ns.reserve(4096);       // Pre-allocate memory capacity\n                       // Prevents reallocations/copying\n                       // when appending up to 4096 chars.\n\ns.append(\"data\");\nsize_t current_cap = s.capacity(); // e.g., 4096\nsize_t current_size = s.size();    // e.g., 4\n\ns.clear();             // Size = 0, Capacity remains 4096.\n\n// Force release of excess capacity back to the heap:\ns.shrink_to_fit();     // Capacity reduced (e.g., to SSO size or 0).\n\n// Older/C++03 method for forcing deallocation:\nstd::string(s).swap(s);\n// Capacity minimized."
+    },
+    "os_thread_overlapping_operations_with_threads_6d868f": {
+      "topic": "Overlapping Operations with Threads",
+      "example_type": "demonstration",
+      "code": "void disk_io_task(int file_id) { /* long blocking operation */ }\n\n// Overlapping Execution Pattern\n// 1. Start the blocking task concurrently\nstd::thread t_io(disk_io_task, 101);\n\n// 2. Main thread performs simultaneous non-blocking work\nint local_computation = process_buffer();\n\n// 3. Synchronization (wait for the overlapped task)\nif (t_io.joinable()) {\n    t_io.join();\n}\n\n// Result of local_computation and t_io's side effects are ready\nint final_data = combine_results(local_computation);"
+    },
+    "cpp_op_using_stddiscrete_distribution_for_proba_cae4ba": {
+      "topic": "Using std::discrete_distribution for Probabilistic Sampling",
+      "example_type": "demonstration",
+      "code": "std::vector<double> weights = {10.0, 50.0, 40.0}; // Outcomes 0, 1, 2\nstd::random_device rd;\nstd::mt19937 engine(rd());\n\n// Initialize distribution using weights\nstd::discrete_distribution<> dist(weights.begin(), weights.end());\n\n// Sample a random integer (index) based on weights\nint outcome_index = dist(engine);\n\n// Access the normalized probability of the outcome\ndouble p_outcome_1 = dist.probabilities()[1];\n\n// dist.max() returns weights.size() - 1\n// dist.min() returns 0\nint max_idx = dist.max();"
+    },
+    "csap_net_network_programming_with_sockets_d1412a": {
+      "topic": "Network Programming with Client-Server Sockets",
+      "example_type": "demonstration",
+      "code": "// SERVER: Socket Creation and Binding (TCP/IPv4)\nint sockfd, portno = 8080;\nstruct sockaddr_in serv_addr;\n\nsockfd = socket(AF_INET, SOCK_STREAM, 0);\n\n// Set SO_REUSEADDR to avoid \"Address already in use\"\nint optval = 1;\nsetsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));\n\nserv_addr.sin_family = AF_INET;\nserv_addr.sin_addr.s_addr = INADDR_ANY; // Listen on all interfaces\nserv_addr.sin_port = htons(portno);\n\nbind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));\n\n\n// SERVER: Listening and Accepting Connection\nint newsockfd;\nsocklen_t clilen;\nstruct sockaddr_in cli_addr;\n\nlisten(sockfd, 5); // Max 5 pending connections in queue\n\nclilen = sizeof(cli_addr);\nnewsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);\n\n\n// CLIENT: Socket Creation and Connection\nint sockfd, portno = 8080;\nstruct sockaddr_in serv_addr;\nstruct hostent *server; // Resolve hostname\n\nsockfd = socket(AF_INET, SOCK_STREAM, 0);\n\nserver = gethostbyname(\"127.0.0.1\"); // Target server IP/hostname\n\nserv_addr.sin_family = AF_INET;\nbcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);\nserv_addr.sin_port = htons(portno);\n\nconnect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));\n\n\n// DATA TRANSFER: Send and Receive (Blocking I/O)\nchar buffer[1024];\nssize_t bytes_transferred;\n\n// Sending data\nconst char* response = \"ACK\";\nbytes_transferred = write(sockfd, response, strlen(response));\n\n// Receiving data\nbzero(buffer, 1024);\nbytes_transferred = read(sockfd, buffer, 1023);\n\nif (bytes_transferred > 0) {\n    // Process buffer...\n}\n\nclose(sockfd);\nshutdown(sockfd, SHUT_RDWR); // Graceful closure (optional)"
+    },
+    "cpp_op_compile_time_function_result_type_deduct_e4b50a": {
+      "topic": "Compile-Time Function Result Type Deduction with `std::result_of` (and its implications)",
+      "example_type": "demonstration",
+      "code": "struct Calculator {\n    int add(int a, int b) const { return a + b; }\n    float operator()(double d) { return (float)d; }\n};\n\n// 1. Functor deduction (C++17/20 preferred)\nusing R1 = std::invoke_result_t<Calculator, double>;\n// R1 is float\n\n// 2. Member function pointer deduction\nusing MemFnPtr = decltype(&Calculator::add);\nusing R2 = std::invoke_result_t<MemFnPtr, Calculator const&, int, int>;\n// R2 is int\n\n// C++14/17 alternative (deprecated)\n// using R3 = std::result_of<Calculator(double)>::type;\n// R3 is float"
+    },
+    "csap_op_memory_hierarchy_and_caching_strategies_514f58": {
+      "topic": "Memory Hierarchy and Caching Strategies: L1-L3 Caches",
+      "example_type": "demonstration",
+      "code": "// 1. SPATIAL LOCALITY (C/C++ arrays are row-major)\n// Efficiently utilizes cache lines by reading adjacent memory.\nint matrix[100][100];\n\n// Optimal Access (Row-major: i then j)\nfor (int i = 0; i < 100; ++i) {\n    for (int j = 0; j < 100; ++j) {\n        matrix[i][j] = 0; // Sequential memory load\n    }\n}\n\n// Sub-optimal Access (Column-major: j then i)\n/*\nfor (int j = 0; j < 100; ++j) {\n    for (int i = 0; i < 100; ++i) {\n        matrix[i][j] = 0; // Large memory strides (cache misses)\n    }\n}\n*/\n\n// 2. CACHE BLOCKING / TILING (Optimizing Matrix Operations)\n// Restricts processing to blocks that fit entirely in L1/L2 cache.\nconst int N = 1024;\nconst int B = 32; // Block size tailored to L1/L2 capacity\n\n// Iterating over blocks\nfor (int i0 = 0; i0 < N; i0 += B) {\n    for (int j0 = 0; j0 < N; j0 += B) {\n        // High locality within the inner loop block\n        for (int i = i0; i < i0 + B; ++i) {\n            for (int j = j0; j < j0 + B; ++j) {\n                // Process elements C[i][j] using A[i][k] and B[k][j]\n            }\n        }\n    }\n}\n<ctrl63>"
+    },
+    "posix_sys_ioctl_userfaultfd_0057d8": {
+      "topic": "ioctl_userfaultfd() System Call",
+      "example_type": "demonstration",
+      "code": "int ufd = userfaultfd(O_CLOEXEC | UFFD_SHARED_FORK);\n\n// --- 1. Negotiation (op = UFFDIO_API) ---\nstruct uffdio_api api = {\n    .api = UFFD_API_VERSION,\n    .features = 0, // Request all features\n};\n\n// Check for EFAULT, EINVAL\nioctl(ufd, UFFDIO_API, &api);\n\n\n// --- 2. Registration (op = UFFDIO_REGISTER) ---\nvoid *area = mmap(...);\nsize_t size = 0x10000;\n\nstruct uffdio_register reg = {\n    .range = { .start = (unsigned long)area, .len = size },\n    .mode = UFFDIO_REGISTER_MODE_MISSING,\n};\n\n// Check for EFAULT, ENOMEM, EPERM\nioctl(ufd, UFFDIO_REGISTER, &reg);\n\n// reg.ioctls now holds supported operations for the range\n// (e.g., UFFDIO_COPY, UFFDIO_ZEROPAGE)\nmunmap(area, size);\nclose(ufd);"
+    },
+    "cpp_op_expert_c_implementation_concept_pointer_80a57f_9fcb73b7": {
+      "topic": "Expert C++ Implementation Concept:  Pointer Conversions and Polymorphism",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "unix_thread_pthread_mutexattr_getpshared_function_b48d59_ae3c3d36": {
+      "topic": "pthread_mutexattr_getpshared: Retrieve Shared",
+      "example_type": "demonstration",
+      "code": "pthread_mutexattr_t attr;\nint pshared_val;\nint err;\n\n// Initialize attributes\npthread_mutexattr_init(&attr);\n\n// Set attribute (optional, often used for verification)\npthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);\n\n// Retrieve the process-shared attribute\nerr = pthread_mutexattr_getpshared(&attr, &pshared_val);\n\n// pshared_val is PTHREAD_PROCESS_SHARED or PTHREAD_PROCESS_PRIVATE\n\npthread_mutexattr_destroy(&attr);"
+    },
+    "csap_func_procedure_call_and_return_in_x86_64_1e23b4": {
+      "topic": "Procedure Call and Return in x86-64",
+      "example_type": "demonstration",
+      "code": ""
+    },
+    "cpp_op_odr_usage_of_functions_31ab47": {
+      "topic": "ODR-Usage of Functions",
+      "example_type": "demonstration",
+      "code": "int compute(int x) { return x * 3; }\n\nint result = compute(7); // ODR-used (Function call)\n\nint (*fp)(int) = &compute; // ODR-used (Address taken)\n\n// ---\n\ntemplate <typename T>\nT get_val(T t) { return t; }\n\nint i = get_val(100); // ODR-used (Instantiation required)\n\n// ---\n\nconstexpr int square(int x) { return x * x; }\n\nconstexpr int C = square(4); // ODR-used (Required for evaluation)\n\ndecltype(square(1)) T; // Not ODR-used (Unevaluated context)"
+    },
+    "cpp_op_template_function_and_class_templates_f35bb7_edb4bfaa": {
+      "topic": "Template Function and Class Templates",
+      "example_type": "demonstration",
+      "code": "template <typename T>\nT max_val(T a, T b) {\n    return (a > b) ? a : b;\n}\n\n// Usage (Type deduction)\nint i = max_val(10, 20);\ndouble d = max_val(3.5, 1.2);\n\ntemplate <typename T, int Size>\nclass StaticArray {\n    T data[Size];\npublic:\n    T& operator[](int index) {\n        return data[index];\n    }\n};\n\n// Usage\nStaticArray<float, 5> arr;\narr[0] = 3.14f;\n\n// Class Template Specialization (General)\ntemplate <typename T>\nclass Processor {\n    /* Generic implementation */\n    T process(T v) { return v + v; }\n};\n\n// Explicit Full Specialization for const char*\ntemplate <>\nclass Processor<const char*> {\npublic:\n    const char* process(const char* s) {\n        return \"Specialized\";\n    }\n};\n\n// Usage\nProcessor<int> pi;\nProcessor<const char*> ps;\n\n// Function Template Specialization\ntemplate <typename T>\nvoid print_type(T v) { /* Generic print */ }\n\n// Explicit Specialization for long\ntemplate <>\nvoid print_type<long>(long v) {\n    // Unique implementation for long type\n}"
+    },
+    "cpp_io_using_stdostream_iterator_for_output_ite_cb8082": {
+      "topic": "Using std::ostream_iterator for Output Iteration",
+      "example_type": "demonstration",
+      "code": "std::vector<std::string> names = {\"Alice\", \"Bob\", \"Charlie\"};\n\n// Create an output iterator for strings, separated by commas\nstd::ostream_iterator<std::string> separator(std::cout, \", \");\n\n// Write container contents directly to stdout\nstd::copy(names.begin(), names.end(), separator);\n\n// Alternative: write a simple range to a stream (no delimiter needed)\nstd::vector<int> scores = {10, 20, 30};\nstd::ostream_iterator<int> plain_out(std::cout);\n\nstd::copy(scores.begin(), scores.end(), plain_out);\n// Result: 102030"
+    },
+    "csap_proc_processor_pipelining_and_branch_predicti_0ef785_77ad860d": {
+      "topic": "Processor Pipelining and Branch Prediction",
+      "example_type": "demonstration",
+      "code": "typedef enum { IF, ID, EX, MEM, WB } PipelineStage;\n\n// Example Instruction Flow\nstruct Instruction {\n    int PC;\n    PipelineStage current_stage;\n};\n\n// Data Hazard (RAW Dependency)\n// I1: R1 = R2 + R3;\n// I2: R4 = R1 * R5; \n\n// Stall (Bubble): Wait for I1 WB or MEM\n// Forwarding: Pipe I1 EX result directly to I2 EX input\n\n// Control Hazard (Branch) requires prediction\n// Fetch instructions speculatively based on guess\ntypedef enum { TAKEN, NOT_TAKEN } Prediction;\n\n// 2-bit predictor state machine (Strongly/Weakly)\ntypedef struct {\n    int Branch_Address;\n    Prediction history; // 00=Strongly NT, 11=Strongly T\n    int Target_Address;\n} BTB_Entry; // Branch Target Buffer\n\n// Pipelining Latency\n\nconst int PIPE_DEPTH = 5; // e.g., 5 stages\nconst int MISPREDICT_PENALTY = PIPE_DEPTH; // Cost to recover\n\n// When prediction is wrong (MISPREDICT):\n// 1. Flush/Squash all instructions currently in the pipe\n// 2. Fetch from the correct target address\n// 3. Loss of throughput = MISPREDICT_PENALTY cycles/branch"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "landlock_restrict_self() System Call",
+  "explanation": "The landlock_restrict_self() system call enforces a Landlock ruleset on the calling thread, restricting its access based on the rules provided. It allows composing multiple rulesets to form the thread's Landlock domain, but most applications should use it once after populating the ruleset.\n\n**Parameters:**\n- `ruleset_fd` (int): File descriptor of the Landlock ruleset obtained from landlock_create_ruleset(2) and populated with landlock_add_rule(2).\n- `flags` (uint32_t): Must be set to 0.\n\n**Common Errors:**\n- `EOPNOTSUPP`: Landlock is supported by the kernel but disabled at boot time.\n- `EINVAL`: flags is not 0.\n- `EBADF`: ruleset_fd is not a file descriptor for the current thread.\n- `EBADFD`: ruleset_fd is not a ruleset file descriptor.\n- `EPERM`: The calling thread lacks necessary permissions, such as no_new_privs or CAP_SYS_ADMIN in its user namespace.\n\n**Related System Calls:** `landlock_create_ruleset()`, `landlock_add_rule()`",
+  "syntax": "int syscall(SYS_landlock_restrict_self, int ruleset_fd, uint32_t flags);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = landlock_restrict_self(...);  // Call the system call\nif (result == -1) {\n    perror(\"landlock_restrict_self\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the landlock_restrict_self() system call. The function takes 2 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.064531",
+    "syscall_name": "landlock_restrict_self",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_landlock_restrict_self.json",
+    "concept_id": "posix_sys_landlock_restrict_self_46c9df"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: L1 L2 Storage",
+  "explanation": "The memory hierarchy mitigates the latency gap between the CPU and main memory (DRAM) by employing tiered storage levels. These levels, typically L1, L2, and L3 caches, offer decreasing speed and increasing capacity as they move further from the processor core. Caching strategies exploit the principle of locality (temporal and spatial) to store active data blocks in the fastest available cache level. L1 cache is the smallest and fastest, often split into instruction and data caches, while L2 and L3 serve as larger, unified victim caches. Effective cache utilization minimizes the average memory access time (AMAT), directly optimizing program execution throughput.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "584-584",
+    "extraction_date": "2025-07-27T21:57:39.679036",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.705373",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:26",
+    "original_length": 415,
+    "refined_length": 670
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Spatial Locality: Row-major access is optimal (C/C++)\n// Accessing elements sequentially maximizes cache line reuse (Stride-1)\nconst int R = 100, C = 100;\nint matrix[R][C];\nlong sum = 0;\n\n// Optimal: Row-major (i inner loop)\nfor (int i = 0; i < R; i++) {\n    for (int j = 0; j < C; j++) {\n        sum += matrix[i][j];\n    }\n}\n// Suboptimal: Column-major (j inner loop -> High Stride)\n/*\nfor (int j = 0; j < C; j++) {\n    for (int i = 0; i < R; i++) {\n        sum += matrix[i][j];\n    }\n}\n*/\n\n// Data Layout Optimization (AOS vs SOA)\n// Use SOA when only a subset of fields are accessed frequently\nstruct DataAOS { double x, y, z, w; }; // Array of Structs\nstruct DataSOA { double* x, *y, *z, *w; }; // Struct of Arrays\n\nDataSOA data;\n// Accessing only X is spatially optimal in SOA\nfor (size_t i = 0; i < N; ++i) {\n    data.x[i] *= 2.0; // Contiguous block of cache lines\n}\n\n\n// Cache Line Alignment (Avoiding False Sharing in MT)\n// Align struct members to force them onto separate 64-byte lines (L1/L2)\nstruct alignas(64) CacheAlignedData {\n    long thread_counter;\n    // Padding is implicit due to alignas requirement\n};\n\nCacheAlignedData local_data[4];\n// Accessing local_data[i] and local_data[j] concurrently (i!=j)\n// prevents costly cache coherence overheads (MESI protocol)."
+}

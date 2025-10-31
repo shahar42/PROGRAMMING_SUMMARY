@@ -1,0 +1,16 @@
+{
+  "topic": "PIC for Dynamic Relocation",
+  "explanation": "Position Independent Code (PIC) is a code generation technique that allows code to be loaded and executed at any memory address without modification.  This is crucial for shared libraries (like .so files on Linux or .dll files on Windows) because multiple processes might load the same shared library into different memory locations simultaneously. The Global Offset Table (GOT) is a data structure used by PIC code to resolve addresses of global variables and functions at runtime.  The loader initializes the GOT entries with the actual memory addresses during loading, enabling the PIC code to access these addresses regardless of its own load address.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "214-215",
+    "extraction_date": "2025-07-21T17:30:44.520914",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.761631"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "extern void** const GOT_TABLE;\n\n// X address stored at a fixed offset (0x10) relative to GOT base\nconst size_t X_OFFSET = 0x10 / sizeof(void*); \n\n// Data access (requires two levels of indirection):\n// 1. Get the address of X stored in the GOT (Run-time resolved)\nint* ptr_to_X = (int*) GOT_TABLE[X_OFFSET];\n\n// 2. Use the dynamically resolved address\n*ptr_to_X = 42; \n\n// Function pointer resolution via PLT/GOT for late binding\ntypedef int (*Func_T)(void);\nFunc_T F_ptr = (Func_T) GOT_TABLE[0x20 / sizeof(void*)]; \n\nF_ptr(); // Call dynamically resolved function F\n// Note: GOT must be PC-relative to maintain position independence.",
+  "keywords": "PIC, GOT, Global Offset Table, Dynamic Relocation"
+}

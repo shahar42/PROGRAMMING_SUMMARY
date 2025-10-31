@@ -1,0 +1,30 @@
+{
+  "topic": "Guaranteed Copy Elision and Return Value Optimization (RVO/NRVO)",
+  "explanation": "Guaranteed Copy Elision (since C++17) and Return Value Optimization (RVO), along with its Named Return Value Optimization (NRVO) variant, are compiler optimizations that eliminate unnecessary object copies.  While seemingly simple, understanding their implementation details reveals intricacies in compiler behavior and significant performance implications.  The compiler analyzes the return statement of a function. If it identifies a temporary object being returned that is directly constructed in the return statement and a matching object being constructed in the caller, it can avoid creating the temporary object altogether. Instead, it constructs the object directly in the caller's memory location, skipping the copy/move operation.  This optimization is not merely a suggestion; since C++17 it is *guaranteed* to occur under specified conditions (when returning by value from a function).  The compiler's ability to perform this optimization heavily relies on its ability to perform sophisticated control-flow analysis and register allocation.  Failure to perform this optimization can result in significant performance overhead, especially when dealing with large objects or objects with expensive copy constructors.",
+  "syntax": "C++ syntax with implementation notes:\n```cpp\nstruct LargeObject {\n  int large_array[100000];\n  LargeObject() {}\n  LargeObject(const LargeObject&) { /* Expensive copy */ }\n  LargeObject(LargeObject&&) noexcept { /* Move constructor */ }\n};\n\nLargeObject createLargeObject() {\n  LargeObject obj; \n  // ... some work with obj ...\n  return obj; // Guaranteed copy elision in C++17 and later\n}\n\nint main() {\n  LargeObject myObj = createLargeObject();\n  return 0;\n}\n```\n*Note*: Without RVO/NRVO, `createLargeObject` would create a temporary `LargeObject`, then invoke either the copy constructor (pre-C++11) or the move constructor (C++11 onwards) to initialize `myObj`. This is considerably slower.  With guaranteed elision, the compiler directly constructs `myObj` within `main()`.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <vector>",
+    "struct MyObject {",
+    "  std::vector<int> data;",
+    "  MyObject(const std::vector<int>& d) : data(d) {}",
+    "  MyObject() = default;",
+    "};",
+    "MyObject createObject() {",
+    "  std::vector<int> v = {1,2,3,4,5};",
+    "  return MyObject(v); // RVO/NRVO candidate",
+    "}",
+    "int main() {",
+    "  auto obj = createObject();",
+    "  std::cout << obj.data.size() << std::endl; // Output: 5",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler is likely to perform RVO in this example.  At the assembly level, the compiler would generate code that directly constructs the `MyObject` in `main()`'s stack frame, avoiding the overhead of creating a temporary `MyObject` and then copying or moving it.  Analyzing the generated assembly (using a compiler like g++ with -S flag) would reveal this.  The absence of calls to the copy or move constructor, and the direct initialization of `obj.data` are key indicators of successful RVO.  This is a significant performance improvement, particularly as the size of `std::vector<int>` increases. The runtime behavior will be indistinguishable from a manually optimized version, but the compile-time behavior will be noticeably different \u2013 no extra instructions for unnecessary copies are generated.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:00:09.827970"
+  }
+}

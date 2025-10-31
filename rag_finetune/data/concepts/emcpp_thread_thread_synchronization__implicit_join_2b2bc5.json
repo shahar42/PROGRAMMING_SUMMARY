@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Synchronization: Implicit Join on Last `std::async` Future Destruction",
+  "category": "thread",
+  "explanation": "Assumption: Destroying a `std::future` object is a lightweight operation that simply destroys the object's data members and is non-blocking. Reality: The destructor for the *last* `std::future` referring to the shared state of a non-deferred task launched via `std::async` performs an implicit `join()`. This means the destructor blocks the calling thread until the asynchronous task completes. Why It Fails: This behavior can introduce unexpected synchronization points and performance bottlenecks, as the thread destroying the future suddenly stalls waiting for potentially long-running background work, violating assumptions about object destruction time.",
+  "code_example": "// If 'f' is the last reference to the shared state of a running task:\nauto f = std::async(std::launch::async, long_running_function);\n// ... later ...\n// f.~future() implicitly calls join(), blocking here.\n",
+  "practical_example": "A function returns a `std::future` to a caller, expecting the caller to manage synchronization. If the caller immediately stores the future in a local variable which goes out of scope, the implicit join occurs unexpectedly early, potentially blocking the main execution thread and degrading responsiveness.",
+  "keywords": [
+    "future destructor",
+    "std::async",
+    "implicit join",
+    "blocking",
+    "synchronization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "276-280",
+  "chapter": "Item 38: Remember to make futures non-blocking on destruction",
+  "id": "emcpp_thread_thread_synchronization__implicit_join_2b2bc5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

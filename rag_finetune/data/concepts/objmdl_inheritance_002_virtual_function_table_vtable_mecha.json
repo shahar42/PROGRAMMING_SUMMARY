@@ -1,0 +1,19 @@
+{
+  "topic": "Virtual Function Table (vtable) Mechanism and Dispatch in C++ Object Model Internals",
+  "explanation": "In the C++ object model, virtual functions are implemented via a per-class virtual table (vtable) that contains pointers to the most derived function implementations. Each object of a class with virtual functions contains an internal pointer (vptr) that points to the class's vtable. When a virtual function is invoked through a reference or pointer, the call is dispatched at runtime by dereferencing the vptr to access the vtable and then calling the function pointer stored at the appropriate offset. This mechanism enables dynamic (runtime) polymorphism, allowing the program to invoke the correct overridden function based on the actual object type, even when accessed through a base class reference or pointer. The vtable and vptr are compiler-generated internal structures that facilitate this dynamic dispatch, with their layout and access patterns optimized for performance and supporting features like multiple and virtual inheritance.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "101-101",
+    "extraction_date": "2025-09-17T15:06:48.213802",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "inheritance",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "book_metadata_added": "2025-10-28T20:22:06.685923"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class Base {\npublic:\n    // VTABLE ENTRY 0\n    virtual void run() const = 0; \n    // VTABLE ENTRY 1 (Destructor)\n    virtual ~Base() = default;\n};\n\nclass Derived : public Base {\npublic:\n    // Overrides VTABLE ENTRY 0\n    void run() const override {}\n};\n\nDerived d;\n// b_ptr holds d's vptr pointing to Derived::vtable\nBase* b_ptr = &d; \n\n// Runtime Dispatch: \n// Reads vptr -> accesses vtable -> calls function pointer\nb_ptr->run();\n<ctrl63>",
+  "keywords": "vtable, vptr, dynamic dispatch, virtual function implementation"
+}

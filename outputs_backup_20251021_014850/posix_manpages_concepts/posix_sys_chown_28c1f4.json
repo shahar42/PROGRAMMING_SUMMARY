@@ -1,0 +1,15 @@
+{
+  "topic": "chown() System Call",
+  "explanation": "The chown family of system calls changes the owner and group of a file. They differ in how the file is specified, such as by pathname, file descriptor, or with options for symbolic links. Only privileged processes can change ownership, and certain behaviors depend on the file system and kernel version.\n\n**Parameters:**\n- `pathname` (const char *): Path to the file for chown() and lchown()\n- `owner` (uid_t): New owner ID, or -1 to leave unchanged\n- `group` (gid_t): New group ID, or -1 to leave unchanged\n- `fd` (int): File descriptor for fchown()\n- `dirfd` (int): Directory file descriptor for fchownat()\n- `flags` (int): Flags for fchownat(), such as AT_EMPTY_PATH or AT_SYMLINK_NOFOLLOW\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix\n- `EBADF`: fd is not a valid open file descriptor (for fchown()), or dirfd is invalid (for fchownat())\n- `EFAULT`: pathname points outside accessible address space\n- `EINVAL`: Invalid flag specified in flags (for fchownat())\n- `EIO`: A low-level I/O error occurred while modifying the inode (for fchown())\n\n**Related System Calls:** `openat()`",
+  "syntax": "int chown(const char *pathname, uid_t owner, gid_t group);",
+  "code_example": "#include <pwd.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\nint main(int argc, char *argv[]) {\n    char *endptr;\n    uid_t uid;\n    struct passwd *pwd;\n    if (argc != 3 || argv[1][0] == '\\0') {\n        fprintf(stderr, \"%s <owner> <file>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    uid = strtol(argv[1], &endptr, 10);\n    if (*endptr != '\\0') {\n        pwd = getpwnam(argv[1]);\n        if (pwd == NULL) {\n            perror(\"getpwnam\");\n            exit(EXIT_FAILURE);\n        }\n        uid = pwd->pw_uid;\n    }\n    if (chown(argv[2], uid, -1) == -1) {\n        perror(\"chown\");\n        exit(EXIT_FAILURE);\n    }\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the chown() system call. The function takes 6 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.084151",
+    "syscall_name": "chown",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_chown.json",
+    "concept_id": "posix_sys_chown_28c1f4"
+  }
+}

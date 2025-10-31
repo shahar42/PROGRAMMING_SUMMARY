@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: File I/O Privileges",
+  "explanation": "System calls provide an interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as file I/O, which are privileged operations not directly accessible to user programs. Exceptional control flow refers to the change in a program's execution path due to events outside the normal flow, such as system calls, signals, or exceptions.  Understanding this interaction is critical for writing robust and efficient system-level programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "914-915",
+    "extraction_date": "2025-07-29T11:54:47.546001",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.713290"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// --- System Call & ECF Flow: File Open ---\n\n// User Mode starts execution\nint fd;\n\n// The library wrapper executes a specific trap instruction\n// ECF occurs: User Mode -> Kernel Mode (Privilege escalation)\nfd = open(\"/etc/passwd\", O_RDONLY);\n\n// Kernel checks permissions (User ID vs File permissions)\n// Kernel performs I/O operation\n\nif (fd < 0) {\n    // Kernel sets return register to -1, updates error code\n    // ECF returns: Kernel Mode -> User Mode (Privilege de-escalation)\n    perror(\"open error\");\n} else {\n    // Read operation (another system call/ECF cycle)\n    char buffer[100];\n    read(fd, buffer, 100);\n    close(fd); // Final cleanup syscall\n}\n<ctrl63>"
+}

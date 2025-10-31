@@ -1,0 +1,16 @@
+{
+  "topic": "chown32() System Call",
+  "explanation": "These system calls change the owner and group of a file. They differ in how the file is specified, such as by pathname, file descriptor, or with additional options. Only privileged processes can change the owner, and specific rules apply for group changes.\n\n**Parameters:**\n- `pathname` (const char *): Path to the file for chown and lchown\n- `fd` (int): File descriptor for fchown\n- `dirfd` (int): Directory file descriptor for fchownat\n- `owner` (uid_t): New owner user ID, or -1 to not change\n- `group` (gid_t): New group ID, or -1 to not change\n- `flags` (int): Bit mask for fchownat, such as AT_SYMLINK_NOFOLLOW\n\n**Common Errors:**\n- `EACCES`: Search permission is denied on a component of the path prefix\n- `EBADF`: fd is not a valid open file descriptor, or dirfd is invalid for fchownat\n- `EFAULT`: pathname points outside accessible address space\n- `EINVAL`: Invalid flag specified in flags for fchownat\n- `EIO`: A low-level I/O error occurred while modifying the inode",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.231766",
+    "syscall_name": "chown32",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_chown32.json",
+    "concept_id": "posix_sys_chown32_db1b00",
+    "book_metadata_added": "2025-10-28T20:22:06.677364"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Chown family system calls (often provided by glibc wrappers)\n\n// Change owner/group of file specified by path (follows symlinks)\nint chown(const char *pathname, uid_t owner, gid_t group);\n\n// Change owner/group of symlink itself (does not follow)\nint lchown(const char *pathname, uid_t owner, gid_t group);\n\n// Change owner/group of open file descriptor\nint fchown(int fd, uid_t owner, gid_t group);\n\n// Example usage: set owner to 1000, keep existing group (-1)\nint status = chown(\"/mnt/file\", 1000, (gid_t)-1);\n\n// fchownat: Change owner/group using relative paths and flags\n// Use AT_SYMLINK_NOFOLLOW to mimic lchown() behavior\nint fchownat(int dirfd, const char *pathname,\n             uid_t owner, gid_t group, int flags);\n\n// Example: Change owner of relative path (no symlink follow)\nfchownat(dirfd, \"temp/link\", 400, 400, AT_SYMLINK_NOFOLLOW);",
+  "keywords": "chown system call, C file ownership, fchown, lchown"
+}

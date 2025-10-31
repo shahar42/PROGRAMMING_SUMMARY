@@ -1,0 +1,15 @@
+{
+  "topic": "ioctl_ns() System Call",
+  "explanation": "The ioctl() system call provides operations for discovering Linux namespace relationships, such as obtaining file descriptors for owning or parent namespaces, determining namespace types, and getting owner UIDs.\n\n**Parameters:**\n- `fd` (int): File descriptor referring to a /proc/pid/ns/* file\n- `op` (unsigned long): The ioctl request code, such as NS_GET_USERNS or NS_GET_PARENT\n- `arg` (void*): Optional argument, e.g., a pointer for NS_GET_OWNER_UID\n\n**Common Errors:**\n- `EPERM`: The requested namespace is outside of the caller\u2019s namespace scope\n- `ENOTTY`: The operation is not supported or fd does not refer to a /proc/pid/ns/* file\n- `EINVAL`: fd refers to a nonhierarchical namespace or is invalid for the operation\n\n**Related System Calls:** `fstat()`, `ioctl()`, `proc()`",
+  "syntax": "#include <sys/ioctl.h>",
+  "code_example": "userns_fd = ioctl(fd, NS_GET_USERNS);\nif (userns_fd == -1) { perror(\"ioctl-NS_GET_USERNS\"); exit(EXIT_FAILURE); }\nnstype = ioctl(fd, NS_GET_NSTYPE);\nif (ioctl(fd, NS_GET_OWNER_UID, &uid) == -1) { perror(\"ioctl-NS_GET_OWNER_UID\"); exit(EXIT_FAILURE); }",
+  "example_explanation": "This example demonstrates the basic usage of the ioctl_ns() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.101818",
+    "syscall_name": "ioctl_ns",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_ns.json",
+    "concept_id": "posix_sys_ioctl_ns_3a46b6"
+  }
+}

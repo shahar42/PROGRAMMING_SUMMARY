@@ -1,0 +1,25 @@
+{
+  "topic": "Processor Pipelining and Data Hazards: Resolution",
+  "explanation": "Processor pipelining improves instruction execution speed by overlapping the stages of multiple instructions.  However, data hazards occur when one instruction depends on the result of a preceding instruction that hasn't completed its execution yet. This leads to pipeline stalls, reducing performance.  Understanding and mitigating data hazards is crucial for efficient pipeline design and program execution.\n\nProcessor pipelining improves instruction throughput by overlapping the execution of multiple instructions.  However, dependencies between instructions (data hazards) can cause pipeline stalls.  Data hazards occur when an instruction needs data produced by a previous instruction that hasn't yet been written back to the register file.  Handling data hazards efficiently is crucial for maximizing performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "464-464",
+    "extraction_date": "2025-07-27T01:23:52.664470",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-27T17:09:43.835485",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "495-495",
+      "extraction_date": "2025-07-27T17:09:41.825345",
+      "has_code": false,
+      "has_explanation": false,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8562890887260437,
+    "book_metadata_added": "2025-10-28T20:22:06.718520"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Simplified Pipeline Latches (Stage Registers)\nstruct StageReg {\n    int RegDst;        // Destination Register ID\n    int ResultData;\n    bool RegWriteEn;   // Write back enabled?\n};\n\nStageReg EX_MEM; // Data available at EX->MEM boundary\nStageReg MEM_WB; // Data available at MEM->WB boundary\n\n// Forwarding Unit Logic defines source selection for ALU inputs\n#define FWD_NONE 0\n#define FWD_EX_MEM 1\n#define FWD_MEM_WB 2\n\n// Function checks if required register (R) can be bypassed\nint ForwardingPath(int R) {\n    // Priority 1: Check EX/MEM latch (newest data)\n    if (R == EX_MEM.RegDst && EX_MEM.RegWriteEn)\n        return FWD_EX_MEM;\n\n    // Priority 2: Check MEM/WB latch\n    if (R == MEM_WB.RegDst && MEM_WB.RegWriteEn)\n        return FWD_MEM_WB;\n\n    return FWD_NONE; // Read from Register File\n}\n<ctrl63>"
+}

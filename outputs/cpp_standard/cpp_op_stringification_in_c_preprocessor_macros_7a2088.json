@@ -1,22 +1,12 @@
 {
   "topic": "Stringification in C++ Preprocessor Macros",
   "explanation": "Stringification in C++ preprocessor macros, using the # operator, is a compile-time mechanism that converts a macro argument into a string literal. When the preprocessor encounters # followed by a macro parameter (e.g., #s), it replaces the parameter with its token sequence and encloses it in double quotes, effectively creating a string literal. This process occurs entirely at compile-time, before the compiler generates object code, and is handled by the preprocessor phase of the build process. Implementation-wise, the preprocessor scans the source code, expands macros, and stringifies arguments by escaping special characters (e.g., \" becomes \\\") to ensure the result is a valid string literal. For example, if s is an identifier like 'hello', #s becomes \"hello\". This has memory implications as string literals are stored in read-only sections of the binary (e.g., .rodata in ELF files), promoting efficiency by sharing identical strings across the program. Performance-wise, stringification incurs no runtime overhead since it's resolved at compile-time, but it can lead to larger binaries if many unique strings are generated. At the assembly level, the stringified result appears as a data label or immediate value in instructions, such as loading a string pointer. Compiler behavior varies slightly; for instance, GCC and Clang perform eager macro expansion and stringification, while adhering to the C++ standard's rules for token preservation and adjacency (e.g., no spaces are added). Runtime vs. compile-time: This is purely compile-time, so there's no runtime behavior to evaluate, but misuse can lead to errors like unintended token concatenation if not isolated properly.",
-  "syntax": "#define macro_name(parameter) #parameter  // The # operator stringifies the 'parameter'. For nested macros, ensure proper expansion, e.g., #define xstr(s) str(s) where str(s) is # s. Implementation note: The preprocessor must expand arguments before stringifying in some cases, but # forces immediate stringification of the token as-is.",
-  "code_example": [
-    "#include <iostream>",
-    "#define str(s) # s  // Stringifies the argument s into a string literal",
-    "#define xstr(s) str(s)  // Indirect macro to allow further expansion before stringification",
-    "int main() {",
-    "    const char* strExample = xstr(Hello World);  // Expands to str(Hello World), which becomes \"Hello World\"",
-    "    std::cout << strExample << std::endl;  // Outputs: Hello World",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this example, the macro xstr(s) invokes str(s), which applies the # operator to s. For xstr(Hello World), the preprocessor first expands xstr(Hello World) to str(Hello World). Then, str(Hello World) stringifies its argument, resulting in \"Hello World\" as a string literal. Compiler behavior: The preprocessor treats 'Hello World' as a single token sequence during stringification, escaping spaces and other characters if needed (though here it's straightforward). At the assembly level, this might translate to a .data or .rodata section with the string, and the code loads its address (e.g., mov rsi, offset .LC0 in x86 assembly). Memory layout: The string \"Hello World\" is stored in read-only memory, shared if identical elsewhere, reducing footprint. Performance implications: Compile-time resolution means no runtime cost, but excessive macro use can bloat compile times due to preprocessor work. If s contains macros, they expand before stringification in xstr, demonstrating the indirect invocation's role in handling nested expansions per C++ rules.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T04:18:10.660713"
-  }
+    "extraction_date": "2025-08-19T04:18:10.660713",
+    "book_metadata_added": "2025-10-28T20:22:06.942370"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

@@ -1,0 +1,20 @@
+{
+  "topic": "Constexpr Variables: Compile-Time Constant Object Guarantee",
+  "category": "core",
+  "explanation": "The `constexpr` keyword is used to specify that a value is not just a constant, but is a constant known at compile time. This applies to both objects (variables) and functions, though its meaning is nuanced. For objects, it creates a true compile-time constant; for functions, it indicates that the function *can* be evaluated at compile time if given compile-time inputs.\n\nScott Meyers' key insight is to frame `constexpr` for objects as a \"beefed-up form of `const`.\" While `const` objects can be initialized at runtime, `constexpr` objects *must* be initialized with a value the compiler can determine. This distinction is crucial because only `constexpr` objects can be used in all contexts that demand a compile-time constant, such as array bounds or non-type template parameters.\n\nThe mechanics differ for objects and functions. A `constexpr` object must be initialized by a constant expression. A `constexpr` function must be written such that it can, in principle, be evaluated by the compiler. When a `constexpr` function is called with arguments that are themselves constant expressions, the compiler can compute the result at compile time and substitute it into the code. The same function can also be called with runtime arguments, in which case it behaves like a normal function and executes at runtime.\n\nThis feature is fundamental to modern C++'s ability to shift computations from runtime to compile time, leading to significant performance improvements and more robust code. It allows for the creation of complex lookup tables, bitmasks, or configuration values that are computed once during compilation and embedded directly into the program binary, eliminating runtime initialization and calculation overhead. It is the backbone of many modern metaprogramming techniques.\n\nThe most common point of confusion is the dual nature of `constexpr` functions. Programmers new to the concept often believe these functions *only* run at compile time. It's vital to remember they are hybrid: they will be evaluated at compile time when possible, but will otherwise execute as normal runtime functions. This dual utility is a key part of their power.",
+  "code_example": "constexpr int pow(int base, int exp) noexcept {\n    return (exp == 0) ? 1 : base * pow(base, exp - 1);\n}\n\nconstexpr int num_items = 10;\nconstexpr int item_size_power = 2;\n\n// OK: array bound must be a compile-time constant\nint data[num_items];\n\n// OK: constexpr object initialized with result of a constexpr function\nconstexpr auto buffer_size = pow(num_items, item_size_power);\n\n// Use in a template non-type parameter\ntemplate<int N> class Buffer { /* ... */ };\nBuffer<buffer_size> my_buffer;",
+  "practical_example": "In embedded systems or game development, you can use `constexpr` functions to pre-calculate mathematical tables, like a sine lookup table. This work is done entirely by the compiler, and the resulting table is stored as static data in the executable, providing instantaneous lookups at runtime with zero calculation cost.",
+  "keywords": [
+    "constexpr",
+    "compile-time",
+    "constant expression",
+    "metaprogramming",
+    "optimization",
+    "const"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "96-97",
+  "chapter": "Item 15: Use constexpr whenever possible.",
+  "id": "emcpp_core_constexpr_for_compile_time_constants_554337",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

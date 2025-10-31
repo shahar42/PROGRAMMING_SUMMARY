@@ -1,0 +1,23 @@
+{
+  "topic": "Race Condition",
+  "explanation": "A race condition is a concurrency issue that occurs when multiple threads access and modify shared data simultaneously without proper synchronization, leading to unpredictable results. It happens because the outcome depends on the timing of thread execution, which can vary. This concept is important in multithreaded programming to identify and prevent bugs that cause data corruption or incorrect program behavior, ensuring reliable and deterministic results.\n\nA race condition is a concurrency issue in multithreaded programs where the outcome depends on the unpredictable order of thread execution. It occurs when multiple threads access and modify shared data simultaneously without proper synchronization, leading to incorrect results or bugs. It's used to identify and mitigate errors in concurrent programming, ensuring reliable software in systems like operating systems or networked applications.",
+  "syntax": "counter++ in multiple threads without synchronization",
+  "code_example": "#include <stdio.h>\n#include <pthread.h>\n#include <stdlib.h>\n\nint counter = 0;\n\nvoid *increment(void *arg) {\n    int loops = *(int*)arg;\n    for(int i = 0; i < loops; i++) {\n        counter++;\n    }\n    return NULL;\n}\n\nint main(int argc, char *argv[]) {\n    if(argc != 2) return 1;\n    int loops = atoi(argv[1]);\n    pthread_t thread1, thread2;\n    pthread_create(&thread1, NULL, increment, &loops);\n    pthread_create(&thread2, NULL, increment, &loops);\n    pthread_join(thread1, NULL);\n    pthread_join(thread2, NULL);\n    printf(\"Final value: %d\\n\", counter);\n    return 0;\n}",
+  "example_explanation": "This program creates two threads, each incrementing a shared counter variable 'loops' number of times. If run with './a.out 100000', the expected final value is 200000, but due to the race condition, the actual output may be less (e.g., 143012), as the threads interfere with each other's access to 'counter', demonstrating how unsynchronized shared variable modifications lead to incorrect results.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "31-31",
+    "extraction_date": "2025-07-13T23:21:07.100247",
+    "has_code": true,
+    "has_explanation": true,
+    "merged_on": "2025-07-22T08:36:24.130717",
+    "merged_from": {
+      "source": "The C Programming Language - Kernighan & Ritchie",
+      "page_range": "331-331",
+      "extraction_date": "2025-07-22T08:36:23.558687",
+      "has_code": false,
+      "has_explanation": true
+    },
+    "merge_similarity_score": 0.8694558143615723
+  }
+}

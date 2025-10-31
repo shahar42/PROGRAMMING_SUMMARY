@@ -1,0 +1,16 @@
+{
+  "topic": "sched_setscheduler() System Call",
+  "explanation": "The sched_setscheduler() system call sets both the scheduling policy and parameters for the thread specified by pid. If pid is zero, it applies to the calling thread. The parameters include scheduling priority, which varies based on the policy selected.\n\n**Parameters:**\n- `pid` (pid_t): The ID of the thread to set the scheduler for; 0 for the calling thread.\n- `policy` (int): The scheduling policy, such as SCHED_OTHER, SCHED_FIFO, SCHED_RR, SCHED_BATCH, or SCHED_IDLE.\n- `param` (const struct sched_param *): Pointer to a struct sched_param containing the scheduling parameters, such as sched_priority.\n\n**Common Errors:**\n- `EINVAL`: Invalid arguments: pid is negative or param is NULL.\n- `EINVAL`: Policy is not one of the recognized policies.\n- `EINVAL`: Param does not make sense for the specified policy.\n- `EPERM`: The calling thread does not have appropriate privileges.\n- `ESRCH`: The thread whose ID is pid could not be found.\n\n**Related System Calls:** `sched_getscheduler()`, `sched_get_priority_max()`, `sched_get_priority_min()`, `sched_getaffinity()`, `sched_getattr()`, `sched_getparam()`, `sched_rr_get_interval()`, `sched_setaffinity()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.197860",
+    "syscall_name": "sched_setscheduler",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_sched_setscheduler.json",
+    "concept_id": "posix_sys_sched_setscheduler_a35370",
+    "book_metadata_added": "2025-10-28T20:22:06.588377"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "pid_t target_thread = 0; // Current thread\nint rt_policy = SCHED_FIFO;\n\n// Set required priority (e.g., 50)\nstruct sched_param params;\nparams.sched_priority = 50;\n\n// Apply new scheduling policy and parameters\nint status = sched_setscheduler(\n    target_thread,\n    rt_policy,\n    &params\n);\n\n// Example for standard policy (SCHED_OTHER requires priority 0)\nstruct sched_param other_params = {\n    .sched_priority = 0\n};\n\nsched_setscheduler(0, SCHED_OTHER, &other_params);",
+  "keywords": "sched_setscheduler, set thread scheduling policy, change scheduling priority, Linux scheduling policies"
+}

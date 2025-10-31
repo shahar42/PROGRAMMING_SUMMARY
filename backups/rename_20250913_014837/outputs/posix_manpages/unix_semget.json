@@ -1,0 +1,79 @@
+{
+  "name": "semget",
+  "synopsis": [
+    "#include <sys/sem.h>",
+    "int semget(key_t key, int nsems, int semflg);"
+  ],
+  "description": "The semget() system call returns the System V semaphore set identifier associated with the argument key. It is used to obtain the identifier of a previously created semaphore set or to create a new set with the specified number of semaphores if flags allow.",
+  "parameters": [
+    {
+      "name": "key",
+      "type": "key_t",
+      "description": "Key used to identify or create the semaphore set."
+    },
+    {
+      "name": "nsems",
+      "type": "int",
+      "description": "Number of semaphores in the set; must be greater than 0 when creating, or 0 for existing sets."
+    },
+    {
+      "name": "semflg",
+      "type": "int",
+      "description": "Flags for creation options (e.g., IPC_CREAT, IPC_EXCL) and permissions."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the semaphore set identifier (a nonnegative integer)",
+    "failure": "Returns -1 and sets errno on error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Semaphore set exists but the calling process lacks permission to access it."
+    },
+    {
+      "code": "EEXIST",
+      "description": "IPC_CREAT and IPC_EXCL were specified, but a semaphore set already exists for the key."
+    },
+    {
+      "code": "EINVAL",
+      "description": "nsems is less than 0 or greater than the limit on semaphores per set (SEMMSL)."
+    },
+    {
+      "code": "EINVAL",
+      "description": "A semaphore set exists for the key, but nsems is larger than the number of semaphores in that set."
+    },
+    {
+      "code": "ENOENT",
+      "description": "No semaphore set exists for the key and IPC_CREAT was not specified."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient memory to create a new semaphore set."
+    },
+    {
+      "code": "ENOSPC",
+      "description": "System limit for semaphore sets (SEMMNI) or total semaphores (SEMMNS) would be exceeded."
+    }
+  ],
+  "bugs": "The name choice IPC_PRIVATE was perhaps unfortunate; IPC_NEW would more clearly show its function.",
+  "versions": "SVr4, POSIX.1-2001",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [
+    "key = ftok(argv[optind], argv[optind + 1][0]);",
+    "semid = semget(key, nsems, flags | 0600);",
+    "if (semid == -1) { perror(\"semget\"); exit(EXIT_FAILURE); }"
+  ],
+  "related_calls": [
+    "semctl",
+    "semop",
+    "ftok"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "semget.pdf",
+    "extraction_date": "2025-08-02T11:40:15.082463",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

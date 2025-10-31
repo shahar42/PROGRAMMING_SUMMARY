@@ -1,0 +1,21 @@
+{
+  "topic": "Core Feature: Const Member Functions and Thread Safety",
+  "category": "core",
+  "explanation": "A member function declared as const promises not to modify the logical, or observable, state of an object. However, it can still modify internal data members declared as mutable, often for caching or instrumentation. Scott Meyers highlights that this combination of const and mutable breaks the common assumption that const member functions are inherently thread-safe.\n\nMeyers' key insight is that the const keyword only guarantees safety for multiple concurrent *readers*. When a const function writes to a mutable member, it internally acts as a *writer*. If multiple threads call this function simultaneously, you can have multiple writers, or readers and writers, accessing the same memory without synchronization. This creates a data race and results in undefined behavior. The contract with the caller\u2014that this is a safe read-only operation\u2014is violated in a concurrent context.\n\nThe mechanics of this issue are straightforward. The const qualifier on a member function makes the 'this' pointer a pointer-to-const within the function's scope. This prevents modification of all data members, except those explicitly marked as mutable. When a thread enters such a function, it can freely modify these mutable members. Without an explicit synchronization mechanism, a second thread entering the same function on the same object can access or modify those same mutable members concurrently, leading to a race condition.\n\nIn practice, this means any class designed for concurrent use must protect mutable members inside const functions. The standard solution is to add a synchronization primitive, like a mutex, as another data member. Critically, this mutex must also be declared mutable. This is because locking and unlocking a mutex are modifying operations (they change the mutex's internal state), and they need to be callable from within the const member function. A side effect of adding a move-only member like a standard mutex is that the compiler will typically delete the class's copy constructor and copy assignment operator, making the class move-only by extension.\n\nThe most common pitfall is the belief that 'const' implies 'thread-safe'. Programmers often see a const API and assume it's safe to call from multiple threads without external locking, which is a dangerous assumption if the implementation uses mutable members for internal state changes. Another surprise is the impact on the class's copyability when adding a standard mutex.",
+  "code_example": "// A const member function that is NOT thread-safe without a mutex.\nclass Polynomial {\npublic:\n  using RootsType = std::vector<double>;\n\n  // This const method uses a mutex to protect mutable cache members.\n  RootsType roots() const {\n    std::lock_guard<std::mutex> g(m); // Lock before accessing mutable data\n    if (!rootsAreValid) {\n      // ... compute roots and store them in rootVals ...\n      rootsAreValid = true;\n    }\n    return rootVals;\n  } // Mutex is automatically unlocked here by lock_guard's destructor\n\nprivate:\n  // Mutex must be mutable to be locked/unlocked in a const method.\n  mutable std::mutex m;\n  mutable bool rootsAreValid{ false };\n  mutable RootsType rootVals{};\n};",
+  "practical_example": "A configuration manager class might have a `const` method to retrieve a setting. To avoid parsing a file on every call, it can lazily parse the value on the first request and cache it in a `mutable` member. To make this safe for multiple threads to call concurrently, the check-and-update logic for the cache must be protected by a `mutable std::mutex`.",
+  "keywords": [
+    "const",
+    "mutable",
+    "thread safety",
+    "data race",
+    "mutex",
+    "synchronization",
+    "core language"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "104-105",
+  "chapter": "Item 16: Make const member functions thread safe",
+  "id": "emcpp_core_core_feature__const_member_459a78",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

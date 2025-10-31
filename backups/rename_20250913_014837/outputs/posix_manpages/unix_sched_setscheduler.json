@@ -1,0 +1,77 @@
+{
+  "name": "sched_setscheduler",
+  "synopsis": [
+    "#include <sched.h>",
+    "int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param);",
+    "int sched_getscheduler(pid_t pid);"
+  ],
+  "description": "The sched_setscheduler() system call sets both the scheduling policy and parameters for the thread specified by pid. If pid is zero, it applies to the calling thread. The parameters include scheduling priority, which varies based on the policy selected.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The ID of the thread to set the scheduler for; 0 for the calling thread."
+    },
+    {
+      "name": "policy",
+      "type": "int",
+      "description": "The scheduling policy, such as SCHED_OTHER, SCHED_FIFO, SCHED_RR, SCHED_BATCH, or SCHED_IDLE."
+    },
+    {
+      "name": "param",
+      "type": "const struct sched_param *",
+      "description": "Pointer to a struct sched_param containing the scheduling parameters, such as sched_priority."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "Invalid arguments: pid is negative or param is NULL."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Policy is not one of the recognized policies."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Param does not make sense for the specified policy."
+    },
+    {
+      "code": "EPERM",
+      "description": "The calling thread does not have appropriate privileges."
+    },
+    {
+      "code": "ESRCH",
+      "description": "The thread whose ID is pid could not be found."
+    }
+  ],
+  "bugs": "POSIX.1 says that on success, sched_setscheduler() should return the previous scheduling policy, but Linux version always returns 0.",
+  "versions": "POSIX.1-2001 and later; Linux-specific for certain policies like SCHED_BATCH and SCHED_IDLE.",
+  "posix_compliance": "POSIX.1-2008",
+  "examples": [],
+  "related_calls": [
+    "sched_getscheduler",
+    "sched_get_priority_max",
+    "sched_get_priority_min",
+    "sched_getaffinity",
+    "sched_getattr",
+    "sched_getparam",
+    "sched_rr_get_interval",
+    "sched_setaffinity",
+    "sched_setattr",
+    "sched_setparam",
+    "sched_yield",
+    "setpriority"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sched_setscheduler.pdf",
+    "extraction_date": "2025-07-30T23:50:44.758707",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

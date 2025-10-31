@@ -1,0 +1,16 @@
+{
+  "topic": "Type-safe Bitwise Flag Operations Using Enum Classes",
+  "explanation": "In modern C++, enum classes (scoped enumerations) are used to define strongly typed, scoped constants, including flags for bitwise operations. Unlike traditional enums, enum classes prevent implicit conversions to integers, enhancing type safety. When representing multiple options or flags (such as file open modes), combining enum class values with bitwise operators requires explicit operator overloading to ensure clarity and correctness. This approach improves code safety and readability by avoiding accidental misuse of bitwise operations on unrelated types.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1097-1097",
+    "extraction_date": "2025-08-19T09:12:58.051199",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.892493"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "enum class Mode : unsigned short {\n    None = 0, Read = 1 << 0, Write = 1 << 1, Append = 1 << 2\n};\n\n// Operator for combining flags (Mode | Mode -> Mode)\nconstexpr Mode operator|(Mode a, Mode b) {\n    using T = unsigned short;\n    return static_cast<Mode>(static_cast<T>(a) | static_cast<T>(b));\n}\n\n// Operator for checking flags (Mode & Mode -> bool)\nconstexpr bool operator&(Mode a, Mode b) {\n    using T = unsigned short;\n    return (static_cast<T>(a) & static_cast<T>(b)) != 0;\n}\n\nMode current = Mode::Read | Mode::Append;\n\n// Type-safe usage:\nbool is_set = current & Mode::Append; // true\nbool is_writing = current & Mode::Write; // false",
+  "keywords": "enum class flags, type-safe bitmask, scoped enum bitwise, enum class operator overloading"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Template Specialization with Type Traits and Conditional Type Deduction",
+  "explanation": "This concept, leveraging type traits, decltype, and conditional expressions. It enables writing generic code that adapts its behavior or type definitions depending on template parameters, which is fundamental for generic programming and library development in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "619-619",
+    "extraction_date": "2025-08-19T05:44:10.595684",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.872994"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename T>\nstruct ProcessorTraits {\n    // 1. Conditional Type Deduction based on Type Trait\n    // If T is integral, use ptrdiff_t for indexing. Otherwise, use T.\n    using IndexType = typename std::conditional<\n        std::is_integral_v<T>,\n        ptrdiff_t,\n        T\n    >::type;\n\n    IndexType data;\n\n    // 2. SFINAE/Trait check using specialization (e.g., enable_if)\n    template <typename U = T>\n    typename std::enable_if_t<std::is_integral_v<U>, IndexType>\n    get_index_safe(U val) { return val; }\n\n    // 3. Deduction using decltype for return type based on member types\n    template <typename V>\n    auto calculate(V v) -> decltype(data + v);\n};\n\n// Example Usage Reference:\n// ProcessorTraits<char>::IndexType   // -> ptrdiff_t\n// ProcessorTraits<float>::IndexType  // -> float\n<ctrl63>",
+  "keywords": "Type Traits, SFINAE, std::enable_if, Conditional Templates"
+}

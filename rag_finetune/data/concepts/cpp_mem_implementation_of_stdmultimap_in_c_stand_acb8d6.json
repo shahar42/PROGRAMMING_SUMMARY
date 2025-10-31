@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of std::multimap in C++ Standard Library",
+  "explanation": "std::multimap is a sorted associative container in the C++ Standard Library that allows multiple equivalent keys, implemented as a balanced binary search tree, typically a red-black tree in most standard library implementations (e.g., libstdc++ or MSVC STL). The compiler handles std::multimap through template instantiation at compile-time, generating specialized code for the provided key and value types (e.g., int and std::string). Under the hood, the red-black tree ensures O(log n) time complexity for insertions, deletions, and searches by maintaining balance through rotations and recoloring operations, which are performed at runtime. Memory layout involves dynamically allocated nodes on the heap, each typically containing: the key-value pair, pointers to left and right child nodes, a parent pointer, and a color flag (e.g., 1 byte for red/black). This results in overhead due to pointer storage (usually 8 bytes each on 64-bit systems), making std::multimap memory-intensive for large datasets compared to unordered containers. Performance implications include cache misses from non-contiguous memory access during tree traversals, as nodes are scattered in memory. At the assembly level, insertions (like coll.insert()) translate to runtime calls that involve memory allocation (e.g., via new), node comparisons (using operator< for keys), and tree rebalancing, which might generate code with conditional branches, pointer arithmetic, and function calls to std::allocator. Compile-time behavior focuses on template resolution and type checking, while runtime behavior handles the actual tree operations, making std::multimap suitable for scenarios requiring sorted order but less ideal for frequent insertions due to the overhead of balancing.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:33:43.674103",
+    "book_metadata_added": "2025-10-28T20:22:06.991044"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "std::multimap<int, std::string> student_scores = {\n    {10, \"A\"},\n    {5,  \"B\"},\n    {10, \"C\"} // Duplicate key allowed\n};\n\nstudent_scores.emplace(2, \"D\");\n\n// O(log n + count) lookup\nsize_t num_tens = student_scores.count(10); // 2\n\n// Get the range [first, last) for key 10\nauto [it_low, it_high] = student_scores.equal_range(10);\n\n// Iterate through elements with key 10\nfor (auto it = it_low; it != it_high; ++it) {\n    // it->first == 10\n}"
+}

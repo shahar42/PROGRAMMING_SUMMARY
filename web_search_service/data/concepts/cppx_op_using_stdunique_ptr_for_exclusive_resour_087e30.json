@@ -1,0 +1,13 @@
+{
+  "topic": "Using std::unique_ptr for Exclusive Resource Ownership",
+  "explanation": "std::unique_ptr is a smart pointer in C++ that provides exclusive ownership of dynamically allocated objects, ensuring that only one pointer can own the resource at a time. This concept is crucial in real-world programming for managing resources like memory, file handles, or network connections, preventing issues such as double deletion or memory leaks. Best practices include using std::unique_ptr instead of raw pointers to enforce automatic resource cleanup via RAII (Resource Acquisition Is Initialization). A common pitfall is attempting to copy a std::unique_ptr, which is explicitly disabled to maintain exclusivity; instead, use move semantics to transfer ownership. In practical scenarios, this pattern is ideal for functions that return dynamically allocated objects or in classes where an object should have a single owner, promoting safer and more idiomatic C++ code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:57:11.832569",
+    "book_metadata_added": "2025-10-28T20:22:06.565277"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct Widget {\n    int data = 0;\n    ~Widget() { /* Resource cleanup */ }\n};\n\n// Initialization (Preferred C++14+)\nstd::unique_ptr<Widget> p1 = std::make_unique<Widget>();\n\n// Access\np1->data = 42;\n\n// Cannot copy (Enforces exclusivity)\n// std::unique_ptr<Widget> p_err = p1; // ERROR\n\n// Transfer ownership (Move)\nstd::unique_ptr<Widget> p2 = std::move(p1);\n\n// p1 is now null\nif (p1 == nullptr) { /* Check */ }\n\n// Get raw pointer (Use with caution)\nWidget* raw = p2.get();\n\n// RAII: Widget is destroyed when p2 goes out of scope."
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Thread State Management: Conditions for Non-Joinability",
+  "category": "thread",
+  "explanation": "A `std::thread` object is considered safe for destruction only when it is non-joinable. A thread transitions to a non-joinable state under three specific conditions: 1) It has been successfully `join()`ed (the underlying execution has completed and resources cleaned up). 2) It has been successfully `detach()`ed (the object has severed its connection to the underlying execution, which continues independently). 3) It has been moved *from* (the thread handle ownership has been transferred to another `std::thread` object). Checking `t.joinable()` is essential before calling `join()` or allowing destruction.",
+  "code_example": "std::thread t1([]{});\nstd::thread t2(std::move(t1));\n// t1.joinable() is now false (moved from)\n// t2.joinable() is true\n\nt2.join();\n// t2.joinable() is now false (joined)",
+  "practical_example": "When implementing a thread-owning RAII wrapper, the wrapper's destructor must check `if (t.joinable())` before deciding whether to call `join()` or `detach()` to ensure the thread is handled and the program avoids termination.",
+  "keywords": [
+    "join",
+    "detach",
+    "move from",
+    "joinable()"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "268-276",
+  "chapter": "Item 37: Make std::thread s unjoinable on all paths.",
+  "id": "emcpp_thread_thread_state_management__conditions_791b6a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

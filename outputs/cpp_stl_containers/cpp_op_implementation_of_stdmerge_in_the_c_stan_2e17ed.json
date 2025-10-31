@@ -1,0 +1,12 @@
+{
+  "topic": "Implementation of std::merge in the C++ Standard Library",
+  "explanation": "The std::merge algorithm in the C++ Standard Library is a template function that merges two sorted ranges into a single sorted destination range. Under the hood, the compiler implements this as a linear-time operation that iterates through both input ranges simultaneously, comparing elements and copying the smaller (or equal, based on the predicate) to the output. This is akin to the merge step in merge sort. The implementation typically involves a loop that advances iterators based on comparisons, making it highly dependent on iterator categories (e.g., random access vs. input iterators). For random access iterators, the compiler might optimize with vectorized instructions or loop unrolling, but for general iterators, it relies on sequential access, which can lead to branch prediction inefficiencies in tight loops.\n\nMemory layout implications include minimal overhead since std::merge does not allocate dynamic memory; it writes directly to the provided output iterator range. This makes it memory-efficient but requires the caller to ensure the destination is sufficiently large to avoid undefined behavior. Performance-wise, the algorithm performs at most N + M - 1 comparisons (where N and M are the sizes of the input ranges), resulting in O(1 + (N + M)) time complexity, but it can suffer from cache misses if the input ranges are not contiguous. At the assembly level, this translates to a series of CMP (compare) instructions followed by conditional jumps and MOV (move) operations for copying elements, potentially optimized by the compiler into a single loop with predicated execution on modern CPUs. Runtime behavior dominates, as the actual merging occurs during program execution, but compile-time aspects include template instantiation for the specific iterator and predicate types, allowing for inlining and type-specific optimizations. If the predicate is a lambda or functor, the compiler might inline it, reducing function call overhead.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T17:16:04.131397",
+    "book_metadata_added": "2025-10-28T20:22:06.987395"
+  },
+  "book": "C++ STL Containers"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "copy_file_range() System Call",
+  "explanation": "The copy_file_range() system call copies up to a specified number of bytes from one file to another in the kernel, avoiding user space data transfer. It uses file descriptors and optional offsets for the source and destination, and currently requires flags to be set to 0.\n\n**Parameters:**\n- `fd_in` (int): Input file descriptor from which data is read.\n- `off_in` (off_t *_Nullable): Pointer to the offset in the input file; if NULL, uses and updates the file offset.\n- `fd_out` (int): Output file descriptor to which data is written.\n- `off_out` (off_t *_Nullable): Pointer to the offset in the output file; if NULL, uses and updates the file offset.\n- `len` (size_t): The number of bytes to copy.\n- `flags` (unsigned int): Flags for future extensions; must be set to 0.\n\n**Common Errors:**\n- `EBADF`: One or more file descriptors are not valid, fd_in is not open for reading, fd_out is not open for writing, or O_APPEND is set for fd_out.\n- `EFBIG`: An attempt was made to write beyond the maximum file offset or size limits.\n- `EINVAL`: The flags argument is not 0, fd_in and fd_out refer to the same file with overlapping ranges, or either is not a regular file.\n- `EIO`: A low-level I/O error occurred while copying.\n- `EISDIR`: Either fd_in or fd_out refers to a directory.\n\n**Related System Calls:** `lseek()`, `sendfile()`, `splice()`",
+  "syntax": "ssize_t copy_file_range(int fd_in, off_t *_Nullable off_in, int fd_out, off_t *_Nullable off_out, size_t len, unsigned int flags);",
+  "code_example": "int fd_in = open(argv[1], O_RDONLY);\nint fd_out = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0644);\ndo { ret = copy_file_range(fd_in, NULL, fd_out, NULL, len, 0); if (ret == -1) { perror(\"copy_file_range\"); exit(EXIT_FAILURE); } len -= ret; } while (len > 0 && ret > 0);",
+  "example_explanation": "This example demonstrates the basic usage of the copy_file_range() system call. The function takes 6 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.091400",
+    "syscall_name": "copy_file_range",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_copy_file_range.json",
+    "concept_id": "posix_sys_copy_file_range_706534"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Rule of Five (RAII and Copy Control)",
+  "explanation": "The Rule of Five dictates that when you define any of the following special member functions for a class, you should explicitly define all five to manage resource allocation and deallocation effectively, preventing resource leaks and undefined behavior.  These functions are crucial for ensuring correct object lifecycle management, especially when dealing with dynamically allocated resources.  Failing to properly define these can lead to double-deletion, memory leaks, and subtle bugs that are difficult to track down.  The five members are: destructor (~), copy constructor (copy constructor), copy assignment operator (=), move constructor, and move assignment operator.  The Rule of Zero (defaulting to compiler-generated versions) and Rule of One (defining a custom destructor and letting the compiler handle the rest) are also valuable considerations but often less applicable in complex scenarios.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "classes",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:12:32.330595",
+    "book_metadata_added": "2025-10-28T20:22:06.576332"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class RuleOfFive {\n    int* data = new int(0);\n\npublic:\n    // 1. Destructor (Cleanup)\n    ~RuleOfFive() { delete data; }\n\n    // 2. Copy Constructor (Deep Copy)\n    RuleOfFive(const RuleOfFive& other)\n        : data(new int(*other.data)) {}\n\n    // 3. Copy Assignment (Handle Cleanup/Self-Assign)\n    RuleOfFive& operator=(const RuleOfFive& other) {\n        delete data; data = new int(*other.data);\n        return *this;\n    }\n\n    // 4. Move Constructor (Steal Resource)\n    RuleOfFive(RuleOfFive&& temp) noexcept\n        : data(temp.data) { temp.data = nullptr; }\n\n    // 5. Move Assignment (Cleanup/Steal)\n    RuleOfFive& operator=(RuleOfFive&& temp) noexcept {\n        delete data;\n        data = temp.data;\n        temp.data = nullptr;\n        return *this;\n    }\n};\n<ctrl63>",
+  "keywords": "Rule of Five, C++ Copy Control, Special member functions, Rule of Three"
+}

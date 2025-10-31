@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Scope-Based Acquisition",
+  "explanation": "RAII is a fundamental C++ programming technique that ties resource management (like memory allocation, file handles, network connections, locks, etc.) to the lifetime of an object.  It ensures resources are automatically acquired when an object is created and released when the object goes out of scope (destroyed). This prevents resource leaks and simplifies error handling by eliminating the need for explicit cleanup in many cases. Best practice dictates using RAII wherever possible to create more robust and maintainable code.  Common pitfalls include forgetting to use RAII, leading to resource leaks or dangling pointers.  Improper use of RAII, such as creating circular dependencies between objects managing resources, can result in deadlocks.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T06:50:22.189138",
+    "book_metadata_added": "2025-10-28T20:22:06.570026"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class DynamicArray {\n    int* ptr;\npublic:\n    explicit DynamicArray(size_t s) : ptr(new int[s]) {}\n\n    // Resource is released automatically when object is destroyed\n    ~DynamicArray() { delete[] ptr; } \n\n    // RAII objects should usually not be copied\n    DynamicArray(const DynamicArray&) = delete;\n    DynamicArray& operator=(const DynamicArray&) = delete;\n};\nvoid use_array() {\n    DynamicArray arr(10);\n    // arr uses resource...\n} // arr destroyed, memory safely freed.\n\n\n// --- Standard Library: Smart Pointers (Memory RAII) ---\n\nstruct Data {};\n\nvoid process_data() {\n    // Acquisition through unique_ptr constructor\n    auto d = std::make_unique<Data>();\n\n    d->initialize();\n\n} // d is destroyed, Data resource is freed via delete.\n\n\n// --- Standard Library: Concurrency (Lock RAII) ---\n\nstd::mutex shared_m;\n\nvoid safe_access() {\n    // std::lock_guard acquires lock in constructor\n    std::lock_guard<std::mutex> lock(shared_m);\n\n    // Critical section code...\n    \n} // lock destructor called, mutex unlocked automatically.\n<ctrl63>"
+}

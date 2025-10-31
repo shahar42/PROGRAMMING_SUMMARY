@@ -1,0 +1,20 @@
+{
+  "topic": "Special Member Functions: Default Generation of Move Operations",
+  "category": "core",
+  "explanation": "C++11 expanded the set of special member functions to include the move constructor and move assignment operator, which the compiler can generate automatically. These functions are responsible for efficiently transferring resources from temporary or explicitly moved-from objects. Their default generation is a key feature for writing efficient and simple resource-managing classes.\n\nScott Meyers' core insight is that the rules for generating move operations are analogous to, but critically different from, the rules for copy operations. The compiler will only synthesize move operations if they are needed, and importantly, if you have not declared them yourself. This behavior is central to the \"Rule of Zero,\" where a class can often function correctly and efficiently without any user-declared special member functions.\n\nThe mechanics of default generation are straightforward on the surface. If a class lacks a user-declared move constructor, and its generation is not suppressed by other user-declared special members (a topic detailed later in the book), the compiler will generate one if it's required. The same logic applies independently to the move assignment operator. The generated function's job is to perform a \"memberwise move\" on all non-static data members and base-class subobjects of the class.\n\nIn practice, this means that if you compose a class using modern, move-enabled types like standard library containers or smart pointers, the compiler will automatically generate efficient move semantics for your class. This simplifies class design immensely, as you don't need to write boilerplate code to correctly transfer ownership of member resources; the compiler handles it by generating calls to the members' own move operations. This is crucial for performance, as it avoids expensive copies of temporary objects.\n\nA common pitfall is misunderstanding the conditions that suppress the generation of move operations. While this text chunk only notes that declaring them yourself prevents generation, the full rule set is more complex. Declaring a copy constructor, copy assignment operator, or a destructor will prevent the implicit generation of move operations. This often surprises developers who add a destructor for logging or cleanup and find that their class has suddenly become non-movable and now performs expensive copies instead.",
+  "code_example": "// A class whose members are all movable.\n// The compiler will generate a move constructor and move assignment operator.\nclass Widget {\nprivate:\n    std::string s;\n    std::vector<int> v;\npublic:\n    // No user-declared move/copy/destructor here.\n    // ... other member functions ...\n};\n\nWidget w1;\n// Calls the compiler-generated move constructor\nWidget w2 = std::move(w1);\n\nWidget w3;\n// Calls the compiler-generated move assignment operator\nw3 = std::move(w2);",
+  "practical_example": "When creating a simple class that holds a `std::string` and a `std::vector`, you don't need to write any move operations. The compiler will generate them for you, ensuring that moving your class object correctly and efficiently moves the underlying string and vector data without performing deep copies.",
+  "keywords": [
+    "move constructor",
+    "move assignment",
+    "special member functions",
+    "compiler-generated functions",
+    "rule of zero",
+    "C++11"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "109",
+  "chapter": "Item 17: Understand special member function generation",
+  "id": "emcpp_core_special_member_functions__default_a13f33",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

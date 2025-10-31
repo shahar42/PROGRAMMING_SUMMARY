@@ -1,0 +1,16 @@
+{
+  "topic": "Complex Pointer Arithmetic and Type Casting for Advanced Memory Manipulation",
+  "explanation": "In advanced C programming, manipulating memory directly through complex pointer arithmetic and type casting enables developers to perform low-level data operations, implement custom memory layouts, and optimize performance. Mastery of these techniques allows for precise control over data representation and efficient interfacing with hardware or system resources, which is essential in systems programming, embedded development, and performance-critical applications.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "28-28",
+    "extraction_date": "2025-08-20T01:07:14.680147",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "book_metadata_added": "2025-10-28T20:22:06.528455"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// Reinterpreting Memory Block as Different Structure\ntypedef struct { uint32_t a; uint16_t b; } DataA;\ntypedef struct { char raw[6]; } DataB;\nuint8_t memory[6] = {1, 0, 0, 0, 2, 0};\nDataA* data_a = (DataA*)memory;\nDataB* data_b = (DataB*)memory;\n// Access through new types\nuint32_t val_a = data_a->a;\nchar first_byte = data_b->raw[0];\n\n// Pointer arithmetic for specific byte offset access\n#define DATA_SIZE 1024\nuint8_t buffer[DATA_SIZE];\nuint32_t* base_ptr = (uint32_t*)buffer;\n// Access the 12th 32-bit integer (offset 48 bytes)\nuint32_t target_val = *(base_ptr + 11);\n// Byte-level manipulation at byte offset 50\nuint8_t* byte_ptr = (uint8_t*)buffer;\n*(byte_ptr + 50) = 0xFF;\n\n// Type punning via union\nunion RegisterAccess {\n    uint32_t full_word;\n    struct { uint16_t low; uint16_t high; } parts;\n};\nRegisterAccess reg;\nreg.full_word = 0xAABBCCDD;\nuint16_t low_part = reg.parts.low; // CC DD (on little-endian)\n\n// Aligning pointers manually\n#define ALIGNMENT 16\nchar raw_memory[100 + ALIGNMENT];\nuintptr_t mask = ALIGNMENT - 1;\nuintptr_t address = (uintptr_t)raw_memory;\nuintptr_t aligned_addr = (address + mask) & ~mask;\nvoid* aligned_ptr = (void*)aligned_addr;",
+  "keywords": "pointer arithmetic, raw memory access, type punning, systems programming C"
+}

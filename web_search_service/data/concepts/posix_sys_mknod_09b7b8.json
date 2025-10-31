@@ -1,0 +1,16 @@
+{
+  "topic": "mknod() System Call",
+  "explanation": "The mknod() system call creates a filesystem node such as a regular file, device special file, or named pipe with the specified mode and device number. It sets the ownership and permissions based on the process's effective IDs and umask. The mknodat() variant allows specifying a directory file descriptor for relative paths.\n\n**Parameters:**\n- `pathname` (const char *): The name of the node to create\n- `mode` (mode_t): Specifies the file type and mode, combined with file mode bits\n- `dev` (dev_t): Specifies major and minor numbers for device special files\n- `dirfd` (int): Directory file descriptor for relative paths (mknodat only)\n\n**Common Errors:**\n- `EACCES`: The parent directory does not allow write permission, or a directory in the path prefix does not allow search permission\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor (mknodat only)\n- `EDQUOT`: The user’s quota of disk blocks or inodes on the filesystem has been exhausted\n- `EEXIST`: pathname already exists or is a symbolic link\n- `EFAULT`: pathname points outside the accessible address space\n\n**Related System Calls:** `chmod()`, `chown()`, `mkdir()`, `mount()`, `socket()`, `stat()`, `umask()`, `unlink()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.184825",
+    "syscall_name": "mknod",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_mknod.json",
+    "concept_id": "posix_sys_mknod_09b7b8",
+    "book_metadata_added": "2025-10-28T20:22:06.649703"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Creating a character device node requiring Major/Minor numbers\n// Requires CAP_MKNOD capability\n\ndev_t major = 10;\ndev_t minor = 2;\ndev_t my_dev = makedev(major, minor);\n\n// S_IFCHR (Character device) combined with permissions (0600)\nmode_t char_mode = S_IFCHR | 0600;\n\n// mknod(pathname, mode, dev)\nint status = mknod(\"/dev/my_device\", char_mode, my_dev);\n\n// -----------------------------------------------------------------\n\n// Creating a Named Pipe (FIFO) using mknodat\n// Dev argument is ignored for FIFOs (set to 0)\n\nmode_t pipe_mode = S_IFIFO | 0666;\n\n// AT_FDCWD references the current working directory\nint status_at = mknodat(AT_FDCWD, \"local_pipe_name\", pipe_mode, 0);\n\n// status = mknodat(directory_fd, \"relative_path\", mode, dev);",
+  "keywords": "mknod, create device file, make special file, mknodat"
+}

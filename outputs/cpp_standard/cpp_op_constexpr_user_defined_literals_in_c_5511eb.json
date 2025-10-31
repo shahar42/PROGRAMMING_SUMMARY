@@ -1,26 +1,12 @@
 {
   "topic": "Constexpr User-Defined Literals in C++",
   "explanation": "Constexpr user-defined literals in C++ allow developers to extend the language's literal syntax to create custom types directly from literals, with the key advantage of compile-time evaluation when marked as constexpr. The compiler implements this feature by parsing the literal suffix (e.g., 'if' in operator\"\"if) during the lexical analysis phase and then invoking the corresponding operator function. For constexpr versions, the compiler evaluates the function at compile-time if all inputs and operations are constant expressions, leveraging the constexpr machinery to generate a constant value without runtime overhead. This involves the compiler's constant expression evaluator, which simulates execution of the function in a restricted environment, ensuring no side effects or dynamic memory access. Memory layout implications are minimal since constexpr literals often result in compile-time constants, avoiding runtime memory allocation; for instance, a complex<float> created via a constexpr literal is typically embedded as a constant in the data section of the binary. Performance-wise, this leads to zero runtime cost for the literal creation, as the value is baked into the code, potentially reducing executable size and improving execution speed. At the assembly level, a constexpr literal might simply manifest as an immediate value or a pre-initialized constant in the object code, bypassing function calls entirely. For non-constexpr literals, evaluation occurs at runtime, involving a function call that could appear as a standard procedure call in assembly (e.g., a CALL instruction). The distinction between runtime and compile-time behavior hinges on whether the literal's arguments are known at compile-time; in the provided example, using an integer literal like 4if allows full compile-time evaluation, whereas a non-constant expression would defer to runtime.",
-  "syntax": "constexpr complex<float> operator\"\"if(unsigned long long d) {\n    return complex<float>{0.0f, static_cast<float>(d)};\n}\n// Implementation notes: This defines a user-defined literal operator for the suffix 'if'. It takes an unsigned long long integer as input and returns a complex<float> with real part 0.0f and imaginary part cast from d. The constexpr keyword ensures compile-time evaluation if d is a constant expression. Overloads for other types (e.g., long double) allow flexibility, but the compiler selects based on the literal's type. At compile-time, the compiler verifies that all operations (e.g., static_cast) are valid in a constexpr context, potentially optimizing away the function entirely.",
-  "code_example": [
-    "#include <complex>",
-    "#include <iostream>",
-    "",
-    "constexpr std::complex<float> operator\"\"if(unsigned long long d) {",
-    "    return std::complex<float>{0.0f, static_cast<float>(d)};",
-    "}",
-    "",
-    "int main() {",
-    "    constexpr auto c = 4if;  // Compile-time evaluation",
-    "    std::cout << c.real() << \" + \" << c.imag() << \"i\" << std::endl;  // Outputs: 0 + 4i",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, the constexpr user-defined literal operator\"\"if is invoked with the literal 4if. The compiler recognizes '4if' as a user-defined literal during parsing and binds it to the operator function. Since the function is constexpr and the argument (4) is a constant expression, the compiler evaluates it at compile-time, producing a std::complex<float>{0.0f, 4.0f} constant. At the assembly level, this results in the complex value being embedded directly in the code or data segment, potentially as two floating-point constants in memory, without generating a function call (e.g., no CALL instruction for the operator). If the literal were used in a non-constant context, it would involve a runtime function call, visible in assembly as a procedure invocation. Performance implications include faster execution due to compile-time resolution, with no runtime memory allocation for the complex object. The inclusion of <ccomplex> is noted to behave as if it includes <complex>, ensuring the std::complex type is available, but it doesn't directly affect this literal's implementation.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T08:03:09.653196"
-  }
+    "extraction_date": "2025-08-19T08:03:09.653196",
+    "book_metadata_added": "2025-10-28T20:22:06.858333"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

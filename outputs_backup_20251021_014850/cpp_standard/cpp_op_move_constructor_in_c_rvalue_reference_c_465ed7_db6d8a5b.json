@@ -1,0 +1,17 @@
+{
+  "topic": "Move Constructor in C++ (Rvalue Reference Constructor)",
+  "explanation": "A move constructor in C++ is a special constructor that enables the transfer of resources from a temporary (rvalue) object to a new object, optimizing performance by avoiding unnecessary copying. It is used in modern C++ to implement move semantics, which are essential for efficient resource management, especially with dynamic memory, file handles, or other system resources. The move constructor takes an rvalue reference as its parameter and typically 'steals' resources from the source object, leaving it in a valid but unspecified state.",
+  "syntax": "ClassName(ClassName&& rhs) noexcept;\n// where '&&' indicates an rvalue reference parameter, and 'noexcept' specifies that the constructor does not throw exceptions.",
+  "code_example": "#include <iostream>\nclass Buffer {\npublic:\n    int* data;\n    size_t size;\n    // Move constructor\n    Buffer(Buffer&& rhs) noexcept : data(rhs.data), size(rhs.size) {\n        rhs.data = nullptr; // Leave source in valid state\n        rhs.size = 0;\n        std::cout << \"Move constructor called\" << std::endl;\n    }\n    // Constructor\n    Buffer(size_t s) : data(new int[s]), size(s) { }\n    // Destructor\n    ~Buffer() { delete[] data; }\n};\n\nint main() {\n    Buffer buf1(10);\n    Buffer buf2(std::move(buf1)); // Invokes move constructor\n    std::cout << \"buf1 data pointer: \" << buf1.data << std::endl;\n    std::cout << \"buf2 data pointer: \" << buf2.data << std::endl;\n    return 0;\n}",
+  "example_explanation": "This example defines a class 'Buffer' with a move constructor that transfers ownership of a dynamically allocated array from a source object to a new object. In 'main', 'std::move' is used to cast 'buf1' to an rvalue, triggering the move constructor. The move constructor takes the resource pointers from 'buf1' and assigns them to 'buf2', leaving 'buf1' in a valid but empty state. This demonstrates how move semantics optimize resource transfer without copying, which is a key feature of modern C++ for efficient resource management.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1059-1059",
+    "extraction_date": "2025-08-19T08:57:04.777028",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "special",
+    "extraction_type": "expert_level"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Universal References: Lvalue Overload Masking",
+  "category": "template",
+  "explanation": "Assumption: When overloading a function template that uses a universal reference (`T&&`), a specific, non-template overload designed to handle a common type (e.g., `const Widget&`) will be correctly prioritized by overload resolution when an lvalue of that type is passed. Reality: The universal reference template is often overly greedy and can successfully instantiate itself for *any* argument, including lvalues. When the template instantiation results in a signature that is equally good or only slightly worse than the intended non-template overload, complex overload resolution rules can fail to select the specific lvalue overload, or worse, lead to ambiguity. Why It Fails: For an lvalue argument of type `Widget`, the non-template function `void f(const Widget&)` is an exact match. However, the universal reference template `template<typename T> void f(T&&)` can be instantiated as `void f(Widget&)` (because `T` deduces to `Widget&`, which collapses to `Widget&` by reference collapsing rules). This non-const reference instantiation is often considered a better match than the `const Widget&` overload, capturing lvalues that were intended for the const overload, thereby introducing the possibility of unwanted moves or unexpected mutable behavior if the template body uses `std::forward` incorrectly.",
+  "code_example": "// Failure: Universal reference captures lvalue intended for const overload\ntemplate<typename T>\nvoid f(T&& t) { /* ... */ } // Universal ref\n\nvoid f(const Widget& w) { /* intended lvalue handler */ }\n\nWidget w_lvalue;\nf(w_lvalue); // If the template instantiated as Widget& is better, the const overload is ignored.",
+  "practical_example": "A class provides a `const` accessor function (`get_data(const std::string& key)`) and a templated forwarding constructor. When a user passes an lvalue key to the constructor, the compiler resolves the call to the greedy forwarding constructor template instead of the copy constructor, leading to increased compile times or accidental data corruption if the constructor's template body attempts mutable operations.",
+  "keywords": [
+    "overloading failure",
+    "universal reference greed",
+    "lvalue capture",
+    "template specialization",
+    "ambiguity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "195-197",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_universal_references__problem_7025eb",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

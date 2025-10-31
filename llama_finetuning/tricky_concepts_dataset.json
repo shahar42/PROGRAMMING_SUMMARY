@@ -1,0 +1,242 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What is integer promotion in C++?"
+      },
+      {
+        "role": "assistant",
+        "content": "Integer promotion automatically converts types smaller than `int` (like `char`, `short`, `bool`) to `int` before arithmetic operations.\n\n**Example:**\n```cpp\nchar c1 = -1, c2 = 1;\nint result = c1 + c2;  // Both promoted to int\nstd::cout << result;  // Outputs: 0\n```\n\n**Why:** The C++ standard requires integer promotion to ensure consistent arithmetic behavior across platforms."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "Why does comparing signed and unsigned integers give unexpected results?"
+      },
+      {
+        "role": "assistant",
+        "content": "When comparing `int` and `unsigned`, the signed value is converted to unsigned, turning negative numbers into large positive values.\n\n**Example:**\n```cpp\nint i = -1;\nunsigned u = 1;\nstd::cout << (i < u);  // Outputs: false\n```\n\n**Why:** `-1` as signed int is converted to unsigned (very large value like 4294967295), so the comparison is false. This is a common source of bugs in loop conditions."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What is array-to-pointer decay?"
+      },
+      {
+        "role": "assistant",
+        "content": "When an array is passed to a function, it decays to a pointer to its first element, losing size information.\n\n**Example:**\n```cpp\nvoid func(int arr[]) {\n    sizeof(arr);  // 8 (pointer size)\n}\nint main() {\n    int arr[10];\n    sizeof(arr);  // 40 (full array)\n    func(arr);  // Array decays to pointer\n}\n```\n\n**Why:** Arrays are not first-class types in C/C++. Use `std::array` or pass size explicitly to avoid this."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "How does pointer arithmetic work with different types?"
+      },
+      {
+        "role": "assistant",
+        "content": "Pointer arithmetic scales by `sizeof(type)`, not by 1 byte.\n\n**Example:**\n```cpp\nchar* cp = ...; // cp + 1 advances by 1 byte\nint* ip = ...;  // ip + 1 advances by 4 bytes\n```\n\nIncrementing always moves by 1 element, but byte offset depends on type size. This is why pointer math on void* is illegal."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What's the difference between const int* and int* const?"
+      },
+      {
+        "role": "assistant",
+        "content": "**`const int* ptr`** (pointer to const):\n- Cannot modify the value via this pointer\n- Can point to different addresses\n```cpp\nconst int* ptr = &x;\n*ptr = 5;     // ERROR\nptr = &y;     // OK\n```\n\n**`int* const ptr`** (const pointer):\n- Cannot change where pointer points\n- Can modify the value\n```cpp\nint* const ptr = &x;\n*ptr = 5;     // OK\nptr = &y;     // ERROR\n```\n\n**Mnemonic:** Read right-to-left: \"const pointer to int\" vs \"pointer to const int\""
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What is RAII in C++?"
+      },
+      {
+        "role": "assistant",
+        "content": "RAII (Resource Acquisition Is Initialization) ties resource lifetime to object lifetime via constructors and destructors.\n\n**Example:**\n```cpp\nclass Resource {\npublic:\n    Resource() { /* acquire */ }\n    ~Resource() { /* release */ }\n};\nint main() {\n    { Resource r; }  // acquired,released\n}\n```\n\n**Why:** When `r` goes out of scope, destructor runs automatically, preventing resource leaks. Used for files, locks, memory (smart pointers)."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What's the difference between public and private inheritance?"
+      },
+      {
+        "role": "assistant",
+        "content": "**Public inheritance** (`class Derived : public Base`):\n- Models \"is-a\" relationship\n- Base class public members remain public\n- Polymorphism works (can use Derived* as Base*)\n```cpp\nclass Dog : public Animal {  // Dog IS-AN Animal\n    void bark();\n};\n```\n\n**Private inheritance** (`class Derived : private Base`):\n- Models \"implemented-in-terms-of\"\n- Base class members become private (hidden)\n- No polymorphism (can't use Derived* as Base*)\n```cpp\nclass Stack : private Vector {  // Stack HAS-A Vector\n    // Vector interface hidden\n};\n```\n\n**Use:** Public for polymorphism, private for implementation reuse (prefer composition)."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What's the difference between virtual and pure virtual functions?"
+      },
+      {
+        "role": "assistant",
+        "content": "**Virtual function:**\n- Provides default implementation\n- Derived classes can override (optional)\n- Base class can be instantiated\n```cpp\nclass Base {\n    virtual void func() { /* default */ }\n};\n```\n\n**Pure virtual function** (`= 0`):\n- No implementation in base class\n- Derived classes MUST override\n- Makes base class abstract (cannot instantiate)\n```cpp\nclass Interface {\n    virtual void func() = 0;  // Pure virtual\n};\n// Interface i;  // ERROR: cannot instantiate\n```\n\n**Use:** Pure virtual for interfaces, regular virtual for customizable behavior with defaults."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What's the difference between new operator and operator new?"
+      },
+      {
+        "role": "assistant",
+        "content": "**`new` operator** (expression):\n- Allocates memory + calls constructor\n- Cannot be overloaded\n```cpp\nMyClass* p = new MyClass();  // Allocate + construct\n```\n\n**`operator new`** (function):\n- Only allocates raw memory (like malloc)\n- Can be overloaded\n```cpp\nvoid* operator new(size_t size) {\n    return malloc(size);  // Custom allocation\n}\n```\n\n**Relationship:** The `new` expression calls `operator new` for allocation, then calls constructor on that memory.\n\n**Same for delete:** `delete` calls destructor then `operator delete`; `operator delete` just frees memory."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What does inline mean for functions in C++?"
+      },
+      {
+        "role": "assistant",
+        "content": "`inline` is a **hint** to the compiler to replace function calls with function body (like macros but type-safe).\n\n**Important:** The compiler can ignore the hint!\n\n```cpp\ninline int square(int x) {\n    return x * x;\n}\n// Compiler may inline it OR make a normal function call\n```\n\n**Modern use:** `inline` primarily avoids multiple-definition errors when defining functions in headers:\n```cpp\n// header.h\ninline int func() { return 42; }  // OK in multiple .cpp files\n```\n\n**Why:** Creates \"weak\" symbols that linker can merge. Actual inlining is decided by optimizer (use `-O2`)."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What's the difference between 'using namespace std' and 'using std::cout'?"
+      },
+      {
+        "role": "assistant",
+        "content": "**`using namespace std;`** (namespace directive):\n- Brings ALL names from std into current scope\n- Risk of name collisions (e.g., std::count vs your count)\n```cpp\nusing namespace std;  // BAD in headers/large code\ncout << \"hello\";      // Works but pollutes scope\n```\n\n**`using std::cout;`** (using declaration):\n- Brings only specific names\n- Safer, explicit\n```cpp\nusing std::cout;  // Only cout, not entire std\ncout << \"hello\";  // OK\n```\n\n**Best practice:** Never use `using namespace` in headers. In .cpp files, prefer explicit `std::` or individual `using` declarations."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What's the difference between references and pointers?"
+      },
+      {
+        "role": "assistant",
+        "content": "**References:**\n- Must be initialized, cannot be null\n- Cannot be rebound to another object\n- Syntax looks like regular variables\n```cpp\nint x = 5;\nint& ref = x;  // ref is alias for x\nref = 10;      // x is now 10\n// ref = y;    // Assignment to x, not rebinding\n```\n\n**Pointers:**\n- Can be null or uninitialized\n- Can be reassigned to point elsewhere\n- Require dereference syntax\n```cpp\nint* ptr = &x;\n*ptr = 10;     // Modify x\nptr = &y;      // Now points to y\nptr = nullptr; // Can be null\n```\n\n**Under the hood:** References are often implemented as const pointers, but with cleaner syntax."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "How do unscoped enums behave in expressions?"
+      },
+      {
+        "role": "assistant",
+        "content": "Unscoped enums (C-style) are implicitly converted to `int` in expressions.\n\n**Example:**\n```cpp\nenum Color { RED, GREEN, BLUE };\nColor c = RED;  // RED = 0\nint x = c + 1;  // 1 (promoted to int)\n```\n\n**Problems:**\n- Can mix with regular ints accidentally\n- Arithmetic on enums is allowed but often meaningless\n\n**C++11 solution:** Use scoped enums:\n```cpp\nenum class Color { RED, GREEN, BLUE };\n// Color c = Color::RED + 1;  // ERROR: no implicit conversion\n```"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "How do pointers convert to bool in if statements?"
+      },
+      {
+        "role": "assistant",
+        "content": "Pointers implicitly convert to `bool`: `nullptr` is false, non-null is true.\n\n**Example:**\n```cpp\nint* ptr = nullptr;\nif (ptr)  // false\nptr = &x;\nif (ptr)  // true\n```\n\n**Output:** false,true\n\n**Common pattern:**\n```cpp\nif (ptr) {  // Check if valid before dereferencing\n    *ptr = 5;\n}\n```\n\n**Note:** Any non-zero value (including 0x1) is true. Only exact nullptr/NULL/0 is false."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a C/C++ systems programming expert. Provide precise, technically accurate explanations based on authoritative sources (K&R C, C++ Standard, C++ Primer, CSAPP). Focus on implementation details, compiler behavior, and standard-defined semantics. Avoid speculation or creative interpretation."
+      },
+      {
+        "role": "user",
+        "content": "What happens to arguments in variadic functions like printf?"
+      },
+      {
+        "role": "assistant",
+        "content": "In variadic functions (`...`), arguments undergo **default argument promotions**:\n- `float` \u2192 `double`\n- `char`, `short` \u2192 `int`\n\n**Example (dangerous):**\n```cpp\nfloat f = 3.14f;\nprintf(\"%f\", f);   // OK: f promoted to double\nprintf(\"%d\", f);   // UNDEFINED: type mismatch\n```\n\n**Why dangerous:** Variadic functions have no type checking. Format specifier must match promoted type:\n- `%f` expects `double` (not `float`)\n- `%d` expects `int`\n\n**Modern C++:** Use type-safe alternatives like `std::format` (C++20) or `iostream`."
+      }
+    ]
+  }
+]

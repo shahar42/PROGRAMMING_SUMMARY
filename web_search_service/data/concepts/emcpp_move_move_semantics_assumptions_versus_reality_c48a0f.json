@@ -1,0 +1,18 @@
+{
+  "topic": "Move Semantics Assumptions versus Reality: Implicit Move Generation Failure",
+  "category": "move",
+  "explanation": "Assumption: If a class manages resources simply (e.g., owning only standard library containers or smart pointers), the compiler will reliably generate efficient, implicit move constructors and move assignment operators. Reality: The compiler will *not* implicitly generate a move operation if the class explicitly declares certain 'special' member functions, specifically: a copy constructor, a copy assignment operator, or a destructor. Why It Fails: This rule, prevalent before C++11 and maintained for backwards compatibility and safety, assumes that if a programmer defines any part of the Rule of Three/Five, they are managing complex resources that the compiler cannot safely move by default. If the programmer defines a destructor to clean up a specific resource, the compiler assumes the default member-wise move might be insufficient or dangerous, and therefore deletes the implicit move operations (or, prior to C++17, simply suppresses them, forcing a copy fallback). This forces the programmer to explicitly define or `= default` the move operations, leading to silent performance degradation or compilation failure if the move operations are simply omitted under the mistaken belief that the compiler handled them.",
+  "code_example": "// Failure due to user-defined destructor\nclass ResourceOwner {\n  std::unique_ptr<int[]> data;\npublic:\n  ~ResourceOwner() { /* cleanup logic */ }\n  // Move constructor is implicitly deleted!\n};\n\nResourceOwner r1;\nResourceOwner r2 = std::move(r1); // Compiler error or fallback to copy/delete.",
+  "practical_example": "A team inherits legacy code where classes define destructors. Migrating the code to modern C++ assumes container move optimizations will kick in, but the lack of explicit `= default` move constructors means the class instances are consistently copied, crippling the performance of algorithms like sorting or vector resizing.",
+  "keywords": [
+    "implicit move deletion",
+    "rule of five",
+    "user-defined destructor",
+    "compiler suppression"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "221-224",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_move_semantics_assumptions_versus_reality_c48a0f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

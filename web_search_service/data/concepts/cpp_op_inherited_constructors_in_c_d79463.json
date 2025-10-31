@@ -1,0 +1,14 @@
+{
+  "topic": "Inherited Constructors in C++",
+  "explanation": "Inherited constructors, introduced in C++11, allow a derived class to reuse constructors from its base class using the 'using Base::Base;' syntax. Under the hood, the compiler does not literally copy the base class constructors; instead, it generates new constructor definitions in the derived class that forward arguments to the corresponding base class constructors. This process occurs at compile-time during overload resolution and template instantiation. The compiler treats this as a form of constructor injection, creating synthetic member functions in the derived class object model. For each base constructor, the compiler produces a derived constructor that initializes the base subobject and then performs any derived-class-specific initialization (e.g., member initializers in the derived class). Memory layout implications are minimal, as the derived class already includes the base class subobject at the beginning of its layout (per the empty base class optimization or standard layout rules), but inherited constructors do not alter this; they only affect how objects are constructed. Performance-wise, there is typically no runtime overhead compared to manually defined forwarding constructors, as modern compilers (e.g., GCC, Clang) inline these calls and optimize them aggressively, potentially eliminating function calls altogether in release builds. At the assembly level, when a derived object is constructed, the generated code will include a call to the base constructor (e.g., via a 'call' instruction to the base's constructor function), followed by initialization of derived members, which can lead to slightly larger binary sizes due to the synthesized constructors but usually results in no net performance loss. Runtime behavior involves the actual constructor execution, where the base is initialized first (as per the C++ object model), while compile-time behavior handles the resolution of which constructors are inherited and how they map to the derived class.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:23:19.426165",
+    "book_metadata_added": "2025-10-28T20:22:06.854117"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\npublic:\n    Base() {}\n    Base(int i) {}\n    Base(const char* s) {}\n    Base(float f, int i) {}\n};\n\nclass Derived : public Base {\npublic:\n    // Inherit Base constructors (C++11)\n    using Base::Base;\n\n    // Derived can still define its own\n    Derived(double d) {}\n};\n<ctrl63>",
+  "keywords": "Inherited Constructors, using Base::Base, C++11 Constructors"
+}

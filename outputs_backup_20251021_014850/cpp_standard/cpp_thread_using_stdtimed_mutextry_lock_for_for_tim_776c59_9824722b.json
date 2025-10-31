@@ -1,0 +1,17 @@
+{
+  "topic": "Using std::timed_mutex::try_lock_for for Time-Bound Lock Acquisition",
+  "explanation": "In modern C++, synchronization primitives like std::timed_mutex provide mechanisms to acquire locks with time constraints, enabling threads to attempt to lock a mutex for a specified duration. The try_lock_for member function attempts to acquire the lock within a given relative time span, returning true if successful before the timeout, and false otherwise. This feature is essential for writing responsive, deadlock-avoiding concurrent code that can proceed if a lock isn't acquired within a reasonable timeframe.",
+  "syntax": "bool try_lock_for(const std::chrono::duration<Rep, Period>& rel_time);",
+  "code_example": "#include <iostream>\n#include <thread>\n#include <mutex>\n#include <chrono>\n\nstd::timed_mutex mtx;\n\nvoid worker(int id) {\n    if (mtx.try_lock_for(std::chrono::milliseconds(100))) {\n        std::cout << \"Thread \" << id << \" acquired the lock.\" << std::endl;\n        std::this_thread::sleep_for(std::chrono::milliseconds(200));\n        mtx.unlock();\n        std::cout << \"Thread \" << id << \" released the lock.\" << std::endl;\n    } else {\n        std::cout << \"Thread \" << id << \" could not acquire the lock within 100ms.\" << std::endl;\n    }\n}\n\nint main() {\n    std::thread t1(worker, 1);\n    std::thread t2(worker, 2);\n    t1.join();\n    t2.join();\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the use of std::timed_mutex::try_lock_for by having multiple threads attempt to acquire the same mutex within a 100-millisecond timeout. Thread 1 successfully acquires the lock, holds it for 200 milliseconds, and then releases it. Thread 2 tries to acquire the lock with try_lock_for; if it fails within 100 milliseconds, it reports failure. This illustrates how try_lock_for enables time-bounded lock attempts, allowing threads to avoid indefinite blocking and improve responsiveness in concurrent applications.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1183-1183",
+    "extraction_date": "2025-08-19T09:49:23.109354",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level"
+  }
+}

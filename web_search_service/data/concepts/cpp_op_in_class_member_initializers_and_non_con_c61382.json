@@ -1,0 +1,14 @@
+{
+  "topic": "In-Class Member Initializers and Non-Constant Initialization Order",
+  "explanation": "C++ allows member initialization within the class declaration using the `= initializer` syntax.  However, the order of initialization of these members is crucial and can lead to unexpected behavior, particularly when members depend on each other. The compiler's implementation details significantly impact the runtime behavior and potential for undefined behavior.  Specifically, the order of initialization is not guaranteed to be the order of declaration, and compilers are free to reorder initializations for optimization purposes. This is particularly relevant when dealing with non-constant initializers, where the value of one member might depend on the value of another member initialized earlier.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:50:24.114582",
+    "book_metadata_added": "2025-10-28T20:22:06.921482"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct DependencyTrap {\n    // Initialization occurs in declaration order (top-down).\n    // Accessing 'm1' here results in UB: 'm1' is uninitialized.\n    int m2 = m1 + 10; // UB Access\n\n    // m1 is initialized second.\n    int m1 = 42;\n\n    // Correcting the order:\n    // int m1 = 42;\n    // int m2 = m1 + 10;\n};\n\n// Ctor initializer list does not change this order.\nstruct Safe {\n    int m1 = 42;\n    int m2;\n    Safe() : m2(m1 + 10) {}\n};",
+  "keywords": "Member Initialization Order, Default Member Initializers, In-class initialization"
+}

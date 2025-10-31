@@ -1,0 +1,15 @@
+{
+  "topic": "Memory Layout of Multi-Dimensional Arrays and Array Access",
+  "explanation": "Understanding how multi-dimensional arrays are laid out in memory is crucial for efficient systems programming and performance optimization.  The compiler generates code to calculate the memory offset of each array element based on the array's dimensions and the memory ordering (typically row-major). This calculation directly impacts memory access speed and efficiency, influencing cache utilization and overall program performance.  Efficient access patterns minimize cache misses and improve performance.",
+  "syntax": "For an array declared as `T D[R][C];`, where T is the data type, R is the number of rows, and C is the number of columns, element access is typically calculated as: `address(D[i][j]) = base_address(D) + i * (C * sizeof(T)) + j * sizeof(T)`  (row-major order).",
+  "code_example": "; Assume int is 4 bytes\nsection .data\nA: times 60 db 0 ; 5 rows * 3 ints/row * 4 bytes/int = 60 bytes\nsection .text\nglobal _start\n_start:\n; Access A[2][1] (3rd row, 2nd column)\nmov rdi, A ; base address of A in rdi\nmov rsi, 2 ; row index\nmov rdx, 3 ; number of columns\nmov rcx, 4 ; size of int\nmul rdx ; rsi = rsi * rdx (row * cols)\nmul rcx ; rsi = rsi * rcx (row * cols * sizeof(int))\nadd rdi, rsi ; rdi = base + offset for row\nadd rdi, rcx ; rdi += offset for column (1 * sizeof(int))\n; rdi now points to A[2][1]\n; Access and use the value at rdi (example omitted for brevity)\nmov rax, 60 ; sys_exit\nxor rdi, rdi ; exit code 0\nsyscall",
+  "example_explanation": "The example demonstrates how to calculate the memory address of an element in a two-dimensional array using x86-64 assembly. The code first computes the offset of the desired element (`A[2][1]`) based on row-major ordering, and then adds this offset to the base address of the array to obtain the final memory address.  This illustrates the direct hardware-software interaction involved in accessing data structures in memory, highlighting the importance of understanding memory layout for performance.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "286-286",
+    "extraction_date": "2025-07-26T00:05:14.852209",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

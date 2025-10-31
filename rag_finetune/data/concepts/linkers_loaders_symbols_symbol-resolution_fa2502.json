@@ -1,0 +1,16 @@
+{
+  "topic": "Symbol Resolution for OS Hardware",
+  "explanation": "Symbol resolution is the process of associating symbolic names (like function or variable names) used in a program with their actual memory addresses during linking and loading.  This is crucial because the compiler and assembler use symbolic names for convenience, but the operating system and hardware need actual memory addresses to execute the program.  Efficient symbol resolution is essential for linking multiple object files (compiled separately) and for handling dynamic libraries that may not have their addresses determined until runtime.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "210-212",
+    "extraction_date": "2025-07-21T17:30:27.613690",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.757585"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Dynamic Symbol Resolution via PLT/GOT\n\n// Global Offset Table (GOT) entry structure\ntypedef struct {\n    uint64_t addr; // Resolved function/data address\n} GOT_Entry;\n\n// PLT entry (Procedure Linkage Table)\n// Resolves function call 'TargetFunc' dynamically\nTargetFunc@plt:\n    JMP *(GOT_Entry_TargetFunc) // 1. Try indirect jump\n    PUSH $RelocIndex_TargetFunc // 2. If first call, push ID\n    JMP .PLT_RESOLVER           // 3. Jump to Dynamic Linker\n\n// Linker Rule: Strong vs. Weak Symbols\n// int foo = 1;      // Default: Strong definition\n// __attribute__((weak)) int bar = 2; // Weak definition\n\n// Resolution Priority:\n// Strong + Strong = Error\n// Strong + Weak   = Strong\n// Weak + Weak     = Arbitrary (often largest definition used)",
+  "keywords": "Symbol Resolution, Linker symbols, Dynamic linking, Name resolution"
+}

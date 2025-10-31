@@ -1,0 +1,15 @@
+{
+  "topic": "Volatile Keyword in C",
+  "explanation": "The volatile keyword in C is used to inform the compiler that a variable's value can change at any time, even if no code in the program modifies it directly. This prevents the compiler from optimizing away accesses to the variable, which is crucial for scenarios involving hardware registers, interrupts, or multi-threaded environments where external factors might alter the variable's value unexpectedly.",
+  "extraction_metadata": {
+    "source": "Advanced Programming in the UNIX Environment 3rd Edition",
+    "page_range": "375-375",
+    "extraction_date": "2025-07-23T00:05:35.368115",
+    "has_code": true,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.972783"
+  },
+  "book": "Advanced Programming in the UNIX Environment (3rd Edition)",
+  "code_example": "// 1. Hardware Register Access (MMIO)\n#define REG_ADDR 0xDEADBEEF\n// The data at this address changes externally\nvolatile uint32_t * const STATUS_REG = (volatile uint32_t*)REG_ADDR;\n\nuint32_t status = *STATUS_REG; // Forces read from memory\nstatus = *STATUS_REG;          // Forces another read (no caching)\n\n// 2. Interrupt Flag / Shared State\nvolatile bool interrupt_flag = false;\n\nvoid isr_handler() {\n    interrupt_flag = true;\n}\n\n// Compiler cannot optimize this loop into 'while(true)'\nvoid main_loop() {\n    while (!interrupt_flag) {}\n}\n\n// 3. Pointer Placement Distinction\nint value;\nvolatile int *p1;         // Data is volatile, pointer is not\nint * volatile p2;        // Pointer is volatile, data is not\nvolatile int * volatile p3; // Both are volatile",
+  "keywords": "volatile keyword, volatile embedded, compiler optimization prevention, hardware registers"
+}

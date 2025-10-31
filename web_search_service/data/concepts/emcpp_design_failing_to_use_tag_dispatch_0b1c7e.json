@@ -1,0 +1,13 @@
+{
+  "topic": "Failing to Use Tag Dispatch for Overload Resolution",
+  "category": "design",
+  "explanation": "Assumption: The most direct way to resolve template ambiguity is to apply complex constraints (like SFINAE) directly to the function signature. Reality: When dealing with overloaded functions (especially templates), relying solely on signature complexity to guide resolution is fragile. A cleaner, more robust approach is Tag Dispatching. Why It Fails: Failing to use Tag Dispatching means that whenever a type needs to be excluded from a universal reference template (e.g., preventing the template from being chosen when a non-template overload exists), the developer must resort to verbose and error-prone SFINAE clauses. This anti-pattern obscures the function's intent and increases the risk of C6 (Overload Collision) because the constraint mechanism is difficult to manage. Tag Dispatch provides a clear path for the compiler to choose the most specialized (non-template) implementation first, relying on runtime polymorphism rather than complex template machinery for resolution.",
+  "code_example": "// Ambiguous resolution without tag dispatch\ntemplate<typename T> void process(T&&); // High priority template\nvoid process(std::vector<int>); // Low priority specialized function\n\n// Solution requires helper functions and trait tags to force selection of low priority one.",
+  "practical_example": "A logging system handles several types by value for simplicity, but needs to exclude user-defined types (UDTs) from an optimizing universal reference template. Without Tag Dispatching, the universal reference template aggressively consumes all UDT inputs, requiring maintenance of massive SFINAE clauses.",
+  "keywords": "Tag Dispatching, SFINAE alternative, Template dispatch pattern, Overload resolution guidance",
+  "difficulty": "advanced",
+  "page_reference": "212-214",
+  "chapter": "Item 27: Use alternatives to overloading on universal references",
+  "id": "emcpp_design_failing_to_use_tag_dispatch_0b1c7e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

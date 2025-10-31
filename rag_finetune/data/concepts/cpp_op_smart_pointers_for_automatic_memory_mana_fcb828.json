@@ -1,0 +1,28 @@
+{
+  "topic": "Smart Pointers in C++ Standard",
+  "explanation": "Smart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation when objects go out of scope. They are used to prevent memory leaks and dangling pointers, promoting safer and more maintainable code by adhering to RAII (Resource Acquisition Is Initialization) principles. Modern C++ encourages replacing raw pointers with smart pointers such as std::unique_ptr and std::shared_ptr for resource management.\n\nSmart pointers in C++ (such as std::unique_ptr and std::shared_ptr) are template classes that manage dynamic memory automatically, ensuring proper resource deallocation when objects go out of scope. They are used to prevent memory leaks and dangling pointers, adhering to the RAII (Resource Acquisition Is Initialization) idiom. Modern C++ encourages their use over raw pointers for safer and more expressive resource management.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "41-41",
+    "extraction_date": "2025-09-11T09:46:42.984094",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "merged_on": "2025-09-11T09:50:28.360640",
+    "merged_from": {
+      "source": "Unknown Source",
+      "page_range": "44-44",
+      "extraction_date": "2025-09-11T09:50:23.889887",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "cpp_standard"
+    },
+    "merge_similarity_score": 0.9095982909202576,
+    "book_metadata_added": "2025-10-28T20:22:06.830065"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct HeavyResource {};\n\n// --- std::unique_ptr (Exclusive Ownership) ---\n\n// Preferred creation (exception safe)\nstd::unique_ptr<HeavyResource> up1 = std::make_unique<HeavyResource>();\n\n// No copy allowed (compile error)\n// std::unique_ptr<HeavyResource> up2 = up1; \n\n// Transfer ownership via move\nstd::unique_ptr<HeavyResource> up3 = std::move(up1);\n\n// Access raw pointer (use only if necessary)\nHeavyResource* raw = up3.get();\n\n\n// --- std::shared_ptr (Shared Ownership, Ref Counted) ---\n\nstd::shared_ptr<HeavyResource> sp1 = std::make_shared<HeavyResource>();\n\n// Copy increases reference count (now 2)\nstd::shared_ptr<HeavyResource> sp2 = sp1;\n\n// Access count\nint count = sp1.use_count(); // 2\n\n\n// --- std::weak_ptr (Non-Owning Reference) ---\n\nstd::weak_ptr<HeavyResource> wp = sp1;\n\n// Must lock to access (if resource still exists)\nif (auto locked_sp = wp.lock()) {\n    locked_sp->do_work();\n}\n<ctrl63>",
+  "keywords": "C++ Smart Pointers, std::unique_ptr, C++ memory management, std::shared_ptr"
+}

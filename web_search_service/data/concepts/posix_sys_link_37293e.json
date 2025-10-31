@@ -1,0 +1,16 @@
+{
+  "topic": "link() System Call",
+  "explanation": "The link() system call creates a new hard link to an existing file, allowing the new name to be used interchangeably with the original. If the new path already exists, it is not overwritten. The linkat() variant provides additional options for relative paths using directory file descriptors and flags.\n\n**Parameters:**\n- `oldpath` (const char *): Path to the existing file to link\n- `newpath` (const char *): Path for the new link\n- `olddirfd` (int): Directory file descriptor for oldpath (for linkat)\n- `newdirfd` (int): Directory file descriptor for newpath (for linkat)\n- `flags` (int): Flags for linkat behavior, such as AT_EMPTY_PATH or AT_SYMLINK_FOLLOW\n\n**Common Errors:**\n- `EACCES`: Write access to the directory containing newpath is denied, or search permission is denied for a directory in the path\n- `EDQUOT`: User's quota of disk blocks on the filesystem has been exhausted\n- `EEXIST`: newpath already exists\n- `EFAULT`: oldpath or newpath points outside accessible address space\n- `EIO`: An I/O error occurred\n\n**Related System Calls:** `open()`, `rename()`, `stat()`, `symlink()`, `unlink()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.141632",
+    "syscall_name": "link",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_link.json",
+    "concept_id": "posix_sys_link_37293e",
+    "book_metadata_added": "2025-10-28T20:22:06.676013"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int link(const char *oldpath, const char *newpath);\n\n// Creates hard link 'newpath' to 'oldpath'\nif (link(\"/path/to/file\", \"new_hardlink\") == -1) {\n    // Check errno for EPERM (cross-device) or ENOENT\n    return;\n}\n\n// linkat() variant: uses directory file descriptors\n// flags: 0 or AT_SYMLINK_FOLLOW\nint linkat(int olddirfd, const char *oldpath,\n           int newdirfd, const char *newpath, int flags);\n\n// Link file 'a' in dir FD 3 to 'b' in current dir (AT_FDCWD)\nlinkat(3, \"a\", AT_FDCWD, \"b\", 0);\n<ctrl63>",
+  "keywords": "link system call, hard link creation, linkat"
+}

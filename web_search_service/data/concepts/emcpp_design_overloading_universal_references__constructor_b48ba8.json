@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References: Constructor Overloading Conflict",
+  "category": "design",
+  "explanation": "Applying the universal reference pattern to constructors creates a powerful but dangerous anti-pattern known as the 'greedy forwarding constructor.' The intention is usually to handle all potential input types\u2014lvalue arguments via copy, and rvalue arguments via move\u2014with a single template. The failure occurs because a universal reference constructor is highly generalized and often interferes with or completely subsumes other, critically important constructors, such as the copy constructor, move constructor, and conversion constructors. When a specific type (e.g., `MyClass`) is passed to the constructor, the universal reference template may be deduced as the best match, even if a dedicated copy constructor (`const MyClass&`) exists. This interference is problematic because if the template constructor's body is intended for generic construction (e.g., for types other than `MyClass`), it will execute the wrong logic when presented with an instance of its own type. Furthermore, the presence of the forwarding constructor can suppress the automatic generation of default move and copy operations, or lead to ambiguous calls that require complex workarounds (like SFINAE or adding `const` and `volatile` checks) to disable the template only for the exact types handled by the dedicated copy/move constructors. The constructor becomes a single point of failure, violating the intent of C++ specialization.",
+  "code_example": "class Widget {\npublic:\n    template<typename T> Widget(T&& arg); // Greedy Forwarding Constructor\n    Widget(const Widget& other); // Specific copy constructor\n};\n\nWidget w1;\nWidget w2(w1); // Might call the template constructor instead of copy constructor!",
+  "practical_example": "A class intended to manage a specific resource (e.g., a file handle) uses a universal reference constructor for initialization from paths or streams. When a developer tries to copy one instance of the manager to another, the forwarding constructor is called instead of the copy constructor, leading to resource mis-management, potentially resulting in two managers attempting to delete the same resource handle.",
+  "keywords": [
+    "greedy constructor",
+    "copy suppression",
+    "constructor conflict",
+    "move suppression"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "201-203",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_design_overloading_universal_references__constructor_b48ba8",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

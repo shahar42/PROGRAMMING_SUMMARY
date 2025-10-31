@@ -1,0 +1,15 @@
+{
+  "topic": "sendfile() System Call",
+  "explanation": "sendfile() copies data between two file descriptors directly in the kernel, making it more efficient than using read(2) and write(2). It requires an input file descriptor for reading and an output for writing, with an optional offset to specify the starting point.\n\n**Parameters:**\n- `out_fd` (int): Output file descriptor opened for writing\n- `in_fd` (int): Input file descriptor opened for reading, supporting mmap-like operations\n- `offset` (off_t *_Nullable): Pointer to a variable holding the file offset; if NULL, uses and updates the file offset of in_fd\n- `count` (size_t): Number of bytes to copy between the file descriptors\n\n**Common Errors:**\n- `EAGAIN`: Nonblocking I/O has been selected and the write would block\n- `EBADF`: The input file was not opened for reading or the output file was not opened for writing\n- `EFAULT`: Bad address\n- `EINVAL`: Descriptor is not valid or locked, or an mmap-like operation is not available for in_fd, or count is negative, or out_fd has the O_APPEND flag set\n- `EIO`: Unspecified error while reading from in_fd\n\n**Related System Calls:** `copy_file_range()`, `mmap()`, `open()`, `socket()`, `splice()`",
+  "syntax": "ssize_t sendfile(int out_fd, int in_fd, off_t *_Nullable offset, size_t count);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = sendfile(...);  // Call the system call\nif (result == -1) {\n    perror(\"sendfile\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the sendfile() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.245937",
+    "syscall_name": "sendfile",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_sendfile.json",
+    "concept_id": "posix_sys_sendfile_cda845"
+  }
+}

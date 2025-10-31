@@ -1,0 +1,21 @@
+{
+  "topic": "List Initialization: Initializer List Priority",
+  "category": "core",
+  "explanation": "When an object is initialized using braced initializers, the compiler has a strong, special-cased preference for constructors that accept a std::initializer_list. If a class has at least one constructor taking a std::initializer_list, the compiler will only consider those overloads during resolution for braced initialization. This behavior is so aggressive that it can preempt other constructors that might seem like a better match based on the types and number of arguments.\n\nScott Meyers describes this as std::initializer_list constructors 'hijacking' braced initialization. The key insight is that this is not a subtle preference but a major rule in overload resolution that can lead to surprising outcomes. Class designers must be acutely aware of this, as adding an initializer_list constructor to an existing class can silently change the meaning of client code that uses braced initialization. The canonical example of this design pitfall is std::vector, where using parentheses versus braces for the same numeric arguments invokes completely different constructors.\n\nThe mechanics are straightforward but impactful. When the compiler encounters a braced initialization like `Widget w{a, b, c};`, its first step is to check if the `Widget` class has any constructors taking a `std::initializer_list`. If it finds a constructor taking a `std::initializer_list` of a type compatible with the arguments, that constructor is chosen. Only if no such constructor exists, or if the arguments cannot be converted to the list's element type, will the compiler fall back to normal overload resolution and treat `{a, b, c}` as if it were `(a, b, c)`.\n\nThis has significant practical implications for API design. When designing a class, you must consider whether clients will use parentheses or braces and how your constructor overloads will behave. The std::vector case, where `(10, 20)` creates ten elements and `{10, 20}` creates two, is a classic example of an API that can confuse users. The modern C++ guideline is to design constructor sets to be 'robust' to the choice of delimiters, meaning the same constructor is called regardless of whether the user types parentheses or braces, unless there is a clear and intentional semantic difference.\n\nA common pitfall is viewing braced initialization as a universal replacement for parenthesized initialization. Programmers often forget this special overload resolution rule and are surprised when their call to a two-argument constructor is instead resolved to a two-element initializer_list constructor. Another mistake for library authors is to add an initializer_list constructor to a class without considering how it might break existing clients who use braced initialization.",
+  "code_example": "// A class demonstrating the overload resolution difference\nclass Widget {\npublic:\n  Widget(int i, bool b) {};         // Constructor 1: int and bool\n  Widget(std::initializer_list<long double> il) {}; // Constructor 2: initializer_list\n};\n\nWidget w1(10, true);   // Calls Constructor 1 (int, bool)\nWidget w2{10, true};   // Calls Constructor 2 (initializer_list)\n                       // 10 and true are converted to long double\n\n// The std::vector example\nstd::vector<int> v1 (10, 20); // Creates a 10-element vector, all elements are 20\nstd::vector<int> v2 {10, 20}; // Creates a 2-element vector with values 10 and 20",
+  "practical_example": "When designing a custom `Matrix` class, you might have a constructor `Matrix(int rows, int cols)`. If you later add a constructor `Matrix(std::initializer_list<double> data)` for convenience, a user writing `Matrix m{5, 10};` intending to create a 5x10 matrix will instead create a 1x2 matrix with values 5.0 and 10.0. This is a classic API design trap that this rule highlights.",
+  "keywords": [
+    "braced initialization",
+    "initializer_list",
+    "overload resolution",
+    "constructor",
+    "hijacking",
+    "std::vector",
+    "api design"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "55-56",
+  "chapter": "Item 7: Distinguish between () and {} when creating objects",
+  "id": "emcpp_core_overload_resolution_with_braced_initialization_5807c3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

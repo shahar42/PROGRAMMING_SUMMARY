@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Synchronization Primitives (POSIX Threads)",
+  "explanation": "Concurrency allows multiple threads of execution to run seemingly simultaneously within a single process, improving performance by utilizing multiple CPU cores or overlapping I/O operations.  Synchronization primitives are mechanisms used to coordinate and control access to shared resources by these concurrent threads, preventing race conditions and ensuring data consistency.  POSIX Threads (pthreads) provide a standardized C API for creating and managing threads in a POSIX-compliant operating system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "14-14",
+    "extraction_date": "2025-07-22T01:40:02.910913",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.724317"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "void* thread_func(void* arg) {\n    long thread_num = (long)arg;\n    return (void*)(thread_num * 2);\n}\n\n// Thread Creation and Wait\npthread_t t1, t2;\nlong data1 = 1, data2 = 2;\n\npthread_create(&t1, NULL, thread_func, (void*)data1);\npthread_create(&t2, NULL, thread_func, (void*)data2);\n\nvoid* exit_status1;\npthread_join(t1, &exit_status1);\n// exit_status1 holds (void*)2\n\n// Detached thread (Resource cleanup automatic)\npthread_attr_t attr;\npthread_attr_init(&attr);\npthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);\npthread_create(&t1, &attr, thread_func, NULL);\npthread_attr_destroy(&attr);\n\n\npthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;\nint shared_resource = 0;\n\n// Mutual Exclusion (Locking)\nvoid access_shared() {\n    pthread_mutex_lock(&mtx);\n\n    // Critical Section\n    shared_resource++;\n\n    pthread_mutex_unlock(&mtx);\n}\n\nvoid mutex_cleanup() {\n    pthread_mutex_destroy(&mtx);\n}\n\n\npthread_cond_t cond_var;\npthread_mutex_t cond_mtx;\nint item_available = 0;\n\n// Condition Variables (Waiting)\nvoid consumer_wait() {\n    pthread_mutex_lock(&cond_mtx);\n    while (item_available == 0) {\n        pthread_cond_wait(&cond_var, &cond_mtx);\n    }\n    // Resource consumed\n    pthread_mutex_unlock(&cond_mtx);\n}\n\n// Condition Variables (Signaling)\nvoid producer_signal() {\n    pthread_mutex_lock(&cond_mtx);\n    item_available = 1;\n    pthread_cond_signal(&cond_var); // Wakes one thread\n    // pthread_cond_broadcast(&cond_var); // Wakes all threads\n    pthread_mutex_unlock(&cond_mtx);\n}",
+  "keywords": "pthreads, POSIX Threads, C thread synchronization, C++ concurrency primitives"
+}

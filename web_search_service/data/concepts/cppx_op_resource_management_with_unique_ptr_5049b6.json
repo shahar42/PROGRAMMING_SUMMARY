@@ -1,0 +1,14 @@
+{
+  "topic": "Resource Management with `unique_ptr`",
+  "explanation": "RAII (Resource Acquisition Is Initialization) is a cornerstone of modern C++.  `unique_ptr` is a smart pointer that perfectly embodies this principle. It ensures automatic cleanup of dynamically allocated resources (like memory) by deleting the managed object when the `unique_ptr` goes out of scope. This prevents memory leaks, a common pitfall in C++ programming. Unlike `shared_ptr`, `unique_ptr` provides exclusive ownership, preventing multiple pointers from managing the same resource and leading to potential double deletion issues.  This is crucial for maintaining data integrity and avoiding program crashes.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:57:25.702215",
+    "book_metadata_added": "2025-10-28T20:22:06.566541"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "struct MyResource {\n    MyResource() { /* Setup */ }\n    ~MyResource() { /* Cleanup */ }\n    void run();\n};\n\n// 1. Creation and Scope Management\n{\n    auto p = std::make_unique<MyResource>();\n    p->run();\n    // Resource is automatically freed here (RAII)\n}\n\n// 2. Exclusive Ownership (Move, not Copy)\nauto p1 = std::make_unique<MyResource>();\n// auto p2 = p1;        // Compile Error: Non-copyable\n\nauto p3 = std::move(p1); // Ownership transfer\n// p1 is now nullptr\np3.release();            // Manual detachment (rare)",
+  "keywords": "unique_ptr, C++ smart pointer, RAII, exclusive ownership"
+}

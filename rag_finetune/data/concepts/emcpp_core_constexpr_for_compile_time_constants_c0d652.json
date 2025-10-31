@@ -1,0 +1,20 @@
+{
+  "topic": "Constexpr: True Constant Expression Guarantee",
+  "category": "core",
+  "explanation": "The `constexpr` specifier guarantees that a variable is a true compile-time constant. Its value is known during compilation and can be used in contexts that require it, such as for array bounds or non-type template parameters. This provides a stronger guarantee than `const`, which only ensures that a variable cannot be modified after its initialization.\n\nScott Meyers' key insight is to clarify the crucial difference between `const` and `constexpr`. While all `constexpr` objects are implicitly `const`, the reverse is not true. A `const` object can be initialized with a value that is only known at runtime, making it unsuitable for compile-time contexts. Meyers stresses that when you need a compile-time constant, `constexpr` is the correct and only tool for the job, not `const`.\n\nThe mechanics are straightforward from the compiler's perspective. When the compiler encounters a `constexpr` variable declaration, it must verify that the initializer is a constant expression. A constant expression is one that the compiler can evaluate at compile time. If the initializer depends on any runtime values, such as a non-`constexpr` variable or user input, the compiler will issue an error. This strict enforcement is what provides the compile-time guarantee.\n\nIn practice, this distinction is fundamental for writing robust and efficient C++ code. `constexpr` variables are essential for defining fixed sizes for containers like standard arrays, specifying non-type template arguments, or initializing other compile-time constructs. They allow computations to be moved from runtime to compile time, potentially improving performance and enabling compile-time assertions and checks that would otherwise be impossible.\n\nThe most common pitfall is assuming `const` is sufficient for creating a compile-time constant. Developers often use `const` to initialize an array size from a variable, only to be surprised by a compilation error. Understanding that `const` means 'read-only' while `constexpr` means 'compile-time known' resolves this confusion.",
+  "code_example": "// A runtime variable\nint sz = 10;\n\n// const can be initialized at runtime\nconst auto arraySizeConst = sz; // OK\n\n// constexpr MUST be initialized at compile-time\nconstexpr auto arraySizeExpr = 10; // OK\n\n// Use in a compile-time context\nstd::array<int, arraySizeExpr> data1; // OK\n// std::array<int, arraySizeConst> data2; // ERROR! arraySizeConst is not a compile-time constant\n\n// All constexpr are const\n// arraySizeExpr = 20; // ERROR! read-only",
+  "practical_example": "Defining a network packet's maximum size with `constexpr` allows it to be used as the bound for a `std::array` buffer, ensuring the size is fixed and known at compile time. This prevents runtime size calculations and allows the compiler to optimize memory layout and access.",
+  "keywords": [
+    "constexpr",
+    "const",
+    "compile-time constants",
+    "constant expression",
+    "array bounds",
+    "metaprogramming"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "97-98",
+  "chapter": "Item 15: Use constexpr whenever possible",
+  "id": "emcpp_core_constexpr_for_compile_time_constants_c0d652",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

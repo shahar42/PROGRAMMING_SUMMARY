@@ -1,0 +1,19 @@
+{
+  "topic": "Atomic versus Volatile: Suppression vs. Synchronization",
+  "category": "volatile",
+  "explanation": "Assumption: Because `volatile` relates to memory access and prevents optimization, it can be used to ensure memory visibility and ordering between threads (as it is used in languages like Java or C#). Reality: In C++, `volatile` has nothing to do with concurrency. It instructs the compiler to suppress optimizations (like register caching or instruction reordering) for memory that might change externally (e.g., hardware registers, memory-mapped I/O, or signal handlers). Why It Fails: `volatile` does not guarantee atomicity, nor does it establish the necessary memory barriers (fences) required to ensure that writes performed by one thread are visible to another thread running on a different core. Relying on `volatile` for multithreaded communication leads to non-atomic data races and incorrect program behavior; `std::atomic` must be used for concurrency.",
+  "code_example": "// Thread 1:\nvolatile int counter = 0;\ncounter++; // Not atomic, data race possible\n\n// Correct approach:\nstd::atomic<int> safe_counter(0);\nsafe_counter++; // Atomic update",
+  "practical_example": "A developer uses `volatile bool ready_flag = false;` to signal completion between two threads, expecting the write to be immediately visible. If the compiler optimizes the reading thread's loop to check a register cache instead of main memory, the waiting thread may never see the update, leading to a deadlock or infinite loop, despite the use of `volatile`.",
+  "keywords": [
+    "volatile",
+    "std::atomic",
+    "compiler optimization",
+    "memory barrier",
+    "concurrency distinction"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "289-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_volatile_atomic_versus_volatile__suppression_1248ea",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "get_robust_list() System Call",
+  "explanation": "The get_robust_list() system call retrieves the head of the robust futex list for a specified thread. It allows the kernel to notify waiting threads if the owner of a futex terminates or executes a new program unexpectedly.\n\n**Parameters:**\n- `pid` (int): The thread ID of the thread whose robust futex list is to be retrieved; if 0, the calling thread's list is used.\n- `head_ptr` (struct robust_list_head **): Pointer to a location where the address of the robust futex list head will be stored.\n- `len_ptr` (size_t *): Pointer to a size_t where the size of the object pointed to by *head_ptr will be stored.\n\n**Common Errors:**\n- `EFAULT`: The head of the robust futex list can’t be stored at the location head.\n- `EPERM`: The calling process does not have permission to see the robust futex list of the thread with the thread ID pid, and does not have the CAP_SYS_PTRACE capability.\n- `ESRCH`: No thread with the thread ID pid could be found.\n\n**Related System Calls:** `futex()`, `pthread_mutexattr_setrobust()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.233396",
+    "syscall_name": "get_robust_list",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_get_robust_list.json",
+    "concept_id": "posix_sys_get_robust_list_590d02",
+    "book_metadata_added": "2025-10-28T20:22:06.642838"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct robust_list_head {\n    /* Fields describing the list head */\n};\n\nstruct robust_list_head *rlist_head = NULL;\nint target_tid = 0; // Use current thread\nsize_t size_of_ptr = sizeof(rlist_head);\nlong status;\n\n// Retrieve the robust futex list head\nstatus = syscall(__NR_get_robust_list,\n                 target_tid,\n                 &rlist_head,\n                 &size_of_ptr);\n\nif (status == 0 && rlist_head != NULL) {\n    // List head successfully retrieved\n}\n<ctrl63>",
+  "keywords": "get_robust_list, robust futex, robust list head, futex thread recovery"
+}

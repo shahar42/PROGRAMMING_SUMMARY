@@ -1,0 +1,18 @@
+{
+  "topic": "std::atomic Guarantees Ordering for Cross-Thread Synchronization",
+  "category": "thread",
+  "explanation": "Assumption: Any modification to a variable used as a flag, such as `valAvailable = true`, will be seen by other threads only after preceding operations (like calculating `imptValue`) are complete. Reality: To guarantee this ordering (sequential consistency) in a concurrent environment, the flag must be declared as `std::atomic`. Why It Works: Declaring a variable as `std::atomic` forces both the compiler and the underlying hardware to maintain the specified order of operations, ensuring that the critical data modification is visible before the notification flag is set. This is essential for correct thread coordination.",
+  "code_example": "std::atomic<bool> valAvailable(false);\nauto imptValue = computeValue();\nvalAvailable = true; // Guaranteed to execute after computeValue() globally.",
+  "practical_example": "In a producer-consumer scenario, the producer calculates a result and then sets a flag. If the flag is not `std::atomic`, the consumer thread might see the flag set, attempt to read the result, and find stale or partially written data due to CPU or compiler reordering.",
+  "keywords": [
+    "std::atomic",
+    "memory ordering",
+    "sequential consistency",
+    "synchronization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "294-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread_std__atomic_guarantees_ordering_0756ad",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

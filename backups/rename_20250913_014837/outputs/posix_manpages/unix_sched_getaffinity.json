@@ -1,0 +1,62 @@
+{
+  "name": "sched_getaffinity",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sched.h>",
+    "int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);"
+  ],
+  "description": "sched_getaffinity retrieves the CPU affinity mask for a specified thread and stores it in a cpu_set_t structure. It allows querying which CPUs a thread is eligible to run on, with the mask specifying the set of CPUs. If the pid is zero, it returns the mask for the calling thread.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The ID of the thread to query; if 0, uses the calling thread"
+    },
+    {
+      "name": "cpusetsize",
+      "type": "size_t",
+      "description": "The size in bytes of the mask buffer"
+    },
+    {
+      "name": "mask",
+      "type": "cpu_set_t *",
+      "description": "Pointer to the cpu_set_t structure where the affinity mask is stored"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "A supplied memory address was invalid"
+    },
+    {
+      "code": "EINVAL",
+      "description": "cpusetsize is smaller than the size of the affinity mask used by the kernel"
+    },
+    {
+      "code": "ESRCH",
+      "description": "The thread whose ID is pid could not be found"
+    }
+  ],
+  "bugs": null,
+  "versions": null,
+  "posix_compliance": null,
+  "examples": [
+    "CPU_SET(childCPU, &set);",
+    "if (sched_setaffinity(getpid(), sizeof(set), &set) == -1) err(EXIT_FAILURE, \"sched_setaffinity\");",
+    "/* Full program demonstrates usage in context */"
+  ],
+  "related_calls": [
+    "sched_setaffinity"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "sched_getaffinity.pdf",
+    "extraction_date": "2025-07-30T23:24:48.273567",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

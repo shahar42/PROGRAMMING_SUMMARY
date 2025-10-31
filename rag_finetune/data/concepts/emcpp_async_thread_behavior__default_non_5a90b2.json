@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Behavior: Default Non-Blocking `std::future` Destruction",
+  "category": "async",
+  "explanation": "Assumption: All mechanisms related to concurrency (threads, tasks) require explicit handling (joining or detaching) to prevent resource leaks or termination issues. Reality: The 'normal' behavior for most `std::future` destructors (i.e., those not meeting the specific criteria for implicit joining) is simply to destroy the future object and decrement the shared state reference count. This is a non-blocking operation, similar to an implicit `detach` for running threads. Why It Fails: If a programmer relies on the future's destruction to guarantee synchronization or completion (mistaking it for `std::thread` behavior), the task may continue running in the background, potentially leading to race conditions or accessing resources after they are expected to be cleaned up.",
+  "code_example": "std::future<void> f = start_task();\n// If f is not the last future, the task might still be running here\n// even after f goes out of scope.\n",
+  "practical_example": "A developer uses a temporary `std::future` to launch a cleanup process. If this future is not the final reference, the main thread continues immediately, potentially attempting to access or delete resources that the still-running cleanup process relies upon.",
+  "keywords": [
+    "future destructor",
+    "non-blocking",
+    "implicit detach",
+    "reference count"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "276-280",
+  "chapter": "Item 38: Remember to make futures non-blocking on destruction",
+  "id": "emcpp_async_thread_behavior__default_non_5a90b2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

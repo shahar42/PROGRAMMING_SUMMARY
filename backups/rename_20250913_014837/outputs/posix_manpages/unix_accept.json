@@ -1,0 +1,113 @@
+{
+  "name": "accept",
+  "synopsis": [
+    "#include <sys/socket.h>",
+    "int accept(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen);",
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <sys/socket.h>",
+    "int accept4(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen, int flags);"
+  ],
+  "description": "The accept() system call extracts the first connection request on the queue of pending connections for a listening socket, creates a new connected socket, and returns a new file descriptor. The original socket remains unaffected. It is used with connection-based socket types like SOCK_STREAM.",
+  "parameters": [
+    {
+      "name": "sockfd",
+      "type": "int",
+      "description": "The file descriptor of the listening socket, created with socket(2), bound with bind(2), and listening with listen(2)"
+    },
+    {
+      "name": "addr",
+      "type": "struct sockaddr *_Nullable restrict",
+      "description": "Pointer to a sockaddr structure to receive the address of the peer socket; if NULL, no address is returned"
+    },
+    {
+      "name": "addrlen",
+      "type": "socklen_t *_Nullable restrict",
+      "description": "Pointer to the size of the addr structure; it is a value-result argument that is updated with the actual size on return"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Flags for accept4() only, such as SOCK_NONBLOCK or SOCK_CLOEXEC to set nonblocking or close-on-exec behavior"
+    }
+  ],
+  "return_value": {
+    "success": "Returns a file descriptor for the accepted socket (a nonnegative integer)",
+    "failure": "Returns -1 on error, errno is set, and addrlen is left unchanged"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN or EWOULDBLOCK",
+      "description": "The socket is marked nonblocking and no connections are present to be accepted"
+    },
+    {
+      "code": "EBADF",
+      "description": "sockfd is not an open file descriptor"
+    },
+    {
+      "code": "ECONNABORTED",
+      "description": "A connection has been aborted"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The addr argument is not in a writable part of the user address space"
+    },
+    {
+      "code": "EINTR",
+      "description": "The system call was interrupted by a signal before a valid connection arrived"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Socket is not listening for connections, or addrlen is invalid (e.g., negative), or invalid flags for accept4()"
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached"
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on the total number of open files has been reached"
+    },
+    {
+      "code": "ENOBUFS",
+      "description": "Insufficient resources were available in the system to perform the operation"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Not enough free memory"
+    },
+    {
+      "code": "ENOTSOCK",
+      "description": "The file descriptor sockfd does not refer to a socket"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The referenced socket is not of type SOCK_STREAM"
+    },
+    {
+      "code": "EPERM",
+      "description": "Firewall rules forbid connection"
+    },
+    {
+      "code": "EPROTO",
+      "description": "Protocol error"
+    }
+  ],
+  "bugs": "On Linux, the new socket does not inherit file status flags like O_NONBLOCK from the listening socket, differing from BSD behavior. Additionally, there may not always be a connection waiting after a readability event, potentially causing accept() to block unexpectedly.",
+  "versions": "accept() first appeared in 4.2BSD; accept4() in Linux 2.6.28, glibc 2.10",
+  "posix_compliance": "POSIX.1-2008 for accept(); Linux for accept4()",
+  "examples": [],
+  "related_calls": [
+    "bind",
+    "connect",
+    "listen",
+    "select",
+    "socket"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "accept.pdf",
+    "extraction_date": "2025-07-25T23:49:46.476635",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

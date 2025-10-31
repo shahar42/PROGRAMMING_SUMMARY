@@ -1,0 +1,15 @@
+{
+  "topic": "lstat64() System Call",
+  "explanation": "lstat() retrieves file status information for the specified pathname. If pathname is a symbolic link, it returns information about the link itself, not the target file. No permissions are required on the file, but execute permission is needed on directories in the path.\n\n**Parameters:**\n- `pathname` (const char *restrict): Pathname of the file to retrieve status for\n- `statbuf` (struct stat *restrict): Pointer to a stat structure to store the file status information\n\n**Common Errors:**\n- `EACCES`: Search permission is denied for one of the directories in the path prefix of pathname\n- `EFAULT`: Bad address\n- `ELOOP`: Too many symbolic links encountered while traversing the path\n- `ENAMETOOLONG`: pathname is too long\n- `ENOENT`: A component of pathname does not exist or is a dangling symbolic link\n\n**Related System Calls:** `stat()`, `fstat()`, `fstatat()`, `readlink()`",
+  "syntax": "#include <sys/stat.h>",
+  "code_example": "struct stat sb;\nif (lstat(argv[1], &sb) == -1) {\n    perror(\"lstat\");\n    exit(EXIT_FAILURE);\n}\nprintf(\"File type: \");\nswitch (sb.st_mode & S_IFMT) {\n    case S_IFBLK:  printf(\"block device\\n\");            break;\n    // ... (rest of switch cases)\n}",
+  "example_explanation": "This example demonstrates the basic usage of the lstat64() system call. The function takes 2 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.092910",
+    "syscall_name": "lstat64",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_lstat64.json",
+    "concept_id": "posix_sys_lstat64_c6889d"
+  }
+}

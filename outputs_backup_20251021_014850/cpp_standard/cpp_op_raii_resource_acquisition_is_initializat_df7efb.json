@@ -1,0 +1,15 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) for Exception Safety",
+  "explanation": "RAII is a C++ programming idiom that ensures resource management (such as memory, file handles, or network connections) is tied to object lifetime. By acquiring resources in constructors and releasing them in destructors, RAII guarantees that resources are properly released when objects go out of scope, even if exceptions occur. This pattern is fundamental for writing exception-safe code, preventing resource leaks, and simplifying cleanup logic in modern C++.",
+  "syntax": "class Resource {\npublic:\n    Resource() { /* acquire resource */ }\n    ~Resource() { /* release resource */ }\n};\n\n// Usage:\n{\n    Resource res;\n    // resource is automatically released when 'res' goes out of scope\n}",
+  "code_example": "#include <iostream>\nclass FileHandle {\npublic:\n    FileHandle(const char* filename) {\n        file = fopen(filename, \"r\");\n        if (!file) throw std::runtime_error(\"Failed to open file\");\n        std::cout << \"File opened.\\n\";\n    }\n    ~FileHandle() {\n        if (file) {\n            fclose(file);\n            std::cout << \"File closed.\\n\";\n        }\n    }\nprivate:\n    FILE* file = nullptr;\n};\nint main() {\n    try {\n        FileHandle fh(\"example.txt\");\n        // Perform file operations\n        // If an exception occurs here, destructor still releases the resource\n        throw std::runtime_error(\"An error occurred during processing\");\n    } catch (const std::exception& e) {\n        std::cerr << \"Exception caught: \" << e.what() << '\\n';\n    }\n    return 0;\n}",
+  "example_explanation": "This example demonstrates RAII by encapsulating a file handle within the 'FileHandle' class. The constructor acquires the resource (opens the file), and the destructor releases it (closes the file). Even if an exception is thrown during processing, the destructor is automatically invoked when the object goes out of scope, ensuring the resource is properly released. This pattern simplifies exception-safe resource management in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "4-4",
+    "extraction_date": "2025-09-11T09:38:41.899167",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard"
+  }
+}

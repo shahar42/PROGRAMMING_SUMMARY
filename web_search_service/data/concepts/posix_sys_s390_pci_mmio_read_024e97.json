@@ -1,0 +1,16 @@
+{
+  "topic": "s390_pci_mmio_read() System Call",
+  "explanation": "The s390_pci_mmio_read() system call reads a specified number of bytes from a PCI MMIO memory location to a user-space buffer. It must be used on Linux Systemz platforms instead of direct memory operations, and the address must belong to a valid PCI MMIO memory page without crossing page boundaries.\n\n**Parameters:**\n- `mmio_addr` (unsigned long): The PCI MMIO memory address to read from.\n- `user_buffer` (void*): Pointer to the user-space buffer where the read data will be stored.\n- `length` (size_t): Number of bytes to read, which must not exceed the system page size and must not cross a page boundary.\n\n**Common Errors:**\n- `EFAULT`: The address in mmio_addr is invalid.\n- `EFAULT`: user_buffer does not point to a valid location in the caller’s address space.\n- `EINVAL`: Invalid length argument.\n- `ENODEV`: PCI support is not enabled.\n- `ENOMEM`: Insufficient memory.\n\n**Related System Calls:** `syscall()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.186023",
+    "syscall_name": "s390_pci_mmio_read",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_s390_pci_mmio_read.json",
+    "concept_id": "posix_sys_s390_pci_mmio_read_024e97",
+    "book_metadata_added": "2025-10-28T20:22:06.604126"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "unsigned long mmio_addr = 0x1000UL;\nsize_t len = 32;\nchar user_data[32];\n\n// Reads 'len' bytes from MMIO to user_data\nlong ret = s390_pci_mmio_read(\n    mmio_addr,\n    user_data,\n    len\n);\n\n// Constraints:\n// - Must be on Linux Systemz.\n// - Address must not cross page boundaries.\n// - ret is 0 on success, or -EFAULT/-EINVAL on error.",
+  "keywords": "s390 MMIO, Systemz PCI, s390_pci_mmio_read, PCI MMIO read"
+}

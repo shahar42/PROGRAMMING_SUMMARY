@@ -1,0 +1,16 @@
+{
+  "topic": "creat() System Call",
+  "explanation": "The creat() function creates a new file or truncates an existing one, opening it for writing. It is equivalent to calling open() with the flags O_CREAT, O_WRONLY, and O_TRUNC, using the specified mode for permissions.\n\n**Parameters:**\n- `pathname` (const char *): The name of the file to be created or opened.\n- `mode` (mode_t): The file permissions to use for the new file.\n\n**Common Errors:**\n- `EACCES`: The requested access to the file is not allowed, or search permission is denied for one of the directories in the path prefix, or write access to the parent directory is not allowed.\n- `EDQUOT`: The user's quota of disk blocks or inodes on the filesystem has been exhausted.\n- `EEXIST`: pathname already exists and O_CREAT and O_EXCL were used (though not directly for creat, it relates to underlying open behavior).\n- `EFAULT`: pathname points outside the accessible address space.\n- `EISDIR`: pathname refers to a directory and write access was requested.\n\n**Related System Calls:** `open()`, `openat()`, `close()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.149961",
+    "syscall_name": "creat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_creat.json",
+    "concept_id": "posix_sys_creat_df426e",
+    "book_metadata_added": "2025-10-28T20:22:06.623680"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "const char *filepath = \"output.txt\";\nmode_t permissions = 0644; // rw-r--r--\n\n// Creates or truncates the file, opening it for writing\n// Returns file descriptor (fd) or -1 on failure\nint fd = creat(filepath, permissions);\n\nif (fd == -1) {\n    // EACCES: Missing write/search permission\n    // EEXIST: Requires O_EXCL (but creat implicitly truncates)\n    perror(\"creat failed\");\n    return EXIT_FAILURE;\n}\n\n// Write operation uses the returned descriptor\nwrite(fd, \"Hello\", 5);\n\nclose(fd);\n// File permissions are modified by umask",
+  "keywords": "creat system call, C file creation, creat vs open, creat function"
+}

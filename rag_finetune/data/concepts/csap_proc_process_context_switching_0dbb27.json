@@ -1,0 +1,16 @@
+{
+  "topic": "Process Context Switching",
+  "explanation": "Process context switching is a fundamental mechanism in operating systems that allows the CPU to rapidly switch execution between different processes. This is crucial for multitasking and achieving concurrency.  It involves saving the current process's state (registers, program counter, memory management information) and loading the state of another process, enabling efficient resource sharing and responsiveness. This is deeply intertwined with the memory hierarchy, as the system must efficiently manage the movement of data between different levels of memory (cache, RAM, disk) during context switches to minimize performance overhead.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "779-779",
+    "extraction_date": "2025-07-28T12:29:04.352891",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.704201"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Process Control Block (PCB) structure\nstruct PCB {\n    pid_t pid;\n    // Core CPU State Storage\n    struct {\n        uint64_t R[16], PC, SP;\n        uint64_t MMU_CR3; // Page Table Base Register\n    } saved_state;\n};\n\n// Intrinsic functions (low-level assembly required)\nextern void save_CPU(void* reg_storage);\nextern void restore_CPU(void* reg_storage);\nextern void set_MMU_base(uint64_t addr);\n\n// Kernel function executing the switch\nvoid kernel_context_switch(struct PCB* current, struct PCB* next) {\n    // 1. Save state of the current process\n    save_CPU(&current->saved_state);\n\n    // 2. Change Memory Address Space\n    set_MMU_base(next->saved_state.MMU_CR3);\n\n    // 3. Load state of the next process\n    restore_CPU(&next->saved_state);\n    // Control resumes at next->saved_state.PC\n}",
+  "keywords": "Context Switch, Process switching, Task switch, OS context switching"
+}

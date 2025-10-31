@@ -1,0 +1,12 @@
+{
+  "topic": "Runtime Locale Facets and Virtual Dispatch in C++ String Parsing",
+  "explanation": "In C++, locale facets like std::moneypunct and std::ctype are used for locale-aware operations, such as parsing monetary strings in std::money_get::get(). The compiler implements this through polymorphic classes derived from std::locale::facet, which rely on virtual functions for runtime polymorphism. At compile time, the compiler generates code that includes vtable pointers for these facets, allowing dynamic resolution based on the current locale. Memory layout involves each facet object having a vtable pointer (typically 8 bytes on 64-bit systems), followed by member data, leading to indirect function calls that introduce a small performance overhead due to cache misses and branch prediction failures. Performance implications include runtime string scanning and conditional checks (e.g., for thousands separators or currency symbols), which can be slower than fixed-format parsing, especially in tight loops, as they involve multiple virtual function calls. Assembly-level behavior shows indirect jumps (e.g., via the vtable) for facet methods, such as calls to mp.neg_format() or ct.widen(), which translate to instructions like 'call [rax]' in x86-64 assembly, increasing instruction count and potentially stalling the pipeline. This is purely runtime behavior, as locale settings are determined at program execution, not compile time, making it unsuitable for constexpr contexts.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:34:51.399627",
+    "book_metadata_added": "2025-10-28T20:22:06.819243"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

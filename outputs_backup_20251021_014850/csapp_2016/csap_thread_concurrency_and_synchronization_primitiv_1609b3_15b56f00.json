@@ -1,0 +1,15 @@
+{
+  "topic": "Concurrency and Synchronization Primitives",
+  "explanation": "Concurrency involves multiple threads of execution running seemingly simultaneously, enabling parallel processing and increased responsiveness.  Synchronization primitives are mechanisms that coordinate access to shared resources by these concurrent threads, preventing data races and ensuring program correctness.  They are crucial in computer systems for managing shared memory and achieving efficient parallel computation.",
+  "syntax": "pthread_create(&tid[i], NULL, thread_function, &i); // Create a new thread\npthread_join(tid[i], NULL); // Wait for a thread to finish\n// Mutexes:\npthread_mutex_lock(&mutex); // Acquire a mutex lock\npthread_mutex_unlock(&mutex); // Release a mutex lock",
+  "code_example": "#include <pthread.h>\n#include <stdio.h>\n#include <stdlib.h>\n\n#define N 5\n\npthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;\nint counter = 0;\n\nvoid *thread_function(void *arg) {\n  int i = *(int *)arg;\n  for (int j = 0; j < 1000000; j++) {\n    pthread_mutex_lock(&mutex);\n    counter++;\n    pthread_mutex_unlock(&mutex);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t tid[N];\n  int i;\n  for (i = 0; i < N; i++) {\n    pthread_create(&tid[i], NULL, thread_function, &i);\n  }\n  for (i = 0; i < N; i++) {\n    pthread_join(tid[i], NULL);\n  }\n  printf(\"Counter value: %d\\n\", counter);\n  return 0;\n}",
+  "example_explanation": "This example demonstrates the use of pthreads (POSIX threads) for creating and managing multiple threads of execution.  The `pthread_create` function spawns new threads, each incrementing a shared `counter` variable. The `pthread_mutex_lock` and `pthread_mutex_unlock` functions ensure that only one thread can access and modify the `counter` at a time, preventing race conditions and data corruption.  The use of a mutex illustrates a synchronization primitive crucial for concurrent programming, demonstrating a core aspect of hardware-software interaction in managing shared resources within a multi-threaded environment. The program uses a mutex to protect shared data, demonstrating how synchronization primitives are essential to achieve correct results in concurrent programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1049-1049",
+    "extraction_date": "2025-07-29T16:27:34.320462",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

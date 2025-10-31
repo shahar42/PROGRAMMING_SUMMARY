@@ -1,0 +1,14 @@
+{
+  "topic": "Namespace Member Definitions and Symbol Mangling in C++",
+  "explanation": "Namespaces in C++ are a compile-time construct used to organize code and prevent name conflicts. The compiler implements namespace member definitions by integrating them into the symbol resolution process during compilation. Specifically, when a member (like a function) is defined within a namespace, the compiler mangles the symbol name to include the namespace hierarchy, creating a unique identifier. For example, in GCC or Clang, a function 'f' in namespace 'X' might be mangled to '_ZN1X1fEv'. This mangling occurs at compile-time and is based on the Itanium C++ ABI for most compilers, ensuring that symbols from different namespaces do not collide during linking.\n\nMemory layout implications are minimal, as namespaces do not directly affect runtime memory allocation; they are purely a logical grouping. However, mangled names can influence the size of the binary executable, as longer mangled strings increase the symbol table size in object files. Performance-wise, namespace resolution is entirely compile-time, imposing no runtime overhead—function calls or variable accesses within namespaces resolve to their mangled forms during compilation, leading to efficient code generation. At the assembly level, the mangled symbol appears in the object code, and the linker uses it for resolution. For instance, calling a namespaced function translates to a direct jump to the mangled label in assembly. Runtime behavior is unaffected, as namespaces are not present at execution; everything is handled at compile-time, making them a zero-cost abstraction for performance-critical code.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T02:33:26.325964",
+    "book_metadata_added": "2025-10-28T20:22:06.897819"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "namespace UI {\n    class Widget {};\n    int draw(Widget w);\n}\n\n// Out-of-line Definition\n// Links definition to specific mangled name\nint UI::draw(Widget w) {\n    // Defines unique symbol (e.g., _ZN2UI4drawE2UI6Widget)\n    return 0;\n}\n\nnamespace Core {\n    void draw() {\n        // No conflict due to mangling\n    }\n}",
+  "keywords": "C++ symbol mangling, Namespace name decoration, C++ linker symbols"
+}

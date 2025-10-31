@@ -1,0 +1,18 @@
+{
+  "topic": "Volatile: Preventing Compiler Optimization for Special Memory",
+  "category": "design",
+  "explanation": "Assumption: `volatile` is a lightweight synchronization primitive used for ensuring thread safety in concurrent access, similar to `std::atomic`. Reality: The C++ standard defines `volatile` solely as a directive to the compiler to suppress optimization for reads and writes to a specific memory location. This is crucial when dealing with memory-mapped I/O (hardware registers) or variables modified externally (e.g., by signal handlers). Why It Fails: Using `volatile` in place of `std::atomic` in concurrent programming fails because `volatile` guarantees nothing about visibility or ordering between threads; it only guarantees the compiler won't cache the value in a register or eliminate 'redundant' reads/writes that correspond to hardware commands.",
+  "code_example": "volatile int radio_command_port;\n// Both writes must happen sequentially to issue two distinct commands\nradio_command_port = 10; \nradio_command_port = 20; // Compiler cannot optimize out the first write",
+  "practical_example": "In embedded systems, a developer uses a global `volatile` flag to signal completion from an interrupt service routine (ISR). However, they mistakenly believe this provides thread synchronization, leading to race conditions if two threads access other shared data protected only by this flag.",
+  "keywords": [
+    "volatile",
+    "optimization suppression",
+    "hardware registers",
+    "not concurrency"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "289-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_design_volatile__preventing_compiler_optimization_ea2078",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

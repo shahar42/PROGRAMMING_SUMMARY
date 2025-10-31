@@ -1,26 +1,12 @@
 {
   "topic": "Constexpr Functions in C++",
   "explanation": "Constexpr functions in C++ allow for compile-time evaluation of expressions, as specified in sections like 17.6.5.6 of the C++ standard. The compiler implements constexpr by analyzing the function's body during compilation to determine if it can be evaluated at compile-time using constant expressions. If all inputs are known at compile-time, the compiler performs eager evaluation, effectively inlining and computing the result as a constant, which reduces runtime overhead. This involves the compiler's constant expression evaluator, which checks for compliance with rules (e.g., no dynamic memory allocation, no side effects). Memory layout implications include that constexpr variables can be stored in read-only memory (like .rodata section in ELF binaries), avoiding runtime allocation and improving cache performance. Performance-wise, successful compile-time evaluation eliminates runtime function calls, leading to faster execution and smaller binaries. At the assembly level, a constexpr function might not generate any code at all if used in a constant context; instead, it's replaced with the computed value (e.g., via immediate operands). Runtime behavior occurs only if the function is called with non-constant arguments, falling back to a regular function call. This compile-time vs. runtime dichotomy allows for metaprogramming and optimization, but requires strict adherence to constexpr rules to avoid compilation errors.",
-  "syntax": "constexpr return_type function_name(parameters) {\n    // Body must consist of constant expressions\n    // Example: No loops with non-constant limits, no volatile access\n} // Implementation note: The compiler verifies that the function can be evaluated with constant inputs; otherwise, it compiles as a non-constexpr function.",
-  "code_example": [
-    "#include <iostream>",
-    "",
-    "constexpr int factorial(int n) {",
-    "    return (n <= 1) ? 1 : n * factorial(n - 1);  // Recursive constexpr function",
-    "}",
-    "",
-    "int main() {",
-    "    constexpr int compile_time_fact = factorial(5);  // Evaluated at compile-time",
-    "    int runtime_fact = factorial(5);  // Could be runtime if not constexpr context",
-    "    std::cout << \"Factorial of 5: \" << compile_time_fact << std::endl;",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this example, the compiler first attempts to evaluate factorial(5) at compile-time for the constexpr variable compile_time_fact. During compilation, the compiler unfolds the recursion: factorial(5) becomes 5 * factorial(4), and so on, resulting in a constant value (120) embedded directly in the binary (e.g., as an immediate value in assembly like 'mov eax, 120'). This leads to no runtime function call for compile_time_fact, optimizing memory layout by placing it in the .rodata section. For runtime_fact, if used in a non-constexpr context, the compiler generates actual code (e.g., a function prologue, recursion via call instructions, and stack management), incurring runtime overhead. Assembly behavior might show: for compile_time_fact, no 'call' instruction, just a load; for runtime_fact, typical function entry/exit code. This highlights the performance benefits of compile-time evaluation, reducing CPU cycles and memory access, but requires the function to meet strict constexpr criteria to avoid linker errors.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "statements",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T04:32:43.164402"
-  }
+    "extraction_date": "2025-08-19T04:32:43.164402",
+    "book_metadata_added": "2025-10-28T20:22:06.922682"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

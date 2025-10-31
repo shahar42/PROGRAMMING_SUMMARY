@@ -1,0 +1,14 @@
+{
+  "topic": "Handling Dependent Types with the typename Keyword in C++ Templates",
+  "explanation": "In C++ templates, when a nested name (like a type) depends on a template parameter, the compiler requires the 'typename' keyword to disambiguate it as a type rather than a value, function, or other entity. This is crucial for the compiler's two-phase lookup process: in the first phase, the compiler parses the template without knowing the actual types, and 'typename' instructs it to treat the dependent name as a type. For instance, in std::basic_fstream, expressions like 'typename traits::int_type' ensure that 'traits::int_type' is recognized as a type during template instantiation. The compiler implements this by delaying the resolution of dependent names until the template is instantiated with concrete arguments, which occurs at the point of use. This affects memory layout indirectly; for example, if 'int_type' is used in class members, its size and alignment influence the overall object layout in memory. Performance implications include potential code bloat from template instantiation—each unique template specialization generates separate code, increasing binary size and compilation time, though it can optimize runtime performance by inlining type-specific operations. At the assembly level, once instantiated, the compiler might generate instructions that directly use the resolved type (e.g., moving data of the correct size), as seen in how 'int_type' could map to register operations in x86 assembly. This is primarily a compile-time behavior, as 'typename' aids parsing and instantiation, but runtime effects arise from the generated code's efficiency.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:12:50.232190",
+    "book_metadata_added": "2025-10-28T20:22:06.860929"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <typename Container>\nclass Adapter {\n    // 1. Dependent type used as a member variable\n    typename Container::iterator current;\n\n    // 2. Dependent type used as a function parameter\n    void initialize(typename Container::value_type initial_val) {\n        // ...\n    }\n\n    // 3. Dependent type used as a local variable\n    void scan() {\n        // Required for local declarations\n        typename Container::size_type count = 0;\n        // ...\n    }\n\n    // 4. Dependent type used as a return type\n    typename Container::ResultType calculate() const;\n};",
+  "keywords": "typename dependent type, nested dependent name typename, C++ template typename required"
+}

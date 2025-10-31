@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Data Efficiency",
+  "explanation": "The Memory Hierarchy is a tiered storage structure organized by proximity to the CPU, trading capacity and cost for reduced access latency. This structure ranges from fast, small SRAM caches (L1, L2, L3) to slower, larger DRAM main memory. Caching strategies exploit temporal and spatial locality by migrating frequently accessed data blocks into these higher-speed levels. The primary goal is to maximize the cache hit rate, significantly minimizing the Average Memory Access Time (AMAT). Effective cache management utilizes specific mapping functions (e.g., set-associative) and replacement policies (e.g., LRU) to maintain data coherence and optimize the utilization of limited cache capacity.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "888-888",
+    "extraction_date": "2025-07-29T11:00:05.402591",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.710064",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:55",
+    "original_length": 570,
+    "refined_length": 696
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. Spatial Locality: Efficient Stride-1 Access (Row Major)\n#define N 1024\nint matrix[N][N];\n\nvoid process_rows() {\n    // Inner loop iteration loads contiguous memory (cache line efficient)\n    for (int i = 0; i < N; i++) {\n        for (int j = 0; j < N; j++) {\n            matrix[i][j]++; \n        }\n    }\n}\n\n// 2. Poor Spatial Locality: Large Stride Access (Column Major)\n#define N 1024\nint matrix[N][N]; // C/C++ arrays are row-major\n\nvoid process_cols() {\n    // Inner loop jumps N * sizeof(int) bytes (frequent cache misses)\n    for (int j = 0; j < N; j++) {\n        for (int i = 0; i < N; i++) {\n            matrix[i][j]++; \n        }\n    }\n}\n\n// 3. Temporal Locality: Data Reuse\nint shared_data[100];\nint result = 0;\n\nvoid high_reuse() {\n    // Data loaded in the first loop is reused in the second\n    for (int i = 0; i < 100; i++) {\n        shared_data[i] *= 2; \n    }\n    for (int i = 0; i < 100; i++) {\n        result += shared_data[i]; // Reuse (Cache hit likely)\n    }\n}\n\n// 4. Cache Line Alignment (C++17)\n// Prevents false sharing in concurrent systems\n// assuming a 64-byte cache line size\nstruct alignas(64) AlignedCounter {\n    volatile long long count; // Data field\n    char padding[64 - sizeof(long long)]; // Pad to boundary\n};\n\nAlignedCounter thread_local_state;\n<ctrl63>"
+}

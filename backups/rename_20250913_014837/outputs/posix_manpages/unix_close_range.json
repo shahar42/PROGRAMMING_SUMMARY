@@ -1,0 +1,68 @@
+{
+  "name": "close_range",
+  "synopsis": [
+    "#define _GNU_SOURCE /* See feature_test_macros(7) */",
+    "#include <unistd.h>",
+    "#include <linux/close_range.h> /* Definition of CLOSE_RANGE_* constants */",
+    "int close_range(unsigned int first, unsigned int last, int flags);"
+  ],
+  "description": "The close_range() system call closes all open file descriptors in the range from 'first' to 'last' inclusive. It can also set flags to modify behavior, such as setting close-on-exec or unsharing descriptors. Errors during closure of individual descriptors are ignored.",
+  "parameters": [
+    {
+      "name": "first",
+      "type": "unsigned int",
+      "description": "The first file descriptor to close (inclusive)."
+    },
+    {
+      "name": "last",
+      "type": "unsigned int",
+      "description": "The last file descriptor to close (inclusive)."
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "A bitmask of flags, such as CLOSE_RANGE_CLOEXEC or CLOSE_RANGE_UNSHARE, to modify the behavior."
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EINVAL",
+      "description": "Invalid flags specified, or first is greater than last."
+    },
+    {
+      "code": "EMFILE",
+      "description": "The number of open file descriptors exceeds the limit specified in /proc/sys/fs/nr_open, particularly with CLOSE_RANGE_UNSHARE."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Insufficient kernel memory was available, especially with CLOSE_RANGE_UNSHARE."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.9, glibc 2.34",
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE",
+    "int main() {",
+    "    if (close_range(3, ~0U, 0) == -1) {",
+    "        perror(\"close_range\");",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "}",
+    "/* Full program example iterates through files and uses close_range */"
+  ],
+  "related_calls": [
+    "close"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "close_range.pdf",
+    "extraction_date": "2025-07-26T12:45:33.343270",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

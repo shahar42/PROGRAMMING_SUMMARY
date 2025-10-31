@@ -1,0 +1,13 @@
+{
+  "topic": "Move Operations Failure with Class Hierarchies (Virtual)",
+  "category": "design",
+  "explanation": "Assumption: Move semantics work seamlessly across class hierarchies and polymorphic types, just like copy semantics. Reality: Move semantics must be handled cautiously in polymorphic classes, especially if the class contains virtual functions. Move constructors should generally *not* be declared virtual. Why It Fails: Virtual functions are resolved dynamically via the vtable, but constructors (including move constructors) are responsible for initializing the vtable pointer and setting up the object's type, meaning they must be called statically. If a move constructor were declared `virtual`, the compiler would issue an error because virtual constructors are not supported in C++. Attempting to move a base class pointer that points to a derived class object results in object slicing: only the base class portion is moved, and the derived part is lost, leading to an incomplete or corrupted state. Move semantics, therefore, fail when attempting to achieve polymorphic movement via base pointers, requiring specific helper functions (like virtual clone/swap idioms) instead of relying on standard move construction.",
+  "code_example": "// Failure: Attempting to call move constructor polymorphically causes slicing\nclass Base { /* virtual functions */ };\nclass Derived : public Base { /* resources */ };\n\nstd::unique_ptr<Base> p = std::make_unique<Derived>();\n// Move semantics here cause slicing, only Base part is moved:\nstd::unique_ptr<Base> p_moved = std::move(p);",
+  "practical_example": "A graphical editor uses polymorphic shape objects managed by base class pointers. Moving a container of these shapes uses the base class move constructor, resulting in all derived-specific state (like texture maps or specific geometry data) being sliced off and lost, corrupting the document structure.",
+  "keywords": "virtual move constructor, constructor cannot be virtual, move semantics polymorphism, move failure virtual class",
+  "difficulty": "advanced",
+  "page_reference": "229-230",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_design_move_operations_failure_with_class_b947e2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

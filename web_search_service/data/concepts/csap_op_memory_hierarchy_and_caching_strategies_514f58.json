@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: L1-L3 Caches",
+  "explanation": "The memory hierarchy mitigates the latency gap between the CPU and main memory (DRAM) by employing multiple levels of high-speed static RAM (SRAM) caches. These levels, typically L1, L2, and L3, are characterized by increasing capacity and decreasing proximity to the CPU core, resulting in higher latency. L1 is the fastest and smallest, often split into instruction and data caches. Effective caching relies on the principle of locality of reference (temporal and spatial), ensuring frequently accessed data is retained in the faster cache levels, thereby minimizing costly main memory access cycles and maximizing instruction throughput.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "674-676",
+    "extraction_date": "2025-07-28T12:01:57.884316",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.700134",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:19:03",
+    "original_length": 509,
+    "refined_length": 640
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// 1. SPATIAL LOCALITY (C/C++ arrays are row-major)\n// Efficiently utilizes cache lines by reading adjacent memory.\nint matrix[100][100];\n\n// Optimal Access (Row-major: i then j)\nfor (int i = 0; i < 100; ++i) {\n    for (int j = 0; j < 100; ++j) {\n        matrix[i][j] = 0; // Sequential memory load\n    }\n}\n\n// Sub-optimal Access (Column-major: j then i)\n/*\nfor (int j = 0; j < 100; ++j) {\n    for (int i = 0; i < 100; ++i) {\n        matrix[i][j] = 0; // Large memory strides (cache misses)\n    }\n}\n*/\n\n// 2. CACHE BLOCKING / TILING (Optimizing Matrix Operations)\n// Restricts processing to blocks that fit entirely in L1/L2 cache.\nconst int N = 1024;\nconst int B = 32; // Block size tailored to L1/L2 capacity\n\n// Iterating over blocks\nfor (int i0 = 0; i0 < N; i0 += B) {\n    for (int j0 = 0; j0 < N; j0 += B) {\n        // High locality within the inner loop block\n        for (int i = i0; i < i0 + B; ++i) {\n            for (int j = j0; j < j0 + B; ++j) {\n                // Process elements C[i][j] using A[i][k] and B[k][j]\n            }\n        }\n    }\n}\n<ctrl63>"
+}

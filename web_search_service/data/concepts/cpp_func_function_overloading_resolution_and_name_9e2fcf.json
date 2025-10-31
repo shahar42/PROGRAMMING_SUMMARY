@@ -1,0 +1,14 @@
+{
+  "topic": "Function Overloading Resolution and Name Mangling",
+  "explanation": "Function overloading in C++ allows multiple functions to share the same name but differ in parameters, enabling polymorphic behavior without explicit dispatch. The compiler implements this through overload resolution, which occurs at compile-time (as per C++ standard section 13.4), selecting the best match based on argument types, conversion sequences, and other rules. Internally, compilers use name mangling to encode function signatures into unique identifiers for object files, ensuring linker can distinguish between overloads. For example, a function like 'void foo(int)' might be mangled to something like '_Z3foo i' in GCC, incorporating the return type, parameter types, and namespace. This process is compiler-specific but follows the Itanium C++ ABI on many platforms. Memory layout implications are minimal since overloaded functions are just separate code entries, but it can affect binary size due to additional mangled symbols. Performance-wise, resolution is purely compile-time, imposing no runtime overhead, though excessive overloads can increase compilation time. At the assembly level, each overload results in distinct labels (e.g., mangled names), and calling code jumps to the resolved symbol. Runtime behavior is unaffected as the correct function is baked into the executable; however, if resolution fails (ambiguity), it's a compile-time error.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:56:50.756281",
+    "book_metadata_added": "2025-10-28T20:22:06.811289"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Function Overloading Resolution (C++ Standard 13.4)\n\nvoid write(int v);             // S1: int\nvoid write(double v);          // S2: double\nvoid write(int& v);            // S3: int&\n\nint x = 10;\nint& r = x;\n\nwrite(x);       // Resolves to S3 (Exact Match: Lvalue Reference)\nwrite(10);      // Resolves to S1 (Exact Match: Rvalue int)\nwrite(10.0f);   // Resolves to S2 (Promotion/Conversion required)\nwrite(r);       // Resolves to S3 (Reference match)\n\n// Name Mangling creates unique symbols for S1, S2, S3\n// e.g., _Z5writei, _Z5writed, _Z5writeRi\n// (Ensures linker identifies correct function implementations)",
+  "keywords": "Function Overloading, Name Mangling, Overload Resolution, C++ Signature Encoding"
+}

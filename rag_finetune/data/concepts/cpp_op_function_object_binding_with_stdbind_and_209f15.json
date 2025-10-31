@@ -1,0 +1,15 @@
+{
+  "topic": "Function Object Binding with std::bind and Custom Binders",
+  "explanation": "In modern C++, binding arguments to functions or function objects allows for flexible and reusable code. This is achieved through function templates like std::bind or custom binder classes, which create new callable objects with some arguments fixed. These techniques facilitate functional programming paradigms, enable partial application, and improve code modularity by decoupling function invocation from specific argument values.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "579-579",
+    "extraction_date": "2025-08-19T05:28:16.831550",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.867666"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "int multiply(int x, int y) { return x * y; }\n\nusing namespace std::placeholders;\n\n// Fix first argument to 5\nauto f1 = std::bind(multiply, 5, _1);\nint result1 = f1(3); // 15\n\n// Reorder arguments\nauto f2 = std::bind(multiply, _2, _1);\nint result2 = f2(10, 2); // 2 * 10 = 20\n// ---\n\nstruct Service {\n    int id = 42;\n    void log(int priority) const { /* ... */ }\n};\n\nService s;\n\n// Binding requires instance (or pointer)\nusing namespace std::placeholders;\nauto binder = std::bind(&Service::log, &s, _1);\n\nbinder(1); // Calls s.log(1)\n// ---\n\n// Custom Binder (Partial Application)\ntemplate <typename F, typename Arg1>\nstruct CustomPartial {\n    F f; Arg1 a1;\n    CustomPartial(F fun, Arg1 v1) : f(fun), a1(v1) {}\n\n    int operator()(int runtime_arg) {\n        return f(a1, runtime_arg);\n    }\n};\n\nint sub(int x, int y) { return x - y; }\n\nauto subtract_from_100 = CustomPartial(sub, 100);\n\nint res = subtract_from_100(10); // 90"
+}

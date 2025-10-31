@@ -1,0 +1,17 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) for Resource Management",
+  "explanation": "RAII is a C++ programming idiom where resource acquisition (such as file handles, memory, or network connections) is tied to object lifetime. When an object is created, it acquires resources, and when it is destroyed (goes out of scope), it releases those resources automatically. This pattern ensures exception-safe resource management, preventing leaks and ensuring proper cleanup even in error conditions. In the context of C++, RAII is fundamental for managing resources like file streams, memory, and locks, leveraging constructors and destructors to automate cleanup.",
+  "syntax": "Resource-owning class with constructor acquiring resource and destructor releasing resource\n\nclass Resource {\npublic:\n    Resource(); // acquire resource\n    ~Resource(); // release resource\n};",
+  "code_example": "#include <fstream>\nclass FileCloser {\npublic:\n    explicit FileCloser(std::ofstream& file) : file_(file) {}\n    ~FileCloser() {\n        if (file_.is_open()) {\n            file_.close();\n        }\n    }\nprivate:\n    std::ofstream& file_;\n};\nint main() {\n    std::ofstream file(\"example.txt\");\n    if (!file) {\n        return 1; // handle error\n    }\n    FileCloser closer(file); // resource managed via RAII\n    file << \"Hello, RAII!\"; // perform file operations\n    // file will be closed automatically when 'closer' goes out of scope\n    return 0;\n}",
+  "example_explanation": "This example demonstrates RAII by creating a 'FileCloser' object that manages the lifetime of a file stream. When 'closer' is instantiated, it holds a reference to the open file and ensures that the file is closed when 'closer' is destroyed at the end of 'main' scope. This pattern guarantees that resources are properly released even if an exception occurs or the function exits early, exemplifying modern C++ resource management best practices.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "1097-1097",
+    "extraction_date": "2025-08-19T09:12:29.874999",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "chapter": "exceptions",
+    "extraction_type": "expert_level"
+  }
+}

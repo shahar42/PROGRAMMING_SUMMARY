@@ -1,30 +1,12 @@
 {
   "topic": "Implementation Details of std::regex_search in C++",
-  "explanation": "std::regex_search is a C++ Standard Library function that performs a substring search for a regular expression pattern within a given sequence. Under the hood, the implementation typically involves compiling the regular expression pattern into a nondeterministic finite automaton (NFA) or, in some optimized libraries, a deterministic finite automaton (DFA). When a basic_regex object is constructed, the pattern is parsed at runtime (not at compile-time), and the compiler's standard library (e.g., libstdc++ or libc++) translates it into an internal representation, such as a state machine graph stored in memory. This graph consists of nodes (states) and edges (transitions based on input characters or conditions like Kleene star). Memory layout involves dynamic allocation for the NFA/DFA structure, including arrays or linked lists for states and transitions, which can lead to heap fragmentation and increased memory overhead. Performance implications are significant: NFA-based implementations often use backtracking, which can result in exponential time complexity for complex patterns (e.g., pathological cases like 'a?a?a?...a?'), whereas DFA optimizations reduce this but increase upfront compilation time. At the assembly level, regex_search translates to a series of loops and conditional jumps that iterate through the input sequence, evaluating state transitions\u2014e.g., comparing characters and branching based on match success. This is purely runtime behavior, as regex compilation and searching occur during program execution, not at compile-time, making it sensitive to input size and pattern complexity.",
-  "syntax": "template <class BidirectionalIterator, class Allocator, class charT, class traits>\nbool regex_search(BidirectionalIterator first, BidirectionalIterator last,\n                  match_results<BidirectionalIterator, Allocator>& m,\n                  const basic_regex<charT, traits>& e,\n                  regex_constants::match_flag_type flags = regex_constants::match_default);\n// Implementation notes: 'first' and 'last' define the search range; 'm' is a match_results object that stores matches, involving dynamic memory allocation for submatch data. The 'e' parameter holds the pre-compiled NFA/DFA. Flags control behavior like case sensitivity. Internally, the function simulates the automaton, advancing states per input character, with potential backtracking loops in assembly.",
-  "code_example": [
-    "#include <regex>",
-    "#include <string>",
-    "#include <iostream>",
-    "",
-    "int main() {",
-    "    std::string input = \"Hello, regex world!\";",
-    "    std::regex pattern(\"regex\\\\s*world\");  // Pattern to match 'regex' followed by optional spaces and 'world'",
-    "    std::smatch matches;",
-    "    bool result = std::regex_search(input, matches, pattern);",
-    "    if (result) {",
-    "        std::cout << \"Match found: \" << matches.str() << std::endl;  // Output the full match",
-    "    } else {",
-    "        std::cout << \"No match\" << std::endl;",
-    "    }",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, std::regex pattern(\"regex\\\\s*world\") triggers runtime compilation of the pattern into an NFA, where the compiler's library parses the string and builds a state graph (e.g., states for 'regex', optional spaces via Kleene star, and 'world'). std::regex_search then iterates through the input string, simulating the NFA: for each character, it evaluates transitions, potentially backtracking if needed, and populates the matches object with submatch details. Memory layout for matches involves allocating a vector-like structure for capture groups, which could lead to heap allocations and cache misses. At the assembly level, this manifests as a loop that loads characters from memory, compares them against NFA transitions (e.g., CMP instructions followed by JMP for state changes), and handles failures with stack-based recursion or loops for backtracking. Performance-wise, simple patterns run in linear time relative to string length, but complex ones may degrade due to exponential backtracking, highlighting the runtime nature versus compile-time optimizations like constexpr (which regex doesn't support).",
+  "explanation": "std::regex_search is a C++ Standard Library function that performs a substring search for a regular expression pattern within a given sequence. Under the hood, the implementation typically involves compiling the regular expression pattern into a nondeterministic finite automaton (NFA) or, in some optimized libraries, a deterministic finite automaton (DFA). When a basic_regex object is constructed, the pattern is parsed at runtime (not at compile-time), and the compiler's standard library (e.g., libstdc++ or libc++) translates it into an internal representation, such as a state machine graph stored in memory. This graph consists of nodes (states) and edges (transitions based on input characters or conditions like Kleene star). Memory layout involves dynamic allocation for the NFA/DFA structure, including arrays or linked lists for states and transitions, which can lead to heap fragmentation and increased memory overhead. Performance implications are significant: NFA-based implementations often use backtracking, which can result in exponential time complexity for complex patterns (e.g., pathological cases like 'a?a?a?...a?'), whereas DFA optimizations reduce this but increase upfront compilation time. At the assembly level, regex_search translates to a series of loops and conditional jumps that iterate through the input sequence, evaluating state transitions—e.g., comparing characters and branching based on match success. This is purely runtime behavior, as regex compilation and searching occur during program execution, not at compile-time, making it sensitive to input size and pattern complexity.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T09:30:17.319570"
-  }
+    "extraction_date": "2025-08-19T09:30:17.319570",
+    "book_metadata_added": "2025-10-28T20:22:06.940415"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

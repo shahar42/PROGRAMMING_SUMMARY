@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of Equality Operator for std::array in C++",
+  "explanation": "The equality operator for std::array<T, N> is a template function that performs element-wise comparison between two arrays of the same type and size. Under the hood, the compiler instantiates this template for specific T and N, generating specialized code for each unique combination. This operator is typically implemented using a loop that iterates through each element and applies T's operator==, often leveraging std::equal or a manual loop in the Standard Library implementation. Memory layout-wise, std::array is a thin wrapper around a C-style array (e.g., it might be defined as a struct containing T elements[N]), ensuring contiguous storage in memory, which allows for efficient access and comparison without additional indirection. Performance implications include O(N) time complexity for the comparison, but if T supports it (e.g., trivially copyable types like int), the compiler may optimize this to use low-level instructions like memcmp or SIMD operations, reducing overhead. At the assembly level, this could manifest as a loop that loads elements from memory, compares them using CPU registers, and branches based on results, potentially inlined for small N. Behavior is primarily runtime, as the actual comparison depends on the values at execution time, but if all elements and operations are constexpr-eligible, the entire expression can be evaluated at compile-time, enabling optimizations like constant propagation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "declarators",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:52:35.276676",
+    "book_metadata_added": "2025-10-28T20:22:06.900092"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "template <class T, size_t N>\nconstexpr bool operator==(const std::array<T, N>& a,\n                          const std::array<T, N>& b)\n{\n    // Implementation uses element-wise comparison\n    // Requires T::operator==\n    return std::equal(a.begin(), a.end(), b.begin());\n}\n\n// Usage\nstd::array<float, 4> arr1 = {1.0f, 2.0f, 3.0f, 4.0f};\nstd::array<float, 4> arr2 = arr1;\n\nbool result = (arr1 == arr2); // True\n// Fails if types or sizes differ at compile time\n// (arr1 == std::array<int, 4>{...}) -> Type mismatch\n// (arr1 == std::array<float, 3>{...}) -> Size mismatch (N)"
+}

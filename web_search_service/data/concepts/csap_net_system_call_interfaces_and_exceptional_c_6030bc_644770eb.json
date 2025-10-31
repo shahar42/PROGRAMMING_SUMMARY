@@ -1,0 +1,25 @@
+{
+  "topic": "System Calls and ECF: Kernel Interrupt Mechanisms",
+  "explanation": "System calls are the interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing hardware, managing files, or creating processes. Exceptional control flow refers to the mechanisms by which the kernel handles interrupts and exceptions, transferring control from a running program to a kernel handler. Understanding this interface is critical for writing efficient and robust systems programs that interact with the underlying hardware and operating system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "945-946",
+    "extraction_date": "2025-07-29T12:12:30.494897",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T13:59:08.264108",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "959-959",
+      "extraction_date": "2025-07-29T13:59:02.664823",
+      "has_code": false,
+      "has_explanation": false,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8527161478996277,
+    "book_metadata_added": "2025-10-28T20:22:06.710323"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "ssize_t write(int fd, const void* buf, size_t count);\n// Causes switch from User Mode to Kernel Mode (Ring 3 -> Ring 0)\n// Uses interrupt 0x80 (legacy) or SYSCALL instruction (modern x86)\nssize_t bytes_written = write(1, \"Hello\", 5);\n\n// The hardware pushes state onto the kernel stack\n// (Used for restoration upon return/iret)\nstruct trap_frame {\n    uint64_t rdi, rsi, rdx, r10, r8, r9; // Syscall arguments\n    uint64_t rip;    // Return address\n    uint64_t cs;     // Code Segment\n    uint64_t rflags; // CPU Flags\n    uint64_t rsp;\n    uint64_t ss;     // Stack Segment\n};\n\n// Kernel: Interrupt Descriptor Table (IDT) entry structure\nstruct idt_entry {\n    uint16_t handler_offset_low;\n    uint16_t code_selector;\n    uint8_t  ist_index;\n    uint8_t  type_attr; // Gate Type (Interrupt, Trap, Task) & DPL\n    uint16_t handler_offset_mid;\n    uint32_t handler_offset_high;\n    uint32_t reserved;\n};\n\n// ECF mechanism (Interrupt/Trap)\n// CPU reads IDT[vector_num] -> Jumps to Handler Address (RIP)\nvoid syscall_handler(struct trap_frame* tf) {\n    uint64_t num = tf->rdi;\n    // ... lookup function based on num\n}\n<ctrl63>"
+}

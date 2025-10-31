@@ -1,0 +1,16 @@
+{
+  "topic": "ioctl_console() System Call",
+  "explanation": "The ioctl system call for console terminals and virtual consoles performs various device-specific operations, such as managing LEDs, keyboard settings, and video modes. It requires a file descriptor for a console device and uses request codes to specify the action.\n\n**Parameters:**\n- `fd` (int): File descriptor of the console device\n- `request` (unsigned long): The ioctl request code (e.g., KDGETLED, KDSETLED)\n- `argp` (void*): Pointer to the argument structure or value for the request\n\n**Common Errors:**\n- `EBADF`: The file descriptor is invalid\n- `EINVAL`: The file descriptor or argp is invalid\n- `ENOTTY`: The file descriptor is not associated with a character special device, or the specified operation does not apply to it\n- `EPERM`: Insufficient permission",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.092506",
+    "syscall_name": "ioctl_console",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_console.json",
+    "concept_id": "posix_sys_ioctl_console_983a72",
+    "book_metadata_added": "2025-10-28T20:22:06.651137"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int fd = 3; // File descriptor for /dev/ttyN\nint result;\nint ret;\n\n// --- 1. Get LED Status (KDGETLED) ---\n// argp required as a pointer to return value\nret = ioctl(fd, KDGETLED, &result);\n\nif (ret == 0) {\n    // Success: result holds the LED bitmap\n    // e.g., result & LED_CAP == 1\n}\n\n// --- 2. Set LED Status (KDSETLED) ---\n// argp often used as an integer value for console ioctls\nint new_led_mask = 0x03; // Num Lock + Caps Lock\nret = ioctl(fd, KDSETLED, new_led_mask);\n\n// --- 3. Get Keyboard Mode (KDGKBMODE) ---\nint mode;\nret = ioctl(fd, KDGKBMODE, &mode);\n<ctrl63>",
+  "keywords": "ioctl console, KDSETLED, tty ioctl, virtual console control"
+}

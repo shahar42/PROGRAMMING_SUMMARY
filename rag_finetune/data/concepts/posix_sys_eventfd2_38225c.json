@@ -1,0 +1,16 @@
+{
+  "topic": "eventfd2() System Call",
+  "explanation": "eventfd2 creates a file descriptor for event notification, initializing a 64-bit counter with the specified initial value and applying the given flags. It allows user-space applications and the kernel to wait for and notify events.\n\n**Parameters:**\n- `initval` (unsigned int): Initial value for the 64-bit counter\n- `flags` (int): Flags to modify behavior, such as EFD_CLOEXEC, EFD_NONBLOCK, or EFD_SEMAPHORE\n\n**Common Errors:**\n- `EINVAL`: An unsupported value was specified in flags\n- `EMFILE`: The per-process limit on the number of open file descriptors has been reached\n- `ENFILE`: The system-wide limit on the total number of open files has been reached\n- `ENODEV`: Could not mount (internal) anonymous inode device\n- `ENOMEM`: There was insufficient memory to create a new eventfd file descriptor\n\n**Related System Calls:** `futex()`, `pipe()`, `poll()`, `read()`, `select()`, `signalfd()`, `timerfd_create()`, `write()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.086896",
+    "syscall_name": "eventfd2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_eventfd2.json",
+    "concept_id": "posix_sys_eventfd2_38225c",
+    "book_metadata_added": "2025-10-28T20:22:06.595529"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int efd;\nunsigned int initial_count = 0;\n\n// Common flags: EFD_CLOEXEC, EFD_NONBLOCK\nint fd_flags = EFD_CLOEXEC | EFD_NONBLOCK;\n\n// Create event file descriptor\nefd = eventfd2(initial_count, fd_flags);\n\n// Semaphore mode (read consumes 1 instead of full count)\nint sem_efd = eventfd2(1, EFD_SEMAPHORE);\n\nif (efd < 0) {\n    // Handles error (e.g., EINVAL for bad flags)\n    // exit(EXIT_FAILURE);\n}\n\n// write(efd, &val, 8) increments the counter\n// read(efd, &val, 8) reads and resets (or decrements in SEMAPHORE mode)",
+  "keywords": "eventfd2, eventfd, EFD_SEMAPHORE, Linux event descriptor"
+}

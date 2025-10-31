@@ -1,0 +1,16 @@
+{
+  "topic": "rt_sigpending() System Call",
+  "explanation": "rt_sigpending() examines the set of signals that are pending for delivery to the calling thread and stores them in the provided sigset. It takes an additional argument to specify the size of the sigset for handling enlarged signal sets.\n\n**Parameters:**\n- `set` (sigset_t *): Pointer to the sigset_t structure where the mask of pending signals is stored\n- `sigsetsize` (size_t): The size in bytes of the signal set pointed to by set\n\n**Common Errors:**\n- `EFAULT`: set points to memory which is not a valid part of the process address space\n\n**Related System Calls:** `kill()`, `sigaction()`, `signal()`, `sigprocmask()`, `sigsuspend()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.239944",
+    "syscall_name": "rt_sigpending",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_rt_sigpending.json",
+    "concept_id": "posix_sys_rt_sigpending_8433bd",
+    "book_metadata_added": "2025-10-28T20:22:06.657555"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "sigset_t pending_mask;\nsize_t set_bytes = sizeof(sigset_t);\nint syscall_ret;\n\n// Examine signals pending for the thread (rt_sigpending handles large sets)\nsyscall_ret = rt_sigpending(\n    &pending_mask,\n    set_bytes\n);\n\n// syscall_ret == 0 on success.\n// If failure, check errno (e.g., EFAULT)\n// Use sigismember() to check specific signals in pending_mask\n// Example: if (sigismember(&pending_mask, SIGTERM)) { ... }",
+  "keywords": "rt_sigpending, sigpending, pending signals"
+}

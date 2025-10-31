@@ -1,0 +1,16 @@
+{
+  "topic": "Import Address Table (IAT) and Dynamic Linking",
+  "explanation": "The Import Address Table (IAT) is a crucial mechanism in dynamic linking, enabling a program to load and resolve symbols from external dynamic link libraries (DLLs) at runtime.  Instead of embedding the addresses of external functions and variables directly into the executable, the linker creates placeholders in the IAT.  During program loading, the dynamic linker resolves these placeholders by locating the actual addresses of the imported symbols in the DLLs and populating the IAT. This allows for delayed binding, code reuse, and efficient memory management because DLLs are loaded only when needed, and multiple programs can share the same DLL in memory.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "270-270",
+    "extraction_date": "2025-07-21T22:28:54.160835",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.758963"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// IAT Placeholder definition (Unresolved)\ntypedef int (*PFN_API)(int x);\nPFN_API IAT_Entry_Func = NULL;\n\n// --- Dynamic Linker Resolution Phase ---\n\n// 1. Load the required external module\nHMODULE hDll = LoadLibraryA(\"kernel32.dll\");\n\nif (hDll) {\n    // 2. Locate the exported function by name string\n    // 3. Write the actual address to the IAT slot\n    IAT_Entry_Func = (PFN_API)\n        GetProcAddress(hDll, \"MyExportedFunction\");\n}\n\n// --- Program Execution Phase ---\n\nif (IAT_Entry_Func) {\n    // Calling the function through the resolved IAT address\n    int result = IAT_Entry_Func(100);\n}\n<ctrl63>",
+  "keywords": "IAT, Import Address Table, Dynamic linking, DLL linking"
+}

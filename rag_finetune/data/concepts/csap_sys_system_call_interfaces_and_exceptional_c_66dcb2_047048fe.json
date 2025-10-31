@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Signal Handling Interruptions",
+  "explanation": "System calls provide a mechanism for user-level programs to request services from the operating system kernel.  Exceptional control flow, including signal handling, allows the operating system to interrupt normal program execution to handle events like interrupts, exceptions, or signals.  This interaction is crucial for managing hardware resources, handling errors, and ensuring system stability within the computer architecture.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "824-824",
+    "extraction_date": "2025-07-28T12:39:53.187823",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.730888"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// ECF Setup: Registering a Signal Handler\nvoid signal_handler(int sig) {\n    /* ECF triggered: kernel interrupts user code execution */\n}\nstruct sigaction sa;\nsa.sa_handler = signal_handler;\nsa.sa_flags = 0; // Important: Prevents automatic syscall restart (SA_RESTART)\nsigaction(SIGINT, &sa, NULL);\n\n// Syscall Interaction: Handling Interruption\nssize_t ret;\nchar buffer[1024];\n\ndo {\n    // Syscall (e.g., read, write, sleep)\n    ret = read(fd, buffer, 1024);\n} while (ret == -1 && errno == EINTR);\n// EINTR (Error Interrupted): Syscall aborted by ECF (signal)\n// Must manually restart the syscall if needed\nif (ret != -1) { /* success */ }\n<ctrl63>"
+}

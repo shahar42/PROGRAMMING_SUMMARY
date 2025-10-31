@@ -1,0 +1,14 @@
+{
+  "topic": "Overloading the Function Call Operator with Internal State (Functors)",
+  "explanation": "Overloading the function call operator in C++ allows objects to be used like functions by defining the operator() for a class. This technique, often associated with functors (function objects), is a practical way to create callable objects that can maintain internal state, making them more flexible than regular functions. In real-world scenarios, functors are commonly used in STL algorithms (e.g., std::sort or std::find_if) for custom predicates or comparators, in event handling systems, or for callbacks that need to preserve data. Best practices include making the operator() const if it doesn't modify the object to enable use with const objects, ensuring functors are lightweight for performance, and avoiding unnecessary state to prevent issues like unintended side effects. Common pitfalls include confusing functors with pure functions (e.g., forgetting they can have state, which might lead to bugs in multi-threaded environments) and not handling copy semantics properly; to avoid these, always document the functor's behavior and use std::function for interoperability when needed.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "functions",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T05:46:26.921925",
+    "book_metadata_added": "2025-10-28T20:22:06.579089"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class StateTracker {\n    private:\n        int running_sum = 0;\n    public:\n        StateTracker(int initial) : running_sum(initial) {}\n\n        // Overload operator(): Object acts as a function\n        int operator()(int value) {\n            running_sum += value;\n            return running_sum;\n        }\n    };\n\n// Usage demonstrates internal state:\nStateTracker summer(100);\nint r1 = summer(10);    // 110\nint r2 = summer(5);     // 115",
+  "keywords": "Functor, Function object, operator(), C++ callable object"
+}

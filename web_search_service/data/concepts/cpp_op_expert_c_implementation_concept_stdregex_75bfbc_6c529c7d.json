@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  std::regex_replace and its Compiler Optimizations",
+  "explanation": "This focuses on the implementation of `std::regex_replace`, highlighting compiler optimizations, memory management, and runtime behavior.  The function's complexity arises from its need to handle various scenarios (matches found/not found, flags, different iterator types) efficiently.  Compilers employ significant optimization techniques to improve performance, especially with regards to memory allocation and string manipulation.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:32:18.737264",
+    "book_metadata_added": "2025-10-28T20:22:06.906887"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "const std::regex R(R\"(\\b(\\w+)\\b)\"); // Pre-compiled structure\nconst std::string Input = \"a b c\";\nconst std::string Format = \"$1_REP\";\n\nstd::string Output;\n// Compiler optimization targets: minimize reallocations.\n// Internal heuristic: Output.reserve(Input.size() * Factor);\n\n// Iterator-based overload efficiency\nauto end_it = std::regex_replace(\n    std::back_inserter(Output), // Avoids intermediate result copies\n    Input.cbegin(), Input.cend(),\n    R, Format,\n    std::regex_constants::format_default\n);\n\n// If no matches: Avoids O(N) allocation/copy by checking match_results.empty()\n// Match handling uses std::sub_match iterators (no string construction until output)."
+}

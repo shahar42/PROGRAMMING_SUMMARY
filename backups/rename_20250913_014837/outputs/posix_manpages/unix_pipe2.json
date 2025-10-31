@@ -1,0 +1,78 @@
+{
+  "name": "pipe2",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int pipe(int pipefd[2]);",
+    "#define _GNU_SOURCE",
+    "#include <fcntl.h>",
+    "#include <unistd.h>",
+    "int pipe2(int pipefd[2], int flags);"
+  ],
+  "description": "pipe2() creates a pipe, a unidirectional data channel for interprocess communication, similar to pipe(), but allows additional flags to modify the pipe's behavior such as setting it to non-blocking or close-on-exec.",
+  "parameters": [
+    {
+      "name": "pipefd",
+      "type": "int[2]",
+      "description": "Array used to return two file descriptors referring to the ends of the pipe: pipefd[0] for reading and pipefd[1] for writing"
+    },
+    {
+      "name": "flags",
+      "type": "int",
+      "description": "Bitwise OR of flags to modify pipe behavior, such as O_CLOEXEC, O_NONBLOCK, O_DIRECT, or O_NOTIFICATION_PIPE"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, errno is set to indicate the error, and pipefd is left unchanged"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "pipefd is not valid"
+    },
+    {
+      "code": "EINVAL",
+      "description": "Invalid value in flags"
+    },
+    {
+      "code": "EMFILE",
+      "description": "The per-process limit on the number of open file descriptors has been reached"
+    },
+    {
+      "code": "ENFILE",
+      "description": "The system-wide limit on the total number of open files has been reached"
+    },
+    {
+      "code": "ENFILE",
+      "description": "The user hard limit on memory that can be allocated for pipes has been reached and the caller is not privileged"
+    },
+    {
+      "code": "ENOPKG",
+      "description": "O_NOTIFICATION_PIPE was passed in flags and support for notifications is not compiled into the kernel"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 2.6.27, glibc 2.9",
+  "posix_compliance": null,
+  "examples": [
+    "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/wait.h>\n#include <unistd.h>\n\nint main(int argc, char *argv[]) {\n    int pipefd[2];\n    char buf;\n    pid_t cpid;\n    if (argc != 2) {\n        fprintf(stderr, \"Usage: %s <string>\\n\", argv[0]);\n        exit(EXIT_FAILURE);\n    }\n    if (pipe(pipefd) == -1) {\n        perror(\"pipe\");\n        exit(EXIT_FAILURE);\n    }\n    cpid = fork();\n    if (cpid == -1) {\n        perror(\"fork\");\n        exit(EXIT_FAILURE);\n    }\n    if (cpid == 0) { /* Child reads from pipe */\n        close(pipefd[1]);\n        while (read(pipefd[0], &buf, 1) > 0)\n            write(STDOUT_FILENO, &buf, 1);\n        write(STDOUT_FILENO, \"\\n\", 1);\n        close(pipefd[0]);\n        _exit(EXIT_SUCCESS);\n    } else {\n        close(pipefd[0]);\n        write(pipefd[1], argv[1], strlen(argv[1]));\n        close(pipefd[1]);\n        wait(NULL);\n        exit(EXIT_SUCCESS);\n    }\n}"
+  ],
+  "related_calls": [
+    "fork",
+    "read",
+    "socketpair",
+    "splice",
+    "tee",
+    "vmsplice",
+    "write",
+    "popen",
+    "pipe"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "pipe2.pdf",
+    "extraction_date": "2025-07-29T15:03:48.887931",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

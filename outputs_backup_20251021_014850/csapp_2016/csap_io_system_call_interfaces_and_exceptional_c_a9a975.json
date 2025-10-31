@@ -1,0 +1,15 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls are the interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing files, managing memory, or performing I/O operations. Exceptional control flow refers to the mechanisms by which the kernel handles events outside the normal flow of program execution, including system calls, interrupts, and signals. Understanding this interaction is crucial for writing efficient and robust systems programs.",
+  "syntax": "int system_call(arguments); // where system_call is a specific function like dup2, open, read, write, etc., and arguments vary based on the specific system call.",
+  "code_example": "#include <unistd.h>\n#include <fcntl.h>\nint main() {\n  int fd = open(\"foo.txt\", O_WRONLY | O_CREAT | O_TRUNC, 0644);\n  if (fd == -1) {\n    perror(\"open\");\n    return 1;\n  }\n  int result = dup2(fd, 1); // Redirect stdout (fd 1) to 'foo.txt'\n  if (result == -1) {\n    perror(\"dup2\");\n    return 1;\n  }\n  close(fd); // 'fd' is no longer needed after dup2\n  execlp(\"ls\", \"ls\", NULL); // Execute 'ls' with stdout redirected\n  perror(\"execlp\");\n  return 1;\n}",
+  "example_explanation": "This example demonstrates I/O redirection using the `dup2` system call.  First, the program opens a file (\"foo.txt\") for writing. Then, `dup2` is used to redirect the standard output file descriptor (1) to the file descriptor returned by `open`.  After this, any output from standard output (e.g., the output of `ls`) is written to \"foo.txt\". This shows the interaction between a user program, the system call interface (`dup2`, `open`, `close`, `execlp`), and the operating system kernel that handles file I/O and process execution. Error checking (using `perror`) is also critical to showing exceptional control flow handling, where errors are caught and handled by the program.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "932-932",
+    "extraction_date": "2025-07-29T12:00:00.249480",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

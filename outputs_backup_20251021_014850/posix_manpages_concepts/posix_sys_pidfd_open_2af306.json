@@ -1,0 +1,15 @@
+{
+  "topic": "pidfd_open() System Call",
+  "explanation": "The pidfd_open() system call creates a file descriptor that refers to the process with the specified PID. It sets the close-on-exec flag and supports optional flags like PIDFD_NONBLOCK for nonblocking behavior.\n\n**Parameters:**\n- `pid` (pid_t): The PID of the process to refer to.\n- `flags` (unsigned int): Flags to modify behavior, such as PIDFD_NONBLOCK for returning a nonblocking file descriptor.\n\n**Common Errors:**\n- `EINVAL`: flags is not valid.\n- `EINVAL`: pid is not valid.\n- `EMFILE`: The per-process limit on the number of open file descriptors has been reached.\n- `ENFILE`: The system-wide limit on the total number of open files has been reached.\n- `ENODEV`: The anonymous inode filesystem is not available in this kernel.\n\n**Related System Calls:** `clone()`, `kill()`, `pidfd_getfd()`, `pidfd_send_signal()`, `poll()`, `process_madvise()`, `select()`, `setns()`",
+  "syntax": "int syscall(SYS_pidfd_open, pid_t pid, unsigned int flags);",
+  "code_example": "#define _GNU_SOURCE\n#include <poll.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <sys/syscall.h>\n#include <unistd.h>\nstatic int pidfd_open(pid_t pid, unsigned int flags) { return syscall(SYS_pidfd_open, pid, flags); }\nint main(int argc, char *argv[]) {\n    if (argc != 2) { fprintf(stderr, \"Usage: %s <pid>\\n\", argv[0]); exit(EXIT_FAILURE); }\n    int pidfd = pidfd_open(atoi(argv[1]), 0);\n    if (pidfd == -1) { perror(\"pidfd_open\"); exit(EXIT_FAILURE); }\n    struct pollfd pollfd; pollfd.fd = pidfd; pollfd.events = POLLIN;\n    int ready = poll(&pollfd, 1, -1);\n    if (ready == -1) { perror(\"poll\"); exit(EXIT_FAILURE); }\n    printf(\"Events (%#x): POLLIN is %sset\\n\", pollfd.revents, (pollfd.revents & POLLIN) ? \"\" : \"not \");\n    close(pidfd);\n    exit(EXIT_SUCCESS);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the pidfd_open() system call. The function takes 2 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.181097",
+    "syscall_name": "pidfd_open",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pidfd_open.json",
+    "concept_id": "posix_sys_pidfd_open_2af306"
+  }
+}

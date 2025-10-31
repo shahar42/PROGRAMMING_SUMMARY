@@ -1,0 +1,16 @@
+{
+  "topic": "RAII (Resource Acquisition Is Initialization) for Exception Safety",
+  "explanation": "RAII is a C++ programming idiom that ensures resource management (such as memory, file handles, or network connections) is tied to object lifetime. By acquiring resources in constructors and releasing them in destructors, RAII guarantees that resources are properly released when objects go out of scope, even if exceptions occur. This pattern is fundamental for writing exception-safe code, preventing resource leaks, and simplifying cleanup logic in modern C++.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "4-4",
+    "extraction_date": "2025-09-11T09:38:41.899167",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.939578"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class ManagedResource {\n    int* ptr;\npublic:\n    // Resource Acquisition (Constructor)\n    ManagedResource(size_t size) : ptr(new int[size]) {}\n\n    // Resource Release (Destructor - guaranteed to run)\n    ~ManagedResource() { delete[] ptr; }\n};\n\n// --- Standard Library RAII ---\n\nstruct Item {};\n\nvoid use_item() {\n    // std::unique_ptr handles acquisition/release automatically\n    std::unique_ptr<Item> p = std::make_unique<Item>();\n\n    // If a function throws, 'p' is safely destroyed\n    risky_operation();\n} // Item safely deleted\n\n// --- Synchronization RAII ---\n\nstd::mutex mtx;\n\nvoid safe_access() {\n    // std::lock_guard acquires lock immediately\n    std::lock_guard<std::mutex> lock(mtx);\n\n    // If an exception occurs here\n    critical_computation();\n\n} // Lock automatically released on scope exit",
+  "keywords": "RAII, C++ resource management, exception safe cleanup, Resource Acquisition Is Initialization"
+}

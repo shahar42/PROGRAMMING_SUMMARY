@@ -1,0 +1,15 @@
+{
+  "topic": "seccomp_unotify() System Call",
+  "explanation": "The seccomp user-space notification mechanism allows a seccomp filter to delegate system call handling to another process. It uses ioctls to receive notifications and send responses. This is not intended for implementing security policy.\n\n**Parameters:**\n- `operation` (unsigned int): Operation to perform, such as SECCOMP_FILTER_FLAG_NEW_LISTENER\n- `flags` (unsigned int): Flags for the operation\n- `args` (void *): Pointer to arguments for the operation\n\n**Common Errors:**\n- `EINVAL`: Invalid argument or flags specified\n- `ENOENT`: Target thread terminated or system call interrupted\n- `EINPROGRESS`: Notification already responded to or not fetched\n- `EBADF`: File descriptor limit exceeded\n- `EMFILE`: Process file descriptor limit reached\n\n**Related System Calls:** `seccomp()`, `ioctl()`, `pidfd_getfd()`",
+  "syntax": "#include <linux/seccomp.h>",
+  "code_example": "int fd, removeFd; fd = openat(req->data.args[0], path, req->data.args[2], req->data.args[3]); struct seccomp_notif_addfd addfd; addfd.id = req->id; addfd.srcfd = fd; addfd.newfd = 0; addfd.flags = 0; addfd.newfd_flags = O_CLOEXEC; targetFd = ioctl(notifyFd, SECCOMP_IOCTL_NOTIF_ADDFD, &addfd); close(fd); struct seccomp_notif_resp *resp; resp->id = req->id; resp->error = 0; resp->val = targetFd; resp->flags = 0; ioctl(notifyFd, SECCOMP_IOCTL_NOTIF_SEND, resp);",
+  "example_explanation": "This example demonstrates the basic usage of the seccomp_unotify() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.139502",
+    "syscall_name": "seccomp_unotify",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_seccomp_unotify.json",
+    "concept_id": "posix_sys_seccomp_unotify_086327"
+  }
+}

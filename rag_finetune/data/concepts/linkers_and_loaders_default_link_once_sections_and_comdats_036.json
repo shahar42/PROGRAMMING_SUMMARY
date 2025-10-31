@@ -1,0 +1,16 @@
+{
+  "topic": "Link-Once Sections and COMDATs",
+  "explanation": "Link-once sections (GNU linkers) and COMDATs (Windows linkers) are mechanisms to handle the problem of duplicate code generated from template instantiations, inline functions, and other constructs where multiple object files might contain nearly identical code.  These features allow the linker to eliminate redundant code, reducing the final executable size and improving performance.  The linker identifies sections with the same name (or similar conventions depending on the linker) and keeps only one instance, discarding the others. This is crucial for managing the size and efficiency of executables, especially in C++ programs that heavily utilize templates.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "136-138",
+    "extraction_date": "2025-07-19T02:02:45.043921",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.754270"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Example 1: Inline Function Definition in a Header\n// Compiler emits the definition into a section\n// marked for duplication elimination (COMDAT/Link-Once).\n\ninline int square(int x) {\n    return x * x;\n}\n\n// Every TU calling square() gets a definition.\n// Linker resolves the redundancy.\n\n// Example 2: Template Instantiation Definition\n// Templates require definitions in the header,\n// automatically generating COMDAT/Link-Once sections.\n\ntemplate <typename T>\nT add(T a, T b) {\n    return a + b;\n}\n\n// TU_A uses add<float>\n// TU_B uses add<float>\n// The linker keeps only one definition of add<float>.\n\n// Example 3: Template Static Data Member Definition\n// Required outside the class, usually in the header.\n\ntemplate <typename T>\nstruct Counter {\n    static int count;\n};\n\ntemplate <typename T>\nint Counter<T>::count = 0; // COMDAT Data Section",
+  "keywords": "COMDAT, Link-Once Sections, Duplicate code elimination, Template instantiation redundancy"
+}

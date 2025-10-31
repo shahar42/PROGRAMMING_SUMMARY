@@ -1,0 +1,14 @@
+{
+  "topic": "C++ Input Stream Buffering and getline Mechanics",
+  "explanation": "C++ input streams, such as std::cin, are implemented by the standard library (e.g., libstdc++ or libc++) as wrappers around low-level OS I/O functions like read() on Unix-like systems or ReadFile() on Windows. The compiler translates stream operations into calls to these library functions during linking, but the actual buffering occurs at runtime. Internally, std::istream maintains a buffer (often a char array or a more complex structure like a streambuf) to cache data from the input source, reducing the number of system calls for performance. For std::getline, the implementation typically involves checking the stream's buffer first; if insufficient data is available, it triggers a refill via the underlying OS call. Memory layout-wise, the stream object includes pointers to its buffer, state flags (e.g., eofbit, failbit), and a get pointer for tracking the current position, which can lead to overhead in multi-threaded environments if not synchronized. Performance implications include reduced I/O latency through buffering, but large buffers can increase memory usage and potential cache misses. At the assembly level, a call to std::getline might translate to instructions that invoke library functions, involving loops for buffer filling (e.g., using syscalls like SYS_read) and string manipulation, as seen in disassembled code with calls to _ZNSs4readEPcl or similar. This is primarily runtime behavior, as compile-time optimizations (e.g., inlining) might reduce overhead, but actual I/O depends on dynamic factors like input size and hardware.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T08:54:22.658628",
+    "book_metadata_added": "2025-10-28T20:22:06.947451"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Streambuf holds data read in blocks from OS (canonical mode)\n\n// Input: \"42\\nHello World\\n\"\nint val;\nstd::string s1, s2;\n\nstd::cin >> val;      // Extracts 42. Buffer remains: \"\\nHello World\\n\"\n\n// Problem: Trailing newline causes subsequent getline to read empty line\n// std::getline(std::cin, s1); // s1 = \"\"\n\n// Required fix: Discard the residual newline character\nstd::cin.ignore(256, '\\n');\n\nstd::getline(std::cin, s1); // Extracts \"Hello World\"\n                            // Consumes and discards trailing '\\n'\n\n// Explicitly reading a different delimiter (e.g., comma)\nstd::getline(std::cin, s2, ','); // Reads until ',', ',' is discarded.",
+  "keywords": "C++ cin buffering, std::streambuf, C++ getline mechanics, input stream cache"
+}

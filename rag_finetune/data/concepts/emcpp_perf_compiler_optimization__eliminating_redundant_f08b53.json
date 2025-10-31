@@ -1,0 +1,18 @@
+{
+  "topic": "Compiler Optimization: Eliminating Redundant Reads and Writes",
+  "category": "perf",
+  "explanation": "Assumption: Compilers assume that 'normal' (non-volatile) memory adheres to standard behavior: a written value remains until overwritten. Reality: This assumption allows compilers to aggressively optimize code by eliminating seemingly redundant or superfluous memory accesses. This includes eliminating redundant reads (e.g., reading the same variable twice without an intervening modification) and eliminating 'dead stores' (writes that are immediately overwritten without being read). Why It Fails: If the memory location is actually being modified externally (e.g., by hardware or another thread), these optimizations lead to incorrect program behavior, as the compiler has removed necessary interactions with the true state of the memory.",
+  "code_example": "int x = 5;\nauto y = x; // Read 1\ny = x; // Compiler may eliminate this second read\nx = 10; // Write 1 (if followed immediately by another write)\nx = 20; // Compiler may eliminate Write 1 (dead store)",
+  "practical_example": "A loop continuously polls a status flag set by a hardware device. If the status flag is not marked `volatile`, the compiler may optimize the loop to read the flag only once, assuming its value cannot change between loop iterations, causing the program to hang indefinitely.",
+  "keywords": [
+    "compiler optimization",
+    "redundant read",
+    "dead store elimination",
+    "normal memory"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "291-293",
+  "chapter": "Item 40: Understand the difference between std::atomic and volatile",
+  "id": "emcpp_perf_compiler_optimization__eliminating_redundant_f08b53",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "get_mempolicy() System Call",
+  "explanation": "get_mempolicy() retrieves the NUMA policy of the calling thread or a specific memory address, depending on the flags. On a NUMA system, this policy determines from which memory node allocations are made for the thread.\n\n**Parameters:**\n- `mode` (int *): Pointer to store the policy mode and optional flags\n- `nodemask` (unsigned long [(.maxnode+ULONG_WIDTH-1)/ ULONG_WIDTH]): Array to store the nodemask associated with the policy\n- `maxnode` (unsigned long): Specifies the number of node IDs that can be stored in nodemask\n- `addr` (void *): Memory address for which to retrieve the policy, or NULL if flags is 0\n- `flags` (unsigned long): Flags to determine what information to retrieve, such as MPOL_F_ADDR or MPOL_F_NODE\n\n**Common Errors:**\n- `EFAULT`: Part of all of the memory range specified by nodemask and maxnode points outside your accessible address space\n- `EINVAL`: The value specified by maxnode is less than the number of node IDs supported by the system, or flags contain invalid values, or other invalid combinations as specified\n\n**Related System Calls:** `getcpu()`, `mbind()`, `mmap()`, `set_mempolicy()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.243518",
+    "syscall_name": "get_mempolicy",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_get_mempolicy.json",
+    "concept_id": "posix_sys_get_mempolicy_4c9be4",
+    "book_metadata_added": "2025-10-28T20:22:06.620560"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int policy_mode;\nunsigned long nodemask[2];\nunsigned long max_nodes = 128;\nunsigned long check_addr = (unsigned long)some_ptr;\nlong status;\n\n// Retrieve thread's default policy (addr=0, flags=0)\nstatus = get_mempolicy(\n    &policy_mode,\n    nodemask,\n    max_nodes,\n    0,   // addr=0 for thread policy\n    0    // flags=0\n);\n\n// Check policy associated with a specific address\n// flags might include MPOL_F_ADDR | MPOL_F_NODE\nstatus = get_mempolicy(\n    &policy_mode,\n    nodemask,\n    max_nodes,\n    check_addr,\n    MPOL_F_ADDR\n);",
+  "keywords": "get_mempolicy, NUMA memory policy, Linux mempolicy"
+}

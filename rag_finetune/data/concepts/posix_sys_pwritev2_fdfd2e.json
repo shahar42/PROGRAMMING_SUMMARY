@@ -1,0 +1,16 @@
+{
+  "topic": "pwritev2() System Call",
+  "explanation": "The pwritev2() system call writes data from multiple buffers to a file descriptor at a specified offset, combining the functionality of writev() and pwrite(2). It supports additional flags to modify behavior, such as atomicity or non-blocking operations, and ensures the file offset is not changed.\n\n**Parameters:**\n- `fd` (int): File descriptor to write to\n- `iov` (const struct iovec *): Array of iovec structures describing the buffers to write from\n- `iovcnt` (int): Number of elements in the iov array\n- `offset` (off_t): File offset at which to perform the write\n- `flags` (int): Flags to modify the write behavior, such as RWF_NOWAIT\n\n**Common Errors:**\n- `EINVAL`: The sum of the iov_len values overflows an ssize_t value, or iovcnt is less than zero or greater than the permitted maximum\n- `EOPNOTSUPP`: An unknown flag is specified in flags\n- `Other`: Errors as per read(2), write(2), and lseek(2)\n\n**Related System Calls:** `pread()`, `read()`, `write()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.193155",
+    "syscall_name": "pwritev2",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_pwritev2.json",
+    "concept_id": "posix_sys_pwritev2_fdfd2e",
+    "book_metadata_added": "2025-10-28T20:22:06.655990"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "char bufA[] = \"Data Segment A\";\nchar bufB[] = \"Data Segment B\";\nstruct iovec iov[2];\n\n// Prepare iovec buffers\niov[0] = (struct iovec){ .iov_base = bufA, .iov_len = sizeof(bufA) };\niov[1] = (struct iovec){ .iov_base = bufB, .iov_len = sizeof(bufB) };\n\nint fd = 4;\noff_t offset = 2048;\nint flags = RWF_HIPRI; // Example Linux flag\n\nssize_t bytes_w = pwritev2(\n    fd,\n    iov,\n    2,\n    offset,\n    flags\n);\n<ctrl63>",
+  "keywords": "pwritev2, positional write vector, pwritev, vectorized I/O offset"
+}

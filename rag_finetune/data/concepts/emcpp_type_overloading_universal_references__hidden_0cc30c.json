@@ -1,0 +1,19 @@
+{
+  "topic": "Overloading Universal References: Hidden Type Requirements Failure",
+  "category": "type",
+  "explanation": "The presence of a universal reference overload imposes hidden, potentially infeasible requirements on the types passed to it, leading to compilation failure. The anti-pattern is the belief that because `T&&` accepts anything, it is always harmless to include it. In reality, a universal reference means the template must be instantiated for *any* type passed, including types that were never intended for that function. If the body of the universal reference function attempts to perform operations (like calling a specific member function, or using a nested type) that are only valid for a subset of types, passing an invalid type will result in hard compilation errors deep within the template body. For instance, if the forwarding template tries to access `T::size()`, passing an `int` will result in a fatal error during instantiation. Unlike non-template overloads where the types are fixed, the universal reference forces the compiler to check the template body against every passed type, regardless of suitability. The failure is that the universal reference, without constraints (like `std::enable_if` or C++20 concepts), effectively disables the compiler\u2019s ability to use its normal overload resolution rules to ignore inapplicable functions, moving the error from the resolution phase to the instantiation phase.",
+  "code_example": "template<typename T> void process(T&& arg) {\n    arg.do_something_specific(); // If T is int, this fails compilation!\n}\n\nint x = 10; \nprocess(x); // Fails compilation deeply inside the template body.",
+  "practical_example": "A generic serialization function uses a universal reference to maximize performance. If a user mistakenly passes an un-serializable type (e.g., a raw pointer or function object) to this function, the compiler attempts to instantiate the entire complex serialization logic, failing with hundreds of lines of cryptic errors, instead of simply ignoring the function during overload resolution.",
+  "keywords": [
+    "SFINAE",
+    "compile-time failure",
+    "template instantiation",
+    "generic code",
+    "constraints"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "200-201",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_type_overloading_universal_references__hidden_0cc30c",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,66 @@
+{
+  "name": "landlock_create_ruleset",
+  "synopsis": [
+    "#include <linux/landlock.h>",
+    "#include <sys/syscall.h>",
+    "int syscall(SYS_landlock_create_ruleset, const struct landlock_ruleset_attr *attr, size_t size, uint32_t flags);"
+  ],
+  "description": "This system call creates a new Landlock ruleset, which identifies a set of rules for actions on objects. The returned file descriptor can be used with other Landlock functions to add rules and restrict processes.",
+  "parameters": [
+    {
+      "name": "attr",
+      "type": "const struct landlock_ruleset_attr *",
+      "description": "Points to a structure specifying the ruleset's properties, including a bitmask of handled filesystem actions."
+    },
+    {
+      "name": "size",
+      "type": "size_t",
+      "description": "Must be the size of struct landlock_ruleset_attr for compatibility reasons."
+    },
+    {
+      "name": "flags",
+      "type": "uint32_t",
+      "description": "Must be 0 if attr is used; otherwise, can be set to LANDLOCK_CREATE_RULESET_VERSION to retrieve the highest supported ABI version."
+    }
+  ],
+  "return_value": {
+    "success": "Returns a new Landlock ruleset file descriptor, or the Landlock ABI version if flags is set accordingly",
+    "failure": "Returns -1 on error, and errno is set appropriately"
+  },
+  "errors": [
+    {
+      "code": "EOPNOTSUPP",
+      "description": "Landlock is supported by the kernel but disabled at boot time."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Unknown flags, or unknown access, or too small size."
+    },
+    {
+      "code": "E2BIG",
+      "description": "Size is too big."
+    },
+    {
+      "code": "EFAULT",
+      "description": "Attr was not a valid address."
+    },
+    {
+      "code": "ENOMSG",
+      "description": "Empty accesses (i.e., attr->handled_access_fs is 0)."
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.13",
+  "posix_compliance": null,
+  "related_calls": [
+    "landlock_add_rule",
+    "landlock_restrict_self"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "landlock_create_ruleset.pdf",
+    "extraction_date": "2025-07-28T12:35:12.554738",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

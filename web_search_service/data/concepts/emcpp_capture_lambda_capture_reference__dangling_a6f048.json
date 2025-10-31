@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Reference: Dangling Reference Risk",
+  "category": "capture",
+  "explanation": "Assumption: Capturing a local stack variable by reference (`[&var]` or default `[&]`) is safe as long as the lambda is used immediately. Reality: The closure object resulting from the lambda expression may be stored in a container or returned, allowing its lifetime to exceed the scope of the captured automatic variable. Why It Fails: When the surrounding function exits, its stack frame is destroyed, and the local variable ceases to exist. The closure object still holds a reference (pointer) to that now-invalid memory location. Any subsequent invocation of the stored lambda results in Undefined Behavior (accessing a dangling reference).",
+  "code_example": "void addDivisorFilter()\n{\n  auto divisor = computeDivisor();\n  // Closure stored in global container 'filters'\n  filters.emplace_back( \n    [&](int value) { return value % divisor == 0; } // Danger!\n  ); \n} // 'divisor' destroyed here, but closure lives on",
+  "practical_example": "A developer writes a class method that generates and stores a validation lambda into a member container. If the lambda captures a temporary local variable or a function parameter by reference, invoking that validator later (after the method returns) will likely lead to a crash or memory corruption.",
+  "keywords": [
+    "dangling reference",
+    "capture by reference",
+    "closure lifetime",
+    "stack variable"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "233",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_reference__dangling_a6f048",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

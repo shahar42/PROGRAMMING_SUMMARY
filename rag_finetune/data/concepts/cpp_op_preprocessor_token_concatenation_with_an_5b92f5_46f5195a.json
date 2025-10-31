@@ -1,0 +1,14 @@
+{
+  "topic": "Preprocessor Token Concatenation with ## and Rescanning",
+  "explanation": "In C++, the ## operator in macros is used for token concatenation during the preprocessing phase, as defined in ISO/IEC 14882:2014(E) [cpp.subst] and [cpp.rescan]. The compiler implements this by first substituting macro parameters in the replacement list, then applying ## to concatenate adjacent preprocessing tokens into a single token. This occurs entirely at compile-time, before actual code compilation, so there are no runtime implications—it's a purely compile-time transformation. After concatenation, the resulting token sequence is rescanned for further macro expansions, but with safeguards to prevent infinite recursion: the name of the macro being expanded is not replaced during this rescan of its own replacement list, as per 16.3.4.2. \n\nUnder the hood, the compiler (e.g., GCC or Clang) tokenizes the source code during preprocessing. When ## is encountered, it merges tokens (e.g., 'a' ## 'b' becomes 'ab'), and the new token is then subjected to rescanning. This process involves the preprocessor maintaining a token stream and a symbol table for macros. Memory layout implications are minimal since preprocessing doesn't generate runtime memory; however, excessive macro usage can inflate the preprocessed output, increasing compilation time and potentially leading to larger object files if not optimized. Performance-wise, rescanning can be costly for complex macros in large codebases, as it requires re-parsing the token sequence, which might involve temporary buffers in the compiler's memory. At the assembly level, this doesn't directly translate, as it's a pre-compilation step, but inefficient macros can lead to bloated intermediate code, affecting linker performance. Overall, this is a compile-time optimization tool, but misuse can hinder build times without runtime benefits.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T04:17:36.188758",
+    "book_metadata_added": "2025-10-28T20:22:06.850773"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// ## Concatenates adjacent tokens into a single new token.\n// The resulting token sequence is immediately rescanned for further expansion.\n\n#define SUFFIX _Field\n#define CREATE_NAME(Prefix) Prefix ## SUFFIX\n\n// Transformation: CREATE_NAME(User) -> User_Field\nint CREATE_NAME(User) = 1;\n\n\n// Example: Concatenation followed by Rescan\n#define KEY_1A 42\n#define CONCAT_AND_EXPAND(X, Y) X ## Y\n\n// 1. Concatenation: CONCAT_AND_EXPAND(KEY_, 1A) -> KEY_1A\n// 2. Rescan: KEY_1A expands to 42\nint value = CONCAT_AND_EXPAND(KEY_, 1A);",
+  "keywords": "## operator, C++ token concatenation, macro concatenation operator"
+}

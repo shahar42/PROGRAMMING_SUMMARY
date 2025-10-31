@@ -1,0 +1,16 @@
+{
+  "topic": "Stack Frame Management in x86-64 Assembly and Buffer Overflow Protection",
+  "explanation": "Understanding how x86-64 manages the stack frame is crucial for writing safe and efficient system-level code.  The stack frame stores local variables, function arguments, and return addresses.  Improper management can lead to vulnerabilities like buffer overflow attacks.  Protection mechanisms like stack canaries help mitigate these risks.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "375-376",
+    "extraction_date": "2025-07-26T21:46:56.961334",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.693848"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "; --- Standard Frame Prologue/Epilogue (RBP-based) ---\npush rbp\nmov rbp, rsp\nsub rsp, 0x40           ; Allocate 64 bytes for locals\n\nmov QWORD PTR [rbp-0x8], rdi ; Store arg 1\nlea rsi, [rbp-0x30]     ; Address of local array\n\nmov rsp, rbp            ; Equivalent to leave\npop rbp\nret\n\n; --- Stack Canary Protection Check ---\n; Canary stored at [rbp-0x8] upon entry\nmov rax, QWORD PTR [rbp-0x8] ; Load saved canary\nxor rax, QWORD PTR fs:0x28   ; Compare to TLS value\n\njnz stack_smash_detected     ; If comparison fails\n\njmp safe_exit\n\nstack_smash_detected:\ncall __stack_chk_fail\n\nsafe_exit:\nleave\nret",
+  "keywords": "Stack Canary, Buffer Overflow Protection, x86-64 Stack Frame, Stack Smashing"
+}

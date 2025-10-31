@@ -1,0 +1,15 @@
+{
+  "topic": "System Call Interfaces and Exceptional Control Flow",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing files, managing memory, or creating processes. Exceptional control flow, particularly handling signals like SIGINT, allows programs to respond to asynchronous events without halting execution. This interaction is crucial for building robust and responsive applications.",
+  "syntax": "system_call(arguments); // Generalized syntax. Specific calls vary by OS.  Signal handling involves registering handler functions.",
+  "code_example": "void sio_error(char s[]) {\n    fprintf(stderr, \"Error: %s\\n\", s);\n    _exit(1);\n}\nvoid handler(int sig) {\n  //Signal handling logic here\n  int saved_errno = errno;\n  // ... function calls that might modify errno ...\n  errno = saved_errno; //Restore errno\n}",
+  "example_explanation": "The `sio_error` function demonstrates a system call interface (`fprintf` to standard error) and exceptional control flow (`_exit`). It handles an error condition by printing a message to the standard error stream and terminating the program. The example illustrates a safe signal handler which saves and restores errno.  `_exit` is an asynchronous-signal-safe variant of `exit`, crucial for handling signals correctly. The safe signal handler shows how to handle the possibility that system calls within a signal handler might change errno, disrupting other parts of the program. This highlights the importance of managing interactions between signal handlers and the system call interface to maintain program correctness.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "794-794",
+    "extraction_date": "2025-07-28T12:30:59.928253",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

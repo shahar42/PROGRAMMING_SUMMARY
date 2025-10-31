@@ -1,0 +1,16 @@
+{
+  "topic": "File Sharing in Unix-like Systems",
+  "explanation": "File sharing in Unix-like operating systems allows multiple processes to access the same file concurrently.  This is achieved through a sophisticated mechanism involving three key data structures: the descriptor table (per-process), the file table (shared across processes), and the v-node table (also shared).  Understanding these structures is crucial for comprehending how the kernel manages file access, concurrency, and resource management efficiently.  This mechanism is essential for implementing various system functionalities like shared memory, inter-process communication, and concurrent file access.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "929-930",
+    "extraction_date": "2025-07-29T11:59:42.778374",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.740112"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// V-Node Table (Shared, persistent file metadata)\nstruct Vnode {\n    int inode_num;\n    int ref_count;    // Count of FileTableEntries pointing here\n};\n\n// File Table (Shared, describes one open instance)\nstruct FileTableEntry {\n    off_t offset;         // Current position (non-shared across FTEs)\n    int access_flags;     // O_RDONLY, O_WRONLY, etc.\n    struct Vnode* vn_ptr; // Points to shared metadata\n};\n\n// Descriptor Table (Per-Process)\nstruct ProcDescriptor {\n    struct FileTableEntry* fd_array[MAX_FDS];\n};\n\n// Sharing Examples:\n// 1. Same FTE, Different FDs (via dup/fork): Two FDs point to the same offset.\n// 2. Different FTEs, Same Vnode: Two processes have separate offsets accessing the same file data.",
+  "keywords": "Unix file structures, File descriptor table, Kernel file tables"
+}

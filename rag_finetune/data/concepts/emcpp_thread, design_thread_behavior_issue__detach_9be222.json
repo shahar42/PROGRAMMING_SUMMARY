@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Behavior/Issue: Detach-on-Destruction Undefined Behavior Risk",
+  "category": "thread, design",
+  "explanation": "Detaching a thread in a destructor allows the system thread to continue execution independently of the `std::thread` handle, avoiding the blocking issue of `join`. However, this introduces the risk of Undefined Behavior (UB). Why It Fails: If the detached thread attempts to access resources (e.g., local variables, heap objects) that were owned by the scope that contained the `std::thread` object, those resources may have been destroyed after the scope exited. This creates a classic dangling pointer scenario, making the program behavior unpredictable and debugging extremely difficult.",
+  "code_example": "// ThreadRAII policy: detach-on-destruction\n~ThreadRAII() { if (t.joinable()) t.detach(); } // Thread continues asynchronously, risking access to destroyed resources.",
+  "practical_example": "A detached thread relies on a reference or pointer to a data member of the class that holds the `ThreadRAII` object. Once the `ThreadRAII` object is destroyed, the detached thread continues running, accessing the now-invalid memory location.",
+  "keywords": [
+    "detach",
+    "undefined behavior",
+    "dangling pointer",
+    "resource lifetime"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "257",
+  "chapter": "Item 37",
+  "id": "emcpp_thread, design_thread_behavior_issue__detach_9be222",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

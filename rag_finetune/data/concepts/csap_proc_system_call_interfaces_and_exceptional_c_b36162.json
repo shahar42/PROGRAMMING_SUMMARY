@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Privileged Resource Access",
+  "explanation": "System calls provide the interface between a process running in user mode and the operating system kernel, enabling access to privileged resources and services.  Exceptional control flow refers to situations where the normal sequential execution of instructions is interrupted due to events like exceptions, interrupts, or signals.  Understanding these mechanisms is crucial for building robust and reliable applications that interact effectively with the underlying hardware and operating system.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "765-766",
+    "extraction_date": "2025-07-28T12:22:04.391148",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.712697"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Syscall Interface: Privileged Resource Access\n#define O_WRONLY (1 << 0)\n#define O_CREAT  (1 << 6)\n\n// User process requests file access (via syscall wrapper)\nint fd = open(\"data.txt\", O_WRONLY | O_CREAT, 0644);\n\nif (fd < 0) {\n    // Kernel returned error (e.g., permission issue)\n    return -1; \n}\n\n// ECF: Signal Handler (Asynchronous Interrupt/Trap)\nvoid sig_handler(int sig) {\n    // Control flow diverted from normal execution\n    if (sig == SIGSEGV) {\n        // Critical exception/fault handling (Trap)\n        exit(1);\n    }\n}\n\n// Register handler using a syscall wrapper\nstruct sigaction sa = {0};\nsa.sa_handler = sig_handler;\nsigaction(SIGINT, &sa, NULL);\n<ctrl63>"
+}

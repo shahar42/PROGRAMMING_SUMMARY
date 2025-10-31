@@ -1,0 +1,21 @@
+{
+  "topic": "Reference Qualification: Overloading on Implicit `this` Value Category",
+  "category": "core",
+  "explanation": "Member function reference qualifiers are a C++11 feature that allows overloading a member function based on the value category of the object it is invoked on. By appending a single ampersand (`&`) or a double ampersand (`&&`) to a member function's declaration, you restrict its usage to lvalue or rvalue instances of the class, respectively. This makes the value category of the implicit `this` object part of the function's signature.\n\nScott Meyers highlights this as a less-known but powerful feature for creating safer and more efficient APIs. The key insight is that it gives class designers control over how their objects are used when they are temporaries (rvalues). This prevents undesirable operations, such as modifying a temporary object that will be immediately discarded, or enables optimizations, like moving resources out of a temporary that is about to be destroyed.\n\nThe mechanics are straightforward for the compiler. When a member function is called, the compiler checks the value category of the object expression. If the object is an lvalue (e.g., a named variable), it will select the `&`-qualified overload. If the object is an rvalue (e.g., a temporary returned from a function), it will select the `&&`-qualified overload. If a qualifier is present but doesn't match the object's value category, or if no qualifier is present and one is needed, a compile-time error occurs. This check is now an integral part of the signature matching rules for both overloading and overriding.\n\nIn practical terms, this feature is especially useful for resource-owning classes. A `getData` method could be overloaded: the `&`-qualified version returns a copy or a const reference, preventing the caller from accidentally modifying the lvalue object's state. The `&&`-qualified version, callable only on temporaries, could safely move the internal data to the caller, avoiding a potentially expensive copy. As the text notes, this also adds a new rule to virtual function overriding: the reference qualifier of an overriding function must exactly match that of the base function.\n\nThe most common pitfall is to confuse member function reference qualifiers with forwarding (universal) references. While they both use `&&` syntax, their contexts and meanings are completely different. A reference qualifier applies to the implicit `this` object in a member function declaration and does not involve template type deduction. A forwarding reference is a template parameter of a function declared with a double ampersand, which uses type deduction and reference collapsing to accept both lvalues and rvalues.",
+  "code_example": "class Widget {\npublic:\n  // This version can only be called on lvalue Widgets\n  void doWork() &;\n\n  // This version can only be called on rvalue Widgets\n  void doWork() &&;\n};\n\nWidget makeWidget(); // Factory function that returns an rvalue\n\nWidget w; // w is an lvalue\n\nw.doWork();             // Calls Widget::doWork() &\n\nmakeWidget().doWork();  // Calls Widget::doWork() &&",
+  "practical_example": "A data-processing class could have a `results()` member function. The `&`-qualified version could return a `std::vector` by copy, ensuring the original object remains valid. The `&&`-qualified version, called on a temporary, could return the `std::vector` by move, efficiently transferring ownership of the results without a deep copy.",
+  "keywords": [
+    "reference qualifiers",
+    "lvalue",
+    "rvalue",
+    "this pointer",
+    "member function overload",
+    "signature",
+    "move semantics"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "80",
+  "chapter": "Item 12: Declare overriding functions override",
+  "id": "emcpp_core_member_function_reference_qualifiers_33e394",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Safe and Efficient Element Access in Associative Containers (std::map, std::set)",
+  "explanation": "Associative containers like `std::map` and `std::set` provide efficient key-based access to elements. However, using the subscript operator (`[]`) can lead to unintended element insertion if the key doesn't exist.  This can be problematic if you only need to check for the presence of an element, not add a default-constructed one.  Understanding the differences between `[]`, `find()`, and `count()` is crucial for writing efficient and correct code.",
+  "syntax": "```cpp\n// Using subscript operator (inserts if key doesn't exist)\nmap<string, int> wordCounts;\nwordCounts[\"hello\"]++; // Increments count if \"hello\" exists; otherwise, adds \"hello\" with count 1\n\n// Using find() (returns iterator to element or end() if not found)\nstd::map<string, int>::iterator it = wordCounts.find(\"world\");\nif (it != wordCounts.end()) {\n  std::cout << \"Count of 'world': \" << it->second << std::endl;\n} else {\n  std::cout << \"'world' not found\" << std::endl;\n}\n\n//Using count() (returns number of elements with the key)\nint count = wordCounts.count(\"hello\");\nif (count > 0) {\n  std::cout << \"'hello' is present\" << std::endl; \n}\n```",
+  "code_example": "#include <iostream>\n#include <map>\n#include <string>\nint main() {\n  std::map<std::string, int> wordCounts;\n  wordCounts[\"hello\"] = 5; // Direct assignment\n  if (wordCounts.count(\"hello\")) {\n    std::cout << \"Hello count: \" << wordCounts[\"hello\"] << std::endl;\n  }\n  auto it = wordCounts.find(\"world\");\n  if (it != wordCounts.end()) {\n    std::cout << \"World count: \" << it->second << std::endl;\n  } else {\n    std::cout << \"World not found\" << std::endl;\n  }\n  return 0;\n}",
+  "example_explanation": "This example demonstrates the safe and efficient ways to access elements in a `std::map`. The `count()` method explicitly checks for an element's existence without modifying the map.  The `find()` method returns an iterator, avoiding unnecessary insertion. Using the subscript operator `[]` is concise but should be used cautiously, considering the implicit insertion of elements. For simple presence checks, `count()` or `find()` are preferred over the subscript operator for clarity and to prevent accidental modifications.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:40:53.233988"
+  }
+}

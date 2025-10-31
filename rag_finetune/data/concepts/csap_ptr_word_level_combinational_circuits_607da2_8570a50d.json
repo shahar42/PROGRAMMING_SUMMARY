@@ -1,0 +1,16 @@
+{
+  "topic": "Word-Level Combinational Circuits",
+  "explanation": "Word-level combinational circuits are fundamental building blocks in computer architecture. They perform computations on data words (groups of bits representing integers, addresses, etc.) by combining simpler bit-level logic gates.  This allows for efficient and scalable implementation of complex arithmetic and logical operations within the CPU, directly impacting performance and instruction set capabilities.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "404-404",
+    "extraction_date": "2025-07-26T22:05:35.600063",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.722214"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "typedef unsigned int Word; // 32-bit word\n\nWord word_mux_2to1(Word A, Word B, int Sel) {\n    // Selects a full data word based on a control signal (Sel)\n    // Avoids branch prediction costs in hardware simulation\n    // M = all 1s if Sel=1, all 0s if Sel=0\n    Word M = (Word) -Sel;\n\n    // (A AND NOT M) OR (B AND M)\n    return (A & (~M)) | (B & M);\n}\n\n// ---\n\n#define N_BITS 16\ntypedef unsigned short DataWord;\n\nint n_bit_comparator_EQ(DataWord A, DataWord B) {\n    // Compares two data words bitwise (parallel operation)\n    // Result is 1 if A == B (all bits are equal)\n    DataWord diff = A ^ B; // XOR operation\n    \n    // Check if any bit in the difference is set\n    return (diff == 0); \n}\n\n// ---\n\ntypedef unsigned long long Word64;\ntypedef unsigned int Word32;\n\nWord32 ripple_carry_adder(Word32 A, Word32 B, int C_in, int* C_out) {\n    // Models parallel 32-bit addition with carry generation\n    Word64 sum = (Word64)A + (Word64)B + C_in;\n    const int W = 32;\n\n    *C_out = (sum >> W) & 1; // Capture carry out\n    return (Word32)sum;      // Truncate to output word size\n}",
+  "keywords": "Word-level logic, Arithmetic circuits, Data path components, Digital system blocks"
+}

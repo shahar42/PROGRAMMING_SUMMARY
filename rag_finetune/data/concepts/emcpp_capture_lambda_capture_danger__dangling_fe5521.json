@@ -1,0 +1,18 @@
+{
+  "topic": "Lambda Capture Danger: Dangling References to Stack Variables",
+  "category": "capture",
+  "explanation": "When an asynchronous task (e.g., a lambda launched on a separate thread) captures a local variable by reference, it creates a severe risk of stack corruption if the enclosing function returns before the task completes. The local variable's stack memory is recycled and often reused by subsequent function calls. If the asynchronous task later accesses or modifies that memory location, it corrupts the stack frame of the currently running function, leading to spontaneous and unpredictable data changes (e.g., the content of memory in function 'f' spontaneously changes).",
+  "code_example": "void doWork() {\n  std::vector<int> goodVals; // Local stack variable\n  std::thread t([&goodVals] { /* ... use goodVals ... */ });\n  // If doWork returns before t finishes, goodVals is gone.\n  t.detach(); // Danger!\n}",
+  "practical_example": "A function starts a background processing thread, passing it a reference to a local configuration object. If the function exits due to an error or early return, the background thread continues operating on a memory region that has been repurposed for another function's stack frame, leading to silent, catastrophic data corruption.",
+  "keywords": [
+    "stack corruption",
+    "asynchronous task",
+    "dangling reference",
+    "local variable"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "268-270",
+  "chapter": "Item 37: Remember to make std::threads unjoinable on all paths",
+  "id": "emcpp_capture_lambda_capture_danger__dangling_fe5521",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

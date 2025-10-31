@@ -1,0 +1,16 @@
+{
+  "topic": "Relocation Entries in Object Files",
+  "explanation": "Relocation entries are crucial components within object files.  During the linking process, the linker doesn't know the absolute memory addresses where code and data segments will reside.  Relocation entries indicate which parts of the object file need to have their addresses adjusted (patched) after the linker has determined the final memory layout.  This patching ensures that relative addresses within the code (e.g., jumps, function calls) correctly point to their targets after the program is loaded into memory.  Without relocation, code would fail because addresses would be incorrect.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "48-49",
+    "extraction_date": "2025-07-14T01:36:20.839853",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.747830"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// MODELING OBJECT FILE RELOCATION ENTRY (Generic/ELF Style)\ntypedef unsigned long Addr;\ntypedef unsigned int  Info;\n\nstruct RelocationEntry {\n    Addr r_offset; // Offset within target section to patch\n    Info r_info;   // Contains Symbol Index and Relocation Type\n};\n\n// Linker uses these to decode r_info:\n#define R_GET_SYM_INDEX(info) ((info) >> 8)\n#define R_GET_TYPE(info)      ((unsigned char)(info))\n\n// Example Relocation Type\nconst int R_TYPE_32 = 0x01; // Absolute 32-bit address patch\nconst int R_TYPE_PC32 = 0x02; // PC-Relative 32-bit address patch\n\n// Linker formula: *r_offset = S + A - P (where S=Symbol, A=Addend, P=r_offset)",
+  "keywords": "Relocation table, Linker address patching, Object file relocation"
+}

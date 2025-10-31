@@ -1,0 +1,13 @@
+{
+  "topic": "Explicitly Defined Copy and Move Semantics in Standard Library Containers (std::set example)",
+  "explanation": "Understanding how the compiler implements copy and move constructors/assignment operators, especially in the context of standard library containers like `std::set`, is crucial for advanced C++ programming.  This goes beyond basic understanding; it involves grasping the implications of allocator usage, strong exception safety, and the performance trade-offs between copying and moving large data structures.  The compiler's role in optimizing these operations \u2013 potentially via return value optimization (RVO) or copy elision \u2013 significantly impacts memory usage and execution speed.\n\nCrucially, the behavior depends on whether the container is copied or moved.  Copy constructors create a completely new container with a deep copy of the data. Move constructors (since C++11) steal resources from the source, making it extremely efficient for large containers.  The allocator further complicates matters, allowing customization of memory management. The compiler must correctly generate code to handle allocator propagation in both copy and move operations, ensuring consistency and preventing resource leaks.  Incorrect handling can lead to dangling pointers, double frees, or other subtle bugs.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T07:12:54.662025",
+    "book_metadata_added": "2025-10-28T20:22:06.942022"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::set<int> Original = {1, 2, 3};\n\n// --- Deep Copy Semantics ---\n// Copy Construction: Creates a new independent set.\nstd::set<int> Copy_Ctor(Original);\n\n// Copy Assignment: Overwrites existing set via deep copy.\nstd::set<int> Copy_Assign = {99};\nCopy_Assign = Original;\n\n// --- Move Semantics (Resource Transfer) ---\n// Move Construction: Transfers internal nodes/pointers (O(1) usually).\n// Original set is left in a valid, but unspecified state (empty).\nstd::set<int> Move_Ctor(std::move(Copy_Ctor));\n\n// Move Assignment: Efficient transfer of resources.\nstd::set<int> Move_Assign = {100};\nMove_Assign = std::move(Copy_Assign);\n<ctrl63>"
+}

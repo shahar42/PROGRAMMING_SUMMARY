@@ -1,0 +1,19 @@
+{
+  "topic": "std::move Failure with Local Variables and NRVO",
+  "category": "perf",
+  "explanation": "A common performance anti-pattern involves applying `std::move` to local variables being returned by value from a function. The programmer assumes that by explicitly casting the local variable to an rvalue, they are assisting the compiler in ensuring a move operation takes place, guaranteeing efficiency. This assumption is incorrect and often harmful. Modern C++ compilers, especially since C++17, are mandated to perform copy elision or, failing that, named return value optimization (NRVO). When NRVO applies, the object is constructed directly in the return value's destination memory, eliminating the need for any copy or move operations whatsoever. By manually applying `std::move` to the local variable, the programmer converts that variable from an lvalue (which is eligible for NRVO) into an rvalue (which is *not* eligible for NRVO). The result of this misplaced optimization is that the compiler is forced to fall back to move construction (if available) or copy construction (if move is not available), thereby preventing the superior, zero-cost NRVO. The failure lies in attempting to micro-optimize an operation that the language rules already optimize perfectly. This failure manifests as unnecessary overhead, where the move operation itself (even if cheap) introduces instructions that the compiler would have otherwise elided entirely. In essence, the programmer's manual intervention sabotages the compiler's most powerful optimization technique for returning objects.",
+  "code_example": "Widget create_widget() {\n    Widget w; \n    // ... populate w\n    return std::move(w); // ANTI-PATTERN: Disables NRVO/Guaranteed Copy Elision\n}",
+  "practical_example": "In a factory function generating large `std::vector` objects, the misguided addition of `std::move` to the returned local vector forces the move constructor to execute, wasting CPU cycles transferring metadata, when the vector could have been constructed directly in the caller's stack frame via NRVO, resulting in a measurable performance degradation in high-throughput environments.",
+  "keywords": [
+    "NRVO",
+    "copy elision",
+    "performance degradation",
+    "std::move",
+    "optimization failure"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "178-180",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_perf_std__move_failure_with_b8ee18",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

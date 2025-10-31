@@ -1,0 +1,13 @@
+{
+  "topic": "Lambda Capture By-Value Misleading Self-Containment",
+  "category": "capture",
+  "explanation": "Assumption: The default by-value capture clause (`[=]`) guarantees that the resulting lambda is self-contained and isolated from external state changes. Reality: `[=]` only captures non-static local variables by value. Static variables, global variables, and static member variables used within the lambda are accessed by name lookup (effectively by reference) and are *not* copied into the closure. Why It Fails: If the external static state changes after the lambda is created, the lambda's behavior changes unexpectedly, directly contradicting the perceived isolation of the by-value capture mechanism. This failure leads to hidden dependencies on mutable shared state.",
+  "code_example": "static int divisor = 1; \nauto filter = [=](int x) { return x % divisor == 0; };\n// If divisor is modified later, 'filter' behavior changes.",
+  "practical_example": "A developer uses `[=]` inside a factory function that returns a lambda meant to be stored in a collection. If the lambda relies on a static counter or configuration variable that changes over time, all previously stored lambdas will exhibit the new behavior, causing difficult-to-trace bugs related to temporal coupling.",
+  "keywords": "Lambda capture static variables, Lambda capture global variables, C++ lambda capture rules",
+  "difficulty": "intermediate",
+  "page_reference": "233",
+  "chapter": "Item 31: Avoid default capture modes",
+  "id": "emcpp_capture_lambda_capture_by_value_misleading_ce62e0",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

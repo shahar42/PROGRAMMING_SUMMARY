@@ -1,0 +1,21 @@
+{
+  "topic": "Iterator Design: Non-Convertibility of const_iterator to iterator",
+  "category": "core",
+  "explanation": "A fundamental rule in the C++ standard library is that a const_iterator cannot be converted back to a regular iterator. While an iterator can be implicitly converted to a const_iterator, the reverse operation is intentionally disallowed to preserve const-correctness. This is a deliberate design choice that enforces the semantic promises of the type system.\n\nScott Meyers strongly emphasizes that this is not a temporary limitation or a feature that can be bypassed with clever casting. He points out that even the most powerful casting tools, such as static_cast and reinterpret_cast, cannot perform this conversion portably or safely. This highlights that the restriction is semantic, not merely syntactic; it's about preventing a dangerous subversion of the const system.\n\nThe mechanics behind this rule are central to const-correctness. A const_iterator is a promise that you will only observe the element it points to, not modify it. If you could convert it back to a regular iterator, you would create a modifiable handle from a read-only one, effectively creating a backdoor to mutate data that was intended to be protected. The standard library's design prevents this loophole by simply not defining such a conversion.\n\nIn practice, this means that if your logic branches and you find you need to mutate an element for which you only hold a const_iterator, you cannot simply cast it. You must rethink the algorithm's flow. The correct approach is to re-acquire a mutable iterator from the source, for instance, by re-running a search algorithm on the original non-const container to get a regular iterator to the same element. This ensures that any path leading to mutation originates from a non-const context.\n\nThe most common pitfall is assuming that since the conversion from iterator to const_iterator is trivial, the reverse must be possible with an explicit cast. This leads programmers to write non-portable and potentially undefined code. The key takeaway is to treat const_iterators as a one-way street; once you have one, you are committed to read-only access through that specific iterator.",
+  "code_example": "std::vector<int> v = {1, 2, 3};\n\nstd::vector<int>::iterator it = v.begin();\n\n// This is always allowed: converting iterator -> const_iterator\nstd::vector<int>::const_iterator cit = it; \n\ncit = v.cbegin(); // Assume C++11 for cbegin for demonstration\n\n// This is never allowed and will not compile\n// std::vector<int>::iterator it2 = cit; // Error: no implicit conversion\n\n// Even explicit casts are not portable or guaranteed to work\n// std::vector<int>::iterator it3 = static_cast<decltype(it)>(cit); // Error",
+  "practical_example": "If you have a function that finds an element in a const container and returns its position as a const_iterator, the caller cannot use that returned iterator to erase the element from the original container (if it was non-const). The caller must perform the find operation itself on its non-const container to get a mutable iterator suitable for erasure.",
+  "keywords": [
+    "const_iterator",
+    "iterator",
+    "type conversion",
+    "cast",
+    "const correctness",
+    "iterator invalidation",
+    "type safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "86",
+  "chapter": "Item 13: Prefer const_iterators to iterators",
+  "id": "emcpp_core_iterator_design__non_convertibility_6d095a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

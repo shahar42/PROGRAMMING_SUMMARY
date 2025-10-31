@@ -1,0 +1,68 @@
+{
+  "name": "fsync",
+  "synopsis": [
+    "#include <unistd.h>",
+    "int fsync(int fd);",
+    "int fdatasync(int fd);"
+  ],
+  "description": "fsync() flushes all modified in-core data and metadata of the file referred to by the file descriptor to the storage device, ensuring data is retrievable after a system crash. It blocks until the transfer is complete. fdatasync() is similar but only flushes metadata necessary for subsequent data retrieval, reducing disk activity.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the file to synchronize"
+    }
+  ],
+  "return_value": {
+    "success": "Returns zero on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor"
+    },
+    {
+      "code": "EINTR",
+      "description": "The function was interrupted by a signal"
+    },
+    {
+      "code": "EIO",
+      "description": "An error occurred during synchronization, possibly related to other file descriptors on the same file"
+    },
+    {
+      "code": "ENOSPC",
+      "description": "Disk space was exhausted while synchronizing"
+    },
+    {
+      "code": "EROFS",
+      "description": "fd is bound to a read-only filesystem"
+    },
+    {
+      "code": "EINVAL",
+      "description": "fd is bound to a special file (e.g., pipe, FIFO, or socket) which does not support synchronization"
+    },
+    {
+      "code": "EDQUOT",
+      "description": "fd is bound to a file on a filesystem like NFS where a previous write failed due to insufficient storage space"
+    }
+  ],
+  "bugs": "In Linux 2.2 and earlier, fdatasync() is equivalent to fsync(), offering no performance advantage. Some older kernels and lesser-used filesystems do not properly flush disk caches, requiring manual disabling via tools like hdparm(8). Under AT&T UNIX System V Release 4, fd must be opened for writing, which is incompatible with POSIX but persists in some systems like HP-UX and AIX.",
+  "versions": "POSIX.1-2001 and later; Linux 2.2 and above with specific behaviors for fdatasync()",
+  "posix_compliance": "POSIX.1-2008",
+  "related_calls": [
+    "bdflush",
+    "open",
+    "posix_fadvise",
+    "pwritev",
+    "sync",
+    "sync_file_range"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "fsync.pdf",
+    "extraction_date": "2025-07-27T17:47:40.516060",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

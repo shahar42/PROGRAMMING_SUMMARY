@@ -1,0 +1,16 @@
+{
+  "topic": "Concurrency and Sync Primitives for Resource Management",
+  "explanation": "Concurrency allows multiple threads to execute seemingly at the same time, improving performance.  However, this introduces challenges in managing shared resources. Synchronization primitives are mechanisms that coordinate the execution of these threads, preventing race conditions and ensuring data consistency.  In the context of computer systems architecture, these primitives are often implemented using hardware support (e.g., atomic instructions) or operating system features to ensure efficient and predictable behavior.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "1034-1034",
+    "extraction_date": "2025-07-29T16:15:24.739571",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.720627"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "std::mutex resource_mtx;\nint shared_resource = 0;\n\nvoid access_critical_section() {\n    // RAII guarantees release upon scope exit\n    std::lock_guard<std::mutex> lock(resource_mtx);\n    shared_resource += 1;\n}\n\n\nstd::mutex queue_mtx;\nstd::condition_variable cv;\nstd::queue<Data> buffer;\n\nvoid consumer_wait() {\n    std::unique_lock<std::mutex> lock(queue_mtx);\n    // Wait until buffer is not empty\n    cv.wait(lock, []{ return !buffer.empty(); });\n    Data item = buffer.front();\n}\nvoid producer_signal() {\n    // Populate buffer\n    cv.notify_one();\n}\n\n\n// Lock-free resource counter\nstd::atomic<long> active_transactions(0);\nstd::atomic<bool> system_initialized(false);\n\nvoid start_transaction() {\n    active_transactions++;\n}\n\nbool try_initialize() {\n    // Compare and Swap loop\n    return system_initialized.compare_exchange_strong(\n        false, true\n    );\n}\n\n\n// Shared Mutex (Read-Write Lock)\nstd::shared_mutex rw_mtx;\nint cached_data = 100;\n\nvoid reader_thread() {\n    // Allows multiple concurrent readers\n    std::shared_lock<std::shared_mutex> lock(rw_mtx);\n    int temp = cached_data;\n}\n\nvoid writer_thread() {\n    // Exclusive access for writing\n    std::unique_lock<std::shared_mutex> lock(rw_mtx);\n    cached_data = 200;\n}",
+  "keywords": "Synchronization Primitives, Race Condition, Thread Safety, Concurrency Control"
+}

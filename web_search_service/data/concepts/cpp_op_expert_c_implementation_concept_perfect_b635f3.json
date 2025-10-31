@@ -1,0 +1,14 @@
+{
+  "topic": "Perfect Forwarding in STL Containers",
+  "explanation": "Perfect forwarding allows a function template to forward its arguments to another function without unnecessary copies or conversions, preserving the original value categories (lvalue or rvalue).  This is achieved through universal references, which are references that can bind to both lvalues and rvalues. The compiler's implementation hinges on reference collapsing rules and how it differentiates between lvalue and rvalue references during overload resolution and template instantiation.  Performance implications are significant, especially when dealing with large objects or expensive move constructors/assignments.  Incorrect implementation leads to unwanted copies or slicing.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T11:59:22.575268",
+    "book_metadata_added": "2025-10-28T20:22:06.986154"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "template <typename T>\nvoid wrapper(T&& arg) {\n    // T&& is a Universal Reference (can be lvalue or rvalue)\n    target(std::forward<T>(arg));\n}\n\n// ------ How std::forward works ------\n// When arg is L-value (T becomes T&):\n// std::forward<T&>(arg) -> static_cast<T&>(arg) -> L-value\n// When arg is R-value (T becomes actual type U):\n// std::forward<U>(arg) -> static_cast<U&&>(arg) -> R-value\n\n// ------ Usage in STL containers ------\n// vector::emplace_back internally uses perfect forwarding:\n\n// Template signature (simplified):\n// template <typename... Args>\n// void emplace_back(Args&&... args);\n\n// Internal call:\n// new (p) ValueType(std::forward<Args>(args)...);",
+  "keywords": "Perfect Forwarding, Universal References, std::forward, Forwarding References"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Pointer Type Casting and Aliasing for Type-Punning",
+  "explanation": "In advanced C programming, casting pointers between incompatible types enables type-punning—accessing the same memory through different type interpretations. This technique is used for low-level data manipulation, performance optimization, or interfacing with hardware. However, it must be employed carefully to avoid undefined behavior, especially when violating strict aliasing rules. Proper understanding of pointer casting and aliasing is crucial for writing efficient, portable, and correct low-level code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "227-227",
+    "extraction_date": "2025-08-20T02:29:49.541710",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.562107"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "// DANGER: Strict Aliasing violation potential (UB in C/C++)\n// Reading incompatible type (float accessed via int*)\nfloat f_val = 123.45f;\nint* aliased_ptr = (int*)&f_val;\nint bit_pattern = *aliased_ptr;\n\n// EXCEPTION: Accessing memory as array of bytes (C standard safe aliasing)\nchar* byte_ptr = (char*)&f_val;\nbyte_ptr[0] = 0xAA; // Inspect/modify raw bytes\n\n// SAFE TYPE-PUNNING: Using union (Standard compliant in C/C++)\nunion Puner {\n    float f;\n    uint32_t u;\n} p;\n\np.f = 5.0f;\nuint32_t float_bits = p.u; // Reads data safely\n// NOTE: Reading different member than last written is standard C (since C99)\n// and generally safe for trivially copiable types in C++ (via extensions/rules)\n\n// SAFE TYPE-PUNNING: Using memcpy (C++ compliant alternative)\n// int i; memcpy(&i, &f_val, sizeof(float));",
+  "keywords": "Type Punning, Strict Aliasing Rule, Pointer Aliasing"
+}

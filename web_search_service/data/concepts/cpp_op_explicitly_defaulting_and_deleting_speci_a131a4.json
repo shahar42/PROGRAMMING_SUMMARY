@@ -1,0 +1,13 @@
+{
+  "topic": "Explicitly Defaulting and Deleting Special Member Functions: Impact on Compiler Optimization and Memory Layout",
+  "explanation": "This concept delves into the intricate details of how compilers handle special member functions (constructors, destructors, assignment operators, etc.) when explicitly defaulted or deleted.  Understanding this allows for fine-grained control over object lifetime, memory management, and optimization opportunities.  Explicitly defining these functions, even as defaults, can drastically affect compiler optimization strategies compared to relying on implicit generation.  Deleted functions prevent unwanted object creation or copying, leading to improved type safety and potentially reduced code bloat.  The compiler's ability to perform return value optimization (RVO) and copy elision is significantly affected by the presence and nature of these functions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:23:02.989123",
+    "book_metadata_added": "2025-10-28T20:22:06.936544"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct ResourceHandle {\n    int* data;\n    ResourceHandle(int i) : data(new int(i)) {}\n    ~ResourceHandle() { delete data; }\n\n    // Prevent implicit, unsafe deep copy\n    ResourceHandle(const ResourceHandle&) = delete;\n    ResourceHandle& operator=(const ResourceHandle&) = delete;\n\n    // Force compiler optimization (trivial move operations)\n    ResourceHandle(ResourceHandle&&) = default;\n    ResourceHandle& operator=(ResourceHandle&&) = default;\n};"
+}

@@ -1,0 +1,15 @@
+{
+  "topic": "Advanced Resource Management with Custom Cleanup Functions",
+  "explanation": "This concept involves designing and utilizing custom cleanup mechanisms, such as smart pointers or resource management wrappers, to ensure deterministic and exception-safe release of resources in C. Unlike manual free calls, these techniques embed cleanup logic within object lifetimes, preventing resource leaks even in complex control flows or error conditions. They are crucial for writing robust, maintainable, and efficient C code that manages resources like connections, memory, or file handles reliably.",
+  "syntax": "struct ResourceWrapper {\n    void *resource;\n    void (*cleanup)(void *);\n};\n\n// Usage pattern\n// Initialize\nstruct ResourceWrapper wrapper = { resource_pointer, cleanup_function };\n// When done or on scope exit, call cleanup\nwrapper.cleanup(wrapper.resource);",
+  "code_example": "typedef struct {\n    int socket_fd;\n} Connection;\n\nvoid close_connection(void *conn_ptr) {\n    Connection *conn = (Connection *)conn_ptr;\n    if (conn->socket_fd >= 0) {\n        close(conn->socket_fd);\n        conn->socket_fd = -1;\n    }\n}\n\ntypedef struct {\n    Connection *conn;\n    void (*cleanup)(void *);\n} ConnectionWrapper;\n\nvoid destroy_connection(ConnectionWrapper *wrapper) {\n    if (wrapper->conn) {\n        wrapper->cleanup(wrapper->conn);\n        free(wrapper->conn);\n        wrapper->conn = NULL;\n    }\n}\n\n// Usage\nConnection *conn = malloc(sizeof(Connection));\nconn->socket_fd = establish_connection();\nConnectionWrapper wrapper = { conn, close_connection };\n// ... use connection ...\ndestroy_connection(&wrapper);",
+  "example_explanation": "This example demonstrates a custom resource management pattern in C where a 'Connection' resource is wrapped in a 'ConnectionWrapper' structure that includes a cleanup function. The 'destroy_connection' function ensures that the connection is properly closed and memory is freed, even if errors occur or the function exits early. This pattern exemplifies advanced resource management techniques in C, akin to smart pointers in C++, providing deterministic cleanup and exception safety in complex systems.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "586-586",
+    "extraction_date": "2025-08-20T04:56:25.813484",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer"
+  }
+}

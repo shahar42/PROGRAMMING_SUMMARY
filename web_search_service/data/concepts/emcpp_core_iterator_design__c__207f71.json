@@ -1,0 +1,21 @@
+{
+  "topic": "Iterator Design: C++98 const_iterator Limitations",
+  "category": "core",
+  "explanation": "In C++98, using const_iterators was often impractical despite the conceptual benefits of const-correctness. The standard library containers and algorithms presented significant friction, discouraging their widespread use. This historical context is crucial for understanding why modern C++ introduced features to simplify and encourage the use of const_iterators.\n\nScott Meyers' key insight is that developers adhere to principles like 'use const whenever possible' only when it is also practical. He demonstrates that in C++98, the hurdles to using const_iterators often made them impractical. This led to a common pattern of using mutable iterators even when read-only access was intended, weakening the overall const-correctness of programs and missing optimization opportunities.\n\nThe mechanics of the problem were twofold. First, obtaining a const_iterator from a non-const container was not straightforward. Calling 'begin' or 'end' on a non-const container always returned a regular, mutable iterator. To get a const_iterator, a programmer had to resort to workarounds, such as casting the container to a const reference or using explicit casts on the iterators themselves. Second, many mutating container operations, such as 'insert' and 'erase', exclusively accepted regular iterators to specify a position. This meant that even if you performed a search algorithm and obtained a const_iterator to the desired location, you couldn't directly use it to modify the container.\n\nThis historical limitation explains why many legacy C++ codebases default to using regular iterators everywhere. It also provides the essential motivation for the introduction of `cbegin` and `cend` in C++11, which directly solve the problem of easily obtaining a const_iterator from any container, regardless of its own const qualification. Understanding this background clarifies the value and design intent of these more modern features.\n\nA common pitfall in C++98 was to write convoluted and sometimes non-portable code to bridge this gap. Developers might attempt to cast a const_iterator back to a regular iterator to use with a mutating function, a practice that is not guaranteed to be safe or portable and undermines the entire purpose of the type system's const protections.",
+  "code_example": "// C++98 style code demonstrating the problem\n\n// typedefs for clarity in C++98\ntypedef std::vector<int>::iterator IterT;\ntypedef std::vector<int>::const_iterator ConstIterT;\n\nstd::vector<int> values;\n// ... populate values\n\n// Problem 1: Hard to get a const_iterator from a non-const container\n// Requires a cast to get const_iterator for a find operation\nConstIterT ci = std::find(static_cast<ConstIterT>(values.begin()),\n                            static_cast<ConstIterT>(values.end()),\n                            1983);\n\n// Problem 2: Can't use a const_iterator for mutation\n// The line below would not compile in C++98\n// values.insert(ci, 1998); // Error: insert expects iterator\n\n// A non-portable and unsafe workaround attempt\nvalues.insert(static_cast<IterT>(ci), 1998); // May not compile",
+  "practical_example": "When maintaining a legacy C++98 application, you might encounter algorithms that take a non-const container as an argument, even if they only need to read from it. This was often done to avoid the difficulty of working with const_iterators, sacrificing const-correctness for convenience.",
+  "keywords": [
+    "const_iterator",
+    "iterator",
+    "C++98",
+    "const correctness",
+    "container",
+    "legacy code",
+    "usability"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "86",
+  "chapter": "Item 13: Prefer const_iterators to iterators",
+  "id": "emcpp_core_iterator_design__c__207f71",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Failure: Const Lvalue Binding Preference",
+  "category": "template",
+  "explanation": "Assumption: If a universal reference template is defined, it will handle all forms of input optimally. Reality: When a `const` lvalue is passed to a universal reference template (`template<typename T> void func(T&& param)`), `T` is deduced as a `const` lvalue reference (e.g., `Widget const&`). While this allows the template to be selected, if the programmer has also provided a dedicated `const Widget&` overload, the two are often indistinguishable in terms of 'best match' for certain compilers or may lead to surprising preference rules. Why It Fails: If the code relies on the specialized, non-template `const Widget&` overload for optimization (e.g., specializing for built-in types), the template instantiation might still be selected due to specific tie-breaking rules, leading to the same failure mode as C6 (collision) but specifically targeting read-only inputs. This requires developers to use techniques like SFINAE or concepts to manually constrain the template, defeating the goal of a clean universal interface.",
+  "code_example": "// Template instantiation matches dedicated const overload perfectly\ntemplate<typename T> void f(T&&) { /* Generic */ }\nvoid f(const Widget&) { /* Dedicated const */ }\nconst Widget cw; f(cw); // Compiler might choose template or dedicated, leading to ambiguity/collision.",
+  "practical_example": "In a template-heavy library, the interaction between a const lvalue reference template instantiation and a dedicated const overload leads to subtle compiler dependency issues, where code compiles correctly on one platform but fails on another due to differing overload resolution priorities.",
+  "keywords": [
+    "const lvalue",
+    "template ambiguity",
+    "overload resolution tie-break",
+    "SFINAE necessity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "197, 202-205",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_failure__const_lvalue_8b548e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

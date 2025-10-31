@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Overload Resolution and Static Member Functions",
+  "explanation": "This focuses on the intricacies of C++ overload resolution, specifically concerning the restrictions imposed when static member functions are involved.  The compiler's implementation details, memory layout implications (though subtle in this specific case), and the impact on compile-time behavior are explored.  While assembly-level analysis isn't directly applicable to the *conceptual* restriction itself, the compiler's choices during name mangling and symbol table management are indirectly relevant.",
+  "syntax": "C++ function declarations, specifically focusing on static member functions and overload resolution rules.",
+  "code_example": "#include <iostream>\nclass X {\npublic:\n  static void f();\n  void f(); // ill-formed: cannot overload static and non-static f with same signature\n  void g();\n  void g() const; // OK: Overloading non-static g is allowed\n};\nvoid X::f() {}\nvoid X::g() {}\nvoid X::g() const {}\nint main() {\n  X x;\n  //x.f(); //This would result in a compiler error if uncommented\n  x.g();\n  return 0;\n}",
+  "example_explanation": "The example demonstrates the core restriction:  You cannot overload a static member function with a non-static member function if they share the same name and parameter list.  The compiler enforces this at compile time.  The reason is related to how the compiler generates the function's symbol names (name mangling).  Static member functions do not have an implicit 'this' pointer, leading to potential naming collisions during linking if overloading were allowed. The compiler's symbol table must ensure unique symbols, preventing conflicts.  The absence of an implicit 'this' pointer impacts the memory layout\u2014static member functions don't depend on object instances and reside in a separate, shared memory space, unlike non-static member functions. Attempting to overload would result in a compiler error because the compiler cannot uniquely identify and resolve calls to these functions during compilation. This is a compile-time issue rather than a runtime one.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:25:28.935259"
+  }
+}

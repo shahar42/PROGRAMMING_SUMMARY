@@ -1,0 +1,13 @@
+{
+  "topic": "Move Semantics Failure with Const Member Data",
+  "category": "design",
+  "explanation": "Assumption: If a class is otherwise suitable for implicit move operations (no user-defined copy/destructor), the compiler will generate them regardless of the presence of constant member variables. Reality: The presence of a `const` member variable or a reference member variable prevents the compiler from generating a move assignment operator, causing assignment operations to fall back to deep copies (if copy assignment is available) or resulting in compilation failure. Why It Fails: A move assignment operator must be able to modify the target object (`*this`) to swap resource pointers and modify the source object (rvalue reference) to null out its pointers. When a class contains a `const` member, that member cannot be reassigned during the move assignment process. Since the assignment operator cannot safely complete the assignment of all members, the compiler deletes the move assignment operator. This crucial failure means that performance optimizations relying on move assignment (e.g., standard container element reassignment) are entirely eliminated by the simple presence of an immutable field.",
+  "code_example": "// Failure: const member prevents move assignment operator generation\nclass ConstHolder {\n  const int id; // Cannot be reassigned\n  int* data; \npublic:\n  // Move assignment operator is implicitly deleted!\n  ConstHolder(int i) : id(i) { /* ... */ }\n};\n\nConstHolder h1(1), h2(2);\nh1 = std::move(h2); // Compile error (assignment fails/defaults to copy if possible).",
+  "practical_example": "A configuration class relies on move assignment for efficient internal updates. However, because the configuration identifier was mistakenly marked `const`, the move assignment operator is deleted, forcing the system to rely on expensive copy assignment, creating a performance spike every time configurations are updated.",
+  "keywords": "const member prevents move, no implicit move assignment, const member C++ assignment",
+  "difficulty": "advanced",
+  "page_reference": "222-223",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_design_move_semantics_failure_with_const_fe92c7",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

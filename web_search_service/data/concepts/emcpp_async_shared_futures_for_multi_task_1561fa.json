@@ -1,0 +1,13 @@
+{
+  "topic": "Shared Futures for Multi-Task Synchronization",
+  "category": "async",
+  "explanation": "Pattern: Suspending and unsuspending multiple reactive tasks based on a single signal. Standard `std::future` objects are move-only and consume their shared state upon retrieval of the result, meaning only one thread can successfully wait on them. To generalize the pattern—allowing many threads to wait for the same signal—the shared state must be accessible to all waiters. This is achieved by using `std::shared_future`, which is copyable and allows multiple concurrent calls to `wait()` or `get()`, making it the correct primitive for one-to-many synchronization in task-based concurrency.",
+  "code_example": "// To signal multiple tasks:\nstd::shared_future<void> sf = p.get_future().share();\n// Task 1:\nstd::async(std::launch::async, [sf]{ sf.wait(); react(); });\n// Task 2:\nstd::async(std::launch::async, [sf]{ sf.wait(); react(); });",
+  "practical_example": "Implementing a barrier or broadcast mechanism where a single initialization event must trigger the start of several independent processing tasks. Instead of using a complex condition variable setup, a single `std::promise` generates a `std::shared_future` that all tasks wait upon.",
+  "keywords": "std::shared_future, Multiple waiters future, Copyable future C++, Shared synchronization future",
+  "difficulty": "intermediate",
+  "page_reference": "269",
+  "chapter": "Item 39: Be aware of the pitfalls of launching tasks",
+  "id": "emcpp_async_shared_futures_for_multi_task_1561fa",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

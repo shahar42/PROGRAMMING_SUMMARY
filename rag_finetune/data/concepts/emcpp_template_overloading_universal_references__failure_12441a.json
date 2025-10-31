@@ -1,0 +1,18 @@
+{
+  "topic": "Overloading Universal References: Failure to Resolve to Non-Template Overloads",
+  "category": "template",
+  "explanation": "The inclusion of a universal reference overload in a set of functions creates a tricky anti-pattern where the template is chosen even when a seemingly perfect non-template function exists. The assumption is that non-template functions always win when the argument matches exactly. However, C++ overload resolution rules prioritize template instantiation and partial ordering. If a non-template overload takes, for instance, a `Derived` class by value, and the universal reference template `T&&` is also available, passing a `Derived` object may lead to complex resolution scenarios. In certain cases, particularly when implicit conversions or type promotions are involved, the compiler might find that deducing `T` in the universal reference template results in a slightly better (more specialized) match than the necessary conversion required for the non-template overload, or vice versa, leading to confusing and non-intuitive resolution results. The failure often manifests when the universal reference template is combined with functions accepting types related by inheritance. The template mechanism, which is designed for genericity, interferes with the precision required for specialized, non-template handling of specific types, creating situations where the developer is forced to use complex techniques like SFINAE or concepts (C++20) just to prevent the template from being considered for types that have specific, non-template handlers.",
+  "code_example": "class Base {}; class Derived : public Base {};\nvoid process(Base b); // Specific non-template overload\ntemplate<typename T> void process(T&& arg); // Universal Ref\n\nDerived d;\nprocess(d); // Resolution might favor T&& over the conversion to Base.",
+  "practical_example": "In a UI framework, the `handle_event` function was overloaded for various `KeyEvent` subclasses. Adding a universal reference `handle_event(T&&)` meant for forwarding custom user events caused the built-in `handle_event(const KeyEvent&)` function to be bypassed entirely for some derived events, leading to loss of core framework functionality because the generic template was deemed a better match.",
+  "keywords": [
+    "template instantiation",
+    "partial ordering",
+    "overload resolution complexity",
+    "inheritance conflict"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "198-200",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_overloading_universal_references__failure_12441a",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

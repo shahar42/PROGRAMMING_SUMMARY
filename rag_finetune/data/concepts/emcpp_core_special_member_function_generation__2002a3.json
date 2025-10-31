@@ -1,0 +1,21 @@
+{
+  "topic": "Special Member Function Generation: Copy and Move Interaction",
+  "category": "core",
+  "explanation": "The generation of copy and move operations is deeply intertwined. The presence of a user-declared copy operation suppresses the generation of move operations, and conversely, a user-declared move operation suppresses the generation (by deletion) of copy operations. This interaction is a cornerstone of modern C++ class design.\n\nScott Meyers explains this as the compiler's conservative safety mechanism. When a programmer manually implements a copy operation, it signals that the simple member-wise copying default is insufficient for the class, likely due to resource management. The compiler then infers that member-wise moving would be equally inappropriate and disables it. Similarly, if a move operation is customized, the compiler assumes default copying is also suspect and disables it to prevent correctness issues like accidental deep copies being replaced by shallow ones.\n\nThe mechanics are governed by two primary rules. First, if a user declares a copy constructor or a copy assignment operator, the compiler will not generate a move constructor or a move assignment operator. They are simply not declared. Second, if a user declares a move constructor or a move assignment operator, the compiler explicitly deletes the copy constructor and copy assignment operator. This means any attempt to copy an object of such a class will result in a clear compilation error.\n\nThis behavior has profound practical implications and is the core motivation for the 'Rule of Five'. If you follow the C++98 'Rule of Three' (destructor, copy ctor, copy assign), your class will not be movable in modern C++, potentially leading to performance issues from unnecessary copying. To make it movable, you must explicitly add move operations. Conversely, when you add move operations to a class to enable cheap resource transfer, you are making it move-only by default. If you want the class to be both copyable and movable, you must explicitly declare or default all five special member functions.\n\nThe most common pitfall for developers migrating to modern C++ is adding a destructor to a class and being unaware that this single action has disabled the compiler's generation of all move operations, silently pessimizing the code. Another frequent mistake is adding move semantics to a class for optimization and being surprised when existing code that relied on copying suddenly fails to compile, because the copy operations were implicitly deleted.",
+  "code_example": "// Case 1: User-declared copy op suppresses moves\nclass LegacyResource {\npublic:\n  LegacyResource(const LegacyResource&); // User-declared copy ctor\n  // Compiler will NOT generate move ctor or move assignment op\n};\n\n// Case 2: User-declared move op deletes copies\nclass ModernResource {\npublic:\n  ModernResource(ModernResource&&) noexcept; // User-declared move ctor\n  // Compiler DELETES the copy ctor and copy assignment op\n};\n\nvoid example() {\n  LegacyResource lr1;\n  // LegacyResource lr2 = std::move(lr1); // Error (or copies): no move ctor\n\n  ModernResource mr1;\n  // ModernResource mr2(mr1); // Error: copy ctor is deleted\n}",
+  "practical_example": "A simple class that manages a raw pointer needs a custom destructor, copy constructor, and copy assignment operator for deep copying (Rule of Three). By default, this class will not be movable in C++11, causing performance degradation. To fix this, a developer adds a move constructor, but is then surprised that the class is no longer copyable because the compiler has implicitly deleted the copy operations. The developer must then explicitly default the copy operations to restore the desired behavior.",
+  "keywords": [
+    "rule of five",
+    "special member functions",
+    "copy operations",
+    "move operations",
+    "deleted functions",
+    "compiler-generated functions",
+    "resource management"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "110-111",
+  "chapter": "Item 17: Understand the special member function generation rules",
+  "id": "emcpp_core_special_member_function_generation__2002a3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

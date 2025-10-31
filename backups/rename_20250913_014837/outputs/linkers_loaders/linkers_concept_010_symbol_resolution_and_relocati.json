@@ -1,0 +1,39 @@
+{
+  "topic": "Symbol Resolution and Relocation",
+  "explanation": "Symbol resolution is the process of associating symbolic names (like function or variable names) used in source code with their actual memory addresses during the linking process. Relocation involves adjusting memory addresses within an object file to reflect their final locations in the executable's memory space. These are crucial because object files are compiled independently, and the linker needs to resolve the references between them and assign final addresses to code and data segments.",
+  "syntax": "The precise syntax varies depending on the linker and object file format (ELF, COFF, PE), but generally involves symbol table manipulation and relocation entries.  Relocation entries contain information about the address needing modification and the type of adjustment (e.g., adding a base address).",
+  "code_example": [
+    "Idx Name Size VMA LMA File off Algn",
+    "0 .text 0000001c 00000000 00000000 00000020 2**2",
+    "CONTENTS, ALLOC, LOAD, RELOC, CODE",
+    "1 .data 00000000 0000001c 0000001c 0000003c 2**2",
+    "CONTENTS, ALLOC, LOAD, DATA",
+    "Disassembly of section .text:",
+    "00000000 <_a>:",
+    "0: 55 pushl %ebp",
+    "1: 89 e5 movl %esp,%ebp",
+    "3: 53 pushl %ebx",
+    "4: 8b 5d 08 movl 0x8(%ebp),%ebx",
+    "7: 53 pushl %ebx",
+    "8: e8 f3 ff ff ff call 0",
+    "9: DISP32 _strlen",
+    "d: 50 pushl %eax",
+    "e: 53 pushl %ebx",
+    "f: 6a 01 pushl $0x1",
+    "11: e8 ea ff ff ff call 0",
+    "12: DISP32 _write",
+    "16: 8d 65 fc leal -4(%ebp),%esp",
+    "19: 5b popl %ebx",
+    "1a: c9 leave",
+    "1b: c3 ret"
+  ],
+  "example_explanation": "The example shows a section header table (.text and .data) from an object file.  The 'RELOC' flag in the .text section indicates that relocation is necessary. The 'call 0' instructions in the .text section represent calls to external functions (_strlen and _write). During linking, the linker needs to resolve these symbols (_strlen, _write) by finding their addresses in the relevant libraries and then perform relocation to update the 'call 0' instructions with the correct function addresses.  The VMA (Virtual Memory Address), LMA (Load Memory Address) and File off values are all crucial for relocation \u2013  they dictate where sections reside in memory and in the file and are used by the linker/loader for address patching.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "31-32",
+    "extraction_date": "2025-07-13T23:45:54.173768",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "linkers_loaders"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "std::move Failure: Casting, Not Moving",
+  "category": "move",
+  "explanation": "Programmers often assume that invoking `std::move` on an object magically initiates the transfer of resources, guaranteeing an efficient, zero-copy operation. This assumption is fundamentally flawed. In reality, `std::move` is a runtime identity function that performs a single, simple operation: it casts its argument to an rvalue reference. It is purely a compile-time directive, a hint to the compiler that the object *can* be treated as if it were a temporary (an rvalue). The actual 'move' operation\u2014the calling of the move constructor or move assignment operator\u2014is still subject to standard C++ overload resolution rules. The failure occurs when the class lacks a defined move constructor, or when the cast rvalue reference resolves to the copy constructor because the move constructor is implicitly deleted or inaccessible. For example, if a class defines a destructor but not the move operations, those move operations are suppressed. When `std::move` is applied to an instance of that class, the resulting rvalue reference might find the copy constructor (if available) as the best match, silently resulting in an expensive deep copy operation, completely violating the programmer\u2019s performance expectation. Furthermore, because `std::move` only casts, it leaves the source object in a valid but unspecified state. If the programmer mistakenly uses the source object immediately after the move cast without realizing that the underlying move constructor was actually executed (or, worse, that a copy was executed but they still assume the object was emptied), severe bugs such as double deletion or use-after-move can occur. The primary anti-pattern is treating `std::move` as an action verb rather than a type modifier, leading to code that is either inefficient or functionally incorrect due to misplaced faith in the cast.",
+  "code_example": "// Class lacks move constructor (e.g., has user-defined dtor)\nstruct Resource { std::string data; Resource(const Resource&) = default; ~Resource(){} };\n\nResource r;\nauto moved = std::move(r); // Fails to move: Calls copy constructor silently!",
+  "practical_example": "A junior developer applies `std::move` to objects within a critical loop, expecting a major performance boost. Because the third-party library objects used were derived from an older C++ pattern lacking explicit move semantics, the operation devolved into hundreds of unplanned deep copies, causing a system-wide slowdown, detected only through profiling, not compilation errors.",
+  "keywords": [
+    "move semantics",
+    "std::move",
+    "overload resolution",
+    "deep copy",
+    "anti-pattern"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "175-178",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_move_std__move_failure__e400d5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

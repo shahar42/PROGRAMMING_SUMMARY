@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Name Lookup and the Impact of Nested Classes",
+  "explanation": "This delves into the intricacies of C++ name lookup, particularly focusing on how the compiler resolves names within nested classes, impacting both compile time and runtime performance.  The process involves a complex sequence of steps including argument-dependent lookup (ADL), and the order in which different scopes are searched.  Understanding this is crucial for writing efficient and predictable code, avoiding unexpected behavior and subtle bugs related to name hiding and ambiguity.  The compiler's implementation relies on sophisticated symbol tables and potentially optimized search algorithms.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T01:42:42.579083",
+    "book_metadata_added": "2025-10-28T20:22:06.820525"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Container {\n    using Data_T = int;\n    void process(int i) { /* Outer context */ }\n\n    class Nested {\n        // Hiding the outer definition:\n        using Data_T = double;\n\n        void execute(int x);\n    };\n};\n\n// Scope search starts at Nested, then Container, then global.\nvoid Container::Nested::execute(int x) {\n    // 1. Nested::Data_T resolves to double (Hiding)\n    Data_T local_data = 1.0; \n\n    // 2. process() is not in Nested, lookup continues to Container.\n    process(x); // Calls Container::process(int)\n\n    // Explicit access (Bypassing Name Hiding):\n    Container::Data_T outer_int = 5;\n}"
+}

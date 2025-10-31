@@ -1,0 +1,19 @@
+{
+  "topic": "Perfect Forwarding Failure: Generating Massive Template Bloat",
+  "category": "template",
+  "explanation": "The anti-pattern here is the optimization myth surrounding perfect forwarding, specifically the belief that using a universal reference template (`T&&`) always leads to efficient, optimized code paths without significant trade-offs. The reality is that the aggressive instantiation capabilities of universal references cause major code size issues, often referred to as template bloat. Perfect forwarding templates, by design, must instantiate a new function definition for every unique combination of argument types (lvalue vs. rvalue, const vs. non-const, and the underlying concrete type) passed to them. If a function template takes two universal references, the number of potential instantiations grows combinatorially. For widely used library functions or constructors (like `std::make_unique`), this results in the compiler generating massive amounts of redundant machine code across different translation units, even if the internal logic of the function is identical (e.g., just forwarding). This bloat severely impacts compilation times, increases the final executable size, and can lead to increased memory consumption at runtime due to larger instruction caches. The performance gain achieved by perfectly avoiding one copy operation can be entirely negated by the overhead associated with linking and loading an executable bloated with numerous function template instantiations, especially when the forwarding template is complex. This failure constitutes a major system design trade-off where perfect runtime optimization comes at the expense of severe compile-time and executable size degradation.",
+  "code_example": "// T&& causes instantiation for every unique type/reference category combo.\ntemplate<typename T>\nvoid cache_lookup(T&& key) {\n    // Implementation duplicated for int&, const int&, std::string&&, etc.\n    lookup(std::forward<T>(key));\n}",
+  "practical_example": "A large-scale enterprise application uses perfect forwarding constructors heavily across dozens of core wrapper classes to avoid temporary object creation. The build team reports build times that have quadrupled over six months, entirely attributed to the linker and compiler spending excessive time resolving and generating the thousands of redundant, slightly different instantiations of the forwarding templates, leading to severe developer productivity loss.",
+  "keywords": [
+    "template bloat",
+    "perfect forwarding",
+    "instantiation",
+    "compile time",
+    "perf"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "201-203",
+  "chapter": "Item 26: Avoid overloading on universal references",
+  "id": "emcpp_template_perfect_forwarding_failure__generating_5c08e9",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

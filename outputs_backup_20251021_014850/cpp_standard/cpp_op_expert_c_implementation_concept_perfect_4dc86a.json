@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept:  Perfect Forwarding and Universal References",
+  "explanation": "Perfect forwarding efficiently passes arguments to a function template without unnecessary copies or conversions.  This involves understanding how universal references (T&&) interact with lvalue and rvalue references, and how the compiler implements forwarding using rvalue references and std::forward.  Failure to perfectly forward can lead to significant performance penalties and loss of efficiency, especially with move semantics. The compiler's implementation hinges on its ability to deduce the argument's value category (lvalue or rvalue) at compile time and generate specialized code accordingly.  This often involves complex template instantiation and overload resolution. At the assembly level, perfect forwarding can minimize the number of instructions involved in argument passing, by enabling move construction or direct memory manipulation instead of copying.",
+  "syntax": "template <typename T>\nvoid forward_function(T&& param) {\n  // Using std::forward to perfectly forward param\n  some_other_function(std::forward<T>(param));\n}\n\n//Example with lvalue\nint x = 10;\nforward_function(x); // x is passed as lvalue reference\n\n//Example with rvalue\nforward_function(10); // 10 is passed as rvalue reference",
+  "code_example": "#include <iostream>\n#include <utility>\ntemplate <typename T>\nvoid my_function(T&& arg) {\n  std::cout << \"Type: \" << typeid(arg).name() << \"\\n\";\n  // Example:  Do something with arg. Note that move constructor/assignment might be used automatically.\n}\nint main() {\n  int a = 5;\n  my_function(a); // Lvalue reference\n  my_function(10); // Rvalue reference\n  return 0;\n}",
+  "example_explanation": "The compiler generates separate instantiations of `my_function` for each type and value category (lvalue/rvalue). When `my_function(a)` is called, the compiler deduces `T` as `int&` (lvalue reference). When `my_function(10)` is called, `T` is deduced as `int` (rvalue reference). `std::forward` is crucial; without it, `arg` would always be bound as an lvalue, losing move semantics for rvalues.  The assembly code generated will differ based on whether a move or a copy is necessary.  For example, for rvalue arguments, the compiler might generate code for move construction, avoiding the overhead of creating a copy.  Conversely, for lvalue arguments, it would generate code for passing the variable's address and potentially using copy construction within `my_function` if required.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "expressions",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:13:22.713795"
+  }
+}

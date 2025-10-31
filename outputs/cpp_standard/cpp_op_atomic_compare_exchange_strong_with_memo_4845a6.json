@@ -1,35 +1,12 @@
 {
   "topic": "Atomic Compare-Exchange Strong with Memory Orders",
   "explanation": "Atomic compare-exchange operations, such as std::atomic_compare_exchange_strong_explicit, are fundamental for lock-free programming in C++. This feature allows for atomic conditional updates, ensuring thread safety without traditional locks. The compiler implements this by translating the operation into hardware-specific instructions, like CMPXCHG on x86 or CAS on ARM, which perform a read-modify-write cycle atomically. For memory orders (e.g., memory_order_success and memory_order_failure), the compiler inserts appropriate memory barriers or fences to enforce visibility and ordering constraints. Memory_order_success specifies the order for the operation if it succeeds, while memory_order_failure specifies it if it fails, allowing fine-grained control over synchronization.\n\nMemory layout implications include alignment requirements for atomic variables to ensure they can be accessed atomically without tearing. For example, std::atomic<T> typically requires T to be trivially copyable and may use padding or alignment to match hardware word sizes, which can increase memory footprint but reduce false sharing. Performance-wise, using relaxed memory orders (e.g., memory_order_relaxed) minimizes barriers, improving throughput in high-contention scenarios, whereas sequential consistency (memory_order_seq_cst) adds full fences, increasing latency due to cache coherence traffic.\n\nAt the assembly level, the compiler generates a loop that repeatedly checks and updates the value using hardware instructions. For instance, on x86, it might use a CMPXCHG loop with LOCK prefixes for atomicity, followed by MFENCE for seq_cst. Runtime behavior involves actual hardware execution, where memory orders dictate when stores become visible to other cores, potentially involving cache invalidations. In contrast, compile-time behavior includes optimizations like constant propagation for memory order parameters, but the atomic operation itself is resolved at runtime due to potential data races.",
-  "syntax": "template<class T>\nbool std::atomic_compare_exchange_strong_explicit(\n    std::atomic<T>* obj,\n    T* expected,\n    T desired,\n    std::memory_order success,\n    std::memory_order failure\n);\n// Implementation notes: 'obj' must be an atomic object; 'expected' is the value expected in 'obj'; 'desired' is the new value if the exchange succeeds. The compiler ensures atomicity via hardware instructions and inserts barriers based on 'success' and 'failure' memory orders, e.g., for memory_order_seq_cst, it adds full fences.",
-  "code_example": [
-    "#include <atomic>",
-    "#include <iostream>",
-    "#include <thread>",
-    "",
-    "int main() {",
-    "    std::atomic<int> counter(0);",
-    "    int expected = 0;",
-    "    bool success = std::atomic_compare_exchange_strong_explicit(",
-    "        &counter,",
-    "        &expected,",
-    "        1,",
-    "        std::memory_order_seq_cst,  // Success order",
-    "        std::memory_order_seq_cst   // Failure order",
-    "    );",
-    "    if (success) {",
-    "        std::cout << \"Exchange succeeded: \" << counter.load() << std::endl;",
-    "    } else {",
-    "        std::cout << \"Exchange failed: expected was \" << expected << std::endl;",
-    "    }",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this code, std::atomic_compare_exchange_strong_explicit attempts to compare the atomic 'counter' with 'expected' (0) and, if equal, sets it to 'desired' (1). The compiler translates this into a loop in assembly, likely using x86's CMPXCHG instruction with a LOCK prefix for atomicity. For std::memory_order_seq_cst, the compiler inserts full memory barriers (e.g., MFENCE on x86) before and after the operation, ensuring all previous memory operations are visible to other threads, which impacts performance by serializing instructions. If the exchange fails (e.g., another thread modified 'counter'), 'expected' is updated to the actual value, and the failure memory order is applied. Runtime behavior involves hardware-level cache coherence, where seq_cst might flush caches, leading to higher latency compared to relaxed orders. Compile-time, the memory orders are constants, allowing the compiler to optimize barrier insertions without runtime checks, but the actual atomic operation executes at runtime, potentially spinning in a loop until successful.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:26:01.166382"
-  }
+    "extraction_date": "2025-08-19T05:26:01.166382",
+    "book_metadata_added": "2025-10-28T20:22:06.937462"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

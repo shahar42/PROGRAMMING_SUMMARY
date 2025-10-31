@@ -1,36 +1,12 @@
 {
-  "topic": "Template Metaprogramming and Compile-Time Computation",
+  "topic": "TMP via Template Parameters",
   "explanation": "Template metaprogramming (TMP) allows computations to be performed at compile time, leveraging the compiler's ability to generate specialized code based on template parameters.  This contrasts sharply with runtime computations.  The compiler effectively acts as a sophisticated code generator, creating highly optimized code before the program even executes.  Understanding how the compiler handles TMP involves grasping its recursive instantiation capabilities, the implications for code size (potentially larger but faster), and the potential for compile-time errors that might not surface until compilation is complete.  Memory layout is less directly affected by TMP itself but the generated code's memory usage will depend on its optimized nature.  Assembly-level behavior is often highly specialized; analysis requires examining the compiler's output, which is heavily influenced by optimization flags and compiler-specific behavior. Runtime performance benefits hugely as calculations that would normally take place at runtime are pre-calculated, resulting in faster execution.  However, complex TMP can lead to extremely long compile times and potential stack overflow issues during recursive template instantiation.",
-  "syntax": "```c++\ntemplate <std::size_t N>\nstruct Factorial {\n  static constexpr std::size_t value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static constexpr std::size_t value = 1;\n};\n\nint main() {\n  constexpr std::size_t result = Factorial<5>::value; // Computed at compile time\n  std::cout << result << std::endl; // Prints 120\n  return 0;\n}\n```",
-  "code_example": [
-    "#include <iostream>",
-    "#include <cstdint>",
-    "template <std::size_t N>",
-    "struct Fibonacci {",
-    "  static constexpr uint64_t value = Fibonacci<N - 1>::value + Fibonacci<N - 2>::value;",
-    "};",
-    "",
-    "template <>",
-    "struct Fibonacci<0> {",
-    "  static constexpr uint64_t value = 0;",
-    "};",
-    "",
-    "template <>",
-    "struct Fibonacci<1> {",
-    "  static constexpr uint64_t value = 1;",
-    "};",
-    "",
-    "int main() {",
-    "  constexpr uint64_t fib10 = Fibonacci<10>::value;",
-    "  std::cout << \"Fibonacci(10) = \" << fib10 << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example shows a recursive template metaprogram calculating the Fibonacci sequence at compile time.  The compiler recursively instantiates the `Fibonacci` template for each value up to 10.  This results in the compiler generating code to directly store the value of `Fibonacci<10>` without any runtime calculation.  Analyzing the generated assembly would show no runtime instructions for calculating Fibonacci; instead, the value would be loaded directly from a constant memory location.  The trade-off is that compiling this code will take longer, especially for larger values of N, as the compiler does more work at compile time.  The increased compile time is offset by zero runtime cost for calculating Fibonacci(10).",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "library",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T07:47:41.844834"
-  }
+    "extraction_date": "2025-08-19T07:47:41.844834",
+    "book_metadata_added": "2025-10-28T20:22:06.855673"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

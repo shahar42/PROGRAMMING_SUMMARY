@@ -1,0 +1,16 @@
+{
+  "topic": "Move Semantics in Modern C++",
+  "explanation": "Move semantics in modern C++ (introduced in C++11) allow the resources of temporary objects or objects explicitly marked as movable to be transferred rather than copied. This improves performance by avoiding unnecessary deep copies, especially for resource-intensive objects like containers. Move semantics are implemented via move constructors and move assignment operators, which enable efficient transfer of resources from rvalue objects, facilitating optimal resource management and performance in C++ programs.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1257-1257",
+    "extraction_date": "2025-08-27T00:04:02.389929",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.913763"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Buffer {\n    int* ptr;\npublic:\n    Buffer(size_t s) : ptr(new int[s]) {}\n    ~Buffer() { delete[] ptr; }\n\n    // Move Constructor (T(T&&))\n    Buffer(Buffer&& other) noexcept\n        : ptr(other.ptr) {\n        other.ptr = nullptr; // Resource theft complete\n    }\n};\n\n// Move Assignment Operator (T& operator=(T&&))\nBuffer& operator=(Buffer&& other) noexcept {\n    if (this != &other) {\n        delete[] ptr;        // Release current resource\n        ptr = other.ptr;     // Steal resource\n        other.ptr = nullptr; // Nullify source\n    }\n    return *this;\n}\n\n// Function accepting an rvalue reference\nvoid sink(std::vector<int>&& temp_vec) {\n    // temp_vec is guaranteed to be an rvalue\n    // Internal resources can be safely moved\n}\n\nstd::vector<int> large_vec(1000);\nstd::vector<int> other_vec;\n\n// Explicitly invoke move semantics\nother_vec = std::move(large_vec);\n\n// Pass to sink (consumes the resource)\nsink(std::move(other_vec));\n<ctrl63>",
+  "keywords": "Move Semantics, Rvalue reference, std::move, C++ move constructor"
+}

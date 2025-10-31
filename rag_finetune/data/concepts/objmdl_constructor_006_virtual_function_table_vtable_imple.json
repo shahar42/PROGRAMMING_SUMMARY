@@ -1,0 +1,19 @@
+{
+  "topic": "vtable Implementation with Inheritance and Dispatch",
+  "explanation": "In C++, when a class declares or inherits virtual functions, the compiler creates a virtual function table (vtable) for that class. The vtable is a runtime data structure that enables dynamic dispatch, allowing the program to invoke the correct function implementation based on the actual object type at runtime. Internally, each polymorphic object contains a pointer to its class's vtable, which the compiler manages during object construction, destruction, and function calls. This mechanism is fundamental to supporting runtime polymorphism, enabling the correct function to be called even when accessed through a base class pointer or reference.",
+  "extraction_metadata": {
+    "source": "Inside the C++ Object Model by Stanley B. Lippman",
+    "page_range": "102-103",
+    "extraction_date": "2025-09-17T15:08:21.516474",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "Inside_the_C++_Object_Model",
+    "chapter": "constructor",
+    "extraction_type": "advanced_implementation",
+    "focus": "compiler_internals_and_memory_layout",
+    "book_metadata_added": "2025-10-28T20:22:06.678747"
+  },
+  "book": "Inside the C++ Object Model by Stanley B. Lippman",
+  "code_example": "class Base {\npublic:\n    // Virtual functions initiate the VTABLE structure\n    virtual void common_call() {} \n    virtual void base_only() {}\n};\n\nclass Derived : public Base {\npublic:\n    // Overriding changes the VTABLE entry for common_call\n    void common_call() override {}\n};\n\n// Runtime Dispatch\nDerived d;\n// Base pointer holds derived object's VTABLE pointer (vptr)\nBase* ptr = &d; \n\n// Dynamic Dispatch: calls Derived::common_call via vptr lookup\nptr->common_call(); \n\n// Dynamic Dispatch: calls Base::base_only (inherited vtable entry)\nptr->base_only();\n\n// Static Dispatch (known at compile time)\n// d.base_only();\n// ptr->Base::base_only();",
+  "keywords": "vtable, Dynamic dispatch, Virtual function table, vptr"
+}

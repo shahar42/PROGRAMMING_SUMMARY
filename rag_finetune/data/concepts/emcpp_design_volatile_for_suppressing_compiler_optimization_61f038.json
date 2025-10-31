@@ -1,0 +1,13 @@
+{
+  "topic": "volatile for Suppressing Compiler Optimization on Special Memory",
+  "category": "design",
+  "explanation": "Assumption: `volatile` provides thread synchronization guarantees or ensures memory visibility across threads. Reality: `volatile` is a mechanism unrelated to standard C++ concurrency. Its sole purpose is to instruct the compiler that a variable's value can be changed by external factors (like hardware or signal handlers) and that all reads and writes must be performed exactly as written in the source code. This prevents the compiler from caching values in registers or optimizing away redundant memory access. It is a tool for working with special memory (e.g., memory-mapped hardware registers), not a concurrency primitive.",
+  "code_example": "// Used for accessing a memory-mapped hardware register\nvolatile int* sensor_register = (int*)0xDEADBEEF;\nint reading = *sensor_register; // Compiler must reread memory",
+  "practical_example": "Interfacing with embedded systems or hardware devices where memory-mapped registers change state asynchronously. Misusing `volatile` for general shared data access in multi-threaded applications will fail to prevent race conditions.",
+  "keywords": "volatile compiler optimization, Memory-mapped I/O C++, volatile thread safety, C++ volatile keyword",
+  "difficulty": "intermediate",
+  "page_reference": "289-297",
+  "chapter": "Item 40: Differentiate std::atomic and volatile",
+  "id": "emcpp_design_volatile_for_suppressing_compiler_optimization_61f038",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

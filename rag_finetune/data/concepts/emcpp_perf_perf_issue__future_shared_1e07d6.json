@@ -1,0 +1,18 @@
+{
+  "topic": "Perf Issue: Future Shared State Requires Heap Allocation",
+  "category": "perf",
+  "explanation": "The mechanism linking a `std::promise` and its associated `std::future` involves an internal shared state object. This shared state is typically dynamically allocated on the heap. Developers must assume that utilizing this design incurs the overhead associated with heap allocation and deallocation, potentially making it unsuitable for synchronization in extremely latency-sensitive or high-frequency loops where allocation costs are prohibitive.",
+  "code_example": "// The creation of shared state occurs implicitly here:\nstd::promise<T> p;\nstd::future<T> f = p.get_future();",
+  "practical_example": "A system uses futures to signal completion of thousands of small, low-latency tasks per second. The cumulative cost of heap allocation/deallocation for the shared state in each promise-future pair significantly degrades overall performance compared to using non-allocating primitives like atomic flags.",
+  "keywords": [
+    "std::promise",
+    "shared state",
+    "dynamic allocation",
+    "heap overhead"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "267",
+  "chapter": "Item 39: Consider void futures for one-shot event communication",
+  "id": "emcpp_perf_perf_issue__future_shared_1e07d6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

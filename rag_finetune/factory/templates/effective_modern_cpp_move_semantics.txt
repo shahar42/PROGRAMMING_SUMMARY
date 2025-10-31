@@ -1,0 +1,62 @@
+You are a C++ expert extracting move semantics ANTI-PATTERNS from "Effective Modern C++" by Scott Meyers (Items 23-30, pages 175-232).
+
+## CRITICAL: Focus on FAILURES and ANTI-PATTERNS
+Scott Meyers DEBUNKS move semantics myths. Extract what DOESN'T work, when moves FAIL, what assumptions are WRONG.
+
+## Topic Naming Patterns
+- "Move Operations [Limitation/Failure]"
+- "Perfect Forwarding Failure with [Case]"
+- "Universal References [Specific Behavior]"
+- "Move Semantics Assumptions versus Reality"
+- "Overloading Universal References [Problem]"
+
+## Categories
+move, forward, template, perf, type, design
+
+## EXACT Concept Counts (MANDATORY)
+- std::move/std::forward (175-182): EXACTLY 3 concepts
+- Universal vs rvalue refs (182-186): 1-2 concepts
+- Move/forward pattern (186-195): 1-2 concepts
+- Overloading universal refs (195-205): EXACTLY 6 concepts
+- Alternatives (205-215): EXACTLY 3 concepts
+- Reference collapsing (215-221): 1-2 concepts
+- Move assumptions (221-232): 7-8 concepts
+
+## Output Format (JSON only)
+
+EXAMPLE 1 - Perfect anti-pattern concept from successful extraction:
+{
+  "topic": "The `std::move` Myth: It Doesn't Move",
+  "category": "move",
+  "explanation": "Assumption: Calling `std::move(x)` performs an action that physically relocates the resources of `x`, making it the engine of move semantics. Reality: `std::move` is merely a standard library function template that performs an unconditional static cast of its argument to an rvalue reference. It generates zero executable code at runtime. Why It Fails: The failure stems from assuming `std::move` *guarantees* a move operation. It only facilitates the compiler's choice of an overload that accepts an rvalue reference. If the destination context only accepts a copy (e.g., if a receiving function only has a copy constructor, or the type being moved is constant), the operation resolves to a copy, completely defeating the purpose of the call. The anti-pattern is using `std::move` as a command rather than a casting hint, leading to incorrect performance estimations when fallback occurs.",
+  "code_example": "// Calling move on a non-movable type still results in copy\nclass NonMovable { public: NonMovable(const NonMovable&); };\nNonMovable nm1; \nNonMovable nm2(std::move(nm1)); // Falls back to copy ctor",
+  "practical_example": "A developer places `std::move` on an argument passed to a black-box third-party library function, expecting zero-copy transfer. If that function internally relies on a type lacking move semantics, the library incurs significant hidden copy overhead.",
+  "keywords": ["std::move", "cast only", "no runtime effect", "move semantics assumption"],
+  "difficulty": "beginner",
+  "page_reference": "175-177",
+  "chapter": "Item 23: Understand std::move and std::forward"
+}
+
+EXAMPLE 2 - Universal reference failure pattern:
+{
+  "topic": "Universal References Failure: Named Parameters are Lvalues",
+  "category": "type",
+  "explanation": "Assumption: If a function parameter is declared using the rvalue reference syntax (`T&&`), then its name within the function body should be treated as an rvalue, allowing subsequent efficient moves. Reality: This is one of the most fundamental pitfalls in C++. C++ rules dictate that any named variable, regardless of its declared type (lvalue reference, rvalue reference, or universal reference), is an lvalue within its local scope. Why It Fails: If a resource-owning parameter is passed to a downstream function using its plain name, the compiler sees an lvalue. This lvalue binds only to copy semantics (lvalue reference overloads) in the downstream function, preventing the selection of the move constructor/assignment operator that might exist. To trigger move semantics inside the function, the parameter must be explicitly cast to an rvalue using `std::move` (if it is the final use) or `std::forward` (if it is a universal reference being forwarded). Failure to apply the necessary cast leads to unexpected and inefficient copying.",
+  "code_example": "// 'param' is an lvalue inside the function body\ntemplate<typename T> void wrapper(T&& param) {\n  process(param); // Calls copy overload if available\n  // Must use: process(std::forward<T>(param));\n}",
+  "practical_example": "A developer writes a generic logging function that accepts a universal reference and then passes the parameter to an internal processing queue. Since they failed to use `std::forward`, every message, even if passed as a temporary rvalue, is unnecessarily copied before being processed.",
+  "keywords": ["lvalue rule", "named variable", "universal references", "std::move necessity"],
+  "difficulty": "beginner",
+  "page_reference": "175, 178",
+  "chapter": "Item 23: Understand std::move and std::forward"
+}
+
+Return ONLY a JSON array of concepts following these examples.
+
+## Extraction Structure: ANTI-PATTERN FOCUS
+1. The Assumption (what programmers think)
+2. The Reality (what actually happens)
+3. Why It Fails (technical reasons)
+4. Detection/Impact (how to spot it)
+5. Workarounds (what to do instead)
+
+Extract concepts showing what BREAKS, not what works.

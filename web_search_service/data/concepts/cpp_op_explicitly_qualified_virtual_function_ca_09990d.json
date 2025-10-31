@@ -1,0 +1,14 @@
+{
+  "topic": "Explicitly Qualified Virtual Function Calls and Compiler Optimization",
+  "explanation": "When a virtual function is called using explicit qualification with the scope resolution operator `::`, the compiler bypasses the virtual function mechanism (vtable lookup). This impacts runtime performance and memory layout.  The compiler can perform significant optimizations because the call target is known at compile time, unlike a regular virtual function call where the target is determined at runtime. This contrasts with unqualified virtual function calls, which rely on runtime polymorphism and involve indirect calls through the vtable.  Understanding this distinction is crucial for performance tuning and advanced C++ design, particularly in performance-critical sections of code.\n\nThe compiler's implementation involves directly emitting a call instruction to the specified function's address in the generated assembly code. This eliminates the overhead of the vtable lookup and the associated indirect function call. The memory layout remains unchanged; the vtable is still present, but it is not utilized in the execution path for the explicitly qualified virtual function call. The difference in runtime vs compile-time behavior is critical here: compile-time resolution vs. runtime resolution of the function call target.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:05:46.311965",
+    "book_metadata_added": "2025-10-28T20:22:06.918249"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class Base {\n    virtual void process() { /* Base implementation */ }\n};\n\nclass Derived : public Base {\n    void process() override { /* Derived implementation */ }\n    void call_modes() {\n        // Standard virtual call: Requires VTable lookup at runtime\n        // Target: Derived::process()\n        process();\n\n        // Explicit Qualification: Direct static call to specific target\n        // Target: Base::process(). VTable bypassed.\n        // Compiler optimization possible (known address at compile time).\n        Base::process();\n    }\n};",
+  "keywords": "explicitly qualified virtual call, bypass vtable lookup, static virtual function call"
+}

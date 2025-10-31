@@ -1,0 +1,16 @@
+{
+  "topic": "Cache Optimization Techniques",
+  "explanation": "Cache optimization techniques aim to improve program performance by maximizing the use of the CPU cache hierarchy (L1, L2, L3 caches).  Efficient cache usage minimizes the time-consuming access to main memory.  Strategies involve understanding data access patterns and restructuring code or data to promote temporal and spatial locality.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "524-524",
+    "extraction_date": "2025-07-27T17:46:54.428540",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.722423"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Spatial Locality: Preferred Access Order\n// C/C++ arrays are row-major (last index is contiguous)\n#define N 1024\nint M[N][N];\n\n// GOOD: Stride 1 (j varies fast)\nfor (int i = 0; i < N; i++)\n    for (int j = 0; j < N; j++)\n        M[i][j]++;\n\n// BAD: Stride N (i varies fast, large cache misses)\nfor (int j = 0; j < N; j++)\n    for (int i = 0; i < N; i++)\n        M[i][j]++;\n\n// Temporal Locality: Loop Tiling (Blocking)\n// Maximizes reuse of A and B before eviction\n#define TILE_SIZE 32\n\nfor (int ii = 0; ii < N; ii += TILE_SIZE)\n    for (int jj = 0; jj < N; jj += TILE_SIZE)\n        for (int kk = 0; kk < N; kk += TILE_SIZE)\n            for (int i = ii; i < ii + TILE_SIZE; i++)\n                for (int j = jj; j < jj + TILE_SIZE; j++)\n                    for (int k = kk; k < kk + TILE_SIZE; k++)\n                        C[i][j] += A[i][k] * B[k][j];\n\n// Data Alignment: Preventing False Sharing (C++11/17)\n#define CACHE_LINE_SIZE 64\n\n// Variables placed on separate cache lines\nstruct AlignedVars {\n    alignas(CACHE_LINE_SIZE) long counter1; // Accessed by Thread A\n    alignas(CACHE_LINE_SIZE) long counter2; // Accessed by Thread B\n};\n\n// Data Structure Layout: Array of Structures (AoS) vs. Structure of Arrays (SoA)\n// SoA generally improves spatial locality if only a few fields are used\nstruct PointAoS { float x, y, z; int id; };\nPointAoS points_aos[100]; // Bad locality if only accessing 'z'\n\nstruct PointsSoA {\n    float x[100];\n    float y[100];\n    float z[100]; // Good spatial locality if only z is used\n    int id[100];\n};\n<ctrl63>",
+  "keywords": "CPU cache performance, Data locality, Cache efficiency, Cache aware programming"
+}

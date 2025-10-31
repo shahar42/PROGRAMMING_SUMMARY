@@ -1,0 +1,15 @@
+{
+  "topic": "fork() System Call",
+  "explanation": "fork() creates a new process by duplicating the calling process. The new process, referred to as the child, is an exact duplicate except for specific attributes like process ID and parent ID, and both run in separate memory spaces.\n\n**Common Errors:**\n- `EAGAIN`: A system-imposed limit on the number of threads was encountered, such as RLIMIT_NPROC, kernel threads-max, or PID limits.\n- `EAGAIN`: The caller is operating under the SCHED_DEADLINE scheduling policy without the reset-on-fork flag set.\n- `ENOMEM`: fork() failed to allocate necessary kernel structures due to memory constraints.\n- `ENOMEM`: An attempt was made to create a child process in a PID namespace whose 'init' process has terminated.\n- `ENOSYS`: fork() is not supported on this platform, such as hardware without a Memory-Management Unit.\n\n**Related System Calls:** `clone()`, `execve()`, `exit()`, `setrlimit()`, `unshare()`, `vfork()`, `wait()`, `daemon()`",
+  "syntax": "pid_t fork(void);",
+  "code_example": "#include <signal.h>\n#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n\nint main(void) {\n    pid_t pid;\n    if (signal(SIGCHLD, SIG_IGN) == SIG_ERR) {\n        perror(\"signal\");\n        exit(EXIT_FAILURE);\n    }\n    pid = fork();\n    switch (pid) {\n        case -1:\n            perror(\"fork\");\n            exit(EXIT_FAILURE);\n        case 0:\n            puts(\"Child exiting.\");\n            exit(EXIT_SUCCESS);\n        default:\n            printf(\"Child is PID %jd\\n\", (intmax_t) pid);\n            puts(\"Parent exiting.\");\n            exit(EXIT_SUCCESS);\n    }\n}",
+  "example_explanation": "This example demonstrates the basic usage of the fork() system call. returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.118721",
+    "syscall_name": "fork",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fork.json",
+    "concept_id": "posix_sys_fork_51e6d5"
+  }
+}

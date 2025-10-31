@@ -1,0 +1,25 @@
+{
+  "topic": "System Calls and ECF: Network and Disk Access",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow programs to request services from the kernel, such as accessing hardware resources (network, disk), managing memory, or interacting with other processes. Exceptional control flow refers to how the program's execution path changes due to events outside the normal sequential flow, like system calls, interrupts, and signals.  Understanding this interaction is crucial for writing efficient and reliable systems programs.\n\nSystem calls provide an interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing hardware, managing files, or creating processes. Exceptional control flow refers to the changes in a program's execution due to events outside the normal flow of instructions, such as system calls, interrupts, and exceptions. Understanding how these mechanisms work is crucial for building robust and efficient systems-level programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "959-959",
+    "extraction_date": "2025-07-29T14:00:23.922196",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-29T15:41:04.149706",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "1004-1004",
+      "extraction_date": "2025-07-29T15:40:56.927158",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8713582754135132,
+    "book_metadata_added": "2025-10-28T20:22:06.702052"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "int fd = open(\"data.txt\", O_RDWR | O_CREAT, 0666); // 1. Syscall Trap\nif (fd < 0) { /* handle error */ }\n\nchar buffer[100];\nssize_t n = read(fd, buffer, 100); // 2. Kernel reads disk block\n\n// After read completes, CPU returns to user mode\nif (n == -1) {\n    if (errno == EINTR) { // ECF: Signal delivery interrupted\n        // Must typically restart the read()\n    }\n}\nclose(fd);\n\nint sockfd = socket(AF_INET, SOCK_STREAM, 0);\n\n// Syscall blocks process until connection established\nif (connect(sockfd, (SA*)&servaddr, len) < 0) {\n    // Syscall failure\n}\n\n// Data transfer syscalls\nsend(sockfd, \"request\", 7, 0);\nrecv(sockfd, buffer, 100, 0);\n\nshutdown(sockfd, SHUT_RDWR); // Graceful close\nclose(sockfd);"
+}

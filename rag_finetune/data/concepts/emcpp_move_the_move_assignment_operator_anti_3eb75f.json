@@ -1,0 +1,13 @@
+{
+  "topic": "The Move Assignment Operator Anti-Pattern (Inefficient Self-Move)",
+  "category": "move",
+  "explanation": "Assumption: If a move assignment operator (`operator= (T&&)`) is defined, it is implicitly safe against self-assignment because rvalues are typically temporaries and cannot alias `*this`. Reality: While true that rvalue temporaries rarely alias `*this`, a user can explicitly force self-assignment using `x = std::move(x);`. Furthermore, if the assignment operator is implemented inefficiently (e.g., using a resource swap technique that fails to check aliasing) or if the move assignment operator delegates to the copy-and-swap idiom, resource corruption or unnecessary work can occur. Why It Fails: If the move assignment is implemented without defensive checks, moving resources from an object to itself results in the destruction of the resources before they can be re-assigned, leading to undefined behavior or crashes. Even if implemented correctly, if the operator delegates back to copy-and-swap, the internal mechanism involves a temporary copy, which defeats the purpose of the move assignment efficiency for the explicit self-move case. Defensive programming requires either an explicit check or a strictly non-aliasing implementation.",
+  "code_example": "// Explicit self-move results in error if not checked\nWidget& Widget::operator=(Widget&& rhs) {\n  if (this == &rhs) return *this; // Necessary defensive check\n  // ... unsafe move logic if check is skipped\n}",
+  "practical_example": "A framework executes cleanup logic where objects are occasionally assigned to themselves via generic cleanup wrappers that utilize `std::move`. The lack of a defensive self-assignment check in the move operator leads to intermittent crashes in the production environment.",
+  "keywords": "C++ self-move check, move assignment self-assignment, inefficient move operator, std::move aliasing",
+  "difficulty": "intermediate",
+  "page_reference": "200-201, 231",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_move_the_move_assignment_operator_anti_3eb75f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

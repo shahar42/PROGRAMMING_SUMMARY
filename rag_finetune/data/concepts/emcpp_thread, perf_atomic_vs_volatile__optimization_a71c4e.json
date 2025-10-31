@@ -1,0 +1,18 @@
+{
+  "topic": "Atomic vs Volatile: Optimization Prevention Mismatch",
+  "category": "thread, perf",
+  "explanation": "Assumption: Declaring a variable `volatile` is sufficient to protect it from unwanted compiler optimizations in a concurrent environment, thus preventing data races. Reality: `volatile` only addresses optimizations based on the *single-threaded* abstract machine model (e.g., preventing the caching of variables for hardware access). It provides zero guarantees regarding atomicity or synchronization between threads. Why It Fails: Compilers perform optimizations (like instruction reordering or register caching) that are valid in the absence of data races. When data races are present, these optimizations\u2014unhindered by `volatile`\u2014lead to unpredictable and incorrect behavior. `std::atomic` is necessary for concurrency because it provides the necessary memory ordering and atomicity guarantees that `volatile` lacks.",
+  "code_example": "// Volatile fails to ensure atomicity in concurrent access\nvolatile int counter = 0;\n// Thread 1: counter++; \n// Thread 2: counter++; // Data race, outcome unpredictable",
+  "practical_example": "A developer uses a `volatile bool` flag to signal that a computation is complete between two threads, expecting the second thread to wait for the flag flip. Due to compiler reordering optimizations, the second thread may read an old value, or the first thread's writes may not be visible in the expected order, causing a concurrency failure.",
+  "keywords": [
+    "volatile failure",
+    "data race",
+    "compiler optimization",
+    "atomic necessity"
+  ],
+  "difficulty": "expert",
+  "page_reference": "295-297",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread, perf_atomic_vs_volatile__optimization_a71c4e",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

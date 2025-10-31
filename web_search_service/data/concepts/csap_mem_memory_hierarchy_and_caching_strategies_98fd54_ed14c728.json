@@ -1,0 +1,20 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies (Segregated Fits Allocation)",
+  "explanation": "Segregated fits is a dynamic memory allocation strategy that partitions the heap's free space into multiple distinct free lists, known as size classes or buckets. Each list manages memory blocks within a specific, predefined size range. Upon an allocation request, the allocator directly indexes the appropriate size class list, bypassing the need to traverse the entire heap structure. This targeted approach dramatically reduces the search time complexity for a suitable block, minimizing allocation latency and mitigating external fragmentation compared to simple linear search algorithms like first-fit or best-fit.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "889-890",
+    "extraction_date": "2025-07-29T11:00:15.798196",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.721527",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:20:21",
+    "original_length": 371,
+    "refined_length": 619
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "#define NUM_SIZE_CLASSES 16\n\n// Structure used only when the memory chunk is free\ntypedef struct FreeChunk {\n    struct FreeChunk* next; // Pointer to the next free chunk in this bin\n    size_t size;            // Total size of the chunk (including header)\n} FreeChunk;\n\n// The segregated free lists (The Bins)\n// Index i holds the head of the list for size class i.\nFreeChunk* SegregatedBins[NUM_SIZE_CLASSES];\n\n// Defines how requested size maps to a specific bin (size class)\n// Typically logarithmic or based on powers of 2 (e.g., 8, 16, 32...)\nint map_size_to_bin_index(size_t requested_size);\n\nvoid* allocate(size_t s) {\n    int index = map_size_to_bin_index(s);\n    FreeChunk* block = SegregatedBins[index];\n    // Search only the list pointed to by SegregatedBins[index]\n    if (block) {\n        SegregatedBins[index] = block->next;\n        // Return payload address (block + sizeof(header))\n        return (void*)block;\n    }\n    return NULL; // Request block from OS (if bins empty)\n}",
+  "keywords": "Segregated fits, Size class allocation, Segregated free lists, Bucket allocation"
+}

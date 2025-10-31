@@ -1,0 +1,25 @@
+{
+  "topic": "Process Creation and Execution (fork() and execve()): Fundamentals",
+  "explanation": "In operating systems, a program is a passive entity \u2013 a collection of code and data.  A process, however, is an active instance of a program running within the context of the operating system.  `fork()` and `execve()` are system calls that manage process creation and execution, crucial for multitasking and efficient resource utilization within a computer system.  Understanding these calls is key to building robust and interactive applications.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "779-779",
+    "extraction_date": "2025-07-28T12:28:59.557781",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "merged_on": "2025-07-28T12:29:10.685501",
+    "merged_from": {
+      "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+      "page_range": "779-780",
+      "extraction_date": "2025-07-28T12:29:09.893875",
+      "has_code": true,
+      "has_explanation": true,
+      "book_context": "csapp_systems"
+    },
+    "merge_similarity_score": 0.8647529482841492,
+    "book_metadata_added": "2025-10-28T20:22:06.699132"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "pid_t pid = fork();\n\n// Handle fork failure\nif (pid == -1) {\n    perror(\"fork\");\n    exit(EXIT_FAILURE);\n}\n\n// Child Process\nif (pid == 0) {\n    // Child executes first block\n    printf(\"I am the child process (PID: %d)\\n\", getpid());\n    _exit(0); // Use _exit() after fork()\n}\n\n// Parent Process\nif (pid > 0) {\n    int status;\n    printf(\"I am the parent process (PID: %d), waiting...\\n\", getpid());\n    waitpid(pid, &status, 0);\n}\n***\n// Preparation for execve()\nchar *const argv[] = {\"/bin/date\", \"+%T\", NULL};\nchar *const envp[] = {\"PATH=/bin:/usr/bin\", NULL};\nconst char *path = \"/bin/date\";\n\n// Replace the current process image\nexecve(path, argv, envp);\n\n// execve() only returns if an error occurred\nperror(\"execve failed\");\nexit(EXIT_FAILURE);\n***\n// Common shell pattern: fork() then execve()\npid_t pid = fork();\n\nif (pid == 0) {\n    // Child: Replace itself with a new program\n    char *const args[] = {\"/bin/ls\", \"-l\", \"/tmp\", NULL};\n    execve(args[0], args, NULL);\n\n    // Should not reach here\n    _exit(127);\n} else if (pid > 0) {\n    // Parent: Wait for the child to finish\n    wait(NULL);\n}"
+}

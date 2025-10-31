@@ -1,0 +1,15 @@
+{
+  "topic": "mprotect() System Call",
+  "explanation": "mprotect() changes the access protections for the calling process's memory pages in the specified address range. The address must be aligned to a page boundary. If access violates the protections, the kernel generates a SIGSEGV signal for the process.\n\n**Parameters:**\n- `addr` (void*): Starting address of the memory region to protect, must be aligned to a page boundary\n- `len` (size_t): Length of the memory region in bytes\n- `prot` (int): Bitwise OR of protection flags such as PROT_READ, PROT_WRITE, PROT_EXEC, PROT_NONE, PROT_SEM, PROT_SAO, PROT_GROWSUP, or PROT_GROWSDOWN\n- `pkey` (int): Protection key for pkey_mprotect(), must be allocated with pkey_alloc(2)\n\n**Common Errors:**\n- `EACCES`: The memory cannot be given the specified access, e.g., trying to make a read-only file writable\n- `EINVAL`: addr is not a valid pointer or not a multiple of the system page size\n- `EINVAL`: pkey has not been allocated with pkey_alloc(2) for pkey_mprotect()\n- `EINVAL`: Both PROT_GROWSUP and PROT_GROWSDOWN were specified in prot\n- `EINVAL`: Invalid flags specified in prot\n\n**Related System Calls:** `mmap()`",
+  "syntax": "int mprotect(void *addr, size_t len, int prot);",
+  "code_example": "#include <malloc.h>\n#include <signal.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <sys/mman.h>\n#include <unistd.h>\nstatic char *buffer;\nstatic void handler(int sig, siginfo_t *si, void *unused) {\n    printf(\"Got SIGSEGV at address: %p\\n\", si->si_addr);\n    exit(EXIT_FAILURE);\n}\nint main(void) {\n    int pagesize;\n    struct sigaction sa;\n    sa.sa_flags = SA_SIGINFO;\n    sigemptyset(&sa.sa_mask);\n    sa.sa_sigaction = handler;\n    if (sigaction(SIGSEGV, &sa, NULL) == -1) handle_error(\"sigaction\");\n    pagesize = sysconf(_SC_PAGE_SIZE);\n    if (pagesize == -1) handle_error(\"sysconf\");\n    buffer = memalign(pagesize, 4 * pagesize);\n    if (buffer == NULL) handle_error(\"memalign\");\n    printf(\"Start of region: %p\\n\", buffer);\n    if (mprotect(buffer + pagesize * 2, pagesize, PROT_READ) == -1) handle_error(\"mprotect\");\n    for (char *p = buffer; ; ) *(p++) = 'a';\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the basic usage of the mprotect() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.251424",
+    "syscall_name": "mprotect",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_mprotect.json",
+    "concept_id": "posix_sys_mprotect_ae78d5"
+  }
+}

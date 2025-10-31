@@ -1,29 +1,12 @@
 {
   "topic": "std::string's insert() method implementation and optimization strategies",
   "explanation": "The `std::string::insert()` method offers several overloads, each presenting unique implementation challenges and optimization opportunities.  Understanding its behavior requires delving into memory management, allocator interactions, and compiler optimizations.  The compiler's choices in implementing these overloads significantly impact performance, particularly with frequent insertions or large strings.  Different compilers (like GCC, Clang, MSVC) may employ diverse strategies, resulting in varying performance characteristics.",
-  "syntax": "Several overloads exist, including:\n\n`basic_string& insert(size_type pos, const basic_string& str);`\n`basic_string& insert(size_type pos, const charT* s, size_type n);`\n`basic_string& insert(size_type pos, size_type n, charT c);`\n`iterator insert(const_iterator p, charT c);`\n\nImplementation notes: The choice of allocator (e.g., the standard allocator or a custom allocator) affects memory allocation and deallocation strategies.  The compiler might utilize inlining for smaller insertions and utilize optimized memory copy functions (like `memcpy` or `memmove`) for larger ones.  Exception safety is paramount, ensuring proper memory cleanup in case of exceptions during allocation or copying.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <string>",
-    "#include <chrono>",
-    "#include <algorithm>",
-    "int main() {",
-    "  std::string str = \"abcdefghijklmnopqrstuvwxyz\";",
-    "  auto start = std::chrono::high_resolution_clock::now();",
-    "  for (int i = 0; i < 100000; ++i) {",
-    "    str.insert(0, \"x\"); // Insertion at the beginning \u2013 performance-critical",
-    "  }",
-    "  auto end = std::chrono::high_resolution_clock::now();",
-    "  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);",
-    "  std::cout << \"Time taken by insert(0, \"x\"): \" << duration.count() << \" microseconds\" << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "This example demonstrates the performance impact of inserting at the beginning of the string.  Insertion at the beginning requires shifting all existing characters, resulting in O(n) complexity.  The compiler might optimize this using specialized memory management techniques or by using a different underlying string representation (e.g., a rope data structure) to mitigate this cost. Examining the generated assembly code (using compiler flags like -S with g++) reveals how the compiler handles memory allocation, copying, and shifting operations.  Profiling the code across different compilers can expose compiler-specific optimizations and their impact on performance.  Comparing the performance of insertion at the beginning versus insertion at the end (which can often be O(1) if sufficient capacity exists) highlights the significance of insertion position on efficiency.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "library",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T06:02:05.217860"
-  }
+    "extraction_date": "2025-08-19T06:02:05.217860",
+    "book_metadata_added": "2025-10-28T20:22:06.819454"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

@@ -1,44 +1,12 @@
 {
-  "topic": "RAII (Resource Acquisition Is Initialization) for Resource Management",
+  "topic": "RAII Tying Resources to Object Lifetimes",
   "explanation": "RAII is a fundamental C++ idiom that ties the lifetime of a resource to the lifetime of an object. In practical terms, resources (like file handles, network connections, or mutexes) are acquired in a object's constructor and released in its destructor. This ensures that resources are automatically and reliably cleaned up when the object goes out of scope, even if an exception occurs. In real-world scenarios, such as managing database connections or file I/O, RAII prevents resource leaks, reduces error-prone manual cleanup, and promotes exception-safe code. Best practices include using standard library tools like std::unique_ptr or std::lock_guard for automatic management, avoiding raw pointers, and always preferring RAII over explicit release calls to minimize bugs.",
-  "syntax": "A basic RAII class structure:\nclass ResourceGuard {\npublic:\n    ResourceGuard() { /* Acquire resource, e.g., open a file or connection */ }\n    ~ResourceGuard() { /* Release resource, e.g., close the file or connection */ }  // Automatically called on scope exit\n    // Note: Make the class non-copyable if the resource doesn't support copying, e.g., by deleting copy constructor and assignment operator.\n    ResourceGuard(const ResourceGuard&) = delete;\n    ResourceGuard& operator=(const ResourceGuard&) = delete;\n};\nPractical usage: Instantiate the object in a scope where the resource is needed; the destructor handles cleanup, ensuring resources are released even on exceptions.",
-  "code_example": [
-    "#include <iostream>",
-    "#include <exception>",
-    "",
-    "class Connection {  // RAII class for managing a connection",
-    "public:",
-    "    Connection() {",
-    "        std::cout << \"Connection opened\";  // Simulate acquiring a resource",
-    "    }",
-    "    ~Connection() {",
-    "        std::cout << \"Connection closed\";  // Ensure resource is released",
-    "    }",
-    "    // Delete copy operations to prevent accidental copies",
-    "    Connection(const Connection&) = delete;",
-    "    Connection& operator=(const Connection&) = delete;",
-    "};",
-    "",
-    "void f() {",
-    "    Connection conn;  // Resource acquired here",
-    "    std::cout << \"Performing operations...\";",
-    "    throw std::runtime_error(\"An error occurred\");  // Simulate an exception",
-    "}",
-    "",
-    "int main() {",
-    "    try {",
-    "        f();  // Function might throw",
-    "    } catch (const std::exception& e) {",
-    "        std::cout << \"Exception caught: \" << e.what();",
-    "    }",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "This code demonstrates RAII in a real-world scenario, such as managing a network connection. The Connection object is created in function f(), acquiring the resource in its constructor. When f() exits\u2014either normally or due to the thrown exception\u2014the destructor of Connection automatically closes the resource, preventing leaks. In practice, this pattern is ideal for scenarios like file handling or database operations, where failures could leave resources open. Best practices: Use RAII to make code exception-safe and idiomatic; leverage standard library classes (e.g., std::unique_ptr for pointers) to avoid manual memory management. Common pitfalls include forgetting to handle exceptions in manual cleanup code, which RAII avoids, or making RAII classes copyable when they shouldn't be, leading to double resource release\u2014mitigate this by explicitly deleting copy operations as shown.",
   "extraction_metadata": {
     "source": "C++ Primer (5th Edition)",
     "chapter": "statements",
     "extraction_type": "practical_programming",
-    "extraction_date": "2025-08-20T04:56:20.222572"
-  }
+    "extraction_date": "2025-08-20T04:56:20.222572",
+    "book_metadata_added": "2025-10-28T20:22:06.550124"
+  },
+  "book": "C++ Primer (5th Edition)"
 }

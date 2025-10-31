@@ -1,0 +1,15 @@
+{
+  "topic": "Concurrency in C",
+  "explanation": "Concurrency in C refers to the ability to execute multiple tasks simultaneously, which is useful for improving program efficiency, responsiveness, and utilizing multi-core processors. It is achieved through mechanisms like threads, allowing different parts of a program to run independently without blocking each other.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "3-3",
+    "extraction_date": "2025-07-13T00:42:42.222941",
+    "has_code": false,
+    "has_explanation": false,
+    "book_metadata_added": "2025-10-28T20:22:06.802818"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "void* task(void* arg) {\n    int data = *(int*)arg;\n    return (void*)(long)(data + 1);\n}\n\npthread_t tid;\nint input = 5;\nvoid* status;\n\n// Create and start thread\npthread_create(&tid, NULL, task, &input);\n\n// Wait for termination and retrieve result\npthread_join(tid, &status);\n// int result = (int)(long)status;\n\npthread_mutex_t mtx;\nint counter = 0;\n\n// Protect shared resource access\nvoid increment_safe() {\n    pthread_mutex_lock(&mtx);\n    counter++;\n    pthread_mutex_unlock(&mtx);\n}\n\npthread_cond_t cv;\nint processed_flag = 0;\n\n// Waiting for a condition\nvoid consumer_wait() {\n    pthread_mutex_lock(&mtx);\n    while (!processed_flag) {\n        pthread_cond_wait(&cv, &mtx);\n    }\n    pthread_mutex_unlock(&mtx);\n}\n\n// Signaling the condition\nvoid producer_signal() {\n    pthread_mutex_lock(&mtx);\n    processed_flag = 1;\n    pthread_cond_signal(&cv);\n    pthread_mutex_unlock(&mtx);\n}\n\n_Thread_local int thread_id; // C11 Thread Local Storage\n\nvoid set_local_id(int id) {\n    thread_id = id;\n}\n\nint get_local_id() {\n    return thread_id;\n}",
+  "keywords": "C threads, pthreads, C parallelism"
+}

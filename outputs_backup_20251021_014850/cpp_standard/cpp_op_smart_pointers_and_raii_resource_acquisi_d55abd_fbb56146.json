@@ -1,0 +1,15 @@
+{
+  "topic": "Smart Pointers and RAII (Resource Acquisition Is Initialization)",
+  "explanation": "Smart pointers in C++ are template classes that manage dynamic memory automatically, ensuring proper resource deallocation through RAII (Resource Acquisition Is Initialization). This idiom ties resource lifetime to object lifetime, reducing memory leaks and exception safety issues. Modern C++ provides std::unique_ptr, std::shared_ptr, and std::weak_ptr to facilitate safe and efficient resource management without manual delete calls.",
+  "syntax": "std::unique_ptr<Type> ptr = std::make_unique<Type>(constructor_args); // exclusive ownership\nstd::shared_ptr<Type> sptr = std::make_shared<Type>(constructor_args); // shared ownership\n// Automatic deallocation occurs when the smart pointer goes out of scope",
+  "code_example": "#include <iostream>\n#include <memory>\n\nclass Resource {\npublic:\n    Resource() { std::cout << \"Resource acquired\" << std::endl; }\n    ~Resource() { std::cout << \"Resource destroyed\" << std::endl; }\n    void do_something() { std::cout << \"Doing something with resource\" << std::endl; }\n};\n\nint main() {\n    {\n        auto ptr = std::make_unique<Resource>(); // RAII ensures resource cleanup\n        ptr->do_something();\n    } // Resource is automatically destroyed here when ptr goes out of scope\n\n    {\n        auto sptr1 = std::make_shared<Resource>();\n        auto sptr2 = sptr1; // shared ownership\n        sptr1->do_something();\n        std::cout << \"Shared pointers in scope\" << std::endl;\n    } // Resource is destroyed when last shared_ptr (sptr2) goes out of scope\n    return 0;\n}",
+  "example_explanation": "This example demonstrates the use of std::unique_ptr and std::shared_ptr to manage a Resource object. The unique_ptr ensures exclusive ownership and automatically deletes the resource when it goes out of scope, exemplifying RAII. The shared_ptr allows multiple owners, and the resource is only destroyed when the last shared_ptr is destroyed. This pattern exemplifies modern C++ resource management, reducing manual memory handling and enhancing exception safety.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "21-22",
+    "extraction_date": "2025-08-19T01:23:33.566588",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_standard"
+  }
+}

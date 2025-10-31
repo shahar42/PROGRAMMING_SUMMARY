@@ -1,0 +1,19 @@
+{
+  "topic": "Memory Hierarchy and Caching Strategies: Miss Minimization",
+  "explanation": "The memory hierarchy structures storage levels based on proximity to the CPU, trading latency for capacity (registers $\\rightarrow$ L1/L2/L3 cache $\\rightarrow$ main memory $\\rightarrow$ disk). Caching exploits temporal and spatial locality by storing frequently accessed main memory blocks in faster cache levels. Miss minimization is the core objective, aiming to maximize the cache hit ratio and reduce the effective memory access time (AMAT). Strategies focus on mitigating the three C's of cache misses: compulsory, capacity, and conflict. Techniques like increasing associativity (e.g., set-associative mapping) reduce conflict misses, while optimized prefetching and larger block sizes leverage locality to minimize compulsory and capacity misses, ensuring data availability closer to the CPU.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "67-67",
+    "extraction_date": "2025-07-23T00:01:11.925331",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.734677",
+    "explanation_refined": true,
+    "refinement_date": "2025-10-30T10:21:06",
+    "original_length": 438,
+    "refined_length": 800
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// Strategy 1: Improving Spatial Locality (Stride-1 Access)\n#define N 1024\nint matrix[N][N]; // C/C++ is Row-Major\n\n// GOOD: Inner loop traverses rows contiguously (i.e., [i][j], [i][j+1])\nvoid row_major_access() {\n    for (int i = 0; i < N; ++i)\n        for (int j = 0; j < N; ++j)\n            matrix[i][j] = i + j;\n}\n\n// BAD: Inner loop forces cache line evictions quickly (Stride = N)\nvoid column_major_access() {\n    for (int j = 0; j < N; ++j)\n        for (int i = 0; i < N; ++i)\n            matrix[i][j] = i + j;\n}\n\n// Strategy 2: Cache Blocking/Tiling (Minimizing Capacity/Conflict Misses)\n#define BLOCK_SIZE 64\nvoid tiled_processing() {\n    for (int bi = 0; bi < N; bi += BLOCK_SIZE)\n        for (int bj = 0; bj < N; bj += BLOCK_SIZE)\n            // Process the current block\n            for (int i = bi; i < bi + BLOCK_SIZE; ++i)\n                for (int j = bj; j < bj + BLOCK_SIZE; ++j)\n                    matrix[i][j] *= 2;\n}"
+}

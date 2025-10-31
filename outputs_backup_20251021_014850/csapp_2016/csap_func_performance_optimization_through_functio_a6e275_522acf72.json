@@ -1,0 +1,15 @@
+{
+  "topic": "Performance Optimization through Function Inlining",
+  "explanation": "Function inlining is a compiler optimization technique that replaces a function call with the function's body. This eliminates the overhead associated with function calls, such as saving and restoring registers, pushing arguments onto the stack, and branching to the function's address.  In the context of computer systems and architecture, this reduces instruction count, improves cache locality (as the function's code is now located near the call site), and potentially reduces pipeline stalls, leading to significant performance improvements, especially in inner loops where the same function is called repeatedly.",
+  "syntax": "Compiler directive or compiler option (e.g., `__attribute__((always_inline))` in GCC)  or automatic inlining by the compiler based on heuristics.",
+  "code_example": "; Assume 'get_vec_start' returns the starting address of a vector\n; Original code with function call (inefficient):\nloop:\n   mov rax, [rdi] ; load vector index\n   call get_vec_start ; function call overhead\n   mov rbx, [rax+8*rax] ; access element\n   ; ... process element ...\n   inc rdi ; next index\n   cmp rdi, rcx ; loop condition\n   jne loop\n\n; Optimized code with inlining:\nmov rax, get_vec_start_address ; load address once\nloop:\n   mov rbx, [rdi] ; load vector index\n   mov rbx, [rax+8*rbx] ; direct access; inlined equivalent\n   ; ... process element ...\n   inc rdi\n   cmp rdi, rcx\n   jne loop",
+  "example_explanation": "The example shows two code snippets. The first uses a function call `get_vec_start` within a loop to access vector elements.  This incurs function call overhead repeatedly. The second snippet demonstrates inlining: the address calculation is moved outside the loop, and the element access is performed directly, eliminating the function call overhead in each iteration.  This direct access improves performance by reducing instruction count, improving cache locality (as data is accessed sequentially) and reducing branch prediction mispredictions, ultimately improving the overall execution speed of the loop.  The performance gain is most significant when the loop iterates many times.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "541-541",
+    "extraction_date": "2025-07-27T18:02:06.232529",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems"
+  }
+}

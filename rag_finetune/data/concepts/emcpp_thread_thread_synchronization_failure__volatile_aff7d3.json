@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Synchronization Failure: Volatile is Not Atomic",
+  "category": "thread",
+  "explanation": "Assumption: Because `volatile` prevents compiler optimization of memory access, it must be the mechanism for coordinating memory visibility between threads, similar to its role in languages like Java or C#. Reality: In standard C++, `volatile` only tells the compiler that a variable's value might change unexpectedly (e.g., by hardware or signal handlers), forcing the compiler to re-read it from memory every time. Why It Fails for Concurrency: `volatile` offers no guarantees regarding atomicity (operations like `++x` remain susceptible to data races) or necessary memory ordering guarantees required for cross-thread visibility. Using `volatile` instead of `std::atomic` in concurrent code leads to data races and undefined behavior.",
+  "code_example": "volatile int v = 0;\n// Thread A: v++; // NOT atomic, leads to race conditions\n// Thread B: int x = v; // Read might be stale or inconsistent",
+  "practical_example": "A developer marks a shared flag `volatile` hoping to signal termination between threads. The compiler is forced to read the flag, but the memory operations surrounding the flag update are not synchronized or ordered correctly, potentially leading to the observing thread failing to see the new state or seeing it late.",
+  "keywords": [
+    "volatile",
+    "atomicity failure",
+    "optimization suppression",
+    "misconception"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "289-290",
+  "chapter": "Item 39: Assume that std::atomic is for concurrent programming, volatile is for special memory",
+  "id": "emcpp_thread_thread_synchronization_failure__volatile_aff7d3",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

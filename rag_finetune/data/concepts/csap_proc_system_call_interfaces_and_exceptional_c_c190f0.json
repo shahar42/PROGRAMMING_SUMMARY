@@ -1,0 +1,15 @@
+{
+  "topic": "System Calls and ECF: Network Interface Privileges",
+  "explanation": "System calls provide the interface between user-level processes and the operating system kernel.  They allow applications to request services from the kernel, such as accessing hardware resources (like network interfaces) or performing privileged operations. Exceptional control flow refers to situations where the normal flow of execution is interrupted, such as by a system call, an interrupt, or an exception. Understanding this interaction is crucial for building robust and efficient systems programs.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "945-946",
+    "extraction_date": "2025-07-29T12:12:30.494897",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.731935"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// KERNEL: Privileged Network Access Check\n#define CAP_NET_RAW 13\n#define EPERM -1\n\nstruct credentials {\n    uid_t euid;\n    unsigned long caps;\n};\n\nint check_net_privilege(struct credentials *c) {\n    if (c->euid == 0) {\n        return 0; // Root bypasses checks\n    }\n\n    // Must possess required capability\n    if (!(c->caps & (1UL << CAP_NET_RAW))) {\n        // Context switch returns EPERM\n        return EPERM; \n    }\n    \n    // Kernel proceeds with interface access\n    return 0;\n}\n\n// USER: System call entry point (conceptual)\nlong syscall_net_config(int op_code, const char *iface) {\n    // Triggers ECF: User -> Kernel transition\n    // EAX = SYS_CALL_NUM; INT 0x80 or SYSCALL\n    \n    // ... Kernel returns result ...\n    return 0;\n}"
+}

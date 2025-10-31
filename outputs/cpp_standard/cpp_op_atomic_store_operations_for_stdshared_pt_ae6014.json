@@ -1,29 +1,12 @@
 {
   "topic": "Atomic Store Operations for std::shared_ptr",
-  "explanation": "Atomic store operations for std::shared_ptr, as defined in C++11 and later standards (e.g., ISO/IEC 14882:2014), ensure thread-safe assignment of shared pointers in multi-threaded environments. The compiler implements this feature by leveraging low-level atomic primitives, which may map to hardware instructions like x86's LOCK-prefixed stores or ARM's LDREX/STREX pairs, depending on the architecture. For std::shared_ptr, the atomic_store function (e.g., atomic_store_explicit) atomically updates the shared_ptr object, ensuring that the reference count in the control block is managed without intermediate states that could lead to data races. This involves a sequence where the new shared_ptr is prepared, and then the exchange is performed atomically to avoid tearing or visibility issues. Memory layout implications include the control block (typically heap-allocated) containing the reference count and deleter, which must be accessed atomically; this adds overhead as the compiler might use padding or alignment to ensure atomicity, potentially increasing memory footprint. Performance-wise, atomic operations introduce synchronization costs, such as cache line invalidations or bus locks, making them slower than non-atomic stores\u2014e.g., up to 100x slower on some hardware due to waiting for exclusive access. Assembly-level behavior often involves instructions like MOV with LOCK on x86 for sequential consistency, ensuring full memory barriers. This is a runtime behavior, as atomicity depends on hardware timing and thread scheduling, though the compiler optimizes by inlining simple cases or using relaxed memory orders to reduce barriers where possible.",
-  "syntax": "template<class T>\nvoid std::atomic_store(std::shared_ptr<T>* p, std::shared_ptr<T> r, std::memory_order mo = std::memory_order_seq_cst);\n// Implementation notes: 'p' must not be null; 'mo' affects the memory ordering model. The compiler translates this to hardware atomic stores, e.g., on x86, it might emit a LOCK XCHG or MOV with a memory fence based on 'mo'. For shared_ptr, this ensures the control block's reference count is updated atomically to prevent races.",
-  "code_example": [
-    "#include <memory>",
-    "#include <atomic>",
-    "#include <iostream>",
-    "#include <thread>",
-    "",
-    "int main() {",
-    "    std::shared_ptr<int> ptr1(new int(42));",
-    "    std::shared_ptr<int> ptr2;",
-    "    ",
-    "    // Atomically store ptr1 into ptr2's location",
-    "    std::atomic_store(&ptr2, ptr1, std::memory_order_seq_cst);",
-    "    ",
-    "    std::cout << *ptr2 << std::endl;  // Outputs: 42",
-    "    return 0;",
-    "}"
-  ],
-  "example_explanation": "In this example, std::atomic_store atomically assigns ptr1 to ptr2, ensuring that the shared_ptr's control block reference count is updated without races if used in a multi-threaded context. The compiler likely generates assembly that includes a memory barrier (e.g., MFENCE on x86 for seq_cst) to enforce sequential consistency, preventing reordering of loads/stores. At runtime, this might translate to instructions like: MOV to prepare the value, followed by a LOCK CMPXCHG or similar to swap atomically, depending on the platform. Performance implications include potential stalls due to cache coherence traffic, as the atomic operation flushes and invalidates cache lines. Compile-time, the compiler checks for constexpr eligibility (though atomic_store isn't), and optimizes by inlining if possible, but the actual atomicity is resolved at runtime via hardware.",
+  "explanation": "Atomic store operations for std::shared_ptr, as defined in C++11 and later standards (e.g., ISO/IEC 14882:2014), ensure thread-safe assignment of shared pointers in multi-threaded environments. The compiler implements this feature by leveraging low-level atomic primitives, which may map to hardware instructions like x86's LOCK-prefixed stores or ARM's LDREX/STREX pairs, depending on the architecture. For std::shared_ptr, the atomic_store function (e.g., atomic_store_explicit) atomically updates the shared_ptr object, ensuring that the reference count in the control block is managed without intermediate states that could lead to data races. This involves a sequence where the new shared_ptr is prepared, and then the exchange is performed atomically to avoid tearing or visibility issues. Memory layout implications include the control block (typically heap-allocated) containing the reference count and deleter, which must be accessed atomically; this adds overhead as the compiler might use padding or alignment to ensure atomicity, potentially increasing memory footprint. Performance-wise, atomic operations introduce synchronization costs, such as cache line invalidations or bus locks, making them slower than non-atomic stores—e.g., up to 100x slower on some hardware due to waiting for exclusive access. Assembly-level behavior often involves instructions like MOV with LOCK on x86 for sequential consistency, ensuring full memory barriers. This is a runtime behavior, as atomicity depends on hardware timing and thread scheduling, though the compiler optimizes by inlining simple cases or using relaxed memory orders to reduce barriers where possible.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T05:25:06.594155"
-  }
+    "extraction_date": "2025-08-19T05:25:06.594155",
+    "book_metadata_added": "2025-10-28T20:22:06.878251"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

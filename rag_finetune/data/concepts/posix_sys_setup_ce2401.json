@@ -1,0 +1,16 @@
+{
+  "topic": "setup() System Call",
+  "explanation": "The setup() system call is used internally by the kernel to initialize devices and filesystems configured into the kernel and then mounts the root filesystem. It is called once from within the kernel and cannot be invoked by user processes, which will always receive EPERM.\n\n**Common Errors:**\n- `EPERM`: Always returned for user processes",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.072052",
+    "syscall_name": "setup",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_setup.json",
+    "concept_id": "posix_sys_setup_ce2401",
+    "book_metadata_added": "2025-10-28T20:22:06.586080"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "SYSCALL_DEFINITION0(setup)\n{\n    // Internal kernel initialization logic\n    // Initializes devices, file systems, etc.\n    if (!capable(CAP_SYS_ADMIN))\n        return -EPERM; // (If it were ever user-invokable)\n\n    // ... kernel initialization steps ...\n\n    // Typically mounts the root filesystem (pivot_root/mount_root)\n    // Runs only once during boot\n\n    return 0; // Success\n}\n\n// User attempt always fails\nint user_call_setup()\n{\n    // EPERM (-1 with errno set) is the result\n    return syscall(__NR_setup);\n}",
+  "keywords": "setup syscall, kernel initialization, mount root filesystem"
+}

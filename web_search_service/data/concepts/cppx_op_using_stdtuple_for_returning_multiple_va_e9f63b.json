@@ -1,0 +1,13 @@
+{
+  "topic": "Using std::tuple for Returning Multiple Values",
+  "explanation": "std::tuple is a versatile template in C++ that allows you to create a single object holding multiple values of different types, without naming them individually. In real-world programming, it's particularly useful for functions that need to return more than one piece of data, such as a status code and an error message, promoting cleaner code over using output parameters or global variables. Best practices include using std::tuple to enhance readability and maintainability in scenarios like database queries or API responses, where multiple related values are returned. Common pitfalls to avoid include overusing tuples for complex data (prefer structs or classes instead) and forgetting to handle all elements properly to prevent undefined behavior; always use structured bindings in C++17+ for easier, error-free access.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:22:00.222275",
+    "book_metadata_added": "2025-10-28T20:22:06.511643"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "using StatusInfo = std::tuple<int, std::string, bool>;\n\nStatusInfo query_resource(int id) {\n    if (id > 100)\n        return std::make_tuple(200, \"OK\", true);\n    return {404, \"Missing\", false}; // C++17 direct init\n}\n\n// Unpacking via Structured Binding (C++17)\nauto [code, message, found] = query_resource(50);\n\n// Unpacking via std::get\nStatusInfo result = query_resource(200);\nint status_code = std::get<0>(result);\nstd::string msg_type = std::get<std::string>(result);\n\n// Using std::tie to ignore values (C++11/14)\nstd::string msg;\nstd::tie(std::ignore, msg, std::ignore) = query_resource(10);"
+}

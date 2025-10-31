@@ -1,0 +1,15 @@
+{
+  "topic": "migrate_pages() System Call",
+  "explanation": "migrate_pages() attempts to move all pages of the specified process from memory nodes in old_nodes to nodes in new_nodes. Pages not in old_nodes are not migrated, and the kernel tries to maintain their relative topology. It requires appropriate privileges for other processes.\n\n**Parameters:**\n- `pid` (int): ID of the process whose pages to move; 0 for the calling process.\n- `maxnode` (unsigned long): Maximum node number in the bit mask plus one.\n- `old_nodes` (const unsigned long *): Pointer to a bit mask of old node numbers.\n- `new_nodes` (const unsigned long *): Pointer to a bit mask of new node numbers.\n\n**Common Errors:**\n- `EFAULT`: Part or all of the memory range specified by old_nodes, new_nodes, and maxnode points outside the accessible address space.\n- `EINVAL`: maxnode exceeds a kernel-imposed limit, or invalid node IDs are specified, or no valid target nodes.\n- `EPERM`: Insufficient privilege to move pages or access target nodes.\n- `ESRCH`: No process with the specified pid found.\n\n**Related System Calls:** `get_mempolicy()`, `mbind()`, `set_mempolicy()`",
+  "syntax": "long migrate_pages(int pid, unsigned long maxnode, const unsigned long *old_nodes, const unsigned long *new_nodes);",
+  "code_example": "#include <unistd.h>  // or appropriate header\n\nint result = migrate_pages(...);  // Call the system call\nif (result == -1) {\n    perror(\"migrate_pages\");\n    exit(EXIT_FAILURE);\n}",
+  "example_explanation": "This example demonstrates the basic usage of the migrate_pages() system call. The function takes 4 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.073829",
+    "syscall_name": "migrate_pages",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_migrate_pages.json",
+    "concept_id": "posix_sys_migrate_pages_4ba6cc"
+  }
+}

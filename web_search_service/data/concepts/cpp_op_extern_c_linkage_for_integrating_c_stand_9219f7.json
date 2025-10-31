@@ -1,0 +1,14 @@
+{
+  "topic": "Extern \"C\" Linkage for Integrating C Standard Library in C++",
+  "explanation": "In C++, when including headers from the C standard library (e.g., via <cstdio> instead of <stdio.h>), the compiler uses extern \"C\" linkage to ensure that C functions are not subject to C++'s name mangling. This is crucial for interoperability between C and C++ code. Under the hood, the compiler generates assembly code where function names remain unmangled, allowing the linker to resolve them correctly against C library symbols. For instance, a function like printf in <cstdio> is declared with extern \"C\" to match its C counterpart, preventing issues like symbol mismatches during linking. This affects performance by avoiding the overhead of name mangling for these functions, which is a compile-time process. Memory layout remains unaffected since C functions don't involve C++-specific features like classes or exceptions, but it ensures binary compatibility. Runtime behavior is standard for C functions, but compile-time checks in C++ (e.g., via overloaded versions) can enforce safer practices, as seen in the removal of unsafe functions like gets, which forces developers to use safer alternatives at compile time.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-27T00:05:01.389159",
+    "book_metadata_added": "2025-10-28T20:22:06.917525"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Declaration of C function implemented elsewhere\nextern \"C\" int calculate_c_value(int a);\n\n// Definition of C++ function callable by C\nextern \"C\" void initialize_module(void) {\n    // Symbol name is not mangled\n}\n\n// Block linkage for multiple functions\nextern \"C\" {\n    int func_a(void);\n    void func_b(float y);\n}\n\n// Conditional usage in shared headers\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n\nvoid shared_interface(int x);\n\n#ifdef __cplusplus\n}\n#endif",
+  "keywords": "extern \"C\", C++ name mangling, C linkage, C++ C interoperability"
+}

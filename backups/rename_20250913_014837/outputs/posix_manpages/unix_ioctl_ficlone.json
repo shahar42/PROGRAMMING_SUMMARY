@@ -1,0 +1,80 @@
+{
+  "name": "ioctl_ficlone",
+  "synopsis": [
+    "#include <linux/fs.h> /* Definition of FICLONE* constants */",
+    "#include <sys/ioctl.h>",
+    "int ioctl(int dest_fd, FICLONERANGE, struct file_clone_range *arg);",
+    "int ioctl(int dest_fd, FICLONE, int src_fd);"
+  ],
+  "description": "This ioctl operation allows sharing physical storage between files on supported filesystems by reflinking data ranges or entire files, which is faster than copying. It ensures that writes to shared regions are handled with copy-on-write, keeping changes private to the modified file.",
+  "parameters": [
+    {
+      "name": "dest_fd",
+      "type": "int",
+      "description": "File descriptor of the destination file"
+    },
+    {
+      "name": "request",
+      "type": "int",
+      "description": "The ioctl request code, such as FICLONERANGE or FICLONE"
+    },
+    {
+      "name": "arg",
+      "type": "struct file_clone_range *",
+      "description": "Pointer to a structure containing source file details (src_fd, src_offset, src_length, dest_offset) for FICLONERANGE"
+    },
+    {
+      "name": "src_fd",
+      "type": "int",
+      "description": "File descriptor of the source file for FICLONE or within the structure for FICLONERANGE"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "src_fd is not open for reading; dest_fd is not open for writing or is open for append-only writes; or the filesystem which src_fd resides on does not support reflink"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The filesystem does not support reflinking the ranges of the given files, or either file descriptor represents a device, FIFO, or socket; offsets and lengths may need to be aligned"
+    },
+    {
+      "code": "EISDIR",
+      "description": "One of the files is a directory and the filesystem does not support shared regions in directories"
+    },
+    {
+      "code": "EOPNOTSUPP",
+      "description": "The filesystem does not support reflinking either file descriptor, or either refers to special inodes"
+    },
+    {
+      "code": "EPERM",
+      "description": "dest_fd is immutable"
+    },
+    {
+      "code": "ETXTBSY",
+      "description": "One of the files is a swap file"
+    },
+    {
+      "code": "EXDEV",
+      "description": "dest_fd and src_fd are not on the same mounted filesystem"
+    }
+  ],
+  "bugs": "fallocate(2) may unshare shared blocks to ensure subsequent writes do not fail due to lack of disk space, which is a limitation of copy-on-write behavior.",
+  "versions": "Linux 4.5",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [
+    "ioctl"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "ioctl_ficlone.pdf",
+    "extraction_date": "2025-07-28T12:17:41.267088",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

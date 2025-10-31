@@ -1,0 +1,89 @@
+{
+  "name": "process_madvise",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "ssize_t process_madvise(int pidfd, const struct iovec *iovec, size_t n, int advice, unsigned int flags);"
+  ],
+  "description": "The process_madvise() system call gives advice to the kernel about the memory usage of another process or the calling process, specified by a PID file descriptor. It applies the advice to the address ranges described by an array of iovec structures to potentially improve system or application performance.",
+  "parameters": [
+    {
+      "name": "pidfd",
+      "type": "int",
+      "description": "PID file descriptor that specifies the target process"
+    },
+    {
+      "name": "iovec",
+      "type": "const struct iovec *",
+      "description": "Pointer to an array of iovec structures describing the address ranges"
+    },
+    {
+      "name": "n",
+      "type": "size_t",
+      "description": "Number of elements in the iovec array"
+    },
+    {
+      "name": "advice",
+      "type": "int",
+      "description": "Advice value, such as MADV_COLD, MADV_PAGEOUT, MADV_WILLNEED, or MADV_COLLAPSE"
+    },
+    {
+      "name": "flags",
+      "type": "unsigned int",
+      "description": "Reserved for future use; must be 0"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes advised, which may be less than requested if partial advice was applied",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EBADF",
+      "description": "pidfd is not a valid PID file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The memory described by iovec is outside the accessible address space of the process"
+    },
+    {
+      "code": "EINVAL",
+      "description": "flags is not 0"
+    },
+    {
+      "code": "EINVAL",
+      "description": "The sum of the iov_len values overflows a ssize_t value"
+    },
+    {
+      "code": "EINVAL",
+      "description": "n is too large"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Could not allocate memory for internal copies of the iovec structures"
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller does not have permission to access the address space of the process"
+    },
+    {
+      "code": "ESRCH",
+      "description": "The target process does not exist"
+    }
+  ],
+  "bugs": null,
+  "versions": "Linux 5.10, glibc 2.36",
+  "posix_compliance": null,
+  "related_calls": [
+    "madvise",
+    "pidfd_open",
+    "process_vm_readv",
+    "process_vm_write"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "process_madvise.pdf",
+    "extraction_date": "2025-07-29T16:11:56.121227",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

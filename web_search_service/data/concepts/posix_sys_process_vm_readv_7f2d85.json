@@ -1,0 +1,16 @@
+{
+  "topic": "process_vm_readv() System Call",
+  "explanation": "The process_vm_readv() system call transfers data from the address space of a remote process to the local process using specified iovec structures. It allows direct data movement without passing through kernel space. The process_vm_writev() performs the reverse transfer.\n\n**Parameters:**\n- `pid` (pid_t): The process ID of the remote process.\n- `local_iov` (const struct iovec *): Pointer to an array of iovec structures describing address ranges in the local process.\n- `liovcnt` (unsigned long): Number of elements in the local_iov array.\n- `remote_iov` (const struct iovec *): Pointer to an array of iovec structures describing address ranges in the remote process.\n- `riovcnt` (unsigned long): Number of elements in the remote_iov array.\n- `flags` (unsigned long): Currently unused and must be set to 0.\n\n**Common Errors:**\n- `EFAULT`: The memory described by local_iov is outside the caller’s accessible address space.\n- `EFAULT`: The memory described by remote_iov is outside the accessible address space of the process pid.\n- `EINVAL`: The sum of the iov_len values of either local_iov or remote_iov overflows a ssize_t value.\n- `EINVAL`: Flags is not 0.\n- `EINVAL`: Liovcnt or riovcnt is too large.\n\n**Related System Calls:** `readv()`, `writev()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.109172",
+    "syscall_name": "process_vm_readv",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_process_vm_readv.json",
+    "concept_id": "posix_sys_process_vm_readv_7f2d85",
+    "book_metadata_added": "2025-10-28T20:22:06.648615"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "pid_t target_pid = 12345;\nchar local_buffer[100];\nvoid* remote_address = (void*)0xABCDEF00;\n\nstruct iovec local_io = { .iov_base = local_buffer, .iov_len = 100 };\nstruct iovec remote_io = { .iov_base = remote_address, .iov_len = 100 };\n\nssize_t bytes_transferred = process_vm_readv(\n    target_pid,\n    &local_io, 1,     // Local iovec, count 1\n    &remote_io, 1,    // Remote iovec, count 1\n    0                 // Flags (usually 0)\n);\n<ctrl63>",
+  "keywords": "process_vm_readv, remote memory read, cross-process memory access, process_vm_writev"
+}

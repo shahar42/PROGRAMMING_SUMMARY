@@ -1,0 +1,13 @@
+{
+  "topic": "The 'Destructive Read' Failure (Moving from Const Objects)",
+  "category": "type",
+  "explanation": "Assumption: If an expression is classified as an rvalue (such as a temporary object returned by a function), applying `std::move` or relying on rvalue-binding perfect forwarding will result in a move operation, regardless of qualifications. Reality: Moving inherently requires modifying the source object (e.g., setting its internal pointers to null to define the 'valid but unspecified state'). Therefore, if the object being moved from is `const`, its resources cannot be stolen, even if the expression type is an rvalue reference. Why It Fails: If a temporary object is `const T` (e.g., returned from a function that guarantees const-correctness), the only viable candidate for construction is the copy constructor (`const T&`), as the move constructor requires a non-const source (`T&&`). The anti-pattern is attempting to optimize transfers of temporary, const-qualified objects; the compiler must silently perform a deep copy, completely negating the intended performance optimization.",
+  "code_example": "// GetConst() returns const Widget temporary (rvalue const)\nconst Widget getConst() { return Widget{}; }\nWidget w = std::move(getConst()); // Forced to use Widget's copy constructor!",
+  "practical_example": "A factory function returns a constant temporary object for thread safety reasons. When a high-volume process tries to capture this temporary using `std::move`, the program incurs significant, hidden copy overhead instead of the expected pointer swap, degrading concurrency performance.",
+  "keywords": "std::move const object, moving from const, const rvalue reference, const cannot be moved",
+  "difficulty": "intermediate",
+  "page_reference": "225-226",
+  "chapter": "Item 29: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_type_the__destructive_read__26f7f5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

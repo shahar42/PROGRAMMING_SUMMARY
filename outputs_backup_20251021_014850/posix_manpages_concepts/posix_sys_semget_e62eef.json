@@ -1,0 +1,15 @@
+{
+  "topic": "semget() System Call",
+  "explanation": "The semget() system call returns the System V semaphore set identifier associated with the argument key. It is used to obtain the identifier of a previously created semaphore set or to create a new set with the specified number of semaphores if flags allow.\n\n**Parameters:**\n- `key` (key_t): Key used to identify or create the semaphore set.\n- `nsems` (int): Number of semaphores in the set; must be greater than 0 when creating, or 0 for existing sets.\n- `semflg` (int): Flags for creation options (e.g., IPC_CREAT, IPC_EXCL) and permissions.\n\n**Common Errors:**\n- `EACCES`: Semaphore set exists but the calling process lacks permission to access it.\n- `EEXIST`: IPC_CREAT and IPC_EXCL were specified, but a semaphore set already exists for the key.\n- `EINVAL`: nsems is less than 0 or greater than the limit on semaphores per set (SEMMSL).\n- `EINVAL`: A semaphore set exists for the key, but nsems is larger than the number of semaphores in that set.\n- `ENOENT`: No semaphore set exists for the key and IPC_CREAT was not specified.\n\n**Related System Calls:** `semctl()`, `semop()`, `ftok()`",
+  "syntax": "int semget(key_t key, int nsems, int semflg);",
+  "code_example": "key = ftok(argv[optind], argv[optind + 1][0]);\nsemid = semget(key, nsems, flags | 0600);\nif (semid == -1) { perror(\"semget\"); exit(EXIT_FAILURE); }",
+  "example_explanation": "This example demonstrates the basic usage of the semget() system call. The function takes 3 parameter(s) and returns 0 on success or -1 on error with errno set appropriately.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.248132",
+    "syscall_name": "semget",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_semget.json",
+    "concept_id": "posix_sys_semget_e62eef"
+  }
+}

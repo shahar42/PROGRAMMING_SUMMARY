@@ -1,0 +1,13 @@
+{
+  "topic": "Failing to Forward/Move the Last Use (Internal Member Transfer)",
+  "category": "forward",
+  "explanation": "Assumption: Once a parameter or member variable has served its purpose in a function, simply using its name in a downstream call is sufficient for the compiler to optimize the resource transfer. Reality: The lvalue rule dictates that member variables or non-parameter named variables are lvalues. If they hold resources, transferring them out efficiently requires an explicit cast. Why It Fails: In a move constructor or assignment operator, when moving member variables (which are lvalues), failure to apply `std::move` results in the copy constructor of the member being called. This anti-pattern means that the encompassing move operation performs a move of the outer object's resources (like pointers) but forces expensive deep copies of the inner member objects, resulting in massive performance loss. Every resource-owning member must be explicitly moved in the last use context (e.g., initializer lists of a move constructor, or within the body of a move assignment operator) to achieve O(1) transfer.",
+  "code_example": "// Failing to move internal members in a move constructor\nstruct Container { std::string s; std::vector<int> v; };\nContainer(Container&& other) \n  : s(other.s), // ERROR: Copies 's'\n    v(std::move(other.v)) // Correctly moves 'v'\n{}",
+  "practical_example": "A C++ struct designed for message passing contains several large `std::string` and `std::vector` members. When this struct is moved between processing threads, the developer correctly applies move to the top-level struct but fails to use `std::move` on every internal string member, causing unexpected latency due to unnecessary string copies.",
+  "keywords": "std::move members, moving member variables, lvalue move failure, move constructor implicit copy",
+  "difficulty": "intermediate",
+  "page_reference": "186-190",
+  "chapter": "Item 25: Assume that move operations are not present, not cheap, and not used",
+  "id": "emcpp_forward_failing_to_forward_move_the_00cb85",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

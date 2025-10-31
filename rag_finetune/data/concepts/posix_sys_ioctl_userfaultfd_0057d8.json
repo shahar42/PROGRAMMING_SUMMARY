@@ -1,0 +1,16 @@
+{
+  "topic": "ioctl_userfaultfd() System Call",
+  "explanation": "The ioctl_userfaultfd system call performs operations on a userfaultfd file descriptor to handle page faults in user space. It allows configuration of userfaultfd behavior and resolution of page faults for specified memory ranges.\n\n**Parameters:**\n- `fd` (int): File descriptor referring to a userfaultfd object\n- `op` (int): The operation to perform (e.g., UFFDIO_API, UFFDIO_REGISTER)\n- `argp` (void*): Pointer to a data structure specific to the operation\n\n**Common Errors:**\n- `EFAULT`: argp points to an invalid memory address\n- `EINVAL`: Invalid argument, unsupported operation, or userfaultfd not enabled\n- `EBUSY`: A mapping in the specified range is registered with another userfaultfd object\n- `EPERM`: The calling process lacks CAP_SYS_PTRACE capability for certain features\n- `EAGAIN`: Operation failed due to partial completion or interruption\n\n**Related System Calls:** `userfaultfd()`, `fork()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.241046",
+    "syscall_name": "ioctl_userfaultfd",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_ioctl_userfaultfd.json",
+    "concept_id": "posix_sys_ioctl_userfaultfd_0057d8",
+    "book_metadata_added": "2025-10-28T20:22:06.589627"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "int ufd = userfaultfd(O_CLOEXEC | UFFD_SHARED_FORK);\n\n// --- 1. Negotiation (op = UFFDIO_API) ---\nstruct uffdio_api api = {\n    .api = UFFD_API_VERSION,\n    .features = 0, // Request all features\n};\n\n// Check for EFAULT, EINVAL\nioctl(ufd, UFFDIO_API, &api);\n\n\n// --- 2. Registration (op = UFFDIO_REGISTER) ---\nvoid *area = mmap(...);\nsize_t size = 0x10000;\n\nstruct uffdio_register reg = {\n    .range = { .start = (unsigned long)area, .len = size },\n    .mode = UFFDIO_REGISTER_MODE_MISSING,\n};\n\n// Check for EFAULT, ENOMEM, EPERM\nioctl(ufd, UFFDIO_REGISTER, &reg);\n\n// reg.ioctls now holds supported operations for the range\n// (e.g., UFFDIO_COPY, UFFDIO_ZEROPAGE)\nmunmap(area, size);\nclose(ufd);",
+  "keywords": "userfaultfd, ioctl userfaultfd, user space page fault, UFFD"
+}

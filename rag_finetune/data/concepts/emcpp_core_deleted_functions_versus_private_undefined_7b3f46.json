@@ -1,0 +1,21 @@
+{
+  "topic": "Function Suppression: Delete Versus Undefined Private",
+  "category": "core",
+  "explanation": "Deleted functions, introduced in C++11, are the modern and preferred mechanism for preventing the use of a function. This feature directly supersedes the C++98 idiom of declaring a member function as private and intentionally omitting its definition to prevent it from being called. A deleted function is explicitly marked with `= delete`, which instructs the compiler to disallow any attempt to use it, resulting in a clear compile-time error.\n\nScott Meyers' key insight is that the old private-undefined trick was merely an imperfect emulation of what deleted functions now accomplish natively. The legacy approach is less robust, less clear, and can result in confusing link-time errors instead of immediate compile-time feedback. Using `= delete` communicates intent directly and is a superior tool for software design.\n\nThe mechanics of the two approaches differ significantly. With the private-undefined method, the compiler permits calls to the function from within the class or by friends, as the function is declared. The error only manifests at link-time when the linker cannot find the function's definition. In contrast, a deleted function is removed from overload resolution earlier in the compilation process. Any code that attempts to use a deleted function will fail to compile. This applies to all functions, not just class members; non-member functions and even template instantiations can be deleted.\n\nThis has important practical implications. Using deleted functions moves error detection from the linker to the compiler, providing faster and more precise feedback. It also works in contexts where the private-undefined method fails, such as for non-member functions or specific template instantiations. For example, you can delete a template specialization for a specific type like `void*` at namespace scope, a task that is syntactically impossible with the private-undefined member function approach because template specializations cannot be declared inside a class scope.\n\nA common pitfall of the C++98 idiom is the cryptic linker error it produces, which can be difficult for developers to trace back to the intended design choice of disallowing a function. The old method's failure to work with template specializations inside a class is another significant limitation that deleted functions overcome elegantly.",
+  "code_example": "// C++98 legacy approach\nclass LegacyWidget {\nprivate:\n  void processPointer(void* ptr); // Declared but not defined\n};\n\n// C++11 modern approach\nclass ModernWidget {\npublic:\n  // Any attempt to call this will result in a compile-time error\n  void processPointer(void* ptr) = delete;\n};\n\n// Template specialization example\nclass Processor {\npublic:\n  template<typename T>\n  void process(T* ptr) { /* generic implementation */ }\n};\n\n// Delete the void* specialization at namespace scope\ntemplate<>\nvoid Processor::process<void>(void* ptr) = delete;",
+  "practical_example": "A common use case is disabling a class's copy constructor and copy assignment operator to make it move-only or non-copyable. Using `= delete` on these special member functions provides a clear, compile-time enforced statement of the class's intended semantics.",
+  "keywords": [
+    "deleted functions",
+    "private undefined",
+    "link-time error",
+    "compile-time error",
+    "C++11",
+    "idioms",
+    "template specialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "77-78",
+  "chapter": "Item 11: Prefer deleted functions to private undefined ones.",
+  "id": "emcpp_core_deleted_functions_versus_private_undefined_7b3f46",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

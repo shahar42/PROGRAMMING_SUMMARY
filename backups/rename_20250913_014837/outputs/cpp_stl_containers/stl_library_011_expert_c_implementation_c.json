@@ -1,0 +1,38 @@
+{
+  "topic": "Expert C++ Implementation Concept: Vector Capacity Management",
+  "explanation": "This focuses on the implementation details of `std::vector`'s capacity management, specifically the interaction between `capacity()`, `reserve()`, and the underlying memory allocation strategy.  Understanding this is crucial for writing performant and memory-efficient C++ code.  The compiler's role is primarily in optimizing the calls to `reserve()` and the subsequent memory allocation, while the runtime handles the actual memory management.  Poor understanding can lead to frequent reallocations, impacting performance significantly.  The implementation details vary slightly across compilers, but the general principles remain consistent.",
+  "syntax": "std::vector<T> vec; \n size_t cap = vec.capacity(); // Get current capacity\n vec.reserve(1000); // Reserve space for 1000 elements\n vec.resize(500); // Actually allocate 500 elements\n vec.shrink_to_fit();// Attempts to reduce capacity to size()",
+  "code_example": [
+    "#include <iostream>",
+    "#include <vector>",
+    "#include <chrono>",
+    "#include <algorithm>",
+    "int main() {",
+    "  std::vector<int> vec;",
+    "  auto start = std::chrono::high_resolution_clock::now();",
+    "  for (int i = 0; i < 1000000; ++i) {",
+    "    vec.push_back(i);",
+    "  }",
+    "  auto end = std::chrono::high_resolution_clock::now();",
+    "  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);",
+    "  std::cout << \"Time without reserve: \" << duration.count() << \"ms\" << std::endl;",
+    "  std::vector<int> vec2;",
+    "  vec2.reserve(1000000);",
+    "  start = std::chrono::high_resolution_clock::now();",
+    "  for (int i = 0; i < 1000000; ++i) {",
+    "    vec2.push_back(i);",
+    "  }",
+    "  end = std::chrono::high_resolution_clock::now();",
+    "  duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);",
+    "  std::cout << \"Time with reserve: \" << duration.count() << \"ms\" << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The example demonstrates the performance impact of `reserve()`. The first loop repeatedly adds elements without reserving capacity, leading to frequent reallocations. The second loop pre-allocates memory using `reserve()`, significantly reducing the number of reallocations and thus improving performance.  The actual assembly-level behavior would involve calls to the system's memory allocator (e.g., `malloc` or its equivalent on different OSes).  The compiler's optimization will focus on minimizing the overhead of these calls by potentially batching memory requests or using custom allocators if provided.  Note that `shrink_to_fit()` is implementation-defined and might not always reduce the capacity.  Compiler behavior in terms of optimization is highly dependent on optimization level and compiler flags.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:25:46.757059"
+  }
+}

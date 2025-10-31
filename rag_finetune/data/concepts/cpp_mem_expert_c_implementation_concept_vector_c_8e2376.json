@@ -1,0 +1,13 @@
+{
+  "topic": "Expert C++ Implementation Concept: Vector Capacity Management",
+  "explanation": "This focuses on the implementation details of `std::vector`'s capacity management, specifically the interaction between `capacity()`, `reserve()`, and the underlying memory allocation strategy.  Understanding this is crucial for writing performant and memory-efficient C++ code.  The compiler's role is primarily in optimizing the calls to `reserve()` and the subsequent memory allocation, while the runtime handles the actual memory management.  Poor understanding can lead to frequent reallocations, impacting performance significantly.  The implementation details vary slightly across compilers, but the general principles remain consistent.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T12:25:46.757059",
+    "book_metadata_added": "2025-10-28T20:22:06.992835"
+  },
+  "book": "C++ STL Containers",
+  "code_example": "// Capacity Growth Strategy (Implementation Defined, often 2x or 1.5x)\nstd::vector<int> v;\nv.reserve(100);             // Capacity is >= 100\nsize_t initial_cap = v.capacity();\nv.push_back(1);             // size() increases\n\n// Forced Reallocation (If new_cap > capacity())\nvoid efficient_growth(std::vector<T>& vec, size_t needed) {\n    if (vec.capacity() < needed) {\n        vec.reserve(std::max(needed, vec.capacity() * 2));\n    }\n}\n\n// Shrink to Fit (Releases unused capacity)\nstd::vector<int> big_v(1000);\nbig_v.resize(10);\nbig_v.shrink_to_fit();      // capacity() == 10 (or less memory used)\n\n// Swap trick for capacity reset (Guaranteed C++03+)\nstd::vector<T>().swap(v);   // v.capacity() == 0, v.size() == 0"
+}

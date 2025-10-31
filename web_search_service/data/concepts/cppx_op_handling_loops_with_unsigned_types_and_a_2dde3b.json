@@ -1,0 +1,14 @@
+{
+  "topic": "Handling Loops with Unsigned Types and Avoiding Signed/Unsigned Mismatches",
+  "explanation": "In C++, unsigned types are commonly used for values that cannot be negative, such as sizes or indices, to prevent overflow issues. However, when using unsigned types in loops (e.g., for decrementing counters), it's crucial to handle initialization and conditions carefully to avoid pitfalls like underflow, which can lead to infinite loops or unexpected behavior. Best practices include initializing unsigned variables to values that ensure the loop terminates correctly, always checking for underflow, and avoiding mixing signed and unsigned types in comparisons or operations, as this can cause implicit conversions and bugs. In real-world scenarios, such as processing arrays or iterating over collections, this technique ensures efficient and safe code, especially in performance-critical applications like game development or data processing.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "statements",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T01:25:50.284028",
+    "book_metadata_added": "2025-10-28T20:22:06.530478"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "size_t N = 10;\n\n// Safe Decrement (Indices N-1 down to 0)\nfor (size_t i = N; i > 0; ) {\n    --i;\n    // Use index i\n}\n\n// Safer, standard C++ way (Iterates N times)\nfor (size_t i = N; i-- > 0; ) {\n    // Logic using N, i+1, or checking termination\n}\n\n// PITFALL: Unsigned loop condition\nsize_t counter = 0;\n// i >= 0 is ALWAYS true for size_t\n// Loop runs indefinitely after underflow to SIZE_MAX\n// while (counter-- >= 0) { /* ... */ }\n\n// PITFALL: Signed/Unsigned comparison mismatch\nint s_val = -1;\nif (N < s_val) {\n    // N is promoted to huge unsigned number\n    // Condition is likely false, even if N=5\n}\n<ctrl63>",
+  "keywords": "decrementing unsigned loop, unsigned underflow, signed unsigned mismatch, unsigned loop pitfalls"
+}

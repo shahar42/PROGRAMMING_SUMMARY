@@ -1,0 +1,19 @@
+{
+  "topic": "std::forward Failure: Misuse Outside Template Contexts",
+  "category": "forward",
+  "explanation": "The anti-pattern regarding `std::forward` is its usage outside of a perfect forwarding context, specifically outside of a templated function parameter that is a universal reference. Programmers sometimes treat `std::forward` as a specialized form of `std::move` or a generic casting tool. The purpose of `std::forward` is highly specialized: to conditionally cast an argument back to its original value category (lvalue or rvalue) based on how the template parameter `T` was deduced, ensuring that the original lvalue or rvalue nature is preserved when passing the argument onward. The function uses the concept of reference collapsing within its implementation to achieve this conditional cast. When `std::forward` is mistakenly used on a non-template function parameter, or on an object whose type deduction is not governed by universal reference rules, it fundamentally fails its primary purpose. If the object is already an rvalue reference (like a function return), `std::forward` is unnecessary and merely redundant casting. If the object is a named variable (lvalue), `std::forward` often resolves to a move cast, which is indistinguishable from `std::move` in that context, potentially obscuring intent or causing misuse. The anti-pattern is the failure to recognize that `std::forward` relies entirely on the interplay between template type deduction and reference collapsing rules applied to `T&&`\u2014it is not a generalized utility for casting and is only necessary when maintaining the precise value category of a templated, universally referenced argument.",
+  "code_example": "void process(std::string& s) {\n    auto next_s = std::forward<std::string&>(s); // Redundant/Misplaced\n    // ... uses 's' as lvalue\n}",
+  "practical_example": "A developer working on a non-templated internal utility function attempts to use `std::forward` to minimize copies, believing it's safer than `std::move`. Since the context is fixed (not templated), the `std::forward` call resolves to an unconditional cast, failing to provide the conditional behavior and adding unnecessary cognitive load and complexity to the code, hindering maintainability.",
+  "keywords": [
+    "std::forward",
+    "perfect forwarding",
+    "template",
+    "casting",
+    "conditional cast"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "180-182",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_forward_std__forward_failure__fc07b4",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

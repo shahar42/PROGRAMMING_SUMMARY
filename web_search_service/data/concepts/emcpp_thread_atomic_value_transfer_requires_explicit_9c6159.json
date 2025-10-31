@@ -1,0 +1,13 @@
+{
+  "topic": "Atomic Value Transfer Requires Explicit `load()` and `store()`",
+  "category": "thread",
+  "explanation": "Assumption: If standard copy/assignment is disallowed for `std::atomic`, the value must be extracted using an implicit conversion or a getter method. Reality: To safely extract or transfer the value held by an `std::atomic` variable, the explicit atomic member functions `load()` (for reading) and `store()` (for writing) must be used. Why It Fails: These member functions guarantee that the specific read or write operation is performed atomically, isolating it from potential concurrent modifications. Using `x.load()` retrieves the current value atomically, which can then be used to initialize or assign to another variable (atomic or non-atomic), effectively breaking the non-atomic copy operation into two separate, safe atomic steps.",
+  "code_example": "std::atomic<int> x(10);\n// Correct initialization of another atomic variable:\nstd::atomic<int> y( x.load() ); // Atomic read of x\n// Correct assignment to a non-atomic variable:\nint z = x.load();\n// Correct assignment to an existing atomic variable:\ny.store( x.load() );",
+  "practical_example": "A program needs to snapshot the current state of a shared counter (`std::atomic<int>`). Instead of attempting a forbidden copy, the developer uses `counter.load()` to get a consistent, atomically read value for logging or computation.",
+  "keywords": "std::atomic load store, std::atomic read value, std::atomic explicit access",
+  "difficulty": "intermediate",
+  "page_reference": "277",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread_atomic_value_transfer_requires_explicit_9c6159",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

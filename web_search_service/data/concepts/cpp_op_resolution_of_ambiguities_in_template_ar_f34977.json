@@ -1,0 +1,14 @@
+{
+  "topic": "Resolution of Ambiguities in Template Arguments",
+  "explanation": "In C++, when a template argument can be interpreted as either a type-id (e.g., a class or fundamental type) or an expression (e.g., a constant expression), the compiler resolves the ambiguity in favor of a type-id, as per [temp.arg]/2 of the C++ standard. This is a compile-time decision made during template argument deduction and instantiation. The compiler's front-end, such as in GCC or Clang, performs lexical analysis and parsing to first attempt to interpret the argument as a type-id before considering it as an expression. This preference ensures consistency and prevents errors in overload resolution, but it requires the compiler to maintain a symbol table of types and perform early disambiguation, which can increase compilation time for complex templates. There are no direct runtime or memory layout implications, as this is purely a compile-time mechanism; however, incorrect resolution could lead to failed instantiations, affecting code generation efficiency. At the assembly level, this doesn't directly translate to specific instructions, but it influences the generated object code by determining which template specialization is instantiated, potentially optimizing or bloating the binary depending on the resolved path. Overall, this behavior is entirely compile-time, with no runtime overhead once the code is generated.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "templates",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T03:42:39.301717",
+    "book_metadata_added": "2025-10-28T20:22:06.846039"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Config {\n    using Index = long;\n};\n\n// Global constant sharing the name 'Index'\nconstexpr int Index = 42; \n\ntemplate<typename T>\nstruct ResultType {\n    // T will be interpreted as a type-id: Config::Index* (long*)\n    // The expression (Config::Index multiplied by 42) is rejected.\n    T resolved_type; \n};\n\nResultType<Config::Index * Index> R;\n\n// R.resolved_type is of type 'long*' \n// (Type interpretation preferred over expression interpretation)",
+  "keywords": "C++ prefer type rule, ambiguous template argument, template argument type vs expression"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "alarm() System Call",
+  "explanation": "The alarm() function arranges for a SIGALRM signal to be delivered to the calling process after the specified number of seconds. If seconds is zero, it cancels any pending alarm. Any previously set alarm is also canceled.\n\n**Parameters:**\n- `seconds` (unsigned int): Number of seconds until the SIGALRM signal is delivered\n\n**Related System Calls:** `gettimeofday()`, `pause()`, `select()`, `setitimer()`, `sigaction()`, `signal()`, `timer_create()`, `timerfd_create()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.066911",
+    "syscall_name": "alarm",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_alarm.json",
+    "concept_id": "posix_sys_alarm_e4d601",
+    "book_metadata_added": "2025-10-28T20:22:06.676901"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "void sig_handler(int sig) {\n    // SIGALRM processing logic\n    printf(\"Alarm triggered.\\n\");\n}\n\n// 1. Set handler for SIGALRM\nsignal(SIGALRM, sig_handler);\n\n// 2. Set alarm for 10 seconds\nunsigned int time_remaining = alarm(10); // Returns 0\n\n// 3. Reschedule/Cancel. Returns time left from previous alarm(10)\ntime_remaining = alarm(2);\n\n// 4. Cancel pending alarm (time_remaining approx 2)\ntime_remaining = alarm(0);\n\npause(); // Wait for signal delivery\n// SIGALRM handler must use reentrant functions.\n// pause() blocks until signal delivery.",
+  "keywords": "SIGALRM, process timer, C timer, schedule signal"
+}

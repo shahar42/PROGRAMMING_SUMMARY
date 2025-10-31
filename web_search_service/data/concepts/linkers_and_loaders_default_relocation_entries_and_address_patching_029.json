@@ -1,0 +1,16 @@
+{
+  "topic": "Adjustments via OS Memory",
+  "explanation": "Relocation entries are crucial in the linking and loading process because they specify adjustments needed to code and data addresses after an object file is loaded into memory.  The final memory address of a program's components isn't known at compile time, as it depends on the operating system's memory allocation. Relocation entries indicate which parts of the object file need to have their addresses modified (patched) to reflect their actual runtime location.  This ensures that the program can correctly access data and functions even when loaded at different memory addresses.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "106-106",
+    "extraction_date": "2025-07-18T00:57:58.330969",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.754553"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "// Context: OS Loader applies adjustments based on Relocation Table\n\ntypedef struct {\n    uintptr_t patch_offset; // Location within section to modify\n    uint32_t symbol_index;  // Target address/symbol ID\n    uint8_t reloc_type;     // e.g., R_X86_64_32\n} RelocationEntry;\n\n// OS assigned starting address for the program\nuintptr_t ProgramLoadBase = 0x400000; \n\n// RVA (Relative Virtual Address) before loading\nuintptr_t TargetFunctionRVA = 0x1A0; \n\nRelocationEntry entry = { .patch_offset = 0x24, .symbol_index = 5, .reloc_type = 1 };\n\n// Adjustment calculation: Relative -> Absolute Address\nuintptr_t FinalAbsoluteAddress = ProgramLoadBase + TargetFunctionRVA;\n\n// Patching operation: Memory[ProgramLoadBase + entry.patch_offset] = FinalAbsoluteAddress;",
+  "keywords": "Relocation, Address fix-up, Loader patching, Dynamic linking"
+}

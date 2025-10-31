@@ -1,0 +1,96 @@
+{
+  "name": "process_vm_readv",
+  "synopsis": [
+    "#include <sys/uio.h>",
+    "ssize_t process_vm_readv(pid_t pid, const struct iovec *local_iov, unsigned long liovcnt, const struct iovec *remote_iov, unsigned long riovcnt, unsigned long flags);",
+    "ssize_t process_vm_writev(pid_t pid, const struct iovec *local_iov, unsigned long liovcnt, const struct iovec *remote_iov, unsigned long riovcnt, unsigned long flags);"
+  ],
+  "description": "The process_vm_readv() system call transfers data from the address space of a remote process to the local process using specified iovec structures. It allows direct data movement without passing through kernel space. The process_vm_writev() performs the reverse transfer.",
+  "parameters": [
+    {
+      "name": "pid",
+      "type": "pid_t",
+      "description": "The process ID of the remote process."
+    },
+    {
+      "name": "local_iov",
+      "type": "const struct iovec *",
+      "description": "Pointer to an array of iovec structures describing address ranges in the local process."
+    },
+    {
+      "name": "liovcnt",
+      "type": "unsigned long",
+      "description": "Number of elements in the local_iov array."
+    },
+    {
+      "name": "remote_iov",
+      "type": "const struct iovec *",
+      "description": "Pointer to an array of iovec structures describing address ranges in the remote process."
+    },
+    {
+      "name": "riovcnt",
+      "type": "unsigned long",
+      "description": "Number of elements in the remote_iov array."
+    },
+    {
+      "name": "flags",
+      "type": "unsigned long",
+      "description": "Currently unused and must be set to 0."
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes read",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EFAULT",
+      "description": "The memory described by local_iov is outside the caller’s accessible address space."
+    },
+    {
+      "code": "EFAULT",
+      "description": "The memory described by remote_iov is outside the accessible address space of the process pid."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The sum of the iov_len values of either local_iov or remote_iov overflows a ssize_t value."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Flags is not 0."
+    },
+    {
+      "code": "EINVAL",
+      "description": "Liovcnt or riovcnt is too large."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Could not allocate memory for internal copies of the iovec structures."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller does not have permission to access the address space of the process pid."
+    },
+    {
+      "code": "ESRCH",
+      "description": "No process with ID pid exists."
+    }
+  ],
+  "bugs": "Data transfers are not guaranteed to be atomic in any way.",
+  "versions": "Linux 3.2, glibc 2.15",
+  "posix_compliance": null,
+  "examples": [
+    "#define _GNU_SOURCE\n#include <stdlib.h>\n#include <sys/types.h>\n#include <sys/uio.h>\n\nint main(void) {\n    char buf1[10];\n    char buf2[10];\n    pid_t pid = 10;  /* PID of remote process */\n    struct iovec local[2];\n    struct iovec remote[1];\n    local[0].iov_base = buf1;\n    local[0].iov_len = 10;\n    local[1].iov_base = buf2;\n    local[1].iov_len = 10;\n    remote[0].iov_base = (void *) 0x10000;\n    remote[0].iov_len = 20;\n    ssize_t nread = process_vm_readv(pid, local, 2, remote, 1, 0);\n    if (nread != 20) exit(EXIT_FAILURE);\n    exit(EXIT_SUCCESS);\n}"
+  ],
+  "related_calls": [
+    "readv",
+    "writev"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "process_vm_readv.pdf",
+    "extraction_date": "2025-07-29T16:12:10.618631",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

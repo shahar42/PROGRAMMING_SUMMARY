@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Synchronization: Mutex Requirement for Condition Variable Waiting",
+  "category": "sync",
+  "explanation": "Assumption: A task can call `std::condition_variable::wait` directly to pause execution until notified. Reality: The C++ standard requires that the waiting task must first acquire a lock on the associated mutex (typically via `std::unique_lock`) before calling `wait`. Why It Fails: The mutex ensures atomicity. The `wait` function internally releases the lock while the thread is blocked and reacquires it immediately before returning (due to notification or spurious wakeup). Failure to acquire the lock before calling `wait` results in undefined behavior or a race condition where a notification could be missed immediately after checking the predicate but before entering the wait state.",
+  "code_example": "// Must lock the mutex before waiting\nstd::unique_lock<std::mutex> lk(m);\ncv.wait(lk); // lk is released and reacquired internally",
+  "practical_example": "A developer attempts to simplify synchronization by skipping the mutex lock, leading to a rare bug where the waiting thread misses the signal because the notifying thread signaled just before the waiting thread entered the blocked state.",
+  "keywords": [
+    "std::condition_variable",
+    "std::unique_lock",
+    "atomic wait",
+    "mutex requirement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 38: Be aware of variations on handling void futures",
+  "id": "emcpp_sync_thread_synchronization__mutex_requirement_bc01bc",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

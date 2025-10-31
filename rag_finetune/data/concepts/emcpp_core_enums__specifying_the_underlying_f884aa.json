@@ -1,0 +1,21 @@
+{
+  "topic": "Enumerations: Explicit Base Type Specification",
+  "category": "core",
+  "explanation": "Modern C++ gives programmers explicit control over the integral type used to store the values of an enumeration. This contrasts with C++98, where the choice of underlying type was an opaque, compiler-dependent decision. By specifying the type, you can guarantee an enum's size, signedness, and value range across different platforms and compilers.\n\nScott Meyers emphasizes that this feature is the direct enabler for forward declarations and provides crucial control over memory layout. In C++98, the compiler had to see all enumerators to deduce the smallest suitable type, making forward declarations impossible. Explicitly stating the type removes this ambiguity, giving the compiler the size information it needs upfront and giving the programmer deterministic control over data representation.\n\nThe syntax for this feature is to add a colon and an integral type after the enum's name in its definition or forward declaration. This works for both scoped enums (`enum class`) and traditional unscoped enums. For scoped enums, if you omit the type, the compiler defaults to using `int`. For unscoped enums, omitting the type causes the compiler to fall back to the C++98 behavior of selecting an appropriate type on its own.\n\nThis control is critically important in systems programming, especially for tasks like hardware interaction, network programming, or data serialization. When defining a data structure that must match a hardware register or a network protocol's specification, you can ensure an enum member has a precise size, such as `unsigned char` for a single byte. It also ensures that data written by one version of your program can be read back correctly by another, even if compiled with a different compiler.\n\nOne common oversight is forgetting that the default underlying type for a `enum class` is `int`. For enums with very few values, this can be wasteful if memory is a primary concern. The other main pitfall is selecting an underlying type that is too small to represent all the declared enumerator values, which will result in a compile-time error.",
+  "code_example": "// Scoped enum with a specified 1-byte underlying type.\nenum class Color : unsigned char {\n    Red, Green, Blue\n};\n\n// Unscoped enum with a specified 4-byte underlying type.\nenum LegacyStatus : unsigned int {\n    OK = 0,\n    Error = 1\n};\n\n// Scoped enum using the default underlying type (int).\nenum class Alert {\n    Warning,\n    Critical\n};",
+  "practical_example": "When defining a data packet for network communication, specifying `enum class MessageType : unsigned char` ensures the message type field is always exactly one byte, guaranteeing a consistent packet structure across different systems and compilers.",
+  "keywords": [
+    "enum",
+    "enum class",
+    "underlying type",
+    "memory layout",
+    "serialization",
+    "interoperability",
+    "data representation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "69-70",
+  "chapter": "Item 10: Prefer enum classes over enums",
+  "id": "emcpp_core_enums__specifying_the_underlying_f884aa",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

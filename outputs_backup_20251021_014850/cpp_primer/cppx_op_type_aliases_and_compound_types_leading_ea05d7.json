@@ -1,0 +1,17 @@
+{
+  "topic": "Type Aliases and Compound Types Leading to Surprising Const Behavior",
+  "explanation": "In advanced C programming, using type aliases (via typedef or using macros) to define compound types can introduce subtle pitfalls, especially when combined with const qualifiers. These aliases may obscure the actual underlying type, leading to unexpected behavior or const correctness issues. Understanding how type aliases interact with const qualifiers and pointer types is crucial for writing correct, maintainable, and bug-free code in complex systems.",
+  "syntax": "typedef existing_type alias_name;\n// or\n#define ALIAS_NAME existing_type\n\n// Example with compound types:\ntypedef char* pstring;\n// pstring is an alias for char*",
+  "code_example": "typedef char* pstring;\nconst pstring str1 = \"Hello\"; // const pointer to char\npstring str2 = \"World\";       // non-const pointer to char\nstr2 = \"New\";                 // OK\n//* str1 = 'h'; // Error: cannot modify through const pstring\n//* str1[0] = 'h'; // Error: cannot modify through const pstring",
+  "example_explanation": "This example demonstrates that 'typedef char* pstring;' creates an alias for a pointer to char. When declaring 'const pstring str1', the const qualifier applies to the pointer itself, not the data it points to, meaning 'str1' cannot be reassigned, but the data pointed to can still be modified unless the data itself is const. This subtlety can lead to surprising results if the programmer assumes 'const pstring' makes the data immutable. The example highlights the importance of understanding how typedefs and const qualifiers interact, especially in complex declarations, to avoid unintended mutability or const correctness violations in advanced C code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "106-106",
+    "extraction_date": "2025-08-20T01:40:36.642334",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "basics",
+    "extraction_type": "practical_programming"
+  }
+}

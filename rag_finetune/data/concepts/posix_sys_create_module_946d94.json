@@ -1,0 +1,16 @@
+{
+  "topic": "create_module() System Call",
+  "explanation": "create_module attempts to create a loadable module entry and reserve the kernel memory needed to hold the module. This system call requires privilege and is deprecated, being present only in kernels before Linux 2.6.\n\n**Parameters:**\n- `name` (const char *): The name of the module to create\n- `size` (size_t): The size of the memory to reserve for the module\n\n**Common Errors:**\n- `EEXIST`: A module by that name already exists\n- `EFAULT`: name is outside the program’s accessible address space\n- `EINVAL`: The requested size is too small even for the module header information\n- `ENOMEM`: The kernel could not allocate a contiguous block of memory large enough for the module\n- `ENOSYS`: create_module is not supported in this version of the kernel (e.g., Linux 2.6 or later)\n\n**Related System Calls:** `delete_module()`, `init_module()`, `query_module()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.162688",
+    "syscall_name": "create_module",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_create_module.json",
+    "concept_id": "posix_sys_create_module_946d94",
+    "book_metadata_added": "2025-10-28T20:22:06.598944"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "// Target kernel: < Linux 2.6\n// Requires elevated privilege (CAP_SYS_MODULE)\n\nconst char *name = \"test_mod\";\nconst size_t size = 4096 * 4; // 16 KB reservation\n\n// The system call returns the address of the reserved kernel memory\nvoid *module_start_addr = (void *)create_module(\n    name,\n    size\n);\n\nif ((long)module_start_addr == -1) {\n    // Check errno for EEXIST, EPERM, EFAULT\n    // ... handling ...\n}\n<ctrl63>",
+  "keywords": "create_module syscall, pre-2.6 kernel module, Linux module creation legacy"
+}

@@ -1,0 +1,16 @@
+{
+  "topic": "Dynamic Linking and Loading with ELF Shared Libraries",
+  "explanation": "Dynamic linking defers the linking of program libraries until runtime.  This contrasts with static linking, where libraries are incorporated directly into the executable during compilation.  Dynamic linking uses shared libraries (like .so files on Linux or .dll files on Windows), allowing multiple programs to share a single copy of a library in memory, saving memory and enabling updates to libraries without recompiling dependent programs.  The ELF (Executable and Linkable Format) file structure plays a crucial role in this process.",
+  "extraction_metadata": {
+    "source": "Linkers and Loaders",
+    "page_range": "255-257",
+    "extraction_date": "2025-07-21T22:13:26.102957",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "linkers_loaders",
+    "book_metadata_added": "2025-10-28T20:22:06.751517"
+  },
+  "book": "Linkers and Loaders",
+  "code_example": "# Creating a Shared Library (libmyapi.so)\ngcc -c -fPIC source.c -o source.o\ngcc -shared source.o -o libmyapi.so\n\n\n# Linking Executable Against Library (Runtime Linkage)\n# '-L.': Search current dir for library\n# '-lmyapi': Link against libmyapi.so\ngcc main.c -L. -lmyapi -o application\n\n# Ensuring Runtime Visibility (Crucial for Execution)\nexport LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH\n\n# Verification of Dynamic Dependencies\nldd ./application\n\n\n# Manual Dynamic Loading (dlopen API - C)\nvoid *handle;\nvoid (*func)(void);\n\n// Load the library\nhandle = dlopen(\"libmyapi.so\", RTLD_LAZY);\nif (!handle) { /* handle error */ }\n\n// Get function pointer\nfunc = (void (*)(void)) dlsym(handle, \"public_func\");\nif (dlerror() != NULL) { /* handle error */ }\n\n// Use the function\nfunc();\n\n// Unload\ndlclose(handle);",
+  "keywords": "Dynamic linking, Shared libraries, .so files, Dynamic loading"
+}

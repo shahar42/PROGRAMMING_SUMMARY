@@ -1,0 +1,17 @@
+{
+  "topic": "Container Iterator Category",
+  "explanation": "In C++, container iterator categories classify iterators based on the operations they support, which in turn determines how algorithms can interact with different container types. Understanding iterator categories (input, output, forward, bidirectional, random access) is essential for writing generic, efficient code that works seamlessly across various container types. These categories enable the use of appropriate algorithms and optimize performance by leveraging specific iterator capabilities.",
+  "syntax": "Iterator category tags are defined as empty structs in the standard library, and iterators inherit from these tags to specify their capabilities:\n\nstruct input_iterator_tag {};\nstruct output_iterator_tag {};\nstruct forward_iterator_tag : public input_iterator_tag {};\nstruct bidirectional_iterator_tag : public forward_iterator_tag {};\nstruct random_access_iterator_tag : public bidirectional_iterator_tag {};\n\nIterator classes typically define a nested typedef or use std::iterator_traits to specify their category:\n\ntemplate <typename Iterator>\nstruct iterator_traits {\n    using iterator_category = typename Iterator::iterator_category;\n    // other typedefs\n};",
+  "code_example": "#include <vector>\n#include <list>\n#include <iterator>\n#include <type_traits>\n\ntemplate <typename Iterator>\nvoid check_iterator_category() {\n    using category = typename std::iterator_traits<Iterator>::iterator_category;\n    if constexpr (std::is_same_v<category, std::random_access_iterator_tag>) {\n        std::cout << \"Random access iterator\" << std::endl;\n    } else if constexpr (std::is_same_v<category, std::bidirectional_iterator_tag>) {\n        std::cout << \"Bidirectional iterator\" << std::endl;\n    } else if constexpr (std::is_same_v<category, std::forward_iterator_tag>) {\n        std::cout << \"Forward iterator\" << std::endl;\n    } else if constexpr (std::is_same_v<category, std::input_iterator_tag>) {\n        std::cout << \"Input iterator\" << std::endl;\n    } else {\n        std::cout << \"Unknown iterator category\" << std::endl;\n    }\n}\n\nint main() {\n    std::vector<int> vec = {1, 2, 3};\n    std::list<int> lst = {4, 5, 6};\n    check_iterator_category<decltype(vec.begin())>();\n    check_iterator_category<decltype(lst.begin())>();\n    return 0;\n}",
+  "example_explanation": "This example demonstrates how different container types (vector and list) have iterators categorized as random access and bidirectional, respectively. The function 'check_iterator_category' uses 'iterator_traits' to determine the iterator category at compile time and outputs the category name. This showcases how iterator categories classify container iterators, enabling generic programming and optimized algorithm selection based on iterator capabilities in modern C++.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "page_range": "211-211",
+    "extraction_date": "2025-09-11T12:27:25.834096",
+    "has_code": false,
+    "has_explanation": false,
+    "book_context": "cpp_standard",
+    "chapter": "library",
+    "extraction_type": "expert_level"
+  }
+}

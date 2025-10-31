@@ -1,0 +1,16 @@
+{
+  "topic": "semtimedop() System Call",
+  "explanation": "semtimedop performs atomic operations on a System V semaphore set, similar to semop, but with an optional timeout to prevent indefinite blocking. It executes the specified operations on the semaphores or fails if the timeout expires.\n\n**Parameters:**\n- `semid` (int): Semaphore set identifier\n- `sops` (struct sembuf *): Pointer to an array of sembuf structures, each specifying an operation on a semaphore\n- `nsops` (size_t): Number of operations in the sops array\n- `timeout` (const struct timespec *_Nullable): Pointer to a timespec structure specifying the timeout, or NULL for no timeout\n\n**Common Errors:**\n- `E2BIG`: The argument nsops is greater than SEMOPM, the maximum number of operations allowed per system call\n- `EACCES`: The calling process does not have the required permissions and does not have the CAP_IPC_OWNER capability\n- `EAGAIN`: An operation could not proceed immediately and either IPC_NOWAIT was specified or the timeout expired\n- `EFAULT`: An address specified in sops or timeout is not accessible\n- `EFBIG`: For some operation, the value of sem_num is less than 0 or greater than or equal to the number of semaphores in the set\n\n**Related System Calls:** `semop()`, `shmop()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.185494",
+    "syscall_name": "semtimedop",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_semtimedop.json",
+    "concept_id": "posix_sys_semtimedop_10d24a",
+    "book_metadata_added": "2025-10-28T20:22:06.627419"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct sembuf sb_wait = {\n    .sem_num = 0,\n    .sem_op = -1,  // Wait operation (lock resource)\n    .sem_flg = SEM_UNDO\n};\n\nstruct timespec timeout_spec = {\n    .tv_sec = 5,   // 5 second timeout\n    .tv_nsec = 0\n};\n\n// Execute operation on semid, waiting up to 5s\nint semid_key = 1234;\nint nsops = 1;\n\nint result = semtimedop(\n    semid_key,\n    &sb_wait,\n    nsops,\n    &timeout_spec\n);\n<ctrl63>",
+  "keywords": "semtimedop, Semaphore timeout, Timed semop, System V semaphore"
+}

@@ -1,0 +1,14 @@
+{
+  "topic": "Zero-sized arrays and Empty Base Optimization (EBO)",
+  "explanation": "Zero-sized arrays, while seemingly paradoxical, are a powerful tool in C++ when combined with Empty Base Optimization (EBO).  A zero-sized array `T[0]` has a size of zero bytes, yet it still possesses a type that the compiler can distinguish.  This allows for clever type-erasure techniques and optimization opportunities.  Crucially, EBO dictates that if a class inherits from another class with a size of zero, the compiler *might* omit the base class entirely from the derived class's layout. This happens because a zero-sized base class adds no memory overhead. The behavior depends heavily on the compiler's optimization level and target architecture. The absence of the base class has profound implications for the structure of the object in memory, and for performance, especially concerning pointer arithmetic and member access.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:52:22.312687",
+    "book_metadata_added": "2025-10-28T20:22:06.826231"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "// Empty Base Optimization (EBO)\nstruct [[no_unique_address]] ZeroByte {};\n\n// EBO utilizes the fact that a base class\n// with size zero needs no separate storage.\nclass OptimizedStore : private ZeroByte {\n    int value;\n};\n\n// Size calculation relies on EBO:\n// sizeof(OptimizedStore) == sizeof(int)\n// (Typically 4 bytes, saving the 1 byte ZeroByte needed if held as a member)\n\n// Standard C++20 Attribute for members:\nstruct Container {\n    [[no_unique_address]] ZeroByte z;\n    int value;\n};\n\n// sizeof(Container) == sizeof(int)\n// (Compiler handles non-overlapping addresses)",
+  "keywords": "EBO, Empty Base Optimization, Zero-sized array, C++ zero size type"
+}

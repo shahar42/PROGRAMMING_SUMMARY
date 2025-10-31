@@ -1,0 +1,18 @@
+{
+  "topic": "Design Smell: Mutex Use for Pure Task Signaling",
+  "category": "design",
+  "explanation": "Mutexes are fundamentally designed to mediate access to shared, mutable data (critical sections). If a concurrency pattern utilizes a mutex and condition variable setup purely for task signaling (Task A tells Task B to start) and there is no actual shared data that needs protection between the two tasks, this introduces unnecessary complexity and is considered a 'code smell.' Why It Fails: Using heavy synchronization primitives like mutexes and condition variables when only simple synchronization is needed (like waiting for a result) complicates the code structure without providing commensurate safety benefits, often leading developers to overlook simpler, higher-level primitives like `std::future` for task coordination.",
+  "code_example": "// If tasks don't share data, this mutex might be unnecessary complexity:\nstd::mutex m; \nstd::condition_variable cv;\n// ... Use m and cv just to signal event completion",
+  "practical_example": "A developer uses a complex `std::mutex`/`std::condition_variable` setup to signal when a background calculation is complete, when a simple `std::future` obtained from `std::async` or `std::packaged_task` provides a cleaner, more direct, and less error-prone way to wait for task completion.",
+  "keywords": [
+    "code smell",
+    "task coordination",
+    "shared data",
+    "std::future preference"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "280-289",
+  "chapter": "Item 38: Be aware of variations on handling void futures",
+  "id": "emcpp_design_design_smell__mutex_use_ab40e2",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

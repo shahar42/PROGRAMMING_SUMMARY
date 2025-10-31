@@ -1,0 +1,16 @@
+{
+  "topic": "Move Semantics and Rvalue References in C++",
+  "explanation": "Move semantics in C++ enable efficient transfer of resources from temporary objects (rvalues) to new objects, minimizing unnecessary copying. Rvalue references (denoted by &&) allow functions to distinguish between lvalues and rvalues, facilitating resource transfer and optimization. This feature is essential for modern C++ programming to improve performance, especially when dealing with resource-intensive objects like containers, smart pointers, and user-defined types.",
+  "extraction_metadata": {
+    "source": "Unknown Source",
+    "page_range": "1060-1060",
+    "extraction_date": "2025-08-19T08:57:28.540931",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "book_metadata_added": "2025-10-28T20:22:06.906052"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "class MyString {\n    char* buffer;\n\npublic:\n    // Rvalue reference parameter (consumes temp)\n    MyString(MyString&& other) noexcept \n        : buffer(other.buffer) {\n        other.buffer = nullptr;\n    }\n\n    // Move assignment operator\n    MyString& operator=(MyString&& other) noexcept {\n        if (this != &other) {\n            delete[] buffer;\n            buffer = other.buffer;\n            other.buffer = nullptr;\n        }\n        return *this;\n    }\n    // Rule of Five (if Ctor/Dtor exist, define Move/Copy)\n};\n\n// std::move converts lvalue to rvalue reference\nMyString s1;\nMyString s2 = std::move(s1);\n\n// Forwarding reference (Universal Reference)\ntemplate <typename T>\nvoid wrapper(T&& arg) {\n    // std::forward maintains value category (lvalue/rvalue)\n    process(std::forward<T>(arg));\n}",
+  "keywords": "Move Semantics, Rvalue Reference, C++ &&, Move Constructor"
+}

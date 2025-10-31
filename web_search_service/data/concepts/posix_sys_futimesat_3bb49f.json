@@ -1,0 +1,16 @@
+{
+  "topic": "futimesat() System Call",
+  "explanation": "The futimesat() system call changes the timestamps of a file, similar to utimes(2), but interprets relative paths relative to a specified directory file descriptor. It is obsolete and should be replaced with utimensat(2).\n\n**Parameters:**\n- `dirfd` (int): Directory file descriptor; AT_FDCWD for current working directory.\n- `pathname` (const char *): Path to the file whose timestamps are to be changed.\n- `times` (const struct timeval [2]): Array of two struct timeval structures for new access and modification times.\n\n**Common Errors:**\n- `EBADF`: pathname is relative but dirfd is neither AT_FDCWD nor a valid file descriptor.\n- `ENOTDIR`: pathname is relative and dirfd is a file descriptor referring to a file other than a directory.\n\n**Related System Calls:** `utimensat()`, `utimes()`, `stat()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.245184",
+    "syscall_name": "futimesat",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_futimesat.json",
+    "concept_id": "posix_sys_futimesat_3bb49f",
+    "book_metadata_added": "2025-10-28T20:22:06.642423"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct timeval new_times[2];\nstruct timeval now;\n\n// Set both access and modification time to now\ngettimeofday(&now, NULL);\nnew_times[0] = now; // Atime\nnew_times[1] = now; // Mtime\n\nconst char* filename = \"config/log.tmp\";\nint dir_fd = AT_FDCWD; // Relative to CWD\n\n// OBSOLETE: Use utimensat() instead!\n// Change timestamps of filename relative to dir_fd\nint ret = futimesat(dir_fd, filename, new_times);\n\nif (ret == -1) {\n    // Handle error\n}",
+  "keywords": "futimesat, utimensat, change file times, AT_FDCWD"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "RAII: Ensuring Proper Cleanup",
+  "explanation": "RAII is a fundamental C++ programming idiom where resource management is tied to the object's lifetime.  Resources (like memory, files, network connections, mutexes) are acquired in the object's constructor and released in its destructor. This ensures that resources are always properly released, even in the face of exceptions or errors, preventing resource leaks and improving program stability.  It's a core principle of exception safety and promotes cleaner, more robust code.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T03:04:28.402238",
+    "book_metadata_added": "2025-10-28T20:22:06.529199"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class SafeResource {\n    int* data;\npublic:\n    // Acquire resource in constructor\n    SafeResource(size_t size) \n        : data(new int[size]) {}\n    \n    // Release resource in destructor\n    ~SafeResource() { \n        delete[] data; \n    }\n\n    // Rule of Three/Five: Essential for RAII ownership\n    SafeResource(const SafeResource&) = delete;\n    SafeResource& operator=(const SafeResource&) = delete;\n};\n\n// Standard Library RAII\nstd::mutex mtx;\n\nvoid access_data() {\n    // Lock acquired on scope entry\n    std::lock_guard<std::mutex> lock(mtx); \n    // ...\n} // Lock released automatically on scope exit"
+}

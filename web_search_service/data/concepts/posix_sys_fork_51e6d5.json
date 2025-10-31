@@ -1,0 +1,15 @@
+{
+  "topic": "fork() System Call: Process Duplication",
+  "explanation": "fork() creates a new process by duplicating the calling process. The new process, referred to as the child, is an exact duplicate except for specific attributes like process ID and parent ID, and both run in separate memory spaces.\n\n**Common Errors:**\n- `EAGAIN`: A system-imposed limit on the number of threads was encountered, such as RLIMIT_NPROC, kernel threads-max, or PID limits.\n- `EAGAIN`: The caller is operating under the SCHED_DEADLINE scheduling policy without the reset-on-fork flag set.\n- `ENOMEM`: fork() failed to allocate necessary kernel structures due to memory constraints.\n- `ENOMEM`: An attempt was made to create a child process in a PID namespace whose 'init' process has terminated.\n- `ENOSYS`: fork() is not supported on this platform, such as hardware without a Memory-Management Unit.\n\n**Related System Calls:** `clone()`, `execve()`, `exit()`, `setrlimit()`, `unshare()`, `vfork()`, `wait()`, `daemon()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.118721",
+    "syscall_name": "fork",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_fork.json",
+    "concept_id": "posix_sys_fork_51e6d5",
+    "book_metadata_added": "2025-10-28T20:22:06.583848"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "pid_t pid = fork();\n\n// Return Values:\n// -1: Error occurred (e.g., EAGAIN, ENOMEM)\n// 0: Currently running in the child process\n// >0: Currently running in the parent (value is child's PID)\n\nif (pid < 0) {\n    // fork failure\n    exit(EXIT_FAILURE);\n}\n\nif (pid == 0) {\n    // Child process code path\n    // Child PID is obtained via getpid()\n} else {\n    // Parent process code path\n    // Parent should often wait() for the child\n    // pid holds the Child's PID\n}\n<ctrl63>"
+}

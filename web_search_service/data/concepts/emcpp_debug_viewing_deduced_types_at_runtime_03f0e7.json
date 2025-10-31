@@ -1,0 +1,21 @@
+{
+  "topic": "Accurate Type ID: Preserving Deduction Qualifiers",
+  "category": "debug",
+  "explanation": "To accurately inspect deduced types at runtime, standard C++ features like `typeid` are often insufficient because they strip away crucial qualifiers. Libraries like Boost.TypeIndex provide a more robust solution by offering tools that can generate a human-readable string representation of a type, preserving its const, volatile, and reference qualifiers.\n\nScott Meyers' key insight is that while compiler diagnostics and IDE hints are useful, a dedicated runtime library is the most reliable tool for verifying the precise type a compiler deduces in a specific context. He strongly cautions against using the built-in `typeid` for this purpose, as its behavior\u2014stripping references and cv-qualifiers from its argument's type before returning a `type_info` object\u2014can be actively misleading when analyzing template or auto type deduction.\n\nThe mechanics behind a library like Boost.TypeIndex involve a function template that captures the exact type argument passed to it. This template then returns an object which stores this type information. This object provides a member function, often named `pretty_name` or similar, which uses compiler-specific mechanisms (like demangling) to convert the internal type representation into a clear string. This process avoids the decay-like behavior of `typeid`, ensuring that a deduced type like `const Widget* const&` is reported as such, rather than being simplified to `Widget const*`.\n\nIn practice, this technique is invaluable for debugging complex generic code. When working with universal references, perfect forwarding, or intricate `decltype(auto)` scenarios, you can insert a call to a type-printing utility to get concrete, runtime confirmation of what the compiler is actually doing. This moves your understanding from theoretical (what the rules say should happen) to empirical (what is happening in this specific compilation). It's an essential tool for validating your mental model of C++'s type system and catching subtle bugs related to incorrect type deduction.\n\nA common pitfall is to reach for `typeid` first, assuming it will provide the needed information, only to be confused by its simplified output. Another mistake is to treat the output of any tool as infallible. Meyers concludes his discussion on this topic by emphasizing that while these tools are powerful aids, they are no substitute for a solid understanding of the fundamental type deduction rules laid out in the C++ standard.",
+  "code_example": "// A library like Boost.TypeIndex provides tools for accurate type reporting.\n// The following simulates its usage.\n\ntemplate<typename T>\nvoid print_type_info() {\n    // In a real library, this would use demangling to get a clean name\n    std::cout << __PRETTY_FUNCTION__ << '\\n';\n}\n\ntemplate<typename T>\nvoid f(T&& param) { // Universal reference\n    std::cout << \"T's deduced type: \";\n    print_type_info<T>();\n\n    std::cout << \"param's type: \";\n    print_type_info<decltype(param)>();\n}\n\nint x = 0;\nf(x); // T is int&, param is int&\nf(42); // T is int, param is int&&",
+  "practical_example": "When implementing a factory function that uses perfect forwarding, you can use a runtime type-viewing library inside the function to log the deduced types of the forwarded arguments. This allows you to verify that an lvalue argument correctly deduces its template parameter as an lvalue reference, while an rvalue argument deduces it as a non-reference type, confirming that your forwarding logic is preserving value categories correctly.",
+  "keywords": [
+    "debug",
+    "type viewing",
+    "runtime type information",
+    "Boost.TypeIndex",
+    "typeid",
+    "demangling",
+    "template debugging"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "34-35",
+  "chapter": "Item 4: Know how to view deduced types",
+  "id": "emcpp_debug_viewing_deduced_types_at_runtime_03f0e7",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

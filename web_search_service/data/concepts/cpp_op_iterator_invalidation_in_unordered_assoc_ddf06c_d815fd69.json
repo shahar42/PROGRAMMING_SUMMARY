@@ -1,0 +1,14 @@
+{
+  "topic": "Iterator Invalidation in Unordered Associative Containers",
+  "explanation": "Iterator invalidation in unordered associative containers, such as std::unordered_map and std::unordered_set, is a runtime behavior tied to the dynamic resizing and rehashing of the underlying hash table. The compiler itself doesn't directly implement this; instead, it relies on the standard library's implementation (e.g., libstdc++ or libc++), which typically uses a hash table with an array of buckets. When an insert or emplace operation occurs, the container checks if adding new elements would exceed the maximum load factor (z * B, where z is the load factor and B is the bucket count). If (N + n) >= z * B, rehashing is triggered, involving memory reallocation and element redistribution, which invalidates all iterators but preserves references to elements.\n\nMemory layout involves an array of buckets (e.g., a vector of linked lists or nodes), where each bucket holds elements that hash to the same index. Performance implications are significant: rehashing can cause O(N) time complexity for inserts due to reallocation andrehashing, leading to cache misses and increased runtime overhead. For example, frequent invalidations might necessitate iterator reacquisition, amplifying performance costs in loops.\n\nAt the assembly level, this manifests as dynamic memory operations: the insert function might call malloc/realloc for the bucket array, followed by loops that recompute hashes and move elements (e.g., using memcpy or custom node relocations). This is purely runtime behavior, as the compiler optimizes based on inlined functions but can't predict dynamic load factors at compile time. The standard ensures that if no rehash occurs, iterators remain valid, allowing for efficient, non-invalidating operations when the container has spare capacity.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "library",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T06:52:03.150912",
+    "book_metadata_added": "2025-10-28T20:22:06.892319"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::unordered_map<int, int> map = {{1, 10}, {2, 20}};\n\nauto it = map.find(1);\n\n// Iterators are invalidated ONLY when a rehash occurs.\n// 1. Implicit Rehash (Load Factor exceeded)\nmap.max_load_factor(0.5f);\nmap.insert({3, 30}); // May trigger rehash if size exceeds bucket count\n\n// 2. Explicit Rehash (Guaranteed Invalidation)\nmap.rehash(100);\n\n// State: 'it' is now invalid (UB if accessed).\n// Pointers/references to elements are also invalidated.\n\n// Exception: std::unordered_set iterators are stable upon erase.",
+  "keywords": "unordered_map iterator invalidation, rehashing iterator invalidation, unordered container invalidation"
+}

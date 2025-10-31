@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Oversubscription: The Cost of Context Switching",
+  "category": "perf, thread",
+  "explanation": "Oversubscription occurs when the number of ready-to-run software threads exceeds the number of available hardware threads (cores). The OS thread scheduler must then time-slice these software threads. The transition between time-slices requires a costly context switch, which increases overall thread management overhead and reduces system throughput. Avoiding oversubscription is difficult because the optimal ratio of software to hardware threads changes dynamically based on how often software threads are blocked versus runnable.",
+  "code_example": "// Too many threads relative to hardware concurrency\n// This leads to oversubscription and context switching overhead\nconst int NUM_CORES = std::thread::hardware_concurrency();\nstd::vector<std::thread> threads;\nfor (int i = 0; i < NUM_CORES * 2; ++i) {\n  threads.emplace_back(work_function);\n}",
+  "practical_example": "A parallel algorithm launches 64 threads on a machine with 8 physical cores, assuming all threads will perform CPU-bound work simultaneously. The resulting severe oversubscription causes the scheduler to spend excessive time performing context switches, slowing down the overall wall time of the calculation compared to using only 8 or 16 threads.",
+  "keywords": [
+    "oversubscription",
+    "context switch",
+    "time-slicing",
+    "overhead"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "260-263",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_perf, thread_thread_oversubscription__the_cost_f92573",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

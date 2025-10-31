@@ -1,0 +1,15 @@
+{
+  "topic": "TestAndSet Operation",
+  "explanation": "The TestAndSet operation is an atomic function that retrieves the current value from a memory location and replaces it with a new value, all in a single, uninterruptible step. It is used primarily in concurrent programming to implement locks, such as spin locks, to prevent race conditions by ensuring that the check and update of a shared variable happen atomically.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "316-316",
+    "extraction_date": "2025-07-22T01:47:14.488914",
+    "has_code": true,
+    "has_explanation": true,
+    "book_metadata_added": "2025-10-28T20:22:06.785565"
+  },
+  "book": "Operating Systems - Three Easy Pieces",
+  "code_example": "std::atomic<bool> lock_flag{false};\n\n// TestAndSet equivalent (std::atomic::exchange)\n// Returns previous value, sets lock_flag to 'true'.\nbool old_state = lock_flag.exchange(true);\n\n// --- Spin Lock Implementation using TAS ---\nvoid acquire_lock() {\n    while (lock_flag.exchange(true, std::memory_order_acquire)) {\n        // Spin wait until exchange returns 'false'\n    }\n}\n\nvoid release_lock() {\n    lock_flag.store(false, std::memory_order_release);\n}",
+  "keywords": "TestAndSet, TAS, atomic instruction, spin lock implementation"
+}

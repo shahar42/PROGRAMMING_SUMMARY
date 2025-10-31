@@ -1,0 +1,20 @@
+{
+  "topic": "Special Member Function Generation: Interdependence of Move Operations",
+  "category": "core",
+  "explanation": "Unlike the copy operations, the move constructor and move assignment operator are not independent. If a programmer explicitly declares either of the two move operations for a class, the compiler is prevented from automatically generating the other one. This creates a coupled relationship between the move operations.\n\nScott Meyers emphasizes that this is a deliberate and important safety feature of the language. The rationale is that if a class requires a non-default implementation for one move operation, it signifies special resource management needs. It's therefore highly likely that the compiler's default member-wise move logic would be incorrect for the other move operation as well. By suppressing generation, the compiler avoids creating a potentially buggy implementation and forces the programmer to be explicit.\n\nThe mechanics are straightforward: when the compiler scans a class definition, if it encounters a user-declared move constructor, it flags the move assignment operator as non-generatable. Likewise, a user-declared move assignment operator suppresses the generation of the move constructor. Any attempt to use the non-existent move operation will then result in a compile-time error, alerting the developer that the implementation is incomplete.\n\nThis has direct practical implications for implementing movable types, especially resource-managing classes. If you are creating a class that owns a resource (like a file handle, a network socket, or heap-allocated memory), you must implement both the move constructor and the move assignment operator to provide complete and correct move semantics. Providing only one makes the class only partially movable, which is surprising and error-prone for users of the class. This rule strongly nudges developers towards a complete implementation of the 'Rule of Five'.\n\nThe most common pitfall is providing a move constructor to make a class movable but forgetting to also provide the move assignment operator. The code might compile and work as long as only move construction is used (e.g., when returning by value or initializing a new object). However, the code will fail to compile as soon as a move assignment is attempted, leading to frustrating and sometimes difficult-to-diagnose compiler errors. This underscores the need to treat move operations as a matched pair.",
+  "code_example": "class ResourceManager {\npublic:\n  // User-declared move constructor\n  ResourceManager(ResourceManager&& rhs) noexcept { /* ... steal resources ... */ }\n\n  // NO move assignment operator is declared.\n  // The compiler will NOT generate one.\nprivate:\n  int* data_;\n};\n\nvoid example() {\n  ResourceManager r1;\n  ResourceManager r2(std::move(r1)); // OK: calls user-declared move ctor\n  \n  ResourceManager r3;\n  // r3 = std::move(r2); // ERROR: move assignment operator is implicitly deleted\n}",
+  "practical_example": "When creating a unique_ptr-like smart pointer class, you would define a move constructor to transfer ownership of the raw pointer. If you forget to also define a move assignment operator, users of your class will be able to construct new smart pointers by moving but will be unable to assign to an existing one, making the class frustratingly incomplete.",
+  "keywords": [
+    "special member functions",
+    "move constructor",
+    "move assignment",
+    "compiler-generated functions",
+    "rule of five",
+    "resource management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "110",
+  "chapter": "Item 17: Understand the special member function generation rules",
+  "id": "emcpp_core_special_member_function_generation__0fd426",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

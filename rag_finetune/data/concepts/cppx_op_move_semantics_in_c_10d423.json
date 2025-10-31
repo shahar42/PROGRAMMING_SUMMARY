@@ -1,0 +1,14 @@
+{
+  "topic": "Move Semantics in C++",
+  "explanation": "Move semantics is a practical C++ feature introduced in C++11 that allows for the efficient transfer of resources (like memory or file handles) from one object to another, avoiding expensive deep copies. In real-world programming, this is crucial for performance in scenarios involving large objects or containers, such as when returning objects from functions or swapping elements in a vector. Best practices include implementing move constructors and move assignment operators for classes that manage resources, using std::move to explicitly indicate that an object can be moved from an lvalue. Common pitfalls include accidentally moving from an lvalue without proper checks, which can lead to undefined behavior; to avoid this, always ensure that moved-from objects are left in a valid state and use noexcept where appropriate for exception safety.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "copy",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T07:39:43.879751",
+    "book_metadata_added": "2025-10-28T20:22:06.544785"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class HeavyObject {\n    int* buffer;\npublic:\n    HeavyObject() : buffer(new int[1000]) {}\n    ~HeavyObject() { delete[] buffer; }\n\n    // Move Constructor: Transfers ownership\n    HeavyObject(HeavyObject&& other) noexcept\n        : buffer(other.buffer) {\n        other.buffer = nullptr; // Source is nullified\n    }\n\n    // Move Assignment Operator\n    HeavyObject& operator=(HeavyObject&& other) noexcept {\n        if (this != &other) {\n            delete[] buffer; // Release existing resource\n            buffer = other.buffer;\n            other.buffer = nullptr;\n        }\n        return *this;\n    }\n};\n\nHeavyObject create() {\n    return HeavyObject(); // RVO/Move Semantics utilized\n}",
+  "keywords": "Rvalue references, Move constructor, Move assignment operator, C++11 move semantics"
+}

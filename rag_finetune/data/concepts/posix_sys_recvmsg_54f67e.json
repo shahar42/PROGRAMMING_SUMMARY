@@ -1,0 +1,16 @@
+{
+  "topic": "recvmsg() System Call",
+  "explanation": "The recvmsg() system call is used to receive messages from a socket, supporting both connectionless and connection-oriented sockets. It utilizes a msghdr structure to handle data buffers, ancillary data, and flags for advanced options.\n\n**Parameters:**\n- `sockfd` (int): File descriptor of the socket from which to receive messages.\n- `msg` (struct msghdr *): Pointer to a msghdr structure that specifies buffers for data, ancillary data, and other options.\n- `flags` (int): Flags that modify the behavior of the call, such as MSG_DONTWAIT or MSG_OOB.\n\n**Common Errors:**\n- `EAGAIN or EWOULDBLOCK`: The socket is marked nonblocking and the receive operation would block, or a receive timeout had been set.\n- `EBADF`: The argument sockfd is an invalid file descriptor.\n- `ECONNREFUSED`: A remote host refused to allow the network connection.\n- `EFAULT`: The receive buffer pointer(s) point outside the process’s address space.\n- `EINTR`: The receive was interrupted by delivery of a signal before any data was available.\n\n**Related System Calls:** `recv()`, `recvfrom()`",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.194237",
+    "syscall_name": "recvmsg",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_recvmsg.json",
+    "concept_id": "posix_sys_recvmsg_54f67e",
+    "book_metadata_added": "2025-10-28T20:22:06.603513"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "struct iovec iov[1];\nchar data_buf[1024];\nchar control_buf[256];\nssize_t bytes_received;\n\niov[0].iov_base = data_buf;\niov[0].iov_len = sizeof(data_buf);\n\nstruct msghdr msg = {\n    // Optional: msg_name/msg_namelen for address\n    .msg_iov = iov,                 // Data buffers\n    .msg_iovlen = 1,\n    .msg_control = control_buf,     // Ancillary data buffer\n    .msg_controllen = sizeof(control_buf)\n    // .msg_flags (Output flags filled by kernel)\n};\n\n// Flags: e.g., MSG_PEEK, MSG_WAITALL, MSG_DONTWAIT\nbytes_received = recvmsg(sockfd, &msg, MSG_WAITALL);\n\nif (bytes_received > 0) {\n    // Check msg.msg_flags for received status\n    // Use CMSG_FIRSTHDR() to parse control data\n}\n<ctrl63>",
+  "keywords": "recvmsg, msghdr structure, socket ancillary data, receive message socket"
+}

@@ -1,0 +1,40 @@
+{
+  "topic": "Race Condition",
+  "explanation": "A race condition is a concurrency issue that occurs when multiple threads access and modify shared data simultaneously without proper synchronization, leading to unpredictable results. It happens because the outcome depends on the timing of thread execution, which can vary. This concept is important in multithreaded programming to identify and prevent bugs that cause data corruption or incorrect program behavior, ensuring reliable and deterministic results.",
+  "syntax": "counter++ in multiple threads without synchronization",
+  "code_example": [
+    "#include <stdio.h>",
+    "#include <pthread.h>",
+    "#include <stdlib.h>",
+    "",
+    "int counter = 0;",
+    "",
+    "void *increment(void *arg) {",
+    "    int loops = *(int*)arg;",
+    "    for(int i = 0; i < loops; i++) {",
+    "        counter++;",
+    "    }",
+    "    return NULL;",
+    "}",
+    "",
+    "int main(int argc, char *argv[]) {",
+    "    if(argc != 2) return 1;",
+    "    int loops = atoi(argv[1]);",
+    "    pthread_t thread1, thread2;",
+    "    pthread_create(&thread1, NULL, increment, &loops);",
+    "    pthread_create(&thread2, NULL, increment, &loops);",
+    "    pthread_join(thread1, NULL);",
+    "    pthread_join(thread2, NULL);",
+    "    printf(\"Final value: %d\\n\", counter);",
+    "    return 0;",
+    "}"
+  ],
+  "example_explanation": "This program creates two threads, each incrementing a shared counter variable 'loops' number of times. If run with './a.out 100000', the expected final value is 200000, but due to the race condition, the actual output may be less (e.g., 143012), as the threads interfere with each other's access to 'counter', demonstrating how unsynchronized shared variable modifications lead to incorrect results.",
+  "extraction_metadata": {
+    "source": "Operating Systems - Three Easy Pieces",
+    "page_range": "31-31",
+    "extraction_date": "2025-07-13T23:21:07.100247",
+    "has_code": true,
+    "has_explanation": true
+  }
+}

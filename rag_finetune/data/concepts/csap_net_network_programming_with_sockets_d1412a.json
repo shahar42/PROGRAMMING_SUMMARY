@@ -1,0 +1,16 @@
+{
+  "topic": "Network Programming with Client-Server Sockets",
+  "explanation": "Network programming involves the creation of applications that communicate over a network.  Sockets provide an interface for programs to send and receive data across network boundaries. This is crucial for distributed systems and client-server architectures, bridging the gap between hardware (network interface cards, routers) and software (applications).",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "944-945",
+    "extraction_date": "2025-07-29T12:12:18.557867",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.699934"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "// SERVER: Socket Creation and Binding (TCP/IPv4)\nint sockfd, portno = 8080;\nstruct sockaddr_in serv_addr;\n\nsockfd = socket(AF_INET, SOCK_STREAM, 0);\n\n// Set SO_REUSEADDR to avoid \"Address already in use\"\nint optval = 1;\nsetsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));\n\nserv_addr.sin_family = AF_INET;\nserv_addr.sin_addr.s_addr = INADDR_ANY; // Listen on all interfaces\nserv_addr.sin_port = htons(portno);\n\nbind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));\n\n\n// SERVER: Listening and Accepting Connection\nint newsockfd;\nsocklen_t clilen;\nstruct sockaddr_in cli_addr;\n\nlisten(sockfd, 5); // Max 5 pending connections in queue\n\nclilen = sizeof(cli_addr);\nnewsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);\n\n\n// CLIENT: Socket Creation and Connection\nint sockfd, portno = 8080;\nstruct sockaddr_in serv_addr;\nstruct hostent *server; // Resolve hostname\n\nsockfd = socket(AF_INET, SOCK_STREAM, 0);\n\nserver = gethostbyname(\"127.0.0.1\"); // Target server IP/hostname\n\nserv_addr.sin_family = AF_INET;\nbcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);\nserv_addr.sin_port = htons(portno);\n\nconnect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));\n\n\n// DATA TRANSFER: Send and Receive (Blocking I/O)\nchar buffer[1024];\nssize_t bytes_transferred;\n\n// Sending data\nconst char* response = \"ACK\";\nbytes_transferred = write(sockfd, response, strlen(response));\n\n// Receiving data\nbzero(buffer, 1024);\nbytes_transferred = read(sockfd, buffer, 1023);\n\nif (bytes_transferred > 0) {\n    // Process buffer...\n}\n\nclose(sockfd);\nshutdown(sockfd, SHUT_RDWR); // Graceful closure (optional)",
+  "keywords": "socket programming, client-server sockets, network communication, TCP IP sockets"
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "Using the Subscript Operator with std::map for Key Access and Modification",
+  "explanation": "The subscript operator ([]) in std::map provides a convenient way to access or modify the value associated with a specific key. In real-world scenarios, such as building a word frequency counter, this operator is useful for quickly incrementing counts without explicitly checking for key existence first. However, it has a key behavior: if the key does not exist, a new element is inserted with the key and a default-constructed value (e.g., 0 for an int). This can lead to unintended insertions, which might not be desirable in all cases. Best practices include using this operator only when you're okay with potential insertions, as it modifies the map and cannot be used on const maps. To avoid common pitfalls like accidental data addition or performance overhead in large maps, prefer alternatives like std::map::at() for bounds-checked access or std::map::find() followed by an insertion if needed. This pattern promotes idiomatic C++ by balancing convenience with safety, especially in applications involving dynamic data collections.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "dynamic",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:39:42.547465",
+    "book_metadata_added": "2025-10-28T20:22:06.536202"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "std::map<std::string, int> word_counts;\n\n// 1. Assignment (inserts \"hello\" -> 1)\nword_counts[\"hello\"] = 1;\n\n// 2. Auto-Insertion & Modification (Standard idiom)\n// If key \"world\" does not exist, it is default-constructed (0), then incremented (1).\nword_counts[\"world\"]++;\n\n// 3. Access Existing Key\nint count = word_counts[\"hello\"]; // count is 1\n\n// 4. CAUTION: Accessing a non-existent key causes insertion\n// \"unknown\" is inserted with default value (0).\nint lookup = word_counts[\"unknown\"];\n\n// 5. Check size after auto-insertion\n// size() will be 3: \"hello\", \"world\", \"unknown\"\nsize_t map_size = word_counts.size();"
+}

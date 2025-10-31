@@ -1,0 +1,14 @@
+{
+  "topic": "Using Inserters with Standard Algorithms",
+  "explanation": "Standard algorithms like `std::copy` and `std::transform` often require output iterators to write results.  Inserters provide a convenient way to insert elements directly into containers.  `std::back_inserter` adds elements to the end, while `std::front_inserter` adds to the beginning.  Understanding their behavior, especially `front_inserter`'s unique properties, is crucial for efficient and correct code.  Misusing them can lead to unexpected results or inefficient operations.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "chapter": "strings",
+    "extraction_type": "practical_programming",
+    "extraction_date": "2025-08-20T04:23:41.626840",
+    "book_metadata_added": "2025-10-28T20:22:06.564123"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "std::vector<int> src = {1, 2, 3};\nstd::vector<int> dst;\n// back_inserter uses push_back()\n// Appends to the end, preserving order.\n\nstd::copy(src.begin(), src.end(),\n          std::back_inserter(dst));\n\n// dst is now {1, 2, 3}\n\n// ------------------------------------\n\nstd::list<int> L_src = {10, 20, 30};\nstd::list<int> L_dst;\n// front_inserter uses push_front()\n// Only works on containers supporting push_front (list, deque).\n\nstd::transform(L_src.begin(), L_src.end(),\n               std::front_inserter(L_dst),\n               [](int x){ return x + 1; });\n\n// L_dst is {31, 21, 11} (Order is reversed!)\n\n// ------------------------------------\n\nstd::vector<int> V_src = {99, 100};\nstd::vector<int> V_dst = {1, 2, 3};\n// inserter uses container.insert(pos, value)\n// Insertion position remains constant (iterator advances).\n\nauto pos = V_dst.begin();\nstd::advance(pos, 1); // Point to '2'\n\nstd::copy(V_src.begin(), V_src.end(),\n          std::inserter(V_dst, pos));\n\n// V_dst is {1, 99, 100, 2, 3} (Inserted before original '2')",
+  "keywords": "back_inserter, C++ inserter iterator, front_inserter, algorithm output"
+}

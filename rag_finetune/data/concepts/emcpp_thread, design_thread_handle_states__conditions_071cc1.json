@@ -1,0 +1,19 @@
+{
+  "topic": "Thread Handle States: Conditions for Null Handles",
+  "category": "thread, design",
+  "explanation": "A `std::thread` object acts as a handle to an underlying software thread. It is critical to recognize when this handle becomes a 'null' handle, meaning it corresponds to no active software thread. A `std::thread` handle becomes null if it is default-constructed, moved-from (the resource ownership is transferred), joined (the execution completed and resources released), or detached (the connection to the underlying OS thread is severed). Failure to manage these states correctly can lead to unexpected program termination or resource leaks.",
+  "code_example": "std::thread t1(some_func);\nstd::thread t2 = std::move(t1); // t1 becomes a null handle\nt2.join(); // t2 becomes a null handle",
+  "practical_example": "In a thread pool implementation, checking `if (t.joinable())` is necessary before calling `join()` or `detach()`. If a thread object was already moved from or joined, calling `join()` again results in a runtime error.",
+  "keywords": [
+    "null handle",
+    "joined",
+    "detached",
+    "moved-from",
+    "std::thread state"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "242",
+  "chapter": "Item 35: Prefer task-based programming to thread-based programming",
+  "id": "emcpp_thread, design_thread_handle_states__conditions_071cc1",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

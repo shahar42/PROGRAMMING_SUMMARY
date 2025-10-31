@@ -1,44 +1,12 @@
 {
   "topic": "Expert C++ Implementation Concept: Name Lookup and Access Control",
   "explanation": "This concept delves into the intricate details of how C++ compilers handle name lookup, access control (public, private, protected), and their interaction with template instantiation, friend declarations, and inheritance.  It's not just about whether code *compiles*, but *how* the compiler processes the code at various stages (lexing, parsing, name lookup, semantic analysis, code generation).  Performance implications arise from the compiler's choices in resolving names and generating efficient code to handle access control checks at runtime (or, ideally, optimize them away at compile time).",
-  "syntax": "C++ access specifiers (public, private, protected), friend declarations, template metaprogramming, inheritance.",
-  "code_example": [
-    "#include <iostream>",
-    "class Base {",
-    "public:",
-    "  int public_member = 10;",
-    "protected:",
-    "  int protected_member = 20;",
-    "private:",
-    "  int private_member = 30;",
-    "  int internal_func() { return private_member; }",
-    "};",
-    "class Derived : public Base {",
-    "public:",
-    "  void accessMembers() {",
-    "    std::cout << \"Public: \" << public_member << std::endl; // Accessible",
-    "    std::cout << \"Protected: \" << protected_member << std::endl; // Accessible",
-    "    //std::cout << \"Private: \" << private_member << std::endl; // Inaccessible",
-    "  }",
-    "  friend int accessPrivate(Base& b) { return b.private_member; }",
-    "};",
-    "template <typename T>",
-    "int templateAccess(T& obj) {",
-    "  return obj.public_member; // Access based on T's interface",
-    "}",
-    "int main() {",
-    "  Derived d;",
-    "  d.accessMembers();",
-    "  std::cout << \"Private (via friend): \" << accessPrivate(d) << std::endl;",
-    "  std::cout << \"Template Access: \" << templateAccess(d) << std::endl;",
-    "  return 0;",
-    "}"
-  ],
-  "example_explanation": "The compiler performs name lookup during compilation.  Access to members is checked at compile time.  `public_member` is directly accessible.  `protected_member` is accessible within `Derived`.  `private_member` is only accessible through the `friend` function `accessPrivate` or within `Base` itself. The `templateAccess` function demonstrates how the compiler generates code that handles access based on the template argument type `T` at compile time, avoiding runtime overhead if the access is permitted. The generated assembly code would show direct access for public members, potentially extra instructions for protected/private access (or elimination of those checks via compiler optimization if the access is valid), and calls to the `accessPrivate` function for that specific case. The compiler may also inline the `accessPrivate` function to reduce function call overhead.  The behavior differs significantly for templated classes, where access control is evaluated at compile time for each specific instantiation of the template, potentially leading to more efficient code for specific cases but increased compile time.",
   "extraction_metadata": {
     "source": "ISO/IEC 14882:2014 C++ Standard",
     "chapter": "classes",
     "extraction_type": "expert_level",
-    "extraction_date": "2025-08-19T03:08:12.938327"
-  }
+    "extraction_date": "2025-08-19T03:08:12.938327",
+    "book_metadata_added": "2025-10-28T20:22:06.845820"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
 }

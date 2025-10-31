@@ -1,0 +1,18 @@
+{
+  "topic": "Universal References Misidentification: Context Dependency",
+  "category": "type",
+  "explanation": "Assumption: The signature `T&&` always signifies a universal reference, capable of binding to both lvalues and rvalues through template deduction and reference collapsing. Reality: The `T&&` syntax only denotes a universal reference if two strict conditions are met: it must be a function template parameter, and type deduction must be occurring for `T`. If `T` is fixed, pre-specified, or contextually known (e.g., within a class definition, or a function accepting a specific type `Widget&&`), the syntax denotes a strict rvalue reference. Why It Fails: Treating a fixed rvalue reference (which only binds to rvalues) as a universal reference (which binds to lvalues) results in compiler errors when attempting to pass an lvalue to that parameter. Conversely, forgetting that the lvalue rule (Item 23) still applies inside the function body, even for true universal references, leads to inefficient internal copies. This anti-pattern involves confusing syntactic similarity with semantic behavior, leading to either compilation failures or silent performance degradation.",
+  "code_example": "// Not a universal reference, fails to bind lvalues\nclass Widget { \n  void set_data(std::string&& s); // Strict rvalue reference \n};\nstd::string s_lvalue;\nw.set_data(s_lvalue); // Compiler ERROR: Cannot bind lvalue to rvalue ref",
+  "practical_example": "A developer defines a setter function accepting `T&&` inside a non-template class method, intending to use the parameter as a universal reference to handle both copies and moves efficiently. The strict rvalue reference behavior causes the function to reject valid lvalue inputs, requiring unnecessary `std::move` calls at the usage site.",
+  "keywords": [
+    "universal reference",
+    "rvalue reference",
+    "type deduction",
+    "context dependency"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "182-186",
+  "chapter": "Item 24: Distinguish universal references from rvalue references",
+  "id": "emcpp_type_universal_references_misidentification__context_45e8e5",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

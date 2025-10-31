@@ -1,0 +1,16 @@
+{
+  "topic": "personality() System Call",
+  "explanation": "The personality system call sets or retrieves the execution domain of a process, which affects how the kernel maps signal numbers and emulates behaviors of other UNIX-like systems. If the persona argument is not 0xffffffff, it sets the new domain; otherwise, it returns the current one.\n\n**Parameters:**\n- `persona` (unsigned long): The value to set as the new personality, or 0xffffffff to retrieve the current personality without changing it.\n\n**Common Errors:**\n- `EINVAL`: The kernel was unable to change the personality.",
+  "extraction_metadata": {
+    "source": "POSIX System Call Manual",
+    "extraction_date": "2025-09-22T10:38:33.080064",
+    "syscall_name": "personality",
+    "converted_from": "posix_manpage",
+    "original_file": "unix_personality.json",
+    "concept_id": "posix_sys_personality_992011",
+    "book_metadata_added": "2025-10-28T20:22:06.647918"
+  },
+  "book": "POSIX System Call Manual",
+  "code_example": "#define ADDR_NO_RANDOMIZE 0x0040000UL\nunsigned long RETRIEVE_ONLY = 0xffffffffUL;\n\n// 1. Retrieve current execution domain (no change)\nunsigned long current_p = personality(RETRIEVE_ONLY);\n\n// 2. Define new desired persona (e.g., add flag)\nunsigned long desired_p = current_p | ADDR_NO_RANDOMIZE;\n\n// 3. Set the new persona; returns previous value\nlong old_p = personality(desired_p);\n\n// Error Handling Check\nif (old_p == -1L) {\n    // errno == EINVAL: Invalid combination of flags\n}\n\n// Revert if successful\nif (old_p != -1L) {\n    personality(old_p);\n}",
+  "keywords": "personality syscall, process execution domain, linux emulation mode"
+}

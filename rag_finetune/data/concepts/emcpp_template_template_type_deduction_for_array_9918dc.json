@@ -1,0 +1,20 @@
+{
+  "topic": "Template Deduction: Array Type Capture Via Reference",
+  "category": "template",
+  "explanation": "The core concept here is that the standard array-to-pointer decay rule can be bypassed during template type deduction. When a template function parameter is declared as a reference, passing a raw array to it does not cause decay. Instead, the template parameter is deduced as the complete array type, including its size, and the function parameter becomes a reference to that specific array type.\n\nScott Meyers highlights this as a critical exception and a powerful technique for preserving vital type information. He emphasizes that while passing arrays by value or by pointer discards size information at the type system level, passing by reference maintains it. This distinction is the key to writing template utilities that can reason about the size of C-style arrays at compile time, a feat otherwise impossible once decay has occurred.\n\nThe mechanics are straightforward. For a template function with a parameter `T&`, when an array like `const char name[13]` is passed, the compiler matches the argument's type to the parameter. To make this match, `T` must be deduced as `const char [13]`. Consequently, the parameter's full type becomes `const char (&)[13]`, a reference to an array of 13 constant characters. This is a direct consequence of the template deduction rules for reference parameters, which aim to find a `T` that makes the parameter type an exact match for the argument type, including cv-qualifiers and array bounds.\n\nIn practical terms, this enables the creation of powerful compile-time utilities. The classic example is a function template that deduces an array's size. By declaring a parameter as a reference to an array of a deduced size `N`, the compiler is forced to deduce `N` as part of the type deduction process. This allows you to capture the size of a C-style array as a compile-time constant, which can then be used to initialize other data structures, like a `std::array`, or for static assertions and other metaprogramming tasks.\n\nA common pitfall is forgetting that this behavior is exclusive to reference parameters. Developers accustomed to the ubiquity of array-to-pointer decay might not realize this mechanism exists, leading them to write less safe or less efficient code. Additionally, the syntax for an array reference can be intimidating, causing some to shy away from this robust and correct pattern.",
+  "code_example": "// Template parameter is a reference, preventing array-to-pointer decay\ntemplate<typename T>\nvoid f(T& param);\n\n// Template utility to deduce array size at compile time\ntemplate<typename T, std::size_t N>\nconstexpr std::size_t arraySize(T (&)[N]) noexcept {\n    return N;\n}\n\nconst char name[] = \"Scott Meyers\"; // type is const char[13]\n\nf(name); // T is deduced as const char[13], param's type is const char(&)[13]\n\nint keyVals[] = {1, 3, 7, 9}; // type is int[4]\nstd::size_t size = arraySize(keyVals); // N is deduced as 4, returns 4",
+  "practical_example": "A common use case is creating a compile-time safe `array_view` or `span`-like class for a raw C-style array. By taking the array via a template reference parameter, the constructor can deduce its size at compile time and store it, preventing out-of-bounds errors that would be possible if it only received a pointer.",
+  "keywords": [
+    "template type deduction",
+    "array decay",
+    "array reference",
+    "compile-time size",
+    "generic programming",
+    "metaprogramming"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "16-17",
+  "chapter": "Item 1: Understand template type deduction",
+  "id": "emcpp_template_template_type_deduction_for_array_9918dc",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

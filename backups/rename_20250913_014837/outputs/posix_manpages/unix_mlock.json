@@ -1,0 +1,58 @@
+{
+  "name": "mlock",
+  "synopsis": [
+    "#include <sys/mman.h>",
+    "int mlock(const void *addr, size_t len);",
+    "int mlock2(const void *addr, size_t len, unsigned int flags);",
+    "int munlock(const void *addr, size_t len);",
+    "int mlockall(int flags);",
+    "int munlockall(void);"
+  ],
+  "description": "mlock() locks a specified range of the calling process's virtual address space into RAM, preventing it from being paged to swap. mlock2() performs a similar operation with additional flags for behavior control. These functions ensure memory pages remain resident in physical memory until unlocked.",
+  "parameters": [
+    {
+      "name": "addr",
+      "type": "const void*",
+      "description": "Starting address of the memory range to lock"
+    },
+    {
+      "name": "len",
+      "type": "size_t",
+      "description": "Length in bytes of the memory range to lock"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set"
+  },
+  "errors": [
+    {
+      "code": "EAGAIN",
+      "description": "Some or all of the specified address range could not be locked."
+    },
+    {
+      "code": "EINVAL",
+      "description": "The address range is invalid (e.g., overflow) or unknown flags were specified."
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Some of the address range is not mapped, exceeds limits, or violates resource constraints."
+    },
+    {
+      "code": "EPERM",
+      "description": "The caller lacks the necessary privileges (CAP_IPC_LOCK)."
+    }
+  ],
+  "bugs": "In Linux 4.8 and earlier, locked memory accounting for unprivileged processes could double-count overlapping regions, causing failures. In Linux 2.4 series up to 2.4.17, mlockall() with MCL_FUTURE was inherited across fork, and privileged processes dropping capabilities could lead to allocation failures post-2.6.9.",
+  "versions": "Linux",
+  "posix_compliance": null,
+  "examples": [],
+  "related_calls": [],
+  "extraction_metadata": {
+    "syscall_file": "mlock.pdf",
+    "extraction_date": "2025-07-28T17:00:26.566387",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

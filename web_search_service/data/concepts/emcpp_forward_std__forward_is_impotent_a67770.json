@@ -1,0 +1,19 @@
+{
+  "topic": "std::forward is Impotent Outside Deduction Contexts",
+  "category": "forward",
+  "explanation": "The failure mode of `std::forward` centers on the misunderstanding that it provides a universal solution for maintaining argument categories (lvalue/rvalue reference) regardless of context. Programmers often incorrectly attempt to apply `std::forward` outside of a function template context where reference collapsing and type deduction are active. The anti-pattern arises when a developer attempts to use `std::forward` within a template function where the argument type is explicitly specified or when used inside a non-template function receiving an rvalue reference. The core reality is that `std::forward<T>(arg)` relies entirely on the successful deduction of `T` as a universal reference type (`T&&`). If `T` is deduced as a non-reference type (for an rvalue input) or an lvalue reference type (for an lvalue input), `std::forward` works correctly via reference collapsing rules to produce the appropriate reference type (rvalue for moves, lvalue for copies/forwarding). The failure occurs when the function parameter is *not* a universal reference. For instance, if a template parameter is specified as `const T&`, `std::forward` is effectively useless because the input argument has already lost its original rvalue/lvalue character; it is fixed as a constant lvalue reference. More subtly, if `std::forward` is called with an explicit template argument that is *not* the name of the function template parameter that received the universal reference (e.g., calling `std::forward<A>(b)` when `b` was the parameter of type `T&&`), the result is unpredictable or simply incorrect, as `std::forward` loses the necessary link to the deduced type `T`. Crucially, `std::forward` provides its conditional casting functionality only because the parameter it is applied to is derived from a type deduction context that yields a universal reference. If the context is missing, `std::forward` becomes just a complicated, potentially misleading way to cast an object, failing to fulfill its purpose of preserving argument value category across function calls, thus breaking perfect forwarding and silently causing unwanted copies or incorrect behavior.",
+  "code_example": "// Fails because T is fixed as 'int' and p is not a universal ref.\nvoid process(int p) {\n    // Incorrect usage of forward (p is passed by value)\n    other_func(std::forward<decltype(p)>(p)); // Always an lvalue cast\n}",
+  "practical_example": "A developer tries to create a helper function that takes an already established rvalue reference and forwards it internally. They use `std::forward` but fix the template parameter: `template<typename T> void helper(T&& val) { final_call(std::forward<T>(val)); }`. Later, they refactor `helper` to explicitly take a reference: `void helper(MyType&& val) { final_call(std::forward<MyType>(val)); }`. This refactoring breaks perfect forwarding entirely because `MyType` is not a deduced type, causing `std::forward` to incorrectly cast the argument, resulting in unnecessary complexity and potential misinterpretation of the input.",
+  "keywords": [
+    "std::forward",
+    "type deduction",
+    "universal reference",
+    "forwarding failure",
+    "template"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "178-182",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_forward_std__forward_is_impotent_a67770",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

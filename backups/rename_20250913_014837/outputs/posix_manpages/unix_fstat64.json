@@ -1,0 +1,97 @@
+{
+  "name": "fstat64",
+  "synopsis": [
+    "#include <sys/stat.h>",
+    "int fstat64(int fd, struct stat64 *statbuf);"
+  ],
+  "description": "fstat64 is a variant of fstat that retrieves information about the file referred to by the file descriptor fd, using a 64-bit stat structure for compatibility with larger file systems and attributes.",
+  "parameters": [
+    {
+      "name": "fd",
+      "type": "int",
+      "description": "File descriptor of the file to retrieve status for"
+    },
+    {
+      "name": "statbuf",
+      "type": "struct stat64 *",
+      "description": "Pointer to a structure where the file status information will be stored"
+    }
+  ],
+  "return_value": {
+    "success": "Returns 0 on success",
+    "failure": "Returns -1 on error, and errno is set to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "EACCES",
+      "description": "Search permission is denied for one of the directories in the path prefix of pathname"
+    },
+    {
+      "code": "EBADF",
+      "description": "fd is not a valid open file descriptor"
+    },
+    {
+      "code": "EFAULT",
+      "description": "Bad address"
+    },
+    {
+      "code": "ELOOP",
+      "description": "Too many symbolic links encountered while traversing the path"
+    },
+    {
+      "code": "ENAMETOOLONG",
+      "description": "Pathname is too long"
+    },
+    {
+      "code": "ENOENT",
+      "description": "A component of pathname does not exist or is a dangling symbolic link"
+    },
+    {
+      "code": "ENOMEM",
+      "description": "Out of memory"
+    },
+    {
+      "code": "ENOTDIR",
+      "description": "A component of the path prefix is not a directory"
+    },
+    {
+      "code": "EOVERFLOW",
+      "description": "File size, inode number, or number of blocks cannot be represented in the appropriate types"
+    }
+  ],
+  "bugs": "Different fields in the stat structure may contain state information from different moments during execution, potentially leading to inconsistencies if the file is modified concurrently.",
+  "versions": "Linux 2.4",
+  "posix_compliance": "POSIX.1-2001",
+  "examples": [
+    "#include <sys/stat.h>",
+    "#include <stdio.h>",
+    "#include <stdlib.h>",
+    "int main(int argc, char *argv[]) {",
+    "    struct stat sb;",
+    "    if (argc != 2) {",
+    "        fprintf(stderr, \"Usage: %s <pathname>\\n\", argv[0]);",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    if (lstat(argv[1], &sb) == -1) {",
+    "        perror(\"lstat\");",
+    "        exit(EXIT_FAILURE);",
+    "    }",
+    "    // (Example adapted for fstat64 context)",
+    "    printf(\"File information retrieved\\n\");",
+    "    exit(EXIT_SUCCESS);",
+    "}"
+  ],
+  "related_calls": [
+    "stat",
+    "lstat",
+    "fstatat",
+    "statx"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "fstat64.pdf",
+    "extraction_date": "2025-07-27T17:40:24.842233",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

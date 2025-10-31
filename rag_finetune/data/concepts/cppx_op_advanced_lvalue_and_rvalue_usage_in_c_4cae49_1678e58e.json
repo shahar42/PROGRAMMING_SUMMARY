@@ -1,0 +1,18 @@
+{
+  "topic": "Advanced Lvalue and Rvalue Usage in C",
+  "explanation": "In advanced C programming, understanding the nuanced distinction between lvalues and rvalues is crucial for mastering memory management, pointer manipulation, and optimizing code. Unlike basic usage, advanced techniques involve leveraging rvalue references, move semantics, and understanding how expressions yield objects or memory locations, which enables efficient resource transfer, custom memory management, and safe manipulation of complex data structures. Mastery of these concepts allows developers to write high-performance, memory-safe C code that interacts deeply with the language's underlying memory model.",
+  "extraction_metadata": {
+    "source": "C++ Primer (5th Edition)",
+    "page_range": "190-190",
+    "extraction_date": "2025-08-20T02:14:00.788246",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "cpp_primer",
+    "chapter": "expressions",
+    "extraction_type": "practical_programming",
+    "book_metadata_added": "2025-10-28T20:22:06.510236"
+  },
+  "book": "C++ Primer (5th Edition)",
+  "code_example": "class BigResource {\n    int* data;\npublic:\n    // Lvalue Copy Constructor\n    BigResource(const BigResource& other);\n\n    // Rvalue Move Constructor (Stealing resources)\n    BigResource(BigResource&& other) noexcept\n    : data(std::exchange(other.data, nullptr)) {}\n\n    // Rvalue Move Assignment\n    BigResource& operator=(BigResource&& other) noexcept {\n        if (this != &other) {\n            delete[] data;\n            data = std::exchange(other.data, nullptr);\n        }\n        return *this;\n    }\n};\n\ntemplate <typename T>\nvoid sink(T&& arg) {\n    // T&& is a forwarding reference (universal reference)\n    \n    // std::forward preserves the original value category (Lvalue or Rvalue)\n    process(std::forward<T>(arg));\n}\n\nstruct Point {\n    int val = 0;\n    // Lvalue ref qualifier: allows use on named objects\n    int get_val() const & { return val; }\n    \n    // Rvalue ref qualifier: allows use on temporaries (prvalues)\n    int get_val() && { return val + 100; }\n};\n\nPoint p{10};\nint lval_res = p.get_val();       // Calls & version (10)\nint rval_res = Point{5}.get_val(); // Calls && version (105)",
+  "keywords": "Move semantics, Rvalue reference, Lvalue Rvalue, C++ move constructor"
+}

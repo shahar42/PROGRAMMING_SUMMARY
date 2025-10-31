@@ -1,0 +1,18 @@
+{
+  "topic": "std::forward Failure: Incorrect Context for Conditional Casting",
+  "category": "forward",
+  "explanation": "Assumption: `std::forward` guarantees perfect forwarding simply by being present in the function body, regardless of how it is templated or used. Reality: `std::forward<T>(param)` only casts `param` to an rvalue reference (thus enabling a move) if and only if the explicitly specified template argument `T` is an rvalue reference type (i.e., `Widget&&`). If `T` is deduced or specified as a plain value type (`Widget`) or an lvalue reference (`Widget&`), `std::forward` maintains the lvalue classification of the parameter, resulting in a copy. Why It Fails: Perfect forwarding relies on the conditional nature of the cast provided by `std::forward` and the complex rules of universal reference deduction (Item 24). Incorrectly providing the template argument `T` (e.g., forgetting the reference qualification, or forcing it into a non-templated context) prevents the necessary conditional rvalue cast from occurring when it should, leading to unwanted copies or incorrect overload resolution.",
+  "code_example": "// Failure to use forwarding type correctly\nstruct Widget { \n  template<typename T> \n  void log_and_process(T&& param) { \n    // ERROR: T must be explicitly specified (or deduced) with reference info\n    process(std::forward<std::decay_t<T>>(param)); // Fails to move rvalues \n  }\n};",
+  "practical_example": "A developer attempts to simplify the forwarding wrapper by manually applying `std::remove_reference` before forwarding, inadvertently disabling the mechanism required to cast rvalues, causing unnecessary copies throughout the system.",
+  "keywords": [
+    "std::forward",
+    "conditional cast",
+    "reference qualification",
+    "perfect forwarding failure"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "177-178",
+  "chapter": "Item 23: Understand std::move and std::forward",
+  "id": "emcpp_forward_std__forward_failure__d01ca6",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

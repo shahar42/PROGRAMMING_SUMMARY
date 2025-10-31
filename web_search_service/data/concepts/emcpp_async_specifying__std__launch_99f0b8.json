@@ -1,0 +1,19 @@
+{
+  "topic": "Specifying `std::launch::async` for Guaranteed Asynchronicity",
+  "category": "async",
+  "explanation": "Assumption: Calling `std::async` guarantees that the callable object will run concurrently in a separate thread. Reality: The default launch policy for `std::async` is `std::launch::async | std::launch::deferred`. This allows the runtime to choose whether to run the function immediately in a new thread, or to defer execution until the associated `std::future`'s `wait` or `get` member function is called. Why It Fails: If the developer relies on the function running truly asynchronously (e.g., for guaranteed parallelism or to avoid blocking the main thread), and the runtime defers execution, unexpected synchronization or performance bottlenecks occur. To guarantee asynchronous execution, the policy must be explicitly specified as `std::launch::async`.",
+  "code_example": "// Does not guarantee concurrent execution\nauto f1 = std::async(some_task);\n\n// Guarantees execution in a separate thread\nauto f2 = std::async(std::launch::async, some_task);",
+  "practical_example": "A user interface application calls `std::async` to perform a long file save operation, expecting the UI to remain responsive. If the runtime chooses the deferred policy, calling `f.get()` later blocks the UI thread entirely until the save completes, defeating the purpose of using `std::async` for responsiveness.",
+  "keywords": [
+    "std::launch::async",
+    "std::launch::deferred",
+    "asynchronous",
+    "concurrency",
+    "launch policy"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "263-264",
+  "chapter": "Item 36: Specify std::launch::async if asynchronicity is essential",
+  "id": "emcpp_async_specifying__std__launch_99f0b8",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

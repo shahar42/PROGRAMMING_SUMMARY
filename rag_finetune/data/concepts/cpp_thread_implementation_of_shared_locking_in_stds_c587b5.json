@@ -1,0 +1,13 @@
+{
+  "topic": "Implementation of Shared Locking in std::shared_mutex",
+  "explanation": "The implementation of shared locking in std::shared_mutex involves advanced synchronization mechanisms to allow multiple threads to acquire a shared (read) lock while preventing exclusive (write) access. Under the hood, compilers and standard library implementations typically use atomic operations and hardware-specific primitives (e.g., compare-and-exchange instructions) to manage the mutex state. For lock_shared(), the compiler translates this into a runtime operation that atomically checks if an exclusive lock is held; if not, it increments a shared counter (often an std::atomic variable) to track the number of shared owners. This ensures that multiple threads can proceed concurrently up to the implementation-defined limit (at least 10,000). Memory layout-wise, std::shared_mutex likely includes padding and alignment to avoid false sharing, with internal fields such as a state word (e.g., a 64-bit integer combining shared and exclusive flags) and possibly a queue for waiting threads. Performance implications include reduced contention for read-heavy workloads, as shared locks enable parallelism, but atomic operations introduce overhead (e.g., cache line invalidations and bus traffic). At the assembly level, lock_shared() may involve loops with CAS (Compare-And-Swap) instructions, memory barriers (e.g., MFENCE on x86), and conditional branching to handle contention, potentially leading to spinning or kernel-level blocking. This is purely runtime behavior, as the compiler cannot resolve locking at compile-time due to dynamic thread interactions. If a deadlock is detected, exceptions like std::system_error are thrown, leveraging OS signals for error conditions.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "statements",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T09:49:13.890822",
+    "book_metadata_added": "2025-10-28T20:22:06.925099"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "std::shared_mutex state_lock;\nint data_count = 0;\n\nvoid concurrent_read() {\n    // Shared lock: Allows other readers, blocks writers\n    std::shared_lock<std::shared_mutex> lk(state_lock);\n    // Reads protected resource\n    int local_copy = data_count;\n} // shared lock released\n\nvoid exclusive_write(int new_val) {\n    // Unique lock: Blocks all other access (readers/writers)\n    std::unique_lock<std::shared_mutex> lk(state_lock);\n    // Writes protected resource\n    data_count = new_val;\n} // unique lock released"
+}

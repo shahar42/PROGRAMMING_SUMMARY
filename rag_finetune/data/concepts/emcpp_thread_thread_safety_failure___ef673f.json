@@ -1,0 +1,18 @@
+{
+  "topic": "Thread Safety Failure: `std::atomic` Copy/Move Operations are Deleted",
+  "category": "thread",
+  "explanation": "Assumption: Since `std::atomic<T>` manages a value of type `T`, standard C++ copy construction or assignment should work (`auto y = x;` or `y = x;`). Reality: The copy constructor and copy assignment operators for `std::atomic` types are explicitly deleted, and move operations are also unsupported. Why It Fails: The purpose of `std::atomic` is to ensure all operations on it are atomic. If copying were allowed, the operation (atomically reading `x` AND atomically writing to `y`) would need to be treated as a single atomic unit spanning two separate memory locations. General hardware does not support such a combined atomic read-write operation, making it impossible to guarantee atomicity during a standard copy. Therefore, the operations are deleted to prevent hidden data races or violation of the atomicity guarantee.",
+  "code_example": "std::atomic<int> x = 5;\n// auto y = x;       // ERROR: Copy constructor deleted\n// std::atomic<int> z; z = x; // ERROR: Copy assignment deleted",
+  "practical_example": "A developer attempts to pass an `std::atomic` object by value to a helper function, expecting the variable's value to be safely copied. The compilation fails due to the deleted copy constructor, forcing the developer to rethink the transfer mechanism (e.g., pass by reference or pass the loaded value).",
+  "keywords": [
+    "atomic copy",
+    "deleted operations",
+    "atomicity guarantee",
+    "hardware limitations"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "276-277",
+  "chapter": "Item 40: Use std::atomic for concurrency, volatile for special memory",
+  "id": "emcpp_thread_thread_safety_failure___ef673f",
+  "book": "Effective Modern C++ by Scott Meyers"
+}

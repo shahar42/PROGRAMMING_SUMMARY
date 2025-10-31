@@ -1,0 +1,13 @@
+{
+  "topic": "Comparison of std::unique_ptr with nullptr",
+  "explanation": "In C++, the comparison of std::unique_ptr<T, D> with nullptr, such as via operator== or operator!=, is a key feature for smart pointers that allows developers to check if the unique_ptr is managing a null pointer. Internally, the compiler implements this by leveraging the standard library's definition, which typically involves comparing the raw pointer stored within the unique_ptr to nullptr. For std::unique_ptr, the object consists of a pointer to the managed object and a deleter object, but the comparison with nullptr only accesses the raw pointer, making it efficient. Memory layout-wise, std::unique_ptr is designed to have the same size as a raw pointer in most cases (e.g., sizeof(std::unique_ptr<T>) == sizeof(T*) when using the default deleter), as the deleter is often an empty type optimized away. Performance implications are minimal: the comparison is a simple pointer check, equivalent to comparing a raw pointer to nullptr, which translates to a fast machine instruction at runtime. At the assembly level, this might involve a CMP instruction (e.g., on x86, comparing the pointer value to zero), followed by a conditional jump, with no additional overhead from the smart pointer's deleter unless it's non-default. This behavior is purely runtime, as the actual pointer value isn't known until execution, though the compiler can optimize the call to inline the comparison if the standard library provides an inlineable implementation. However, the provided operator< with nullptr is not standard; typically, it's operator== or operator!= for nullptr comparisons, and operator< is used for ordering between two unique_ptr instances.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "classes",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-08-19T05:10:16.301169",
+    "book_metadata_added": "2025-10-28T20:22:06.919890"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard",
+  "code_example": "struct Widget {};\n\n// Null initialization\nstd::unique_ptr<Widget> p_null;\n\n// Valid initialization\nauto p_valid = std::make_unique<Widget>();\n\n// Comparison using explicit nullptr check\nif (p_null == nullptr) { /* ... */ }\nif (p_valid != nullptr) { /* ... */ }\n\n// Idiomatic Boolean check (preferred)\nif (p_valid) { /* Not null */ }\nif (!p_null) { /* Is null */ }\n\n// Obtaining the raw pointer for comparison\nbool raw_check = (p_valid.get() != nullptr); // Internal behavior\np_null.reset(); // Also sets internal pointer to nullptr\np_null.release(); // Returns raw pointer, sets unique_ptr to nullptr"
+}

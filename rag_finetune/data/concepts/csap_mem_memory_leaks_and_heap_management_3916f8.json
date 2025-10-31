@@ -1,0 +1,16 @@
+{
+  "topic": "Memory Leaks and Heap Management",
+  "explanation": "A memory leak occurs when a program allocates memory using functions like `malloc` but fails to release it using `free`, leading to gradual accumulation of unusable memory. This is a critical concern in long-running processes like daemons and servers, as it can eventually exhaust the available virtual address space, causing program crashes or instability. Effective heap management, involving careful allocation and deallocation of memory, is essential to prevent memory leaks and ensure program robustness.",
+  "extraction_metadata": {
+    "source": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+    "page_range": "900-900",
+    "extraction_date": "2025-07-29T11:07:29.057932",
+    "has_code": false,
+    "has_explanation": true,
+    "book_context": "csapp_systems",
+    "book_metadata_added": "2025-10-28T20:22:06.738052"
+  },
+  "book": "Computer Systems: A Programmer's Perspective (3rd Edition)",
+  "code_example": "void dangerous_alloc() {\n    char* big_block = (char*)malloc(1024 * 100);\n    // Leak occurs if free(big_block) is skipped\n    if (big_block == NULL) return;\n    // ... function exit\n}\n\n// C: Guaranteed Deallocation Pattern\nvoid safe_alloc_c() {\n    int* data = NULL;\n    data = (int*)malloc(sizeof(int) * 10);\n    if (!data) return;\n    // Processing...\n    free(data);\n}\n\n// C++: Manual Leak Example\nvoid leak_cpp() {\n    std::string* s = new std::string(\"Leak Me\");\n    // Leak occurs: delete s is missing\n}\n\n// C++: RAII (Resource Acquisition Is Initialization)\nclass Resource {\n    int* ptr;\npublic:\n    Resource(int val) : ptr(new int(val)) {}\n    ~Resource() { delete ptr; } // Guarantee cleanup\n};\n\n// C++: Smart Pointer Usage (Standard Practice)\nvoid safe_alloc_cpp() {\n    // Automatically calls delete[]\n    std::unique_ptr<char[]> buffer =\n        std::make_unique<char[]>(1024);\n}",
+  "keywords": "Memory Leak, Heap Management, unreleased memory, C++ malloc free"
+}

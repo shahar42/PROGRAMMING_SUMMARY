@@ -1,0 +1,99 @@
+{
+  "name": "msgrcv",
+  "synopsis": [
+    "#include <sys/msg.h>",
+    "ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp, int msgflg);"
+  ],
+  "description": "The msgrcv() system call receives a message from a System V message queue. It requires the calling process to have read permission on the queue and allows message selection based on the specified type. On success, it copies the message into the provided buffer.",
+  "parameters": [
+    {
+      "name": "msqid",
+      "type": "int",
+      "description": "Message queue identifier"
+    },
+    {
+      "name": "msgp",
+      "type": "void*",
+      "description": "Pointer to the buffer to receive the message"
+    },
+    {
+      "name": "msgsz",
+      "type": "size_t",
+      "description": "Size of the message buffer"
+    },
+    {
+      "name": "msgtyp",
+      "type": "long",
+      "description": "Message type for selection; 0 for the first message, positive for a specific type"
+    },
+    {
+      "name": "msgflg",
+      "type": "int",
+      "description": "Flags that control the operation, such as IPC_NOWAIT or MSG_COPY"
+    }
+  ],
+  "return_value": {
+    "success": "Returns the number of bytes actually copied into the mtext array",
+    "failure": "Returns -1 on error, and sets errno to indicate the error"
+  },
+  "errors": [
+    {
+      "code": "E2BIG",
+      "description": "The message text length is greater than msgsz and MSG_NOERROR isn't specified in msgflg"
+    },
+    {
+      "code": "EACCES",
+      "description": "The calling process does not have read permission on the message queue"
+    },
+    {
+      "code": "EFAULT",
+      "description": "The address pointed to by msgp isn't accessible"
+    },
+    {
+      "code": "EIDRM",
+      "description": "While the process was sleeping to receive a message, the message queue was removed"
+    },
+    {
+      "code": "EINTR",
+      "description": "While the process was sleeping to receive a message, the process caught a signal"
+    },
+    {
+      "code": "EINVAL",
+      "description": "msqid was invalid, or msgsz was less than 0"
+    },
+    {
+      "code": "EINVAL",
+      "description": "msgflg specified MSG_COPY, but not IPC_NOWAIT (since Linux 3.14)"
+    },
+    {
+      "code": "EINVAL",
+      "description": "msgflg specified both MSG_COPY and MSG_EXCEPT (since Linux 3.14)"
+    },
+    {
+      "code": "ENOMSG",
+      "description": "IPC_NOWAIT was specified in msgflg and no message of the requested type existed on the message queue"
+    },
+    {
+      "code": "ENOMSG",
+      "description": "IPC_NOWAIT and MSG_COPY were specified in msgflg and the queue contains less than msgtyp messages"
+    },
+    {
+      "code": "ENOSYS",
+      "description": "Both MSG_COPY and IPC_NOWAIT were specified in msgflg, and this kernel was configured without CONFIG_CHECKPOINT_RESTORE (since Linux 3.8)"
+    }
+  ],
+  "bugs": "In Linux 3.13 and earlier, if msgrcv() was called with the MSG_COPY flag but without IPC_NOWAIT, and the message queue contained less than msgtyp messages, the call would block until the next message is written to the queue and return a copy regardless of position. This bug is fixed in Linux 3.14. Specifying both MSG_COPY and MSG_EXCEPT in msgflg is a logical error, which was not diagnosed in Linux 3.13 and earlier but is fixed in Linux 3.14.",
+  "versions": "Linux-specific, with changes in 3.14",
+  "posix_compliance": null,
+  "related_calls": [
+    "msgsnd",
+    "msgctl"
+  ],
+  "extraction_metadata": {
+    "syscall_file": "msgrcv.pdf",
+    "extraction_date": "2025-07-29T11:56:32.999969",
+    "extractor": "posix_manpage_extractor",
+    "ai_model": "grok",
+    "source": "POSIX System Call Manual"
+  }
+}

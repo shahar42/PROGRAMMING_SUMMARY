@@ -1,0 +1,35 @@
+{
+  "topic": "Compile-Time Polymorphism via Template Metaprogramming and its impact on Code Generation",
+  "explanation": "Template metaprogramming allows computations to be performed at compile time, generating highly optimized code. This contrasts with runtime polymorphism (virtual functions) where the function call is resolved at runtime, incurring overhead.  The compiler's ability to perform these calculations during compilation affects code size, execution speed, and memory layout significantly.  Crucially, understanding how the compiler instantiates templates and performs template argument deduction is critical for optimizing performance and avoiding unexpected behavior.  Failure to properly manage template instantiation can lead to code bloat, compilation errors, or unexpected runtime behavior related to name mangling and symbol resolution.",
+  "syntax": "C++ templates using recursion and specialization to achieve compile-time computation:\n\n```c++\ntemplate <int N>\nstruct Factorial {\n  static constexpr int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <> \nstruct Factorial<0> {\n  static constexpr int value = 1;\n};\n\ntemplate <typename T, size_t N>\nconstexpr size_t arraySize(T (&)[N]) {\n return N;\n}\n```\n\n**Implementation Notes:** The compiler will recursively instantiate `Factorial` for each value of `N` down to the base case (`N=0`).  This generates distinct compiled code for each instantiation, eliminating the need for runtime calculation.  The `constexpr` keyword ensures the calculation happens at compile time. The `arraySize` example shows compile-time array size determination.",
+  "code_example": [
+    "#include <iostream>",
+    "#include <array>",
+    "template <int N>",
+    "struct Factorial {",
+    "  static constexpr int value = N * Factorial<N - 1>::value;",
+    "};",
+    "template <>",
+    "struct Factorial<0> {",
+    "  static constexpr int value = 1;",
+    "};",
+    "template <typename T, size_t N>",
+    "constexpr size_t arraySize(T (&)[N]) {",
+    "  return N;",
+    "}",
+    "int main() {",
+    "  constexpr int fact5 = Factorial<5>::value; // Computed at compile time",
+    "  std::cout << \"Factorial of 5: \" << fact5 << std::endl;",
+    "  std::array<int, arraySize(std::array<int, 10>{})] arr; // Array size determined at compile time",
+    "  std::cout << \"Array size: \" << arr.size() << std::endl;",
+    "  return 0;",
+    "}"
+  ],
+  "example_explanation": "The compiler will generate code for `Factorial<5>` during compilation. This involves recursively calculating 5 * 4 * 3 * 2 * 1 resulting in the value 120. This value is then directly embedded into the compiled executable, avoiding any runtime calculation. Similarly, `arraySize` function is evaluated during compilation determining the array size, leading to efficient memory allocation without any runtime overhead. The absence of function calls at runtime contributes significantly to performance improvements. Examining the assembly code would reveal direct assignments rather than function calls or dynamic memory allocation related to the factorial and array size calculations.  Moreover, different compiler optimizations will impact final code size and speed (e.g., constant folding and inlining).  Poorly designed template metaprograms (unbounded recursion for example) can lead to excessive compilation time or even compiler crashes.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic",
+    "extraction_type": "expert_level",
+    "extraction_date": "2025-09-11T16:55:14.226021"
+  }
+}
