@@ -1,0 +1,22 @@
+{
+  "topic": "Predicate Signature for Associative Container Iteration",
+  "category": "trait",
+  "explanation": "When applying generic algorithms like `std::find_if`, `std::count_if`, or `std::for_each` to associative containers (`std::map`, `std::set`, etc.), the provided predicate (or function object) must correctly accept the container's `value_type`.\n\nFor `std::map<K, V>` and `std::multimap<K, V>`, the `value_type` is defined as `std::pair<const K, V>`. The key (K) is constant because modifying the key would violate the map's ordering invariant without proper rebalancing, which is not supported by direct element modification.\n\nThe predicate's call operator (`operator()`) must therefore accept an argument compatible with `const std::pair<const K, V>&` (or by value, as shown in the text example, though pass-by-const-reference is usually preferred for efficiency). Failure to use `const K` in the pair definition within the predicate signature can lead to compilation errors or unexpected behavior, especially when relying on template deduction.\n\n**Signature Requirement:** The predicate must be callable with `P(value_type)`, where `value_type` is `std::pair<const K, V>` for maps, and must return a type convertible to `bool`.",
+  "code_example": "#include <map>\n#include <algorithm>\n\ntemplate <class K, class V>\nstruct ValueEquals {\n    V target_value;\n    ValueEquals(const V& v) : target_value(v) {}\n    \n    // CRITICAL: Argument must match map::value_type: pair<const K, V>\n    bool operator() (const std::pair<const K, V>& elem) const {\n        return elem.second == target_value;\n    }\n};\n\nint main() {\n    std::map<int, double> m = {{1, 1.1}, {2, 2.2}};\n    auto pos = std::find_if(m.begin(), m.end(), \n        ValueEquals<int, double>(2.2)\n    );\n    // pos now points to {2, 2.2}\n}",
+  "practical_example": "Developing a generic library function that accepts an iterator range and a predicate. If this function is meant to work with maps, the developer must use `typename std::iterator_traits<It>::value_type` to correctly define the predicate requirement, ensuring the `const` qualifier on the key within the pair is correctly handled.",
+  "keywords": [
+    "predicate signature",
+    "function object",
+    "functor",
+    "map value_type",
+    "std::pair",
+    "const key",
+    "iterator traits",
+    "find_if"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "188",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_trait_predicate_signature_for_associative_container_6fe912",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

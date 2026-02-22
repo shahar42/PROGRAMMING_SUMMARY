@@ -1,0 +1,21 @@
+{
+  "topic": "Search Performance Disparity in Sorted Maps",
+  "category": "container",
+  "explanation": "Maps (`std::map`, `std::multimap`) are optimized for key-based lookup. Their internal structure (typically a self-balancing binary search tree, like a Red-Black tree) guarantees logarithmic time complexity for searching, insertion, and deletion relative to the number of elements (O(log N)).\n\nTechnical Details:\n- Key Search (using `find`, `count`, `equal_range`): O(log N).\n- Value Search (searching based on `mapped_type`): O(N).\n\nPurpose:\nSince the structure is ordered only by the key, the container cannot utilize its binary search properties when searching for a value. Searching for a specific value requires iterating through every element in the container and checking the mapped component, resulting in linear time complexity (O(N)).\n\nUsage Guidance:\nIf the primary requirement is fast lookups based on the mapped value, a standard map is inefficient. Alternatives include maintaining a second map where the roles are reversed (Value -> Key), or using specialized libraries for bidirectional maps (boost::bimap).\n\nPitfalls:\nAttempting to search a large map by value frequently introduces significant performance bottlenecks that scale poorly. This is a common mistake when migrating from hash-based structures where secondary lookups might be faster, or when misapplying map structure knowledge.",
+  "code_example": "#include <map>\n#include <algorithm>\n#include <iostream>\n\nint main() {\n    std::map<int, std::string> m = {{1, \"Apple\"}, {2, \"Banana\"}};\n    \n    // O(log N) Key Search (Efficient)\n    auto it_key = m.find(1);\n    \n    // O(N) Value Search (Inefficient)\n    auto it_val = std::find_if(\n        m.begin(), m.end(), \n        [](const auto& pair) { \n            return pair.second == \"Banana\"; \n        }\n    );\n    \n    if (it_val != m.end()) {\n        std::cout << \"Found key: \" << it_val->first << \" (O(N))\\n\";\n    }\n}",
+  "practical_example": "In a networking application, using a map to look up a connection object (value) based on an established session ID (key) is fast (O(log N)). However, trying to find all connections associated with a specific user name stored within the connection object (value) requires a full O(N) scan, making the system slow under heavy load.",
+  "keywords": [
+    "O(log N) search",
+    "O(N) search",
+    "key lookup",
+    "value lookup",
+    "search complexity",
+    "std::find_if",
+    "Red-Black tree"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "174",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_search_performance_disparity_in_sorted_9e5769",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

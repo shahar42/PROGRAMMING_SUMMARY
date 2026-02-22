@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Ownership Transfer Semantics and Non-Const Copy Requirements",
+  "category": "util",
+  "explanation": "The `std::auto_ptr` (deprecated since C++11, removed in C++17) implemented strict ownership semantics, but achieved ownership transfer using C++98 features, resulting in non-standard copy behavior.\n\n**Definition**: Unlike standard value types, the copy constructor and copy assignment operator of `std::auto_ptr` take their right-hand side argument (`rhs`) by non-constant reference (`auto_ptr<T>& rhs`). When a copy or assignment occurs, ownership is transferred from `rhs` to the target object, and the internal pointer of `rhs` is set to null.\n\n**Technical Details**:\n1. The transfer is explicitly implemented using `rhs.release()`, which returns the raw pointer and nullifies `rhs`.\n2. Since `rhs` is modified (nullified), it must be passed as a non-const reference.\n3. This behavior violates the fundamental principle of value semantics (where copies should be independent), leading to unexpected side effects, especially when used in standard containers or algorithms that rely on const-correct copying.\n\n**Pitfalls**:\n- **Container Incompatibility**: Using `auto_ptr` in STL containers (like `std::vector`) leads to undefined behavior or logical errors, as the container's internal operations (e.g., sort, resize, copy) may inadvertently nullify elements.\n- **Dangling Pointers**: If an `auto_ptr` is passed by value to a function, the function receives ownership, and the original caller's `auto_ptr` is nullified, potentially leading to errors if the original object is later accessed.\n\n**Comparison**: This flawed ownership model led directly to the introduction of move semantics in C++11 and the creation of `std::unique_ptr`, which enforces transfer semantics correctly and prevents accidental copying.",
+  "code_example": "#include <memory>\n#include <iostream>\n\n// NOTE: Requires C++03 or C++11/14 with deprecation warnings\nvoid transfer_ownership(std::auto_ptr<int> p) {\n    // p now owns the resource\n    std::cout << \"Inside function.\\n\";\n}\n\nint main() {\n    std::auto_ptr<int> original(new int(42));\n    \n    // 1. Copy Construction: Transfers ownership\n    std::auto_ptr<int> copy = original; \n    \n    // original is now nullified\n    if (original.get() == nullptr) {\n        std::cout << \"Original is null after copy.\\n\";\n    }\n    \n    // 2. Pass by Value: Transfers ownership\n    std::auto_ptr<int> source(new int(100));\n    transfer_ownership(source); // Source is nullified here\n    \n    if (source.get() == nullptr) {\n        std::cout << \"Source is null after function call.\\n\";\n    }\n}",
+  "practical_example": "In a legacy application using `auto_ptr`, attempting to return an `auto_ptr` from a function and assigning it to another variable often resulted in unexpected nullification of the source object, making debugging difficult. If the original source was stored in a data structure, the structure would contain a null pointer after the 'copy' operation.",
+  "keywords": [
+    "auto_ptr",
+    "ownership transfer",
+    "non-const copy",
+    "release()",
+    "C++03",
+    "value semantics violation",
+    "deprecated"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "56",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_ownership_fcf4fa",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

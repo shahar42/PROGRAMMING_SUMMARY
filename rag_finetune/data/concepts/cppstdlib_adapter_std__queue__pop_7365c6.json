@@ -1,0 +1,20 @@
+{
+  "topic": "std::queue::pop() Void Return Semantics and Exception Safety",
+  "category": "adapter",
+  "explanation": "The `std::queue::pop()` member function removes the element at the front of the queue but returns `void`. It does not return the value of the element being removed. This design choice mandates a two-step process for processing elements: access (`front()`) followed by removal (`pop()`).\n\nPurpose: This separation is a critical design feature for achieving strong exception safety guarantees, particularly when the stored element type `T` has a potentially throwing move or copy constructor/assignment operator.\n\nTechnical Details:\n1. If `pop()` were implemented to return `T` by value, the element would first be removed internally, and then copied/moved out. If the copy/move operation throws an exception, the element is lost (removed from the queue) but the calling function never received it, potentially leading to data loss.\n2. By using the sequence `T x = q.front(); q.pop();`, if the copy/move assignment of `q.front()` to `x` throws, the element remains safely in the queue, allowing for recovery or retry.\n3. Complexity: `pop()` is O(1) constant time, assuming the underlying container's removal operation is O(1) (e.g., using `std::list` or `std::deque`).\n\nPitfalls: The primary pitfall is forgetting the precondition: the caller must ensure the queue is not empty before calling `pop()`. Calling `pop()` on an empty queue results in Undefined Behavior.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nvoid process_queue(std::queue<std::string>& q) {\n    while (!q.empty()) {\n        // Step 1: Access the element safely\n        const std::string& item = q.front();\n        std::cout << \"Processing: \" << item << std::endl;\n        \n        // Step 2: Remove the element\n        q.pop(); \n    }\n}\n\n// Note: Never combine access and pop in a single line\n// std::string bad_item = q.pop(); // Not possible, pop returns void",
+  "practical_example": "When implementing a message broker where messages are complex objects (e.g., network packets), ensuring that a packet is not lost if processing fails is paramount. The two-step process guarantees that if the packet object's move constructor throws when retrieved, the packet remains in the queue until successful retrieval is confirmed by the subsequent `pop()` call.",
+  "keywords": [
+    "pop()",
+    "void return",
+    "exception safety",
+    "two-step access",
+    "strong guarantee",
+    "queue design"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "391",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__queue__pop_7365c6",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

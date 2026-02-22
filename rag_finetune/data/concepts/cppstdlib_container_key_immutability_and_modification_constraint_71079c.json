@@ -1,0 +1,20 @@
+{
+  "topic": "Key Immutability and Modification Constraint in Sorted Associative Containers",
+  "category": "container",
+  "explanation": "In `std::map` and `std::multimap`, elements are stored as `std::pair<const Key, T>`. The key component is logically and structurally constant when accessed via an iterator. This constraint is mandatory because these containers maintain a strict internal order based on the key comparison predicate (defaulting to `std::less`).\n\nPurpose:\nDirect modification of the key would compromise the container's sorted invariant, leading to broken lookup operations and potentially undefined behavior during subsequent container operations.\n\nTechnical Details:\n1. The container's `value_type` is `std::pair<const Key, T>`.\n2. Iterators return references to this constant key pair.\n3. The `mapped_type` (the value) remains mutable, allowing modification of the second element of the pair (e.g., `it->second = newValue;`).\n\nUsage Pattern (Key Modification):\nTo effectively 'change' a key, the element must be removed using the Erase-Insert pattern:\n1. Find the existing element using the old key.\n2. Extract the value.\n3. Erase the element.\n4. Insert a new element using the new key and the extracted value.\n\nPitfalls:\nAttempting to use `const_cast` to modify the key results in undefined behavior. The container assumes the key's location within the tree structure is fixed once inserted.",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    std::map<int, std::string> m;\n    m[10] = \"Old Value\";\n    auto it = m.find(10);\n    \n    // 1. Value modification is allowed:\n    it->second = \"New Value\";\n    \n    // 2. Key modification is disallowed (it->first is const):\n    // it->first = 20; // ERROR: assignment of read-only member\n    \n    // 3. Correct key modification (Erase-Insert):\n    std::string val = it->second;\n    m.erase(it);\n    m.insert({20, val});\n}",
+  "practical_example": "When managing configuration settings where the key (e.g., 'port_number') must change, one cannot simply update the map element. Failing to use the erase-insert technique results in the map maintaining an element with the outdated key but stored in a position determined by the new, unreflected key value, breaking all subsequent lookups.",
+  "keywords": [
+    "map key const",
+    "key modification",
+    "Erase-Insert pattern",
+    "std::pair<const Key, T>",
+    "sorted invariant",
+    "associative container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "174",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_immutability_and_modification_constraint_71079c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

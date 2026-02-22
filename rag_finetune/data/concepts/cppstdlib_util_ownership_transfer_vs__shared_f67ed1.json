@@ -1,0 +1,21 @@
+{
+  "topic": "Ownership Transfer vs. Shared Copy Semantics (auto_ptr vs. shared_ptr)",
+  "category": "util",
+  "explanation": "The comparison between `CountedPtr` and `std::auto_ptr` highlights a fundamental shift in ownership models. `std::auto_ptr` (deprecated since C++11 and removed in C++17) implemented *destructive copy* or *ownership transfer* semantics.\n\n**`std::auto_ptr` (Transfer):** When an `auto_ptr` was copied, the source object was modified to relinquish ownership (set its internal pointer to null), making the source invalid. This violated standard C++ container requirements, as containers expect elements to be safely copyable.\n\n**`CountedPtr`/`std::shared_ptr` (Shared Copy):** As noted in the text, these types 'allow you to copy these smart pointers while retaining the validity of the original and the copy.' Both pointers remain valid, and the resource is only deleted when the last owner is destroyed.\n\n**Implications:** Shared copy semantics allow smart pointers to be stored in containers (`std::vector<std::shared_ptr<T>>`), passed by value to functions, and used safely in algorithms without the risk of accidentally nullifying the source reference, thus solving the primary compatibility issue of `std::auto_ptr`.\n\n**Modern Standard:** `std::unique_ptr` replaced `std::auto_ptr`, using *move semantics* (non-destructive transfer via `std::move`) to enforce unique ownership while maintaining compatibility with modern C++ features.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nint main() {\n    // std::auto_ptr<int> p1(new int(10)); // C++03/Deprecated\n    // std::auto_ptr<int> p2 = p1;\n    // std::cout << p1.get(); // Output: 0 (p1 is null/invalid)\n    \n    std::shared_ptr<int> s1(new int(20));\n    std::shared_ptr<int> s2 = s1;\n    \n    // Shared ownership: both remain valid\n    std::cout << \"s1 value: \" << *s1 << \"\\n\";\n    std::cout << \"s2 value: \" << *s2 << \"\\n\";\n    \n    // Unique ownership (Move semantics required)\n    std::unique_ptr<int> u1(new int(30));\n    std::unique_ptr<int> u2 = std::move(u1); \n    // u1.get() is now nullptr\n    // std::cout << *u1; // DANGER: UB\n}",
+  "practical_example": "Using `std::shared_ptr` to manage object pools or graph nodes where multiple nodes must reference the same data object. If `auto_ptr` were used, simply assigning one node's pointer to another would invalidate the first node's reference, corrupting the graph structure.",
+  "keywords": [
+    "auto_ptr",
+    "shared_ptr",
+    "unique_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "move semantics",
+    "container compatibility"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "197",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_ownership_transfer_vs__shared_f67ed1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "std::stack Container Adapter Requirements and Flexibility",
+  "category": "adapter",
+  "explanation": "The `std::stack` is a container adapter, meaning it provides a restricted interface (LIFO: Last-In, First-Out) layered over an existing sequence container. It is defined by two template parameters: the element type `T` and the underlying container type `Container` (defaulting to `std::deque<T>`).\n\n**Requirements:** For a container `C` to be used by `std::stack`, it must provide the following member functions:\n1. `back()`: To access the top element (used by `stack::top()`).\n2. `push_back()`: To insert an element at the top (used by `stack::push()`).\n3. `pop_back()`: To remove the top element (used by `stack::pop()`).\n\nContainers like `std::vector`, `std::deque`, and `std::list` meet these requirements. The choice of the underlying container dictates the memory management, performance characteristics, and iterator invalidation behavior of the stack, even though the stack interface itself hides iterators.\n\n**Usage:** Specifying a container other than the default `std::deque` is done via the second template parameter. Using `std::vector` might be preferred for better cache locality if the stack size is relatively stable and memory fragmentation is a concern, accepting the performance hit of occasional full reallocations.",
+  "code_example": "#include <stack>\n#include <vector>\n#include <list>\n#include <deque>\n\n// Default (uses std::deque)\nstd::stack<int> s1;\n\n// Explicitly using std::vector\n// Good for high locality, accepts reallocation costs\nstd::stack<int, std::vector<int>> s2;\n\n// Explicitly using std::list\n// Good for guaranteed O(1) push/pop, but higher memory overhead\nstd::stack<int, std::list<int>> s3;\n\ns1.push(10);\ns2.push(20);",
+  "practical_example": "When implementing a high-performance undo/redo buffer where the maximum size is known, using `std::stack<Action, std::vector<Action>>` combined with `vector::reserve()` ensures contiguous storage and minimizes memory overhead, trading occasional large reallocations for faster element access (though the stack interface doesn't expose this access).",
+  "keywords": [
+    "std::stack",
+    "container adapter",
+    "LIFO",
+    "underlying container",
+    "sequence container requirements",
+    "std::vector",
+    "std::deque"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "379-380",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__stack_container_adapter_86bca4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

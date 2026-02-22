@@ -1,0 +1,19 @@
+{
+  "topic": "std::list::splice() O(1) Node Transfer and Iterator Validity",
+  "category": "container",
+  "explanation": "The `std::list::splice()` member function facilitates the transfer of elements between lists (or within the same list) by merely rearranging internal pointers. This is a fundamental operation unique to linked containers (`list` and `forward_list`) that cannot be replicated efficiently in contiguous containers like `std::vector`.\n\nTechnical Details:\n- Complexity: O(1) (Constant Time) regardless of the number of elements moved, provided the position is known.\n- Behavior: Elements are moved, not copied or destroyed. The source list is reduced by the number of elements moved.\n- Iterator Validity: Iterators and references pointing to the transferred elements remain valid; only their association with the container changes (they now belong to the destination list).\n\nUsage: `splice` is used for efficient merging, partitioning, or reordering of list elements without incurring the cost of allocation or object copy/move. It is often used to implement complex sorting or rearrangement algorithms quickly.\n\nPitfall: When splicing a range, the source list's iterators defining the range must remain valid throughout the operation, and the destination position cannot be within the range being moved.",
+  "code_example": "#include <list>\n#include <algorithm>\n\n// Demonstrates moving all elements from list1 to list2\nvoid transfer_all(std::list<int>& dest, std::list<int>& src) {\n    auto pos = dest.begin();\n    // list2.splice(position, source_list)\n    // Complexity: O(1)\n    dest.splice(pos, src);\n    // src is now empty, dest contains all original elements\n    // Iterators pointing to elements in src are now valid in dest\n}",
+  "practical_example": "Implementing a message routing system where incoming messages are temporarily stored in a processing queue (list A). Once processing is complete, the entire queue needs to be atomically moved to a logging queue (list B). Using `splice(B.end(), A)` achieves this transfer in O(1) time without resource overhead.",
+  "keywords": [
+    "splice",
+    "list node transfer",
+    "O(1) complexity",
+    "iterator preservation",
+    "linked list manipulation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "156",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__splice_cf9d51",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Optimization of Vector Bulk Insertion using reserve()",
+  "category": "container",
+  "explanation": "When populating a `std::vector` with a large number of elements whose quantity is known or estimable, calling `std::vector::reserve()` is a critical performance optimization.\n\n**Mechanism**: `reserve(n)` ensures that the vector's underlying storage capacity is at least `n`. If the current capacity is less than `n`, a single reallocation occurs. This avoids the repeated, expensive reallocations that occur when the vector's size reaches its capacity during successive insertions (like `push_back` or range-based construction).\n\n**Cost of Reallocation**: Reallocation involves:\n1. Allocating new, larger memory space.\n2. Copying or moving all existing elements from the old location to the new location.\n3. Deallocating the old memory.\n\n**Performance Impact**: While `push_back` is amortized O(1), frequent reallocations introduce significant latency spikes. The text demonstrates that pre-allocating storage (using `reserve()`) provided a measurable speed increase (5%) for the vector version, confirming that the cost of intermediate reallocations, even when performing range-initialization, is non-trivial.\n\n**Usage Guidance**: Always call `reserve(estimated_size)` before initiating bulk insertion, range construction, or a loop of `push_back` operations, unless the vector size is small and performance is irrelevant.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nvoid bulk_insert_optimized(const std::vector<int>& source) {\n    std::vector<int> target;\n    // Optimize: Prevent repeated reallocations\n    target.reserve(source.size()); \n    \n    for (int val : source) {\n        target.push_back(val);\n    }\n    // target capacity is size, only one allocation occurred.\n}",
+  "practical_example": "When reading data from a file where the header specifies the total number of records (N). Instead of relying on the vector's exponential growth strategy, calling `vector.reserve(N)` guarantees O(N) complexity for insertion with minimal constant overhead.",
+  "keywords": [
+    "vector reserve",
+    "bulk insertion",
+    "reallocation cost",
+    "capacity optimization",
+    "amortized complexity",
+    "performance tuning"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "207",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_optimization_of_vector_bulk_insertion_e9b237",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

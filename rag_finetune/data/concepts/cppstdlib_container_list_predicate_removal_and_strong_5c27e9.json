@@ -1,0 +1,20 @@
+{
+  "topic": "List Predicate Removal and Strong Guarantee",
+  "category": "container",
+  "explanation": "The `std::list` container provides specialized member functions `remove(value)` and `remove_if(predicate)` to efficiently eliminate elements that match a specific value or satisfy a unary predicate, respectively.\n\nPurpose: These functions avoid the complexity of using the generic `std::remove` algorithm combined with `list::erase`, which would require two passes (one to move, one to shorten). Since `list` is node-based, its internal implementation allows these member functions to perform the removal in a single pass, adjusting pointers directly.\n\nTechnical Details:\n1. **Complexity:** Both functions have linear complexity, O(N), where N is `list::size()`, as they must traverse the entire list.\n2. **Iterator/Reference Invalidation:** Only iterators and references pointing to the removed elements are invalidated. Iterators and references to elements that remain in the list are guaranteed to stay valid.\n3. **Strong Guarantee:** The text emphasizes that these functions 'either succeed or have no effect' (common phrasing for strong exception safety). If memory allocation for internal nodes fails during cleanup (unlikely for removal, but relevant for other list operations), no structural damage occurs.\n4. **Mechanism:** `remove_if` takes a `UnaryPredicate` `op(elem)` which returns `true` for elements to be removed.\n\nUsage: These are the preferred methods for removing multiple elements from a `std::list` based on content, offering clearer semantics and better performance than the generic algorithm approach.",
+  "code_example": "#include <list>\n#include <algorithm>\n\n// Predicate: remove odd numbers\nbool is_odd(int n) { return n % 2 != 0; }\n\nint main() {\n    std::list<int> l = {1, 4, 3, 8, 5, 2};\n    \n    // Remove all '4's\n    l.remove(4); \n    // l is now {1, 3, 8, 5, 2}\n    \n    // Remove all odd numbers using predicate\n    l.remove_if(is_odd); \n    // l is now {8, 2}\n    \n    // Using a lambda\n    l.remove_if([](int n){ return n > 5; });\n    // l is now {2}\n}",
+  "practical_example": "Managing a queue of tasks where certain tasks might become obsolete mid-process (e.g., duplicate network requests). Using `list::remove_if` allows the system to efficiently purge all obsolete tasks based on a predicate (e.g., `task.is_expired()`) without destabilizing other concurrent iterators processing valid tasks.",
+  "keywords": [
+    "list remove",
+    "remove_if",
+    "UnaryPredicate",
+    "O(N) complexity",
+    "strong exception guarantee",
+    "node-based container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_list_predicate_removal_and_strong_5c27e9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Vector Contiguous Storage Guarantee and C API Interoperability",
+  "category": "container",
+  "explanation": "The `std::vector` container is guaranteed to store its elements in contiguous memory. This crucial property means that for any valid index `i`, the address relationship `&v[i] == &v[0] + i` holds true. This guarantee (standardized explicitly since C++11, but intended earlier) is essential because it allows `std::vector<T>` to serve as a direct, dynamic replacement for C-style arrays (`T[]`).\n\nPurpose: This property enables seamless interoperability with legacy C APIs (e.g., OS calls, graphics libraries, networking functions) that require a raw pointer (`T*`) and an element count. The address of the first element, obtained via `&v[0]` or the C++11 method `v.data()`, can be safely passed to such APIs.\n\nTechnical Details:\n- **Access:** The pointer to the underlying array is obtained via `&v[0]` or `v.data()`.\n- **Requirement:** Before passing the pointer, the vector must be properly sized using `resize()` or `reserve()` to ensure sufficient allocated memory for the C function to write into.\n- **Pitfall (Size):** When using `vector<char>` to store C strings, the size must explicitly account for the null terminator ('\\0'). Failure to resize correctly before passing the pointer to functions like `strcpy` results in buffer overflow and undefined behavior.\n- **Pitfall (Iterator):** Although vector iterators are often implemented as raw pointers (especially for performance), the standard only guarantees that `&v[0]` yields the raw pointer. Passing or casting `v.begin()` directly to a C function expecting `T*` is implementation-specific and potentially unsafe, even though `v.begin()` is formally a Random Access Iterator.",
+  "code_example": "#include <vector>\n#include <cstring>\n#include <cstdio>\n\nint main() {\n    std::vector<char> v;\n    // Must reserve space for string + null terminator\n    v.resize(41); \n    \n    // Safe C API usage using &v[0]\n    // &v[0] provides the T* pointer to the contiguous memory\n    strcpy(&v[0], \"hello, world\"); \n    \n    // Output using C function\n    printf(\"%s\\n\", &v[0]);\n    \n    // C++11 standard equivalent (preferred)\n    std::vector<int> data = {1, 2, 3};\n    // process_c_array(data.data(), data.size()); \n    \n    return 0;\n}",
+  "practical_example": "When using OpenGL or Vulkan to upload vertex data to the GPU, the functions typically require a raw `void*` pointer to the data buffer. Using `&my_vector.front()` or `my_vector.data()` provides the required pointer, ensuring the GPU reads the contiguous memory block allocated by the vector.",
+  "keywords": [
+    "contiguous storage",
+    "C interoperability",
+    "&v[0]",
+    "v.data()",
+    "dynamic array replacement",
+    "buffer overflow",
+    "Random Access Iterator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "1396",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_contiguous_storage_guarantee_and_ae85e9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

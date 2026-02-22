@@ -1,0 +1,21 @@
+{
+  "topic": "Iterator Invalidation and Return Values for Single Element Erasure",
+  "category": "container",
+  "explanation": "The behavior and signature of `container::erase(iterator pos)` vary critically between sequence containers and associative containers, especially concerning return values and iterator invalidation.\n\n**Return Value Semantics:**\n1.  **Sequence Containers (vector, deque, list, string):** The function returns an iterator pointing to the element immediately following the one that was erased. This return value is essential for writing efficient erasure loops that traverse the container.\n2.  **Associative Containers (set, map):** Historically (as noted in the reference text), these containers used the signature `void container::erase(iterator pos)`. The caller must manually advance the iterator *before* calling erase if looping, or use the post-C++11/17 standard return value (which is consistent with sequence containers).\n\n**Iterator Invalidation Rules:**\n1.  **`std::list` and Associative Containers:** Only the iterator `pos` pointing to the erased element is invalidated. All other iterators and references remain valid.\n2.  **`std::vector` and `std::string`:** Erasure invalidates `pos` and all iterators and references to elements *following* `pos`. This is due to the necessary shifting of elements to fill the gap.\n3.  **`std::deque`:** Erasure invalidates `pos` and potentially all iterators and references, although references to elements before `pos` may remain valid. Due to its fragmented memory structure, deque invalidation rules are stricter than list/map but looser than vector on the front end.\n\n**Pitfall:** Calling `coll.erase(coll.end())` is strictly undefined behavior, as `end()` is a past-the-end sentinel and does not point to a valid element.",
+  "code_example": "#include <vector>\n#include <list>\n\nvoid sequence_erase_loop(std::vector<int>& v) {\n    for (auto it = v.begin(); it != v.end(); ) {\n        if (*it % 2 == 0) {\n            // Must use the return value to get the next valid iterator\n            it = v.erase(it); \n        } else {\n            ++it;\n        }\n    }\n}\n\nvoid assoc_erase_loop(std::list<int>& l) {\n    for (auto it = l.begin(); it != l.end(); ) {\n        if (*it == 5) {\n            // For containers with stable iterators (list, map), advance first\n            it = l.erase(it); \n        } else {\n            ++it;\n        }\n    }\n}\n",
+  "practical_example": "When filtering a `std::vector` of objects based on a criteria during iteration, failing to capture the return value of `vector::erase(it)` and simply calling `++it` afterwards results in skipping the element immediately following the erased one (or accessing an invalidated iterator), leading to logical errors or segmentation faults.",
+  "keywords": [
+    "erase iterator",
+    "iterator invalidation",
+    "vector erase",
+    "deque erase",
+    "list erase",
+    "undefined behavior",
+    "past-the-end"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "213",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_iterator_invalidation_and_return_values_0aecb9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

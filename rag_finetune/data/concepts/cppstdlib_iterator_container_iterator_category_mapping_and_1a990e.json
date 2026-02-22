@@ -1,0 +1,22 @@
+{
+  "topic": "Container Iterator Category Mapping and Element Constancy",
+  "category": "iterator",
+  "explanation": "The iterator category provided by a container dictates which algorithms can be used and what the complexity guarantees are for common operations (increment, decrement, arithmetic, indexing). The category is a fundamental property of the container type.\n\n**Category Mapping:**\n1.  **Random Access Iterators (RAI):** Provided by `std::vector`, `std::deque`, and `std::string`. They support O(1) arithmetic operations (e.g., `it + n`, `it[n]`) and relational operators (`it < it2`). This is essential for efficient algorithms like `std::sort`.\n2.  **Bidirectional Iterators (BI):** Provided by `std::list`, `std::set`, `std::multiset`, `std::map`, and `std::multimap`. They support O(1) increment (`++it`) and decrement (`--it`), but not O(1) arithmetic or indexing.\n\n**Element Constancy in Associative Containers:**\nFor associative containers (`set`, `multiset`, `map`, `multimap`), the iterators, even the non-`const_iterator` versions, yield elements that are constant. This is critical because modifying the key portion of an element would violate the container's internal sorting invariant, leading to structural corruption and Undefined Behavior. For `std::map`, the value component is mutable, but the key component is constant (exposed as `const Key`).\n\n**Impact:** Choosing the correct container often depends on the required iterator category. If random access is frequently needed, `vector` or `deque` must be used; otherwise, the O(N) complexity of advancing a bidirectional iterator by N steps negates the benefit.",
+  "code_example": "#include <vector>\n#include <set>\n#include <iterator>\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    std::set<int> s = {4, 5, 6};\n    \n    // 1. Random Access (Vector)\n    v.begin()[2] = 99; // O(1) indexing allowed\n    \n    // 2. Bidirectional (Set)\n    auto it_s = s.begin();\n    // *it_s = 7; // ERROR: Set elements are constant (const value_type)\n    \n    // Check category trait (requires C++17 or older traits)\n    using V_Cat = std::iterator_traits<decltype(v.begin())>::iterator_category;\n    // V_Cat is std::random_access_iterator_tag\n}",
+  "practical_example": "A developer needs to sort a large collection of items based on a custom criteria. If they use `std::list` (Bidirectional Iterator), they cannot use the highly efficient `std::sort` algorithm, which requires Random Access Iterators. They must either use `list::sort()` (a member function) or copy the elements into a `std::vector`, sort it, and copy them back.",
+  "keywords": [
+    "iterator category",
+    "random access iterator",
+    "bidirectional iterator",
+    "std::vector",
+    "std::list",
+    "std::set",
+    "element constancy",
+    "iterator traits"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "206, Table 6.34",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_iterator_container_iterator_category_mapping_and_1a990e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Bitset Shift Assignment Operators and Zero Padding",
+  "category": "adapter",
+  "explanation": "The `std::bitset` provides shift assignment operators (`operator<<=` and `operator>>=`) for efficient in-place bit manipulation. These operators perform logical shifts, meaning vacated bit positions are consistently filled with zero (false).\n\nTechnical Details:\n1.  **Left Shift (`operator<<=(size_t num)`):** Shifts all bits left by `num` positions. The `num` highest bits are discarded. The `num` lowest bits (positions `0` to `num-1`) are set to `false` (zero padding).\n2.  **Right Shift (`operator>>=(size_t num)`):** Shifts all bits right by `num` positions. The `num` lowest bits are discarded. The `num` highest bits (positions `bits-num` to `bits-1`) are set to `false` (zero padding).\n3.  The return value is a reference to the modified bitset (`bitset<bits>&`).\n\nPerformance: These operations are generally highly optimized, often mapping directly to underlying CPU shift instructions on the storage words, offering performance superior to manual iterative shifting or masking.\n\nUsage Guidance: Shifts are idempotent when shifting by zero. If `num` is greater than or equal to `bits`, the entire bitset is cleared (set to zero).",
+  "code_example": "#include <bitset>\n#include <iostream>\n\nint main() {\n    std::bitset<8> b(\"11110000\");\n    \n    b <<= 3; // Shift Left by 3\n    // Three high bits discarded, three low bits zero-padded\n    // Result: 10000000\n    std::cout << \"LShift: \" << b << \"\\n\"; \n    \n    b >>= 7; // Shift Right by 7\n    // Seven low bits discarded, seven high bits zero-padded\n    // Result: 00000001\n    std::cout << \"RShift: \" << b << \"\\n\";\n    \n    b <<= 8; // Shift past size (clears)\n    // Result: 00000000\n    std::cout << \"Clear:  \" << b << \"\\n\";\n}",
+  "practical_example": "In networking code, `std::bitset` is used to manipulate headers or packet flags. Shifting is essential for extracting specific fields that are bit-aligned. For example, moving a 4-bit field from positions 12-15 down to positions 0-3 for easy conversion to an integer requires a right shift.",
+  "keywords": [
+    "bitset shift",
+    "operator<<=",
+    "operator>>=",
+    "logical shift",
+    "zero padding",
+    "bitwise operation"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "405",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_bitset_shift_assignment_operators_and_7ed5e1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

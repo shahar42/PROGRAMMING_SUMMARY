@@ -1,0 +1,19 @@
+{
+  "topic": "Lexicographical Comparison Requirements for std::pair",
+  "category": "util",
+  "explanation": "The C++ Standard Library provides overloaded comparison operators (`==`, `!=`, `<`, `<=`, `>`, `>=`) for `std::pair`. These comparisons require that the constituent types T1 and T2 also support the corresponding comparison operators.\n\nEquality (`==`):\nTwo pairs, p1 and p2, are equal if and only if `p1.first == p2.first` AND `p1.second == p2.second`. This requires T1 and T2 to be equality comparable.\n\nOrdering (`<`):\nOrdering is defined lexicographically. `p1 < p2` is true if:\n1. `p1.first < p2.first` (T1 determines the order), OR\n2. `p1.first == p2.first` AND `p1.second < p2.second` (T2 determines the order only if T1 components are equal).\n\nTechnical Details:\nThis lexicographical ordering is essential when `std::pair` is used as a key in ordered associative containers (like `std::map`, `std::set`), as these containers rely on a strict weak ordering. If T1 and T2 provide O(C1) and O(C2) comparison complexity, the pair comparison complexity is typically O(C1 + C2) in the worst case (when T1 components are equal) or O(C1) on average.",
+  "code_example": "#include <utility>\n#include <iostream>\n\nint main() {\n    std::pair<int, char> p1 = {1, 'b'};\n    std::pair<int, char> p2 = {2, 'a'};\n    std::pair<int, char> p3 = {1, 'c'};\n\n    // Lexicographical comparison\n    std::cout << (p1 < p2) << \"\\n\"; // True (1 < 2)\n    std::cout << (p1 < p3) << \"\\n\"; // True (1 == 1, then 'b' < 'c')\n    std::cout << (p1 == std::pair{1, 'b'}) << \"\\n\"; // True\n}",
+  "practical_example": "Using `std::pair<int, int>` to represent 2D coordinates in a `std::set`. The lexicographical comparison automatically orders the coordinates, allowing efficient lookup based first on the X-coordinate, and then on the Y-coordinate if X-coordinates match.",
+  "keywords": [
+    "lexicographical comparison",
+    "operator<",
+    "operator==",
+    "strict weak ordering",
+    "associative container key"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "37",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_lexicographical_comparison_requirements_for_std_0c2fd9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

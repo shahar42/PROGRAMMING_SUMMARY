@@ -1,0 +1,21 @@
+{
+  "topic": "Key-based Erasing and Count Return Value",
+  "category": "container",
+  "explanation": "Associative containers provide an overload for `erase(const Key& value)` which performs key-based removal. This function attempts to locate and remove all elements whose key matches the provided value. The function signature returns `size_type`, indicating the total number of elements removed.\n\n**Complexity:** The complexity of key-based erasing is typically O(log N + count), where N is the container size and count is the number of elements removed. For unique containers (like `std::set` or `std::map`), the complexity simplifies to O(log N) because the return value (count) is guaranteed to be 0 or 1.\n\n**Behavior for Unique Containers:** For `std::set` and `std::map`, `erase(value)` returns 1 if the element was found and removed, and 0 otherwise. This behavior allows for efficient existence checking and removal in a single operation.\n\n**Behavior for Multi-Containers:** For `std::multiset` and `std::multimap`, the function removes all elements matching the key and returns the total count, which may be greater than 1. This is the preferred method for removing all duplicates of a specific key.\n\n**Contrast with `std::list::remove()`:** While sequence containers like `std::list` offer a `remove(value)` function that removes all matching elements, that function returns `void` (pre-C++20) and relies on linear search (O(N)). Associative container `erase(value)` is logarithmic and reports the count removed.",
+  "code_example": "#include <set>\n#include <multiset>\n#include <iostream>\n\nint main() {\n    std::set<int> s = {10, 20, 30};\n    std::multiset<int> ms = {5, 5, 15, 25};\n    \n    // Set: returns 0 or 1\n    size_t count1 = s.erase(20); \n    size_t count2 = s.erase(99); \n    std::cout << \"Set erased 20: \" << count1 << \" (Expected 1)\\n\";\n    \n    // Multiset: returns total count of duplicates removed\n    size_t count3 = ms.erase(5);\n    std::cout << \"Multiset erased 5: \" << count3 << \" (Expected 2)\\n\";\n}",
+  "practical_example": "When managing a cache of unique IDs, using `std::map::erase(key)` allows the system to determine immediately whether the item was present before removal, often simplifying logic that would otherwise require separate `find()` and `erase()` calls.",
+  "keywords": [
+    "key erase",
+    "size_type return",
+    "set erase",
+    "multiset erase",
+    "O(log N) complexity",
+    "count return value",
+    "remove duplicates"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "165",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_based_erasing_and_count_505335",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

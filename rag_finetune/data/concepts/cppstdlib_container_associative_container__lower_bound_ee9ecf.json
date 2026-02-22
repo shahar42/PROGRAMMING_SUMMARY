@@ -1,0 +1,20 @@
+{
+  "topic": "Associative Container `lower_bound` Semantics and Insertion Position",
+  "category": "container",
+  "explanation": "The `lower_bound(value)` member function of associative containers determines the precise position where a new element equivalent to `value` could be inserted while maintaining the container's sort order. It is a specialized, O(log N) version of the generic `std::lower_bound` algorithm.\n\nDefinition: `lower_bound(value)` returns an iterator pointing to the first element in the container that is *not less than* `value` (i.e., the element is either equal to `value` or greater than `value`).\n\nReturn Value Interpretation:\n1. If an element equal to `value` exists, it returns the iterator pointing to the first such element.\n2. If no element is equal to `value`, it returns the iterator pointing to the smallest element strictly greater than `value`.\n3. If all elements in the container are less than `value`, it returns `container::end()`.\n\nTechnical Details: This function relies on the container's internal comparison predicate (e.g., `std::less<T>`). Its logarithmic complexity, O(log N), makes it highly efficient for establishing ranges or checking insertion viability without performing the insertion itself.\n\nUsage Guidance: `lower_bound` is often used in conjunction with `upper_bound` to define a range of equivalent elements (using `std::equal_range`), particularly in `multiset` or `multimap`.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> s = {10, 20, 40, 50};\n\n    // Case 1: Value exists (returns iterator to 40)\n    auto it1 = s.lower_bound(40);\n    std::cout << *it1 << \" (Found 40)\\n\";\n\n    // Case 2: Value does not exist (returns iterator to 20, the first element >= 15)\n    auto it2 = s.lower_bound(15);\n    std::cout << *it2 << \" (Insertion point for 15)\\n\";\n\n    // Case 3: Value is larger than all elements (returns end())\n    auto it3 = s.lower_bound(100);\n    if (it3 == s.end()) {\n        std::cout << \"Returns end() for 100.\\n\";\n    }\n}",
+  "practical_example": "When implementing a custom indexing system on top of a `std::multimap` where records are sorted by timestamp, `lower_bound(t)` and `upper_bound(t + duration)` are used to efficiently retrieve all records within a specific time window, guaranteeing O(log N) time to find the start and end of the relevant range.",
+  "keywords": [
+    "lower_bound",
+    "insertion position",
+    "sorted container search",
+    "O(log N)",
+    "equal_range",
+    "not less than"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "251-252",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container__lower_bound_ee9ecf",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

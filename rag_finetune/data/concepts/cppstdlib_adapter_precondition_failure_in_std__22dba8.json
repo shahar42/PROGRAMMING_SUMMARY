@@ -1,0 +1,20 @@
+{
+  "topic": "Precondition Failure in std::stack::top() and std::stack::pop()",
+  "category": "adapter",
+  "explanation": "The `std::stack` container adapter, defined as a Last-In, First-Out (LIFO) structure, mandates a strict precondition for its primary access and removal operations: the stack must not be empty.\n\nDefinition:\n- `value_type& stack::top()`: Returns a reference to the top element.\n- `void stack::pop()`: Removes the top element.\n\nTechnical Details:\nBoth functions require that `stack::size() > 0`. If the stack is empty at the point of calling either `top()` or `pop()`, the behavior is **undefined** (UB). The C++ Standard Library prioritizes performance by omitting internal boundary checks (like throwing `std::out_of_range` or similar exceptions), relying instead on the caller to ensure the precondition is met. This design choice, noted by Josuttis, favors speed over inherent safety.\n\nUsage Guidance:\nAlways check `stack::empty()` or confirm `stack::size()` prior to calling `top()` or `pop()`. Failure to do so is a critical error leading to unpredictable behavior, which may manifest as crashes, corrupted memory (due to accessing invalid memory locations in the underlying container), or silent data errors.\n\nComparison:\nWhile `std::vector::at()` provides bounds checking and throws an exception, `std::stack` operations adhere to the C++ philosophy of 'pay for what you use,' meaning bounds checks are usually omitted in performance-critical interfaces unless explicitly requested (e.g., through a debug build or a wrapper class).",
+  "code_example": "#include <stack>\n#include <iostream>\n\nvoid safe_pop(std::stack<int>& s) {\n    if (!s.empty()) { \n        int value = s.top();\n        s.pop();\n        // Process value...\n    } else {\n        std::cerr << \"Error: Stack is empty.\" << std::endl;\n    }\n}\n\nint main() {\n    std::stack<int> s;\n    // s.pop(); // DANGER: Undefined Behavior if uncommented!\n    safe_pop(s);\n}",
+  "practical_example": "In a multithreaded environment utilizing a shared stack, failure to implement proper locking and size checking before calling `pop()` can result in concurrent access to an empty stack if another thread just emptied it, leading to a race condition and subsequent crash due to Undefined Behavior. Proper synchronization must encapsulate both the `empty()` check and the `top()`/`pop()` operation.",
+  "keywords": [
+    "stack precondition",
+    "undefined behavior",
+    "top()",
+    "pop()",
+    "empty()",
+    "adapter safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "383",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_precondition_failure_in_std__22dba8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Guaranteed O(1) Complexity of Container `swap`",
+  "category": "container",
+  "explanation": "The `swap` operation, available as a member function (`c1.swap(c2)`) and a non-member function (`std::swap(c1, c2)`), provides the most efficient mechanism for exchanging the entire content of two containers of the same type. The non-member `std::swap` is overloaded for standard containers to internally call the highly specialized member function.\n\nTechnical Details:\n- **Complexity Guarantee:** For all standard library containers, `swap` is guaranteed to execute in constant time, O(1), regardless of the number of elements or the container's capacity. This is achieved by swapping internal pointers, handles, or size/capacity variables, rather than performing element-by-element copies.\n- **Exception Safety:** The O(1) guarantee means `swap` is typically `noexcept` (since C++11) or provides a strong exception guarantee, as no user-defined types are copied or moved during the operation.\n- **Iterator Invalidation:** For sequence containers like `std::vector`, while the elements themselves are not moved, the standard guarantees that iterators, references, and pointers referring to elements remain valid, but they now refer to the element in the *other* container (the element has effectively moved to the other container\u2019s storage location).\n\nUsage Patterns: `swap` is essential for implementing efficient move semantics (often via the copy-and-swap idiom) and is the preferred way to clear memory resources (the 'swap trick': `Container().swap(c)`).\n\nPitfalls: While iterators remain valid, they now point to elements in the swapped container, which can be confusing if the programmer assumes iterators track the container object itself.",
+  "code_example": "#include <vector>\n#include <algorithm>\n#include <iostream>\n\nint main() {\n    std::vector<int> v1 = {1, 2, 3};\n    std::vector<int> v2 = {40, 50};\n\n    // O(1) operation\n    v1.swap(v2);\n\n    // v1 now contains {40, 50}\n    // v2 now contains {1, 2, 3}\n\n    // Swap trick to reduce capacity to size (or zero)\n    std::vector<int>(v2).swap(v2); \n    std::cout << \"v2 size after swap trick: \" << v2.size() << \"\\n\";\n    \n    // The global std::swap calls the member function\n    std::swap(v1, v2);\n}",
+  "practical_example": "Implementing a transactional update mechanism where new data is built in a temporary container. To commit the changes, the temporary container is swapped with the live container in a single O(1) operation. This ensures minimal lock time and high exception safety.",
+  "keywords": [
+    "swap",
+    "O(1) complexity",
+    "constant time",
+    "swap trick",
+    "iterator validity",
+    "noexcept",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "136",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_guaranteed_o_1__complexity_026e43",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Range Construction using std::istream_iterator",
+  "category": "iterator",
+  "explanation": "The `std::istream_iterator` acts as a specialized input iterator that reads elements of a specified type from an underlying input stream. This capability enables the direct, efficient initialization of standard library containers using range constructors.\n\nDefinition: A container's range constructor, `Container(InputIterator first, InputIterator last)`, requires two input iterators defining the sequence. The end-of-stream iterator, `istream_iterator<T>()`, is constructed via the default constructor and marks the sequence termination.\n\nTechnical Details:\n- **Requirement**: The type `T` must be readable from the stream using the extraction operator (`operator>>`).\n- **Behavior**: Dereferencing the iterator (`*it`) returns the value last read. The increment operator (`++it`) triggers the next read operation from the stream.\n- **Efficiency**: This pattern is highly idiomatic and avoids explicit loop management. It relies on the container's internal insertion logic (e.g., `push_back` for vector, `insert` for set) to handle the stream data.\n\nPitfalls:\n1. **Input Failure**: If the stream fails (e.g., encounters non-matching data, EOF, or error state), the active `istream_iterator` becomes equal to the end-of-stream iterator, halting initialization prematurely.\n2. **Double Reading**: Care must be taken when using `istream_iterator` in function arguments; the compiler might parse `(istream_iterator<T>(cin))` as a function declaration if parentheses are not handled correctly (e.g., using extra parentheses or uniform initialization `{}`).",
+  "code_example": "#include <iostream>\n#include <string>\n#include <vector>\n#include <iterator>\n\nint main() {\n    // Initialize vector directly from standard input (cin)\n    // Reads strings until EOF or non-string input causes failure.\n    std::vector<std::string> coll(\n        (std::istream_iterator<std::string>(std::cin)),\n        (std::istream_iterator<std::string>()));\n\n    // coll now contains all words read from input.\n    // The extra parentheses are crucial to force interpretation as expressions.\n}",
+  "practical_example": "Reading configuration parameters or large datasets from a file where the exact number of records is unknown. Using `istream_iterator` simplifies the loading process into a container like `std::vector` or `std::list` without manual checks for EOF or conversion errors.",
+  "keywords": [
+    "istream_iterator",
+    "range construction",
+    "input iterator",
+    "container initialization",
+    "stream extraction",
+    "end-of-stream iterator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "207",
+  "chapter": "Chapter 7: STL Iterators",
+  "id": "cppstdlib_iterator_range_construction_using_std__8c3a14",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

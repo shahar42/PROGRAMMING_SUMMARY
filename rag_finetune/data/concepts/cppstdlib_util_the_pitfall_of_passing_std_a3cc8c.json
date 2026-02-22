@@ -1,0 +1,20 @@
+{
+  "topic": "The Pitfall of Passing std::auto_ptr By Value",
+  "category": "util",
+  "explanation": "Due to its mandatory ownership transfer semantics, passing an `std::auto_ptr` by value to a function results in immediate and unexpected destruction of the managed resource upon function exit. This is considered one of the most dangerous behaviors of `auto_ptr`.\n\nMechanism: When `auto_ptr<T>` is passed as an argument, the function parameter receives ownership via copy construction (which, for `auto_ptr`, is a transfer operation). The caller's original `auto_ptr` is reset to null. When the function scope is exited, the parameter's destructor is called, deleting the resource. The caller's `auto_ptr` is now null and points to an object that has been deleted, leading to fatal runtime errors if the caller attempts further use.\n\nUsage Guidance: Never pass `auto_ptr` by value unless the explicit intent is for the function to consume and destroy the resource. Instead, pass:\n1. By const reference (`const std::auto_ptr<T>&`) if the function only needs to read the data (it uses `get()` or `operator*` but does not modify the ownership).\n2. By raw pointer (`T*`) if the function needs temporary access without ownership implications.\n\nPitfalls: This scenario breaks the fundamental expectation of function calls that pass-by-value does not modify the caller's variable state, making it extremely difficult to debug.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct Data { int val = 42; };\n\n// BAD EXAMPLE: Transfers ownership to 'p', deletes resource on exit\nvoid bad_print(std::auto_ptr<Data> p) {\n    if (p.get()) {\n        std::cout << \"Printing: \" << p->val << std::endl;\n    }\n} // p is destroyed here, deleting the Data object\n\nint main() {\n    std::auto_ptr<Data> p_owner(new Data);\n    \n    bad_print(p_owner); // p_owner is now NULL\n    \n    // The resource has already been deleted\n    if (p_owner.get() == nullptr) {\n        std::cout << \"Resource unexpectedly deleted.\\n\";\n    }\n    // *p_owner; // FATAL runtime error (accessing deleted memory)\n}",
+  "practical_example": "A diagnostic logging function intended to observe resource state is mistakenly implemented using pass-by-value. After the first call to the logger, the main application's resource handle (the original `auto_ptr`) becomes null, causing subsequent application logic to crash when it attempts to use the resource.",
+  "keywords": [
+    "auto_ptr",
+    "pass by value",
+    "undefined behavior",
+    "function parameters",
+    "destruction",
+    "resource deletion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "44",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_the_pitfall_of_passing_std_a3cc8c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

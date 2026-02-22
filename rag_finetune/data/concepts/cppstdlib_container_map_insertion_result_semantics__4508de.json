@@ -1,0 +1,20 @@
+{
+  "topic": "Map Insertion Result Semantics: `std::pair<iterator, bool>`",
+  "category": "container",
+  "explanation": "When inserting into unique-key associative containers (`std::map`, `std::set`), the member function `insert()` returns a specific value used to determine if the operation succeeded and where the element resides. For `std::map<K, V>::insert(value)`, the return type is `std::pair<iterator, bool>`.\n\n**Technical Details:**\n1.  **iterator:** The `.first` element is an iterator pointing to the element that has the equivalent key. If insertion occurred, it points to the newly inserted element. If insertion failed (due to key collision), it points to the existing element that prevented the insertion.\n2.  **bool:** The `.second` element is a boolean flag. It is `true` if the element was successfully inserted (meaning the key was unique) and `false` if the insertion failed because an element with an equivalent key already existed in the map.\n\n**Usage and Pitfalls:** This mechanism is the standard way to check for key uniqueness upon insertion. A common usage pattern is to employ `std::make_pair` to simplify the construction of the value type (`std::pair<const Key, Value>`) passed to `insert()`, allowing for cleaner type deduction, especially when the key and value types are complex or require implicit conversions.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\nint main() {\n    std::map<std::string, float> coll;\n    \n    // Insertion 1: Successful\n    auto result1 = coll.insert(std::make_pair(\"otto\", 22.3f));\n    if (result1.second) {\n        std::cout << \"Inserted: \" << result1.first->second << \"\\n\";\n    }\n    \n    // Insertion 2: Key collision\n    auto result2 = coll.insert(std::make_pair(\"otto\", 99.9f));\n    if (!result2.second) {\n        std::cout << \"Failed. Existing value: \" \n                  << result2.first->second << \"\\n\";\n    }\n}",
+  "practical_example": "When loading configuration data from a file into a map, using the `insert()` return value ensures that if the configuration file contains duplicate keys, the program can detect the collision and decide whether to ignore the subsequent entry or log a critical error, maintaining data integrity based on the first encountered value.",
+  "keywords": [
+    "map insert",
+    "make_pair",
+    "key uniqueness",
+    "std::pair return",
+    "associative container",
+    "insertion complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "181",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_map_insertion_result_semantics__4508de",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

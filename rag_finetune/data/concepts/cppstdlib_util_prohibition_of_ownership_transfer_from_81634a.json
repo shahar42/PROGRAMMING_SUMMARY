@@ -1,0 +1,20 @@
+{
+  "topic": "Prohibition of Ownership Transfer from const std::auto_ptr",
+  "category": "util",
+  "explanation": "To prevent unexpected side effects, especially when interacting with generic library APIs (like container insertion, which often accepts arguments by `const T&`), the C++ Standard Library enforces that ownership transfer cannot occur from a constant `std::auto_ptr` object.\n\nTechnical Details: Ownership transfer in `auto_ptr` requires modification of the source pointer (setting its internal raw pointer to null). This modification is prevented by providing copy constructors and assignment operators that only accept non-const references to the source `auto_ptr`. Therefore, if a function attempts to accept or copy a `const auto_ptr`, the required transfer mechanism (which is inherently modifying) is blocked by the type system.\n\nResult: Attempting to pass a `const auto_ptr` by value, or using it in a context that requires ownership transfer (such as assignment or copy-construction), results in a compile-time error. This design makes `auto_ptr` safer against accidental modification when passed to functions or containers that expect non-modifying behavior from a const reference.",
+  "code_example": "#include <memory>\n\nvoid attempt_transfer(std::auto_ptr<int> p) {\n    // ...\n}\n\nint main() {\n    const std::auto_ptr<int> p_const(new int);\n    *p_const = 42; // OK: Accessing the referred-to value is const\n    \n    // attempt_transfer(p_const); \n    // COMPILE-TIME ERROR: Cannot convert const auto_ptr to auto_ptr (transfer blocked)\n    \n    // A non-const auto_ptr works:\n    std::auto_ptr<int> p_non_const(new int);\n    attempt_transfer(p_non_const); // OK, but p_non_const is now null\n}",
+  "practical_example": "If a container's `insert` method is defined as `insert(const T& value)`, and T is `auto_ptr`, without this restriction, the container's internal copy operation would silently nullify the user's source `auto_ptr`. The restriction ensures that `auto_ptr` cannot be used in such a way unless the user explicitly transfers ownership via `release()` or similar non-const methods.",
+  "keywords": [
+    "const auto_ptr",
+    "compile-time error",
+    "ownership modification",
+    "const correctness",
+    "smart pointer safety",
+    "transfer restriction"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "45",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_prohibition_of_ownership_transfer_from_81634a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Utilizing equal_range() for Range Identification and Existence Checking",
+  "category": "container",
+  "explanation": "`equal_range(k)` is a convenience function that executes both `lower_bound(k)` and `upper_bound(k)` and returns the results bundled in a `std::pair<iterator, iterator>`. This pair defines the half-open range `[first, second)` of elements that are equivalent to the key `k` based on the container's sorting criterion.\n\n**Behavior and Guarantees:**\n*   The range `[pair.first, pair.second)` contains all elements equivalent to `k`.\n*   **Multiset/Multimap:** This range is used to iterate over all duplicate elements having the value `k`.\n*   **Set/Map:** Since these containers enforce uniqueness, the range will contain at most one element (or zero if not found).\n\n**Existence Checking:**\n*   The primary method for determining if an element or any equivalent elements exist is checking if the two iterators are equal: `if (range.first == range.second)`.\n*   If they are equal, the element is not present; the iterators point to the first element greater than the key `k` (or `end()`).\n\n**Technical Details:**\n*   **Return Type:** `std::pair<iterator, iterator>`.\n*   **Complexity:** O(log N) time complexity, equivalent to performing the two bound searches efficiently.",
+  "code_example": "#include <set>\n#include <iostream>\n#include <utility>\n\nint main() {\n    std::multiset<int> c = {1, 2, 2, 4, 5};\n    \n    // Search for range of '2'\n    auto range2 = c.equal_range(2);\n    std::cout << \"Elements equal to 2:\\n\";\n    for (auto it = range2.first; it != range2.second; ++it) {\n        std::cout << *it << \" \";\n    }\n    std::cout << \"\\n\";\n    \n    // Check for 3 (not present)\n    auto range3 = c.equal_range(3);\n    if (range3.first == range3.second) {\n        std::cout << \"Element 3 not found.\\n\";\n    }\n}",
+  "practical_example": "In a financial trading system using a `std::multimap` to store trades indexed by timestamp, `equal_range()` is used to efficiently retrieve all trades that occurred within an identical millisecond timestamp block.",
+  "keywords": [
+    "equal_range",
+    "std::pair",
+    "multiset",
+    "range identification",
+    "existence check",
+    "logarithmic complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "162",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_utilizing_equal_range___abbbf8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Logarithmic Lookup Complexity in Associative Containers",
+  "category": "container",
+  "explanation": "Associative containers (`std::set`, `std::map`, `std::multiset`, `std::multimap`) provide specialized member functions for searching, such as `find()` and `count()`, that exploit the container's internal sorted structure (typically implemented using self-balancing trees like Red-Black Trees).\n\nPurpose: These member functions guarantee logarithmic time complexity, O(log N), for element lookup, making them vastly superior to the corresponding generic STL algorithms (e.g., `std::find(c.begin(), c.end(), value)`), which require linear time complexity, O(N), as they must iterate sequentially.\n\nTechnical Details:\n- `container::find(value)`: Returns an iterator to the first element equivalent to `value` or `end()`. Complexity is strictly O(log N).\n- `T` refers to the element type for sets/multisets and the key type for maps/multimaps.\n- For `std::set` and `std::map` (unique containers), `count(value)` is generally O(log N) or O(1) as the result can only be 0 or 1. For multiset/multimap, `count` is O(log N + K) where K is the number of elements found.\n\nUsage Guidance: Always prefer the member function `find` when searching in associative containers. Using the generic algorithm defeats the performance benefit provided by the underlying data structure.\n\nPitfalls: If the container is searched using `std::find`, the performance degrades from O(log N) to O(N). This difference becomes critical for large containers (e.g., searching 1,000,000 elements requires ~20 comparisons using `find()`, but up to 1,000,000 comparisons using `std::find`).",
+  "code_example": "#include <set>\n#include <algorithm>\n#include <iostream>\n\nint main() {\n    std::set<int> s = {10, 20, 30, 40, 50};\n\n    // CORRECT: O(log N) complexity\n    auto it_log = s.find(30);\n    if (it_log != s.end()) {\n        std::cout << \"Found via member find (O(log N)).\\n\";\n    }\n\n    // INCORRECT (Performance Pitfall): O(N) complexity\n    // This forces sequential iteration, ignoring the tree structure.\n    auto it_linear = std::find(s.begin(), s.end(), 30);\n    if (it_linear != s.end()) {\n        std::cout << \"Found via std::find (O(N)).\\n\";\n    }\n}",
+  "practical_example": "In a routing table lookup system where millions of network addresses are stored in a `std::map`, using the map's member `find()` ensures that address resolution remains fast and scales logarithmically with the size of the table, avoiding linear lookup times that would quickly overwhelm the system.",
+  "keywords": [
+    "logarithmic complexity",
+    "O(log N)",
+    "associative container find",
+    "set find",
+    "map find",
+    "generic algorithm performance",
+    "lookup efficiency"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "250-251",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_logarithmic_lookup_complexity_in_associative_9d0e21",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

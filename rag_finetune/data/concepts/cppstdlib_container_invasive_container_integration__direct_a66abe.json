@@ -1,0 +1,20 @@
+{
+  "topic": "Invasive Container Integration: Direct STL API Implementation",
+  "category": "container",
+  "explanation": "The invasive approach (sometimes termed *intrusive*) to integrating a custom data structure with the C++ Standard Library requires that the structure itself implements the mandatory member functions expected of an STL container. This includes, at minimum, `begin()` and `end()` member functions that return valid iterators defining the element range.\n\nPurpose: This method ensures seamless compatibility with all generic STL algorithms, as the container behaves identically to standard types like `std::vector` or `std::list`. The advantage is efficiency and direct access to container internals for iterator generation.\n\nTechnical Details:\n- Requirement: The custom class must be modified to include the necessary API.\n- Iterators: Must be provided as member functions, typically returning iterators that meet the specific category requirements (e.g., Random Access for contiguous data).\n- Performance: Generally optimal, as iterator generation is tightly coupled with the container's internal structure.\n\nUsage: Standard library containers like `std::string` exemplify this approach; they provide member `begin()` and `end()` functions, allowing algorithms like `std::sort` to operate directly on the character sequence.\n\nPitfalls: This approach cannot be used for third-party or legacy data structures where source code modification is impossible. It violates the Open Closed Principle relative to the data structure itself, though it enables the OCP for the algorithm framework.",
+  "code_example": "#include <string>\n#include <algorithm>\n#include <iostream>\n\nvoid sort_string(std::string& s) {\n    // Uses s.begin() and s.end(), demonstrating invasive API\n    std::sort(s.begin(), s.end());\n}\n\nint main() {\n    std::string text = \"zebra\";\n    sort_string(text);\n    std::cout << text; // Output: abrez\n}",
+  "practical_example": "Developing a custom high-performance graph node list that needs to be sorted and searched using `std::sort` and `std::find`. By making the custom list class provide `begin()` and `end()`, it becomes immediately compatible with the STL.",
+  "keywords": [
+    "invasive",
+    "intrusive",
+    "container requirements",
+    "begin()",
+    "end()",
+    "std::string"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "192",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_invasive_container_integration__direct_a66abe",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

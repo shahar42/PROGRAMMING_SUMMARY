@@ -1,0 +1,20 @@
+{
+  "topic": "Iterator and Reference Invalidation during Sequence Container Insertion",
+  "category": "container",
+  "explanation": "Insertion operations (`insert(pos, value)`, `insert(pos, num, value)`, etc.) in dynamic sequence containers (`std::vector` and `std::deque`) carry strict rules regarding iterator and reference validity, which must be adhered to to prevent Undefined Behavior (UB).\n\n**std::vector Invalidation:**\n1. If insertion happens at the end (`push_back`) and does **not** trigger reallocation (size < capacity), only iterators/references to the inserted element are invalidated.\n2. If insertion happens at the end and **does** trigger reallocation (size == capacity), **all** iterators, references, and pointers to elements within the vector are invalidated.\n3. If insertion happens anywhere other than the end (e.g., `v.insert(v.begin(), x)`), **all** iterators, references, and pointers are invalidated due to the shifting of elements, even if no reallocation occurs.\n\n**std::deque Invalidation:**\n1. Insertion in the middle invalidates **all** iterators and references.\n2. Insertion at either the front or back invalidates iterators, but **does not** invalidate references, except possibly the reference pointing to the inserted element itself.\n\nUsage Guidance: When inserting into vectors or deques, especially iteratively, the returned iterator from `insert` must be used for subsequent operations, and any previously stored iterators or references must be assumed invalid (unless the specific non-reallocating `vector::push_back` case applies).",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    \n    int& ref_to_2 = v[1]; // Reference to element 2\n    auto it = v.begin();  // Iterator to element 1\n    \n    // Inserting at the beginning invalidates all.\n    v.insert(v.begin(), 0);\n    \n    // std::cout << *it; // DANGER: UB, it is potentially invalid\n    // std::cout << ref_to_2; // DANGER: UB, ref_to_2 is potentially invalid\n\n    // Correct usage: update the iterator\n    std::vector<int> v2 = {1, 2};\n    auto new_it = v2.insert(v2.begin() + 1, 99);\n    std::cout << \"New element: \" << *new_it << std::endl;\n}",
+  "practical_example": "A common mistake in processing loops is writing `for (auto it = v.begin(); it != v.end(); ++it)` and calling `v.insert(it, new_element)`. This insertion invalidates `it` and the subsequent `++it` results in UB. The correct pattern requires updating the loop iterator based on the return value of `insert`.",
+  "keywords": [
+    "iterator invalidation",
+    "vector insert",
+    "deque insert",
+    "reference invalidation",
+    "sequence container requirements",
+    "Undefined Behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "212",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_iterator_and_reference_invalidation_during_db2611",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Implementation-Defined Capacity Management in std::vector",
+  "category": "container",
+  "explanation": "The `std::vector` container manages its allocated memory through capacity, which determines how many elements can be stored before reallocation occurs. While the standard guarantees that `push_back` has amortized constant time complexity O(1), the specific growth factor used when capacity is exceeded is implementation-defined (ID).\n\nTechnical Details:\n1. `capacity()`: The total memory currently allocated, measured in elements.\n2. `size()`: The number of elements currently constructed in the vector.\n3. `max_size()`: The theoretical upper limit of elements the vector can hold, determined by system limits and memory model, and is implementation-defined.\n\nPurpose: The ID growth strategy (commonly 1.5x or 2x) ensures efficient use of memory while minimizing the frequency of expensive reallocations, thus achieving the amortized O(1) guarantee.\n\nPitfalls: Relying on a specific growth factor (e.g., assuming it will always double) can lead to non-portable performance tuning. Furthermore, any reallocation invalidates all iterators, pointers, and references pointing to elements within the vector.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v;\n    // Capacity value is ID and might change based on compiler/library\n    std::cout << \"Max Size: \" << v.max_size() << \"\\n\";\n    \n    v.reserve(1); \n    size_t c1 = v.capacity();\n    v.push_back(1);\n    v.push_back(2); // Triggers reallocation (if c1 == 1)\n    size_t c2 = v.capacity();\n    \n    std::cout << \"Initial Capacity: \" << c1 << \"\\n\";\n    std::cout << \"New Capacity: \" << c2 << \" (Growth factor used: \" << (double)c2/c1 << \")\\n\";\n}",
+  "practical_example": "When porting performance-critical code between GCC (which often uses 2x growth) and MSVC (which often uses 1.5x growth), the exact number of reallocations and associated latency spikes may differ significantly if `reserve()` was not used judiciously.",
+  "keywords": [
+    "capacity",
+    "max_size",
+    "implementation defined",
+    "reallocation",
+    "amortized complexity",
+    "performance tuning"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "153",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_implementation_defined_capacity_management_in_335731",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

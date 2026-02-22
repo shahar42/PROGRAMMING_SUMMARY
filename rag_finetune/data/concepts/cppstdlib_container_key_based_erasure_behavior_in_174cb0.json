@@ -1,0 +1,20 @@
+{
+  "topic": "Key-Based Erasure Behavior in Map vs. Multimap",
+  "category": "container",
+  "explanation": "The `erase(key)` member function behaves differently regarding its return value and effect depending on whether the container enforces unique keys (`std::map`, `std::set`) or allows duplicates (`std::multimap`, `std::multiset`).\n\n**1. Unique Key Containers (`std::map`):**\n- `coll.erase(key)` removes the element associated with the key.\n- **Return Value:** The return value is the number of elements removed, which is strictly guaranteed to be either **0** (key not found) or **1** (key found and removed).\n- **Complexity:** O(log N + C), where N is the size and C is the count removed (C=0 or 1).\n\n**2. Multiple Key Containers (`std::multimap`):**\n- `coll.erase(key)` removes *all* elements associated with the provided key.\n- **Return Value:** The return value is the total count of elements removed, which can be 0, 1, or any positive integer.\n\n**Targeted Removal Pitfall:** Because `std::multimap::erase(key)` removes all duplicates, if the intent is to remove only a *single* specific element among duplicates, the user must first locate the target element using an iterator (e.g., `find()` or `lower_bound()`) and then use the iterator-based `erase(pos)` overload. This prevents accidental mass deletion of duplicates.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\nint main() {\n    std::multimap<int, std::string> mmap = {{1, \"A\"}, {1, \"B\"}, {2, \"C\"}};\n    \n    // 1. Remove ALL elements with key 1\n    size_t count_removed = mmap.erase(1);\n    std::cout << \"Removed \" << count_removed << \" elements.\\n\"; // Output: 2\n    \n    // 2. Targeted removal (if duplicates exist)\n    mmap.insert({3, \"X\"});\n    mmap.insert({3, \"Y\"});\n    \n    auto pos = mmap.find(3); // Finds the first element with key 3\n    if (pos != mmap.end()) {\n        mmap.erase(pos); // Only removes {3, \"X\"}\n    }\n    \n    // Key 3 still exists (the element {3, \"Y\"})\n}",
+  "practical_example": "In a transaction logging system using `std::multimap` (where multiple transactions might share the same user ID key), a system administrator might need to void a single, specific transaction instance. Using `erase(key)` would void all transactions for that user. The correct approach requires using `find()` to locate the specific transaction iterator before calling `erase(iterator)` to ensure only one entry is removed.",
+  "keywords": [
+    "map erase",
+    "multimap erase",
+    "key-based removal",
+    "iterator erase",
+    "duplicate keys",
+    "associative container complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "181",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_based_erasure_behavior_in_174cb0",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

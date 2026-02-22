@@ -1,0 +1,20 @@
+{
+  "topic": "Custom Comparators and Set Ordering Requirements",
+  "category": "container",
+  "explanation": "The ordering of elements in `std::set` is determined by the `Compare` template parameter, which defaults to `std::less<T>` for ascending order. Defining a custom comparator, such as `std::greater<T>`, reverses the sorting order.\n\nDefinition: `std::set<Key, Compare>` requires that the `Compare` type implements a strict weak ordering. This means for any elements a, b, and c:\n1. Irreflexivity: `comp(a, a)` is always false.\n2. Asymmetry: If `comp(a, b)` is true, then `comp(b, a)` is false.\n3. Transitivity: If `comp(a, b)` and `comp(b, c)` are true, then `comp(a, c)` must be true.\n\nUniqueness: Two elements `a` and `b` are considered equivalent (duplicates) if neither `comp(a, b)` nor `comp(b, a)` is true. Only one element from an equivalent group is stored.\n\nUsage Guidance: Using `std::greater<T>` is the standard method for creating a descending set. If a custom class is used, the comparison function must be defined carefully to maintain strict weak ordering; failure to do so results in undefined behavior.\n\nPitfalls: Using a stateful comparator (one whose internal state can change after the set is constructed) is extremely dangerous, as it can violate the set's ordering invariants, leading to incorrect structure and behavior.",
+  "code_example": "#include <set>\n#include <functional>\n#include <iostream>\n\n// Defines a set where 5 is greater than 1 (descending order)\ntypedef std::set<int, std::greater<int>> IntSetDesc;\n\nint main() {\n    IntSetDesc coll1;\n    coll1.insert(4);\n    coll1.insert(1);\n    coll1.insert(6);\n    \n    // Output will be sorted descending: 6 4 1\n    for (int x : coll1) {\n        std::cout << x << ' ';\n    }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "Implementing a persistent high-score board where scores must always be displayed from highest to lowest. Using `std::greater<int>` ensures the underlying storage maintains this order efficiently, allowing O(log N) lookups and insertions while ensuring the first element is always the highest score.",
+  "keywords": [
+    "std::greater",
+    "strict weak ordering",
+    "comparator requirements",
+    "set ordering",
+    "descending set",
+    "key equivalence"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "167",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_custom_comparators_and_set_ordering_5d3fbb",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

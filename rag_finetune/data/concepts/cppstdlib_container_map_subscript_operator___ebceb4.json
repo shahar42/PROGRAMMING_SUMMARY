@@ -1,0 +1,21 @@
+{
+  "topic": "Map Subscript Operator (`operator[]`) Insertion Semantics",
+  "category": "container",
+  "explanation": "The non-constant `std::map` provides a subscript operator (`operator[]`) that allows it to function as an associative array, where the index is the key type rather than an integral position. This operator provides direct access to the mapped value associated with a given key.\n\n**Behavior Guarantee:** `m[key]` returns a reference to the mapped value associated with `key`.\n\n**Crucial Side Effect (Insertion):** If an element with the specified `key` does not already exist in the map, `operator[]` automatically inserts a new element. This new element is constructed using the provided `key` and a default-constructed value of the map's value type (`T`). The reference returned is to this newly inserted, default-initialized value.\n\n**Requirements:** Due to the insertion behavior, the mapped value type (`T`) must satisfy the **DefaultConstructible** requirement.\n\n**Complexity and Performance:** The operation involves searching the map (O(log N)) and potentially inserting a new node (O(log N)). Using `operator[]` for mere lookup when the key is often missing is inefficient, as it forces insertion and default construction. For lookup without insertion, `find()` or `at()` should be used.\n\n**Comparison:**\n*   `m[key]`: Lookup/Insert, returns reference, requires DefaultConstructible T.\n*   `m.at(key)`: Lookup only, returns reference, throws `std::out_of_range` if not found.\n*   `m.find(key)`: Lookup only, returns iterator to element or `end()`, no exception/insertion.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\nint main() {\n    std::map<std::string, int> scores;\n    \n    // 1. Insertion via subscript (key 'Alice' inserted, value default initialized to 0)\n    scores[\"Alice\"] = 10;\n    \n    // 2. Lookup (no insertion)\n    scores[\"Alice\"] += 5; \n    \n    // 3. Insertion of a new key 'Bob'\n    // If int was a custom class, its default constructor would be called.\n    int bob_score = scores[\"Bob\"]; \n    \n    std::cout << scores.size() << \" elements.\" << std::endl;\n    // Output: 2 elements.\n}",
+  "practical_example": "Implementing a frequency counter or tally system where you update counts based on input data. The insertion side effect is beneficial because you don't need to check for existence before updating: `counts[word]++;` handles both new words (initialized to 0, then incremented to 1) and existing words.",
+  "keywords": [
+    "map subscript",
+    "operator[]",
+    "associative array",
+    "insertion semantics",
+    "DefaultConstructible",
+    "O(log N) complexity",
+    "map lookup"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "183",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_map_subscript_operator___ebceb4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Conceptual Distinction Between Core STL Containers and Container Adapters",
+  "category": "adapter",
+  "explanation": "The C++ Standard Library distinguishes conceptually between core STL containers (Sequence and Associative containers like `std::vector`, `std::list`, `std::map`) and container adapters (`std::stack`, `std::queue`, `std::priority_queue`). Core containers adhere to a general set of common requirements, including providing iterators (`begin()`, `end()`) and supporting generalized operations like `clear()` and `size()`, making them fully integrated into the STL framework (usable by generic algorithms).\n\nContainer adapters, conversely, are wrappers that restrict the interface of an underlying core container (the default being `std::deque` for `stack` and `queue`, and `std::vector` for `priority_queue`). They enforce specific access policies (LIFO, FIFO, or priority ordering) and deliberately *do not* provide iterators or the full range of container member functions. This restriction means adapters are not considered part of the generalized STL container concept, though they utilize the underlying STL components. This separation is crucial for maintaining abstraction and enforcing usage constraints.\n\nPitfalls: Attempting to use STL algorithms (like `std::sort` or `std::find`) directly on container adapters is impossible due to the lack of iterator support. Access must be managed solely through the restricted interface (e.g., `push`, `pop`, `top`).",
+  "code_example": "#include <stack>\n#include <vector>\n#include <algorithm>\n\nvoid demonstrate_adapter_restriction() {\n    std::stack<int, std::vector<int>> s;\n    s.push(10);\n    \n    // Error: stack does not provide iterators (begin/end)\n    // std::sort(s.begin(), s.end()); \n    \n    // Correct access enforces LIFO\n    s.pop(); \n}",
+  "practical_example": "When designing a function that handles undo/redo functionality, using `std::stack` (a container adapter) guarantees that only LIFO operations are permitted, preventing accidental access or manipulation of elements deep within the history, which would violate the architectural constraints.",
+  "keywords": [
+    "container adapter",
+    "stack",
+    "queue",
+    "priority_queue",
+    "STL framework",
+    "interface restriction",
+    "no iterators"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "129, Footnote [1]",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_adapter_conceptual_distinction_between_core_stl_2dcc8e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

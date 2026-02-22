@@ -1,0 +1,21 @@
+{
+  "topic": "Custom Queue Wrapper with Exception-Safe Empty Access",
+  "category": "adapter",
+  "explanation": "The standard `std::queue` adapter does not provide bounds checking for `pop()` or `front()` operations. Calling these methods on an empty queue results in undefined behavior. To create a safer interface, custom queue wrappers can be implemented that throw exceptions when attempting to access or remove elements from an empty queue.\n\nPurpose: Providing exception-based error handling transforms silent undefined behavior into explicit, catchable errors. This is particularly valuable in contexts where queue operations occur far from the point where emptiness can be validated, or when queue state is managed across multiple functions.\n\nTechnical Details:\n- The custom wrapper typically uses `std::deque<T>` as the underlying container (same as standard queue default).\n- A custom exception class (e.g., `ReadEmptyQueue`) is defined, inheriting from `std::exception`.\n- The `pop()` operation is modified to return the element value directly (combining `front()` and `pop()` atomically) while checking for emptiness first.\n- Empty checks (`if (c.empty())`) precede all access operations, throwing the custom exception if the queue is empty.\n\nUsage Patterns:\n- Wrap the queue operations in a try-catch block to handle `ReadEmptyQueue` exceptions.\n- This pattern is useful in producer-consumer scenarios where the consumer cannot predict queue state.\n- The combined pop-and-return operation ensures exception safety: either the element is successfully retrieved and removed, or an exception is thrown with no state change.\n\nPitfalls:\n1. Performance Overhead: Each operation includes an emptiness check, adding slight overhead compared to the standard adapter.\n2. Exception Handling Required: Code using this wrapper must handle exceptions; failure to catch results in program termination.\n3. Return-by-Value: The modified `pop()` returns by value, requiring element copy/move construction.",
+  "code_example": "#include <deque>\n#include <exception>\n\ntemplate <class T>\nclass Queue {\nprotected:\n    std::deque<T> c;\n\npublic:\n    class ReadEmptyQueue : public std::exception {\n    public:\n        virtual const char* what() const throw() {\n            return \"read empty queue\";\n        }\n    };\n\n    // Combined pop that returns value and checks emptiness\n    T pop() {\n        if (c.empty()) {\n            throw ReadEmptyQueue();\n        }\n        T elem(c.front());\n        c.pop_front();\n        return elem;\n    }\n\n    T& front() {\n        if (c.empty()) {\n            throw ReadEmptyQueue();\n        }\n        return c.front();\n    }\n\n    void push(const T& elem) {\n        c.push_back(elem);\n    }\n\n    bool empty() const { return c.empty(); }\n};",
+  "practical_example": "In a message processing system where worker threads consume tasks from a shared queue, using an exception-safe queue wrapper allows workers to gracefully handle empty queue conditions during shutdown or low-load periods. Instead of risking undefined behavior, workers catch `ReadEmptyQueue` exceptions and can decide whether to wait, retry, or terminate.",
+  "keywords": [
+    "queue wrapper",
+    "exception safety",
+    "bounds checking",
+    "custom adapter",
+    "ReadEmptyQueue",
+    "undefined behavior prevention",
+    "deque"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "392-393",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_custom_queue_exception_safety_manual_13",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

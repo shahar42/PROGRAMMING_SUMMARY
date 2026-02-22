@@ -1,0 +1,20 @@
+{
+  "topic": "`reserve()` and Unconditional Iterator Invalidation Risk",
+  "category": "container",
+  "explanation": "`std::vector::reserve(n)` is a capacity management function that requests the vector to allocate storage suitable for at least `n` elements. It is often logically categorized as a non-modifying operation because it does not change the logical size (`size()`) or the contents of the elements.\n\nTechnical Details and Pitfall:\nDespite its 'non-modifying' categorization, the standard guarantees that if `reserve()` increases the vector's capacity, a reallocation occurs. If reallocation occurs, the physical memory location of the vector's elements changes. This causes *unconditional invalidation* of all existing iterators, pointers, and references that pointed into the vector's elements prior to the call. Accessing invalidated pointers leads to Undefined Behavior (UB).\n\nComplexity:\n`reserve()` runs in linear time, O(N) complexity, where N is the current size, if reallocation is required (due to copying/moving elements). It runs in O(1) time if the capacity is already sufficient or the request is smaller than the current capacity.\n\nUsage Guidance:\n`reserve()` should be used before bulk insertions (e.g., loops involving `push_back`) to minimize reallocations and ensure amortized O(1) insertion performance. However, any code holding element references or iterators must assume they are invalidated immediately following a `reserve()` call, even if the user believes capacity was sufficient (as they might not know the exact internal capacity state).",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20};\n    // Assume capacity is 2\n    int* p = &v[0];\n    \n    // Request a large capacity, forcing reallocation\n    v.reserve(100);\n    \n    // DANGER: p points to the old memory location\n    // Accessing *p is UNDEFINED BEHAVIOR\n    // if reallocation actually occurred (which it usually does here).\n    // std::cout << *p << std::endl; \n    \n    // Safe access requires re-obtaining the pointer:\n    std::cout << v[0] << std::endl; // Output: 10\n}",
+  "practical_example": "A parser reads configuration data into a vector. Before starting the main parsing loop, `config_data.reserve(estimated_count)` is called. If an iterator or reference to the first element was stored outside the loop for quick access, that reference must be refreshed after `reserve()`, otherwise subsequent access to the old reference will fail if a reallocation occurred.",
+  "keywords": [
+    "reserve",
+    "capacity management",
+    "iterator invalidation",
+    "reallocation",
+    "Undefined Behavior",
+    "amortized complexity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "151 (Footnote 7), 153",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container__reserve____01306b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

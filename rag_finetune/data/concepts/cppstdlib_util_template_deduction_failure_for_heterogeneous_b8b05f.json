@@ -1,0 +1,21 @@
+{
+  "topic": "Template Deduction Failure for Heterogeneous Arguments in std::min/std::max",
+  "category": "util",
+  "explanation": "The standard library functions `std::min` and `std::max` utilize template deduction to determine the common type `T` for their two arguments. A crucial requirement is that both input arguments, `a` and `b`, must be deduced to the exact same type `T`.\n\nTechnical Details:\nIf the arguments are of different, albeit convertible, types (e.g., `int` and `long`), template deduction fails, resulting in a compilation error (e.g., 'no matching function call'). This occurs because the compiler cannot uniquely determine a single `T` that satisfies both `T=int` and `T=long` simultaneously. The template mechanism does not automatically apply implicit conversions (like integral promotion) before the deduction step when the arguments are heterogeneous.\n\nUsage and Resolution:\nTo resolve this failure, the programmer must explicitly specify the desired target type using template argument qualification, forcing the inputs to be converted to the common type prior to function execution. For instance, `std::max<long>(i, l)` forces both `i` (int) and `l` (long) to be treated as `long`s inside the function.\n\nPitfalls:\nAssuming that standard C++ implicit conversion rules (e.g., comparing an `int` and a `double` which results in the `int` being promoted to `double`) will automatically handle the arguments is incorrect. The deduction mechanism is stricter than standard function overload resolution.",
+  "code_example": "#include <algorithm>\n\nvoid check_max_types() {\n    int i = 10;\n    long l = 20L;\n    \n    // l = std::max(i, l); // ERROR: Argument types (int, long) mismatch T\n    \n    // Correct Usage: Explicitly qualify the target type\n    l = std::max<long>(i, l); // OK: Both converted to long\n    \n    double d = 3.14;\n    // d = std::max<double>(d, i); // OK: i is promoted to double\n}",
+  "practical_example": "When working with legacy codebases or APIs that mix standard C integer types (`size_t`, `long`, `int`), using `std::min` or `std::max` requires explicit casting or template specification to prevent compiler errors, especially when comparing signed and unsigned types.",
+  "keywords": [
+    "template deduction",
+    "type mismatch",
+    "explicit qualification",
+    "std::max",
+    "std::min",
+    "heterogeneous types",
+    "conversion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "65",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_template_deduction_failure_for_heterogeneous_b8b05f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

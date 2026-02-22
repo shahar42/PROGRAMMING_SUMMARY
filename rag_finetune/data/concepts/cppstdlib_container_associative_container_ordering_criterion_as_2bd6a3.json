@@ -1,0 +1,21 @@
+{
+  "topic": "Associative Container Ordering Criterion as a Template Parameter",
+  "category": "container",
+  "explanation": "Ordered associative containers (like `std::map`, `std::set`, `std::multimap`, `std::multiset`) require a comparator object that defines a strict weak ordering among keys. This comparator's type is typically provided as the third template parameter (e.g., `std::map<Key, Value, Op>`).\n\n**Definition and Purpose:** When the comparator type (`Op`) is specified as a template argument, it becomes an intrinsic part of the container's type signature. This ensures that a container sorted using `std::less<Key>` is a distinct type from a container sorted using `std::greater<Key>`. This compile-time distinction prevents accidental mixing of containers with different ordering semantics, enforcing type safety.\n\n**Technical Details:** The container's constructor default-constructs an instance of the `Op` type. The standard default comparator is `std::less<Key>`, relying on the key type's `operator<`. Key equivalence is defined by the comparator: two keys `a` and `b` are considered equivalent if `!Op(a, b)` and `!Op(b, a)` are both true.\n\n**Usage:** This method is the standard approach for defining fixed sorting behavior. If the sorting logic itself needs to be dynamic or stateful, the comparator object must be passed explicitly to the constructor, even if the type remains the same.\n\n**Pitfalls:** If the custom comparator is stateful but is defined only as a template parameter, the container will use the default-constructed state, potentially ignoring necessary runtime initialization parameters.",
+  "code_example": "#include <map>\n#include <functional>\n#include <string>\n\n// Defining the sorting criterion (std::greater) as part of the type\nusing DescMap = std::map<float, std::string, std::greater<float>>;\nusing AscMap = std::map<float, std::string, std::less<float>>;\n\nint main() {\n    DescMap d_coll;\n    AscMap a_coll;\n    \n    // d_coll = a_coll; // ERROR: Incompatible types due to different comparators\n    \n    d_coll[5.0f] = \"Five\";\n    d_coll[1.0f] = \"One\";\n    // Iterating d_coll yields (5.0, 1.0) order.\n}",
+  "practical_example": "When creating a cache of objects indexed by priority, defining the map using `std::map<int, Data, std::greater<int>>` ensures that the container is inherently sorted from highest priority (largest integer) to lowest. Any attempt to pass this container to a function expecting ascending order will result in a compile-time type mismatch.",
+  "keywords": [
+    "comparator type",
+    "template parameter",
+    "std::map",
+    "std::less",
+    "std::greater",
+    "strict weak ordering",
+    "type safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "175",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_ordering_criterion_as_2bd6a3",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

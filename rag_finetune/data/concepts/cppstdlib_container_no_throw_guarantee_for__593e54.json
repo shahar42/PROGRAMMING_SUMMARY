@@ -1,0 +1,20 @@
+{
+  "topic": "No-Throw Guarantee for `std::list` Structural Operations",
+  "category": "container",
+  "explanation": "Due to its node-based structure, `std::list` (doubly linked list) can perform many structural manipulations by only changing internal pointers, avoiding element copying, moving, or memory reallocation. This inherent characteristic allows several key operations to provide the strictest level of exception safety: the No-Throw Guarantee (or `noexcept`).\n\nOperations guaranteed not to throw include `list::reverse()`, `list::swap()`, and `list::clear()`. Additionally, `list::merge()` is guaranteed not to throw, provided that the comparison predicate used (if any) does not throw an exception.\n\nTechnical Details:\n- **Guarantee:** No-throw guarantee (`noexcept`).\n- **Mechanism:** These operations only re-link existing nodes; they do not require new memory allocation (unlike `push_back` or `insert`) or element destruction/copying (unlike `vector::erase`).\n- **Performance:** Since no exceptions are handled or propagated, these operations are highly reliable and predictable in terms of execution time.\n\nUsage: This makes `std::list` highly reliable for complex structural reorganizations, particularly in exception-sensitive environments or when dealing with move-only types, as these operations bypass element semantics entirely.\n\nPitfall: While `list::merge()` itself doesn't throw, if the user-supplied comparison object throws, the behavior related to the element ordering might be complex, although the list structure itself remains valid.",
+  "code_example": "#include <list>\n#include <algorithm>\n\nint main() {\n    std::list<int> l1 = {1, 2, 3};\n    std::list<int> l2 = {4, 5};\n    \n    // Guaranteed no-throw operation (internal pointer manipulation)\n    l1.reverse(); \n    \n    // Guaranteed no-throw operation (assuming standard allocator/comparison)\n    l1.swap(l2);\n    \n    // Guaranteed no-throw operation (if default comparison doesn't throw)\n    l1.merge(l2);\n    \n    // l2 is now empty, l1 contains {5, 4, 3, 2, 1} (or similar, depending on merge sort)\n    return 0;\n}",
+  "practical_example": "In an embedded system handling real-time task queues represented by `std::list`, using `list::swap()` to atomically exchange the current processing queue with a newly prepared queue provides maximum exception safety. The swap is guaranteed to complete instantaneously without resource management overhead or the risk of exceptions, which is critical for maintaining determinism.",
+  "keywords": [
+    "list merge",
+    "list swap",
+    "list reverse",
+    "no-throw guarantee",
+    "exception safety",
+    "node-based container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "237, 246",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_no_throw_guarantee_for__593e54",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

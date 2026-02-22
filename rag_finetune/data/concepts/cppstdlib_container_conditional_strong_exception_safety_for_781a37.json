@@ -1,0 +1,20 @@
+{
+  "topic": "Conditional Strong Exception Safety for Sequence Container Insertion",
+  "category": "container",
+  "explanation": "All standard containers are designed to guarantee transactional behavior for insertion: the operation either succeeds completely, or it fails and leaves the container unchanged (the Strong Exception Safety Guarantee). However, for `std::vector` and `std::deque`, this guarantee is conditional on the properties of the element type `T`.\n\nTechnical Requirements:\n1. **General Containers (List, Associative):** Insertion provides the strong guarantee regardless of element type exceptions, as they typically use node-based structures where allocation can fail safely or the element construction/copy occurs transactionally.\n2. **Vector and Deque:** For these containers, insertion often involves moving or copying existing elements (especially during reallocation or shifting). The text explicitly states: 'if the copy operations (copy constructor and assignment operator) of the elements don't throw, the function either succeeds or has no effect.'\n\nImplication: If `T`'s copy constructor throws during a reallocation triggered by `insert`, the strong guarantee may be violated. The container might be left in a partially modified state (e.g., size updated, but elements only partially copied to the new memory block), violating the standard's requirements for a clean rollback.\n\nBest Practice: Using move semantics or ensuring that element copy/move operations are `noexcept` (especially for types used in `vector` or `deque`) is critical to maintaining the strong exception safety guarantee under all circumstances.",
+  "code_example": "#include <vector>\n#include <stdexcept>\n\nstruct ThrowingCopy {\n    int val;\n    ThrowingCopy(int v) : val(v) {}\n    ThrowingCopy(const ThrowingCopy& other) : val(other.val) {\n        // If this throws during vector reallocation, the guarantee fails.\n        if (other.val == 5) {\n            // throw std::runtime_error(\"Copy failed!\");\n        }\n    }\n};\n\nint main() {\n    // std::vector<ThrowingCopy> v; \n    // v.reserve(10);\n    // v.push_back(ThrowingCopy(5)); // If copy throws, state may be corrupted\n\n    // Better: Ensure element properties support strong safety:\n    // Requires C++11 or later move semantics and noexcept guarantees.\n    struct NoThrowCopy {\n        int val;\n        NoThrowCopy(const NoThrowCopy&) = default;\n        // Ensure move constructor is noexcept (often default)\n        NoThrowCopy(NoThrowCopy&&) noexcept = default;\n    };\n    std::vector<NoThrowCopy> safe_v;\n}",
+  "practical_example": "When working with custom resource-managing classes (like smart pointers or file handles) that are stored in a `std::vector`, it is essential to mark their copy/move operations as `noexcept` if they do not throw exceptions. This ensures that even if `vector` reallocates, the container state remains consistent if an exception occurs during the shift.",
+  "keywords": [
+    "exception safety",
+    "strong guarantee",
+    "copy operation requirements",
+    "noexcept",
+    "vector exception safety",
+    "transactional behavior"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "212",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_conditional_strong_exception_safety_for_781a37",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

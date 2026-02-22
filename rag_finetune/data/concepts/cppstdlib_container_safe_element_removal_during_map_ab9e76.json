@@ -1,0 +1,20 @@
+{
+  "topic": "Safe Element Removal During Map Iteration (Pre-C++11 Pattern)",
+  "category": "container",
+  "explanation": "When iterating through an associative container (`std::map`, `std::set`) or a `std::list` and conditionally erasing elements, special care must be taken to ensure the iterator is advanced correctly before it is invalidated by the `erase()` operation. For these containers, `erase()` only invalidates the iterator pointing to the specific element being removed, but not others.\n\n**Mechanism (Pre-C++11/17):** Since the `erase()` member function of `std::map` traditionally returns `void` (or an iterator to the element following the erased one in C++11/17+), the iterator must be advanced manually. Using the post-increment operator (`pos++`) achieves this safely within the `erase` call:\n1. `pos++` is evaluated: the iterator `pos` is advanced to the next element, and a copy of the *original* iterator (pointing to the element to be erased) is yielded.\n2. `erase()` is called using the copied, invalidated iterator.\n3. The loop continues with the actual `pos` pointing to the next, valid element.\n\n**Complexity:** Erasing a single element in `std::map` is logarithmic complexity, O(log N), due to the need to locate and rebalance the tree structure.\n\n**Pitfalls:** Failing to advance the iterator before `erase()` (e.g., using `c.erase(pos); ++pos;`) results in undefined behavior because the `++pos` operation attempts to dereference the now-invalidated iterator.",
+  "code_example": "#include <map>\n#include <string>\n\nvoid safe_erase(std::map<int, std::string>& coll, const std::string& value) {\n    auto pos = coll.begin();\n    while (pos != coll.end()) {\n        if (pos->second == value) {\n            // pos++ yields the old iterator for erase,\n            // while advancing pos to the next valid element.\n            coll.erase(pos++); // Pre-C++11/17 safe pattern\n        } \n        else {\n            ++pos;\n        }\n    }\n}",
+  "practical_example": "Processing a transaction log stored in a map where certain expired or completed transactions must be removed while iterating. Using the post-increment pattern ensures the iteration remains valid without skipping elements or causing crashes due to stale iterators.",
+  "keywords": [
+    "iterator invalidation",
+    "map erase",
+    "associative container",
+    "post-increment",
+    "bidirectional iterator",
+    "O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "182-183",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_safe_element_removal_during_map_ab9e76",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

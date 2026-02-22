@@ -1,0 +1,20 @@
+{
+  "topic": "Element Requirements for std::vector: Copyability and Assignability",
+  "category": "container",
+  "explanation": "The fundamental requirement for any type `T` stored within a `std::vector<T>` is that it must be assignable and copyable (pre-C++11). These requirements ensure that the vector can fulfill its core responsibilities, particularly during dynamic growth and element manipulation.\n\nTechnical Details:\n1. Copyability: Required when the vector reallocates its internal storage (which happens when `push_back` exceeds capacity). All existing elements must be copied (or moved, in C++11+) to the new, larger memory location. This relies on the copy constructor of type `T`.\n2. Assignability: Required for operations like element assignment (`v[i] = x`), range assignment, or when an element is overwritten during certain insertion/modification operations. This relies on the assignment operator (`operator=`) of type `T`.\n\nIf the type T is non-copyable (e.g., if the copy constructor is deleted or private, as is common for resource-managing classes like `std::unique_ptr`), it cannot be stored directly in a vector unless move semantics are available (C++11 and later) and the operation uses move semantics (e.g., `push_back(std::move(t))`). Failure to meet these requirements results in compile-time errors.\n\nModern Context (C++11+): While copyability is still relevant, `std::vector` preferentially uses move constructors and move assignment operators if available, improving performance significantly, especially during reallocation. However, the basic requirement stated (assignable and copyable) defines the minimum compatibility baseline.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nclass Resource {\npublic:\n    Resource() = default;\n    // Must be copyable and assignable for basic vector use\n    Resource(const Resource&) = default;\n    Resource& operator=(const Resource&) = default;\n};\n\nint main() {\n    // Compiles because Resource meets requirements\n    std::vector<Resource> v;\n    v.push_back(Resource()); \n    \n    // Example of failure if copy constructor were deleted:\n    // class NonCopyable { NonCopyable(const NonCopyable&) = delete; };\n    // std::vector<NonCopyable> v_fail; // Compile error\n}",
+  "practical_example": "When designing a custom wrapper class for a hardware handle or network socket, ensuring the class correctly implements or deletes its copy/assignment operations is crucial. If the handle class is intended to be unique (non-copyable), it cannot be placed in a standard vector unless it is moved, forcing careful consideration of `emplace_back` or move-enabled `push_back` to satisfy the vector's underlying need to relocate elements.",
+  "keywords": [
+    "element requirements",
+    "copyable",
+    "assignable",
+    "T constraints",
+    "reallocation requirements",
+    "type requirements"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "133",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_element_requirements_for_std__1e311c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

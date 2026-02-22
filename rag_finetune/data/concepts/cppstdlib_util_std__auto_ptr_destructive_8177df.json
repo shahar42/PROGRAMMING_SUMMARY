@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Destructive Copy Semantics and Ownership Transfer",
+  "category": "util",
+  "explanation": "The `std::auto_ptr` utility (deprecated since C++11 and removed in C++17) implemented strict single-ownership semantics using a mechanism known as 'destructive copy' or 'move-on-copy.' When an `auto_ptr` instance is copied (via copy constructor or assignment operator), ownership of the managed resource (the raw pointer) is transferred to the destination object. Crucially, the source `auto_ptr` object is modified\u2014its internal pointer is set to `nullptr`\u2014thereby relinquishing ownership.\n\nPurpose: This behavior ensures strict RAII (Resource Acquisition Is Initialization) by guaranteeing that only one `auto_ptr` instance manages the resource at any given time, preventing double deletion errors when the owning objects go out of scope.\n\nTechnical Details:\n- Copy construction and assignment are O(1).\n- The source object is modified, violating standard C++ value semantics (where copying leaves the source unchanged).\n- Pitfalls: This non-standard copy behavior renders `auto_ptr` unsuitable for use in STL containers (like `std::vector` or `std::map`). If an `auto_ptr` is copied within a container operation (e.g., during sorting, resizing, or insertion), ownership is silently transferred, leading to the container holding null pointers and potentially losing access to the managed resource.\n\nUsage Guidance: `std::unique_ptr` replaced `auto_ptr` in C++11, providing explicit move semantics instead of implicit destructive copy, resolving the ambiguities and container compatibility issues.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource {};\n\nint main() {\n    std::auto_ptr<Resource> p1(new Resource());\n    std::cout << \"P1 before copy: \" << (p1.get() != nullptr) << std::endl; // True\n    \n    // Destructive Copy: p1 transfers ownership to p2\n    std::auto_ptr<Resource> p2 = p1; \n    \n    std::cout << \"P1 after copy: \" << (p1.get() != nullptr) << std::endl;  // False (nullptr)\n    std::cout << \"P2 owns resource: \" << (p2.get() != nullptr) << std::endl; // True\n    \n    // The resource is deleted only when p2 goes out of scope.\n}",
+  "practical_example": "Attempting to store `std::auto_ptr` objects in a `std::vector` and then sorting the vector results in undefined behavior or silent resource loss, as the sort algorithm relies on copying elements, transferring ownership away from the location the container believes still holds the resource.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "move semantics",
+    "RAII",
+    "deprecated"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_8177df",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

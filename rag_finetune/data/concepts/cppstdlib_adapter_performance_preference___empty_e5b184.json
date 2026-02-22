@@ -1,0 +1,20 @@
+{
+  "topic": "Performance Preference: `empty()` vs `size() == 0` for State Checking",
+  "category": "adapter",
+  "explanation": "Although `std::queue::empty()` is logically equivalent to `std::queue::size() == 0`, the standard library strongly recommends using `empty()` for checking if a container or adapter holds elements. Josuttis explicitly notes that `empty()` 'might be faster.'\n\nPurpose: This preference stems from potential implementation details. While `size()` must return the full count (which is typically O(1) for standard sequential containers like `deque`), `empty()` only needs to determine if the element count is non-zero. In complex or specialized container implementations (or within specific container types not typically used by `queue`), calculating the full size might involve more overhead (e.g., checking internal state flags or synchronization primitives) than a simple null check.\n\nTechnical Details:\n- **Complexity:** Both `empty()` and `size()` are guaranteed O(1) constant time complexity for standard sequential containers.\n- **Optimization:** Compilers and library implementers often heavily optimize `empty()`, making it a single, fast check, sometimes resulting in slightly better performance than calculating and comparing `size()`.\n- **Semantic Clarity:** Using `empty()` is semantically clearer, directly answering the question: 'Does this queue contain elements?'\n\nUsage Guidance: Always prefer `if (q.empty())` over `if (q.size() == 0)` when the goal is solely to determine presence or absence of elements.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::queue<int> q;\n    \n    // Preferred and potentially faster\n    while (!q.empty()) { \n        q.pop();\n    }\n    \n    // Semantically equivalent, but less preferred\n    if (q.size() == 0) {\n        std::cout << \"Queue is confirmed empty.\\n\";\n    }\n}",
+  "practical_example": "In high-throughput loops processing large numbers of queues (e.g., task schedulers), even minor performance gains from optimized library calls accumulate significantly. Consistently using `empty()` adheres to library best practices for maximizing performance in state checks.",
+  "keywords": [
+    "empty()",
+    "size()",
+    "O(1) complexity",
+    "performance optimization",
+    "best practice",
+    "queue operations"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "390",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_performance_preference___empty_e5b184",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

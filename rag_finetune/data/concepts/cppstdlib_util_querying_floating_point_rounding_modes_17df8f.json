@@ -1,0 +1,21 @@
+{
+  "topic": "Querying Floating-Point Rounding Modes via std::numeric_limits::round_style",
+  "category": "util",
+  "explanation": "The `std::numeric_limits<T>::round_style` static member reports how the floating-point type `T` handles the rounding of results that fall exactly between two representable values. This property is crucial for ensuring deterministic and predictable numerical behavior across different platforms.\n\nPossible values, defined as an enumeration, include:\n- `round_to_nearest`: Rounds to the nearest representable value. Standard IEEE 754 often uses 'round half to even' for tie-breaking.\n- `round_toward_zero`: Truncation (rounds toward zero).\n- `round_toward_infinity`: Rounds toward positive infinity.\n- `round_toward_neg_infinity`: Rounds toward negative infinity.\n- `round_indeterminate`: The rounding mode cannot be determined at compile time (often controlled dynamically by environment/runtime flags).\n\nTechnical Details:\nFor types where `is_iec559` (IEEE 754 compliance) is true, the mode is typically `round_to_nearest`. However, the C++ Standard allows systems where the rounding mode is dynamic or fixed to a non-standard setting.\n\nUsage: Numerical libraries, especially those dealing with financial or high-precision calculations, must check `round_style` to understand the inherent precision behavior. If `round_indeterminate` is reported, the application may need to use platform-specific functions (like `fesetround` from `<cfenv>`) to enforce a desired rounding mode if portability is paramount.\n\nPitfalls: Relying on a specific rounding behavior (e.g., assuming 'round half away from zero') without checking `round_style` can lead to subtle cross-platform discrepancies in sensitive numerical algorithms.",
+  "code_example": "#include <iostream>\n#include <limits>\n\nint main() {\n    using namespace std;\n    \n    // Check the rounding style for double\n    auto style = numeric_limits<double>::round_style;\n    \n    cout << \"Double rounding style: \";\n    \n    if (style == round_to_nearest) {\n        cout << \"Round to nearest (IEEE standard)\" << endl;\n    } else if (style == round_toward_zero) {\n        cout << \"Round toward zero (Truncation)\" << endl;\n    } else {\n        cout << \"Other or Indeterminate style: \" << style << endl;\n    }\n}",
+  "practical_example": "A financial application calculating compound interest needs strict, verifiable rounding behavior. If `numeric_limits<long double>::round_style` is `round_indeterminate`, the application must initialize the FPU environment using `<cfenv>` functions to guarantee `round_toward_neg_infinity` (floor) to comply with specific regulatory requirements for monetary calculation.",
+  "keywords": [
+    "round_style",
+    "floating point rounding",
+    "round_to_nearest",
+    "round_toward_zero",
+    "numerical stability",
+    "IEEE 754",
+    "cfenv"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "62-63",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_querying_floating_point_rounding_modes_17df8f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

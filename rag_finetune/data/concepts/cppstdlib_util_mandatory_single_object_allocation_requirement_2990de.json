@@ -1,0 +1,21 @@
+{
+  "topic": "Mandatory Single Object Allocation Requirement for `std::auto_ptr`",
+  "category": "util",
+  "explanation": "The fundamental requirement for the pointer managed by `std::auto_ptr` is that it must have been allocated using the single-object form of `new`. This constraint arises because the destructor of `std::auto_ptr` relies solely on the raw `delete` operator to deallocate the resource.\n\n**Technical Constraint:** The standard library definition of `std::auto_ptr` does not provide a mechanism for custom deleters (unlike modern smart pointers like `std::unique_ptr`). Since the destructor executes `delete get()`, passing a pointer allocated via `new[]` (array allocation) to an `auto_ptr` results in severe undefined behavior, typically memory corruption, due to the mismatch between `new[]` and `delete`.\n\n**Usage Guidance:** `auto_ptr` is unsuitable for managing arrays, file handles, or resources requiring specialized cleanup routines. The managed type `T` must be a complete type at the point of destruction.\n\n**Comparison:** Modern smart pointers (`std::unique_ptr`, `std::shared_ptr`) solve this issue by allowing explicit specialization for arrays (`std::unique_ptr<T[]>`) or by accepting a custom deleter function object, making them resource-agnostic and safer.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Data {};\n\nint main() {\n    // Correct: Allocated with single object new\n    std::auto_ptr<Data> p1(new Data);\n    \n    // DANGER: Allocated with array new\n    // This will lead to undefined behavior/memory corruption upon destruction.\n    // std::auto_ptr<Data> p2(new Data[10]); \n    \n    // The use of 'delete' in the destructor is implicit:\n    // ~auto_ptr() { delete get(); }\n    \n    // To manage an array safely (if forced to use auto_ptr):\n    // You must manually release and delete[]\n    Data* arr = new Data[5];\n    std::auto_ptr<Data> p3(arr); // Still dangerous, only manages 'arr[0]'\n    p3.release(); // Relinquish ownership\n    delete[] arr; // Manual cleanup required\n}",
+  "practical_example": "A legacy system using `auto_ptr` for managing a network packet buffer mistakenly allocates the buffer using `new unsigned char[1024]`. When the `auto_ptr` goes out of scope, the call to `delete` instead of `delete[]` corrupts the heap metadata, causing intermittent crashes far removed from the actual allocation site.",
+  "keywords": [
+    "new operator",
+    "delete operator",
+    "array deletion",
+    "memory management",
+    "custom deleter",
+    "undefined behavior",
+    "auto_ptr constraint"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "53",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_mandatory_single_object_allocation_requirement_2990de",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

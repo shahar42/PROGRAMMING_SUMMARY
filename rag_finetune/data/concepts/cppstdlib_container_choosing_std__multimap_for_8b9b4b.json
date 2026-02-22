@@ -1,0 +1,21 @@
+{
+  "topic": "Choosing std::multimap for Logically Non-Unique Data Structures",
+  "category": "container",
+  "explanation": "`std::multimap` is the appropriate container when key uniqueness is not desired or cannot be guaranteed, especially when keys are compared using a 'lossy' criteria (such as case-insensitive comparison or locale-based comparison that groups distinct strings). \n\nPurpose: Unlike `std::map`, `std::multimap` allows multiple elements to exist with keys that compare equivalent according to the provided `Compare` predicate. This is essential for applications like dictionaries, translation tables, or indexing systems where a single concept (the key, potentially normalized) might correspond to multiple distinct values or definitions.\n\nTechnical Details:\n- Insertion complexity remains O(log N).\n- Iteration returns elements ordered by key, but equivalent keys appear sequentially in insertion order (though the standard does not strictly guarantee stable order for equivalent keys).\n- Key retrieval requires using methods designed for handling multiple results, such as `count()`, `equal_range()`, or iterating from `lower_bound()` to `upper_bound()`.\n\nUsage: The source text suggests `multimap` is the 'typical container for dictionaries' precisely because case variations or synonyms might necessitate storing multiple associated values for a single conceptual key, preventing the data corruption observed when `std::map` discards duplicates.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\n// Assuming IgnoreCaseCmp from Concept 1\nstruct IgnoreCaseCmp { /* ... definition ... */ };\n\nint main() {\n    // Multimap allows equivalent keys defined by the comparator\n    std::multimap<std::string, int, IgnoreCaseCmp> mm;\n    \n    mm.insert({\"Apple\", 1});\n    mm.insert({\"apple\", 2}); \n    \n    // Size is 2, both values are retained.\n    std::cout << mm.size() << std::endl; // Output: 2\n    \n    // Find all equivalent elements (requires equal_range)\n    auto range = mm.equal_range(\"apple\");\n    for (auto it = range.first; it != range.second; ++it) {\n        std::cout << it->first << \": \" << it->second << \"\\n\";\n    }\n}",
+  "practical_example": "A thesaurus application needs to store multiple synonyms or definitions for a single entry word. If the search is case-insensitive, using `std::multimap` ensures that when the user searches for 'run', they receive all definitions associated with 'run', 'Run', and 'RUN', without any entry being discarded due to the case-insensitive comparison.",
+  "keywords": [
+    "multimap",
+    "duplicate keys",
+    "equal_range",
+    "dictionary",
+    "associative container",
+    "non-unique keys",
+    "O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "191",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_choosing_std__multimap_for_8b9b4b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

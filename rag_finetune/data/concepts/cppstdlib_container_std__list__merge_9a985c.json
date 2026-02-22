@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::merge Semantic Requirements and Source Depletion",
+  "category": "container",
+  "explanation": "The member function `std::list::merge(list& source)` transfers all elements from the `source` list into the current list (`*this`) efficiently by splicing nodes. This operation fundamentally changes the state of both containers.\n\nTechnical Details:\n- Source State: After a successful call to `merge`, the `source` list is guaranteed to be empty. All elements and their associated storage are now owned by `*this`.\n- Sorting Requirement: If the intent is to produce a single, fully sorted list, the standard strictly requires that both `*this` and `source` must already be sorted according to the same criterion (default `operator<` or custom `op`) prior to the call. If this requirement is met, the merge operation achieves O(N) complexity.\n- Efficiency: Since `list::merge` operates by manipulating only internal pointers, it does not invoke any element constructors, destructors, or assignment operators, making it extremely fast, O(N) comparisons.\n- Non-Sorted Merging: While some implementations may allow merging unsorted lists (treating it as a complex splice), relying on this behavior is non-portable and violates the standard's intended use of the function for ordered merging.\n\nPitfalls: Forgetting that the source list is emptied can lead to logical errors if subsequent code attempts to access its elements. Violating the sorted input requirement leads to an unsorted output list if sorting is expected.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> l1 = {1, 5, 8}; // Must be sorted\n    std::list<int> l2 = {2, 4, 9}; // Must be sorted\n    \n    l1.merge(l2);\n    \n    // l1 is now {1, 2, 4, 5, 8, 9}\n    // l2 is empty\n    \n    std::cout << \"l1 size: \" << l1.size() << std::endl;\n    std::cout << \"l2 size: \" << l2.size() << std::endl;\n\n    // DANGER: Trying to access l2 elements is UB/error\n}",
+  "practical_example": "In a multithreaded environment processing large, ordered data batches, one thread might produce List A and another List B. Using `list::merge` allows combining these two pre-sorted lists into a master list efficiently in O(N) time, far faster than combining and resorting the entire resultant list (O(N log N)).",
+  "keywords": [
+    "list merge",
+    "source depletion",
+    "sorted requirement",
+    "O(N) complexity",
+    "splice operation",
+    "transfer operation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "217",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__merge_9a985c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

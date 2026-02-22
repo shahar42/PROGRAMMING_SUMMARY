@@ -1,0 +1,20 @@
+{
+  "topic": "Defining Associative Container Ordering via Custom Comparators",
+  "category": "container",
+  "explanation": "All standard associative containers (`set`, `map`, `multiset`, `multimap`) require a comparator object, specified as the second template parameter (defaulting to `std::less<Key>`), which defines the strict weak ordering used to sort the elements internally. This ordering dictates the structure of the underlying balanced search tree (typically a Red-Black Tree).\n\nPurpose: Using a custom comparator allows the container to store elements in non-default orders (e.g., descending order using `std::greater`), use user-defined comparison logic for complex types, or employ transparent comparison (C++14 onwards) for heterogeneous lookups.\n\nTechnical Details: The comparator must define a function or overload that takes two elements of the key type (or two elements of the value type for sets/multisets) and returns a boolean indicating whether the first element precedes the second in the defined ordering. The use of `std::greater<int>` flips the standard ordering, resulting in elements stored in descending order.\n\nRequirements: The comparator must satisfy the requirements of strict weak ordering (irreflexivity, asymmetry, and transitivity of equivalence). If the custom comparator fails these requirements, the container behavior is undefined.\n\nUsage: To achieve descending order for integers, the declaration is `std::multiset<int, std::greater<int>>`.",
+  "code_example": "#include <multiset>\n#include <iostream>\n#include <functional>\n\nint main() {\n    // Defines the container to sort in descending order (6, 5, 5, 4, ...)\n    using IntSet = std::multiset<int, std::greater<int>>;\n    IntSet coll1;\n    coll1.insert(4);\n    coll1.insert(6);\n    coll1.insert(5);\n    \n    // Output will be 6 5 4\n    for (int x : coll1) {\n        std::cout << x << ' ';\n    }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "A high-score leaderboard needs to display scores in descending order. By defining `std::set<Score, std::greater<Score>>`, the insertion and retrieval operations automatically maintain the desired display order without requiring manual sorting steps.",
+  "keywords": [
+    "custom comparator",
+    "std::greater",
+    "strict weak ordering",
+    "associative container ordering",
+    "template parameter",
+    "Red-Black Tree"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "169",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_defining_associative_container_ordering_via_fb534d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

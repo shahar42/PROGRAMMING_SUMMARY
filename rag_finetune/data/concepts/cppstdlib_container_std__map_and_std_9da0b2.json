@@ -1,0 +1,20 @@
+{
+  "topic": "std::map and std::multimap Element Type: The Constant Key Constraint",
+  "category": "container",
+  "explanation": "The elements stored within `std::map` and `std::multimap` are represented as `std::pair<const Key, T>`. This design mandates that the key component (`Key`) is immutable once inserted into the container.\n\n**Purpose:** The primary purpose of the constant key constraint is to maintain the container's fundamental invariant: that elements are always stored in sorted order according to the specified comparator (usually `std::less`). If the key were mutable, modifying it would compromise the internal balanced tree structure, leading to undefined behavior or logical corruption of the map's ordering.\n\n**Technical Details:** When iterating over a map, dereferencing the iterator yields a reference to a `pair<const Key, T>`. While the mapped value (`T`, accessible via `->second`) is fully mutable, the key (`Key`, accessible via `->first`) is protected by its `const` qualifier. Attempting to cast away the constness of the key results in Undefined Behavior (UB).\n\n**Usage Guidance:** Key modification requires a two-step process: (1) Erase the existing element based on the old key, and (2) Insert a new element with the desired new key and the corresponding mapped value.\n\n**Pitfalls:** Programmers often mistakenly assume they can modify the key when iterating, leading to compilation errors or, if constness is bypassed, severe runtime errors due to tree corruption. This constraint also prevents using certain generic algorithms that rely on modifying element values (see 'Removal Restriction' concept).",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    std::map<int, std::string> m = {{10, \"A\"}};\n    auto it = m.begin();\n    \n    // Correct: Modify the mapped value (T)\n    it->second = \"New Value\";\n    \n    // Error: Cannot modify the key (const Key)\n    // it->first = 20; // ERROR: assignment of read-only member\n    \n    // Correct way to change the key:\n    std::string value = it->second;\n    m.erase(it);\n    m.insert({20, value});\n}",
+  "practical_example": "In a caching system where objects are indexed by a unique ID (the key), if that ID needs to change, the entire cache entry must be removed and reinserted. Attempting to directly modify the key field of the existing entry would break the underlying search tree, causing lookups to fail or crash the system.",
+  "keywords": [
+    "const Key",
+    "std::pair",
+    "map element type",
+    "associative container invariant",
+    "iterator dereference",
+    "immutability"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "178",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map_and_std_9da0b2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

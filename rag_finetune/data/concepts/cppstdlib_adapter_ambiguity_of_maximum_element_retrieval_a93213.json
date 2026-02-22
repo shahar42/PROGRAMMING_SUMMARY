@@ -1,0 +1,21 @@
+{
+  "topic": "Ambiguity of Maximum Element Retrieval in priority_queue",
+  "category": "adapter",
+  "explanation": "The `std::priority_queue` guarantees that `top()` returns *an* element that has the maximum value according to the internal comparison function (the element that would be sorted first). However, if multiple elements share the exact maximum value, the standard explicitly states that **which specific element is returned by `top()` or removed by `pop()` is undefined**.\n\nTechnical Details:\n1. **Ordering:** `priority_queue` imposes a strict weak ordering defined by its comparator (`std::less` by default, yielding a max-heap).\n2. **Equivalence:** If elements A and B are equivalent under the comparator (i.e., `!(A < B)` and `!(B < A)`), their relative order in the heap is not strictly defined.\n3. **Behavior:** When duplicates of the maximum value exist, the heap property is satisfied as long as *one* of them is at the root. The specific element chosen depends on the internal heap structure maintained by the underlying container and the heap algorithms (`std::push_heap`, `std::pop_heap`).\n\nUsage Guidance: Users should not rely on the FIFO (First-In, First-Out) order for equivalent-priority elements. If deterministic order is required for duplicates, the element type must include a secondary tie-breaking mechanism (e.g., an insertion timestamp or unique ID) and the comparator must be updated to use this mechanism.\n\nPitfalls: Assuming that the oldest or newest duplicate maximum element will always be retrieved first can lead to non-deterministic bugs in systems relying on stable priority ordering.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nstruct Task { int priority; int id; };\n\nint main() {\n    // Standard comparison only looks at priority (no tie-breaker)\n    std::priority_queue<int> pq;\n    pq.push(5); \n    pq.push(5); \n    \n    // Resulting top element (which '5') is undefined.\n    std::cout << \"Top element (ambiguous): \" << pq.top() << std::endl;\n    \n    // To guarantee order, use a custom struct/comparator:\n    // Requires defining operator< or a custom comparator function.\n}",
+  "practical_example": "In a distributed simulation where multiple events might be scheduled for the exact same future timestamp (the maximum priority), relying on the default `priority_queue` behavior without a secondary tie-breaker (like an event sequence number) means the simulation results might vary non-deterministically across different compiler versions or optimization levels.",
+  "keywords": [
+    "priority_queue",
+    "maximum element",
+    "undefined behavior",
+    "strict weak ordering",
+    "duplicates",
+    "comparator",
+    "non-deterministic"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "399",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_ambiguity_of_maximum_element_retrieval_a93213",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

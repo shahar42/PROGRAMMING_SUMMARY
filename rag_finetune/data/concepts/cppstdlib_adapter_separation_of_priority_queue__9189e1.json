@@ -1,0 +1,21 @@
+{
+  "topic": "Separation of priority_queue::top() and pop() Operations",
+  "category": "adapter",
+  "explanation": "The `std::priority_queue` interface mandates the separation of element retrieval (`top()`) and element removal (`pop()`). The `pop()` function has a `void` return type, meaning it removes the maximum element but does not return it.\n\nPurpose:\n1. **Exception Safety:** This separation allows for robust exception handling. If the process of retrieving the element (e.g., copying it out) throws an exception, the element has not yet been removed from the queue, preserving the container's state.\n2. **Performance:** `top()` (accessing the maximum element) is typically O(1) time complexity, as the maximum element is always maintained at the root of the underlying heap. `pop()`, however, requires removing the root and restructuring the heap, resulting in O(log N) time complexity.\n\nTechnical Details:\n- `const value_type& priority_queue::top() const`: Returns a constant reference to the maximum element (O(1)).\n- `void priority_queue::pop()`: Removes the maximum element (O(log N)).\n\nUsage: To safely process an element, a developer must first call `top()` to retrieve the value (and potentially copy it) and then call `pop()` to remove the element.\n\nPitfalls: Forgetting to call `top()` before `pop()` means the element is lost, as `pop()` does not return the value.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::priority_queue<int> pq;\n    pq.push(10); \n    pq.push(20);\n\n    if (!pq.empty()) {\n        // Step 1: Access (O(1))\n        int value = pq.top(); \n        std::cout << \"Retrieved value: \" << value << std::endl;\n        \n        // Step 2: Remove (O(log N))\n        pq.pop(); \n    }\n    \n    // WARNING: Cannot do this: int x = pq.pop();\n}",
+  "practical_example": "When managing tasks in an operating system scheduler, the highest priority task must be retrieved and processed. Using the two-step `top()` then `pop()` ensures that if the downstream processing fails during the copy or handling of the task object (e.g., memory allocation failure), the task remains in the queue until the subsequent `pop()` is successfully executed.",
+  "keywords": [
+    "priority_queue",
+    "top",
+    "pop",
+    "exception safety",
+    "O(log N)",
+    "adapter interface",
+    "queue operations"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "399",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_separation_of_priority_queue__9189e1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

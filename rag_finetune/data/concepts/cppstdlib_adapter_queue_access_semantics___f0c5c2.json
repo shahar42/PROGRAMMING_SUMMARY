@@ -1,0 +1,20 @@
+{
+  "topic": "Queue Access Semantics: `front()`, `back()`, and Void `pop()`",
+  "category": "adapter",
+  "explanation": "The `std::queue` interface strictly separates element access from element removal, a common pattern in container adapters to prevent accidental data loss and enforce FIFO discipline.\n\n1. **`front()`:** Returns a reference to the oldest element (the one that will be removed next). This element has been in the queue the longest.\n2. **`back()`:** Returns a reference to the newest element (the one most recently added via `push`).\n3. **`pop()`:** Removes the element at the front of the queue but returns `void`. It does not return the value of the removed element.\n\nUsage Guidance: To safely process an element, a two-step sequence is mandatory: first call `front()` to retrieve the value (or a reference to it), and then call `pop()` to remove it. This sequence must always be preceded by a check using `empty()`.\n\nPitfalls and Undefined Behavior: Calling `front()`, `back()`, or `pop()` on an empty queue results in **undefined behavior**. Since `pop()` returns void, failure to retrieve the value using `front()` before calling `pop()` results in permanent data loss (though this is the intended behavior if the value is not needed).\n\nTechnical Details: Both `front()` and `back()` are overloaded for `const` and non-`const` queues, allowing modification of elements through the reference returned, provided the queue itself is mutable.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::queue<int> q;\n    q.push(10);\n    q.push(20);\n\n    // Safe processing sequence:\n    if (!q.empty()) {\n        int oldest = q.front();  // Step 1: Access value\n        std::cout << \"Oldest: \" << oldest << \"\\n\";\n        q.pop();                 // Step 2: Remove element\n    }\n\n    // Accessing newest element without removal:\n    if (!q.empty()) {\n        int& newest = q.back();\n        newest = 30; // Modifying the element in place\n    }\n\n    // q.pop(); q.pop(); // UB if called again without check\n}",
+  "practical_example": "In message passing systems, a worker thread retrieves a message from a queue. It calls `front()` to read the message payload, processes it, and only calls `pop()` after successful processing (or perhaps logs the message and then calls `pop()` upon failure). This two-step process ensures the message is handled before being discarded.",
+  "keywords": [
+    "queue front",
+    "queue back",
+    "queue pop",
+    "FIFO access",
+    "undefined behavior",
+    "empty check"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "389",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_queue_access_semantics___f0c5c2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::merge() Requirements and Linear Time Complexity",
+  "category": "container",
+  "explanation": "The `std::list::merge()` function moves all elements from a source list (`c2`) into the destination list (`c1`) while maintaining the sorted order of the resulting list (`c1`). This is a zero-copy operation that only rearranges internal node pointers, similar to `splice`.\n\nRequirements: Both the source list (`c2`) and the destination list (`c1`) *must* be sorted according to the same criterion (either `operator<` or the provided binary predicate `op`). If the lists are not sorted, the behavior is well-defined (elements are moved), but the resulting list will not be sorted, violating the intended post-condition.\n\nTechnical Details:\n1. Complexity: `merge()` has linear time complexity, O(size(c1) + size(c2)), because it must traverse both lists simultaneously to determine the correct insertion points.\n2. Post-Condition: Upon completion, the source list (`c2`) is empty. The elements are moved, not copied.\n3. Stability: `merge()` is stable, meaning if equivalent elements exist in both lists, the elements from `c1` will precede those from `c2` in the final merged list.\n\nPitfalls: Failure to ensure the input lists are sorted is the primary pitfall. Since `merge` is a member function of `list`, it cannot be used with non-list containers (like `vector`), requiring algorithms like `std::merge` instead (which involves copying).",
+  "code_example": "#include <list>\n#include <algorithm>\n\nint main() {\n    std::list<int> l1 = {1, 5, 9};\n    std::list<int> l2 = {2, 4, 10};\n    \n    // Merge l2 into l1 (O(N) operation)\n    l1.merge(l2);\n    \n    // l1 is now {1, 2, 4, 5, 9, 10}\n    // l2 is empty\n    \n    // l1.merge(l2, std::greater<int>()); // Requires both lists sorted descendingly\n}",
+  "practical_example": "In parallel processing where multiple threads generate sorted result lists (e.g., intermediate results from a divide-and-conquer sort), using `list::merge` is the fastest way to combine these results into a single sorted list, avoiding the overhead of copying data or re-sorting the entire combined set.",
+  "keywords": [
+    "list::merge",
+    "sorted requirement",
+    "linear complexity",
+    "O(N)",
+    "stability",
+    "zero-copy merge"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "154",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__merge_f595a4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

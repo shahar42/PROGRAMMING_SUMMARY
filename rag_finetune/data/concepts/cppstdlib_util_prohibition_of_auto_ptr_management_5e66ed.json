@@ -1,0 +1,20 @@
+{
+  "topic": "Prohibition of auto_ptr Management of Dynamically Allocated Arrays",
+  "category": "util",
+  "explanation": "`std::auto_ptr` is strictly designed for managing single objects allocated via the scalar `new` operator. It is explicitly prohibited from managing dynamically allocated arrays (resources allocated using `new[]`).\n\nTechnical Details:\nWhen an `auto_ptr` is destroyed, it calls the scalar deallocation function `delete` on the encapsulated raw pointer. If the memory was allocated using `new[]`, the standard requires the corresponding deallocation to be `delete[]`. Using `delete` instead of `delete[]` on array memory results in **Undefined Behavior (UB)**, typically leading to memory corruption, failure to call destructors for array elements, and heap consistency issues.\n\nUsage Guidance: For array management in C++03, developers must rely on custom pointer wrappers or raw pointers coupled with explicit `delete[]` calls, often within a class destructor. Modern C++ (C++11 onwards) resolves this issue by providing `std::unique_ptr<T[]>` specialization, which correctly uses `delete[]`.",
+  "code_example": "#include <memory>\n\nvoid bad_usage() {\n    int* raw_array = new int[10];\n    \n    // DANGER: Leads to Undefined Behavior\n    // auto_ptr calls 'delete' instead of 'delete[]'\n    // std::auto_ptr<int> array_ptr(raw_array);\n    \n    // A required C++03 solution for arrays:\n    class ArrayDeleter {\n        int* p;\n    public:\n        ArrayDeleter(int* ptr) : p(ptr) {}\n        ~ArrayDeleter() { delete[] p; }\n    };\n    // ArrayDeleter safe_array_manager(raw_array);\n}\n",
+  "practical_example": "Attempting to use `auto_ptr` to manage buffers read from a network socket (`char* buffer = new char[BUFFER_SIZE]`). The resulting memory leak or corruption upon scope exit makes the application unstable.",
+  "keywords": [
+    "auto_ptr array",
+    "delete[]",
+    "undefined behavior",
+    "memory corruption",
+    "scalar delete",
+    "unique_ptr array"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "47",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_prohibition_of_auto_ptr_management_5e66ed",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

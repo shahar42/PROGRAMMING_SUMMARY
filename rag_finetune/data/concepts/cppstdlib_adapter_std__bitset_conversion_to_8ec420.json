@@ -1,0 +1,20 @@
+{
+  "topic": "std::bitset Conversion to Integral Types and Overflow Exception",
+  "category": "adapter",
+  "explanation": "The `std::bitset` provides member functions `to_ulong()` and `to_ullong()` to convert the stored binary pattern into standard unsigned integer types (`unsigned long` and `unsigned long long`, respectively).\n\nPurpose: This allows direct arithmetic manipulation of the bit pattern as a standard numeric type.\n\nTechnical Details:\n- `to_ulong()`: Returns the integral value, provided the bitset size (N) is less than or equal to the number of bits in `unsigned long` (typically 32 or 64).\n- `to_ullong()`: Used for bitsets potentially larger than `unsigned long`, up to the size of `unsigned long long` (typically 64 bits).\n- **Exception Guarantee**: If the value represented by the bitset is too large to fit into the target integral type (i.e., if any bit position $i \\ge \\text{sizeof}(\\text{Target Type}) \\times 8$ is set), the function throws an `std::overflow_error` exception.\n- Complexity: Generally O(N), where N is the compile-time size of the bitset.\n\nPitfalls: Failure to handle the `std::overflow_error` when converting large bitsets results in program termination. Developers must ensure that the size N of the bitset is compatible with the target type or implement robust exception handling.",
+  "code_example": "#include <bitset>\n#include <stdexcept>\n#include <iostream>\n\nvoid convert(const std::bitset<100>& bs) {\n    try {\n        // Will likely throw if bits > 64 are set\n        unsigned long val = bs.to_ulong(); \n        std::cout << \"Converted: \" << val << \"\\n\";\n    } catch (const std::overflow_error& e) {\n        std::cerr << \"Error: \" << e.what() << \" (Value too large)\\n\";\n    }\n}\n\nint main() {\n    // 100-bit bitset, value 555\n    std::bitset<100> bs(std::string(\"1000101011\")); \n    convert(bs);\n    \n    // Example that guarantees overflow if ULLONG is 64 bits\n    std::bitset<70> large_bs;\n    large_bs.set(65); // Set a bit beyond standard ULLONG range\n    // convert(large_bs); // Would throw if uncommented\n}",
+  "practical_example": "When implementing custom serialization or deserialization routines that read fixed-width binary data (e.g., network packet headers) into a `bitset`, the application must check the size of the packet fields against the available integral types before calling `to_ulong()`. If a 40-bit field is read, conversion to a standard 32-bit `unsigned long` must be protected by exception handling.",
+  "keywords": [
+    "bitset",
+    "to_ulong",
+    "to_ullong",
+    "overflow_error",
+    "exception safety",
+    "integral conversion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "402",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_conversion_to_8ec420",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

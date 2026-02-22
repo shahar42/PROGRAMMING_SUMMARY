@@ -1,0 +1,21 @@
+{
+  "topic": "std::map::operator[] Semantics: Default Construction and Performance Pitfall",
+  "category": "container",
+  "explanation": "The `std::map::operator[]` provides convenient access to map elements but carries significant performance and semantic implications when used for insertion.\n\n**Definition and Behavior**:\nWhen `m[k]` is called, if the key `k` is found, a reference to the existing mapped value is returned (O(log N)). If the key `k` is *not* found, a new element is inserted into the map. This insertion involves:\n1. Constructing the key `k`.\n2. Default-constructing the mapped value type (V).\n3. Inserting the resulting `std::pair<k, V()>` into the map (O(log N)).\n4. Returning a reference to the newly inserted, default-constructed value.\n\n**Performance Pitfall**:\nWhen used to assign a new value (`m[k] = v;`), the element is first default-constructed, and then the assignment operator (`operator=`) is called to set the intended value `v`. This two-step process (default construction + assignment) is generally less efficient than direct construction methods like `insert` (with `std::pair`) or `emplace`, which construct the final value in place, avoiding temporary objects and redundant operations.\n\n**Requirements**:\nUsing `operator[]` mandates that the mapped type (V) must be **DefaultConstructible**, even if the insertion immediately overwrites that default value. If V is not default constructible, `operator[]` cannot be used for insertion, leading to a compilation error.\n\n**Usage Guidance**:\nUse `operator[]` only for known lookups or when the mapped type is trivial (e.g., built-in types like `int` or `float`). For complex types or performance-critical code where insertion is likely, prefer `map::insert` or `map::emplace` to ensure efficient single-step construction.",
+  "code_example": "#include <map>\n#include <string>\n\nstruct Data { /* No default constructor */ };\n\nint main() {\n    std::map<std::string, float> stocks;\n    \n    // 1. Inefficient Insertion (Default construction + Assignment)\n    stocks[\"BASF\"] = 369.50; // O(log N) total time\n    \n    // 2. Efficient Insertion (Direct construction)\n    stocks.insert({\"VW\", 413.50}); // Preferred for new elements\n    \n    // 3. Requirement Failure (If Data lacked a default ctor)\n    // std::map<int, Data> data_map;\n    // data_map[1] = Data(5); // Error: Requires Data()\n}",
+  "practical_example": "In a high-throughput financial trading system, using `operator[]` to update or insert new stock prices unnecessarily invokes default constructors and assignment operators for custom Price objects. Switching to `map::insert_or_assign` (C++17) or careful use of `map::insert` dramatically reduces overhead by ensuring the Price object is constructed only once with the final value.",
+  "keywords": [
+    "operator[]",
+    "map insertion",
+    "DefaultConstructible",
+    "performance pitfall",
+    "O(log N)",
+    "default construction",
+    "emplace"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "201-202",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map__operator_38c73e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Destructive Copy Semantics (Ownership Transfer)",
+  "category": "util",
+  "explanation": "The defining characteristic of `std::auto_ptr` copy operations (copy constructor and assignment operator) is the concept of **destructive copy** or **ownership transfer**. This fundamentally deviates from standard C++ value semantics, where copy operations must leave the source object intact.\n\nDefinition: When an `auto_ptr` `ap_source` is copied or assigned to `ap_dest`, the underlying raw pointer owned by `ap_source` is transferred to `ap_dest`. Crucially, `ap_source` is modified to hold a null pointer (its value becomes the null pointer) after the operation, signifying it no longer owns the resource.\n\nTechnical Details:\n1. The source object is modified (`ap_source` is nullified).\n2. The operation is guaranteed not to throw (`throw()` specification).\n3. Assignment (`operator=`) first deletes any object previously owned by the target (`ap_dest`).\n4. This transfer mechanism is why `auto_ptr` cannot be safely used within standard library containers (like `std::vector` or `std::map`), as containers internally rely on the assumption that copied elements remain valid.\n\nUsage Guidance: This behavior necessitated the introduction of move semantics (C++11) and `std::unique_ptr`, which formalizes and secures the concept of exclusive ownership transfer.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nvoid transfer_test() {\n    std::auto_ptr<int> p1(new int(42));\n    std::cout << \"P1 before copy: \" << *p1 << std::endl;\n\n    // Ownership transfer (destructive copy)\n    std::auto_ptr<int> p2 = p1;\n\n    // P1 is now nullified\n    if (p1.get() == nullptr) {\n        std::cout << \"P1 is null after copy.\\n\";\n    }\n    std::cout << \"P2 owns: \" << *p2 << std::endl;\n\n    // Attempting to use *p1 here is UB/crash\n}\n",
+  "practical_example": "If an algorithm like `std::sort` attempts to swap two elements in a container holding `auto_ptr`s, the internal copy operations required for the swap will repeatedly transfer ownership, resulting in lost resources (pointers becoming null prematurely) or double-deletion errors if the container elements are accessed later.",
+  "keywords": [
+    "auto_ptr",
+    "ownership transfer",
+    "destructive copy",
+    "copy constructor",
+    "assignment operator",
+    "unique ownership",
+    "legacy pointer"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "53",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_e159c3",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

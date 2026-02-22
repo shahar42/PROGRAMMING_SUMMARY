@@ -1,0 +1,22 @@
+{
+  "topic": "Strict Weak Ordering Requirement for Associative Containers",
+  "category": "container",
+  "explanation": "Associative containers (`std::set`, `std::map`, `std::multiset`, `std::multimap`) require that their key comparison object (`CompFunc`) establish a 'Strict Weak Ordering' (SWO) over the keys. This requirement ensures that the underlying structure (typically a balanced binary search tree) remains consistent and navigable.\n\n**Technical Requirements (SWO Properties for a predicate `comp`):**\n1. **Irreflexivity:** For all keys `x`, `comp(x, x)` must be false.\n2. **Asymmetry:** If `comp(x, y)` is true, then `comp(y, x)` must be false.\n3. **Transitivity:** If `comp(x, y)` and `comp(y, z)` are both true, then `comp(x, z)` must be true.\n\n**Equivalence:** SWO defines an equivalence relation: two keys `x` and `y` are equivalent if neither `comp(x, y)` nor `comp(y, x)` is true. All equivalent keys must be treated identically by the ordering, meaning if `x` is equivalent to `y`, then for any third key `z`, `comp(x, z)` is equivalent to `comp(y, z)`, and `comp(z, x)` is equivalent to `comp(z, y)`.\n\n**Pitfalls:** Violating any of these properties, especially transitivity in complex custom types (e.g., comparing objects based on partial data), results in Undefined Behavior (UB), leading to internal tree corruption, failed lookups, and potential crashes. The complexity of insertion and lookup remains logarithmic, O(log N), assuming the comparison operation itself is O(1).",
+  "code_example": "#include <set>\n#include <string>\n#include <iostream>\n\n// SWO Violation: Comparing only by length, ignores content difference\nstruct BadComp {\n    bool operator()(const std::string& a, const std::string& b) const {\n        return a.length() < b.length();\n    }\n};\n\nint main() {\n    // std::set<std::string, BadComp> s; // DANGER: UB potential\n    // s.insert(\"apple\");\n    // s.insert(\"banana\"); // Lengths 5 and 6, OK\n    // s.insert(\"grape\");  // Length 5. Equivalent to \"apple\" by length.\n    \n    // If the internal logic assumes 'grape' is strictly ordered relative to 'apple', \n    // the structure is corrupted because they are equivalent by BadComp.\n    \n    std::set<int> s; // Uses std::less<int>, which satisfies SWO\n    s.insert(5);\n}",
+  "practical_example": "When creating a `std::map` where the key is a custom struct, defining a custom comparator that only checks a subset of the key's members can violate transitivity, causing elements to be misplaced or unreachable after insertion, particularly in large datasets.",
+  "keywords": [
+    "strict weak ordering",
+    "SWO",
+    "comparison predicate",
+    "std::set",
+    "std::map",
+    "associative containers",
+    "transitivity",
+    "irreflexivity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "176, 191",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strict_weak_ordering_requirement_for_e49a6f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

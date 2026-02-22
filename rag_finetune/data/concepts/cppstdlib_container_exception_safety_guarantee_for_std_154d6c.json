@@ -1,0 +1,20 @@
+{
+  "topic": "Exception Safety Guarantee for std::list Insertion (Strong Guarantee)",
+  "category": "container",
+  "explanation": "Standard list insertion operations, including `push_back()`, `push_front()`, `insert()`, and `resize()`, adhere to the Strong Exception Safety Guarantee. This means that if an exception is thrown during the execution of the operation (typically due to memory allocation failure, or failure during element copy or move construction), the container is guaranteed to roll back to its state prior to the operation. The list will remain valid and unchanged.\n\nPurpose: This transactional safety is crucial in environments where allocation or element construction might fail, ensuring that the list's internal doubly-linked structure remains consistent. This guarantee relies on the assumption that the element type's constructors and move operations also adhere to exception safety standards.\n\nTechnical Details:\n- Complexity: O(1) for `push_back`/`push_front`/`insert` at known locations.\n- Guarantee: Strong Exception Safety (transactional).\n- Pitfall: If element assignment or construction operations are not marked `noexcept`, exceptions can occur, but the list structure itself is protected. Note that `resize()` requires the element type to be DefaultConstructible if growing without a specified value.",
+  "code_example": "#include <list>\n#include <stdexcept>\n\nstruct ThrowingElement {\n    ThrowingElement() { \n        if (rand() % 2 == 0) \n            throw std::runtime_error(\"Fail construct\"); \n    }\n};\n\nint main() {\n    std::list<int> L = {1, 2};\n    size_t initial_size = L.size();\n    try {\n        // If push_back fails (e.g., bad_alloc or element failure),\n        // L.size() will still equal initial_size.\n        L.push_back(3);\n    } catch (...) {\n        // L remains unchanged due to strong guarantee\n        // assert(L.size() == initial_size);\n    }\n}",
+  "practical_example": "In a robust server application managing connection queues, using list insertion ensures that if memory allocation fails under high load, the existing queue structure is not corrupted, preventing cascading failures and maintaining data integrity.",
+  "keywords": [
+    "list exception safety",
+    "strong guarantee",
+    "push_back",
+    "insert",
+    "transactional safety",
+    "std::list"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "155",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_exception_safety_guarantee_for_std_154d6c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

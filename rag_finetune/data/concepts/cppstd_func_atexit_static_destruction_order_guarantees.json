@@ -1,0 +1,22 @@
+{
+  "topic": "std::atexit and Static Object Destruction Order Guarantees",
+  "keywords": "atexit, static destruction order, destruction sequencing, program termination, exit handlers",
+  "explanation": "The C++ standard defines precise sequencing guarantees between std::atexit handlers and static object destructors to ensure predictable cleanup during program termination. There are three critical ordering rules:\n\n1. **Initialization Before atexit**: If a static object completes initialization BEFORE a call to std::atexit, then the atexit function is called BEFORE the object's destructor. This ensures cleanup handlers registered after object creation can safely use that object.\n\n2. **atexit Before Initialization**: If std::atexit is called BEFORE a static object completes initialization, then the object's destructor is called BEFORE the atexit function. This is the reverse-order-of-initialization principle: later-initialized objects are destroyed first.\n\n3. **Multiple atexit Calls**: If one std::atexit call is sequenced before another, the SECOND registered function is called BEFORE the FIRST. This creates a LIFO (Last-In-First-Out) stack of cleanup handlers, mirroring the reverse-construction-order rule for objects.\n\nThese guarantees allow safe resource cleanup patterns where exit handlers can depend on static objects that were initialized before the handler registration. However, using standard library objects or signal-unsafe functions after static destruction begins leads to undefined behavior. The standard permits thread managers as static objects but requires all threads to terminate before destruction begins (either before std::exit or main's return) to avoid use-after-destruction bugs.",
+  "syntax": "// Registration signature\nint std::atexit(void (*func)(void));\n\n// Sequencing rules:\n// Rule 1: obj init -> atexit(f) => f() -> ~obj()\n// Rule 2: atexit(f) -> obj init => ~obj() -> f()\n// Rule 3: atexit(f1) -> atexit(f2) => f2() -> f1()\n\n// Undefined Behavior scenarios:\n// - Using std lib after static destruction starts\n// - Accessing destroyed static object\n// - Signal-unsafe operations in atexit handlers during destruction",
+  "code_example": "#include <cstdlib>\n#include <iostream>\n#include <string>\n\n// Static object with constructor/destructor\nclass Logger {\npublic:\n    Logger() { std::cout << \"Logger constructed\\n\"; }\n    ~Logger() { std::cout << \"Logger destroyed\\n\"; }\n    void log(const std::string& msg) { std::cout << \"LOG: \" << msg << \"\\n\"; }\n};\n\nstatic Logger global_logger;\n\n// Exit handlers\nvoid cleanup1() {\n    std::cout << \"cleanup1() called\\n\";\n    // SAFE: global_logger initialized before atexit registration below\n    global_logger.log(\"cleanup1 using logger\");\n}\n\nvoid cleanup2() {\n    std::cout << \"cleanup2() called\\n\";\n}\n\nint main() {\n    std::cout << \"main() started\\n\";\n    \n    // Register exit handlers (LIFO order)\n    std::atexit(cleanup1);  // Registered first, called SECOND\n    std::atexit(cleanup2);  // Registered second, called FIRST\n    \n    std::cout << \"main() ending\\n\";\n    return 0;\n}\n\n// Output:\n// Logger constructed\n// main() started\n// main() ending\n// cleanup2() called          <- Second registered, called first\n// cleanup1() called          <- First registered, called second\n// LOG: cleanup1 using logger <- Logger still alive (initialized before atexit)\n// Logger destroyed           <- Destroyed after atexit handlers",
+  "example_explanation": "This example demonstrates the sequencing guarantees. The Logger object is initialized before main() starts (static storage duration). Both atexit handlers are registered after Logger construction, so cleanup1 can safely use global_logger because Rule 1 guarantees the logger will be destroyed AFTER the atexit handlers run. The handlers execute in LIFO order (cleanup2 then cleanup1) per Rule 3. The output shows Logger is destroyed last, confirming the destruction sequence.",
+  "extraction_metadata": {
+    "source": "ISO/IEC 14882:2014 C++ Standard",
+    "chapter": "basic.start.term",
+    "section": "3.6.3",
+    "extraction_type": "standard_specification",
+    "extraction_date": "2025-11-03T00:00:00",
+    "has_code": true,
+    "has_explanation": true,
+    "book_context": "cpp_standard",
+    "manually_created": true,
+    "created_by": "claude",
+    "purpose": "explain_atexit_destruction_sequencing"
+  },
+  "book": "ISO/IEC 14882:2014 C++ Standard"
+}

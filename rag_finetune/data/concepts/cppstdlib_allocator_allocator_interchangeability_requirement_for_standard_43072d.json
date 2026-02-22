@@ -1,0 +1,21 @@
+{
+  "topic": "Allocator Interchangeability Requirement for Standard Containers",
+  "category": "allocator",
+  "explanation": "The C++ Standard Library imposes a crucial requirement on custom allocator types used with standard containers: all instances of a specific allocator type must be interchangeable. This principle ensures that memory management remains consistent even when container contents or internal structures are moved or swapped.\n\nDefinition: Interchangeability means that storage allocated by any instance of an allocator type `A` must be capable of being deallocated by any other instance of the same allocator type `A`.\n\nPurpose: This requirement simplifies container design, particularly when dealing with move semantics and container operations that transfer ownership of elements and internal storage (e.g., `swap`, `list::merge`). If allocators were not interchangeable, complex logic would be required to track which specific allocator instance must perform the deallocation.\n\nTechnical Details:\n- Stateless Allocators: For stateless allocators (which hold no state beyond their type), interchangeability is trivially satisfied.\n- State Propagation: For stateful allocators (e.g., those tracking specific pools or memory regions), the standard library defines propagation rules (like `propagate_on_container_copy_assignment`) introduced in C++11 to manage how the allocator state moves with the container, maintaining the interchangeability concept across the operation.\n\nPitfalls: Custom allocators that rely on instance-specific internal state (e.g., thread-local pools) without implementing correct state propagation logic or adherence to the interchangeability rule will lead to undefined behavior, usually memory corruption or leaks, when used in standard container operations like `swap` or `merge`.",
+  "code_example": "#include <vector>\n#include <memory>\n\n// Standard allocators (like std::allocator<T>) are trivially interchangeable.\n\nint main() {\n    std::vector<int, std::allocator<int>> v1;\n    std::vector<int, std::allocator<int>> v2;\n    \n    // Storage allocated by v1's allocator instance can be deallocated \n    // by v2's allocator instance if they were swapped or merged (conceptually).\n    \n    v1.push_back(10);\n    v2.push_back(20);\n    v1.swap(v2); // Requires allocator interchangeability (or propagation rules)\n}",
+  "practical_example": "A memory manager designed for high-performance computing uses a custom pooling allocator. If two separate vectors, V_A and V_B, are created using this custom allocator, the system must guarantee that when V_A is destroyed, it can deallocate memory initially allocated by V_B's instance (if V_B's storage was later transferred to V_A via a move operation).",
+  "keywords": [
+    "allocator",
+    "interchangeability",
+    "memory model",
+    "stateful allocator",
+    "stateless allocator",
+    "container requirements",
+    "propagate_on_container_copy_assignment"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "217",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_allocator_allocator_interchangeability_requirement_for_standard_43072d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

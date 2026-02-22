@@ -1,0 +1,21 @@
+{
+  "topic": "Customizing the Sorting Criterion in std::map (Comparator Requirements)",
+  "category": "container",
+  "explanation": "Ordered associative containers, such as `std::map` and `std::set`, require a strict weak ordering relationship for their keys, defined by the third template parameter, the comparison type (KeyCompare). By default, this is `std::less<Key>`, resulting in ascending key order.\n\nPurpose: Customizing the comparator allows the container to maintain keys in a non-default order (e.g., descending order using `std::greater<Key>`) or to handle complex custom types where the natural `<` operator is insufficient or inappropriate.\n\nTechnical Details:\n1. **KeyCompare requirements**: The provided type must be CopyConstructible and Callable. When called with two keys, `comp(a, b)` must return true if `a` precedes `b` in the ordering, and false otherwise.\n2. **Complexity**: Regardless of the comparator used, insertion, deletion, and lookup operations maintain O(log N) time complexity due to the underlying balanced tree structure.\n3. **Type Aliases**: Due to the required verbosity (e.g., `std::map<Key, Value, CustomCompare>`), using `typedef` or `using` aliases is strongly recommended for improved code readability and maintainability.\n\nPitfalls: Providing a comparator that does not satisfy the strict weak ordering requirement leads to undefined behavior, potentially resulting in corrupted container states or incorrect lookups.",
+  "code_example": "#include <map>\n#include <string>\n#include <functional>\n\n// Define a map that sorts strings in reverse alphabetical order\ntypedef std::map<std::string, float, std::greater<std::string>> \n        StringFloatMap;\n\nint main() {\n    StringFloatMap coll;\n    coll[\"Zebra\"] = 1.0f;\n    coll[\"Apple\"] = 2.0f;\n    // Iterating will yield Zebra, then Apple\n    for (const auto& p : coll) {\n        // std::cout << p.first << std::endl; \n    }\n    return 0;\n}",
+  "practical_example": "Storing log messages indexed by timestamp, where the most recent message (highest timestamp) needs to be retrieved first. By using `std::map<Timestamp, LogEntry, std::greater<Timestamp>>`, iteration naturally proceeds from newest to oldest.",
+  "keywords": [
+    "std::map",
+    "KeyCompare",
+    "std::less",
+    "std::greater",
+    "strict weak ordering",
+    "comparator",
+    "typedef"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "175-176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_customizing_the_sorting_criterion_in_ba8e9c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

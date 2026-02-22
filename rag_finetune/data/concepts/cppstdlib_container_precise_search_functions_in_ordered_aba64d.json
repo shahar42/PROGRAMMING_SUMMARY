@@ -1,0 +1,21 @@
+{
+  "topic": "Precise Search Functions in Ordered Associative Containers",
+  "category": "container",
+  "explanation": "Ordered associative containers (like `std::map` and `std::set`) provide specialized logarithmic time search functions\u2014`lower_bound()`, `upper_bound()`, and `equal_range()`\u2014which rely on the container's internal comparison criteria.\n\nDefinition:\n1. `lower_bound(key)`: Returns an iterator pointing to the first element whose key is *not less* than `key` (i.e., the first element satisfying `key >= search_key`). This is the position where the key *could* be inserted without violating the ordering.\n2. `upper_bound(key)`: Returns an iterator pointing to the first element whose key is *greater* than `key` (i.e., the position where the key *must* be inserted to maintain ordering if the key is already present).\n3. `equal_range(key)`: Returns a `std::pair` of iterators defining the maximal range `[first, second)` such that every element in the range has a key equivalent to `key`. This pair is exactly `(lower_bound(key), upper_bound(key))`.\n\nTechnical Details: All three functions guarantee O(log N) complexity, where N is the number of elements in the container, due to the container's balanced tree structure.\n\nPitfalls: When iterating through a container (especially using these functions to find a range) and simultaneously removing elements, the standard sequence container loop structure (e.g., `for (auto it = c.begin(); it != c.end(); ++it)`) is unsafe. Removal must be handled carefully, often using the return value of `erase()` to obtain the next valid iterator, particularly if the logic involves iteration over the entire container space.",
+  "code_example": "#include <map>\n#include <iostream>\n\nint main() {\n    std::map<int, char> m = {{10, 'A'}, {20, 'B'}, {30, 'C'}};\n\n    // Find the range for key 20\n    auto range = m.equal_range(20);\n    \n    std::cout << \"Lower bound key: \" << range.first->first << \"\\n\";\n\n    // Find insertion point for 15\n    auto it = m.lower_bound(15);\n    \n    // 15 would be inserted before 20\n    if (it != m.end()) {\n        std::cout << \"15 inserts before: \" << it->first << \"\\n\"; \n    }\n}",
+  "practical_example": "Implementing a lookup cache where multiple entries might share the same key (using `std::multimap`). `equal_range()` efficiently isolates all relevant entries, allowing batch processing or deletion of specific subsets without linear scanning.",
+  "keywords": [
+    "lower_bound",
+    "upper_bound",
+    "equal_range",
+    "logarithmic complexity",
+    "ordered container",
+    "iterator invalidation",
+    "map search"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "177, 180",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_precise_search_functions_in_ordered_aba64d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

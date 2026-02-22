@@ -1,0 +1,20 @@
+{
+  "topic": "Resource Leaks from Exceptions During Constructor Initializer List",
+  "category": "exception",
+  "explanation": "The C++ standard guarantees that a destructor is only called for objects that have been fully constructed. This rule creates a resource leak vulnerability when dynamic memory allocation occurs in the constructor's initializer list.\n\nIf a constructor attempts multiple allocations (e.g., `ptr1(new T1), ptr2(new T2)`), and the second allocation (`new T2`) throws an exception, the constructor fails, and the object is considered only partially constructed. Crucially, the class destructor (`~ClassB`) is *not* called. Any resource successfully allocated and assigned to an earlier member (like `ptr1`) will not be cleaned up, leading to a memory leak.\n\nThis behavior necessitates the use of Resource Acquisition Is Initialization (RAII) wrappers (such as `std::unique_ptr` or `std::shared_ptr`) for all dynamically allocated members. The wrapper objects themselves are fully constructed upon successful initialization in the initializer list. If a subsequent exception occurs, the destructors of these fully constructed RAII members are executed during stack unwinding, guaranteeing the deletion of the resources they manage.\n\n**Pitfall:** Relying on the class destructor to clean up raw pointer members when exceptions are possible during construction is a critical error leading to leaks.",
+  "code_example": "#include <iostream>\n\nclass Resource {};\n\nclass ClassB_Leaky {\n    Resource* ptr1; // Allocated successfully\n    Resource* ptr2; // Allocation fails\npublic:\n    // If new Resource() for ptr2 throws, ptr1 leaks.\n    ClassB_Leaky() try : ptr1(new Resource()), \n                         ptr2(new Resource()) { \n    } catch (...) {\n        // Destructor ~ClassB_Leaky is NOT called.\n        // ptr1 is never deleted.\n        throw;\n    }\n    ~ClassB_Leaky() { \n        delete ptr1; delete ptr2; \n    }\n};\n",
+  "practical_example": "In a library providing complex data structures, if a constructor needs to allocate two large internal buffers, failing to use smart pointers means that if the second buffer allocation fails due to memory exhaustion, the first buffer remains allocated and unreachable until program termination, crippling memory usage.",
+  "keywords": [
+    "constructor exception safety",
+    "initializer list",
+    "partial construction",
+    "resource leak",
+    "RAII failure",
+    "stack unwinding"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "46",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_exception_resource_leaks_from_exceptions_during_547ed5",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

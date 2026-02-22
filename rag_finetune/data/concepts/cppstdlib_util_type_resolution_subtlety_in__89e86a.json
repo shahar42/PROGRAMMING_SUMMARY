@@ -1,0 +1,21 @@
+{
+  "topic": "Type Resolution Subtlety in `std::pair` Construction",
+  "category": "util",
+  "explanation": "When constructing `std::pair` objects, particularly through implicit construction or using helper functions like `std::make_pair`, the exact type of literal arguments dictates the resulting pair's template parameters. This is crucial for avoiding unintended type promotions and ensuring correct template specialization matching.\n\nDefinition: Unqualified floating-point literals (e.g., `1.0`, `3.14`) are defined in C++ as having the type `double`. Only explicitly suffixed literals (e.g., `1.0f`, `3.14L`) retain their intended narrower type (`float` or `long double`).\n\nTechnical Details: If a library or application provides overloaded functions or template specializations optimized for `float` efficiency, passing an unqualified literal will cause the compiler to select the `double` overload instead. This affects both performance (due to potentially larger types or different instruction sets) and correctness if the template relies on precise type matching.\n\nUsage Guidance: Always use explicit suffixes (`f` for float, `L` for long double) when constructing pairs or calling functions that rely on type deduction if a type narrower than `double` is required. This practice guarantees the desired type resolution.\n\nPitfalls: Assuming that `std::make_pair(1, 1.0)` will result in `pair<int, float>` if the context implies float usage; it will result in `pair<int, double>`.",
+  "code_example": "#include <utility>\n#include <typeinfo>\n#include <iostream>\n\nvoid check_type(double) { std::cout << \"(double)\\n\"; }\nvoid check_type(float) { std::cout << \"(float)\\n\"; }\n\nint main() {\n    // 1.0 is double, forcing pair<int, double>\n    auto p1 = std::make_pair(1, 1.0);\n    std::cout << \"p1 type: \"; check_type(p1.second);\n\n    // 1.0f is explicitly float, forcing pair<int, float>\n    auto p2 = std::make_pair(1, 1.0f);\n    std::cout << \"p2 type: \"; check_type(p2.second);\n}",
+  "practical_example": "In a high-performance linear algebra library, matrices might be specialized for `float` to save memory and leverage specific SIMD instructions. If a user initializes a parameter list using `std::make_pair(key, 0.5)`, the resulting `double` type might silently force the use of a generic, slower implementation or fail to match the specialized template.",
+  "keywords": [
+    "std::pair",
+    "literal type",
+    "type deduction",
+    "float",
+    "double",
+    "overload resolution",
+    "make_pair"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "89-90",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_type_resolution_subtlety_in__89e86a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

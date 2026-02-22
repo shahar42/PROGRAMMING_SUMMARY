@@ -1,0 +1,21 @@
+{
+  "topic": "Lexicographical Comparison of Containers",
+  "category": "container",
+  "explanation": "Container comparison operators (`<`, `>`, `<=`, `>=`, `!=`, `==`) are defined based on the element type's comparison operators and follow strict rules, particularly for relational comparisons.\n\n**Equality Comparison (`operator ==`):** Two containers are considered equal if and only if they meet two criteria:\n1. They contain the same number of elements (`c1.size() == c2.size()`).\n2. All corresponding elements are equal (checked element-wise, `std::equal`).\n\n**Relational Comparison (`operator <`, etc.):** Relational comparisons are performed using **lexicographical comparison**, which is equivalent to applying the `std::lexicographical_compare` algorithm to the element ranges. This comparison proceeds element by element until a mismatch is found or one range is exhausted.\n\n**Mechanism:**\n- The comparison starts with the first elements of both containers.\n- If `c1[i] < c2[i]` is true, then `c1 < c2` is true, and the comparison stops.\n- If `c1[i] > c2[i]` is true, then `c1 < c2` is false, and the comparison stops.\n- If elements are equal, the comparison moves to the next pair.\n- If all elements are equal up to the end of the shorter container, the shorter container is considered 'less than' the longer container.\n\n**Requirements:** This mechanism requires that the element type stored in the container supports the necessary comparison operators (e.g., `operator<` for relational comparison). This applies to all standard containers that provide these operators, including vectors, deques, lists, and strings (which use their element order) and associative containers (which compare based on the order of elements in their internal sequences).\n\n**Complexity:** Comparison is generally O(N), where N is the length of the shorter container, as it short-circuits upon the first mismatch.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> c1 = {1, 2, 5};\n    std::vector<int> c2 = {1, 2, 4, 6};\n    std::vector<int> c3 = {1, 2, 5};\n\n    // Equality (same size and elements)\n    std::cout << \"c1 == c3: \" << (c1 == c3) << \"\\n\"; // True (1)\n\n    // Lexicographical Comparison (1, 2, 5 vs 1, 2, 4)\n    // Mismatch at index 2: 5 is not < 4\n    std::cout << \"c1 < c2: \" << (c1 < c2) << \"\\n\"; // False (0)\n    \n    // Lexicographical Comparison (1, 2, 4, 6 vs 1, 2, 5)\n    // c2 is considered less than c1\n    std::cout << \"c2 < c1: \" << (c2 < c1) << \"\\n\"; // True (1)\n}",
+  "practical_example": "When sorting a list of vectors (e.g., `std::vector<std::vector<int>>`), the default `std::sort` relies on the container's `operator<`. This ensures that the vectors are ordered correctly based on their contents, similar to how words are sorted alphabetically in a dictionary (lexicographical order).",
+  "keywords": [
+    "lexicographical_compare",
+    "container comparison",
+    "operator<",
+    "operator==",
+    "relational operators",
+    "sequence container comparison",
+    "std::lexicographical_compare"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "206, 360 (lexicographical_compare reference)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_lexicographical_comparison_of_containers_20dd99",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

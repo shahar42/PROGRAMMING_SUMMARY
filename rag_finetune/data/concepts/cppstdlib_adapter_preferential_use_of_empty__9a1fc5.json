@@ -1,0 +1,20 @@
+{
+  "topic": "Preferential Use of empty() Over size() for Emptiness Checks",
+  "category": "adapter",
+  "explanation": "The C++ Standard Library recommends using the `empty()` member function over checking `size() == 0` when determining if a container or adapter contains elements. While logically equivalent for standard containers and adapters, this convention provides semantic clarity and maximizes portability and potential performance.\n\n**Definition:** `bool stack::empty() const` returns true if the stack contains no elements. The standard library often implements `empty()` to be equivalent to `size() == 0` for sequence containers.\n\n**Rationale and Performance:** The text notes that `empty()` 'might be faster' than checking `size()`. For standard containers like `std::vector`, `std::deque`, and `std::list` (and thus `std::stack`), both operations are guaranteed O(1) complexity. However, for custom container implementations (or certain legacy systems) where maintaining a running count for `size()` is costly (e.g., O(N)), `empty()` is nearly always implemented as a simple O(1) check (e.g., comparing head and tail pointers). Adhering to `empty()` ensures the fastest operation is used in all contexts where emptiness is the only concern.\n\n**Best Practice:** Use `empty()` when the only requirement is a boolean check for element presence. Use `size()` only when the actual count is needed.",
+  "code_example": "#include <stack>\n#include <iostream>\n\nint main() {\n    std::stack<int> s;\n    \n    // Recommended check for emptiness\n    if (s.empty()) {\n        std::cout << \"Stack is empty (Preferred method).\\n\";\n    }\n    \n    // Logically equivalent, but discouraged for checking emptiness alone\n    if (s.size() == 0) {\n        std::cout << \"Stack size is zero (Discouraged style).\\n\";\n    }\n    \n    s.push(1);\n    // Check after insertion\n    if (!s.empty()) {\n        std::cout << \"Stack is not empty.\\n\";\n    }\n}",
+  "practical_example": "In template metaprogramming or generic library code where the container type is unknown, using `C::empty()` guarantees adherence to the most robust and standard way of checking for zero elements, avoiding potential performance traps associated with non-standard or custom containers where `C::size()` might be inefficient.",
+  "keywords": [
+    "empty()",
+    "size()",
+    "O(1) complexity",
+    "best practice",
+    "emptiness check",
+    "portability"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "382",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_preferential_use_of_empty__9a1fc5",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

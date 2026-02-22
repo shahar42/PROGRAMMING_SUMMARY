@@ -1,0 +1,20 @@
+{
+  "topic": "Safe Iteration and Erasure in Associative Containers (C++11+ Pattern)",
+  "category": "container",
+  "explanation": "When iterating over an associative container (`std::map`, `std::set`) and erasing elements, the key concern is iterator invalidation. Erasing an element invalidates only the iterator pointing directly to that element. Iterators pointing to other elements remain valid because the removal of a node does not affect the memory location or structure of other nodes.\n\n**Pitfall (Undefined Behavior):** Using the invalidated iterator after erasure, especially calling `++pos` immediately after `coll.erase(pos)`, leads to undefined behavior, as the iterator points to deallocated memory.\n\n**C++11+ Solution:** Since C++11, the `erase(pos)` member function for all standard containers (including associative containers) is guaranteed to return the iterator pointing to the element immediately following the one that was erased. This allows for safe and concise loop modification:\n\n1. The loop control must omit the increment step in the `for` header: `for (auto pos = coll.begin(); pos != coll.end(); )`.\n2. Inside the loop, if erasure occurs, the returned iterator is assigned back to `pos`: `pos = coll.erase(pos);`.\n3. If erasure does not occur, `pos` is manually incremented: `++pos;`.\n\nThis pattern ensures that `pos` is always valid when the loop condition is checked and when it is incremented.",
+  "code_example": "#include <map>\n#include <iostream>\n\nint main() {\n    std::map<int, int> coll = {{1, 10}, {2, 20}, {3, 30}};\n    \n    // SAFE C++11+ ITERATION AND ERASURE\n    for (auto pos = coll.begin(); pos != coll.end(); ) {\n        if (pos->second == 20) { // Condition to erase\n            // Assign the iterator to the next valid element\n            pos = coll.erase(pos); \n        } else {\n            ++pos; // Manual increment only if no erasure occurred\n        }\n    }\n    \n    // Output: {1: 10}, {3: 30}\n}",
+  "practical_example": "A log processing system uses a `std::multimap` to store error messages indexed by timestamp. Periodically, the system must iterate through and remove all entries older than 24 hours. Using the safe C++11 erasure pattern guarantees that the cleanup process completes without crashing, regardless of how many contiguous elements are removed.",
+  "keywords": [
+    "iterator invalidation",
+    "map::erase",
+    "safe erasure loop",
+    "undefined behavior",
+    "associative container iteration",
+    "C++11 iterator return"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "182",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_safe_iteration_and_erasure_in_dd1bef",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

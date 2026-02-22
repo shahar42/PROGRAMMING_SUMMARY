@@ -1,0 +1,19 @@
+{
+  "topic": "Default Construction and Zero Initialization of Fundamental Types in std::pair",
+  "category": "util",
+  "explanation": "The default constructor of `std::pair` explicitly initializes its members using the default constructor syntax for their respective types: `first(T1())` and `second(T2())`. This mechanism is critical for ensuring predictable initialization, especially when T1 or T2 are fundamental (built-in) types (e.g., `int`, `float`).\n\nPurpose:\nIn C++, default initialization of fundamental types often results in indeterminate values (garbage). However, the explicit use of the functional-style cast syntax, `T()`, guarantees value initialization. For fundamental types, value initialization sets the object to zero (or false for bool, nullptr for pointers). This behavior ensures that a default-constructed pair of built-in types is guaranteed to be zero-initialized.\n\nUsage Guidance:\n`std::pair<int, double> p;` reliably constructs `p` such that `p.first` is 0 and `p.second` is 0.0. This contrasts with simple default initialization of a local variable `int x;`, which would be indeterminate.\n\nPitfalls:\nIf T1 or T2 is a user-defined class without a usable default constructor, the compilation will fail, as the `pair` constructor attempts to invoke `T1()` and `T2()`. This requirement is stricter than simple aggregate initialization.",
+  "code_example": "#include <utility>\n#include <iostream>\n\nint main() {\n    // p1.first and p1.second are guaranteed to be zero\n    std::pair<int, float> p1;\n    \n    // Contrast with indeterminate default initialization\n    // int x; // x is indeterminate (garbage)\n    \n    std::cout << \"P1: \" << p1.first << \", \" << p1.second << std::endl;\n    \n    // Custom type must have default constructor\n    struct Data { int val = 10; };\n    std::pair<Data, int> p2; // p2.first.val is 10, p2.second is 0\n}",
+  "practical_example": "When initializing a collection of counters or accumulators using pairs (e.g., storing `std::pair<size_t, size_t>` for counts in a map), the guaranteed zero initialization prevents relying on undefined behavior or requiring explicit manual initialization after construction.",
+  "keywords": [
+    "value initialization",
+    "zero initialization",
+    "default constructor",
+    "fundamental types",
+    "T() initialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "37, 14 (reference to rules)",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_default_construction_and_zero_initialization_567505",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Restriction of std::auto_ptr to Single Objects (new vs new[])",
+  "category": "util",
+  "explanation": "`std::auto_ptr` is designed exclusively to manage dynamically allocated single objects (allocated via `new T`). It is explicitly forbidden by the C++ Standard to use `auto_ptr` to manage arrays (allocated via `new T[]`).\n\nReasoning: The internal destructor mechanism of `std::auto_ptr` relies on calling the scalar `delete` operator (`delete p;`) on the managed pointer. When an array is allocated using `new[]`, it must be deallocated using the array form of the delete operator (`delete[] p;`). Using the wrong form of delete (i.e., `delete` on memory allocated by `new[]`) results in undefined behavior, typically leading to memory corruption, heap fragmentation, or failure to call destructors for all array elements.\n\nTechnical Details: Attempting to store an array pointer in an `auto_ptr` defeats its RAII purpose. The C++ Standard Library does not provide an equivalent smart pointer class with `auto_ptr`'s unique ownership semantics specifically for arrays. (This gap was later filled by `std::unique_ptr<T[]>` in C++11, which correctly calls `delete[]`.)\n\nPitfalls: This restriction is absolute. Even if the array contains trivial types, using `auto_ptr` with `new[]` is non-conforming and dangerous.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nvoid use_auto_ptr_array() {\n    // DANGER: Undefined Behavior!\n    int* arr = new int[10];\n    \n    // auto_ptr will call 'delete arr;' instead of 'delete[] arr;'\n    // This results in memory corruption or leak.\n    // std::auto_ptr<int> p_array(arr); \n    \n    // Correct (C++11+) solution uses unique_ptr specialization:\n    // std::unique_ptr<int[]> safe_arr(new int[10]);\n}\n\nint main() {\n    // Demonstration of the scalar usage (correct for auto_ptr)\n    std::auto_ptr<int> p_scalar(new int(1));\n}",
+  "practical_example": "In legacy code managing large buffers, developers might mistakenly wrap a `new[]` allocation in `auto_ptr<T>`. If the buffer contains non-trivial objects (like strings), the failure to call `delete[]` means the destructors for elements beyond the first are skipped, leading to resource leaks (e.g., file handles or internal memory structures held by the elements).",
+  "keywords": [
+    "auto_ptr delete[]",
+    "array management",
+    "scalar delete",
+    "undefined behavior",
+    "new[]",
+    "memory corruption"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "48",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_restriction_of_std__auto_2b9549",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

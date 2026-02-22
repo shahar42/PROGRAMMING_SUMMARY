@@ -1,0 +1,21 @@
+{
+  "topic": "Associative Container Equivalence Rule (Strict Weak Ordering)",
+  "category": "container",
+  "explanation": "In standard C++ associative containers (std::set, std::map, std::multiset, std::multimap), the determination of whether two elements are equivalent (i.e., whether they occupy the same logical position in the ordering) is performed exclusively using the provided comparison functor, usually `std::less<>`.\n\n**Definition:** Two elements, `elem1` and `elem2`, are considered equivalent if and only if the comparison functor `comp` returns false for both comparisons: `!(comp(elem1, elem2) || comp(elem2, elem1))`. This is mandated by the requirement that the comparison functor must impose a strict weak ordering.\n\n**Purpose:** This mechanism eliminates the necessity for the element type to define `operator==`. It ensures that the container's internal ordering logic is consistent and derived solely from the ordering criterion, preventing potential confusion if `operator==` were defined differently from the equivalence implied by the ordering.\n\n**Technical Details:**\n1.  **Requirement:** Elements only need to be comparable using the comparison functor, not necessarily equality comparable via `operator==`.\n2.  **Performance Pitfall:** Checking equivalence requires up to two comparisons (`comp(a, b)` and then potentially `comp(b, a)`), which can be marginally slower than a single direct `operator==` check, though often negligible in practice.\n3.  **Correctness:** If the element type *does* define `operator==`, the container ignores it for internal logic. Relying on `operator==` for external checks on the container (e.g., using `std::find`) can lead to subtle bugs if the comparison functor defines equivalence differently than `operator==`.",
+  "code_example": "#include <set>\n#include <iostream>\n\nstruct MyInt {\n    int value;\n    // Define a non-standard comparison\n    bool operator<(const MyInt& other) const {\n        return value < other.value;\n    }\n};\n\nint main() {\n    std::set<MyInt> s;\n    MyInt a = {10};\n    MyInt b = {10};\n    \n    s.insert(a);\n    s.insert(b); // Equivalence check: !(a<b || b<a) -> !(false || false) -> true\n    \n    // Size is 1 because 'a' and 'b' are equivalent based on operator<\n    std::cout << s.size(); // Output: 1\n}",
+  "practical_example": "When using a custom struct as a key in `std::map`, defining the strict weak ordering via the comparator ensures that keys differing only by non-key attributes (attributes not used in the comparison logic) are treated as equivalent, thereby preventing insertion of duplicates that would violate the map's unique key constraint.",
+  "keywords": [
+    "strict weak ordering",
+    "equivalence check",
+    "comparator",
+    "set requirements",
+    "operator<",
+    "std::less",
+    "associative container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "173",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_equivalence_rule__758f71",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

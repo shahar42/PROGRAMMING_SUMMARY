@@ -1,0 +1,21 @@
+{
+  "topic": "Runtime Configuration of Associative Container Ordering via Stateful Comparators",
+  "category": "container",
+  "explanation": "Associative containers like `std::set` and `std::map` accept a comparison object (of type `Compare`) as a template parameter, which defaults to `std::less<Key>`. While typically stateless, this comparator can be stateful, allowing the container's ordering criterion to be configured at runtime.\n\nDefinition: A stateful comparator is an object holding internal data that affects its `operator()`. The container stores a copy of this object. The container's constructors allow passing a specific instance of the comparator object, configuring the ordering logic upon initialization.\n\nTechnical Details:\n1. **Requirements**: The `Compare` type must be CopyConstructible. If the container is to be assigned or swapped, the comparator must also be Assignable.\n2. **Consistency**: The ordering defined by the comparator must be a strict weak ordering and must remain consistent for the lifetime of the elements within the container. Modifying the comparator's state after insertion, if the modification changes the ordering relative to existing elements, leads to undefined behavior and violates the container's internal invariants.\n3. **Access**: The container provides the member function `value_comp()` (for sets) or `key_comp()` (for maps) to retrieve a copy of the comparison object used by the container.\n\nUsage Guidance: This technique is essential when the sorting order (e.g., ascending vs. descending, or case-sensitive vs. case-insensitive) is determined by user input or configuration files rather than being fixed at compile time. The configuration must occur before elements are inserted.",
+  "code_example": "#include <set>\n#include <iostream>\n\ntemplate<typename T>\nstruct RuntimeCmp {\n    enum mode_t { normal, reverse };\n    mode_t mode = normal;\n    RuntimeCmp(mode_t m = normal) : mode(m) {}\n\n    bool operator()(const T& a, const T& b) const {\n        return (mode == normal) ? (a < b) : (a > b);\n    }\n};\n\nusing IntSet = std::set<int, RuntimeCmp<int>>;\n\nint main() {\n    // Configure for reverse ordering at construction\n    RuntimeCmp<int> reverse_cfg(RuntimeCmp<int>::reverse);\n    IntSet coll(reverse_cfg); \n    coll.insert(5); coll.insert(1);\n    // Output: 5 1 (Reverse order)\n    for (int x : coll) std::cout << x << \" \";\n}",
+  "practical_example": "Developing a customizable log viewer where the user can dynamically switch between sorting log entries by timestamp (ascending) or reverse timestamp (descending). A stateful comparator holding an enumeration for the sort direction is passed to the `std::set` storing the log entries.",
+  "keywords": [
+    "stateful comparator",
+    "strict weak ordering",
+    "std::set constructor",
+    "Compare concept",
+    "runtime sorting criterion",
+    "value_comp",
+    "key_comp"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "170-171",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_runtime_configuration_of_associative_container_682fa6",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

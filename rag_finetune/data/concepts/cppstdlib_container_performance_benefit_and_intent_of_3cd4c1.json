@@ -1,0 +1,19 @@
+{
+  "topic": "Performance Benefit and Intent of c.empty()",
+  "category": "container",
+  "explanation": "Standard containers provide the nonmodifying operation `c.empty()` to determine if the container holds zero elements. While logically equivalent to `c.size() == 0`, `c.empty()` is explicitly guaranteed by the C++ standard to execute in constant time, O(1), for all standard containers.\n\nPurpose: This guarantee ensures the fastest possible check, regardless of the container type (even for containers like `std::list` in older standards where `size()` might have required iteration, though modern standards generally mandate O(1) for `size()` as well). Using `empty()` also clearly expresses the programmer's intent: checking for emptiness, rather than calculating a size and comparing it to zero.\n\nTechnical Details:\n- Complexity: O(1) guaranteed.\n- Usage: Highly preferred in loops and conditional checks where performance is critical or where the container type might be abstracted via templates.\n\nComparison: `c.size()` is used when the specific count is needed. `c.empty()` is used exclusively for the boolean check of zero elements.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nvoid process(const std::vector<int>& c) {\n    if (c.empty()) { \n        std::cout << \"Container is empty (O(1) check)\\n\";\n    } else {\n        std::cout << \"Size: \" << c.size() << \"\\n\";\n    }\n}\n\nint main() {\n    std::vector<int> v1;\n    std::vector<int> v2 = {1, 2, 3};\n    \n    process(v1);\n    process(v2);\n}",
+  "practical_example": "In a high-frequency trading application, a queue of pending orders must be checked millions of times per second. Using `order_queue.empty()` guarantees the latency of the check is minimal and predictable (O(1)), avoiding any potential overhead that might be associated with a less optimized `order_queue.size() == 0` implementation (though unlikely in modern compilers, the standard library guarantees the efficiency of `empty()`).",
+  "keywords": [
+    "empty()",
+    "size()",
+    "O(1) complexity",
+    "nonmodifying operation",
+    "performance best practice"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "160",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_performance_benefit_and_intent_of_3cd4c1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

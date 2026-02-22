@@ -1,0 +1,20 @@
+{
+  "topic": "Unique Ownership Semantics and Destructive Copy in std::auto_ptr",
+  "category": "util",
+  "explanation": "A fundamental requirement of `std::auto_ptr` is that the object it manages must have only one owner. This strict unique ownership model results in highly unusual, destructive copy and assignment semantics, differentiating it from all other standard library types.\n\nTechnical Details:\n- **Ownership Transfer:** When an `auto_ptr` is copied or assigned to another `auto_ptr`, the *ownership* of the underlying resource is transferred to the destination pointer. The source pointer is then set to null.\n- **Behavior:** This transfer means that copying an `auto_ptr` modifies its source operand, effectively moving the resource. This is why `auto_ptr` cannot satisfy the requirements for elements stored in standard containers (like `std::vector` or `std::map`), as containers rely on non-modifying copy semantics.\n\nUsage Guidance: Due to destructive copy, `auto_ptr` should only be used in scenarios where explicit ownership transfer is desired, such as returning a dynamically allocated object from a factory function. For general unique ownership, `std::unique_ptr` should be used instead, as it prevents copies entirely (using deleted copy constructors) and utilizes move semantics for transfer.\n\nPitfalls: Attempting to use a copied `auto_ptr` after the copy operation will result in undefined behavior if the original object attempts to access the now-null pointer.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nvoid demonstrate_transfer() {\n    std::auto_ptr<int> p1(new int(42));\n    \n    // Ownership is transferred (Destructive Copy)\n    std::auto_ptr<int> p2 = p1; \n    \n    std::cout << \"P2 value: \" << *p2 << \"\\n\";\n    \n    // P1 is now NULL (it lost ownership)\n    if (p1.get() == nullptr) {\n        std::cout << \"P1 is null after transfer.\\n\";\n    }\n    // *p1; // DANGER: Undefined behavior if accessed\n}",
+  "practical_example": "When designing an API function that allocates a resource internally and needs to hand that exclusive ownership back to the caller. `auto_ptr` (or preferably `unique_ptr`) guarantees that only the caller is responsible for the resource's eventual cleanup.",
+  "keywords": [
+    "unique ownership",
+    "ownership transfer",
+    "destructive copy",
+    "auto_ptr copy semantics",
+    "deprecated",
+    "std::unique_ptr comparison"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "122-124",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_unique_ownership_semantics_and_destructive_d069db",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

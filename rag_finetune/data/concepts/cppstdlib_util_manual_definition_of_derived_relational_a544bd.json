@@ -1,0 +1,21 @@
+{
+  "topic": "Manual Definition of Derived Relational Operators",
+  "category": "util",
+  "explanation": "The C++ Standard Library does not provide generic template definitions for derived relational operators (i.e., `!=`, `>`, `<=`, `>=`) that rely solely on the fundamental operators (`==` and `<`). This means that if a user defines `operator==` for a custom type, they must still explicitly define `operator!=` (and similarly for the ordering operators) to ensure full relational completeness.\n\nPurpose: While it is logically true that `x != y` is equivalent to `!(x == y)`, the standard library avoids providing a generic template definition (like the conceptual example in the text: `template <class T1, class T2> bool operator!=(const T1& x, const T2& y) { return !(x == y); }`). Providing such a template could potentially interfere with specific user-defined overloads or cause unexpected behavior when comparing objects of different types (`T1` and `T2`).\n\nTechnical Details:\n- **Requirement:** For a type to be usable in contexts requiring inequality (e.g., standard algorithms or containers), `operator!=` must be visible via ADL (Argument Dependent Lookup) or global scope.\n- **Portability:** Relying on non-standard helper templates or libraries that automatically generate these operators makes the code non-portable.\n\nUsage Guidance: Best practice (pre-C++20) is to define all six relational operators (`==`, `!=`, `<`, `>`, `<=`, `>=`) if they are needed, typically by defining `==` and `<` and implementing the remaining four as non-member functions that delegate to the fundamental two.\n\nNote: C++20 introduced the 'spaceship operator' (`<=>`) which allows the compiler to automatically synthesize all six relational operators from a single definition, eliminating this manual requirement.",
+  "code_example": "#include <iostream>\n\nclass MyType {\n    int val;\npublic:\n    MyType(int v) : val(v) {}\n    bool operator==(const MyType& other) const { return val == other.val; }\n    \n    // REQUIRED: Must manually define operator!= (pre-C++20)\n    bool operator!=(const MyType& other) const { return !(*this == other); }\n};\n\nint main() {\n    MyType a(5);\n    MyType b(10);\n    \n    // This call requires the manually defined operator!=\n    if (a != b) {\n        std::cout << \"Objects are not equal.\\n\";\n    }\n}",
+  "practical_example": "When defining a custom key type for use in `std::unordered_map` (which requires only `operator==`) or `std::set` (which requires `operator<`), if that type is also used in generic algorithms that might use `std::find` or simple comparison loops, all necessary relational operators must be provided explicitly to ensure compilation and correct behavior.",
+  "keywords": [
+    "relational operators",
+    "operator overloading",
+    "operator!=",
+    "operator==",
+    "comparison generation",
+    "C++20 spaceship",
+    "portability"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "67-68",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_manual_definition_of_derived_relational_a544bd",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,22 @@
+{
+  "topic": "Undefined Behavior Precondition for `front()` and `back()`",
+  "category": "container",
+  "explanation": "The member functions `container::front()` (returns the first element) and `container::back()` (returns the last element) provide fast, unchecked access to the container's contents. These functions are available for sequential containers that support them, namely `std::vector`, `std::deque`, and `std::list`.\n\n**Technical Details and Requirements:**\nThe standard mandates a strict precondition for calling these methods: the caller must ensure that the container contains at least one element, i.e., `container::size() > 0`. If this precondition is violated (i.e., the container is empty), the behavior is formally **undefined behavior (UB)**.\n\n**Purpose and Pitfalls:**\nThese methods are typically optimized to be O(1) complexity, offering performance gains over safer alternatives like `std::vector::at()`, which performs bounds checking and throws `std::out_of_range` on failure. The lack of bounds checking means the responsibility for correctness lies entirely with the programmer. Accessing an empty container through `front()` or `back()` often leads to dereferencing a null or invalid pointer, resulting in crashes or memory corruption that is difficult to debug.\n\n**Usage Guidance:**\nAlways check `container::empty()` or `container::size()` immediately prior to using `front()` or `back()` if the container's state is uncertain, particularly when consuming elements in a loop (e.g., using `front()` followed by `pop_front()`).",
+  "code_example": "#include <vector>\n#include <iostream>\n\nvoid safe_access(std::vector<int>& v) {\n    if (!v.empty()) { // Necessary precondition check\n        int first = v.front();\n        std::cout << \"First element: \" << first << std::endl;\n    }\n}\n\nint main() {\n    std::vector<int> data = {10, 20};\n    safe_access(data);\n    \n    std::vector<int> empty_data;\n    // int bad_access = empty_data.front(); \n    // WARNING: Calling front() here is Undefined Behavior\n}",
+  "practical_example": "In a high-performance message processing queue implemented using `std::deque`, `front()` is used to peek at the next item before processing. Skipping the `empty()` check on a concurrent queue that might be drained by another thread leads to intermittent crashes (UB) when `front()` is called on a momentarily empty structure.",
+  "keywords": [
+    "front",
+    "back",
+    "undefined behavior",
+    "precondition",
+    "size",
+    "empty",
+    "sequential container",
+    "O(1) access"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "205",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_undefined_behavior_precondition_for__021864",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Ordering Customization via Comparison Predicates in std::min/std::max",
+  "category": "util",
+  "explanation": "The standard functions `std::min` and `std::max` provide overloads that accept an optional third argument: a comparison predicate (`Compare comp`). This predicate allows the user to define a custom strict weak ordering for determining which of the two input elements is considered 'lesser' or 'greater'.\n\nDefinition:\nThe signature is `const T& min(const T& a, const T& b, Compare comp)`. The predicate `comp` is a binary function or function object that takes two arguments of type `T` and returns a boolean, true if the first argument is considered less than the second, and false otherwise.\n\nPurpose:\nThis customization is essential when the default comparison operator (`operator<`) is not applicable or insufficient. Common uses include:\n1. Comparing complex objects based on a specific member (e.g., comparing two structs based only on their ID field).\n2. Comparing pointers based on the values they point to, rather than their memory addresses.\n3. Implementing lexicographical or case-insensitive comparisons.\n\nRequirements:\nThe `Compare` predicate must establish a strict weak ordering over the type `T`. The comparison logic for `std::max` is derived from this 'less than' predicate: if `comp(a, b)` is true, then `b` is greater; otherwise, `a` is greater (or equivalent).",
+  "code_example": "#include <algorithm>\n#include <iostream>\n\n// Predicate to compare two pointers by the value they point to\nbool int_ptr_less (int* a, int* b) {\n    return *a < *b;\n}\n\nint main() {\n    int x = 17;\n    int y = 42;\n    int* px = &x;\n    int* py = &y;\n\n    // Use custom predicate to find pointer to the larger value\n    int* pmax = std::max(px, py, int_ptr_less);\n    \n    // Output: 42 (since *py > *px)\n    std::cout << *pmax << \"\\n\"; \n    \n    // Default max would compare addresses (usually undefined/unpredictable)\n    // int* default_max = std::max(px, py);\n}",
+  "practical_example": "In a resource management system where objects are tracked via smart pointers, `std::min` can be used with a custom comparator to find the pointer associated with the object having the lowest priority level, ensuring the comparison operates on the object's state, not the pointer's memory location.",
+  "keywords": [
+    "custom comparator",
+    "comparison predicate",
+    "strict weak ordering",
+    "std::min overload",
+    "std::max overload",
+    "function object"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "64-65",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_ordering_customization_via_comparison_predicates_39a545",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

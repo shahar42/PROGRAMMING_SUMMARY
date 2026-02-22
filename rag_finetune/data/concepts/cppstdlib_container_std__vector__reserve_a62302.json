@@ -1,0 +1,21 @@
+{
+  "topic": "std::vector::reserve() Non-Shrinking Guarantee",
+  "category": "container",
+  "explanation": "The primary purpose of `std::vector::reserve(N)` is to increase or guarantee minimum capacity. The C++ Standard guarantees that calling `reserve()` with an argument N that is less than or equal to the vector's current capacity (`capacity()`) has no effect. This is a crucial distinction from some other containers (like `std::string` in older standards, although modern practice favors `shrink_to_fit` there too) and prevents unexpected memory reduction or invalidation.\n\n**Technical Details:**\n1. If `N > capacity()`, storage is reallocated, and capacity becomes at least N. All existing iterators, pointers, and references are invalidated.\n2. If `N <= capacity()`, the call is a guaranteed no-op. No reallocation occurs, and all existing iterators, pointers, and references remain valid.\n\n**Pitfalls:** Programmers often mistakenly assume `reserve(0)` or `reserve(small_N)` can be used to free excess memory. This is incorrect. To request the reduction of capacity to match the current size, the non-binding function `shrink_to_fit()` must be used (C++11 onwards). Alternatively, the 'swap trick' (`std::vector<T>().swap(v)`) remains the guaranteed method to release all excess memory back to the system.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v;\n    v.reserve(100); \n    std::cout << \"Capacity after reserve(100): \" << v.capacity() << std::endl;\n    \n    // Attempt to shrink capacity (N=10 < 100)\n    v.reserve(10); \n    \n    // Output shows capacity remains 100 (or greater, depending on implementation)\n    std::cout << \"Capacity after reserve(10): \" << v.capacity() << std::endl;\n    \n    // Correct way to request capacity reduction (C++11)\n    // v.shrink_to_fit(); \n}",
+  "practical_example": "In a resource-constrained embedded system, a vector temporarily grew large (capacity 1000) during a batch process. After the process finishes and the vector size is reset to 5, failing to use `shrink_to_fit()` or the swap trick means the 1000-element capacity remains allocated, wasting valuable RAM until the vector object is destroyed.",
+  "keywords": [
+    "reserve",
+    "capacity shrinkage",
+    "no-op guarantee",
+    "iterator stability",
+    "shrink_to_fit",
+    "swap trick",
+    "memory release"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "134",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__vector__reserve_a62302",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

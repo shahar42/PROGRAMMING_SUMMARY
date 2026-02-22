@@ -1,0 +1,21 @@
+{
+  "topic": "std::bitset Input Stream Operator Semantics and Leading Zero Padding",
+  "category": "io",
+  "explanation": "The global input stream operator `operator>>(istream&, bitset<N>&)` reads a binary representation (a sequence of '0' and '1' characters) from the stream and populates the `bitset`.\n\n**Reading Termination Rules:** Reading stops upon the first occurrence of any of the following conditions:\n1. Exactly `N` characters (the size of the bitset) have been read.\n2. End-of-file (EOF) is encountered.\n3. The next character encountered is neither '0' nor '1'.\n\n**Padding Behavior (Crucial Subtlety):** If the number of characters read is less than `N`, the standard mandates that the resulting `bitset` is filled with *leading zeros*. This means the read characters correspond to the least significant bits (LSBs), and the most significant bits (MSBs) that were not explicitly read are set to 0. This behavior ensures that partial input is interpreted as a smaller numerical value.\n\n**Failure Condition:** If the operator fails to extract any characters (e.g., the first character is whitespace followed by EOF, or the stream is already in an error state), `ios::failbit` is set on the stream. This requires checking the stream state after the operation.",
+  "code_example": "#include <bitset>\n#include <sstream>\n#include <iostream>\n\nint main() {\n    std::bitset<8> b;\n    std::stringstream ss(\"10101xx\");\n    \n    ss >> b; // Reads '10101', stops at 'x'\n    \n    // Read 5 bits. Bitset is 8 bits. \n    // Padding occurs: MSBs (bits 7, 6, 5) are zeroed.\n    // Result: 00010101\n    std::cout << b << std::endl; \n    \n    // Failure case: reading empty or invalid data\n    std::stringstream ss2(\" ABC\");\n    std::bitset<4> b2;\n    ss2 >> b2;\n    \n    if (ss2.fail()) {\n        std::cerr << \"Failed to read any bit (ios::failbit set).\" << std::endl;\n    }\n}",
+  "practical_example": "Parsing configuration files where binary flags are represented by variable-length strings (e.g., '1' for a single flag, '1101' for four flags). Because of the leading zero padding, the stream operation correctly interprets '101' into an 8-bit field as 00000101, preserving the numerical value regardless of the target bitset size.",
+  "keywords": [
+    "bitset input",
+    "operator>>",
+    "stream failure",
+    "ios::failbit",
+    "leading zeros",
+    "LSB padding",
+    "I/O semantics"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "407",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_io_std__bitset_input_stream_a3950b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

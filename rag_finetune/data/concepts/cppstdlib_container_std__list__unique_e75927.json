@@ -1,0 +1,19 @@
+{
+  "topic": "std::list::unique() Predicate Comparison Semantics",
+  "category": "container",
+  "explanation": "The `std::list::unique()` member function removes consecutive duplicate elements. When using the binary predicate version, `list::unique(BinaryPredicate op)`, the predicate is applied to determine if an element should be removed.\n\nTechnical Details:\nUnlike general algorithms where a predicate might compare an element to its immediate predecessor, `list::unique` compares the current element (`elem`) against the *last element that was not removed* (`e`). If `op(elem, e)` yields true, `elem` is removed, and the subsequent element is compared against the same `e`. If `op(elem, e)` yields false, `elem` is retained, and it becomes the new `e` for subsequent comparisons.\n\nRequirements:\n1. The predicate must not modify its state during execution.\n2. The function guarantees that it will not throw if element comparisons do not throw.\n3. Complexity is linear, O(N), as each element is visited exactly once.\n\nUsage Guidance:\nThis function requires elements to be adjacent and sorted (or clustered) for effective removal. If the list is unsorted, `unique()` only removes immediate duplicates, not all duplicates within the list.\n\nPitfall:\nMisunderstanding the comparison rule: if elements A, B, C, D exist, and `op(B, A)` is true (B removed), then C is compared against A, not B. This differs significantly from the general `std::unique` algorithm applied to a sequence via iterators, which typically requires a subsequent `erase` operation.",
+  "code_example": "#include <list>\n#include <iostream>\n#include <algorithm>\n\nstruct EqualOrClose { bool operator()(int a, int b) const { return std::abs(a - b) <= 1; } };\n\nint main() {\n    std::list<int> l = {1, 2, 3, 3, 5, 6, 7, 7, 7, 9};\n    // Initial comparison is 2 vs 1 (false). 3 vs 2 (false). 3 vs 3 (true, removed).\n    // Next element (5) compared against the last kept element (3).\n    l.unique(EqualOrClose());\n    \n    // Expected output: 1 2 3 5 6 7 9 \n    for (int x : l) { std::cout << x << \" \"; }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "Processing a stream of timestamped events where small jitter might cause duplicate readings. Using `list::unique` with a predicate that checks if the current reading is within a small tolerance of the previous valid reading allows for efficient, in-place deduplication without requiring external memory or re-sorting.",
+  "keywords": [
+    "list unique",
+    "binary predicate",
+    "consecutive duplicates",
+    "in-place removal",
+    "O(N) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "215",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__unique_e75927",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Smart Pointer Requirement: Heap Allocation for Default Deletion",
+  "category": "util",
+  "explanation": "The provided text emphasizes a core requirement for smart pointers utilizing default deletion mechanisms: 'It expects that the values with which the smart pointers are initialized are return values of operator new.' This constraint is vital because the smart pointer's destructor, via the `dispose()` method, invokes `delete ptr` on the managed object.\n\n**Requirement:** The managed object must have been allocated using a matching form of `new` (typically non-array `new`) to ensure that `delete` calls the correct destructor and returns memory to the heap allocator.\n\n**Pitfalls (Undefined Behavior):**\n1. **Stack Allocation:** Initializing a smart pointer with an address of a stack variable (`CountedPtr<int> p(&x);`) results in calling `delete` on non-heap memory, leading to immediate undefined behavior, often a crash.\n2. **`malloc` Allocation:** Memory allocated via `malloc` or C-style allocation functions must be freed via `free`. Calling `delete` on `malloc`-ed memory is undefined behavior.\n3. **Array Allocation:** If an array is allocated (`new T[N]`), it must be deleted using `delete[]`. Using a standard smart pointer without a custom deleter (`std::unique_ptr<T[]>`) and initializing it with `new T[N]` will only call `delete` (not `delete[]`), resulting in partial destruction and undefined behavior.\n\n**Mitigation:** For non-heap or array allocations, modern smart pointers (`std::unique_ptr`, `std::shared_ptr`) must be instantiated with a custom deleter lambda or function object to correctly manage the resource lifecycle.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nint main() {\n    int stack_var = 42;\n    \n    // DANGER: Undefined Behavior (calling delete on stack memory)\n    // std::shared_ptr<int> p1(&stack_var);\n    \n    // Correct usage for non-heap resources requires a custom deleter\n    int* raw_ptr = (int*)std::malloc(sizeof(int));\n    *raw_ptr = 10;\n    \n    // Custom deleter ensures free() is called, not delete\n    std::shared_ptr<int> p2(raw_ptr, [](int* p) {\n        std::cout << \"Using free()\\n\";\n        std::free(p);\n    });\n}",
+  "practical_example": "When wrapping C library resources (like file handles or memory allocated via `mmap` or `malloc`), relying on the default smart pointer deleter causes UB. A custom deleter is mandatory to ensure the correct cleanup function (e.g., `fclose`, `munmap`, `free`) is called.",
+  "keywords": [
+    "operator new",
+    "delete",
+    "malloc",
+    "custom deleter",
+    "undefined behavior",
+    "RAII requirement",
+    "heap allocation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "197",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_smart_pointer_requirement__heap_cbf41f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

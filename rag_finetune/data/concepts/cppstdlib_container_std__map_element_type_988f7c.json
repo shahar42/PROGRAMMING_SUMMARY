@@ -1,0 +1,20 @@
+{
+  "topic": "std::map Element Type and Key Constancy",
+  "category": "container",
+  "explanation": "In associative containers like `std::map` and `std::multimap`, the elements are internally stored as `std::pair` objects. Critically, the element type for a map of type `std::map<Key, Value>` is not `std::pair<Key, Value>` but rather `std::pair<const Key, Value>`.\n\nRequirement: The key component (`first`) of the stored pair is qualified as `const`. This is mandatory to maintain the integrity of the map's ordering structure (usually a balanced tree).\n\nTechnical Details:\n- If the key were mutable, altering it would violate the container's invariant, as the element's position in the tree is determined by the key's value. Changing the key without re-sorting the structure leads to undefined behavior.\n- Accessing map elements via iterators yields a reference to `std::pair<const Key, Value>`.\n- The value component (`second`) remains non-const and can be modified directly via the iterator or through operator `[]`.\n\nUsage: When inserting into a map, the input must be convertible to `std::pair<const Key, Value>`. The most common insertion methods include using `insert(std::pair)` or the C++17 structured binding feature.\n\nPitfalls:\n1. Direct Modification: Attempting to modify the key (`it->first = new_key;`) results in a compilation error because `it->first` is a const member.\n2. Iteration: Algorithms expecting modifiable elements (like certain overloads of `std::transform`) must be aware that only the `second` member is writable.",
+  "code_example": "#include <map>\n#include <utility>\n\nint main() {\n    std::map<int, double> m;\n    m.insert({10, 5.5});\n    \n    auto it = m.begin();\n    \n    // The type pointed to by 'it' is std::pair<const int, double>\n    // it->first = 20; // ERROR: key is const\n    \n    // Modifying the value component is allowed\n    it->second = 6.0; // OK\n    \n    // Insertion returns a pair of (iterator, bool)\n    auto result = m.insert(std::make_pair(5, 2.2));\n    bool success = result.second; // true\n}",
+  "practical_example": "In a symbol table implementation using `std::map<std::string, SymbolInfo>`, the string (the symbol name) must remain constant once inserted. If the symbol name needed to change, the old entry must be erased and a new entry with the updated key inserted, ensuring the underlying tree structure is correctly maintained.",
+  "keywords": [
+    "map element type",
+    "key constancy",
+    "std::pair",
+    "map invariant",
+    "const key",
+    "associative container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "37, 218",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map_element_type_988f7c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

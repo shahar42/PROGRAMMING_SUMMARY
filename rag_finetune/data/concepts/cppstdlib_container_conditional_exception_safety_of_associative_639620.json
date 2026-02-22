@@ -1,0 +1,21 @@
+{
+  "topic": "Conditional Exception Safety of Associative Container Swap",
+  "category": "container",
+  "explanation": "The exception safety guarantee of `std::set::swap()` and `std::map::swap()` is conditional, depending crucially on the behavior of the container's internal comparison criterion (`KeyCompare`). Although swapping containers is typically assumed to be a no-throw operation (O(1) pointer exchange), the standard requires that the comparator object must also be swapped or transferred.\n\nTechnical Details:\n1.  **Stateless Comparators:** If the `KeyCompare` object (e.g., `std::less<Key>`) is stateless, swapping it is trivial and non-throwing. In this common case, the container swap is `noexcept`.\n2.  **Stateful Comparators:** If the user provides a custom comparator that holds state, and that stateful object's copy assignment or move assignment operator can throw an exception, then the entire container swap operation is *not* guaranteed to be non-throwing. The text explicitly states the operation 'Doesn't throw if copying/assigning the comparison criterion doesn't throw.'\n\nUsage: When designing custom comparison objects for associative containers, ensure they are either stateless or that their move/swap operations are explicitly marked `noexcept` to maintain the highest level of exception safety for container swaps. This subtlety is often overlooked because standard library comparators are safe.",
+  "code_example": "#include <map>\n#include <utility>\n\nstruct StatefulComparator {\n    int state = 0;\n    bool operator()(int a, int b) const { return a < b; }\n    // If copy assignment throws, map::swap might throw.\n    // To guarantee no-throw swap, this should be noexcept.\n    void swap(StatefulComparator& other) noexcept {\n        std::swap(state, other.state);\n    }\n};\n\nint main() {\n    // Map using a custom, stateful comparator.\n    std::map<int, double, StatefulComparator> m1;\n    std::map<int, double, StatefulComparator> m2;\n    \n    // The exception safety of this swap depends entirely \n    // on the exception safety of StatefulComparator's swap/assignment.\n    m1.swap(m2);\n    \n    return 0;\n}",
+  "practical_example": "A specialized logging system uses a `std::map` ordered by a complex comparison object that relies on an external resource handle (like a shared mutex) managed by the comparator's state. If swapping this stateful comparator involves acquiring or copying the resource handle via an operation that might fail (e.g., locking a mutex or allocating memory internally), the map's `swap()` operation loses its unconditional no-throw guarantee, potentially leading to resource management issues if an exception propagates.",
+  "keywords": [
+    "map swap",
+    "set swap",
+    "KeyCompare",
+    "comparison criterion",
+    "conditional no-throw",
+    "stateful comparator",
+    "exception safety"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "237",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_conditional_exception_safety_of_associative_639620",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Vector Iterator Invalidation on Erasure (std::vector::erase)",
+  "category": "container",
+  "explanation": "The operation `std::vector::erase(position)` removes the element pointed to by `position` and shifts all subsequent elements forward to maintain contiguous storage. This element shifting dictates the performance and iterator stability rules for `std::vector` erasure.\n\n**Complexity and Performance:** `erase` operates in linear time, $O(N)$, where $N$ is the number of elements from the erase point to the end of the vector. This makes frequent middle-of-the-vector deletions highly inefficient compared to `std::list` (which offers $O(1)$ erasure).\n\n**Iterator Invalidation Rules:** The standard guarantees that all iterators, pointers, and references pointing to elements *at or after* the position of the erased element are immediately invalidated. Iterators pointing to elements *before* the erased position remain valid.\n\n**Safe Iteration:** Because the input iterator is invalidated, `erase` returns a new iterator pointing to the element immediately following the last element removed (or `v.end()` if the last element was deleted). When iterating through a vector and conditionally deleting elements, the loop must use this returned iterator to continue. Failing to capture and use the return value results in dereferencing an invalidated iterator, leading to Undefined Behavior (UB).\n\n**Usage Guidance:** For removing elements based on a predicate, the erase-remove idiom (`std::remove_if` followed by `std::vector::erase`) is generally preferred over iterating and deleting, as it minimizes element movements and maintains exception safety guarantees.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {1, 5, 2, 5, 3, 5};\n    \n    // Safe deletion loop using the return value of erase\n    for (auto it = v.begin(); it != v.end(); /* increment inside */) {\n        if (*it == 5) {\n            // 'it' is invalidated. Capture the new iterator.\n            it = v.erase(it); \n        } else {\n            ++it; // Only increment if no deletion occurred\n        }\n    }\n    \n    // v is now {1, 2, 3}\n    // auto danger_it = v.begin();\n    // v.erase(v.begin());\n    // *danger_it; // DANGER: UB if not handled\n}",
+  "practical_example": "In a game engine managing a list of active entities, deleting an entity in the middle of the frame's update loop using `vector::erase` repeatedly causes performance bottlenecks due to continuous memory shifting. Furthermore, if the loop fails to update its iterator using the return value of `erase`, it will skip the element immediately following the deleted one, or crash due to iterator invalidation.",
+  "keywords": [
+    "vector::erase",
+    "iterator invalidation",
+    "linear complexity",
+    "O(N) deletion",
+    "safe iteration",
+    "erase-remove idiom",
+    "contiguous storage"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "151-153",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_iterator_invalidation_on_erasure__std__4ea834",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

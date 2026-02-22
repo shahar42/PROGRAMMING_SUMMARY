@@ -1,0 +1,21 @@
+{
+  "topic": "Shared Ownership Smart Pointer Semantics (Reference Counting)",
+  "category": "util",
+  "explanation": "The shared ownership model, exemplified by the custom `CountedPtr` shown (and standardized as `std::shared_ptr`), allows multiple smart pointer instances to manage the lifetime of a single dynamically allocated resource. When a shared smart pointer is copied, the internal reference count is incremented. The resource is guaranteed to be deleted only when the last smart pointer managing it is destroyed or reset, ensuring correct memory deallocation regardless of how many container copies or local variables hold a reference.\n\nPurpose: This model is essential for storing dynamically allocated resources in STL containers, as it permits the container to copy the elements internally without invalidating the source object (destructive copy semantics). It ensures that modifications made through one smart pointer are visible to all others, as they all point to the same underlying object.\n\nTechnical Details:\n- Copying is O(1) (incrementing the counter).\n- Destruction is O(1) plus the cost of the managed object's destructor (when the count hits zero).\n- Shared ownership requires a control block (usually allocated separately) to store the reference count and potentially type erasure information.\n\nPitfalls: The primary danger is the creation of circular references (A points to B, B points to A), which prevents the reference count from ever reaching zero, causing a permanent memory leak. This is mitigated in `std::shared_ptr` by using `std::weak_ptr` for back references.",
+  "code_example": "#include <deque>\n#include <list>\n#include <memory>\n\nint main() {\n    // std::shared_ptr models the required shared ownership\n    using IntPtr = std::shared_ptr<int>;\n    \n    IntPtr p1(new int(42));\n    std::deque<IntPtr> coll1;\n    std::list<IntPtr> coll2;\n    \n    // Insert same shared object into two containers\n    coll1.push_back(p1); // Ref count = 2\n    coll2.push_front(p1); // Ref count = 3\n    \n    // Modify via coll1 access\n    *coll1.front() = 99;\n    \n    // coll2 sees the modification immediately\n    // std::cout << *coll2.front(); // Output: 99\n}",
+  "practical_example": "Managing a pool of connection handles or large configuration objects that must be accessed and shared across multiple threads or container-based caches. Using shared pointers guarantees the resource remains valid as long as any part of the system is actively holding a reference, and simplifies cleanup when all references are dropped.",
+  "keywords": [
+    "shared_ptr",
+    "reference counting",
+    "smart pointer",
+    "shared ownership",
+    "destructive copy",
+    "container element requirement",
+    "std::shared_ptr"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "198",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_shared_ownership_smart_pointer_semantics_3c2ce7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

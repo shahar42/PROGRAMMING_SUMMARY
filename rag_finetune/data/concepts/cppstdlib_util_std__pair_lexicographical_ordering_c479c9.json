@@ -1,0 +1,19 @@
+{
+  "topic": "std::pair Lexicographical Ordering Rule",
+  "category": "util",
+  "explanation": "`std::pair` defines comparison operators (`<`, `>`, `<=`, `>=`) based on strict lexicographical ordering. This ordering is critical because containers like `std::map` and `std::set` rely on the key type providing a total ordering, and pairs are often used as complex keys.\n\nDefinition: The comparison prioritizes the `first` element. If the `first` elements differ, the result of their comparison dictates the pair's comparison result. Only if the `first` elements are equivalent is the comparison delegated to the `second` elements.\n\nTechnical Details: The `operator<` is implemented logically as:\n`return x.first < y.first || (!(y.first < x.first) && x.second < y.second);`\nThis implementation uses the standard three-way comparison structure: check `first`, if equal (i.e., `!(y.first < x.first) && !(x.first < y.first)`), then check `second`.\n\nRequirements: Both template parameters `T1` and `T2` must support `operator<` (Strict Weak Ordering).\n\nUsage: This ordering guarantees that a `std::pair<T1, T2>` can be used directly as a key type in associative containers, maintaining a predictable order based on the concatenation of its components.\n\nPitfalls: If `T1` or `T2` do not define a valid `operator<`, compilation will fail or result in incorrect container behavior. Furthermore, if T1 and T2 are complex objects, ensuring their `operator<` is efficient is crucial, as pair comparison complexity is dominated by the complexity of the underlying element comparisons.",
+  "code_example": "#include <utility>\n#include <iostream>\n\nint main() {\n    std::pair<int, int> p1(10, 20);\n    std::pair<int, int> p2(10, 30);\n    std::pair<int, int> p3(5, 50);\n    \n    // Comparison prioritizes first element\n    std::cout << (p3 < p1) << \"\\n\"; // 1 (5 < 10)\n    \n    // If first elements are equal, second element decides\n    std::cout << (p1 < p2) << \"\\n\"; // 1 (10 == 10, but 20 < 30)\n    \n    // If both are equal\n    std::cout << (p1 < p1) << \"\\n\"; // 0 (false)\n}",
+  "practical_example": "Using `std::pair<std::string, int>` as the key in a `std::map` to store data based on a primary name and a secondary version number. The map will automatically sort entries first by name, and then by version if names are identical, due to the pair's defined lexicographical ordering.",
+  "keywords": [
+    "lexicographical comparison",
+    "operator<",
+    "pair ordering",
+    "map key requirement",
+    "Strict Weak Ordering"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "38",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__pair_lexicographical_ordering_c479c9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

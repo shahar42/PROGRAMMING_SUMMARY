@@ -1,0 +1,20 @@
+{
+  "topic": "std::map Internal Structure and Key Immutability (`value_type`)",
+  "category": "container",
+  "explanation": "The internal element type of `std::map` and `std::multimap` is defined by the type alias `value_type`, which is strictly `std::pair<const Key, T>`.\n\nPurpose: The key component (`Key`) is qualified with `const` to enforce the container's fundamental invariant: the key used for ordering must never change after insertion. If the key were mutable, modifying it would break the associative container's sorted structure (typically a balanced tree), leading to undefined behavior or corruption of the internal organization.\n\nTechnical Details:\n- `value_type` ensures that iterators return references to elements where the key is read-only.\n- Complexity: Modification of the value (the `T` component) is typically O(1) via `operator[]` or O(log N) via `at()` or iterator access.\n- Key Modification: To effectively 'change' a key, the original element must be removed (O(log N)) and a new element with the desired key inserted (O(log N)).\n\nPitfalls:\n1. Direct key modification via an iterator is a compile-time error because the key is `const`.\n2. Attempting to use algorithms that require mutable elements (like `std::sort` or in-place modification of the key) will fail or require complex workarounds (e.g., extracting nodes in C++17).\n\nUsage: Access the mutable value using the `second` member of the pair returned by the iterator, or use `map::operator[]` for lookup and insertion/assignment.",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    std::map<int, std::string> m;\n    m.insert({1, \"one\"});\n    \n    // 1. Value modification (OK)\n    m[1] = \"uno\"; \n    \n    auto it = m.begin();\n    // it->first = 2; // ERROR: key is const\n    \n    // 2. Value modification via iterator (OK)\n    it->second = \"eins\";\n    \n    // 3. Explicit value_type usage\n    using MapVT = std::map<int, std::string>::value_type;\n    m.insert(MapVT(2, \"two\"));\n}",
+  "practical_example": "In a configuration management system where settings are stored in a map, using `const Key` prevents accidental runtime changes to configuration identifiers (keys). If a setting needs a new identifier, it forces the developer to explicitly delete the old entry and insert a new one, ensuring proper logging and validation of the change.",
+  "keywords": [
+    "value_type",
+    "const Key",
+    "key immutability",
+    "std::pair",
+    "associative container invariant",
+    "map insertion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "180",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map_internal_structure_18a6b1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

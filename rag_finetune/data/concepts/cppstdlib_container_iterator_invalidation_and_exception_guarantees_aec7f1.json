@@ -1,0 +1,21 @@
+{
+  "topic": "Iterator Invalidation and Exception Guarantees during Vector and Deque Erasure",
+  "category": "container",
+  "explanation": "The contiguous and near-contiguous nature of `std::vector` and `std::deque` imposes strict rules regarding iterator and reference invalidation during the `erase` operation, distinguishing them sharply from `std::list` and associative containers.\n\n**Iterator Invalidation:**\n1.  **Vector/Deque:** The `erase` operation invalidates all iterators and references pointing to elements *after* the first erased element (including the return iterator if it were not immediately used). This occurs because subsequent elements must be shifted (moved/copied) to fill the gap, changing their physical memory location.\n2.  **List/Associative:** Only iterators and references pointing to the elements explicitly being erased are invalidated. Iterators to other elements remain valid, as removal does not affect their memory location or node linkage.\n\n**Exception Safety:**\n1.  **Vector/Deque:** `erase` may throw an exception if the elements' copy constructor or assignment operator throws during the necessary shifting of elements. Full exception safety might not be guaranteed if element operations throw, potentially leaving the container in an indeterminate state depending on the element type's move/copy guarantees.\n2.  **List/Associative:** These containers typically provide a strong guarantee that `erase` does not throw, as they only involve pointer manipulation and destructor calls for the removed elements, which are generally non-throwing.\n\n**Pitfall:** Relying on a previously stored iterator or pointer that pointed to an element *after* the erased range in a `vector` or `deque` results in immediate Undefined Behavior (dangling pointer/iterator). The only safe way to continue iteration is by using the iterator returned by the `erase` function.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20, 30, 40};\n    auto it_30 = v.begin() + 2; // Iterator pointing to 30\n    auto it_40 = v.begin() + 3; // Iterator pointing to 40\n\n    // Erase the element 30\n    auto next_it = v.erase(it_30); \n    \n    // next_it is safe (points to the element that was 40)\n    std::cout << *next_it << \"\\n\"; \n    \n    // it_40 is now invalid (UB if dereferenced or used)\n    // std::cout << *it_40 << \"\\n\"; \n\n    return 0;\n}",
+  "practical_example": "In high-performance physics simulations where data structures are frequently pruned, using `std::list` for particle removal guarantees that the stability of iterators pointing to unrelated particles is maintained. If `std::vector` were used, every removal in the middle of the list would require re-validating hundreds of external pointers tracking subsequent particles.",
+  "keywords": [
+    "iterator invalidation",
+    "reference invalidation",
+    "vector erase",
+    "deque erase",
+    "exception safety",
+    "shifting elements",
+    "undefined behavior"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "214",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_iterator_invalidation_and_exception_guarantees_aec7f1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

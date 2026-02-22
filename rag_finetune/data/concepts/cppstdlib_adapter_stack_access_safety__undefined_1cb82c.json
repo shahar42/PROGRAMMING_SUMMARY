@@ -1,0 +1,21 @@
+{
+  "topic": "Stack Access Safety: Undefined Behavior on Empty top() or pop()",
+  "category": "adapter",
+  "explanation": "The `std::stack` container adapter enforces a strict LIFO (Last-In, First-Out) interface with separate functions for accessing the element (`top()`) and removing the element (`pop()`). The C++ Standard dictates that calling either `std::stack::top()` or `std::stack::pop()` on an empty stack results in Undefined Behavior (UB).\n\nPurpose: This design choice prioritizes performance by ensuring that the implementation does not incur the overhead of mandatory runtime checks (like throwing an exception) within the core access methods. Users are strictly responsible for ensuring preconditions are met.\n\nTechnical Details:\n- Precondition: `!stack::empty()` must be true before calling `top()` or `pop()`.\n- Complexity: Both `top()` and `pop()` are guaranteed to be O(1) constant time, as they rely only on the underlying container's efficient back access methods.\n\nUsage Guidance: Always check the stack state using `empty()` or `size()` before performing removal or access operations within a loop or conditional block. Failure to uphold this precondition is a common source of critical bugs and crashes, as the underlying container may attempt to dereference an invalid pointer/iterator.\n\nPitfalls: Unlike some high-level language stacks, `std::stack` does not throw an exception on empty access; it invokes UB, which can lead to unpredictable behavior or security vulnerabilities.",
+  "code_example": "#include <stack>\n#include <iostream>\n\nvoid safe_pop_print(std::stack<int>& st) {\n    if (!st.empty()) { // Mandatory safety check\n        std::cout << st.top() << \" \";\n        st.pop();\n    } else {\n        std::cerr << \"Stack is empty, skip operation.\\n\";\n    }\n}\n\nint main() {\n    std::stack<int> s;\n    // s.pop(); // DANGER: Undefined Behavior if uncommented!\n    safe_pop_print(s);\n    s.push(42);\n    safe_pop_print(s);\n}",
+  "practical_example": "In a compiler or interpreter handling function call stacks, reliable precondition checking (`!st.empty()`) is essential before processing return addresses or local variables. Failure to check allows the program to crash or read garbage memory when the call stack unwinds completely.",
+  "keywords": [
+    "stack safety",
+    "top()",
+    "pop()",
+    "empty()",
+    "undefined behavior",
+    "precondition",
+    "O(1) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "381",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_stack_access_safety__undefined_1cb82c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

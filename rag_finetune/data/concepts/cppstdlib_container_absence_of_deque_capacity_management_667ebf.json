@@ -1,0 +1,19 @@
+{
+  "topic": "Absence of Deque Capacity Management Functions",
+  "category": "container",
+  "explanation": "Unlike `std::vector`, `std::deque` does not provide the capacity management functions `capacity()` and `reserve()`. This structural difference stems directly from the deque's non-contiguous memory layout.\n\nPurpose: Deque memory is managed in fixed-size blocks (pages) linked by a map structure. When a deque grows, it allocates a new block and updates the map, rather than reallocating and copying the entire existing dataset. Since the storage is not guaranteed to be contiguous, the concept of a single, defined 'capacity' for the whole container is meaningless.\n\nTechnical Details:\n- `capacity()` is not defined for `std::deque`.\n- `reserve(n)` is not defined for `std::deque`.\n- Memory growth is handled implicitly and dynamically block-by-block.\n- Allocation overhead occurs when a new block is needed, but existing elements are never moved, preserving references to existing elements (unless insertion occurs in the middle, or the element itself is removed).\n\nUsage: Programmers cannot use `reserve()` to pre-emptively optimize memory allocation or prevent all allocation overhead in deques. However, they gain the benefit of guaranteed O(1) amortized growth without the risk of massive O(N) reallocations that occur in vectors.\n\nPitfalls: If performance tuning relies on minimizing allocations by pre-sizing, `std::deque` is not suitable. If contiguous memory is required (e.g., for passing to C APIs), `std::deque` cannot be used; `std::vector` must be chosen.",
+  "code_example": "#include <deque>\n#include <vector>\n\nvoid check_capacity_functions() {\n    std::vector<int> v; \n    v.reserve(100); // OK\n    // v.capacity(); // OK\n    \n    std::deque<int> d; \n    // d.reserve(100); // COMPILE ERROR: Member function not found\n    // d.capacity();   // COMPILE ERROR: Member function not found\n}",
+  "practical_example": "When implementing a high-throughput logging system where the container must grow indefinitely, `deque` is preferred over `vector` because its growth avoids the massive latency spikes associated with vector's full reallocation, even though the overall memory usage might be slightly higher due to block overhead.",
+  "keywords": [
+    "deque capacity",
+    "reserve",
+    "non-contiguous memory",
+    "memory management",
+    "vector comparison"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "146",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_absence_of_deque_capacity_management_667ebf",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

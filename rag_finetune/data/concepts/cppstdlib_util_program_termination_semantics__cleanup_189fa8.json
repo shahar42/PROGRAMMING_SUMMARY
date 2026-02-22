@@ -1,0 +1,23 @@
+{
+  "topic": "Program Termination Semantics: Cleanup of exit() vs. abort()",
+  "category": "util",
+  "explanation": "The `<cstdlib>` header provides two functions, `exit()` and `abort()`, for immediate program termination, differing crucially in their cleanup guarantees.\n\n**exit(int status): Controlled Termination**\n`exit()` performs a controlled, normal termination sequence. This sequence guarantees:\n1. Execution of functions registered via `atexit()` in reverse order of registration.\n2. Destruction of all objects with static storage duration.\n3. Flushing of all output buffers and closure of all open I/O channels.\n4. Return of control and the provided status code (`EXIT_SUCCESS` or `EXIT_FAILURE`) to the host environment.\n\n**abort(): Immediate Termination**\n`abort()` terminates the program immediately without any cleanup. No static object destructors are called, buffers are not flushed, I/O channels remain open, and `atexit` functions are not invoked. It is typically used for catastrophic, unrecoverable errors.\n\n**Crucial Pitfall (Stack Unwinding):** Neither `exit()` nor `abort()` performs stack unwinding. This means the destructors for local (automatic) objects on the stack are *not* called. To guarantee local resource cleanup (RAII), code must return normally to `main()` or use exception handling.",
+  "code_example": "#include <cstdlib>\n#include <iostream>\n\nstruct Resource {\n    ~Resource() { std::cerr << \"Resource destroyed!\\n\"; }\n};\n\nvoid cleanup_handler() {\n    std::cout << \"atexit handler called.\\n\";\n}\n\nvoid terminate_example(bool immediate) {\n    Resource r; // Local object\n    if (immediate) {\n        std::abort(); // No cleanup, no destructor call\n    }\n    // atexit(cleanup_handler);\n    // std::exit(EXIT_FAILURE); // Static cleanup occurs, but NOT local destructor (r)\n}\n\nint main() {\n    atexit(cleanup_handler);\n    // terminate_example(false); // If called, exit() cleans statics/buffers, but not 'r'.\n    // If main returns normally, all cleanup occurs.\n    return EXIT_SUCCESS;\n}",
+  "practical_example": "In a multithreaded server application, if a severe internal state corruption is detected, calling `abort()` is often preferred over `exit()` to immediately halt execution and generate a core dump for debugging, preventing potentially dangerous partial cleanup or further corrupted operations. Conversely, configuration parsing errors might trigger `exit(EXIT_FAILURE)` to ensure logs are flushed and resources like global database connections are properly closed.",
+  "keywords": [
+    "exit",
+    "abort",
+    "atexit",
+    "program termination",
+    "static destruction",
+    "stack unwinding",
+    "cleanup",
+    "EXIT_SUCCESS",
+    "EXIT_FAILURE"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "72-73",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_program_termination_semantics__cleanup_189fa8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

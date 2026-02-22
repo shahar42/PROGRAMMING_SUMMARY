@@ -1,0 +1,19 @@
+{
+  "topic": "std::numeric_limits Specialization and Availability Check",
+  "category": "util",
+  "explanation": "The `std::numeric_limits<T>` template provides standardized, portable access to properties of fundamental numeric types. The standard guarantees specializations for all built-in numeric types (e.g., `int`, `float`, `bool`).\n\n**Definition:** The general template definition (non-specialized) sets the static constant member `is_specialized` to `false`. Any type `T` that is not a standard numeric type will inherit this non-specialized template, indicating that portable numeric information is not available.\n\n**Standard Specialization:** For all standard numeric types, the C++ Standard Library provides explicit template specializations (in `<limits>`) where `is_specialized` is set to `true`. This mechanism allows library users to check programmatically whether specific numeric limits information is available for a given type `T` before attempting to access members like `min()` or `max()`.\n\n**Usage:** This is critical when dealing with generic code or user-defined numeric types. Developers can specialize `numeric_limits` for custom types (e.g., high-precision arithmetic classes) to integrate them seamlessly into generic algorithms that require knowledge of type boundaries and characteristics.\n\n**Pitfall:** Relying on `numeric_limits` members for a non-specialized type (where `is_specialized` is false) may result in accessing default, meaningless, or zero values, leading to incorrect calculations, although this is usually safe due to the static nature of the members.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nstruct CustomType {};\n\nint main() {\n    // Standard type is specialized\n    if (std::numeric_limits<int>::is_specialized) {\n        std::cout << \"int is specialized.\\n\";\n    }\n    \n    // User-defined type (typically not specialized)\n    if (!std::numeric_limits<CustomType>::is_specialized) {\n        std::cout << \"CustomType is NOT specialized.\\n\";\n    }\n    \n    // Accessing a property (e.g., digits)\n    const int int_digits = std::numeric_limits<int>::digits;\n    // const int custom_digits = std::numeric_limits<CustomType>::digits; // Likely 0\n}",
+  "practical_example": "A template function designed to perform scaling based on the maximum representable value must first use `is_specialized` to ensure the input type `T` is a recognized numeric type before invoking `std::numeric_limits<T>::max()` to prevent potential compilation errors or runtime errors from using default values.",
+  "keywords": [
+    "numeric_limits",
+    "is_specialized",
+    "template specialization",
+    "limits header",
+    "numeric properties"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "59",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__numeric_limits_specialization_3ed31b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

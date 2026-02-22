@@ -1,0 +1,21 @@
+{
+  "topic": "C++ Definition of NULL and Type Requirements",
+  "category": "util",
+  "explanation": "In C++, the macro `NULL`, defined primarily in `<cstddef>` (and several other headers like `<cstdio>`), must evaluate to an integral constant expression with the value zero (0). Historically, this was typically defined as `0` or `0L`.\n\nPurpose: The C++ standard requires `NULL` to be an integer type so that it can be implicitly converted to any pointer type (T*). This is a critical distinction from C, where `NULL` is often defined as `(void*)0`.\n\nTechnical Details:\n- In C++, there is no automatic conversion from `void*` to other typed pointers (T*). If `NULL` were defined as `(void*)0`, assigning it to a non-void pointer (e.g., `int* p = NULL;`) would be ill-formed without an explicit cast.\n- Because of the complexities and potential for ambiguity in function overload resolution between `int` and pointer types, many style guides and experts recommend avoiding `NULL` entirely in modern C++ (pre-C++11, use `0`; C++11 and later, use `nullptr`).\n\nPitfalls:\n1. Non-portable code if relying on a C-style definition of `NULL` as `(void*)0`.\n2. Ambiguity when overloading functions that take either `T*` or `int` arguments, where `NULL` (which is an integer) might resolve to the wrong overload.\n\nUsage Guidance: Prefer `nullptr` (C++11 onward) or the literal `0` over the `NULL` macro for expressing a null pointer value.",
+  "code_example": "#include <cstddef>\n#include <iostream>\n\nvoid func(int i) { std::cout << \"Integer overload\\n\"; }\nvoid func(int* p) { std::cout << \"Pointer overload\\n\"; }\n\nint main() {\n    int* p1 = NULL; // OK, NULL converts to pointer type\n    \n    // Caution: NULL is an integer type, leading to ambiguity if not handled\n    // func(NULL); // Might call integer overload depending on NULL's exact type\n    \n    func(nullptr); // C++11: Always calls pointer overload\n    func(0);       // Always calls integer overload\n    \n    // int* p2 = (void*)0; // C++ ERROR: Cannot convert void* to int* implicitly\n}",
+  "practical_example": "When migrating legacy C code that uses `#define NULL (void*)0` into a C++ environment, all assignments of `NULL` to typed pointers must be reviewed and potentially cast, or the definition of `NULL` must be changed to `0` to comply with C++ standards and avoid type errors.",
+  "keywords": [
+    "NULL",
+    "nullptr",
+    "cstddef",
+    "pointer conversion",
+    "void*",
+    "integer type",
+    "overload resolution"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "68",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_c___definition_of_048b5c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

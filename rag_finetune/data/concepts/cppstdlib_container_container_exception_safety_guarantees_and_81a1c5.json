@@ -1,0 +1,22 @@
+{
+  "topic": "Container Exception Safety Guarantees and Invariant Maintenance",
+  "category": "container",
+  "explanation": "STL containers provide robust exception safety guarantees, ensuring that resources are not leaked and that the container's internal invariants (its structural integrity) are always maintained, even if operations throw exceptions (e.g., due to memory allocation failure or element copy constructor failure).\n\n**General Guarantee (Basic Safety):** If an operation throws an exception, the container remains in a valid, usable state, and no resources (like allocated memory) are leaked. However, the container's contents might be partially modified.\n\n**Stronger Guarantees (Strong Safety):** Many key operations, particularly those involving modifications to the container's structure, aim for strong exception safety (commit-or-rollback). If the operation fails, the container is guaranteed to be restored to its state immediately prior to the operation. This is crucial for operations like `insert` into sequence containers where reallocation might occur.\n\n**`resize()` Guarantee Derivation:** The exception safety guarantee of `container::resize(size_type num, T value)` is explicitly defined as a combination of the guarantees of `erase()` and `insert()`:\n1. **Shrinking (`num < size()`):** Calls `erase(begin()+num, end())`. `erase()` typically provides strong exception safety (or no-throw guarantee for fundamental types) because it only involves destruction and pointer/iterator manipulation, not new allocations.\n2. **Growing (`num > size()`):** Calls `insert(end(), num-size(), value)`. The safety depends entirely on the `insert()` guarantee. If `insert` throws (e.g., during element construction or reallocation), the container must handle the failure gracefully, often reverting to the previous size and capacity to maintain strong safety.",
+  "code_example": "#include <vector>\n#include <stdexcept>\n\n// Assume T is a custom type that might throw during copy/move\nclass ThrowingType {\npublic:\n    ThrowingType(int v) : val(v) {}\n    int val;\n};\n\nvoid safe_resize(std::vector<ThrowingType>& v, size_t new_size) {\n    size_t old_size = v.size();\n    try {\n        // If this insert (via resize) throws due to reallocation \n        // or element construction failure, the vector guarantees \n        // it will revert to a valid state (strong safety).\n        v.resize(new_size, ThrowingType(99)); \n    } catch (const std::exception& e) {\n        // The vector is still usable, even if the resize failed.\n        // Its size will be either old_size or partially increased.\n        // No resources are leaked.\n        std::cerr << \"Resize failed, vector invariant maintained.\\n\";\n    }\n}",
+  "practical_example": "In transactional systems where a container holds pending data, using a container with strong exception safety (like `std::list` for insertion without reallocation) or ensuring strong safety for `std::vector::insert` is vital. If a database commit fails halfway through processing due to an exception in a container operation, strong safety ensures the container state reflects either the pre-operation state or the fully committed state, preventing corrupted intermediate states.",
+  "keywords": [
+    "exception safety",
+    "container invariant",
+    "resize guarantee",
+    "insert guarantee",
+    "erase guarantee",
+    "strong exception safety",
+    "basic exception safety",
+    "commit-or-rollback"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "244, Table 6.35",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_exception_safety_guarantees_and_81a1c5",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

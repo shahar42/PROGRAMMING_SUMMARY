@@ -1,0 +1,20 @@
+{
+  "topic": "std::multiset::insert Return Value and Duplicate Handling",
+  "category": "container",
+  "explanation": "Unlike `std::set`, which returns a `std::pair<iterator, bool>` to indicate whether the insertion occurred and the position, `std::multiset` permits duplicate keys. Consequently, the `insert(const value_type& val)` member function always succeeds (unless memory allocation fails) and returns a single `iterator` pointing directly to the newly inserted element.\n\nPurpose: This simple return signature reflects the fact that insertion is guaranteed, simplifying code compared to checking the boolean status required by `std::set`.\n\nTechnical Details: Insertion complexity is logarithmic in the size of the container, O(log N). If the element is inserted using the hint version `insert(iterator hint, const value_type& val)`, and the hint is correct, complexity can be amortized constant time O(1). The returned iterator points to a valid, newly constructed element within the container.\n\nPitfalls: The returned iterator must not be dereferenced if the container operation threw an exception (e.g., bad_alloc). Relying on the position of the inserted element (as shown in the text using `distance`) is generally discouraged, as the relative position of duplicates is not strictly defined by the standard, though it is usually stable based on insertion order for equal keys.",
+  "code_example": "#include <multiset>\n#include <iostream>\n#include <functional>\n\nint main() {\n    using IntSet = std::multiset<int, std::greater<int>>;\n    IntSet coll1;\n    coll1.insert(5);\n    \n    // Insertion always succeeds and returns iterator to the new element\n    IntSet::iterator ipos = coll1.insert(5); \n    \n    std::cout << \"Inserted value: \" << *ipos << \"\\n\";\n    \n    // A set would require checking ipos.second\n    // std::set<int> s; auto res = s.insert(5);\n}",
+  "practical_example": "When implementing a scheduling queue where tasks with identical priorities (the key) must all be tracked, `std::multiset` is used. The returned iterator allows immediate access to the newly added task object for further modification or logging, without needing to search for it again.",
+  "keywords": [
+    "multiset",
+    "insert",
+    "iterator return",
+    "duplicates",
+    "logarithmic complexity",
+    "O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "169",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__multiset__insert_bb5416",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

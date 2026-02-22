@@ -1,0 +1,20 @@
+{
+  "topic": "Compile-Time Guarantee for `std::numeric_limits` Value Members",
+  "category": "util",
+  "explanation": "The C++ Standard guarantees that all non-function members of `std::numeric_limits` specializations (e.g., `digits`, `max_exponent`, `is_signed`) must be declared as `static const`.\n\nPurpose: This requirement ensures that these fundamental characteristics of a data type are available at compile time. They can be used directly in template metaprogramming, constant expressions, and static assertions without incurring any runtime overhead, facilitating highly optimized, type-aware generic code.\n\nTechnical Details:\n- Non-function members are guaranteed to be compile-time constants.\n- Members defined as functions (e.g., `max()`, `infinity()`, `quiet_NaN()`) are only required to be `inline static` and may not necessarily be `constexpr` (pre-C++20, depending on implementation), meaning their return values might not be available until runtime, particularly for floating-point types where the specific value might depend on the execution environment (processor flags).\n\nUsage Guidance: Utilize the static constant members for compile-time branching and type checking, and the function members when the value itself is needed at runtime or when dealing with platform-dependent floating-point special values.",
+  "code_example": "#include <limits>\n#include <type_traits>\n\n// Compile-time check using static const member\nstatic_assert(std::numeric_limits<int>::is_integer, \n              \"int must be integer\");\n\ntemplate <typename T>\nvoid check_precision() {\n    // Accessing compile-time value\n    constexpr int d = std::numeric_limits<T>::digits;\n    // std::cout << d; // OK\n}\n\nint main() {\n    // Function members are typically runtime evaluated\n    float inf = std::numeric_limits<float>::infinity();\n    // constexpr float inf_val = std::numeric_limits<float>::infinity(); // Error pre-C++20\n}",
+  "practical_example": "A generic serialization library uses `std::numeric_limits<T>::is_signed` in a `static_assert` to ensure that a custom fixed-width encoding function is only instantiated for signed integer types, preventing compilation errors for unsigned types.",
+  "keywords": [
+    "static const",
+    "compile-time constant",
+    "metaprogramming",
+    "numeric_limits",
+    "is_integer",
+    "constexpr"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "61-62",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_compile_time_guarantee_for__331787",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

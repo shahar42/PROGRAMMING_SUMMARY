@@ -1,0 +1,22 @@
+{
+  "topic": "Lookup Performance Trade-offs: O(N) vs O(log N) Container Selection",
+  "category": "container",
+  "explanation": "The choice of container significantly impacts element lookup performance, which is determined by the underlying data structure.\n\nDefinition: Sequence containers (std::vector, std::deque, std::list) rely on linear search (std::find), resulting in O(N) complexity, where N is the number of elements.\n\nPurpose: For applications requiring frequent searches or lookups based on element content (not index), ordered associative containers (std::set, std::map) are mandatory. These containers are typically implemented using self-balancing binary search trees, guaranteeing logarithmic complexity, O(log N). This provides a substantial performance advantage over linear search for large datasets (e.g., O(log N) is roughly ten times better than O(N) when N=1000).\n\nTechnical Details:\n- O(log N) lookup is guaranteed for `set::find` and `map::find`.\n- Hash containers (e.g., `std::unordered_set`/`map`, standardized later but mentioned as a fast alternative) offer average O(1) lookup, providing the fastest access when element ordering is irrelevant.\n\nUsage Guidance: If element ordering or range queries are required, use `std::set` or `std::map`. If maximum speed is needed and ordering is irrelevant, use hash containers. Avoid using sequence containers for repeated dictionary or lookup tasks.\n\nPitfalls: Using sequence containers with `std::find` for repeated lookups results in O(N^2) complexity within nested loops, severely degrading performance. Note that reliance on non-standard hash containers (if not using C++11+ `unordered_*`) requires careful source code management for portability.",
+  "code_example": "#include <vector>\n#include <set>\n#include <algorithm>\n\nvoid lookup_example(const std::vector<int>& v, const std::set<int>& s, int target) {\n    // O(N) lookup (Linear complexity)\n    auto it_v = std::find(v.begin(), v.end(), target);\n\n    // O(log N) lookup (Logarithmic complexity)\n    auto it_s = s.find(target);\n\n    if (it_s != s.end()) {\n        // Found via binary tree search (Fastest ordered search)\n    }\n}",
+  "practical_example": "In a compiler's symbol table management, searching for identifiers must be highly efficient. Using a `std::set` or `std::map` ensures that the lookup time scales logarithmically with the number of symbols, preventing compilation time from exploding for large codebases.",
+  "keywords": [
+    "lookup complexity",
+    "O(log N)",
+    "O(N)",
+    "set::find",
+    "vector::find",
+    "associative container",
+    "binary tree",
+    "performance"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "200",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_lookup_performance_trade_offs__4d5565",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

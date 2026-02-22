@@ -1,0 +1,20 @@
+{
+  "topic": "Strict Invalidation Rules for std::vector Iterators and References",
+  "category": "container",
+  "explanation": "The contiguous storage requirement of `std::vector` imposes strict and complex rules for iterator, pointer, and reference invalidation upon modification. These rules are conditional based on whether the operation triggers reallocation.\n\n**Scenario 1: Reallocation Occurs (Capacity Change)**\nIf any operation (e.g., `insert`, `push_back`, `resize`) increases the vector's size beyond its current capacity, the entire underlying array must be copied to a new memory location. In this case, **all** existing iterators, pointers, and references pointing to any element within the vector are invalidated, regardless of their position.\n\n**Scenario 2: No Reallocation Occurs (No Capacity Change)**\nIf the operation does not require reallocation:\n1. **Insertion (`insert`, `push_back`)**: Iterators, pointers, and references pointing to the insertion point or any element **following** the insertion point are invalidated due to the shift of subsequent elements. Elements preceding the insertion point remain valid.\n2. **Erasure (`erase`, `pop_back`)**: Iterators, pointers, and references pointing to the erased element or any element **following** the erasure point are invalidated. The `erase()` method returns a valid iterator pointing to the element immediately following the last element removed (or `end()`).\n\n**Pitfall**: The most common error is holding onto an iterator or pointer across a `push_back()` operation without checking capacity, leading to immediate undefined behavior if reallocation occurs.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20, 30};\n    v.reserve(10); // Ensure no reallocation for initial pushes\n    auto it = v.begin() + 1; // Iterator to 20\n    \n    v.insert(v.begin(), 5); // Insert at index 0\n    // 'it' now points to the original 10 (shifted)\n    std::cout << *it << \"\\n\"; // Output: 10 (valid, shifted)\n    \n    auto ref = v[2]; // Reference to 20\n    v.erase(v.begin() + 3); // Erase original 30\n    // All elements after erase point are invalidated\n    // ref is now a dangling reference (UNDEFINED BEHAVIOR)\n    // std::cout << ref << \"\\n\"; // DANGER!\n}",
+  "practical_example": "Building a custom memory pool manager where pointers to objects are stored in a vector. If the pool manager uses `push_back()` to add new pointers, it must ensure it either reserves sufficient capacity upfront or manages the pointers externally (e.g., via indices) to prevent all stored pointers from being invalidated during reallocation.",
+  "keywords": [
+    "iterator invalidation",
+    "vector reallocation",
+    "contiguous storage",
+    "dangling reference",
+    "insert complexity",
+    "erase complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "138",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strict_invalidation_rules_for_std_9c7987",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Container Comparison via Lexicographical Ordering",
+  "category": "container",
+  "explanation": "When comparing two containers of the same type (e.g., `vector<T>` vs. `vector<T>`) using relational operators (`<`, `>`, `<=`, `>=`), the standard library performs a lexicographical comparison. This comparison mechanism is defined by comparing elements sequentially until a mismatch is found or one container is exhausted.\n\nTechnical Details:\n1. Element Requirement: The element type `T` must support the required comparison operator (usually `operator<`) to define the strict weak ordering.\n2. Behavior: The comparison proceeds element by element (`c1[i]` vs `c2[i]`).\n   - If `c1[i] < c2[i]`, then `c1 < c2` is true, and the comparison stops.\n   - If `c2[i] < c1[i]`, then `c1 < c2` is false, and the comparison stops.\n   - If elements are equal, comparison proceeds to the next pair.\n3. Size Difference: If all elements are equal up to the point where one container ends, the shorter container is considered 'less than' the longer container.\n4. Complexity: The complexity is linear, proportional to the number of elements compared, up to O(min(N1, N2)).\n\nPitfalls: If containers hold elements of different types (e.g., `vector<int>` vs. `list<float>`), the standard container comparison operators cannot be used directly. Instead, generic algorithms like `std::lexicographical_compare` must be employed, providing custom comparison criteria if needed.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v1 = {1, 2, 4, 5};\n    std::vector<int> v2 = {1, 2, 3, 9};\n    std::vector<int> v3 = {1, 2};\n    \n    // v2 is less than v1 because 3 < 4 at index 2\n    if (v2 < v1) { \n        std::cout << \"v2 is lexicographically less than v1\" << std::endl;\n    }\n    \n    // v3 is less than v1 because v3 is a prefix of v1\n    if (v3 < v1) {\n        std::cout << \"v3 is shorter and thus less than v1\" << std::endl;\n    }\n}",
+  "practical_example": "Sorting a list of file paths represented as vectors of strings requires lexicographical comparison. The sorting algorithm uses the container's `operator<` to determine the correct order, ensuring that 'A/B/C' comes before 'A/B/D' based on the first differing subdirectory name.",
+  "keywords": [
+    "lexicographical comparison",
+    "operator<",
+    "container ordering",
+    "element comparison",
+    "prefix comparison",
+    "O(N) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "133",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_comparison_via_lexicographical_ordering_4863b4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

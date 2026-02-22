@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Assignment Behavior: Target Resource Pre-destruction",
+  "category": "util",
+  "explanation": "When an assignment operation occurs between two `std::auto_ptr` objects (`ptr2 = ptr1`), the target object (`ptr2`) must first deal with any resource it currently manages before accepting ownership of `ptr1`'s resource. This behavior ensures that the single-ownership invariant is maintained and prevents memory leaks of the target's original resource.\n\nBehavior Sequence:\n1. **Check Target Ownership:** If `ptr2` currently owns a managed object (i.e., `ptr2.get()` is not null).\n2. **Deletion:** The managed object owned by `ptr2` is deleted via the stored deleter (typically `delete`).\n3. **Ownership Transfer:** Ownership of the object managed by `ptr1` is transferred to `ptr2`.\n4. **Source Nullification:** `ptr1`'s internal pointer is set to null.\n\nTechnical Details: This sequence is crucial for ensuring RAII principles are upheld, guaranteeing that every dynamically allocated resource is eventually deleted exactly once. The deletion step (Step 2) occurs regardless of whether `ptr1` and `ptr2` point to the same object (though self-assignment handling prevents deletion in that specific edge case).\n\nUsage Guidance: When using `auto_ptr`, one must assume that any assignment operation involves two object destructions: the object previously owned by the target, and the object now lost by the source (which will be destroyed later when the new owner goes out of scope). This makes reasoning about resource lifetimes complex.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Tracker {\npublic:\n    int id;\n    Tracker(int i) : id(i) { std::cout << \"Created \" << id << \"\\n\"; }\n    ~Tracker() { std::cout << \"Deleted \" << id << \"\\n\"; }\n};\n\nint main() {\n    std::auto_ptr<Tracker> ptr1(new Tracker(100));\n    std::auto_ptr<Tracker> ptr2(new Tracker(200));\n    \n    std::cout << \"--- Assignment ---\\n\";\n    ptr2 = ptr1; // Deletes object 200, transfers 100 ownership\n    std::cout << \"Ptr1 is null: \" << (ptr1.get() == nullptr) << \"\\n\";\n    // Object 100 deleted when ptr2 goes out of scope\n    return 0;\n}",
+  "practical_example": "In legacy code utilizing `auto_ptr` for managing resources (e.g., file handles or database connections wrapped in RAII classes), assignment must be handled carefully. If a connection object (A) is assigned to another connection object (B), A's original connection is immediately closed/released, potentially interrupting ongoing operations dependent on B's resource.",
+  "keywords": [
+    "auto_ptr assignment",
+    "pre-destruction",
+    "resource cleanup",
+    "single ownership",
+    "RAII",
+    "smart pointer semantics"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "131-132",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_assignment_322cb3",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

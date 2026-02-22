@@ -1,0 +1,21 @@
+{
+  "topic": "Dual Behavior of `resize()`: Growth, Shrinkage, and Invalidation",
+  "category": "container",
+  "explanation": "`container::resize(num)` changes the container's size to exactly `num`, exhibiting different behaviors depending on whether the container is growing or shrinking.\n\n**Growth (`num > size()`):**\nNew elements are appended to the end. The first form (`resize(num)`) uses the element's default constructor. The second form (`resize(num, value)`) uses the copy constructor to initialize new elements based on `value`.\n\n**Shrinkage (`num < size()`):**\nElements are removed from the end, and their destructors are called. This is guaranteed not to throw if the destructors do not throw.\n\n**Iterator Invalidation (Crucial Detail):**\nWhen `std::vector` or `std::deque` grows via `resize()`, the operation may trigger a reallocation (for `vector`) or relocation (for `deque`). If this happens, **iterators and references to other elements might be invalidated**. For `std::list`, `resize()` only affects the specific elements being added or removed, so iterators to existing elements remain valid.\n\n**Exception Safety:**\nFor `vector` and `deque`, `resize()` either succeeds entirely or has no effect (strong exception guarantee), provided the copy constructor or assignment operator of the element type does not throw. If these operations *do* throw, the guarantee may be weaker (basic guarantee). For `list`, the strong guarantee holds regardless of element copy/assignment throwing behavior.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    \n    // Shrinkage: Elements 3 destroyed\n    v.resize(2);\n    std::cout << \"Size after shrink: \" << v.size() << \"\\n\"; // Output: 2\n    \n    // Growth (Default Construction if int had one, but int is zero-initialized)\n    v.resize(5);\n    std::cout << \"Size after growth: \" << v.size() << \"\\n\"; // Output: 5\n    \n    // Growth (Copy Construction)\n    v.resize(7, 99);\n    \n    // Vector iterator invalidation concern:\n    // If resize(100) triggers reallocation, existing iterators become invalid.\n}",
+  "practical_example": "A graphics engine uses `resize()` to manage a dynamic array of particle objects. If the engine frequently resizes the particle vector, and iterators are held across resizing events, those iterators will point to invalid memory (UB). To prevent this, iterators should be re-acquired after any growth operation, or a container like `std::list` should be used if stability of references is paramount.",
+  "keywords": [
+    "resize",
+    "iterator invalidation",
+    "default constructor",
+    "copy constructor",
+    "strong exception guarantee",
+    "vector reallocation",
+    "deque"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "215",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_dual_behavior_of__resize_c8d0c3",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

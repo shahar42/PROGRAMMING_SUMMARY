@@ -1,0 +1,21 @@
+{
+  "topic": "Strict Weak Ordering Requirement for Comparison Function Objects",
+  "category": "trait",
+  "explanation": "The third template argument, `Compare` (defaulting to `std::less<Key>`), dictates how map and multimap elements are sorted. This comparison function object must define a 'strict weak ordering' (SWO) over the key type. This requirement is fundamental for ensuring the correctness and guaranteed O(log N) complexity of tree-based containers.\n\nStrict Weak Ordering ensures that the comparison relation is mathematically sound for sorting. Crucially, it defines equivalence: two keys, `k1` and `k2`, are equivalent if and only if neither is ordered before the other (i.e., `!comp(k1, k2)` and `!comp(k2, k1)`). All equivalent keys must be treated identically by the comparison, satisfying transitivity of equivalence.\n\nTechnical Pitfalls:\n1. **Floating Point Keys:** Using floating-point types (like `float` or `double`) as keys often violates SWO due to precision issues, causing non-transitivity of equivalence and corrupting the map structure.\n2. **Partial State Comparison:** If a custom key object contains state not included in the comparison function, two logically different objects might be deemed equivalent, potentially leading to incorrect behavior if used in a `std::map` (where only one equivalent key is allowed).\nFailure to provide an SWO leads to undefined behavior, typically manifested as incorrect element placement, failed lookups, or infinite loops during tree operations.",
+  "code_example": "#include <map>\n#include <string>\n#include <functional>\n\n// Custom comparator using standard strict weak ordering\nstruct CaseInsensitiveCompare {\n    bool operator()(const std::string& a, const std::string& b) const {\n        // Assumes proper case conversion, ensuring SWO properties hold\n        return std::lexicographical_compare(\n            a.begin(), a.end(), \n            b.begin(), b.end(), \n            [](char ca, char cb) { return std::tolower(ca) < std::tolower(cb); }\n        );\n    }\n}; \n\nint main() {\n    // std::less<int> satisfies SWO\n    std::map<int, int> m1;\n    // CaseInsensitiveCompare must satisfy SWO for correct behavior\n    std::map<std::string, int, CaseInsensitiveCompare> m2;\n}",
+  "practical_example": "When creating a map where the key is a custom class representing a network address (IP + Port), the comparison function must ensure that two addresses are equivalent if and only if both the IP and Port match. If the comparison only checks the IP, the SWO is violated because two elements with different ports but the same IP would be deemed equivalent, breaking the map's ability to store them uniquely or locate them correctly.",
+  "keywords": [
+    "strict weak ordering",
+    "comparison criterion",
+    "std::less",
+    "Compare template argument",
+    "key equivalence",
+    "undefined behavior",
+    "transitivity"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "172, 176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_trait_strict_weak_ordering_requirement_for_393fa0",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Differentiated Erase Operations in std::set",
+  "category": "container",
+  "explanation": "The `std::set` container provides distinct overloads for element removal based on key value or iterator range, each with different return values and complexity guarantees.\n\n1. Key-Based Erase: `size_type erase(const key_type& key)`\n   - Behavior: Attempts to find and remove the element equivalent to `key`.\n   - Return Value: Returns the number of elements removed (always 0 or 1 for `std::set`).\n   - Complexity: O(log N + M), where N is the size of the container and M is the number of elements removed (M=1 max).\n\n2. Range Erase: `iterator erase(iterator first, iterator last)`\n   - Behavior: Removes all elements in the range `[first, last)`.\n   - Return Value: Returns an iterator pointing to the element immediately following the last element erased (i.e., `last`).\n   - Complexity: O(M * log N) or O(M) amortized for modern implementations (where M is the number of elements in the range).\n\nIterator Invalidation: Crucially, only iterators and references pointing to the *erased* elements are invalidated. Iterators pointing to elements outside the erased range (or any element if using key-based erase on a different key) remain valid. This is a key advantage of node-based containers over sequence containers like `std::vector`.",
+  "code_example": "#include <set>\n#include <algorithm>\n#include <iostream>\n\nint main() {\n    std::set<int> coll2 = {1, 2, 3, 4, 5, 6};\n    \n    // 1. Range Erase: Removes {1, 2}\n    auto end_of_range = coll2.find(3);\n    coll2.erase(coll2.begin(), end_of_range);\n    \n    // 2. Key-Based Erase: Removes {5}\n    int num_removed = coll2.erase(5);\n    std::cout << num_removed << \" element(s) removed by key.\\n\";\n    \n    // Remaining elements: 3 4 6\n    for (int x : coll2) {\n        std::cout << x << ' ';\n    }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "In a resource management system where keys represent unique resource IDs, using key-based `erase(id)` is the standard, efficient O(log N) way to deallocate a specific resource. Range erase is useful for bulk cleanup, such as removing all entries within a specific timestamp range.",
+  "keywords": [
+    "set erase",
+    "key-based erase",
+    "range erase",
+    "iterator invalidation",
+    "logarithmic complexity",
+    "size_type return"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "167",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_differentiated_erase_operations_in_std_e4131f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

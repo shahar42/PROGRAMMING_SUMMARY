@@ -1,0 +1,20 @@
+{
+  "topic": "Strong Exception Safety for Sequence Container Insertion",
+  "category": "container",
+  "explanation": "The standard guarantees that core insertion methods for `std::vector` and `std::deque`, specifically `push_back()`, `push_front()` (for deque), and `insert()`, provide the strong exception guarantee. This means that if the operation fails due to an exception (typically during memory allocation for reallocation, or during element copy/move construction), the container will remain structurally unchanged, as if the operation had never been attempted. The state is transactional: either the operation fully succeeds, or it has no observable effect on the container's data or size.\n\nTechnical Details:\n1. **`vector::push_back()`**: Guaranteed strong safety, even if reallocation is necessary.\n2. **`vector::insert()`**: Provides strong safety, contingent on the element's copy/assignment operations *not* throwing. If the element operation throws, the guarantee may degrade to basic safety (some elements might be inserted, but no memory leaks occur), but the table implies structural rollback is prioritized.\n3. **`deque::push_back()`/`push_front()`**: Guaranteed strong safety, facilitated by deque's segmented buffer design which avoids single, massive reallocations.\n\nUsage Guidance: Rely on this guarantee when using these fundamental insertion methods. If element construction/copy throws, the container's integrity is preserved, simplifying outer exception handling layers.",
+  "code_example": "#include <vector>\n#include <stdexcept>\n\nstruct ThrowingType {\n    ThrowingType() { \n        if (rand() % 2 == 0) \n            throw std::runtime_error(\"Allocation fail\"); \n    }\n};\n\nvoid safe_insertion(std::vector<int>& v) {\n    size_t initial_size = v.size();\n    try {\n        // If this throws due to reallocation, v.size() must remain initial_size\n        v.push_back(42);\n    } catch (...) {\n        // Container integrity is guaranteed here\n        if (v.size() != initial_size) {\n            // This block should theoretically not be reached for push_back()\n        }\n        throw;\n    }\n}",
+  "practical_example": "When loading configuration data into a `std::vector` from a network stream, if the memory allocator fails mid-reallocation, the strong guarantee ensures that the vector does not end up in a corrupted state (e.g., partially copied data or incorrect size metadata), allowing the application to safely retry or report failure without memory corruption.",
+  "keywords": [
+    "strong exception safety",
+    "push_back",
+    "deque insertion",
+    "vector insertion",
+    "no effect guarantee",
+    "exception safety levels"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "240-241",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strong_exception_safety_for_sequence_f040e1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

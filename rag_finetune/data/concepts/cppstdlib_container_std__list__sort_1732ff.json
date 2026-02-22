@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::sort Guarantee of Stability and Complexity",
+  "category": "container",
+  "explanation": "The `std::list` container provides its own member function `sort()`, distinct from the generic `std::sort` algorithm, because `list` only supports Bidirectional Iterators, not Random Access Iterators. This member function is typically implemented using an in-place merge sort, which provides strong performance guarantees.\n\nPurpose: `list::sort` rearranges the list elements solely by manipulating the internal node links. This avoids the overhead of moving elements (copy/move construction) required by array-based sorts, resulting in high efficiency.\n\nTechnical Details:\n- Complexity: The operation is guaranteed to take O(N log N) comparisons, where N is the size of the list.\n- Stability: Crucially, `list::sort()` guarantees stability. If two elements have equivalent values (i.e., neither is considered 'less' than the other by the comparison criteria), their relative order in the list remains unchanged after sorting.\n- Exception Safety: If the element comparison operation (`operator<` or custom `op`) does not throw, the function either succeeds or has no effect (strong guarantee).\n\nUsage: Use `list::sort()` when sorting linked data structures where element movement is expensive, or when stability is a strict requirement.\n\nPitfalls: Do not attempt to use `std::sort` on a list, as it will fail compilation due to iterator requirements.",
+  "code_example": "#include <list>\n#include <algorithm>\n#include <iostream>\n\nstruct Item { int key; int id; };\n\nint main() {\n    std::list<Item> l = {{5, 1}, {3, 2}, {5, 3}, {1, 4}};\n    \n    // Stable sort based on key\n    l.sort([](const Item& a, const Item& b) {\n        return a.key < b.key;\n    });\n    \n    // Result: (1, 4), (3, 2), (5, 1), (5, 3) \n    // (5, 1) remains before (5, 3) due to stability.\n}",
+  "practical_example": "When sorting a list of transactions where transactions with the same monetary value must retain their original chronological insertion order, the stability guarantee of `list::sort` ensures correctness without needing secondary comparison criteria.",
+  "keywords": [
+    "list sort",
+    "stable sort",
+    "bidirectional iterator",
+    "in-place sort",
+    "O(N log N)",
+    "stability guarantee"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "217",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__sort_1732ff",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

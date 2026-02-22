@@ -1,0 +1,20 @@
+{
+  "topic": "Manual Pointer Control: release() vs. get() and reset()",
+  "category": "util",
+  "explanation": "Smart pointer classes (`auto_ptr`, `unique_ptr`, `shared_ptr`) provide controlled access to the raw underlying pointer via specific API functions, allowing manual intervention when necessary, often for interoperability with C libraries.\n\n1. `T* get() const noexcept`: Returns the raw pointer managed by the smart pointer. Crucially, calling `get()` does not affect the ownership status; the smart pointer retains responsibility for deletion. Use `get()` only for temporary access, inspection, or passing to functions requiring a raw pointer but not taking ownership.\n\n2. `T* release() noexcept`: Relinquishes ownership of the managed pointer, sets the internal pointer to null, and returns the raw pointer. After calling `release()`, the caller is solely responsible for deleting the returned resource to prevent memory leaks.\n\n3. `void reset(T* ptr = 0) noexcept`: Replaces the currently managed pointer with a new pointer (`ptr`). If the existing managed pointer is different from `ptr`, the existing resource is deleted first. If `ptr` is null, the smart pointer deletes its current resource and manages nothing.\n\nUsage: `release()` is essential when transferring resource management to a legacy C API that expects to take ownership (e.g., passing a structure to a cleanup function that must free it later). `reset()` is used to explicitly swap resources or force early deletion.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nint main() {\n    std::auto_ptr<int> p1(new int(100));\n    \n    // 1. get(): Access raw pointer, ownership maintained\n    int* raw_access = p1.get();\n    std::cout << \"Access value: \" << *raw_access << std::endl;\n    \n    // 2. release(): Relinquish ownership\n    int* leaked_ptr = p1.release();\n    std::cout << \"Released pointer address: \" << leaked_ptr << std::endl;\n    \n    // p1 now holds nullptr. Must manually delete released pointer\n    delete leaked_ptr; \n    \n    // 3. reset(): Change managed resource (and delete old one)\n    std::auto_ptr<double> p2(new double(3.14));\n    p2.reset(new double(2.71)); // Deletes 3.14, manages 2.71\n}",
+  "practical_example": "When initializing a window handle resource (`HWND` in WinAPI) that must be managed by the operating system, you might use a smart pointer for scope control during creation. Once the handle is successfully created, you must call `release()` on the smart pointer to prevent it from calling `delete` (or the custom deleter) on the handle, thereby allowing the OS to manage the resource lifecycle.",
+  "keywords": [
+    "release",
+    "get",
+    "reset",
+    "raw pointer access",
+    "ownership relinquishment",
+    "smart pointer API"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "57",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_manual_pointer_control__release_15e487",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Sequential Value Removal using Find and Erase Pattern",
+  "category": "container",
+  "explanation": "To remove an element specified by its value (rather than its index or iterator position) from a sequence container like `std::vector` or `std::list`, the standard STL pattern involves a two-step process: locating the element using a search algorithm, and then removing it using the container's `erase()` member function.\n\nDefinition:\n1. **Locate:** Use `std::find` (from `<algorithm>`) to search the range `[begin(), end())` for the target value. `std::find` returns an iterator to the first matching element or `end()` if the value is not found.\n2. **Validate & Erase:** Check if the returned iterator is not equal to `end()`. If it is a valid position, call `container::erase(pos)` with that iterator.\n\nTechnical Details:\n- **Complexity:** For unordered containers or sequential containers like `vector` and `list`, `std::find` requires O(N) time complexity (linear search).\n- **Vector Erase Complexity:** `vector::erase(pos)` requires O(N) time because all subsequent elements must be shifted to fill the gap. This makes repeated removal of values highly inefficient (O(N^2) for removing all occurrences).\n- **Iterator Invalidation:** For `vector`, `erase(pos)` invalidates `pos` and all iterators/pointers/references pointing to elements *after* `pos`. For `list` and `deque`, invalidation rules are different, but the pattern remains the same for removal.\n\nUsage Guidance: If multiple occurrences need removal, use the `std::remove` / `erase` idiom (`v.erase(std::remove(v.begin(), v.end(), val), v.end());`), which performs only a single O(N) shift operation.",
+  "code_example": "#include <vector>\n#include <algorithm>\n\nvoid remove_first_instance(std::vector<int>& coll, int val) {\n    // 1. Locate the value\n    std::vector<int>::iterator pos;\n    pos = std::find(coll.begin(), coll.end(), val);\n    \n    // 2. Validate and Erase\n    if (pos != coll.end()) {\n        coll.erase(pos); // O(N) operation\n    }\n    // If erase occurred, 'pos' is now invalidated.\n}",
+  "practical_example": "In a game engine managing collision objects stored in a `vector`, when a specific object (identified by its ID/value) is destroyed, the engine uses the find-erase pattern to locate and remove the first matching instance from the active object list. Since this happens infrequently, the O(N) cost is usually acceptable.",
+  "keywords": [
+    "std::find",
+    "erase",
+    "O(N) complexity",
+    "value removal",
+    "sequential containers",
+    "iterator invalidation",
+    "std::remove idiom"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "1396",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_sequential_value_removal_using_find_d3058e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

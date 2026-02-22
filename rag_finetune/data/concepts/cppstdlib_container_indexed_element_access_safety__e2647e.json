@@ -1,0 +1,20 @@
+{
+  "topic": "Indexed Element Access Safety: std::deque::at() vs std::deque::operator[]",
+  "category": "container",
+  "explanation": "Accessing elements in `std::deque` by index is achieved via two primary methods, differing crucially in safety and performance.\n\n**1. `operator[]` (Unchecked Access):** This method provides direct, raw access to the element at the specified index (`idx`). It guarantees O(1) time complexity, making it ideal for performance-critical scenarios where the index is known to be valid (e.g., iterating from 0 to `size() - 1`). However, if `idx >= size()`, accessing the element results in **Undefined Behavior (UB)**, typically leading to memory corruption or crashes.\n\n**2. `at(idx)` (Checked Access):** This method also provides O(1) access but includes mandatory bounds checking. If the provided index `idx` is outside the valid range `[0, size() - 1]`, `at()` throws a `std::out_of_range` exception (or `std::range_error` depending on the exact standard version/implementation, though `out_of_range` is standard for containers). While safer and crucial for defensive programming, the bounds check introduces a slight, negligible overhead compared to `operator[]`. For production code where index validity is uncertain, `at()` is preferred for robust error handling.\n\n**Pitfall:** Relying on `operator[]` in external loops or when indices are derived from external input without prior validation is a major source of runtime errors.",
+  "code_example": "#include <deque>\n#include <iostream>\n#include <stdexcept>\n\nint main() {\n    std::deque<int> d = {10, 20, 30};\n    \n    // 1. Unchecked Access (Fast)\n    std::cout << \"Element 1: \" << d[1] << std::endl;\n    \n    // 2. Checked Access (Safe)\n    try {\n        std::cout << \"Element 3: \" << d.at(3) << std::endl; \n    } catch (const std::out_of_range& e) {\n        std::cerr << \"Error: \" << e.what() << std::endl;\n    }\n    \n    // d[5]; // DANGER: Undefined Behavior\n}",
+  "practical_example": "When parsing a configuration file where array indices are provided by the user, using `d.at(index)` ensures that input errors (an index too large) are caught gracefully via exception handling, preventing silent memory corruption that would result from using `d[index]` with invalid input.",
+  "keywords": [
+    "bounds checking",
+    "operator[]",
+    "at()",
+    "std::out_of_range",
+    "undefined behavior",
+    "O(1) complexity"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "157",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_indexed_element_access_safety__e2647e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

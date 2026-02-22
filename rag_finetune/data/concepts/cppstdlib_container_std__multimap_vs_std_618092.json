@@ -1,0 +1,20 @@
+{
+  "topic": "std::multimap vs std::map: Handling Duplicate Keys",
+  "category": "container",
+  "explanation": "`std::multimap` is an associative container designed to store elements consisting of a key and a mapped value, where multiple elements can share the same key. This contrasts fundamentally with `std::map`, which enforces unique keys.\n\nPurpose: `std::multimap` is used when modeling one-to-many relationships, such as dictionaries where a single word (key) has multiple definitions or translations (values), or indexing systems where multiple records share the same tag.\n\nTechnical Details:\n- Like `std::map`, insertion, deletion, and lookup operations maintain O(log N) complexity.\n- Elements are stored in sorted order based on the key.\n- `operator[]` and `at()` are not available for `std::multimap` because they rely on the assumption of a unique key to return a reference to a single mapped value. Accessing elements requires using iterators, range functions (`equal_range`), or count functions.\n- Insertion is typically done using `insert(std::make_pair(key, value))` or `emplace`.\n\nUsage: When retrieving elements from a `multimap`, one often uses `equal_range(key)` to get a pair of iterators defining the range of elements sharing that key, allowing iteration over all associated values.",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    // Define a dictionary type supporting multiple translations\n    typedef std::multimap<std::string, std::string> StrStrMMap;\n    StrStrMMap dict;\n    \n    // Insert elements with duplicate keys\n    dict.insert(std::make_pair(\"day\", \"Tag\"));\n    dict.insert(std::make_pair(\"day\", \"Jour\")); // Duplicate key allowed\n    dict.insert(std::make_pair(\"car\", \"Auto\"));\n    \n    // Accessing elements (must use find or equal_range)\n    auto range = dict.equal_range(\"day\");\n    // Iteration over all 'day' translations\n    for (auto it = range.first; it != range.second; ++it) {\n        // std::cout << it->second << \" \";\n    }\n}\n",
+  "practical_example": "Building an inverted index for a search engine where a single keyword (key) maps to multiple document IDs (values). Since a keyword appears in many documents, `multimap` ensures efficient, ordered storage and retrieval of all relevant document IDs.",
+  "keywords": [
+    "multimap",
+    "duplicate keys",
+    "associative container",
+    "one-to-many",
+    "equal_range",
+    "O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "186",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__multimap_vs_std_618092",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

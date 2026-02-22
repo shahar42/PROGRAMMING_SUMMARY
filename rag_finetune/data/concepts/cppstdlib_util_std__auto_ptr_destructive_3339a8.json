@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Destructive Copy and Ownership Transfer Semantics",
+  "category": "util",
+  "explanation": "The core characteristic of `std::auto_ptr` (deprecated since C++11, removed in C++17) is its unique, destructive copy and assignment behavior. Unlike standard CopyConstructible types, when an `auto_ptr` is copied or assigned, ownership of the managed pointer resource is transferred completely to the target object. The source `auto_ptr` is simultaneously modified to hold a null pointer.\n\nPurpose: This mechanism guarantees strict single ownership, ensuring that the resource is deleted exactly once. However, it fundamentally violates the principle of value semantics expected by most C++ components, where copying should leave the source and destination equivalent.\n\nTechnical Details:\n- Copy Constructor: The source object's pointer is transferred (nullified).\n- Assignment Operator: The target object first deletes its current resource, then assumes ownership from the source (nullifying the source).\n- Consequence: This behavior is conceptually similar to C++11 move semantics but implemented via mutable copy operations, leading to dangerous scenarios if the source object is unexpectedly accessed after a 'copy.'\n\nUsage Guidance: `auto_ptr` was intended primarily for simple RAII scope management where explicit ownership hand-off was required, such as returning a dynamically allocated object from a function.\n\nPitfalls: Accessing a source `auto_ptr` after it has been copied or assigned results in undefined behavior if the pointer is dereferenced, as it now holds a null value. This behavior makes it extremely hazardous in contexts requiring true copy semantics.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nint main() {\n    std::auto_ptr<int> p1(new int(42));\n    \n    // Ownership transfer (p1 becomes null)\n    std::auto_ptr<int> p2 = p1; \n    \n    if (p1.get() == nullptr) {\n        std::cout << \"p1 is null after copy.\\n\";\n    }\n    \n    // Accessing p2 is safe, accessing p1 is UB if dereferenced\n    std::cout << \"p2 value: \" << *p2 << \"\\n\";\n}",
+  "practical_example": "If an `auto_ptr` is passed by value to a function, the local copy inside the function assumes ownership. When the function returns, the original caller's `auto_ptr` is nullified, and the resource is deleted upon the function's scope exit, leading to unexpected deletion or double deletion if not handled carefully.",
+  "keywords": [
+    "auto_ptr",
+    "ownership transfer",
+    "destructive copy",
+    "value semantics violation",
+    "RAII",
+    "smart pointer"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "48",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_3339a8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

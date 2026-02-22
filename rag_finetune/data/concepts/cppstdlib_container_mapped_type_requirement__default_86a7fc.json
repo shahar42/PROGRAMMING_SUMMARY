@@ -1,0 +1,19 @@
+{
+  "topic": "Mapped Type Requirement: Default Constructibility for map::operator[]",
+  "category": "container",
+  "explanation": "The automatic insertion mechanism of `std::map::operator[]` necessitates a strict requirement on the mapped type (`T` or `ValueType`): it must be DefaultConstructible. When a key is not found, the map must instantiate a temporary placeholder value using the expression `T()` before the assignment takes place.\n\n**Requirement:** The mapped type `T` must have an accessible default constructor (`T::T()`).\n\n**Impact:**\n1. **Fundamental Types:** Primitive types (like `int`, `float`, `char*`) satisfy this requirement, typically initializing to zero or null.\n2. **Custom Classes:** If a custom class provides a user-defined constructor but no explicit or implicitly generated default constructor (e.g., if it only has a constructor requiring arguments), compilation will fail when using `operator[]`.\n\n**Alternative:** If the mapped type `T` is not default constructible, programmers must use `map::insert()` with a full `std::pair<Key, T>` or `map::emplace()` to ensure the element is constructed with explicit arguments, bypassing the need for `T()`.",
+  "code_example": "#include <map>\n#include <string>\n\nclass NonDefault {\npublic:\n    NonDefault(int i) : val(i) {}\nprivate:\n    int val;\n};\n\nint main() {\n    // std::map<std::string, NonDefault> coll; \n    // coll[\"test\"] = NonDefault(5); // ERROR: NonDefault is not DefaultConstructible\n    \n    // Correct usage (bypassing operator[] requirement):\n    std::map<int, int> coll;\n    coll.emplace(1, 42); // Uses explicit construction\n    \n    return 0;\n}",
+  "practical_example": "When designing a container of complex objects (e.g., database connection objects or resource handles) that cannot safely exist in a default-constructed state, one must explicitly forbid `operator[]` usage by ensuring the mapped type lacks a default constructor. This forces developers to use safer insertion methods like `emplace`.",
+  "keywords": [
+    "DefaultConstructible",
+    "mapped type requirements",
+    "operator[] requirements",
+    "T()",
+    "std::map"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "183",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_mapped_type_requirement__default_86a7fc",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

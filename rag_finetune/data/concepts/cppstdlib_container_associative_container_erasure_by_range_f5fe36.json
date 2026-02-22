@@ -1,0 +1,20 @@
+{
+  "topic": "Associative Container Erasure by Range and by Value",
+  "category": "container",
+  "explanation": "Associative containers provide specialized methods for removing elements, specifically using iterator ranges or by matching a value, with different return semantics for sets and multisets.\n\n1. **Range Erasure (`erase(first, last)`):** This method removes elements in the half-open range `[first, last)`. Crucially, the element pointed to by the `last` iterator is *not* removed. In ordered containers like `std::set`, iterators defining the range are often obtained using `begin()`, `end()`, or `find()`. The complexity is proportional to the number of elements removed, plus O(log N) if the range is determined by `find()`.\n\n2. **Value Erasure (`erase(value)`):** This method removes all elements equivalent to the provided `value`. \n    *   For `std::set` (unique keys), the return value is 0 or 1, indicating whether an element was removed.\n    *   For `std::multiset` (non-unique keys), the return value is the total count of elements removed (which can be greater than 1).\n\nIterator Invalidation: For `std::set` and `std::multiset`, only iterators pointing to the removed elements are invalidated. Iterators to other elements remain valid.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> coll = {1, 2, 3, 4, 5, 6};\n    \n    // Range erase: Removes [1, 3). '3' is the exclusive end.\n    coll.erase(coll.begin(), coll.find(3)); \n    \n    std::cout << *coll.begin() << \"\\n\"; // Output: 3\n    \n    // Value erase (returns 1 for set)\n    int num = coll.erase(5);\n    std::cout << num << \" element(s) removed by value\\n\"; // Output: 1\n    \n    // Example of multiset behavior (returns count > 1)\n    std::multiset<int> m = {1, 1, 1};\n    std::cout << m.erase(1) << \" removed from multiset\\n\"; // Output: 3\n}",
+  "practical_example": "In database connection pooling, a mechanism might need to remove all connections whose timeout is less than a specific threshold (range erase), while simultaneously removing all connections associated with a specific user ID (value erase). The return value of value erase is critical for auditing how many resources were freed.",
+  "keywords": [
+    "erase range",
+    "erase value",
+    "half-open range",
+    "multiset erase count",
+    "iterator invalidation",
+    "O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "168",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_erasure_by_range_f5fe36",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

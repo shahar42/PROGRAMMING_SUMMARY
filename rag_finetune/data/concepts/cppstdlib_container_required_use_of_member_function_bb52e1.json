@@ -1,0 +1,20 @@
+{
+  "topic": "Required Use of Member Function Erase for Associative Container Removal",
+  "category": "container",
+  "explanation": "Due to the strict ordering invariant and the constant nature of the element keys in maps and sets, standard modifying algorithms like `std::remove`, `std::remove_if`, or `std::unique` cannot be used directly on associative containers.\n\n**Mechanism of `std::remove`:** Generic removal algorithms operate by iterating through a range, copying (overwriting) elements that *should* be kept forward, effectively shifting elements and returning a new logical end iterator. They do not change the container's size or free memory.\n\n**Pitfall in Maps/Sets:** If `std::remove` were applied to a map, it would attempt to overwrite one `pair<const Key, T>` element with another. This violates the constant key constraint, leading to compilation failure. Furthermore, even if the key were mutable, overwriting elements would destroy the crucial tree structure that maintains the sort order.\n\n**Correct Practice:** Removal from associative containers must be performed using the container's member function `erase()`. The `erase()` function correctly handles the modification of the internal tree structure, ensures the invariant is preserved, and invalidates only the iterators pointing to the erased elements.\n\n**Complexity:** `c.erase(iterator)` typically has logarithmic complexity O(log N) for ordered associative containers, reflecting the cost of restructuring the tree.",
+  "code_example": "#include <map>\n#include <algorithm>\n\nint main() {\n    std::map<int, std::string> m = {{1, \"A\"}, {2, \"B\"}, {3, \"C\"}};\n    \n    // INCORRECT: std::remove modifies elements via overwrite\n    // auto new_end = std::remove(m.begin(), m.end(), std::make_pair(2, \"B\")); \n    // ^ Will fail compilation or cause UB due to const key\n    \n    // CORRECT: Use the member function erase\n    auto it = m.find(2);\n    if (it != m.end()) {\n        m.erase(it); // O(log N) operation\n    }\n}",
+  "practical_example": "A database index stored in a `std::map` needs pruning based on age. If the developer mistakenly uses `std::remove_if` with the map's iterators, the code will either fail to compile (if using C++11 or later where constness is enforced) or, if they copy the data out, they lose the O(log N) efficiency of direct map removal. The correct pattern involves iterating and calling `m.erase(it++)` within the loop.",
+  "keywords": [
+    "erase member function",
+    "std::remove",
+    "modifying algorithms",
+    "associative container removal",
+    "key immutability",
+    "logarithmic complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "178",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_required_use_of_member_function_bb52e1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

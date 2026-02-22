@@ -1,0 +1,21 @@
+{
+  "topic": "Mandatory Two-Step Element Processing in `std::priority_queue`",
+  "category": "adapter",
+  "explanation": "Accessing and removing the element with the highest priority in `std::priority_queue` requires two distinct operations: `top()` and `pop()`. This differs from containers like `std::stack` or `std::queue` which share this pattern, but is crucial for understanding adapter interfaces.\n\nDefinition:\n1. `top()`: Returns a constant reference to the highest priority element. Complexity is typically O(1) after the heap property is established, as the highest element is always at the root.\n2. `pop()`: Removes the highest priority element. This involves rearranging the underlying container to maintain the heap structure, typically resulting in O(log N) complexity.\n\nPitfalls and Undefined Behavior:\nCrucially, both `top()` and `pop()` result in **Undefined Behavior (UB)** if the priority queue is empty (`q.empty() == true`). The standard mandates checking the size or emptiness before calling these functions. Failure to call `pop()` after `top()` leaves the element in the container, while calling `pop()` without first inspecting the element discards it without access.\n\nUsage Guidance: Always use the `top()` and `pop()` sequence within a loop conditioned on `!q.empty()` when draining the queue.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::priority_queue<int> q;\n    q.push(10);\n    q.push(20);\n    \n    // Safe access and removal sequence\n    if (!q.empty()) {\n        std::cout << \"Highest: \" << q.top() << '\\n'; // Access\n        q.pop();                                 // Remove (O(log N))\n    }\n    \n    // Draining the queue safely\n    while (!q.empty()) {\n        q.pop(); \n    }\n    \n    // q.top(); // DANGER: Undefined Behavior if executed here\n}",
+  "practical_example": "When processing tasks in a priority scheduler, the system must first call `top()` to retrieve the task details (e.g., memory address or ID) and then separately call `pop()` once the task execution is initiated or completed, ensuring the critical O(log N) heap restructuring happens only after successful retrieval.",
+  "keywords": [
+    "priority_queue",
+    "top()",
+    "pop()",
+    "adapter interface",
+    "undefined behavior",
+    "O(log N) complexity",
+    "empty check"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "395-396",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_mandatory_two_step_element_processing_2e9e97",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Unique Associative Container Insertion Status (std::set::insert)",
+  "category": "container",
+  "explanation": "For unique associative containers like `std::set` and `std::map`, the `insert(const Key&)` method returns `std::pair<iterator, bool>`.\n\nDefinition:\n1. The `iterator` component (`first`) points to the element in the container. If insertion was successful, it points to the newly inserted element. If insertion failed (due to a duplicate key), it points to the existing element that prevented the insertion.\n2. The `bool` component (`second`) is `true` if the insertion took place (the key was new), and `false` otherwise (the key was a duplicate).\n\nPurpose: This return value allows the caller to atomically check for existence, insert the element if missing, and retrieve the iterator pointing to the resulting element (new or existing) in a single O(log N) operation.\n\nTechnical Details:\n- Complexity is guaranteed to be logarithmic (O(log N)).\n- The iterator returned is always valid and dereferenceable.\n\nPitfalls: Do not rely solely on the iterator component without checking the boolean flag, as this iterator might point to an element already present in the container, which is critical for state management or modification attempts.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> coll1;\n    coll1.insert(4);\n    \n    // Successful insertion\n    auto status1 = coll1.insert(8);\n    if (status1.second) {\n        std::cout << \"8 inserted.\\n\";\n    }\n    \n    // Failed insertion (duplicate)\n    auto status2 = coll1.insert(8);\n    if (!status2.second) {\n        std::cout << \"8 already exists. Iterator points to: \" \n                  << *status2.first << \"\\n\";\n    }\n}",
+  "practical_example": "When implementing a cache or registry where you must ensure uniqueness and simultaneously retrieve the canonical object reference, using the insert return value prevents redundant lookups (`find()` followed by `insert()`).",
+  "keywords": [
+    "std::set::insert",
+    "pair return value",
+    "unique associative container",
+    "logarithmic complexity",
+    "duplicate handling",
+    "iterator retrieval"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "167",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_unique_associative_container_insertion_status_71dafa",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

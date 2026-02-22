@@ -1,0 +1,21 @@
+{
+  "topic": "Separate top() and pop() Semantics and Undefined Behavior",
+  "category": "adapter",
+  "explanation": "The interface of `std::stack` mandates separate operations for accessing the top element (`top()`) and removing the top element (`pop()`).\n\n1. **`top()`:** Returns a reference (usually non-const) to the element currently at the top of the stack. It does **not** remove the element.\n2. **`pop()`:** Removes the element currently at the top of the stack. It does **not** return the element.\n\nThis separation is slightly inconvenient for typical 'process and remove' workflows, requiring two calls (`T val = s.top(); s.pop();`). However, this design allows for slight performance benefits if the element only needs to be removed without processing, and it aligns with the underlying container's `pop_back()` which typically returns `void` (e.g., in `std::vector` and `std::deque`).\n\n**Critical Pitfall (Undefined Behavior):** Both `top()` and `pop()` have preconditions: the stack must not be empty. Calling either function on an empty stack results in **Undefined Behavior** (UB). The standard mandates that the client must check `stack::empty()` before invoking these operations. Failure to check leads to catastrophic runtime errors, often involving accessing invalid memory or throwing exceptions depending on the underlying container implementation.",
+  "code_example": "#include <stack>\n#include <iostream>\n\nint main() {\n    std::stack<int> s;\n    s.push(42);\n\n    // Correct usage: must check empty()\n    if (!s.empty()) {\n        int value = s.top(); // Get element\n        s.pop();           // Remove element\n        std::cout << value << std::endl;\n    }\n\n    // DANGER: Undefined Behavior\n    // s.pop(); // Called on empty stack\n\n    return 0;\n}",
+  "practical_example": "In parsing or expression evaluation systems, stacks are used to manage operators or parentheses. Before accessing the next operator (`top()`), the system must verify the stack state (`empty()`). If the stack is empty when expecting an operator, it indicates a syntax error, which should be handled gracefully rather than triggering UB via an unchecked `top()` call.",
+  "keywords": [
+    "top()",
+    "pop()",
+    "std::stack interface",
+    "Undefined Behavior",
+    "empty() check",
+    "precondition violation",
+    "LIFO"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "380",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_separate_top___and_e83aa3",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

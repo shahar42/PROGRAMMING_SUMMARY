@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr::release() Semantics and Ownership Relinquishment",
+  "category": "util",
+  "explanation": "The `std::auto_ptr::release()` member function explicitly relinquishes the ownership of the managed object from the `auto_ptr` wrapper without deleting the object. This is a crucial mechanism for interfacing with systems (like C libraries) that require raw pointers, or for manually delegating resource management.\n\nDefinition:\n1. The function returns the raw pointer address of the object currently owned by the `auto_ptr`.\n2. The internal pointer of the `auto_ptr` is set to null.\n3. The function guarantees non-throwing behavior (`throw()`).\n\nUsage:\nWhen `release()` is called, the caller immediately assumes responsibility for the lifetime management (i.e., manual `delete`) of the returned pointer. This function is typically used when ownership needs to be passed out of the scope of the smart pointer to an external entity, ensuring the `auto_ptr` destructor does not subsequently attempt deletion.\n\nPitfalls:\nFailure to store the returned pointer or forgetting to manually call `delete` on the returned pointer results in a memory leak. If the `auto_ptr` was already null, `release()` returns a null pointer.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource {};\n\nvoid external_deleter(Resource* r) {\n    std::cout << \"Manual cleanup.\" << std::endl;\n    delete r;\n}\n\nint main() {\n    std::auto_ptr<Resource> ap(new Resource());\n    \n    // ap owns the resource.\n    Resource* raw_ptr = ap.release();\n    \n    // ap now owns nothing (is null).\n    if (!ap.get()) {\n        std::cout << \"auto_ptr relinquished ownership.\" << std::endl;\n    }\n    \n    // Manual deletion is required.\n    external_deleter(raw_ptr);\n}",
+  "practical_example": "A graphics engine uses `std::auto_ptr` for resource loading. Before passing the resource handle to an OpenGL or DirectX API function that assumes eternal ownership (until explicitly destroyed by a specific API call), `release()` is used to extract the handle and prevent the `auto_ptr` destructor from calling standard `delete`.",
+  "keywords": [
+    "auto_ptr",
+    "release",
+    "ownership transfer",
+    "raw pointer",
+    "memory leak",
+    "resource management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "46-47",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr__895337",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

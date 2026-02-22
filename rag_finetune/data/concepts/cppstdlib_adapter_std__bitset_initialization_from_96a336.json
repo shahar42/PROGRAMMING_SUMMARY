@@ -1,0 +1,20 @@
+{
+  "topic": "std::bitset Initialization from Binary String Literals",
+  "category": "adapter",
+  "explanation": "When initializing a `std::bitset` from a sequence of '0' and '1' characters provided as a literal, the C++ Standard mandates that the literal must be explicitly converted to a `std::string` object.\n\nRequirement: The required constructor signature typically accepts a `const std::string&` (or a range of characters defined by iterators or a pointer and length).\n\nTechnical Details: Direct initialization using a C-style string literal (`bitset<N>(\"1010\")`) was often permitted by compilers in pre-standard or older C++ versions due to implicit conversion rules. However, the standard explicitly ruled out this implicit conversion, forcing the use of `bitset<N>(std::string(\"1010\"))` or relying on standard user-defined literals (C++14/17 onwards) for cleaner syntax.\n\nPitfalls: Attempting to initialize a `bitset` directly from a C-style string literal without explicit `std::string` construction leads to compilation errors in strictly conforming compilers, or relies on non-standard extensions. This explicit conversion introduces a small overhead of constructing a temporary `std::string` object.\n\nUsage Guidance: For binary literals known at compile time, the preferred modern approach is often using C++14/17 user-defined literals (e.g., `\"1010\"_bset`) if available, or adhering to the explicit `std::string` construction for maximum portability under C++03/C++11.",
+  "code_example": "#include <bitset>\n#include <string>\n\nint main() {\n    // Correct initialization required by standard rules\n    std::bitset<10> bs1(std::string(\"1000101011\"));\n    \n    // Older/non-conforming approach (often disallowed)\n    // std::bitset<10> bs2(\"1000101011\"); // ERROR or Warning in strict mode\n    \n    // Initialization from integer is simple\n    std::bitset<10> bs3(555);\n    \n    return bs1.to_ulong();\n}",
+  "practical_example": "In template metaprogramming or configuration parsing where binary masks are defined as string constants, ensuring the explicit `std::string` conversion guarantees portability across different compiler versions and standards compliance, avoiding silent reliance on deprecated implicit conversions.",
+  "keywords": [
+    "bitset initialization",
+    "string literal",
+    "C-style string",
+    "std::string conversion",
+    "standard compliance",
+    "pitfall"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "402 [Footnote 7]",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_initialization_from_96a336",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

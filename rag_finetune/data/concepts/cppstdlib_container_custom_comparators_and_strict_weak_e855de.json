@@ -1,0 +1,21 @@
+{
+  "topic": "Custom Comparators and Strict Weak Ordering in Ordered Associative Containers",
+  "category": "container",
+  "explanation": "Ordered associative containers (`std::map`, `std::set`, `std::multimap`, `std::multiset`) require a comparison criterion, specified by the third template argument (defaulting to `std::less<Key>`), which dictates both the sorting order and the definition of key equivalence.\n\nDefinition: The custom comparator (a function object or lambda) must implement a **Strict Weak Ordering (SWO)**. This means the comparison operation must be:\n1. Irreflexive (`!comp(x, x)` is true)\n2. Asymmetric (if `comp(x, y)` is true, then `comp(y, x)` is false)\n3. Transitive (if `comp(x, y)` and `comp(y, z)` are true, then `comp(x, z)` is true)\n4. Transitivity of Equivalence: If `a` is equivalent to `b` (meaning `!comp(a, b)` and `!comp(b, a)`) and `b` is equivalent to `c`, then `a` must be equivalent to `c`.\n\nKey Equivalence: For unique containers (map, set), two keys `k1` and `k2` are considered equivalent (and thus cannot both exist simultaneously in the container) if neither key is ordered before the other (`!comp(k1, k2) && !comp(k2, k1)`).\n\nPitfalls: Failing to satisfy the SWO requirement results in **undefined behavior**, typically leading to broken internal tree structures and incorrect lookups/insertions. Standard library performance guarantees (O(log N) for lookup/insertion) rely absolutely on the comparator maintaining this invariant.",
+  "code_example": "#include <map>\n#include <string>\n\n// Comparator that orders strings by length first, then alphabetically\nstruct LengthCmp {\n    bool operator()(const std::string& a, const std::string& b) const {\n        if (a.length() != b.length()) {\n            return a.length() < b.length();\n        }\n        return a < b; // Fall back to lexicographical comparison\n    }\n};\n\nint main() {\n    // Keys are ordered by length, then content.\n    std::map<std::string, int, LengthCmp> length_map;\n    length_map[\"a\"] = 1;\n    length_map[\"bb\"] = 2;\n    length_map[\"cc\"] = 3;\n    // Output order: 'a', 'bb', 'cc' (due to length sort)\n}",
+  "practical_example": "Implementing a custom sorting mechanism for scientific data structures where standard lexicographical ordering is insufficient. For instance, sorting version numbers (e.g., 'v1.10' should come after 'v1.9') requires a specialized comparator that understands version syntax, rather than simple string comparison.",
+  "keywords": [
+    "Strict Weak Ordering",
+    "SWO",
+    "map comparator",
+    "set requirements",
+    "key equivalence",
+    "std::map",
+    "function object"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "190",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_custom_comparators_and_strict_weak_e855de",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

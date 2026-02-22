@@ -1,0 +1,22 @@
+{
+  "topic": "Precondition Violation for `front()` and `back()` Element Accessors",
+  "category": "container",
+  "explanation": "The member functions `front()` and `back()` provide direct reference access to the first and last elements of sequential containers (`std::vector`, `std::deque`, `std::list`). These functions operate under a strict precondition: the container must not be empty.\n\n**Precondition:** The caller must ensure that `container.size() > 0` before calling `front()` or `back()`.\n\n**Undefined Behavior:** If `front()` or `back()` is called on an empty container, the behavior is Undefined. The function attempts to dereference an invalid or non-existent memory location, often leading to immediate crashes (e.g., dereferencing `nullptr` or accessing memory outside the allocated block) or, worse, silent memory corruption.\n\n**Guarantees:** Both functions provide O(1) access complexity. The returned reference is invalidated only if the container is structurally modified (e.g., insertion/deletion) or, in the case of `vector`, if reallocation occurs.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> populated = {10, 20, 30};\n    std::vector<int> empty_v;\n    \n    // Correct usage\n    std::cout << \"First element: \" << populated.front() << std::endl;\n    \n    // Check precondition is mandatory\n    if (empty_v.empty()) {\n        std::cout << \"Container is empty, cannot use front()\\n\";\n    }\n    \n    // empty_v.front(); // UNDEFINED BEHAVIOR: Precondition violated\n    \n    // Safe equivalent pattern\n    if (!populated.empty()) {\n        int& last = populated.back();\n        last = 99;\n        std::cout << \"New last element: \" << populated.back() << std::endl;\n    }\n}",
+  "practical_example": "In a message queue processing loop, if a thread dequeues an item but fails to check if the queue is empty before calling `front()` to inspect the next item, a race condition or sequence error could result in a call on an empty container, leading to a system crash.",
+  "keywords": [
+    "front()",
+    "back()",
+    "empty container",
+    "precondition",
+    "undefined behavior",
+    "list access",
+    "deque access",
+    "O(1) access"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "210",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_precondition_violation_for__front_2439e2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

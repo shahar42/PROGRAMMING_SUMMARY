@@ -1,0 +1,22 @@
+{
+  "topic": "std::auto_ptr Destructive Copy Semantics and Ownership Transfer",
+  "category": "util",
+  "explanation": "The utility class `std::auto_ptr` (deprecated in C++11, removed in C++17) was designed to manage dynamically allocated memory using RAII principles, ensuring automatic deletion upon scope exit. Its defining characteristic is strict, unique ownership of the underlying pointer.\n\n**Destructive Copy Semantics:** Unlike standard C++ types which maintain value semantics (non-destructive copying), `std::auto_ptr` implements *destructive copy* for its copy constructor and copy assignment operator. When an `auto_ptr` is copied, ownership of the resource is transferred entirely from the source pointer to the destination pointer. The source pointer is immediately set to null.\n\n**Technical Details and Requirements:**\n1. **Ownership Transfer:** If `A = B` (where A and B are `auto_ptr`), B relinquishes ownership, and A assumes responsibility for deletion.\n2. **STL Incompatibility:** This destructive behavior makes `auto_ptr` incompatible with standard library containers and algorithms (like `std::vector` or `std::sort`), which rely on non-destructive copy semantics for internal operations (e.g., reallocation, sorting swaps, or passing by value in generic functions). Using `auto_ptr` in these contexts results in undefined behavior or premature resource deletion.\n3. **Function Return:** Although assignment is destructive, returning an `auto_ptr` from a function by value often worked correctly due to special temporary object handling rules (RVO/NRVO) that prevented the destructive copy from occurring on the return value itself.\n\n**Pitfalls:** The primary pitfall is the violation of expected value semantics. A programmer expecting a simple copy might inadvertently nullify the original object, leading to difficult-to-trace runtime errors when the original object is later accessed or goes out of scope and attempts to delete a null pointer (or fails to delete the resource when expected).\n\n**Modern Alternatives:** `std::unique_ptr` replaced `std::auto_ptr` in C++11. `unique_ptr` is non-copyable but *movable*, explicitly using `std::move()` for ownership transfer, thus eliminating the implicit and destructive copy behavior.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct Resource { ~Resource() { std::cout << \"Deleted.\" << std::endl; } };\n\nint main() {\n    std::auto_ptr<Resource> ap1(new Resource);\n    std::cout << \"ap1 is active.\\n\";\n    \n    // Ownership transfer (Destructive Copy)\n    std::auto_ptr<Resource> ap2 = ap1; \n    \n    // ap1 is now null and owns nothing\n    if (ap1.get() == nullptr) {\n        std::cout << \"ap1 lost ownership.\\n\";\n    }\n    \n    // ap2 goes out of scope and deletes the resource.\n    // ap1 does nothing.\n}",
+  "practical_example": "If an `auto_ptr` is stored in a `std::vector`, and the vector undergoes reallocation (e.g., via `push_back` beyond capacity), the vector copies elements from the old memory block to the new one. This copy operation uses the `auto_ptr`'s destructive copy, resulting in the original elements in the vector becoming null, while the new elements assume ownership. If the original memory block is then iterated over or destroyed, access errors or double deletion attempts could occur.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "RAII",
+    "deprecated",
+    "unique_ptr replacement",
+    "STL incompatibility",
+    "std::memory"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "71-74",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_copy_semantics_and_a2900f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

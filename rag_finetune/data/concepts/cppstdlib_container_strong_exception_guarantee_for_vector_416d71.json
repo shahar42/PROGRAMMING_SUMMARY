@@ -1,0 +1,22 @@
+{
+  "topic": "Strong Exception Guarantee for Vector Insertion Operations",
+  "category": "container",
+  "explanation": "The C++ Standard Library mandates specific exception safety guarantees for `std::vector` modification operations, particularly concerning insertion and reallocation.\n\nDefinition: For `push_back()` and `insert()`, if an exception occurs during the operation (e.g., `std::bad_alloc` during reallocation or an exception thrown by the element's copy/move constructor), the vector guarantees the **strong exception safety** level. This means the operation has no effect, and the container remains in the state it was in immediately prior to the function call.\n\nTechnical Details:\n1. **Allocation Failure:** If new memory cannot be allocated (e.g., `bad_alloc`), the vector's size and capacity remain unchanged.\n2. **Element Failure:** If reallocation occurs, new elements are copied/moved into the new buffer. If a copy operation throws, the reallocation attempt is aborted, the original memory block remains valid, and no state change is visible to the user.\n\nRequirement: This strong guarantee holds true only if the destructors of the element type do not throw exceptions\u2014a universal requirement for STL container elements. If the element's copy constructor is guaranteed not to throw, the strong guarantee is simplified, often leading to better performance, as the library can rely on the element's safety.\n\nPitfall: Relying on the basic exception guarantee (that the object remains usable but potentially modified) is insufficient for vector insertion. The strong guarantee is critical for transactional integrity.",
+  "code_example": "#include <vector>\n#include <iostream>\n\n// Simulate an element that might throw on copy\nstruct ThrowingElement {\n    int data;\n    ThrowingElement(int d) : data(d) {}\n    ThrowingElement(const ThrowingElement& other) {\n        // Imagine conditional throw here (e.g., if memory pressure is high)\n        data = other.data;\n        // If an exception occurs, the vector must revert to original state\n    }\n};\n\nint main() {\n    std::vector<ThrowingElement> v;\n    v.reserve(1); \n    // If a subsequent push_back triggers reallocation and the copy constructor \n    // throws, v.size() must not increase and v's contents must be intact.\n    // The strong guarantee ensures container integrity upon failure.\n}",
+  "practical_example": "In a robust logging system, log messages are buffered in a vector before being flushed. If inserting a new log entry triggers reallocation and fails (due to memory exhaustion), the strong guarantee ensures that the existing, successfully buffered logs are not corrupted or lost, allowing a graceful failure or retry mechanism.",
+  "keywords": [
+    "strong exception guarantee",
+    "push_back",
+    "insert",
+    "bad_alloc",
+    "reallocation",
+    "no effect",
+    "exception safety levels",
+    "copy constructor"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "153-154 (Points 1, 2, 6)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strong_exception_guarantee_for_vector_416d71",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

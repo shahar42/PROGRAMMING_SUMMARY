@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Explicit Constructor and Raw Pointer Assignment Prevention",
+  "category": "util",
+  "explanation": "The constructor of `std::auto_ptr<T>` that accepts a raw pointer `T*` is declared using the `explicit` keyword. This language feature prevents implicit conversions from raw pointers to the smart pointer type. Consequently, two forms of initialization/assignment are disallowed, enforcing explicit resource management:\n1. Copy-initialization syntax: `std::auto_ptr<T> p = new T();`\n2. Direct assignment from a raw pointer: `p = new T();`\n\nThis constraint forces developers to use direct initialization (`std::auto_ptr<T> p(new T());`) or explicit construction of temporary objects for assignment, thereby preventing accidental or unintended ownership transfer. While `std::auto_ptr` is deprecated (superseded by `std::unique_ptr`), this explicit requirement is a critical design pattern in resource-managing classes to ensure clarity regarding resource acquisition and ownership semantics.",
+  "code_example": "#include <memory>\n\nvoid usage() {\n    // OK: Direct initialization (Explicit call to constructor)\n    std::auto_ptr<int> p(new int(42));\n    \n    // ERROR: Copy initialization (Requires implicit conversion)\n    // std::auto_ptr<int> q = new int(42);\n    \n    // OK: Explicit temporary construction for assignment\n    p = std::auto_ptr<int>(new int(99));\n    \n    // ERROR: Direct assignment from raw pointer\n    // p = new int(100);\n}",
+  "practical_example": "In legacy code bases using `auto_ptr`, relying on the explicit constructor prevents situations where a function returning a raw pointer might accidentally be assigned to an `auto_ptr` using copy syntax, which could lead to resource leaks or double deletion if the raw pointer was managed elsewhere.",
+  "keywords": [
+    "auto_ptr",
+    "explicit constructor",
+    "raw pointer conversion",
+    "copy initialization",
+    "ownership semantics",
+    "deprecated"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "50",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_explicit_606b23",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

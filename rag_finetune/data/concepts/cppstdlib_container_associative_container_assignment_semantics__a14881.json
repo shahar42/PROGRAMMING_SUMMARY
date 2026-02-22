@@ -1,0 +1,22 @@
+{
+  "topic": "Associative Container Assignment Semantics: Copying Elements and Comparison Objects",
+  "category": "container",
+  "explanation": "When the assignment operator (`operator=`) is used between two associative containers of the same type (e.g., `set<T, C1> coll1 = set<T, C2> coll2`), the operation involves two critical steps:\n\n1. **Element Transfer**: All elements in the destination container (`coll1`) are cleared, and a deep copy of all elements from the source container (`coll2`) is inserted into `coll1`.\n2. **Comparator Transfer**: A copy assignment of the source container's comparison object (`coll2.value_comp()` or `coll2.key_comp()`) is performed onto the destination container's comparison object.\n\nTechnical Details:\n- **Complexity**: Assignment generally has linear time complexity, O(N), where N is the size of the source container, as it requires copying N elements.\n- **Invariance**: This behavior ensures that after assignment, the destination container (`coll1`) not only holds the same elements but also uses the identical sorting criterion (including any runtime state) as the source container (`coll2`). This is essential for maintaining consistency, especially when using stateful comparators.\n\nPitfall: If the container type uses a comparison object that is not assignable, the standard assignment operator will be ill-formed. However, most standard library comparators and well-designed custom comparators are assignable.",
+  "code_example": "#include <set>\n#include <iostream>\n\ntemplate<typename T>\nstruct RuntimeCmp {\n    enum mode_t { normal, reverse };\n    mode_t mode = normal;\n    RuntimeCmp(mode_t m = normal) : mode(m) {}\n    bool operator()(const T& a, const T& b) const { return (mode == normal) ? (a < b) : (a > b); }\n    bool operator==(const RuntimeCmp& other) const { return mode == other.mode; }\n};\n\nusing IntSet = std::set<int, RuntimeCmp<int>>;\n\nint main() {\n    RuntimeCmp<int> reverse_cfg(RuntimeCmp<int>::reverse);\n    IntSet coll2(reverse_cfg); \n    coll2.insert(10); \n\n    IntSet coll1; // Starts with normal ordering\n    coll1.insert(1); \n\n    coll1 = coll2; // Assignment copies elements AND comparator\n    coll1.insert(15);\n\n    // coll1 now uses reverse ordering (15 > 10 > 1)\n    for (int x : coll1) std::cout << x << \" \"; \n    // Output: 15 10 1 \n}",
+  "practical_example": "When implementing a configuration rollback feature, assigning a 'saved state' map (which includes custom, stateful sorting criteria for internal processing lists) back to the 'active state' map guarantees that the new active map adopts both the correct data and the specific comparison logic used in the saved state.",
+  "keywords": [
+    "assignment operator",
+    "operator=",
+    "deep copy",
+    "value_comp",
+    "key_comp",
+    "comparison object transfer",
+    "associative container assignment",
+    "O(N) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "171",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_assignment_semantics__a14881",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

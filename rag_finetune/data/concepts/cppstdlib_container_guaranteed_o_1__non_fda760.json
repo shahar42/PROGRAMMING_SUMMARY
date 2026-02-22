@@ -1,0 +1,20 @@
+{
+  "topic": "Guaranteed O(1) Non-Throwing Container Swap",
+  "category": "container",
+  "explanation": "The standard library guarantees that swapping the contents of two standard containers (`std::vector`, `std::list`, `std::map`, etc.) using either the member function `c1.swap(c2)` or the global function `std::swap(c1, c2)` is an O(1) operation.\n\nTechnical Details:\n1. **Complexity Guarantee:** Swapping containers involves only exchanging internal pointers, size counts, and capacity values (where applicable). It does not involve copying or moving element data, ensuring strict O(1) time complexity, regardless of container size.\n2. **Exception Safety:** Swap operations on standard containers are guaranteed `noexcept` (non-throwing), which is critical for exception-safe programming techniques like the copy-and-swap idiom, where a temporary object is created and then swapped with the target.\n3. **Iterator Invalidation:** Generally, swapping two containers does not invalidate iterators, references, or pointers pointing into the containers' elements, except that they now refer to elements in the *other* container (i.e., the elements themselves stay put, but their container ownership is exchanged).\n\nUsage: Swap is fundamental for resource management, implementing efficient assignment operators, and clearing a container quickly (using the 'swap trick': `ContType().swap(c)` to reset capacity and size).\n\nPitfall: While standard containers guarantee O(1), `std::array`'s swap is O(N) because it is a fixed-size aggregate, and swapping requires exchanging every element.",
+  "code_example": "#include <vector>\n#include <algorithm>\n\nint main() {\n    std::vector<int> v1(1000000);\n    std::vector<int> v2(10);\n    \n    // Efficient O(1) swap of internal state\n    using std::swap;\n    swap(v1, v2);\n    \n    // v1.size() is now 10, v2.size() is now 1000000\n    // This operation is guaranteed non-throwing and fast.\n    \n    // Swap trick to reduce capacity to zero\n    std::vector<int>().swap(v1); \n    // v1 is now empty and capacity is minimized\n}",
+  "practical_example": "Implementing a high-performance database connection pool where connections are managed in a `std::vector`. When the pool needs to be shut down and reset, swapping the active pool with an empty temporary pool (`std::vector<Connection>().swap(active_pool)`) ensures the immediate release of old resources in O(1) time, while the old resources are safely destroyed when the temporary object goes out of scope.",
+  "keywords": [
+    "swap",
+    "O(1) complexity",
+    "noexcept",
+    "exception safety",
+    "copy-and-swap idiom",
+    "swap trick"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "132",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_guaranteed_o_1__non_fda760",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

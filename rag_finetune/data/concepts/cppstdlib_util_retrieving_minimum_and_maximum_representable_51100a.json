@@ -1,0 +1,20 @@
+{
+  "topic": "Retrieving Minimum and Maximum Representable Values",
+  "category": "util",
+  "explanation": "The `min()` and `max()` static member functions of `std::numeric_limits<T>` return the boundary values representable by type `T`. These functions are crucial for replacing dangerous, non-type-safe C macros (like `INT_MAX` or `FLT_MIN`) with type-safe C++ equivalents.\n\n**`max()`:** Returns the maximum finite value representable by the type. For all numeric types, this is the largest valid number.\n\n**`min()`:** Returns the minimum *normalized* positive value for floating-point types, and the most negative value (if signed) or the smallest non-zero value (if unsigned) for integer types. Specifically, for signed integers, `min()` returns the largest negative number (e.g., -2147483648 for 32-bit int).\n\n**Technical Details:** These functions are declared `static T min() throw()` and `static T max() throw()`, guaranteeing they do not throw exceptions and return a value of the type `T` itself. This ensures type safety when initializing variables or checking bounds.\n\n**Pitfalls:** For floating-point types, `min()` does *not* return the largest negative number; that is handled by `lowest()` (not covered in this text snippet). Relying on `min()` to give the negative boundary for floating-point numbers is a common error. For signed integers, however, `min()` correctly returns the most negative value.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nint main() {\n    // Integer bounds\n    std::cout << \"Int Max: \" << std::numeric_limits<int>::max() << \"\\n\";\n    std::cout << \"Int Min: \" << std::numeric_limits<int>::min() << \"\\n\";\n\n    // Floating point bounds (min is smallest positive normalized)\n    std::cout << \"Float Max: \" << std::numeric_limits<float>::max() << \"\\n\";\n    std::cout << \"Float Min (Smallest Positive): \" \n              << std::numeric_limits<float>::min() << \"\\n\";\n    \n    // Note: The most negative float value is generally -max()\n}",
+  "practical_example": "When implementing a clipping function to prevent numeric overflow, the algorithm uses `std::numeric_limits<T>::max()` and `min()` to safely constrain the resulting value `R` within the bounds of the target type `T`: `R = std::max(std::numeric_limits<T>::min(), std::min(std::numeric_limits<T>::max(), R));`",
+  "keywords": [
+    "min()",
+    "max()",
+    "numeric_limits range",
+    "type safe bounds",
+    "lowest()",
+    "integer limits"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "59",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_retrieving_minimum_and_maximum_representable_51100a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

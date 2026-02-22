@@ -1,0 +1,21 @@
+{
+  "topic": "Vector Capacity Management and Total Iterator Invalidation",
+  "category": "container",
+  "explanation": "The efficiency of `std::vector` relies on distinguishing between its `size()` (the number of elements currently stored) and its `capacity()` (the total number of elements that can be stored before internal memory reallocation is required). When an operation, such as `push_back()`, causes the size to exceed the current capacity, the vector must allocate a new, larger contiguous block of memory, copy or move all existing elements to the new location, and deallocate the old memory.\n\nPurpose:\n1. Performance: Reallocation takes time (O(N), where N is the current size). Vectors employ exponential growth strategies to ensure that the cost of `push_back` averages out to amortized O(1).\n2. Correctness: Reallocation guarantees the invalidation of *all* references, pointers, and iterators that pointed to elements within the old memory block. Using these invalidated pointers or iterators results in Undefined Behavior (UB).\n\nTechnical Details:\n- `capacity()` always >= `size()`.\n- Operations that potentially increase size (`push_back`, `insert`, `resize`) can trigger reallocation.\n- If `capacity()` is sufficient, `push_back` is O(1) worst-case.\n\nPitfalls: Failing to account for total invalidation when iterating or managing external pointers to vector elements is the most common vector error. The `reserve()` function should be used when the maximum size is known in advance to prevent reallocations.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nvoid push_and_invalidate(std::vector<int>& v) {\n    if (v.empty()) return;\n    int& first_ref = v.front();\n    \n    // Force reallocation (assuming typical growth factor)\n    size_t cap = v.capacity();\n    while (v.size() <= cap) {\n        v.push_back(v.size());\n    }\n    \n    // first_ref now points to deallocated memory (UB)\n    // std::cout << first_ref; // DANGER!\n}\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    v.reserve(3); // Capacity = 3\n    push_and_invalidate(v);\n    // v is now larger and entirely reallocated\n}",
+  "practical_example": "In a high-performance simulation where object states are stored in a vector and external systems hold raw C pointers to those objects, any operation that causes reallocation (like adding a new object via `push_back`) immediately renders all external pointers dangling. The solution requires using indices or smart handles instead of raw pointers, or pre-reserving maximum capacity.",
+  "keywords": [
+    "capacity",
+    "size",
+    "reallocation",
+    "iterator invalidation",
+    "reference invalidation",
+    "reserve",
+    "amortized O(1)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "149-150",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_capacity_management_and_total_b094da",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

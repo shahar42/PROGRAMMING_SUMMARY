@@ -1,0 +1,22 @@
+{
+  "topic": "std::numeric_limits Queries for Floating-Point Special Values and IEEE Compliance",
+  "category": "util",
+  "explanation": "The `std::numeric_limits` specialization for floating-point types (`float`, `double`, `long double`) provides essential compile-time information regarding adherence to the IEC 559 (IEEE 754) standard and the availability of special values.\n\n**Definition and Purpose**:\n- `is_iec559`: A boolean constant indicating whether the type adheres to the IEC 559 standard (which covers NaN, Infinity, denormals, and rounding modes). If true, high numerical portability is expected.\n- `has_quiet_NaN` and `has_signaling_NaN`: Booleans indicating if the type supports Quiet Not-a-Number (QNaN) and Signaling Not-a-Number (SNaN) respectively. QNaNs propagate through calculations and result from indeterminate operations (e.g., 0.0/0.0). SNaNs typically trigger an exception or trap upon access, often used for debugging or marking uninitialized data.\n- `quiet_NaN()` and `signaling_NaN()`: Static methods returning the specific bit pattern representation of these values, if available.\n- `has_denorm`: Indicates support for denormalized (or subnormal) numbers. These are non-zero numbers smaller than the minimum normalized value (`min()`). Denormals extend the dynamic range near zero, preventing sudden underflow, but operations on them are often significantly slower than normalized numbers (`has_denorm_loss` indicates detection of accuracy loss due to denormalization).\n\n**Usage Guidance**:\nThese flags are critical for writing robust, cross-platform numerical code, allowing algorithms to conditionally handle IEEE 754 specifics like NaN checking or avoiding denormal operations if performance is paramount.\n\n**Pitfalls**:\nReliance on `is_iec559` being true is common, but not guaranteed for all platforms (though modern architectures usually conform). When porting code to embedded systems, checking `has_quiet_NaN` is necessary before attempting to use `std::isnan()`, which relies on these representations.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nint main() {\n    using T = float;\n    std::cout << \"--- Float Limits ---\\n\";\n    std::cout << \"IEC 559 Compliant: \" << std::numeric_limits<T>::is_iec559 << \"\\n\";\n    \n    if (std::numeric_limits<T>::has_quiet_NaN) {\n        T qnan = std::numeric_limits<T>::quiet_NaN();\n        std::cout << \"Quiet NaN available: \" << qnan << \"\\n\";\n    } else {\n        std::cout << \"Quiet NaN not supported.\\n\";\n    }\n    \n    std::cout << \"Denormal support: \" << static_cast<int>(std::numeric_limits<T>::has_denorm) << \" (1=yes, 2=indeterminate)\\n\";\n}",
+  "practical_example": "A scientific simulation needs to ensure results are mathematically reliable across different compilation targets (e.g., x86 vs ARM). By checking `std::numeric_limits<double>::is_iec559`, the code can confirm whether standard IEEE 754 behavior (like guaranteed propagation of Infinity) is available, enabling the use of standard numerical stability checks without custom platform-specific handling.",
+  "keywords": [
+    "numeric_limits",
+    "IEC 559",
+    "IEEE 754",
+    "NaN",
+    "quiet_NaN",
+    "signaling_NaN",
+    "denormal",
+    "util"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "61-63",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__numeric_limits_queries_35b338",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,22 @@
+{
+  "topic": "Guaranteed Constant Time Container Swap (O(1))",
+  "category": "container",
+  "explanation": "The `swap` operation, whether accessed via the member function `container::swap(c)` or the non-member `std::swap(c1, c2)` specialization, provides an efficient mechanism to exchange the content of two containers.\n\nDefinition: The operation exchanges all elements and, for associative containers, swaps the sorting criterion (e.g., the comparison object). The non-member `std::swap` is typically implemented by calling the member function.\n\nTechnical Details:\n- **Complexity:** Swapping two containers is guaranteed to have **constant complexity, O(1)**, regardless of the number of elements. This is achieved by swapping internal pointers or header structures, not moving individual elements.\n- **Performance:** Due to its O(1) guarantee, `swap` should always be preferred over assignment (`operator=`) when the source object is no longer needed, as assignment requires O(N) element copying or moving.\n- **Exception Safety:** For sequence containers (`vector`, `deque`, `list`, `string`), `swap` is guaranteed **not to throw** (it is typically marked `noexcept`). For associative containers (`set`, `map`, etc.), it may only throw if copying or assigning the internal comparison object throws.\n\nPitfalls: While the elements are swapped, references, pointers, and iterators referring to elements inside the swapped containers remain valid and continue to refer to the *same elements*, but those elements are now located in the *other* container instance. This is a critical distinction from reallocation or element movement.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v1 = {1, 2, 3};\n    std::vector<int> v2 = {9, 8, 7};\n    \n    // O(1) operation, preferred over assignment (v1 = v2)\n    v1.swap(v2);\n    \n    std::cout << \"v1[0]: \" << v1[0] << \" (was 1, now 9)\\n\";\n    std::cout << \"v2[0]: \" << v2[0] << \" (was 9, now 1)\\n\";\n    \n    // Guaranteed noexcept for vector\n    // std::swap(v1, v2); // Equivalent non-member call\n}",
+  "practical_example": "When implementing the copy-and-swap idiom for exception-safe assignment operators, the O(1) guarantee of `swap` is essential. A temporary copy of the data is created, and then the temporary is swapped with the member data, ensuring that if any exception occurs (either during copy or swap), the original object remains unmodified.",
+  "keywords": [
+    "std::swap",
+    "container::swap",
+    "O(1)",
+    "constant complexity",
+    "noexcept",
+    "exception guarantee",
+    "copy-and-swap idiom",
+    "assignment optimization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "209",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_guaranteed_constant_time_container_swap_a28a2f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

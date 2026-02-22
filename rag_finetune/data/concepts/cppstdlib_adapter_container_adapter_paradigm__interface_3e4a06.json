@@ -1,0 +1,22 @@
+{
+  "topic": "Container Adapter Paradigm: Interface Restriction and LIFO/FIFO Enforcement",
+  "category": "adapter",
+  "explanation": "Container adapters (`std::stack`, `std::queue`, `std::priority_queue`) are specialized classes that impose strict access semantics (such as Last-In, First-Out (LIFO) for stacks or First-In, First-Out (FIFO) for queues) onto an underlying standard sequence container (like `std::deque`, `std::list`, or `std::vector`).\n\n**Definition:** An adapter does not define its own storage mechanism; rather, it wraps an existing container, exposing only a subset of the container's methods that are necessary to maintain the required access order. This abstraction prevents users from violating the required access pattern (e.g., preventing random access into a queue).\n\n**Purpose:** The primary goal is to enforce conceptual data structures (stacks and queues) while leveraging the robustness and performance characteristics of existing STL containers. This separation of concerns simplifies usage and ensures correctness regarding data access order.\n\n**Technical Requirements:** The underlying container chosen must support the specific operations required by the adapter. For `std::stack`, the container must provide O(1) `push_back()`, `pop_back()`, and `back()`. For `std::queue`, it must provide O(1) `push_back()`, `pop_front()`, and `front()`. The complexity of adapter operations is directly inherited from the underlying container's corresponding operations.\n\n**Pitfalls:** Users cannot access or modify elements in the middle of an adapter structure, nor can they obtain iterators. Attempting to use the underlying container's full API requires manually unwrapping the adapter, which defeats its purpose and is generally not exposed by the standard interface. This restriction means that adapters cannot be used directly with standard STL algorithms that require iterators.",
+  "code_example": "#include <stack>\n#include <vector>\n\nvoid use_stack() {\n    // Stack uses std::deque by default\n    std::stack<int> s;\n    s.push(10); // O(1) insertion (LIFO)\n    s.push(20);\n\n    int top_val = s.top(); // Access the top (20)\n    s.pop();             // Remove the top (O(1))\n\n    // std::stack<int, std::vector<int>> s_vec; // Valid alternative base\n    // s.begin(); // ERROR: Adapters do not expose iterators\n}",
+  "practical_example": "Implementing a function call stack or parsing arithmetic expressions (shunting-yard algorithm). The restricted LIFO interface guarantees that intermediate results or return addresses are processed in the correct order without risk of accidental random access corruption.",
+  "keywords": [
+    "container adapter",
+    "stack",
+    "queue",
+    "LIFO",
+    "FIFO",
+    "interface restriction",
+    "underlying container",
+    "priority_queue"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "378-379",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_container_adapter_paradigm__interface_3e4a06",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

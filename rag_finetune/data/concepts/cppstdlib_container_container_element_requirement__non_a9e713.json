@@ -1,0 +1,20 @@
+{
+  "topic": "Container Element Requirement: Non-Destructive Copyability",
+  "category": "container",
+  "explanation": "Standard STL containers (like `vector`, `list`, `deque`, and associative containers) are generally designed around value semantics. When an element is inserted, copied, or relocated within the container's internal structure, the container performs a copy operation (or move operation in C++11+). \n\nRequirement: For pre-C++11 containers and for maximum compatibility, elements must be CopyConstructible and CopyAssignable, and critically, the copy operation must be non-destructive. That is, the source object must remain valid and unchanged after being copied.\n\nPitfall (using `std::auto_ptr`): Before C++11, `std::auto_ptr` used destructive copy semantics (transferring ownership upon copy), violating this fundamental container requirement. If an `auto_ptr` was inserted into a container, the source `auto_ptr` would be left null, leading to logical errors or undefined behavior if the container tried to manage or access the original source element after the copy.\n\nGuidance: When storing dynamically managed objects in standard containers, the types must support safe value operations. This is why `std::shared_ptr` (or the reference-counted model demonstrated) is the correct choice, as its copy constructor increments a counter, leaving the source pointer fully valid.",
+  "code_example": "#include <deque>\n#include <memory>\n\n// Demonstrates safe insertion of copyable type\nint main() {\n    std::shared_ptr<int> p_source(new int(10));\n    std::deque<std::shared_ptr<int>> d;\n    \n    // Safe copy: p_source remains valid\n    d.push_back(p_source);\n    \n    // p_source still points to 10\n    if (p_source && *p_source == 10) {\n        // OK\n    }\n    \n    // DANGER: If p_source were std::auto_ptr, it would now be null \n    // and the container would hold the sole valid pointer.\n}",
+  "practical_example": "If a custom class holding a raw file descriptor were inserted into a `std::vector` using destructive copy semantics, resizing the vector would copy the element, closing the file descriptor of the original element prematurely, resulting in two elements pointing to an invalid resource or one element being invalid.",
+  "keywords": [
+    "copyability",
+    "std::auto_ptr pitfall",
+    "value semantics",
+    "destructive copy",
+    "container requirements",
+    "CopyConstructible"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "198, 147 (general container requirements)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_element_requirement__non_a9e713",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

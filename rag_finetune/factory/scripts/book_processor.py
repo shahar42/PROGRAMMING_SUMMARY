@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import List, Dict, Optional
 import google.generativeai as genai
 from tqdm import tqdm
+from dotenv import load_dotenv
 
 # Configuration
 BASE_DIR = Path(__file__).parent.parent.parent.parent
@@ -19,6 +20,14 @@ FACTORY_DIR = BASE_DIR / "rag_finetune/factory"
 TEMPLATE_DIR = FACTORY_DIR / "templates"
 OUTPUT_DIR = FACTORY_DIR / "output"
 LOG_DIR = FACTORY_DIR / "logs"
+ENV_FILE = BASE_DIR / "rag_finetune/apikeys.env"
+
+# Load environment variables from .env file
+if ENV_FILE.exists():
+    load_dotenv(ENV_FILE)
+else:
+    # Try loading from current directory as fallback
+    load_dotenv()
 
 # Ensure directories exist
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -123,6 +132,11 @@ class BookProcessor:
     def generate_concept_id(self, topic: str, category: str) -> str:
         """Generate unique concept ID"""
         prefix = self.config.get("category_prefix", "book")
+
+        # Clean category - remove slashes and invalid filename chars
+        clean_category = category.replace('/', '_').replace('\\', '_')
+        clean_category = ''.join(c if c.isalnum() or c == '_' else '_' for c in clean_category)
+
         # Create slug from topic
         slug = topic.lower()
         slug = ''.join(c if c.isalnum() else '_' for c in slug)
@@ -132,7 +146,7 @@ class BookProcessor:
         hash_input = f"{self.book_name}_{topic}_{time.time()}"
         hash_val = hashlib.md5(hash_input.encode()).hexdigest()[:6]
 
-        return f"{prefix}_{category}_{slug}_{hash_val}"
+        return f"{prefix}_{clean_category}_{slug}_{hash_val}"
 
     def extract_concepts_from_chunk(self, chunk: str, chunk_num: int) -> List[Dict]:
         """Extract concepts from a text chunk using LLM"""
@@ -206,6 +220,27 @@ Extract concepts from this text. Return ONLY valid JSON array, no markdown:
         concept_file = self.output_dir / f"{concept['id']}.json"
         with open(concept_file, 'w') as f:
             json.dump(concept, f, indent=2)
+
+    def load_checkpoint(self) -> int:
+        """Load checkpoint to resume from last processed chunk"""
+        checkpoint_file = self.output_dir / ".checkpoint"
+        if checkpoint_file.exists():
+            try:
+                with open(checkpoint_file, 'r') as f:
+                    data = json.load(f)
+                    return data.get('last_chunk', 0)
+            except:
+                return 0
+        return 0
+
+    def save_checkpoint(self, chunk_num: int):
+        """Save checkpoint for resume capability"""
+        checkpoint_file = self.output_dir / ".checkpoint"
+        with open(checkpoint_file, 'w') as f:
+            json.dump({
+                'last_chunk': chunk_num,
+                'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+            }, f, indent=2)
 
     def save_metadata(self):
         """Save processing metadata"""
@@ -289,11 +324,20 @@ Extract concepts from this text. Return ONLY valid JSON array, no markdown:
         print(f"🤖 Extracting concepts with LLM...\n")
         rate_limit = self.config.get("rate_limit_delay", 1.0)
 
+        # Load checkpoint for resume
+        start_chunk = self.load_checkpoint()
+        if start_chunk > 0:
+            print(f"📍 Resuming from chunk {start_chunk + 1} (already processed {start_chunk} chunks)\n")
+
         # Early checkpoint milestones for quality review
-        early_checkpoints = [1, 3, 6]
+        early_checkpoints = [1, 3, 10]
 
         all_concepts = []
-        for i, chunk in enumerate(tqdm(chunks, desc="Processing chunks")):
+        for i, chunk in enumerate(tqdm(chunks, desc="Processing chunks", initial=start_chunk, total=len(chunks))):
+            # Skip already processed chunks
+            if i < start_chunk:
+                continue
+
             concepts = self.extract_concepts_from_chunk(chunk, i + 1)
             all_concepts.extend(concepts)
 
@@ -303,6 +347,9 @@ Extract concepts from this text. Return ONLY valid JSON array, no markdown:
 
             self.metadata["chunks_processed"] += 1
             self.metadata["concepts_extracted"] += len(concepts)
+
+            # Save checkpoint after each chunk
+            self.save_checkpoint(i + 1)
 
             # Early checkpoint - pause for review
             total_concepts = self.metadata["concepts_extracted"]

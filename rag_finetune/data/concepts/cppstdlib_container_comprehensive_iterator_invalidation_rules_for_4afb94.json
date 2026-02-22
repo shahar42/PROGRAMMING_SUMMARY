@@ -1,0 +1,20 @@
+{
+  "topic": "Comprehensive Iterator Invalidation Rules for Standard Containers",
+  "category": "container",
+  "explanation": "Iterator, reference, and pointer invalidation rules define the stability of accessing elements after container modification. These rules are critical for avoiding undefined behavior and are highly dependent on the container's underlying memory structure.\n\n**Technical Details and Rules:**\n1.  **std::vector**: Iterators, references, and pointers are invalidated only when the underlying storage is reallocated (i.e., when `size() == capacity()` and insertion occurs, or after `reserve()` is called with a larger capacity). Insertion or deletion outside of a reallocation only invalidates iterators/references/pointers pointing *after* the modification point.\n2.  **std::deque**: Due to its segmented structure, insertion or removal at either the beginning or the end invalidates all iterators, but references/pointers to existing elements remain valid. Insertion/removal in the middle invalidates all iterators, references, and pointers.\n3.  **std::list, std::forward_list**: These containers offer maximum stability. Insertion and removal operations (except for the element being removed) **never** invalidate iterators, references, or pointers to other elements. This guarantee is due to the non-contiguous, node-based memory layout.\n4.  **Associative Containers (std::set, std::map, std::unordered_map, etc.)**: Insertion and removal operations **never** invalidate iterators, references, or pointers to elements that remain in the container. This stability makes them suitable for concurrent operations or complex data structures where external pointers must remain reliable.\n\n**Pitfalls**: The most common error is relying on a vector iterator after a `push_back` operation that might trigger reallocation. Since reallocation is implementation-specific, this creates subtle, non-deterministic bugs.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20};\n    // Assume capacity is 2\n    const int* p = &v[0];\n    \n    v.push_back(30); // May trigger reallocation\n    \n    // Check if the address of the first element changed\n    if (p != &v[0]) {\n        std::cout << \"Iterator/Reference invalidated!\\n\";\n    } else {\n        std::cout << \"No invalidation (capacity was sufficient).\\n\";\n    }\n    \n    // In contrast, list iterators are stable:\n    // std::list<int> l = {1, 2};\n    // auto it = l.begin();\n    // l.push_back(3);\n    // *it is still valid.\n}",
+  "practical_example": "Building a component tree or graph where nodes must maintain pointers to their children or parents. Using `std::list` or `std::map` to store the nodes ensures that restructuring the graph (adding or removing siblings) does not require updating all existing external pointers, unlike using a `std::vector`.",
+  "keywords": [
+    "iterator invalidation",
+    "reference stability",
+    "vector reallocation",
+    "list stability",
+    "deque invalidation",
+    "associative container stability"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "200 (Table summary)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_comprehensive_iterator_invalidation_rules_for_4afb94",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

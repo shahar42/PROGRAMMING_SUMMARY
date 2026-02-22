@@ -1,0 +1,20 @@
+{
+  "topic": "Transfer of Comparison Criteria State during Map Assignment and Swap",
+  "category": "container",
+  "explanation": "When performing assignment (`c1 = c2`) or swap (`c1.swap(c2)`) operations between associative containers (`std::map`, `std::multimap`, etc.), the container's elements, size, and capacity are transferred, but a subtle requirement governs the comparison object.\n\nRequirement: For assignment to be valid, both containers (`c1` and `c2`) must have the *exact same type*, meaning the `Key`, `T`, and crucially, the `Compare` type must be identical.\n\nBehavior: If the comparison criteria (the comparator object, often an instance of a stateless functor like `std::less<Key>`) holds state (i.e., it is stateful), that state is copied during assignment and swapped during a swap operation, along with the container elements. This ensures that the newly assigned or swapped container maintains the correct ordering logic.\n\nTechnical Details: If the comparator is stateful, it must meet the requirements of being copy-assignable and swappable. If the `Compare` type is a custom class holding internal data (e.g., a counter, a locale setting), this data persists across the assignment/swap boundary.\n\nPitfalls: Developers often overlook that the comparator object is part of the container state. If a stateful comparator is not copyable or throws exceptions during assignment, the container operation may fail or lead to unexpected behavior.",
+  "code_example": "#include <map>\n#include <iostream>\n\n// Stateful Comparator Example\nstruct MyCompare {\n    bool reverse_order = false;\n    bool operator()(int a, int b) const {\n        return reverse_order ? (a > b) : (a < b);\n    }\n};\n\nint main() {\n    std::map<int, int, MyCompare> m1;\n    m1.key_comp().reverse_order = true; // Set state\n    m1[1] = 1; m1[5] = 5; \n\n    std::map<int, int, MyCompare> m2;\n    m2 = m1; // Assignment copies elements AND comparator state\n    \n    // m2 now also uses reverse_order = true\n    std::cout << \"m2 reverse state: \" \n              << m2.key_comp().reverse_order << \"\\n\"; \n}",
+  "practical_example": "Using a customized map comparator to handle locale-specific string sorting (e.g., case-insensitive or using specific collation rules). When duplicating a map, it is essential that the new map inherits the exact same locale settings stored within the comparator object to maintain consistent sorting behavior.",
+  "keywords": [
+    "map assignment",
+    "swap semantics",
+    "stateful comparator",
+    "comparison criteria",
+    "std::map::key_comp",
+    "type equivalence"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "177, 213",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_transfer_of_comparison_criteria_state_9ecf3d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

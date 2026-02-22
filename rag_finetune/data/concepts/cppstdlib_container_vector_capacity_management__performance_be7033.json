@@ -1,0 +1,21 @@
+{
+  "topic": "Vector Capacity Management: Performance Implications of reserve()",
+  "category": "container",
+  "explanation": "A key performance technique for `std::vector` is managing its internal storage allocation via `capacity()`. While `size()` reports the current number of elements, `capacity()` reports the total allocated memory available before reallocation is required.\n\nPurpose: Since `push_back()` guarantees amortized constant time complexity, it relies on exponential growth (reallocation) when capacity is exhausted. However, reallocation is a worst-case O(N) operation that involves copying all existing elements. The `reserve(N)` function allows pre-allocating storage for at least N elements, ensuring subsequent `push_back` operations up to that capacity are strictly O(1) and avoid expensive reallocations.\n\nTechnical Details:\n- `reserve(n)`: Requests that the vector capacity be at least `n`. If `n` is less than or equal to the current capacity, the call does nothing. If greater, a reallocation occurs.\n- `reserve()` never changes `size()`, only `capacity()`.\n- Using `reserve()` is critical when the expected size of the vector is known beforehand or when inserting elements in bulk, as it minimizes the number of memory allocations and element copies, leading to significant performance gains and reducing potential latency spikes.\n\nPitfalls:\n1. Reallocation invalidates all existing iterators, pointers, and references pointing into the vector storage.\n2. Over-reserving memory can lead to unnecessary resource consumption, especially for large element types.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v;\n    std::cout << \"Initial Capacity: \" << v.capacity() << \"\\n\";\n    \n    // Reserve memory to avoid multiple reallocations\n    v.reserve(100); \n    std::cout << \"Reserved Capacity: \" << v.capacity() << \"\\n\";\n    \n    // Push elements without causing reallocation\n    for (int i = 0; i < 100; ++i) {\n        v.push_back(i); \n    }\n    // v.size() is 100, v.capacity() is >= 100\n    \n    // If we push 101st element, reallocation might occur (O(N) cost)\n}",
+  "practical_example": "When parsing a large input file where the total record count (N) is known from a header, calling `vector<Record>::reserve(N)` before the parsing loop ensures that the entire dataset is loaded with only one memory allocation, maximizing throughput and minimizing execution jitter.",
+  "keywords": [
+    "vector capacity",
+    "reserve",
+    "size",
+    "reallocation",
+    "amortized complexity",
+    "O(1) push_back",
+    "performance optimization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "141, 149-153",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_capacity_management__performance_be7033",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

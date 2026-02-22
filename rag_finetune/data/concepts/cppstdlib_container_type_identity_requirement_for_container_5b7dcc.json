@@ -1,0 +1,20 @@
+{
+  "topic": "Type Identity Requirement for Container Comparison Operators",
+  "category": "container",
+  "explanation": "The standard comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`) provided for STL containers (including `std::map` and `std::multimap`) require strict type identity between the two containers being compared. \n\nPurpose: Comparison operators rely on comparing the internal elements sequentially. For ordered associative containers, the definition of 'equality' or 'less than' depends not only on the elements (Key and Value) but also on the *ordering* mechanism (KeyCompare). If the KeyCompare types differ, the containers are fundamentally different types, preventing meaningful comparison.\n\nTechnical Details:\n1. **Equality**: `c1 == c2` returns true if `c1.size() == c2.size()` and every element in `c1` compares equal to the corresponding element in `c2`. This comparison uses the element's equality operator (`std::pair` comparison).\n2. **Lexicographical Comparison**: `c1 < c2` performs a lexicographical comparison based on the elements (pairs) in the containers.\n3. **Compile-Time Requirement**: The comparison operators are only defined if the Key type, the Value type, and crucially, the KeyCompare type are identical between the two containers. A mismatch results in a compile-time error, ensuring type safety.\n\nPitfalls: Attempting to compare `std::map<int, int, std::less<int>>` with `std::map<int, int, std::greater<int>>` will fail compilation, even if they contain the exact same set of key-value pairs, because the third template parameter (the comparator) differs.",
+  "code_example": "#include <map>\n#include <functional>\n\nint main() {\n    // c1 uses default std::less\n    std::map<float, std::string> c1;\n    c1[1.0f] = \"A\";\n    \n    // c2 uses explicit std::less\n    std::map<float, std::string, std::less<float>> c2;\n    c2[1.0f] = \"A\";\n    \n    // OK: Same type (Key, Value, Comparator)\n    bool eq = (c1 == c2);\n    \n    // DANGER: Different comparator type (Compile Error)\n    // std::map<float, std::string, std::greater<float>> c3;\n    // bool fail = (c1 == c3); \n    \n    return 0;\n}",
+  "practical_example": "Ensuring configuration consistency across modules. If two modules define maps with identical key/value types but one uses a custom case-insensitive comparator and the other uses the default case-sensitive one, direct comparison using `operator==` is disallowed by the compiler, preventing logical errors based on comparing fundamentally different storage structures.",
+  "keywords": [
+    "operator==",
+    "lexicographical comparison",
+    "type identity",
+    "KeyCompare",
+    "compile-time error",
+    "container comparison"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_type_identity_requirement_for_container_5b7dcc",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

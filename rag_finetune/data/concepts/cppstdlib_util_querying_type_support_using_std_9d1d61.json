@@ -1,0 +1,20 @@
+{
+  "topic": "Querying Type Support using std::numeric_limits::is_specialized",
+  "category": "util",
+  "explanation": "The `std::numeric_limits` class template, defined in `<limits>`, provides a portable mechanism for querying the fundamental properties of arithmetic types (e.g., maximum value, sign, precision).\n\n**Definition:** `std::numeric_limits<T>::is_specialized` is a static boolean constant that indicates whether numeric limits information is defined for the type `T`. It is guaranteed to be `true` for all built-in arithmetic types (integral and floating-point) and `false` for non-numeric types, such as user-defined classes or standard containers like `std::string`.\n\n**Purpose:** This specialization check is vital in generic programming (meta-programming) to ensure type safety. If a template function attempts to use properties like `max()` or `digits` on a non-specialized type, the code will fail to compile or result in nonsensical values if implemented via SFINAE checks.\n\n**Technical Details:** The standard library defines a primary template for `std::numeric_limits` where `is_specialized` is `false`. Specializations for `int`, `float`, etc., override this value to `true` and define the relevant constants and functions.\n\n**Pitfalls:** Assuming that a user-defined type that acts 'numeric' (e.g., a custom complex number class) automatically has `numeric_limits` defined. Users must explicitly specialize `std::numeric_limits` for their custom numeric types if they intend to use them in contexts relying on standard library numeric introspection.",
+  "code_example": "#include <limits>\n#include <string>\n#include <iostream>\n\nint main() {\n    // Check built-in type\n    if (std::numeric_limits<int>::is_specialized) {\n        std::cout << \"Int Max: \" << std::numeric_limits<int>::max() << \"\\n\";\n    }\n\n    // Check non-numeric type\n    bool specialized_string = std::numeric_limits<std::string>::is_specialized;\n    std::cout << \"String Specialized: \" << std::boolalpha << specialized_string << \"\\n\";\n    \n    // Check signed property\n    std::cout << \"Char is signed: \" << std::boolalpha \n              << std::numeric_limits<char>::is_signed << \"\\n\";\n}",
+  "practical_example": "When writing a serialization framework that needs to determine the maximum possible value for an incoming stream of data, using `std::numeric_limits<T>::max()` ensures portability across architectures (e.g., 32-bit vs. 64-bit systems) without hardcoding magic numbers.",
+  "keywords": [
+    "numeric_limits",
+    "is_specialized",
+    "portability",
+    "type trait",
+    "meta-programming",
+    "limits"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "63-64",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_querying_type_support_using_std_9d1d61",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

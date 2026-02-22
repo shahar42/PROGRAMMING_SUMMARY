@@ -1,0 +1,22 @@
+{
+  "topic": "Undefined Behavior on Empty Stack/Queue Access (Precondition Violation)",
+  "category": "adapter",
+  "explanation": "Standard C++ container adapters, specifically `std::stack` and `std::queue`, enforce strict preconditions for element retrieval and removal operations.\n\nDefinition: The functions `std::stack::top()`, `std::stack::pop()`, `std::queue::front()`, and `std::queue::pop()` require the container to be non-empty (i.e., `c.empty()` must be false). \n\nTechnical Details: If these functions are called when the container is empty, the result is **Undefined Behavior (UB)** according to the C++ Standard. The library does not guarantee that an exception (like `std::out_of_range`) will be thrown, unlike bounds-checked accessors such as `std::vector::at()` or `std::map::at()`. This design choice prioritizes performance by avoiding mandatory internal checks.\n\nPitfalls: Relying on implementation-specific behavior (like a crash or segmentation fault) or assuming that a standard exception will be thrown. The behavior can vary wildly between compilers or optimization levels. The only safe way to use these adapters is to explicitly check `if (!c.empty())` immediately before access.\n\nUsage Guidance: The standard library requires user responsibility for checking preconditions; the example provided in the text (a custom stack that throws `ReadEmptyStack`) illustrates a safer, but non-standard, interface design.",
+  "code_example": "#include <stack>\n#include <iostream>\n\nvoid dangerous_pop(std::stack<int>& s) {\n    // DANGER: Precondition violation if s is empty\n    s.pop(); \n    // Calling top() here would also be UB\n}\n\nint main() {\n    std::stack<int> s;\n    s.push(10);\n    \n    // Correct usage: Check empty() before operation\n    if (!s.empty()) {\n        std::cout << s.top() << std::endl;\n        s.pop();\n    }\n    \n    // dangerous_pop(s); // Calling this results in UB\n    return 0;\n}",
+  "practical_example": "In high-performance server loops processing network packets stored in a queue, failing to check `queue::empty()` before calling `queue::pop()` can lead to intermittent segmentation faults or memory corruption if the queue becomes briefly empty under heavy load, causing silent data loss or system instability.",
+  "keywords": [
+    "Undefined Behavior",
+    "stack access",
+    "queue access",
+    "empty container",
+    "precondition violation",
+    "top()",
+    "pop()",
+    "front()"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "385",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_undefined_behavior_on_empty_stack_57ebe8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

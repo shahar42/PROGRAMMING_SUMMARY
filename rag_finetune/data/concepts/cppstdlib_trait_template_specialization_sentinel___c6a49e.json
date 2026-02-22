@@ -1,0 +1,19 @@
+{
+  "topic": "Template Specialization Sentinel: `is_specialized`",
+  "category": "trait",
+  "explanation": "The design of `std::numeric_limits` uses template specialization to provide type-specific information. This pattern involves a general, unspecialized template that acts as a default implementation or sentinel, and full specializations for types where the concept is meaningful.\n\nTechnical Details:\nThe general template (for any type `T` not explicitly specialized, including user-defined classes) defines the static constant boolean member `is_specialized` as `false`. This flag serves as a trait, allowing generic code to determine if the standard library provides specific numerical properties for the type `T`.\n\nFor built-in numeric types (e.g., `int`, `float`, `char`), the C++ Standard Library provides explicit, full specializations of `numeric_limits`, where `is_specialized` is set to `true`, and all relevant limits (`min()`, `max()`, `radix`, etc.) are defined.\n\nPurpose: This separation allows programmers writing templates to safely check if a type supports numerical limits before attempting to access members like `max()`, thereby avoiding compilation errors or accessing undefined values for non-numeric types.\n\nUsage: Template metafunctions or `static_assert` checks can use `is_specialized` to enforce constraints on template parameters.",
+  "code_example": "#include <limits>\n#include <iostream>\n#include <string>\n\nint main() {\n    // Specialization exists for int\n    if (std::numeric_limits<int>::is_specialized) {\n        std::cout << \"Int limits are specialized.\\n\";\n    }\n\n    // Specialization does not exist for std::string\n    if (!std::numeric_limits<std::string>::is_specialized) {\n        std::cout << \"String limits are NOT specialized.\\n\";\n        // Accessing max() here would be undefined/meaningless\n    }\n}",
+  "practical_example": "A generic serialization routine needs to handle type limits only if the type is arithmetic. By checking `if (std::numeric_limits<T>::is_specialized)`, the routine can branch logic: serialize the bounds if numeric, or proceed with standard object serialization if not.",
+  "keywords": [
+    "is_specialized",
+    "template specialization",
+    "trait",
+    "sentinel",
+    "numeric_limits design"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "58",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_trait_template_specialization_sentinel___c6a49e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

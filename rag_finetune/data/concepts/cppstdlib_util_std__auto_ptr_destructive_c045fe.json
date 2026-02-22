@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Destructive Copy Semantics and Ownership Transfer",
+  "category": "util",
+  "explanation": "The defining characteristic of `std::auto_ptr` (deprecated since C++11, removed since C++17) is its destructive copy semantics. Unlike standard C++ types, copying or assigning an `auto_ptr` transfers resource ownership completely from the source object to the destination object.\n\nDefinition: Both the copy constructor and the assignment operator modify the source object (L-value), setting its internal pointer to null after the transfer. This is a significant violation of standard C++ value semantics, where copy operations generally leave the source object unchanged and valid.\n\nTechnical Details:\n- If `ptr2 = ptr1;`, `ptr1` loses ownership and subsequent dereference of `ptr1` results in undefined behavior (or a crash if the stored pointer is accessed).\n- The resource is guaranteed to be deleted exactly once, when the current owner (the last recipient of the transfer) goes out of scope.\n\nPitfalls:\n1. **STL Container Incompatibility:** `auto_ptr` cannot be safely used in STL containers, as container operations (like sorting or reallocation) rely on non-destructive copy semantics. If an `auto_ptr` is copied during a container operation, the source element in the container is invalidated, leading to unexpected null pointers and potential double deletion or memory leaks.\n2. **Function Parameter Passing:** Passing an `auto_ptr` by value transfers ownership to the function parameter. The caller\u2019s `auto_ptr` becomes null, and the resource is deleted when the function returns (unless ownership is transferred out again).\n\nModern Alternative: `std::unique_ptr` utilizes C++11 move semantics (explicitly defined move constructor and move assignment) to achieve safe ownership transfer without relying on destructive copy operations, making its behavior predictable and compatible with modern library concepts.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource { public: ~Resource() { std::cout << \"Deleted!\\n\"; } };\n\nvoid transfer_ownership() {\n    std::auto_ptr<Resource> ptr1(new Resource);\n    std::cout << \"Ptr1 owning: \" << (ptr1.get() != nullptr) << \"\\n\";\n    \n    std::auto_ptr<Resource> ptr2 = ptr1; // Ownership transfer\n    \n    // ptr1 is now null after the 'copy' operation\n    std::cout << \"Ptr1 owning after copy: \" << (ptr1.get() != nullptr) << \"\\n\";\n    std::cout << \"Ptr2 owning: \" << (ptr2.get() != nullptr) << \"\\n\";\n    // Resource deleted when ptr2 goes out of scope\n}",
+  "practical_example": "Attempting to use `std::auto_ptr` inside `std::vector` and then sorting the vector results in catastrophic failures. The sort algorithm copies elements; each copy transfers ownership, leaving a trail of nullified pointers in the vector and potentially causing premature deletion or accessing null pointers during subsequent passes.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "l-value modification",
+    "deprecated",
+    "unique_ptr comparison",
+    "STL incompatibility"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130-131 (Conceptual)",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_c045fe",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

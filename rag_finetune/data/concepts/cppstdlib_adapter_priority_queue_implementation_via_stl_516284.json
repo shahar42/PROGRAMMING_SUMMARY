@@ -1,0 +1,22 @@
+{
+  "topic": "Priority Queue Implementation via STL Heap Algorithms and Complexity",
+  "category": "adapter",
+  "explanation": "The `std::priority_queue` is a container adapter that manages elements based on priority, implemented internally using the standard library's heap algorithms (`make_heap`, `push_heap`, `pop_heap`). This design choice dictates the container's performance characteristics.\n\n**Technical Details:**\n1.  **Underlying Container:** The default container is `std::vector<T>` because heap algorithms require Random Access Iterators for efficient operation and benefit significantly from the contiguous storage of `vector` (cache locality).\n2.  **Construction:** The constructor that takes an iterator range uses `c.insert()` followed by `make_heap(c.begin(), c.end(), comp)`. The initial heap construction is guaranteed to be O(N) complexity.\n3.  **Insertion (`push`):** An element is first added to the end of the container (`c.push_back(x)`) and then its position is adjusted upwards using `push_heap`, guaranteeing O(log N) time complexity.\n4.  **Extraction (`pop`):** The highest priority element (at `c.front()`) is swapped with the last element using `pop_heap`, which then reorganizes the remaining elements. The last element is then removed (`c.pop_back()`). This operation is also guaranteed O(log N) time complexity.\n\n**Pitfalls:** While the container adapter guarantees the highest priority element is always accessible, the remaining elements are only guaranteed to satisfy the heap invariant, not be fully sorted. Iterators are not provided because exposing them would allow users to violate the heap property, breaking the O(log N) guarantee.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> data = {1, 8, 3, 5, 2};\n    // O(N) construction time, using make_heap internally\n    std::priority_queue<int> pq(data.begin(), data.end());\n    \n    // O(log N) insertion\n    pq.push(10);\n    \n    // O(log N) extraction\n    while (!pq.empty()) {\n        std::cout << pq.top() << \" \"; // Access highest priority\n        pq.pop(); \n    }\n    // Output: 10 8 5 3 2 1\n}",
+  "practical_example": "Used in scheduling algorithms (e.g., Dijkstra's or Prim's algorithms) where finding and extracting the minimum or maximum element repeatedly is required with logarithmic time complexity, ensuring efficient overall performance.",
+  "keywords": [
+    "priority_queue",
+    "heap algorithms",
+    "make_heap",
+    "push_heap",
+    "pop_heap",
+    "O(log N)",
+    "container adapter",
+    "vector backend"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "397-398",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_priority_queue_implementation_via_stl_516284",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

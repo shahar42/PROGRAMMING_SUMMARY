@@ -1,0 +1,22 @@
+{
+  "topic": "Handling IEEE 754 Special Values and Compliance",
+  "category": "util",
+  "explanation": "The `std::numeric_limits` template provides mechanisms to check for and retrieve special floating-point values defined by the IEC 559 (IEEE 754) standard, ensuring robust handling of exceptional arithmetic results.\n\nTechnical Details:\n- `is_iec559`: Boolean indicating if the type conforms to IEC 559/IEEE 754 standards (true for most modern `float` and `double` implementations).\n- `has_infinity`: Boolean indicating if the type supports a representation for positive infinity.\n- `infinity()`: Returns the representation of positive infinity (e.g., result of `1.0 / 0.0`).\n- `has_quiet_NaN`: Boolean indicating support for non-signaling 'Not a Number'.\n- `quiet_NaN()`: Returns a representation of quiet NaN. Quiet NaNs propagate through calculations without immediately raising exceptions.\n- `has_signaling_NaN`: Boolean indicating support for signaling 'Not a Number'.\n- `signaling_NaN()`: Returns a representation of signaling NaN, which typically triggers an exception or signal when accessed.\n\nPurpose: Checking for these capabilities is vital when dealing with complex mathematical operations, especially those involving division by zero or indeterminate forms (like 0/0 or infinity - infinity). Using `infinity()` and `quiet_NaN()` ensures that these special values are generated portably rather than relying on literal definitions or specific library function calls.\n\nPitfalls: While most desktop architectures support IEEE 754 (`is_iec559` is true), embedded or specialized hardware might not. Code relying on `infinity()` must first check `has_infinity` to maintain strict standard compliance.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nint main() {\n    using T = double;\n    if (std::numeric_limits<T>::is_iec559) {\n        std::cout << \"Type conforms to IEEE 754.\\n\";\n    }\n\n    if (std::numeric_limits<T>::has_infinity) {\n        T inf = std::numeric_limits<T>::infinity();\n        std::cout << \"Infinity value: \" << inf << \"\\n\";\n    }\n    \n    if (std::numeric_limits<T>::has_quiet_NaN) {\n        T qnan = std::numeric_limits<T>::quiet_NaN();\n        std::cout << \"Quiet NaN value: \" << qnan << \"\\n\";\n    }\n}",
+  "practical_example": "In a simulation involving iterative numerical methods, if a calculation converges to infinity or results in an indeterminate form, the result should be checked using `std::isnan(value)` or `std::isinf(value)`. The use of `std::numeric_limits<T>::infinity()` allows the system to initialize boundary conditions or sentinel values using the standard's portable representation of infinity.",
+  "keywords": [
+    "infinity",
+    "NaN",
+    "quiet_NaN",
+    "signaling_NaN",
+    "is_iec559",
+    "IEEE 754",
+    "floating point exceptions",
+    "numeric_limits"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "62-63",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_handling_ieee_754_special_values_86aa9c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

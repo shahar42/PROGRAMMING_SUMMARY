@@ -1,0 +1,21 @@
+{
+  "topic": "Querying Type Bounds and Signedness using std::numeric_limits",
+  "category": "util",
+  "explanation": "The `std::numeric_limits<T>` class template provides a standardized, compile-time mechanism to query the fundamental properties of built-in arithmetic types `T`, replacing older C macros like `INT_MAX` or `FLT_MIN`.\n\nDefinition:\n- `is_signed`: Boolean indicating if the type can represent negative values.\n- `is_bounded`: Boolean indicating if the set of representable values is finite (true for all built-in types).\n- `min()`: Returns the minimum finite value. For signed integers, this is the largest negative value (e.g., `INT_MIN`). For unsigned integers, this is typically zero. For floating-point types, this is the minimum *normalized* value if denormalization is supported, otherwise the smallest positive value.\n- `max()`: Returns the maximum finite value representable by the type.\n\nPurpose: These functions are essential for writing portable code that handles boundary conditions correctly, especially when checking for overflow, underflow, or performing conversions between types. They ensure code adapts correctly regardless of the underlying hardware architecture's representation of the type.\n\nPitfalls: The meaning of `min()` changes based on `is_signed`. Using `min()` for a floating-point type might not return the smallest non-zero value if the type supports denormalized numbers, which have smaller magnitudes.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nvoid check_limits() {\n    using T = int;\n    std::cout << \"Type T is signed: \" << std::numeric_limits<T>::is_signed << \"\\n\";\n    std::cout << \"T max: \" << std::numeric_limits<T>::max() << \"\\n\";\n    std::cout << \"T min: \" << std::numeric_limits<T>::min() << \"\\n\\n\";\n\n    using U = unsigned char;\n    std::cout << \"Type U is signed: \" << std::numeric_limits<U>::is_signed << \"\\n\";\n    std::cout << \"U max: \" << (int)std::numeric_limits<U>::max() << \"\\n\";\n    std::cout << \"U min: \" << (int)std::numeric_limits<U>::min() << \"\\n\";\n}",
+  "practical_example": "When implementing a generic serialization routine, using `std::numeric_limits<T>::max()` ensures that input validation checks for potential overflow are correct across 8-bit, 16-bit, and 32-bit integer systems without relying on non-portable C macros like `SHRT_MAX`.",
+  "keywords": [
+    "numeric_limits",
+    "min()",
+    "max()",
+    "is_signed",
+    "is_bounded",
+    "portability",
+    "boundary checks"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "60-61",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_querying_type_bounds_and_signedness_d43e56",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

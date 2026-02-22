@@ -1,0 +1,20 @@
+{
+  "topic": "Value-Based Removal via the Erase-Remove Idiom",
+  "category": "container",
+  "explanation": "Sequence containers like `std::vector` (and `std::deque`, `std::list`) do not provide a member function for removing all elements matching a specific value because doing so efficiently requires two distinct phases: logical removal (shifting) and physical removal (resizing).\n\n**Mechanism (Erase-Remove Idiom):**\n1. **`std::remove` (Algorithm):** This algorithm iterates through the range `[begin, end)` and shifts all elements that *do not* match the specified value (or predicate, for `remove_if`) to the beginning of the range. It preserves the relative order of the remaining elements. The algorithm returns an iterator pointing to the new logical end of the valid data. Crucially, `std::remove` does *not* modify the container's size or capacity; it merely overwrites the unwanted elements.\n2. **`c.erase()` (Container Member):** The container's `erase()` member function is then called using the range `[logical_end, c.end())`. This physically destroys the shifted-out elements and updates the container's size appropriately.\n\n**Complexity:** Both `std::remove` and `c.erase()` are O(N) operations, resulting in an overall linear time complexity for value-based removal.\n\n**Usage Guidance:** This idiom is necessary for containers that guarantee contiguous storage (`vector`, `deque`) or that do not have specialized O(1) removal functions (like `list::remove`).",
+  "code_example": "#include <vector>\n#include <algorithm>\n#include <iostream>\n\nint main() {\n    std::vector<int> coll = {1, 5, 2, 5, 3, 5, 4};\n    int val = 5;\n    \n    // 1. std::remove shifts non-5s forward, returns new logical end\n    auto new_end = std::remove(coll.begin(), coll.end(), val);\n    \n    // coll is now: {1, 2, 3, 4, X, X, X} where X are indeterminate values\n    // new_end points to the first 'X'.\n    \n    // 2. Erase physically removes the elements and updates size()\n    coll.erase(new_end, coll.end());\n    \n    // Output: 1 2 3 4\n    for (int x : coll) { std::cout << x << \" \"; }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "Filtering log messages stored in a vector based on severity level. If a system accumulates thousands of 'DEBUG' level messages in a storage vector, the Erase-Remove Idiom is used to efficiently purge all 'DEBUG' entries when switching to 'INFO' mode, ensuring only necessary data remains while maintaining the O(N) guarantee.",
+  "keywords": [
+    "erase-remove idiom",
+    "std::remove",
+    "value-based removal",
+    "sequence container",
+    "linear complexity",
+    "std::erase"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "138",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_value_based_removal_via_the_e61f37",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

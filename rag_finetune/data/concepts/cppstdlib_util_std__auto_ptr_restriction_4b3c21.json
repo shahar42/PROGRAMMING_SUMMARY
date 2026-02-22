@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Restriction: Prohibition of Array Management",
+  "category": "util",
+  "explanation": "The `std::auto_ptr` utility (deprecated since C++11, removed in C++17) is strictly designed to manage a single dynamically allocated object. The underlying mechanism for deallocation is a direct call to `delete` in its destructor, following the RAII principle.\n\nPurpose: This design choice mandates that the raw pointer supplied to `auto_ptr` must be the result of a single `new` expression, not an array allocation via `new[]`.\n\nTechnical Details:\n- If an array allocated with `new[]` is managed by `auto_ptr`, the destructor calls `delete ptr` instead of the required `delete[] ptr`.\n- Calling `delete` on memory allocated via `new[]` results in **Undefined Behavior (UB)**, typically leading to memory corruption, heap integrity issues, or incorrect destruction of elements.\n\nUsage Guidance: The standard explicitly recommends using STL container classes (like `std::vector`) for managing dynamically allocated arrays, or, in modern C++, using `std::unique_ptr<T[]>` or `std::shared_ptr` with a custom deleter.\n\nPitfalls: This is a major source of error when transitioning from raw pointers to early smart pointers. The compiler provides no warning for this misuse, making it a runtime failure.",
+  "code_example": "#include <memory>\n\nclass Resource {};\n\nvoid dangerous_usage() {\n    // DANGER: new[] used, but auto_ptr uses delete\n    std::auto_ptr<Resource> ap_bad(new Resource[5]); \n    // UB when ap_bad goes out of scope and calls delete\n}\n\nvoid correct_usage() {\n    // Correct: new used, auto_ptr calls delete\n    std::auto_ptr<Resource> ap_good(new Resource);\n}\n\n// Note: std::unique_ptr<Resource[]> should be used today.",
+  "practical_example": "A legacy system using `auto_ptr` to manage a buffer of custom network packet objects (`new Packet[100]`) will suffer memory leaks or crashes because the destructors of the 99 subsequent packets are never called, and the heap cleanup mechanism is violated.",
+  "keywords": [
+    "auto_ptr",
+    "delete vs delete[]",
+    "Undefined Behavior",
+    "array management",
+    "new[]",
+    "legacy smart pointer"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "53",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_restriction_4b3c21",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

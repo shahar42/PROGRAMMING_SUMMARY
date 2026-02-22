@@ -1,0 +1,20 @@
+{
+  "topic": "Modifying Elements In-Place via `front()` and `back()` References",
+  "category": "adapter",
+  "explanation": "The non-const overloads of `std::queue::front()` and `std::queue::back()` return a non-const reference (`value_type&`) to the element. This allows the user to modify the element directly while it is stored within the queue, before it is extracted via `pop()`. \n\nPurpose: This feature provides flexibility, allowing users to perform operations that update the state of an object already queued (e.g., updating a priority counter or marking a task as 'in progress') without having to extract, modify, and re-insert the object.\n\nTechnical Details:\n- **Requirement:** The underlying container must support returning a non-const reference from its equivalent access methods (e.g., `std::deque::front()`).\n- **Usage Context:** This is most useful when the element type is complex (e.g., a struct or class) and modification is necessary. However, it violates the typical FIFO (First-In, First-Out) principle if the modification affects the element's logical order (though `queue` doesn't enforce logical order beyond insertion time).\n\nPitfalls: If the underlying container is `std::priority_queue` (which uses `std::heap` structure) modification of the element could destroy the heap invariant, leading to incorrect ordering. However, `std::queue` does not typically use `std::priority_queue` as its base. For standard queues (using `deque` or `list`), modifying the element is safe regarding sequence order, but Josuttis notes it is 'up to you to decide whether this is good style,' as it deviates from standard queue behavior.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nstruct Task { int id; bool processed = false; };\n\nint main() {\n    std::queue<Task> tasks;\n    tasks.push({101, false});\n    \n    // Modify the element while it is in the queue\n    tasks.back().id = 202; \n    tasks.front().processed = true; \n    \n    // Verify modification\n    std::cout << \"Front ID: \" << tasks.front().id \n              << \", Processed: \" << tasks.front().processed << \"\\n\";\n    tasks.pop();\n}",
+  "practical_example": "When implementing a command buffer where commands are processed sequentially (FIFO), a pre-processing step might need to update a flag on the very first command (`front()`) to indicate it has been claimed by a worker thread, preventing other workers from starting it, without needing to copy the command out of the queue.",
+  "keywords": [
+    "reference return",
+    "in-place modification",
+    "non-const access",
+    "front()",
+    "back()",
+    "value_type&"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "390",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_modifying_elements_in_place_via_f2c339",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

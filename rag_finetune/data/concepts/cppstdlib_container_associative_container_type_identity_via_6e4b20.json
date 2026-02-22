@@ -1,0 +1,22 @@
+{
+  "topic": "Associative Container Type Identity via Comparator Template Parameter",
+  "category": "container",
+  "explanation": "Ordered associative containers, such as `std::set` and `std::multiset`, require a comparison object (`Op`) to establish the strict weak ordering of their elements. This comparator is passed as a template parameter (e.g., `std::set<Elem, Op>`).\n\n**Definition:** The comparison type (`Op`) is an integral part of the container's overall type definition. Consequently, two containers holding the same element type (`Elem`) but using different comparator types (e.g., `std::less<int>` vs. `std::greater<int>`) are considered entirely distinct, incompatible types by the C++ type system.\n\n**Technical Details:** The default comparator is `std::less<Elem>`. The comparator object itself is typically default-constructed by the container's constructor. To use a custom comparator instance (e.g., one holding state), that instance must be passed explicitly to the container's constructor. Since the comparator is part of the type, the type system strictly enforces that only containers with identical `Elem` and `Op` types can be combined, copied, or assigned without explicit conversion or iteration.\n\n**Requirements:** The elements (`Elem`) must satisfy the requirements of the chosen comparator, ensuring the comparison function induces a strict weak ordering (SWO). If the SWO requirement is violated (e.g., if the comparison is inconsistent), the behavior of the container is undefined.\n\n**Usage Guidance:** If sorting order must be customized (e.g., descending order, case-insensitive string comparison), it must be defined at the time of container instantiation via the template parameter, as this choice is immutable for the container's lifetime.",
+  "code_example": "#include <set>\n#include <functional>\n\nint main() {\n    // Type 1: Ascending order (default)\n    std::set<int, std::less<int>> ascending_set = {3, 1, 2};\n    \n    // Type 2: Descending order\n    std::set<int, std::greater<int>> descending_set = {3, 1, 2};\n    \n    // Error: Attempting to assign incompatible types\n    // ascending_set = descending_set; // Compilation Error\n    \n    // Correct usage: Container stores its comparator type\n    using AscendingType = decltype(ascending_set);\n    using DescendingType = decltype(descending_set);\n    // static_assert(!std::is_same_v<AscendingType, DescendingType>);\n}",
+  "practical_example": "When designing a library component that accepts a set, the function signature must be templated on the Comparator type (e.g., `template <typename T, typename Comp> void process(const std::set<T, Comp>& s)`), or it must restrict input to a specific, known comparator type, ensuring the required sorting behavior is strictly enforced.",
+  "keywords": [
+    "comparator",
+    "strict weak ordering",
+    "template parameter",
+    "std::set",
+    "std::multiset",
+    "type identity",
+    "std::less",
+    "std::greater"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "159",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_type_identity_via_6e4b20",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

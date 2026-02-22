@@ -1,0 +1,20 @@
+{
+  "topic": "Element Requirements for std::set and std::multiset",
+  "category": "container",
+  "explanation": "The element type `T` used within `std::set` and `std::multiset` must satisfy specific requirements necessary for the container's internal management and sorting mechanisms. These requirements are less stringent than those for sequence containers like `std::vector` (which often require DefaultConstructibility for resizing), but crucial for sorting.\n\nKey Requirements for T:\n1. **Copyable and Assignable:** Elements must be copyable and assignable to allow the container to store and move copies during insertion and internal tree manipulations.\n2. **Comparable (via Sorting Criterion):** The element type must support the comparison defined by the `Compare` template argument. By default, this is `std::less<T>`, requiring a valid, publicly accessible `operator<` that accepts two objects of type `T` and returns a boolean, satisfying Strict Weak Ordering.\n\nNote that elements in `set` and `multiset` are immutable once inserted (specifically, the key portion cannot be modified in place), because changing the key would violate the container's sorted order invariant. Attempting to modify the key of an element obtained via a non-const iterator results in undefined behavior. Therefore, elements are typically retrieved using `const_iterator`s.",
+  "code_example": "#include <set>\n\nstruct NonComparable {};\n\nstruct Comparable {\n    int key;\n    bool operator<(const Comparable& other) const {\n        return key < other.key;\n    }\n};\n\nint main() {\n    // std::set<NonComparable> s1; // ERROR: No default operator< or custom comparator\n    \n    std::set<Comparable> s2; // OK: Supports operator< that satisfies SWO\n    s2.insert({5});\n    \n    // Elements are const when retrieved from a set (logically)\n    // auto it = s2.begin();\n    // it->key = 6; // ERROR or UNDEFINED BEHAVIOR if allowed, as key is immutable\n}",
+  "practical_example": "When storing complex structures in a set, if the structure lacks a natural `operator<`, a custom comparator must be provided explicitly as the second template parameter. For instance, storing raw C-style arrays requires a custom comparator because arrays lack built-in comparison operators.",
+  "keywords": [
+    "element requirements",
+    "copyable",
+    "assignable",
+    "comparable",
+    "key immutability",
+    "set requirements"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "157",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_element_requirements_for_std__3de700",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

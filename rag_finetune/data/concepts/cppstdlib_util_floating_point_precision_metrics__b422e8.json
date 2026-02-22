@@ -1,0 +1,21 @@
+{
+  "topic": "Floating Point Precision Metrics: digits, digits10, and epsilon()",
+  "category": "util",
+  "explanation": "For floating-point types, `std::numeric_limits` provides detailed metrics regarding precision, which are crucial for numerical analysis and comparison operations.\n\nTechnical Details:\n1. `radix`: The base of the representation (usually 2 for binary systems, known as `FLT_RADIX`).\n2. `digits`: The number of `radix` digits (binary digits or bits) in the mantissa (significand). This defines the internal precision.\n3. `digits10`: The number of decimal digits that can be represented without change upon conversion to the internal format and back. This is the guaranteed *decimal* precision (often 6 for `float`, 15 for `double`).\n4. `epsilon()`: The difference between 1.0 and the least value greater than 1.0 that is representable by the type. This value defines the machine epsilon, used to determine the tolerance for floating-point comparisons.\n\nPurpose: These metrics allow numerical algorithms to determine appropriate loop termination conditions, required storage size, and comparison tolerances. Relying on `digits10` is safer than `digits` when reporting precision to users, as it reflects guaranteed decimal accuracy.\n\nUsage: When comparing two floating-point numbers `a` and `b`, direct equality (`a == b`) is unreliable. Instead, use a tolerance based on `epsilon()`: `std::abs(a - b) <= std::numeric_limits<T>::epsilon() * std::abs(a + b) * 0.5` (relative tolerance comparison).",
+  "code_example": "#include <limits>\n#include <iostream>\n#include <cmath>\n\nint main() {\n    using T = double;\n    std::cout << \"Radix: \" << std::numeric_limits<T>::radix << \"\\n\";\n    std::cout << \"Binary digits (mantissa): \" << std::numeric_limits<T>::digits << \"\\n\";\n    std::cout << \"Guaranteed decimal digits: \" << std::numeric_limits<T>::digits10 << \"\\n\";\n    std::cout << \"Epsilon: \" << std::numeric_limits<T>::epsilon() << \"\\n\";\n    \n    // Epsilon usage for comparison\n    double x = 1.0;\n    double y = 1.0 + std::numeric_limits<T>::epsilon() / 2.0; \n    if (x == y) { /* often true due to rounding */ }\n}",
+  "practical_example": "In computational geometry, determining if two points are coincident requires comparing their coordinates. Using `std::numeric_limits<double>::epsilon()` as the maximum acceptable error threshold ensures robust comparison regardless of whether the system uses 32-bit or 64-bit floating point representations.",
+  "keywords": [
+    "epsilon",
+    "digits",
+    "digits10",
+    "radix",
+    "precision",
+    "floating point comparison",
+    "machine epsilon"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "61-62",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_floating_point_precision_metrics__b422e8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

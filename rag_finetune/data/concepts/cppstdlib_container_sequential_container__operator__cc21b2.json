@@ -1,0 +1,21 @@
+{
+  "topic": "Sequential Container `operator[]` vs. `at()`: Bounds Checking and Undefined Behavior",
+  "category": "container",
+  "explanation": "For sequential containers (`std::vector`, `std::deque`, `std::string`), the indexed access operator `T& operator[](size_type idx)` provides direct, unchecked access to the element at the specified index. The key characteristic is the absence of runtime bounds checking.\n\n**Technical Details and Pitfalls:**\n1. **Undefined Behavior (UB):** If the provided index `idx` is less than 0, or greater than or equal to `size()`, the behavior is explicitly Undefined by the standard. This often manifests as a crash (segmentation fault) or accessing corrupted memory, but is not guaranteed to fail predictably.\n2. **Complexity:** Access via `operator[]` is guaranteed O(1) time complexity.\n3. **Alternative (`at()`):** The member function `at(idx)` provides identical functionality but performs mandatory bounds checking. If `idx` is invalid, `at()` throws an `std::out_of_range` exception, providing safer but potentially slower access due to the runtime check.\n\n**Usage Guidance:** Use `operator[]` when performance is critical and bounds are mathematically guaranteed or already checked (e.g., inside a loop iterating from 0 to `size() - 1`). Use `at()` when dealing with external input or indices derived from complex logic where safety against out-of-bounds access is paramount.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20};\n    \n    // Safe access\n    std::cout << v.at(1) << \"\\n\";\n    \n    // Unchecked access (O(1))\n    std::cout << v[0] << \"\\n\";\n    \n    // Accessing index 5 (size is 2) via operator[]\n    // v[5]; // UNDEFINED BEHAVIOR\n    \n    // Accessing index 5 via at() (Throws exception)\n    // try { v.at(5); } catch (const std::out_of_range& e) { /* handle */ }\n}",
+  "practical_example": "When writing a high-performance matrix multiplication routine, using `operator[]` allows the compiler to optimize array access without inserting conditional bounds checks in the inner loop. Conversely, when accessing elements based on user input (e.g., retrieving the Nth element), `at()` should be used to provide robust error handling.",
+  "keywords": [
+    "operator[]",
+    "at()",
+    "vector access",
+    "bounds checking",
+    "undefined behavior",
+    "O(1) complexity",
+    "out_of_range"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "209",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_sequential_container__operator__cc21b2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

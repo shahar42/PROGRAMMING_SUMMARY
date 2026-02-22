@@ -1,0 +1,21 @@
+{
+  "topic": "List Iterator Stability and O(1) Modification Guarantee",
+  "category": "container",
+  "explanation": "std::list is implemented as a doubly linked list, which fundamentally changes its behavior regarding modification and iteration compared to sequence containers like vector or deque.\n\nDefinition: The primary advantage of `std::list` is that insertion and deletion operations anywhere within the container execute in guaranteed constant time complexity, O(1). This includes `insert()`, `erase()`, `push_front()`, and `push_back()`.\n\nTechnical Details:\n- **Complexity:** O(1) for insertion and deletion once the insertion point (iterator) is known.\n- **Iterator Invalidation:** Inserting or erasing an element in a list does *not* invalidate iterators, references, or pointers pointing to any *other* element in the list. This stability is crucial for long-lived pointers/references to elements that must survive structural changes.\n- **Exception Safety:** Operations on `std::list` offer strong exception guarantees. Operations either succeed completely or have no effect (strong exception guarantee), preventing the list from entering an intermediate, partially updated state.\n\nUsage: Use `std::list` when frequent insertions or deletions occur in the middle of the sequence, or when maintaining stable references to elements is required despite structural changes.\n\nPitfalls: While iterators are stable, list traversal to find the insertion point still requires O(N) time, negating the O(1) insertion benefit if the position is not already known.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> l = {10, 20, 30};\n    auto it_20 = ++l.begin(); // Iterator pointing to 20\n    \n    // Insert 15. O(1).\n    l.insert(it_20, 15);\n    \n    // it_20 remains valid and still points to 20 (or the node after 15).\n    // This is safe, unlike vector/deque insertion.\n    std::cout << *it_20 << std::endl; // Output: 20\n    \n    // Erase 10. O(1).\n    l.erase(l.begin());\n    // it_20 is still valid.\n    std::cout << *it_20 << std::endl; // Output: 20\n}",
+  "practical_example": "Managing a pool of active workers where workers are frequently added (pushed to the front) and removed (erased by known iterator when finished). The stable iterators allow external systems to hold pointers directly to the worker objects without needing to update them every time another worker is added or removed.",
+  "keywords": [
+    "list",
+    "O(1) complexity",
+    "iterator stability",
+    "doubly linked list",
+    "strong exception guarantee",
+    "insert",
+    "erase"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "149",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_list_iterator_stability_and_o_a2de6b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

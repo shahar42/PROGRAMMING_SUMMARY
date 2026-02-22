@@ -1,0 +1,22 @@
+{
+  "topic": "Indexed Element Access: `at()` vs `operator[]` Safety Trade-off",
+  "category": "container",
+  "explanation": "Sequence containers providing direct indexed access (like `std::vector`, `std::deque`, and `std::string`) offer two primary methods: `at()` and `operator[]`. The choice depends entirely on the necessity of runtime bounds checking.\n\n1. `container::operator[] (size_type idx)`:\n   - **Behavior:** Returns a reference to the element at `idx` without performing range checking.\n   - **Complexity:** Typically the fastest access method, guaranteed O(1).\n   - **Pitfall:** Accessing an index that is less than 0 or greater than or equal to `size()` results in **Undefined Behavior (UB)**. This is a severe error often leading to memory corruption or crashes.\n\n2. `container::at (size_type idx)`:\n   - **Behavior:** Returns a reference to the element at `idx` and performs **runtime bounds checking**.\n   - **Error Handling:** If `idx` is invalid, it throws a `std::out_of_range` exception.\n   - **Performance:** Slightly slower than `operator[]` due to the required check, but remains O(1).\n\nUsage Guidance: Use `operator[]` when the index is guaranteed valid (e.g., iterating through the container or using indices calculated safely). Use `at()` when the index comes from external input or when debugging, as the exception provides robust error handling at the cost of minimal runtime overhead.",
+  "code_example": "#include <vector>\n#include <iostream>\n#include <stdexcept>\n\nint main() {\n    std::vector<int> v = {10, 20};\n    \n    // 1. Safe access (throws exception)\n    try {\n        v.at(2) = 30; \n    } catch (const std::out_of_range& e) {\n        std::cerr << \"Error: \" << e.what() << \"\\n\";\n    }\n    \n    // 2. Fast, unsafe access (Undefined Behavior if index >= size())\n    // v[2] = 30; // DANGER: UB, size is only 2\n    v[1] = 25; // Safe, index 1 is valid\n}",
+  "practical_example": "When writing a library function that accepts a user-provided index (e.g., retrieving a record from a table stored in a vector), using `at()` ensures the library client receives a standardized exception (`std::out_of_range`) upon error, preventing catastrophic crashes associated with Undefined Behavior from `operator[]`.",
+  "keywords": [
+    "container::at",
+    "operator[]",
+    "bounds checking",
+    "std::out_of_range",
+    "Undefined Behavior",
+    "O(1) access",
+    "vector access",
+    "deque access"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "209-210",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_indexed_element_access___38d358",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

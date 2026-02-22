@@ -1,0 +1,21 @@
+{
+  "topic": "std::stack Default Container Choice and Performance Implications",
+  "category": "adapter",
+  "explanation": "The `std::stack` template is defined with an optional second parameter specifying the underlying container, defaulting to `std::deque<T>`:\n`template <class T, class Container = deque<T>> class stack;`\n\n**Default Rationale:** `std::deque` (double-ended queue) is chosen as the default underlying container because it guarantees constant time (O(1)) complexity for insertion (`push_back`) and removal (`pop_back`) at both ends. Since `std::stack` requires efficient operations only at one end (the top, implemented using the container's back), `deque` perfectly satisfies this requirement.\n\n**Performance Comparison:**\n1.  **`std::deque` (Default):** O(1) `push`/`pop`. Avoids the performance penalty of reallocation associated with `std::vector` when capacity is exceeded.\n2.  **`std::vector` (Alternative):** O(1) amortized `push_back`/`pop_back`. While generally fast and cache-friendly, pushing an element that exceeds capacity forces a reallocation (linear time O(N)), leading to potential performance spikes. This makes `vector` less suitable for performance-critical stacks where worst-case O(1) is preferred.\n3.  **`std::list` (Alternative):** O(1) `push_back`/`pop_back`. Guarantees stability and O(1) worst-case performance, but typically incurs higher memory overhead and worse cache locality compared to `deque` or `vector`.\n\n**Usage Guidance:** Unless specific memory layout (contiguous for vector) or stability (list) is required, the default `std::deque` is generally the best choice for `std::stack` due to its consistent O(1) worst-case complexity for essential stack operations.",
+  "code_example": "#include <stack>\n#include <vector>\n#include <deque>\n\nint main() {\n    // 1. Default stack (uses deque)\n    std::stack<int> s_default;\n    \n    // 2. Stack based on vector (reallocation risk)\n    std::stack<int, std::vector<int>> s_vec;\n    \n    // 3. Stack based on list (memory overhead)\n    std::stack<int, std::list<int>> s_list;\n    \n    // All three provide O(1) push/pop, but guarantee different worst-case times\n    s_default.push(5);\n    s_vec.push(5);\n    s_list.push(5);\n}",
+  "practical_example": "In embedded systems or high-frequency trading applications where latency jitter must be minimized, using `std::stack` based on `std::deque` (the default) is preferred over `std::vector` to ensure that `push` operations never incur the unpredictable O(N) cost of a memory reallocation.",
+  "keywords": [
+    "std::stack",
+    "std::deque",
+    "container default",
+    "LIFO complexity",
+    "push_back complexity",
+    "adapter performance",
+    "O(1) worst-case"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "379",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__stack_default_container_553ec8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

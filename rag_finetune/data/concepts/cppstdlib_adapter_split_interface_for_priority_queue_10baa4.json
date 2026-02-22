@@ -1,0 +1,20 @@
+{
+  "topic": "Split Interface for Priority Queue Element Processing (`top()` and `pop()` Guarantee)",
+  "category": "adapter",
+  "explanation": "Consistent with `std::stack` and `std::queue`, `std::priority_queue` employs a split interface for accessing and removing the highest priority element. This separation ensures exception safety and prevents accidental element loss, particularly when the element type might throw during copying or moving.\n\nInterface Behavior:\n1. `top()`: Returns a const reference to the highest priority element (the root of the heap). Complexity is O(1). Does not modify the container.\n2. `pop()`: Removes the highest priority element. Complexity is O(log N) due to the heap restructuring required. Does not return the element.\n\nUsage Pattern: To process and remove an element, both functions must be called sequentially, preceded by an `empty()` check.\n\nPitfalls and Undefined Behavior: Calling either `top()` or `pop()` on an empty priority queue results in Undefined Behavior (UB). This is a critical runtime error that must be guarded against. The standard library provides no internal checks for this condition.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::priority_queue<int> pq;\n    pq.push(10);\n    \n    // Correct processing pattern\n    if (!pq.empty()) {\n        int highest = pq.top(); // O(1) access\n        std::cout << highest << \"\\n\";\n        pq.pop();               // O(log N) removal\n    }\n    \n    // pq.top(); // DANGER: UB if called here (pq is empty)\n}",
+  "practical_example": "In event processing loops where events are ordered by timestamp (priority), the split interface is mandatory. The processing function must first access the event data (`top()`) to determine success/failure, and only then call `pop()` if the operation is confirmed complete. This ensures the element is not removed prematurely if processing fails.",
+  "keywords": [
+    "top",
+    "pop",
+    "empty",
+    "undefined behavior",
+    "container adapter interface",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "395",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_split_interface_for_priority_queue_10baa4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

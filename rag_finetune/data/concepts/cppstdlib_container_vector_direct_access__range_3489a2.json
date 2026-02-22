@@ -1,0 +1,21 @@
+{
+  "topic": "Vector Direct Access: Range Checking and Performance Trade-offs",
+  "category": "container",
+  "explanation": "The `std::vector` provides two primary methods for indexed element access: `operator[]` and `at()`. The choice between them dictates the safety and performance characteristics.\n\n**1. `operator[]` (Unchecked Access):** This method provides raw access to the element at index `idx` in O(1) time complexity. It performs no bounds checking. If `idx` is outside the valid range `[0, size() - 1]`, accessing the element results in Undefined Behavior (UB). This method is preferred in performance-critical loops or when bounds checking has already been performed by the caller, guaranteeing maximum speed.\n\n**2. `at()` (Checked Access):** This method also provides O(1) access but includes mandatory bounds checking. If `idx` is out of range, `at()` throws an `std::out_of_range` exception (derived from `std::logic_error`). While safer and essential for defensive programming and debugging, the bounds checking adds a minor overhead, making it slightly slower than `operator[]`. Using `at()` ensures program termination or recovery via exception handling instead of silent corruption or UB.\n\n**Usage Guidance:** Use `operator[]` only when the index validity is mathematically guaranteed or verified externally (e.g., iterating from `0` to `size() - 1`). Use `at()` when user input determines the index or when robustness against invalid access is paramount.",
+  "code_example": "#include <vector>\n#include <stdexcept>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20, 30};\n\n    // Safe access (throws exception if index 5 is invalid)\n    try {\n        int val = v.at(2); // OK: val = 30\n        // v.at(5); // Would throw std::out_of_range\n    } catch (const std::out_of_range& e) {\n        std::cerr << \"Error: \" << e.what() << std::endl;\n    }\n\n    // Unchecked access (fastest but potentially UB)\n    v[1] = 25; // OK: v = {10, 25, 30}\n    // v[5] = 99; // DANGER: Undefined Behavior!\n}",
+  "practical_example": "When implementing a matrix multiplication routine where loop bounds are strictly controlled by dimension checks, `operator[]` is used for performance. Conversely, when retrieving configuration data from a vector based on an index provided by an external configuration file, `at()` should be used to catch invalid input indices immediately.",
+  "keywords": [
+    "at()",
+    "operator[]",
+    "bounds checking",
+    "out_of_range",
+    "undefined behavior",
+    "O(1) complexity",
+    "direct access"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "137",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_direct_access__range_3489a2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

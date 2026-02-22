@@ -1,0 +1,20 @@
+{
+  "topic": "Pitfall: Accidental Insertion During Read-Only Access via map::operator[]",
+  "category": "container",
+  "explanation": "The implicit insertion behavior of `std::map::operator[]` poses a significant pitfall when the operator is used in contexts intended for read-only access, such as printing or checking a temporary value. If a key is absent (or misspelled), `operator[]` executes the side effect of inserting a new element initialized to the default value, potentially increasing the map size unintentionally.\n\n**Undesired Behavior:**\n1. State Change: The map is modified, violating the expectation of a read-only operation.\n2. Incorrect Result: The operation uses the default-constructed value (often 0 or empty string) instead of reporting that the key is missing.\n\n**Best Practice for Read Access:**\n- Use `map::at(key)`: Provides read access (O(log N)) and throws `std::out_of_range` if the key is missing. This is safer for guaranteed existence checks.\n- Use `map::find(key)`: Returns an iterator (O(log N)). Check if the iterator equals `map::end()` to determine existence without modification.",
+  "code_example": "#include <map>\n#include <iostream>\n#include <string>\n\nint main() {\n    std::map<std::string, int> coll = {{\"otto\", 7}};\n    \n    // Pitfall: Misspelling 'otto' as 'ottto'\n    std::cout << coll.size() << \"\\n\"; // Output: 1\n    \n    // This inserts {\"ottto\", 0} and prints 0\n    std::cout << coll[\"ottto\"] << \"\\n\"; \n    \n    // Map size has increased unintentionally\n    std::cout << coll.size() << \"\\n\"; // Output: 2\n\n    // Safer read-only access:\n    try {\n        std::cout << coll.at(\"missing\") << \"\\n\";\n    } catch (const std::out_of_range& e) {\n        // Handles error without modifying coll\n    }\n}",
+  "practical_example": "Debugging application state. A developer might iterate over a map, printing certain values, and accidentally introduce a typo in a key lookup used inside a logging function. This results in the map growing silently with default values, masking the original error (the typo) and potentially leading to memory leaks or incorrect subsequent processing.",
+  "keywords": [
+    "accidental insertion",
+    "read-only access",
+    "side effect",
+    "std::map::at",
+    "std::map::find",
+    "out_of_range"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "184",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_pitfall__accidental_insertion_during_6e4967",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,22 @@
+{
+  "topic": "Portability and Querying Arithmetic Limits via std::numeric_limits",
+  "category": "util",
+  "explanation": "The template class `std::numeric_limits<T>`, defined in `<limits>`, provides a standard, portable mechanism for querying the properties and constraints of fundamental arithmetic types (e.g., `int`, `float`, `double`). This facility supersedes the use of non-standard or platform-dependent preprocessor macros (like those found in C's `<climits>` or `<cfloat>`) by providing information through static member functions and constants.\n\nPurpose: Ensures high portability by allowing code to adapt dynamically to the environment's specific representation of types (e.g., finding the maximum value of an `int` regardless of 32-bit or 64-bit architecture, or determining the precision of a floating-point type).\n\nTechnical Details:\n- Static Interface: All properties are accessed via static members (e.g., `std::numeric_limits<int>::max()`). No object instantiation is required.\n- Specialization: The primary template is specialized for all built-in arithmetic types. For non-arithmetic types (or unspecialized custom types), the default template is used, which typically returns `false` for boolean properties and zero/negative values for numerical properties.\n- Key Properties include `min()`, `max()`, `lowest()`, `epsilon()`, `digits` (number of radix digits), `is_signed`, and `is_integer`.\n\nPitfalls:\n1. `min()` vs `lowest()`: For signed integers, `min()` is usually the smallest positive normal value, while `lowest()` returns the most negative representable value. For standard integers, these are the same, but they differ for floating-point types.\n2. Header Requirement: Requires inclusion of `<limits>`, not `<utility>` or `<cmath>`. The standard places it in the utilities section due to its general applicability across the library, even though it deals with numerics.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nint main() {\n    // Querying integer properties\n    std::cout << \"Max int: \" << std::numeric_limits<int>::max() << \"\\n\";\n    \n    // Querying floating-point properties\n    std::cout << \"Float Epsilon: \" \n              << std::numeric_limits<float>::epsilon() << \"\\n\";\n              \n    // Checking representation details\n    if (std::numeric_limits<double>::is_iec559) {\n        std::cout << \"Double conforms to IEEE 754.\\n\";\n    }\n}",
+  "practical_example": "When implementing a robust threshold check for a scientific simulation, a developer must ensure that initialization values are truly the maximum possible value for the chosen type, regardless of the target platform's architecture. Using `std::numeric_limits<T>::max()` guarantees portability and correctness, unlike relying on macros like `DBL_MAX`.",
+  "keywords": [
+    "numeric_limits",
+    "portability",
+    "limits",
+    "max",
+    "min",
+    "epsilon",
+    "IEEE 754",
+    "utility"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "36 (Footnote 1)",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_portability_and_querying_arithmetic_limits_f7b607",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

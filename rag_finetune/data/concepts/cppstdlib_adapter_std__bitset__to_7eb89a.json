@@ -1,0 +1,20 @@
+{
+  "topic": "std::bitset::to_ulong() Integral Conversion and Overflow Exception",
+  "category": "adapter",
+  "explanation": "The member function `std::bitset<N>::to_ulong()` converts the internal binary representation of the bitset into an integral value of type `unsigned long`. This conversion treats the bitset as a non-negative binary number, where bit 0 is the least significant bit (LSB).\n\n**Requirements and Guarantees:**\n1. **Complexity:** The operation is generally linear in the number of bits, O(N).\n2. **Overflow Handling:** If the size of the bitset (N) is greater than the capacity of `unsigned long` (i.e., if the value represented by the bitset cannot be stored in `unsigned long`), the function guarantees throwing a `std::overflow_error` exception. This mechanism allows for robust error checking when attempting integral conversion on large bitsets.\n3. **Alternatives:** For bitsets larger than 64 bits (or whatever `unsigned long long` supports), `to_string()` or iteration is required, or the C++11 `to_ullong()` function can be used if supported by the underlying type.\n\n**Pitfalls:** Relying on the returned value without catching `overflow_error` when N is close to or exceeds the size of `unsigned long` can lead to program termination if the value is too large.",
+  "code_example": "#include <bitset>\n#include <iostream>\n#include <stdexcept>\n\nint main() {\n    // Assuming unsigned long is 32 bits for demonstration\n    std::bitset<33> large_bits;\n    large_bits.set(32); // Value 2^32\n\n    try {\n        unsigned long val = large_bits.to_ulong();\n        std::cout << \"Value: \" << val << std::endl;\n    } catch (const std::overflow_error& e) {\n        // Expected behavior if unsigned long < 33 bits\n        std::cerr << \"Error: \" << e.what() << std::endl;\n    }\n}",
+  "practical_example": "When implementing networking protocols that use fixed-size bit fields (e.g., 20-bit IDs) that must be converted to native integers for processing, `to_ulong()` is used. If the bit field size changes unexpectedly (e.g., to 60 bits), the `overflow_error` provides immediate, predictable failure notification instead of silent truncation or undefined behavior.",
+  "keywords": [
+    "to_ulong",
+    "bitset conversion",
+    "overflow_error",
+    "unsigned long",
+    "exception safety",
+    "integral conversion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "407",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset__to_7eb89a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

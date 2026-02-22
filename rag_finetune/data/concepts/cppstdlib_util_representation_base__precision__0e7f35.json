@@ -1,0 +1,22 @@
+{
+  "topic": "Representation Base, Precision, and Machine Epsilon in numeric_limits",
+  "category": "util",
+  "explanation": "The `std::numeric_limits` class provides precise metrics detailing the internal representation and effective precision of both integer and floating-point types, crucial for understanding potential overflow, underflow, and precision loss.\n\n**Definition of Precision Metrics**:\n- `radix`: The base of the internal representation. For typical integer types, this is 2. For standard floating-point types (IEEE 754), this is also 2.\n- `digits`: The number of `radix` digits (bits, if `radix` is 2) in the mantissa (significand) for floating-point types, or the number of bits excluding the sign bit for integer types. This defines the absolute internal precision.\n- `digits10`: The number of decimal (base 10) digits that can be stored and retrieved without loss of precision. For `float` (24 binary digits), this value is typically 6 or 7, indicating that only six decimal digits are guaranteed to be accurate.\n- `epsilon()`: Defined specifically for floating-point types, this is the smallest positive value $\\epsilon$ such that $1.0 + \\epsilon \\neq 1.0$. Epsilon defines the machine unit precision and is fundamental for determining tolerance in floating-point comparisons.\n\n**Usage and Performance**:\nThese static constants allow programmers to define portable numerical thresholds. For example, comparisons should use a tolerance derived from `epsilon()`, scaled by the magnitude of the operands, rather than a hardcoded small constant. Using `digits10` ensures that when converting a floating-point number to a string and back, the original value is preserved to that precision.\n\n**Technical Details**:\nFor a binary float type, `digits10` is roughly $\\lfloor digits \\cdot \\log_{10}(2) \\rfloor$. For standard 32-bit floats, `digits` is 24 and `digits10` is 6.\n\n**Pitfall**:\nA common mistake is assuming that `digits10` represents the total number of digits displayed. It only guarantees the *accuracy* of that many significant digits. Printing a float often reveals more digits, but those beyond `digits10` are usually noise from the binary conversion.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nint main() {\n    using T = float;\n    std::cout << \"--- Float Precision ---\\n\";\n    std::cout << \"Radix (Base): \" << std::numeric_limits<T>::radix << \"\\n\";\n    std::cout << \"Digits (Mantisssa bits): \" << std::numeric_limits<T>::digits << \"\\n\";\n    std::cout << \"Digits10 (Guaranteed decimal): \" << std::numeric_limits<T>::digits10 << \"\\n\";\n    std::cout << \"Epsilon: \" << std::numeric_limits<T>::epsilon() << \"\\n\";\n    \n    // Example: Comparing float values using epsilon\n    T a = 1.0F; \n    T b = 1.0F + std::numeric_limits<T>::epsilon() / 2.0F;\n    if (a == b) {\n        std::cout << \"A == B (expected based on machine precision)\\n\";\n    }\n}",
+  "practical_example": "In geometry processing or machine learning training, comparing floating-point results requires a tolerance. A robust comparison function uses `std::numeric_limits<T>::epsilon()` to define the smallest discernible difference: `if (std::abs(x - y) <= tolerance * std::numeric_limits<T>::epsilon())`. This prevents flaky tests caused by minor rounding differences inherent to the hardware's defined precision.",
+  "keywords": [
+    "epsilon",
+    "digits",
+    "digits10",
+    "radix",
+    "precision",
+    "floating-point comparison",
+    "machine precision",
+    "util"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "61",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_representation_base__precision__0e7f35",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

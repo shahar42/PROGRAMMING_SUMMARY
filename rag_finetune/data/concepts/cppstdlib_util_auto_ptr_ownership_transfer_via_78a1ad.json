@@ -1,0 +1,20 @@
+{
+  "topic": "auto_ptr Ownership Transfer via Function Boundaries (Source and Sink)",
+  "category": "util",
+  "explanation": "`std::auto_ptr` leverages its destructive copy semantics to facilitate explicit ownership transfer across function boundaries, allowing functions to act as controlled 'sources' or 'sinks' of dynamically allocated resources.\n\nSource Pattern (Returning Ownership):\nWhen an `auto_ptr` is returned by value from a function, ownership transfers to the calling function's receiving `auto_ptr` (or temporary object). The `auto_ptr` created inside the function relinquishes its pointer via the destructive copy mechanism implicit in the return process. This is the standard pattern for factory functions that create and hand off objects.\n\nSink Pattern (Receiving and Deleting Ownership):\nWhen an `auto_ptr` is passed into a function *by value*, the parameter receives ownership. If the function does not explicitly transfer ownership out (e.g., by returning the parameter), the managed resource will be automatically deleted when the function scope exits and the parameter's destructor runs. This pattern guarantees resource cleanup, even if the function throws an exception.\n\nUsage Guidance: This mechanism provides exception safety for resource management when crossing API boundaries, ensuring that resources are either explicitly transferred or safely destroyed. However, due to its non-standard copy behavior, this mechanism is error-prone compared to the modern C++ approach using `std::unique_ptr` and move semantics (C++11 and later).",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Data { public: ~Data() { std::cout << \"Data Deleted\\n\"; } };\n\n// Source: transfers ownership to caller\nstd::auto_ptr<Data> factory() {\n    std::auto_ptr<Data> ptr(new Data);\n    return ptr; // Ownership transfer via destructive copy\n}\n\n// Sink: receives ownership, deletes upon exit\nvoid process_and_destroy(std::auto_ptr<Data> p) {\n    if (p.get() != nullptr) {\n        std::cout << \"Processing Data...\\n\";\n    }\n    // p goes out of scope, Data is deleted.\n}\n\nint main() {\n    std::auto_ptr<Data> caller_p = factory(); // caller_p now owns it\n    process_and_destroy(caller_p);            // Ownership transferred to sink\n    // caller_p is now null\n}",
+  "practical_example": "A system managing network connections uses a factory function (`create_connection()`) that returns an `auto_ptr<Connection>`. The caller receives ownership. The connection is then passed to a temporary processing function (`handle_request(auto_ptr<Connection> p)`). If the processing function fails or completes, the connection resource is guaranteed to be closed and freed upon the function's return, preventing leaks.",
+  "keywords": [
+    "auto_ptr source",
+    "auto_ptr sink",
+    "ownership transfer function",
+    "pass by value smart pointer",
+    "factory function",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "44",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_auto_ptr_ownership_transfer_via_78a1ad",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

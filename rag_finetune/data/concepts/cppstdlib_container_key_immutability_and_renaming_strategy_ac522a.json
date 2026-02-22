@@ -1,0 +1,20 @@
+{
+  "topic": "Key Immutability and Renaming Strategy in std::map",
+  "category": "container",
+  "explanation": "In `std::map` (and `std::set`), the key component of the stored element (`std::pair<const Key, T>`) is immutable once inserted. This immutability is enforced because changing the key would violate the container's sorted invariant, potentially corrupting the underlying tree structure (typically a Red-Black Tree).\n\nPurpose: To 'rename' a key, the standard library requires the programmer to follow the copy-and-erase idiom. The value associated with the old key must first be retrieved and inserted under the new key, and then the original element associated with the old key must be explicitly erased.\n\nTechnical Details:\n- The iterator dereference operator returns a reference to `value_type`, where the key is qualified as `const`. Attempting to modify the key results in a compile-time error.\n- The complexity of renaming is dominated by the insertion and erasure steps, totaling O(log N) + O(log N) = O(log N).\n- Direct modification of the mapped value (the `T` component) via the iterator's `second` member is permitted and does not affect the container's ordering.\n\nPitfalls: Failing to erase the old element results in duplication. Attempting to modify the key directly results in a compilation error.",
+  "code_example": "#include <map>\n#include <string>\n\nvoid rename_key(std::map<std::string, int>& m, \n                const std::string& old_key, \n                const std::string& new_key) {\n    \n    // 1. Check if old key exists and new key doesn't\n    if (m.count(old_key) && !m.count(new_key)) {\n        // 2. Copy the value to the new key (O(log N) insertion)\n        m[new_key] = m[old_key];\n        \n        // 3. Erase the old key (O(log N) erasure)\n        m.erase(old_key);\n    }\n}\n",
+  "practical_example": "Managing configuration settings where user IDs (keys) might change due to merging accounts. The associated configuration data (value) must be preserved and moved to the new ID, requiring the copy-and-erase sequence.",
+  "keywords": [
+    "map key immutability",
+    "associative container",
+    "erase idiom",
+    "copy and erase",
+    "map modification",
+    "O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "185",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_immutability_and_renaming_strategy_ac522a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

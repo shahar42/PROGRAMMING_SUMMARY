@@ -1,0 +1,20 @@
+{
+  "topic": "Sizing std::bitset using numeric_limits::digits",
+  "category": "util",
+  "explanation": "The size of a `std::bitset` is a compile-time constant defined by its template parameter N. To ensure a `bitset` exactly matches the storage precision of a fundamental integral type (e.g., `unsigned short`), the `std::numeric_limits` utility is employed.\n\nDefinition: `std::numeric_limits<T>::digits` provides the number of non-sign bits (the magnitude bits) available in the representation of type T. For unsigned integer types, this is equivalent to the total number of bits, excluding any potential padding bits not used for representation.\n\nUsage: Using `numeric_limits<T>::digits` as the template argument guarantees that the `bitset` is sized precisely to hold the binary representation of type T without truncation or unnecessary padding bits, ensuring exact conversion fidelity between the integer and the bitset.\n\nCode Requirement: The integral value used to initialize the bitset must fit within the specified size N. If the size N is smaller than the required bits of the initializing value, the most significant bits of the value are silently truncated.",
+  "code_example": "#include <bitset>\n#include <limits>\n#include <iostream>\n\nusing UShortLimits = std::numeric_limits<unsigned short>;\n\nint main() {\n    // N is precisely the number of value bits in unsigned short (e.g., 16)\n    const int N = UShortLimits::digits;\n    \n    std::bitset<N> bs(267); \n    \n    std::cout << \"Size (digits): \" << N << \"\\n\";\n    std::cout << \"Binary: \" << bs << \"\\n\";\n    \n    // Example of truncation if N is too small:\n    // If N is 8, 267 (1 0000 1011) becomes 0000 1011 (11)\n    std::bitset<8> truncated(267);\n    std::cout << \"Truncated (8 bits): \" << truncated << \"\\n\";\n}",
+  "practical_example": "When implementing cross-platform networking protocols where integer sizes (e.g., 16-bit payload IDs) are strictly defined, using `numeric_limits<uint16_t>::digits` ensures that the `bitset` storage matches the protocol specification exactly, regardless of potential compiler-specific integer padding.",
+  "keywords": [
+    "numeric_limits",
+    "digits",
+    "bitset size",
+    "template parameter",
+    "unsigned short",
+    "precision"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "402, 130",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_sizing_std__bitset_using_ca8b9e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

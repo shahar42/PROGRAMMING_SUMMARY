@@ -1,0 +1,20 @@
+{
+  "topic": "Container Comparison: Lexicographical Ordering",
+  "category": "container",
+  "explanation": "Standard containers (sequences and associative) support relational comparison operators (`<`, `<=`, `>`, `>=`) which utilize lexicographical ordering.\n\nDefinition:\nLexicographical comparison compares two containers element by element, sequentially, until a difference is found or one container runs out of elements.\n\nTechnical Details:\n1.  **Element Requirement:** The element type must support the comparison operator being used (e.g., `operator<` for `<`).\n2.  **Comparison Flow:** Comparison proceeds by calling `std::lexicographical_compare` internally (or equivalent logic). If `c1[i] < c2[i]`, then `c1 < c2`. If `c2[i] < c1[i]`, then `c1 > c2`.\n3.  **Equality and Length:** If all elements compared are equal up to the point where one container ends, the shorter container is considered 'less than' the longer container (e.g., `{1, 2} < {1, 2, 3}`). If both are the same length and all elements are equal, they are considered equivalent (`c1 == c2`).\n4.  **Type Requirement:** Both containers being compared must be of the exact same container type (e.g., `std::vector<int>` can only be compared to another `std::vector<int>`).\n\nUsage: This behavior is crucial when containers are used as keys in maps (though specialized comparison functors are often needed for robust custom types) or when sorting sequences of containers.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v1 = {1, 5, 10};\n    std::vector<int> v2 = {1, 5, 20};\n    std::vector<int> v3 = {1, 5};\n\n    // Lexicographical comparison: 10 < 20 at index 2\n    std::cout << \"v1 < v2: \" << (v1 < v2) << \" (True)\\n\";\n    \n    // Shorter is less than longer if prefix matches\n    std::cout << \"v3 < v1: \" << (v3 < v1) << \" (True)\\n\";\n    \n    return 0;\n}",
+  "practical_example": "When implementing a caching system where the key is a sequence of parameters (e.g., a `std::vector<std::string>`), using the container's built-in `operator<` allows the cache to store and retrieve entries reliably in a `std::map<std::vector<std::string>, Result>`.",
+  "keywords": [
+    "lexicographical_compare",
+    "container comparison",
+    "operator<",
+    "relational operators",
+    "element requirements",
+    "ordering"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "132",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_comparison__lexicographical_ordering_df1aa4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Logarithmic Complexity of Associative Container Key Lookup Operations",
+  "category": "container",
+  "explanation": "Associative containers (`std::map`, `std::set`, `std::multimap`, `std::multiset`) provide specialized member functions for key-based searching that leverage their internal balanced tree structure (typically a Red-Black Tree). These functions guarantee logarithmic time complexity, O(log N), where N is the number of elements.\n\nTechnical Details:\n1. `find(key)`: Searches for the element matching `key`. Returns an iterator or `end()`. Guaranteed O(log N).\n2. `count(key)`: Returns the number of elements matching `key`. Guaranteed O(log N).\n3. `lower_bound(key)`: Returns an iterator to the first element that is not less than `key` (i.e., the first element where `key` would be inserted). Guaranteed O(log N).\n4. `upper_bound(key)`: Returns an iterator to the first element that is greater than `key`. Guaranteed O(log N).\n\nUsage and Performance: These member functions should always be preferred over generic algorithms when searching by key, as generic algorithms like `std::find` would require linear time, O(N), because they cannot utilize the container's internal structure.\n\nPitfalls: Confusing `lower_bound` and `upper_bound` usage. The pair `[lower_bound(k), upper_bound(k))` defines the precise range of all elements in a multimap or multiset that match the key `k`. The standard also provides `equal_range(key)`, which returns a `std::pair` containing both bounds, also in O(log N).",
+  "code_example": "#include <map>\n#include <iostream>\n\nint main() {\n    std::map<int, char> m = {{1, 'a'}, {5, 'e'}, {10, 'j'}};\n    \n    // O(log N) search for key 5\n    auto pos = m.find(5);\n    if (pos != m.end()) {\n        std::cout << \"Found key: \" << pos->first << \" (O(log N))\\n\";\n    }\n    \n    // O(log N) boundary search\n    auto low = m.lower_bound(6);\n    // low points to {10, 'j'} because 10 is the first key >= 6\n    if (low != m.end()) {\n        std::cout << \"Lower bound for 6 is: \" << low->first << \"\\n\";\n    }\n    return 0;\n}",
+  "practical_example": "In a routing table implemented with `std::map<IPAddress, RouteInfo>`, using `find()` ensures that millions of lookups occur in O(log N) time, maintaining high throughput. If generic linear search were mistakenly used, performance would degrade severely.",
+  "keywords": [
+    "logarithmic complexity",
+    "find member function",
+    "count",
+    "lower_bound",
+    "upper_bound",
+    "O(log N)",
+    "associative container search"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "176, Table 6.28",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_logarithmic_complexity_of_associative_container_29c7a2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

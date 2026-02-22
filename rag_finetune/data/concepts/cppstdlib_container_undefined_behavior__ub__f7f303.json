@@ -1,0 +1,20 @@
+{
+  "topic": "Undefined Behavior (UB) from Accessing Elements of an Empty Vector",
+  "category": "container",
+  "explanation": "Accessing elements via `operator[]`, `front()`, or `back()` on an empty container (`c.size() == 0`) constitutes a precondition violation and results in Undefined Behavior (UB) according to the standard. These access methods assume the container is non-empty and do not perform safety checks.\n\n**Precondition Requirements:**\n1. `c.front()` requires `!c.empty()`.\n2. `c.back()` requires `!c.empty()`.\n3. `c[idx]` requires `0 <= idx < c.size()`.\n\n**Pitfalls:** A common mistake is assuming that accessing `c[0]` on an empty vector will result in a predictable crash or a specific exception. Since UB is invoked, the behavior is unpredictable: the program might crash, return garbage data, or appear to work correctly in testing only to fail in production.\n\n**Mitigation:** Programmers must explicitly check the container size or emptiness before using these unchecked accessors. Using `if (!coll.empty())` or `if (coll.size() > index)` is mandatory to prevent UB. If safety is paramount and manual checks are undesirable, the checked accessor `at()` must be used, although `at()` still requires the index to be valid (it would throw on an empty vector if index 0 was requested).",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> coll;\n\n    // DANGER: UB due to empty container access\n    // std::cout << coll.front(); \n    // coll[0] = 5; \n\n    // Correct usage: Check size before access\n    if (!coll.empty()) {\n        std::cout << coll.front(); // Safe if size > 0\n    } else {\n        std::cout << \"Container is empty.\\n\";\n    }\n\n    coll.push_back(10);\n    std::cout << \"Front (Safe): \" << coll.front() << std::endl;\n}",
+  "practical_example": "In parsing network packets, a vector might store payload segments. If a packet is malformed and contains zero segments, attempting to access the 'first segment' using `payload.front()` without checking `payload.empty()` will lead to UB, potentially crashing the server or exposing memory contents.",
+  "keywords": [
+    "undefined behavior",
+    "front()",
+    "back()",
+    "empty container",
+    "precondition violation",
+    "runtime error"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "137",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_undefined_behavior__ub__f7f303",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

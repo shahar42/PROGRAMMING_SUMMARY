@@ -1,0 +1,21 @@
+{
+  "topic": "std::map Value Type Structure and Key Immutability",
+  "category": "container",
+  "explanation": "The elements stored within a `std::map<K, V>` are not simply `V` objects, but rather pairs that encapsulate both the key and the mapped value. Understanding the structure of this `value_type` is crucial for correct iteration and modification.\n\n**Value Type Definition**:\nThe map's `value_type` is defined as `std::pair<const K, V>`. This means that when an iterator is dereferenced, it yields a reference to a pair where the key component (`first`) is constant.\n\n**Key Immutability**:\nThe key (`pos->first`) must be constant because maps maintain their elements in strict weak ordering based on the key. Modifying the key of an existing element would violate the container's internal ordering invariant, leading to undefined behavior and potential corruption of the underlying tree structure. Attempting to modify `pos->first` results in a compile-time error.\n\n**Value Mutability**:\nThe mapped value component (`pos->second`) is non-constant and can be freely modified through the iterator. This is the standard mechanism for updating the data associated with a key that is already present in the map.\n\n**Iteration Access**:\nIterators return references to these pairs. Thus, access to the components uses the arrow operator (`->`) followed by `.first` (for the key) and `.second` (for the value).",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    std::map<std::string, double> stocks = {{\"A\", 100.0}};\n    \n    auto pos = stocks.begin();\n    \n    // 1. Accessing key and value\n    std::string key = pos->first; \n    double value = pos->second;\n    \n    // 2. Modifying the value (Allowed)\n    pos->second *= 2; // Price doubled to 200.0\n    \n    // 3. Attempting to modify the key (Compiler Error)\n    // pos->first = \"NewKey\"; \n    // Error: assignment of read-only member 'std::pair<const K, V>::first'\n}",
+  "practical_example": "When implementing a cache where entries have an associated expiration timestamp (the value), iterating through the map allows modification of the timestamp (e.g., extending the expiration) via `pos->second`. However, changing the actual cache key (the item identifier) requires erasing the old element and inserting a new one, respecting the key immutability rule.",
+  "keywords": [
+    "value_type",
+    "std::pair",
+    "key immutability",
+    "const key",
+    "map iteration",
+    "iterator dereference",
+    "ordering invariant"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "203-204",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map_value_type_e11edc",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

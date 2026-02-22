@@ -1,0 +1,21 @@
+{
+  "topic": "std::bitset Indexed Manipulation Safety and `std::out_of_range` Guarantee",
+  "category": "adapter",
+  "explanation": "Standard library indexed manipulation functions for `std::bitset`, specifically `set(size_t idx)`, `reset(size_t idx)`, and `flip(size_t idx)`, enforce mandatory bounds checking. If the provided index `idx` is greater than or equal to the size of the bitset (i.e., `idx >= bitset::size()`), the function is required to throw a `std::out_of_range` exception.\n\nPurpose: This strict requirement ensures runtime safety when manipulating fixed-size bit sequences, preventing silent corruption or undefined behavior due to out-of-bounds access. This contrasts with array-like containers where `operator[]` usually lacks bounds checks for performance.\n\nTechnical Details:\n- Complexity: O(1) for single bit access and modification.\n- Throw guarantee: The exception must be thrown if the index is invalid.\n- Return Value: All indexed manipulators return a reference to the modified bitset (`bitset<bits>&`), allowing for chaining of operations.\n\nPitfalls: Relying on exception handling for flow control is generally poor practice. Proper usage involves validating the index or ensuring it comes from a trusted source (e.g., iterating through `0` to `size() - 1`). Attempting to access `bitset::size()` throws the exception, as the indices are 0-based.",
+  "code_example": "#include <bitset>\n#include <stdexcept>\n#include <iostream>\n\nint main() {\n    std::bitset<8> b;\n    try {\n        // Valid access\n        b.set(5); \n        \n        // Invalid access (index 8 is out of bounds for size 8)\n        b.set(8); \n        std::cout << \"This line should not be reached.\\n\";\n    } catch (const std::out_of_range& e) {\n        std::cerr << \"Caught expected exception: \" << e.what() << \"\\n\";\n    }\n    return 0;\n}",
+  "practical_example": "When parsing a network protocol header where the number of flags is known (e.g., 16 bits), using indexed operations ensures that if a malicious or corrupted packet specifies an index outside [0, 15], the application fails safely by catching the `out_of_range` exception, rather than crashing or causing memory corruption.",
+  "keywords": [
+    "bitset bounds check",
+    "out_of_range",
+    "indexed access",
+    "set",
+    "reset",
+    "flip",
+    "exception guarantee"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "404",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_indexed_manipulation_92c7de",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Underlying Container Requirements for std::queue",
+  "category": "trait",
+  "explanation": "To serve as the underlying storage for `std::queue<T, Container>`, the provided `Container` type must satisfy specific behavioral requirements, ensuring the adapter can implement the necessary FIFO operations efficiently.\n\nRequirements:\n1. **Front Deletion:** Must support `pop_front()`, typically required to be O(1).\n2. **Back Insertion:** Must support `push_back(const value_type& x)`, typically required to be O(1) amortized.\n3. **Front/Back Access:** Must support `front()` and `back()` to retrieve elements without removal.\n4. **Status Checks:** Must support `empty()` and `size()`.\n\nContainers that satisfy these requirements include `std::deque<T>` (default choice) and `std::list<T>`. Containers like `std::vector<T>` or `std::string` cannot be used because they do not provide efficient O(1) removal from the front (`pop_front`).\n\nTechnical Details: If a container is chosen where `pop_front` is O(N) (like `std::vector`), the entire performance guarantee of the queue is degraded, making insertions O(1) but removals O(N). The standard requires efficient implementation, effectively precluding `std::vector`.",
+  "code_example": "#include <queue>\n#include <deque>\n#include <list>\n\n// Valid Containers:\nstd::queue<int, std::deque<int>> valid_q1;\nstd::queue<int, std::list<int>> valid_q2;\n\n// Invalid Container (lacks efficient pop_front):\n// #include <vector>\n// std::queue<int, std::vector<int>> invalid_q3; \n// ^ Compilation error or severe performance penalty\n\nint main() { return 0; }",
+  "practical_example": "When designing a custom container (e.g., a lock-free buffer) intended for use with `std::queue`, the designer must ensure that the container strictly adheres to the mandated O(1) complexity for front removal and back insertion to maintain standard library performance expectations.",
+  "keywords": [
+    "queue requirements",
+    "container constraints",
+    "pop_front",
+    "push_back",
+    "std::list",
+    "std::vector incompatibility"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "389",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_trait_underlying_container_requirements_for_std_b61211",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

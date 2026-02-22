@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Destructive Copy Semantics and Invalidity in Containers",
+  "category": "util",
+  "explanation": "The `std::auto_ptr` smart pointer (deprecated since C++11 and removed in C++17) implemented unique ownership through highly non-standard copy and assignment operations, known as destructive copy semantics.\n\nDefinition: When an `auto_ptr` (the source, or right-hand side) is copied or assigned to another `auto_ptr` (the destination, or left-hand side), ownership of the managed resource is transferred entirely to the destination. Crucially, the source `auto_ptr` is modified to hold a null pointer (`nullptr`).\n\nTechnical Details:\n1. Copy Construction: `std::auto_ptr<T> dest(src);` results in `src.get()` becoming null.\n2. Assignment: `dest = src;` results in `src.get()` becoming null (after deleting the resource previously held by `dest`).\n3. Raw Pointer Assignment Restriction: A raw pointer cannot be assigned directly to an existing `auto_ptr` (`ptr = new T;` is illegal). It must be wrapped in a temporary `auto_ptr` first (`ptr = std::auto_ptr<T>(new T);`).\n\nPitfalls: This destructive copying violates the requirements of standard library algorithms and containers, which assume that copying an element does not modify the source. Using `auto_ptr` in `std::vector` or sorting algorithms leads to undefined behavior, as elements are unexpectedly nulled out during internal container operations (e.g., reallocation or sorting swaps).\n\nUsage Guidance: `auto_ptr` must only be used where explicit ownership transfer is desired, typically across function boundaries, or immediately after initialization. It was replaced by `std::unique_ptr`, which enforces unique ownership using move semantics, preventing accidental destructive copies.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource {};\n\nint main() {\n    std::auto_ptr<Resource> src(new Resource());\n    std::cout << \"Source valid before copy: \" << (src.get() != nullptr) << \"\\n\";\n    \n    // Destructive copy operation\n    std::auto_ptr<Resource> dest = src;\n    \n    std::cout << \"Source valid after copy: \" << (src.get() != nullptr) << \"\\n\";\n    // src is now null and dereferencing it is UB.\n\n    // Assignment restriction\n    // dest = new Resource(); // ERROR: Cannot assign raw pointer\n    \n    // Correct assignment via temporary wrapper\n    dest = std::auto_ptr<Resource>(new Resource()); // OK\n}",
+  "practical_example": "Attempting to store `std::auto_ptr` objects in a `std::vector` and then performing a sort or copy operation. The vector's internal reallocation mechanism might copy elements, inadvertently nullifying the original owners, leading to subsequent access errors or unexpected premature resource deletion.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "deprecated",
+    "unique ownership",
+    "std::unique_ptr",
+    "raw pointer assignment"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "43-44",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_b6ab59",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

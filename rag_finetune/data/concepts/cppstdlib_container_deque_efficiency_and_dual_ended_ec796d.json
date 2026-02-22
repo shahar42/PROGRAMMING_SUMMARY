@@ -1,0 +1,21 @@
+{
+  "topic": "Deque Efficiency and Dual-Ended Operations",
+  "category": "container",
+  "explanation": "A `std::deque` (double-ended queue) is a sequence container that maintains dynamic storage, provides random access, and supports efficient insertion and deletion at both the beginning and the end of the sequence.\n\nPurpose: Deque serves as a hybrid between `std::vector` and `std::list`. It maintains the random access capabilities of `std::vector` (using Random Access Iterators) but eliminates the major performance drawback of vector\u2014O(N) cost for insertion/deletion at the beginning\u2014by managing storage non-contiguously, typically as a list of fixed-size blocks of memory.\n\nTechnical Details:\n- **Access:** Element access via `operator[]` or `at()` is O(1).\n- **Insertion/Deletion:** `push_front()`, `pop_front()`, `push_back()`, and `pop_back()` are all guaranteed to be amortized O(1).\n- **Memory Layout:** The storage is not guaranteed to be contiguous. This means deque is less cache-friendly than vector but avoids full reallocations when growing.\n- **Iterator Invalidation:** Insertion/deletion in the middle invalidates all iterators and references. However, insertion/deletion at either end only invalidates iterators and references to the elements being moved or affected (typically only the iterators/references to the affected end segment), unlike vector, where reallocation invalidates everything.",
+  "code_example": "#include <deque>\n#include <iostream>\n\nint main() {\n    std::deque<int> d = {3, 4, 5};\n    \n    // O(1) insertion at the front\n    d.push_front(2);\n    d.push_front(1);\n    \n    // O(1) insertion at the back\n    d.push_back(6);\n    \n    // Random access is supported\n    std::cout << \"Element at index 3: \" << d[3] << std::endl; // Output: 4\n    \n    // Output: 1 2 3 4 5 6 \n    for (int x : d) {\n        std::cout << x << \" \";\n    }\n}",
+  "practical_example": "A transaction log system needs to handle incoming transactions quickly (push_back) while simultaneously processing the oldest pending transactions (pop_front). Using `std::deque` ensures that both operations maintain O(1) performance, whereas using `std::vector` would make `pop_front` prohibitively slow (O(N) shifting).",
+  "keywords": [
+    "deque",
+    "double-ended queue",
+    "push_front",
+    "random access",
+    "amortized O(1)",
+    "non-contiguous storage",
+    "iterator invalidation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "143",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_deque_efficiency_and_dual_ended_ec796d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

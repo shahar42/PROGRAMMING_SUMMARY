@@ -1,0 +1,20 @@
+{
+  "topic": "Type Identity Dependence on Comparator (Compare Trait)",
+  "category": "trait",
+  "explanation": "The full type signature of an associative container (`std::set`, `std::map`, `std::multiset`, `std::multimap`) is determined by its value type (T) and its comparison predicate (Compare, defaulting to `std::less<T>`). Containers differing only in their Compare template argument are considered distinct types.\n\nDefinition: `std::set<T, Compare1>` is a different type from `std::set<T, Compare2>`. This difference prevents direct assignment or comparison using standard overloaded operators (like `operator==` or `operator=`) between containers that utilize different sorting criteria (e.g., ascending vs. descending).\n\nUsage Guidance: Although the container types are distinct, the elements they hold are compatible. Therefore, initialization can occur via range constructors, and standard algorithms (which operate on iterator ranges rather than container types) can be used to process or transfer data between containers with different comparators, such as using `std::copy` combined with `std::inserter`.\n\nPitfalls: Attempting to assign or compare containers with different comparators results in a compilation error due to type mismatch. This emphasizes that the comparison criterion is intrinsic to the container's structure and identity, not just a runtime property.",
+  "code_example": "#include <set>\n#include <functional>\n\nint main() {\n    // Type 1: Ascending order\n    std::set<int, std::less<int>> coll1 = {1, 5, 3};\n    \n    // Type 2: Descending order\n    std::set<int, std::greater<int>> coll2 = {1, 5, 3};\n    \n    // coll1 = coll2; // ERROR: Incompatible types\n    \n    // Initialization via range constructor (OK)\n    std::set<int, std::less<int>> coll3(coll2.begin(), coll2.end());\n    \n    return 0;\n}",
+  "practical_example": "When migrating data structures that require different indexing strategies (e.g., one system uses ascending timestamp lookup, another uses descending priority lookup), these structures must be defined as distinct types, even if they hold the same data payload.",
+  "keywords": [
+    "comparator type",
+    "std::less",
+    "std::greater",
+    "type identity",
+    "associative container requirements",
+    "member templates"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "168, footnote 21",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_trait_type_identity_dependence_on_comparator_f34242",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

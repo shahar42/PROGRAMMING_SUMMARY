@@ -1,0 +1,21 @@
+{
+  "topic": "Non-Standard Hash Containers and Portability (Pre-C++11)",
+  "category": "container",
+  "explanation": "Prior to C++11, the official C++ Standard Library did not include hash table implementations (now standardized as `std::unordered_...` containers). Vendor-specific libraries (like STLport or SGI STL) commonly provided non-standard associative containers named `hash_set`, `hash_multiset`, `hash_map`, and `hash_multimap`.\n\nPurpose: These containers were designed to provide expected O(1) average time complexity for lookup, insertion, and deletion, significantly faster than the O(log N) complexity guaranteed by standard tree-based containers (`std::set`, `std::map`).\n\nTechnical Details:\n- Complexity: Average case O(1) for fundamental operations; Worst case O(N) (due to hash collisions).\n- Requirements: Keys must be hashable via a custom or default hash function (often requiring specialization of `std::hash` or providing a third template argument).\n\nPitfalls: The primary issue with these legacy containers is the lack of standardization. Implementation specifics\u2014such as the exact API, the hash function requirements, collision resolution strategy, and performance characteristics under high load\u2014varied widely between vendors, leading to non-portable code. Code relying on `hash_map` must typically be conditionally compiled or migrated to `std::unordered_map` upon moving to C++11 or later standards.",
+  "code_example": "#include <iostream>\n// Note: This requires a non-standard header, e.g., <ext/hash_map>\n// using __gnu_cxx::hash_map; \n\nint main() {\n    // In modern C++ (C++11+), this is replaced by:\n    // std::unordered_map<int, std::string> umap;\n    \n    // Legacy usage (Non-standard & non-portable):\n    // hash_map<int, std::string> hmap;\n    // hmap[1] = \"Value\";\n    \n    // Portability Warning: Relying on hash_* names violates standard compliance.\n    std::cout << \"Legacy hash containers offer O(1) average complexity\\n\";\n    return 0;\n}",
+  "practical_example": "A legacy codebase written using an older compiler's STL implementation might use `hash_map<string, data>` for fast symbol lookup. When attempting to compile this code with a different vendor's compiler or a newer C++ standard version, the `hash_map` type will be undefined, necessitating refactoring to use the standardized `std::unordered_map` and ensuring the custom hash functor (if any) is compatible with the new standard.",
+  "keywords": [
+    "hash_map",
+    "hash_set",
+    "non-standard container",
+    "O(1) complexity",
+    "unordered_map",
+    "portability issues",
+    "associative container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "195",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_non_standard_hash_containers_and_e49cdf",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

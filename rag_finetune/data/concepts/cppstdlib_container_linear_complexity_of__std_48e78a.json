@@ -1,0 +1,20 @@
+{
+  "topic": "Linear Complexity of `std::vector::insert`",
+  "category": "container",
+  "explanation": "`std::vector` maintains its elements in contiguous memory, allowing for efficient random access (O(1)). This contiguous requirement dictates the performance characteristics of insertion and erasure operations that are not at the end.\n\nDefinition: The `vector::insert(position, element)` operation inserts a new element at a specified position. To maintain contiguous storage, all elements from `position` to the end of the vector must be shifted one position backward.\n\nTechnical Details:\n- Complexity: The complexity of `insert` is linear in the number of elements that must be moved. Specifically, it is O(N - distance(begin(), position)), where N is the total size.\n- Worst Case: Insertion at the beginning (`v.insert(v.begin(), x)`) requires shifting all N elements, resulting in O(N) complexity.\n- Best Case: Insertion just before the end (`v.insert(v.end(), x)`) is equivalent to `push_back()` and is typically amortized O(1) (though technically O(1) if no reallocation is needed).\n\nUsage Guidance: If frequent insertions into the middle or beginning of a sequence are required, `std::list` (O(1) insertion) or `std::deque` (O(N) worst case, but typically faster due to block structure) should be preferred over `std::vector`.\n\nPitfalls: Repeatedly inserting into a vector while iterating or processing data in FIFO order (inserting at the beginning) results in quadratic O(N^2) complexity, which is highly inefficient.",
+  "code_example": "#include <vector>\n#include <algorithm>\n\nint main() {\n    std::vector<int> v = {1, 2, 3, 4, 5};\n    \n    // O(N) operation: must shift 4, 5\n    auto it = v.begin() + 3; // Points to 4\n    v.insert(it, 99);\n    \n    // O(N) worst case: must shift all N elements\n    v.insert(v.begin(), 0);\n    \n    // v is now {0, 1, 2, 3, 99, 4, 5}\n    \n    // Note: If reallocation occurs during insert, all existing iterators are invalidated.\n}",
+  "practical_example": "When maintaining a sorted list of customer orders, inserting a new order into the middle of a `std::vector` requires linear time. If the list is large (millions of orders) and insertions are frequent, this choice leads to unacceptable performance degradation compared to using a balanced tree (`std::set`) or a linked list (`std::list`).",
+  "keywords": [
+    "vector insert",
+    "linear complexity",
+    "O(N)",
+    "contiguous storage",
+    "iterator invalidation",
+    "sequence container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "141, 153-154",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_linear_complexity_of__std_48e78a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

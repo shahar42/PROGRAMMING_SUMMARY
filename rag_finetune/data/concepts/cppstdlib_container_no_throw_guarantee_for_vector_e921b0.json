@@ -1,0 +1,22 @@
+{
+  "topic": "No-Throw Guarantee for Vector Removal and Utility Operations",
+  "category": "container",
+  "explanation": "Certain fundamental utility and removal operations in `std::vector` are guaranteed not to throw exceptions, provided the standard requirement that element destructors do not throw is met.\n\nOperations Guaranteed Not to Throw:\n1. `swap()`: The `swap` operation between two vectors is guaranteed not to throw exceptions. This is vital for implementing the robust copy-and-swap idiom, which achieves strong exception safety for user-defined classes.\n2. `pop_back()`: This operation removes the last element. Since it only involves destruction (which is assumed non-throwing) and decrementing the size, it is guaranteed not to throw.\n\nConditional No-Throw:\n- `erase()` and `clear()`: These operations are guaranteed not to throw exceptions *if* the element's copy operations (copy constructor and assignment operator) do not throw. Since removal usually involves only destruction, this guarantee is often met, especially if the element type is a Plain Old Data (POD) type.\n\nUsage: Relying on the no-throw guarantee of `swap()` ensures that exception handling code can safely use it to exchange resources without fear of introducing new exceptions during cleanup or state finalization. Similarly, `pop_back()` is safe to use within destructors or cleanup routines.\n\nPitfall: The guarantees hinge entirely on the element destructors not throwing. If a user-defined destructor throws, the resulting behavior is undefined, violating core STL exception safety assumptions.",
+  "code_example": "#include <vector>\n#include <algorithm>\n#include <stdexcept>\n\nint main() {\n    std::vector<int> v1 = {1, 2, 3};\n    std::vector<int> v2 = {4, 5, 6};\n\n    // swap() is guaranteed not to throw, making it safe for cleanup.\n    try {\n        v1.swap(v2);\n    } catch (...) {\n        // This catch block will likely never be entered due to the guarantee.\n    }\n\n    // pop_back() is guaranteed not to throw (assuming int destructor doesn't throw)\n    v1.pop_back(); \n\n    // clear() is guaranteed not to throw for POD types like int.\n    v2.clear(); \n}",
+  "practical_example": "In a resource manager class using a vector to hold handles, implementing the destructor or resource release logic must be exception-safe. Because `swap()` and `pop_back()` are guaranteed not to throw, they can be safely used to manage the internal state without the risk of an exception escaping the cleanup routine.",
+  "keywords": [
+    "no-throw guarantee",
+    "swap",
+    "pop_back",
+    "erase",
+    "clear",
+    "exception safety",
+    "destructor requirement",
+    "POD"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "154 (Points 3, 4, 5)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_no_throw_guarantee_for_vector_e921b0",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

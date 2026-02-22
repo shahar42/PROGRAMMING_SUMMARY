@@ -1,0 +1,20 @@
+{
+  "topic": "Shared Ownership Lifetime Guarantee (std::shared_ptr Semantics)",
+  "category": "util",
+  "explanation": "The concept of a shared pointer, exemplified by the description of `CountedPtr` (which corresponds to modern `std::shared_ptr`), ensures that the managed object remains valid and accessible as long as at least one instance of the smart pointer refers to it. This mechanism uses reference counting stored in an internal control block.\n\nPurpose: To manage object lifetime automatically, preventing memory leaks and dangling pointers in scenarios where multiple parts of a program need shared, non-exclusive access to the same resource. When smart pointers are stored in containers, their destruction (e.g., when the container is cleared or destroyed) only decrements the reference count; the underlying object persists until the count reaches zero.\n\nTechnical Details:\n- Lifetime: The managed object is destroyed only when the reference count reaches zero.\n- Copy/Assignment: O(1) complexity, involving atomic increment/decrement of the reference count.\n- Access: Dereferencing (`*` or `->`) is O(1).\n- Pitfall: Creating multiple `shared_ptr` instances independently from the same raw pointer results in multiple control blocks and guaranteed double deletion, leading to undefined behavior. Always use `std::make_shared` or ensure the raw pointer is owned only once.\n\nUsage Guidance: Essential when dealing with polymorphic objects or complex data structures where ownership transfer is ambiguous or multiple owners are required.",
+  "code_example": "#include <memory>\n#include <vector>\n\nclass Data {};\n\nvoid process(std::shared_ptr<Data> p) {\n    // p increments the ref count\n}\n\nint main() {\n    auto sp = std::make_shared<Data>(); // Ref count = 1\n    {\n        std::vector<std::shared_ptr<Data>> container;\n        container.push_back(sp); // Ref count = 2\n        container.push_back(sp); // Ref count = 3\n    } // container destroyed, Ref count = 1 (Data persists)\n    \n    process(sp); // Ref count = 1 before, 2 during, 1 after\n    // sp goes out of scope: Ref count = 0. Data destroyed.\n}",
+  "practical_example": "Managing a cache of expensive-to-load resources (e.g., textures or database connections). Multiple application modules can hold `shared_ptr`s to the resource; the resource is automatically evicted from memory only when all modules have released their references.",
+  "keywords": [
+    "shared_ptr",
+    "reference counting",
+    "lifetime management",
+    "auto_ptr replacement",
+    "ownership semantics",
+    "make_shared"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130-131",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_shared_ownership_lifetime_guarantee__f8089e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

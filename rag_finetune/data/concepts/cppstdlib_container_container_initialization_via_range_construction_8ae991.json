@@ -1,0 +1,21 @@
+{
+  "topic": "Container Initialization via Range Construction",
+  "category": "container",
+  "explanation": "All standard sequence and associative containers support initialization using a range constructor that accepts two iterators, `first` and `last`, defining a half-open range `[first, last)`. This mechanism allows seamless population of a new container from any sequence, including arrays, other containers, or input streams.\n\nPurpose: This provides a generic, type-safe method for bulk insertion based on iterator abstraction, decoupling the source data structure from the target container.\n\nTechnical Details:\n1.  **Iterator Requirements:** The input iterators must meet at least the requirements of Input Iterators (single-pass reading).\n2.  **Element Conversion:** The value type of the input range (`*first`) must be convertible or constructible into the value type of the target container.\n3.  **Complexity:**\n    *   Sequence Containers (`vector`, `deque`, `list`): O(N), where N is the number of elements. If Random Access Iterators are provided, `std::vector` and `std::deque` can often determine the required capacity in O(1) time before copying.\n    *   Associative Containers (`set`, `map`): Typically O(N log N) because each element must be inserted and ordered individually. If the range is guaranteed to be sorted, specialized constructors (C++11 onward) may offer O(N) complexity.\n\nUsage Guidance: This is the preferred method for constructing a container when the initial data set is known and defined by iterators, as it is often more efficient than repeated `insert()` or `push_back()` calls.",
+  "code_example": "#include <vector>\n#include <list>\n#include <set>\n\nint main() {\n    // 1. Initialize from an array\n    int arr[] = { 2, 3, 17, 33, 45, 77 };\n    std::set<int> s(arr, arr + sizeof(arr) / sizeof(arr[0]));\n\n    // 2. Initialize a new type from an existing container (conversion occurs)\n    std::list<int> l = {10, 20, 30};\n    std::vector<float> v(l.begin(), l.end());\n    \n    // v now contains {10.0f, 20.0f, 30.0f}\n}",
+  "practical_example": "When migrating data from a legacy C array structure into a modern C++ container (e.g., loading configuration data from a fixed-size buffer into a `std::vector`) or when transforming the contents of one container type (like a `std::list`) into another optimized type (like a `std::vector`) for faster random access.",
+  "keywords": [
+    "range constructor",
+    "iterator pair",
+    "Input Iterator",
+    "O(N) complexity",
+    "container initialization",
+    "bulk insertion",
+    "array initialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "131",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_initialization_via_range_construction_8ae991",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

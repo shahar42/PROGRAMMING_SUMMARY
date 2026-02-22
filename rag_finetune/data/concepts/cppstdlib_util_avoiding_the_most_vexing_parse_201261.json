@@ -1,0 +1,21 @@
+{
+  "topic": "Avoiding the Most Vexing Parse in Iterator Construction",
+  "category": "util",
+  "explanation": "The Most Vexing Parse (MVP) is a specific rule in C++ parsing that dictates that any statement that can be legally interpreted as a function declaration must be interpreted as such, even if the intent was object construction. This ambiguity arises frequently when a constructor takes arguments that are themselves temporary objects constructed using parentheses, such as `std::istream_iterator`.\n\nPitfall: The statement `std::deque<int> c(std::istream_iterator<int>(std::cin), std::istream_iterator<int>())` is parsed by the compiler as a function named `c` returning `std::deque<int>`, taking two arguments of type `std::istream_iterator<int>`. No object initialization occurs; the program compiles but fails later when `c` is used as a container.\n\nSolution (Pre-C++11): The ambiguity is resolved by wrapping the argument expressions in additional parentheses. This forces the compiler to interpret the expression as a value (a temporary object) rather than a type declaration for a function parameter. The correct syntax is:\n`std::deque<int> c((std::istream_iterator<int>(std::cin)), (std::istream_iterator<int>()));`\n\nSolution (C++11 and later): Use uniform initialization (braces) to completely bypass the MVP: `std::deque<int> c{std::istream_iterator<int>(std::cin), std::istream_iterator<int>()};`.",
+  "code_example": "#include <deque>\n#include <iterator>\n#include <iostream>\n\n// NOTE: For demonstration, assume std::cin is mocked or input is ready.\n\nvoid problem() {\n    // DANGER: Interpreted as function declaration 'c'\n    // std::deque<int> c(std::istream_iterator<int>(std::cin),\n    //                   std::istream_iterator<int>());\n}\n\nint main() {\n    // Solution 1: Extra parentheses (Pre-C++11 fix)\n    std::deque<int> c1(\n        (std::istream_iterator<int>(std::cin)), \n        (std::istream_iterator<int>()) \n    );\n    \n    // Solution 2: Uniform initialization (C++11+)\n    std::deque<int> c2{\n        std::istream_iterator<int>(std::cin), \n        std::istream_iterator<int>() \n    };\n    // The container object is correctly constructed in both cases.\n}",
+  "practical_example": "Reading a sequence of numbers directly into a container from standard input (`std::cin`). If the programmer forgets the parentheses when using the `istream_iterator` range, the container object is never instantiated, leading to linker errors or strange compiler warnings when subsequent container methods are called.",
+  "keywords": [
+    "Most Vexing Parse",
+    "MVP",
+    "istream_iterator",
+    "function declaration ambiguity",
+    "uniform initialization",
+    "parentheses workaround",
+    "parsing pitfall"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "131",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_util_avoiding_the_most_vexing_parse_201261",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

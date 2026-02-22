@@ -1,0 +1,20 @@
+{
+  "topic": "Precondition Violation: Undefined Behavior on Empty Queue Access",
+  "category": "adapter",
+  "explanation": "The `std::queue` members `front()` and `back()` provide access to the first and last elements, respectively, but they impose a strict precondition: the queue must not be empty (`size() > 0`). If the queue is empty when these functions are called, the resulting behavior is undefined (UB).\n\nPurpose: This design choice prioritizes performance. Unlike safe access methods like `std::vector::at()`, which perform bounds checking and throw exceptions, `front()` and `back()` bypass checking to ensure O(1) guaranteed access time without potential exception overhead. The responsibility for checking the state falls entirely on the caller.\n\nTechnical Details:\n- **Precondition:** `queue::empty()` must return `false`.\n- **Return Type:** Both functions return a reference (`value_type&` or `const value_type&`).\n- **Complexity:** O(1) constant time, irrespective of the underlying container.\n\nUsage: Always guard access to `front()` or `back()` using `empty()` or `size() > 0`. Since `empty()` is often optimized, it is the preferred check.\n\nPitfalls: Failing to check the state is a common source of crashes and memory corruption (UB). The standard does not specify what happens\u2014it could return a garbage reference, access invalid memory, or crash immediately.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nvoid process_queue(std::queue<int>& q) {\n    if (q.empty()) {\n        // Correct handling\n        std::cerr << \"Queue is empty.\\n\";\n        return;\n    }\n    \n    // Safe access\n    std::cout << \"Front: \" << q.front() << \"\\n\";\n    q.pop();\n    \n    // DANGER: UB if q was empty and we didn't check\n    // int x = q.front(); \n}",
+  "practical_example": "In a multithreaded messaging system where one thread enqueues messages and another dequeues them, failure to use a mutex combined with an `empty()` check before calling `front()` can lead to a race condition where the queue is emptied between the check and the access, resulting in immediate Undefined Behavior.",
+  "keywords": [
+    "undefined behavior",
+    "queue precondition",
+    "front()",
+    "back()",
+    "empty() check",
+    "safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "390",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_precondition_violation__undefined_behavior_1de802",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

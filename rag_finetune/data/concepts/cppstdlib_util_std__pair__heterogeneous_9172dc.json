@@ -1,0 +1,21 @@
+{
+  "topic": "std::pair: Heterogeneous Public Data Structure",
+  "category": "util",
+  "explanation": "The `std::pair` structure, defined in the `<utility>` header, serves as the fundamental mechanism for grouping two potentially heterogeneous values into a single unit. It is distinct from tuples in its fixed size (two elements) and its primary mechanism for access: direct public member access.\n\nDefinition: `std::pair<T1, T2>` publicly exposes its components as `T1 first` and `T2 second`. It also defines type aliases `first_type` and `second_type` for introspection.\n\nPurpose: Pairs are used extensively in the STL when a function must return two related values (e.g., `map::insert()` returns an iterator and a boolean success flag) or when a temporary grouping of two values is needed without the overhead or formality of defining a full custom class.\n\nTechnical Details:\n- Access Complexity: O(1) for direct member access.\n- Requirements: `T1` and `T2` must be complete types (or references).\n- Construction: Pairs support default construction (if T1 and T2 are default constructible), copy/move construction, and piecewise construction.\n\nPitfalls:\n1. Lack of Encapsulation: Since `first` and `second` are public, there is no way to enforce invariants or validation checks upon assignment.\n2. Initialization: Pre-C++11, explicit use of `std::make_pair` was common for type deduction, though direct construction or list initialization is now preferred.",
+  "code_example": "#include <utility>\n#include <string>\n\nint main() {\n    // Direct construction\n    std::pair<int, std::string> p1(42, \"Answer\");\n    \n    // Accessing public members directly\n    int value = p1.first;\n    std::string label = p1.second;\n    \n    // Using make_pair for deduction\n    auto p2 = std::make_pair(3.14, 'c');\n    \n    // Using type aliases (introspection)\n    using FirstType = decltype(p1)::first_type;\n    // FirstType is int\n}",
+  "practical_example": "When implementing a caching layer, a function retrieving data might need to return both the retrieved object and a boolean flag indicating whether the retrieval resulted in a cache hit or a cache miss. A `std::pair<Data, bool>` provides this clear, lightweight return structure.",
+  "keywords": [
+    "std::pair",
+    "utility",
+    "make_pair",
+    "first",
+    "second",
+    "heterogeneous container",
+    "public members"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "36-37",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__pair__heterogeneous_9172dc",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

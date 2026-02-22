@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Initialization Restriction: Explicit Conversion Requirement",
+  "category": "util",
+  "explanation": "The `std::auto_ptr` utility (deprecated since C++11, removed in C++17) imposed a constraint on its construction regarding implicit conversions. It strictly required direct initialization using the constructor syntax, preventing implicit conversion from a raw pointer using the assignment operator (`=`).\n\nDefinition: Initialization must use `std::auto_ptr<T> ptr(raw_ptr);` (explicit conversion syntax), while `std::auto_ptr<T> ptr = raw_ptr;` (implicit conversion syntax) resulted in a compilation error.\n\nPurpose: This restriction helps prevent subtle initialization errors often associated with implicit conversions, reinforcing the unique nature of `auto_ptr` ownership. Although minor, this difference highlights the standard's strictness regarding smart pointer construction.\n\nTechnical Details: The constructor of `auto_ptr` taking a raw pointer was often marked `explicit` in practice or effectively behaved as such in initialization contexts, forcing the user to acknowledge they were creating an owning smart pointer. This contrasts with standard types where `Type t = value;` often implies an implicit conversion.",
+  "code_example": "#include <memory>\n\nstruct ClassA {};\n\nint main() {\n    // OK: Direct initialization (explicit conversion)\n    std::auto_ptr<ClassA> ptr1(new ClassA);\n\n    // ERROR: Implicit conversion via assignment syntax is forbidden\n    // std::auto_ptr<ClassA> ptr2 = new ClassA;\n\n    // OK: Assignment after initialization is fine (but transfers ownership)\n    std::auto_ptr<ClassA> ptr3;\n    ptr3 = std::auto_ptr<ClassA>(new ClassA);\n}",
+  "practical_example": "When migrating legacy code that heavily relies on raw pointers, developers must ensure they use the correct parenthetical initialization for `auto_ptr` when wrapping existing resources, avoiding the commonly used `=` syntax for initialization.",
+  "keywords": [
+    "auto_ptr",
+    "initialization",
+    "explicit conversion",
+    "implicit conversion",
+    "smart pointer",
+    "deprecated"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "42",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_initialization_344fae",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

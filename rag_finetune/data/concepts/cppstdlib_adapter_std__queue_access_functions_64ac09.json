@@ -1,0 +1,21 @@
+{
+  "topic": "std::queue Access Functions Preconditions and Undefined Behavior",
+  "category": "adapter",
+  "explanation": "The standard library container adapter `std::queue` provides two primary access functions: `front()` and `back()`. `front()` returns a reference to the element inserted first (the next element to be popped), and `back()` returns a reference to the element inserted last. Both functions have a critical precondition: the queue must not be empty (`size() > 0`).\n\nPurpose: The C++ standard library prioritizes speed and minimal overhead. By defining access to an empty queue as Undefined Behavior (UB), the implementation avoids the necessity of runtime checks (like bounds checking or exception throwing) within the library code itself.\n\nTechnical Details:\n- `front()` and `back()` return `T&` (or `const T&` for const queues), allowing in-place modification of the elements.\n- Complexity: O(1) constant time access.\n- Requirements: Caller responsibility to ensure `size() > 0`.\n\nPitfalls and Edge Cases: Calling `q.front()` or `q.back()` on an empty queue results in immediate Undefined Behavior, which may manifest as crashes, corrupted memory, or seemingly correct but unpredictable behavior across different compilers or optimization levels. Standard practice requires explicit checking via `if (!q.empty())` or `if (q.size() > 0)` before access.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nvoid safe_access(std::queue<int>& q) {\n    if (q.empty()) {\n        // Handle empty case gracefully\n        return;\n    }\n    \n    // Safe access and modification\n    int& last = q.back();\n    last = 99; \n    \n    std::cout << \"Front: \" << q.front() \n              << \", Back: \" << q.back() << std::endl;\n}\n\n// q.front(); // UNDEFINED BEHAVIOR if q is empty!",
+  "practical_example": "In a multithreaded logging system where messages are pushed onto a queue by various threads, the consumer thread must always check `queue.empty()` and potentially use a synchronization primitive (like a condition variable) to wait for elements. Failure to check `empty()` before calling `front()` introduces a race condition that leads directly to UB when the queue briefly empties.",
+  "keywords": [
+    "std::queue",
+    "front()",
+    "back()",
+    "undefined behavior",
+    "precondition",
+    "O(1) complexity",
+    "adapter access"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "390-391",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__queue_access_functions_64ac09",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

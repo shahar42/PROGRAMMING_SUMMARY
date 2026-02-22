@@ -1,0 +1,20 @@
+{
+  "topic": "Precise Semantics of lower_bound() and upper_bound() in Ordered Containers",
+  "category": "container",
+  "explanation": "In ordered associative containers (`std::set`, `std::multiset`, `std::map`, `std::multimap`), `lower_bound(k)` and `upper_bound(k)` provide efficient, logarithmic-time identification of boundary iterators based on the key `k` and the container's internal ordering (typically based on `std::less`).\n\n**Definition and Requirements:**\n1.  **`lower_bound(k)`:** Returns an iterator pointing to the first element in the container that is *not less than* the specified key `k`. This is equivalent to finding the first element `e` such that `e >= k` (based on the container's comparator). If no such element exists, `end()` is returned.\n2.  **`upper_bound(k)`:** Returns an iterator pointing to the first element in the container that is strictly *greater than* the specified key `k`. This is equivalent to finding the first element `e` such that `e > k`. If no such element exists, `end()` is returned.\n\n**Technical Details:**\n*   **Complexity:** Guaranteed O(log N) time complexity, where N is the number of elements in the container, due to the underlying balanced tree structure.\n*   **Usage:** These methods are fundamental for performing efficient range queries and determining the potential insertion point for a new element.\n\n**Pitfalls:**\n*   If the searched key `k` is not present, both `lower_bound(k)` and `upper_bound(k)` will point to the first element strictly greater than `k`. If the searched key is greater than all elements, both return `end()`. Dereferencing an iterator equal to `end()` is Undefined Behavior.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> c = {10, 20, 40, 50};\n    \n    // Search for 30 (not present)\n    auto lb30 = c.lower_bound(30);\n    auto ub30 = c.upper_bound(30);\n    \n    // Both point to the successor (40)\n    std::cout << \"LB(30): \" << *lb30 << std::endl;\n    std::cout << \"UB(30): \" << *ub30 << std::endl;\n    \n    // Search for 20 (present)\n    auto lb20 = c.lower_bound(20); // points to 20 (>= 20)\n    auto ub20 = c.upper_bound(20); // points to 40 (> 20)\n    std::cout << \"LB(20): \" << *lb20 << std::endl;\n    std::cout << \"UB(20): \" << *ub20 << std::endl;\n}",
+  "practical_example": "When implementing a dictionary lookup system based on prefix matching, using `lower_bound()` to find the starting point of the possible matches drastically reduces the search space from O(N) to O(log N).",
+  "keywords": [
+    "lower_bound",
+    "upper_bound",
+    "associative container",
+    "logarithmic complexity",
+    "range query",
+    "set"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "162",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_precise_semantics_of_lower_bound_c80bc9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

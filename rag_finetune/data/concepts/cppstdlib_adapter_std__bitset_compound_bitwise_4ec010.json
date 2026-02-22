@@ -1,0 +1,23 @@
+{
+  "topic": "std::bitset Compound Bitwise Assignment Operator Semantics",
+  "category": "adapter",
+  "explanation": "`std::bitset` provides compound bitwise assignment operators (`operator |=`, `operator &=`, `operator ^=`) that perform element-wise logical operations between the current bitset (`*this`) and a second bitset argument (`bits`).\n\nBehavior:\n1. `|=`: Sets bits in `*this` if they are set in `bits` (Bitwise OR).\n2. `&=`: Resets bits in `*this` if they are not set in `bits` (Bitwise AND).\n3. `^=`: Toggles bits in `*this` if they are set in `bits` (Bitwise XOR).\n\nTechnical Details:\n- Requirements: Both operands must be `std::bitset` instances parameterized by the exact same size template argument `<bits>`.\n- Mutability and Return Type: These operators modify the left-hand operand in place and return a non-const reference to the modified bitset (`bitset<bits>&`). This design allows for efficient chaining of bitwise operations, consistent with standard C++ assignment operator conventions.\n- Performance: These operations are highly optimized, typically executing in time proportional to the number of underlying storage words (O(N/W), where N is the bitset size and W is the word size), making them extremely fast for large bitsets.",
+  "code_example": "#include <bitset>\n#include <iostream>\n\nint main() {\n    std::bitset<4> a(std::string(\"1010\"));\n    std::bitset<4> b(std::string(\"0110\"));\n    \n    // Chained operation: a = a AND b OR b\n    // a &= b results in 0010\n    // | = b results in 0110 (final value)\n    (a &= b) |= b;\n    \n    std::cout << \"Result a: \" << a << \"\\n\"; // Output: 0110\n    \n    std::bitset<4> c(std::string(\"1111\"));\n    // c ^= b results in 1001\n    c ^= b;\n    std::cout << \"Result c: \" << c << \"\\n\"; // Output: 1001\n}",
+  "practical_example": "In compiler optimization or graphics rendering, bitsets are used to track resource dependencies or active flags. Compound operators allow efficient combination of flag sets (e.g., combining required capabilities for two different rendering passes using `|=`) without generating temporary objects or requiring explicit loops.",
+  "keywords": [
+    "bitwise assignment",
+    "operator overload",
+    "compound assignment",
+    "bitset OR",
+    "bitset AND",
+    "bitset XOR",
+    "operator |=",
+    "operator &=",
+    "operator ^="
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "404-405",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_compound_bitwise_4ec010",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

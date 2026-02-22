@@ -1,0 +1,20 @@
+{
+  "topic": "Automatic Generation of Relational Operators via std::rel_ops",
+  "category": "util",
+  "explanation": "The `std::rel_ops` namespace provides template functions that automatically define the four supplementary relational operators (`!=`, `>`, `<=`, and `>=`) for any type `T`, provided that `operator==` and `operator<` are implemented for `T`.\n\nDefinition:\n- `x != y` is defined as `!(x == y)`\n- `x > y` is defined as `y < x` (or `y < x` depending on implementation)\n- `x <= y` is defined as `!(y < x)`\n- `x >= y` is defined as `!(x < y)`\n\nPurpose: This mechanism significantly reduces the boilerplate code required when defining a comparable class. By implementing only the canonical comparison operators (`==` and `<`), all six standard relational operators are available.\n\nUsage and Namespace Isolation: These templates reside in the subnamespace `std::rel_ops`. They are intentionally separated from the main `std` namespace to prevent name clashes when users define their own relational operators globally while simultaneously using `using namespace std;`. To utilize `rel_ops`, the user must explicitly bring the namespace into scope using `using namespace std::rel_ops;` locally within the function or globally.",
+  "code_example": "#include <utility>\n#include <iostream>\n\nclass Point {\n    int x_, y_;\npublic:\n    Point(int x, int y) : x_(x), y_(y) {}\n    bool operator==(const Point& other) const { return x_ == other.x_ && y_ == other.y_; }\n    bool operator<(const Point& other) const { return x_ < other.x_; }\n};\n\nvoid compare_points(const Point& p1, const Point& p2) {\n    using namespace std::rel_ops; // Enable automatic operators\n    \n    // Uses Point::operator==\n    if (p1 != p2) {\n        std::cout << \"Points are not equal.\\n\";\n    }\n    \n    // Uses Point::operator< (p2 < p1)\n    if (p1 > p2) {\n        std::cout << \"P1 is greater than P2 (by X coordinate).\\n\";\n    }\n}",
+  "practical_example": "When designing a custom data structure key (e.g., a coordinate class) that must be usable in ordered containers like `std::map` (which requires `<`) and also needs full comparison support for testing, `std::rel_ops` eliminates the need to manually write the four derived comparison operators, ensuring logical consistency with minimal effort.",
+  "keywords": [
+    "rel_ops",
+    "comparison operators",
+    "operator overloading",
+    "boilerplate reduction",
+    "namespace isolation",
+    "utility"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "67",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_automatic_generation_of_relational_operators_e461e6",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

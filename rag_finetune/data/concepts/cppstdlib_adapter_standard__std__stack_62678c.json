@@ -1,0 +1,21 @@
+{
+  "topic": "Standard `std::stack` Design: Separation of Access and Removal",
+  "category": "adapter",
+  "explanation": "The standard `std::stack` container adapter enforces a strict separation between the operation that accesses the top element (`top()`) and the operation that removes it (`pop()`). Crucially, `std::stack::pop()` returns `void`, performing removal only.\n\n**Purpose and Exception Safety**:\nThis separation is a fundamental design choice prioritizing strong exception safety, particularly when the contained element type `T` has a potentially throwing copy or move constructor. If `pop()` were to return `T` by value, the sequence would be: 1. Access element, 2. Copy/Move element (potential throw), 3. Remove element. If step 2 throws, the element is already removed from the container (due to the typical implementation pattern of access-then-remove), leading to data loss and state corruption, compromising the strong guarantee.\n\nBy separating the operations, the user must first successfully retrieve the element via `top()` (access), and only then call `pop()` (state change/removal). If the retrieval (copy/move) fails, the stack remains unchanged.\n\n**Technical Details**:\n- **Complexity**: Both `top()` and `pop()` are guaranteed to be O(1) constant time complexity.\n- **Precondition**: `top()` and `pop()` both require the stack to be non-empty. Failure to check this precondition leads to undefined behavior.",
+  "code_example": "#include <stack>\n#include <vector>\n\nvoid process_stack(std::stack<int> s) {\n    if (!s.empty()) {\n        // 1. Access the value (top())\n        int value = s.top(); \n        \n        // 2. Remove the value (pop() returns void)\n        s.pop(); \n        \n        // The value is safe even if copy fails, because pop()\n        // only modifies state after successful access.\n    }\n}",
+  "practical_example": "In financial trading systems where data integrity is paramount, using the standard separated `top()` and `pop()` ensures that a stack operation does not accidentally remove a data point if the subsequent processing (e.g., copying the element to another thread queue) fails due to resource constraints or exceptions.",
+  "keywords": [
+    "std::stack",
+    "pop() void",
+    "top()",
+    "exception safety",
+    "adapter design",
+    "LIFO",
+    "constant complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "384",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_standard__std__stack_62678c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

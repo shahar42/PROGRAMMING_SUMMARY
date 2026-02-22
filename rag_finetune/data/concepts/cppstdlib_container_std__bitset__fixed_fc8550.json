@@ -1,0 +1,21 @@
+{
+  "topic": "std::bitset: Fixed Size and Non-Type Template Parameter Typing",
+  "category": "container",
+  "explanation": "`std::bitset` models a fixed-size array of bits, primarily used for managing flag sets where the total number of flags is known at compile time. Its size is defined by a non-type template parameter, `size_t Bits`, rather than a type parameter.\n\n**Technical Details:**\n- **Fixed Size:** The size of the bitset is immutable after compilation. Unlike `std::vector<bool>`, `std::bitset` cannot grow or shrink.\n- **Typing Implication:** Because the size is part of the template argument (`template <size_t Bits> class bitset;`), two bitsets instantiated with different sizes are considered entirely different, incompatible types. For instance, `std::bitset<10>` and `std::bitset<12>` are distinct types.\n- **Operations:** This strong typing means that fundamental operations like assignment, comparison, and binary logical operations (`&`, `|`, `^`) are only valid between bitsets of the *exact same size* (type). Attempting to operate on mismatched sizes results in a compile-time error.\n\n**Usage Guidance:** `std::bitset` is highly optimized for performance and space efficiency for fixed flag sets, often mapping directly onto underlying integer types when `Bits` is small (e.g., 32 or 64). It provides bitwise operators (`&`, `|`, `~`) and individual bit access (`set()`, `test()`, `[]`).\n\n**Comparison:** If variable bit count is required, `std::vector<bool>` must be used, although it incurs dynamic overhead and has specialized, non-standard iterator/reference behavior.",
+  "code_example": "#include <bitset>\n\nint main() {\n    std::bitset<8> b8_a(0b1100);\n    std::bitset<8> b8_b(0b0011);\n    std::bitset<16> b16;\n\n    // OK: Same size, same type\n    auto result = b8_a & b8_b;\n\n    // ERROR: Different sizes, incompatible types\n    // auto illegal_result = b8_a & b16; \n\n    // Access individual bit\n    b8_a.set(7); \n    bool is_set = b8_a.test(7);\n\n    return 0;\n}",
+  "practical_example": "Defining a set of permissions or machine state flags (e.g., 64 specific error codes) where the number of codes is fixed. Using `std::bitset<64>` ensures the compiler can perform maximum optimization, potentially treating the entire object as a single `unsigned long long` register, providing faster bitwise manipulation than dynamic containers.",
+  "keywords": [
+    "bitset",
+    "fixed size",
+    "non-type template parameter",
+    "compile-time size",
+    "type incompatibility",
+    "flag management",
+    "bit manipulation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "400-401",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_container_std__bitset__fixed_fc8550",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

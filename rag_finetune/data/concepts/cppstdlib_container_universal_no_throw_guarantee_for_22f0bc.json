@@ -1,0 +1,19 @@
+{
+  "topic": "Universal No-Throw Guarantee for Container Member `swap()`",
+  "category": "container",
+  "explanation": "The member function `swap()` for all standard library containers, including `std::vector`, `std::deque`, and `std::list`, is guaranteed not to throw exceptions (`noexcept`). This guarantee is essential for building robust exception-safe code, particularly through the copy-and-swap idiom.\n\nTechnical Details:\n1. **Mechanism**: Container member `swap()` generally operates by exchanging the internal state pointers and metadata (like size, capacity, or head/tail nodes) between two container objects. Since these operations involve only primitive type assignments and pointer exchanges, they cannot fail.\n2. **Complexity**: Swapping two containers is typically an O(1) operation.\n3. **Importance**: The `noexcept` guarantee on `swap()` is non-negotiable for achieving the strong exception guarantee in user-defined classes that manage resources using standard containers, as it ensures that the critical final step of resource exchange cannot introduce failure.\n\nUsage Guidance: Always prefer the non-throwing member `swap()` (or the non-throwing `std::swap` specialization for containers) over manual element copying or replacement when implementing resource cleanup or moving objects.",
+  "code_example": "#include <vector>\n#include <utility>\n\nvoid demonstrate_swap_safety() noexcept {\n    std::vector<int> v1(1000); \n    std::vector<int> v2(1);\n    \n    // Member swap is guaranteed not to throw, regardless of content size\n    v1.swap(v2);\n    \n    // std::swap will delegate to the member swap for standard containers\n    std::swap(v1, v2);\n    \n    // The entire memory block representing v1's old data is now owned by v2,\n    // and vice versa, without any risk of exception.\n}",
+  "practical_example": "When implementing the assignment operator for a complex class (`MyClass = other_class`), the copy-and-swap idiom relies on creating a local copy of the source object, and then swapping the local copy's internal resources with the current object's resources. If the final `swap()` operation could throw, the strong exception guarantee of the assignment operator would be violated. The `noexcept` guarantee of container swap preserves this safety.",
+  "keywords": [
+    "swap noexcept",
+    "universal guarantee",
+    "copy-and-swap idiom",
+    "O(1) complexity",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "237",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_universal_no_throw_guarantee_for_22f0bc",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

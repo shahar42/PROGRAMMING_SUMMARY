@@ -1,0 +1,22 @@
+{
+  "topic": "Requirement of Strict Weak Ordering for Associative Containers",
+  "category": "container",
+  "explanation": "Associative containers (`std::set`, `std::map`, `std::multiset`, `std::multimap`) require that their comparison object (CompFunc, defaulting to `std::less`) imposes a Strict Weak Ordering (SWO) on the element keys. This requirement is fundamental for maintaining the logarithmic complexity and correct internal structure (usually a balanced binary search tree).\n\n**Definition:** A relation R (the comparison function, e.g., `<`) is a Strict Weak Ordering if it satisfies the following properties:\n1. **Irreflexivity:** For all `x`, `!(x R x)`.\n2. **Asymmetry:** If `x R y`, then `!(y R x)`.\n3. **Transitivity:** If `x R y` and `y R z`, then `x R z`.\n4. **Transitivity of Equivalence:** Equivalence is defined by `!(x R y) && !(y R x)`. If `x` is equivalent to `y`, and `y` is equivalent to `z`, then `x` must be equivalent to `z`.\n\n**Consequences:** Failure to uphold the SWO requirement, particularly the transitivity of equivalence, leads to Undefined Behavior. The container's internal structure may become corrupted, resulting in incorrect lookup, insertion failures, or crashes, often failing silently until lookup is performed on a mispositioned element.\n\n**Usage Guidance:** When using custom comparators (e.g., for case-insensitive string comparison), care must be taken to ensure that equivalence is transitive and that the comparison function is strict (never returning true when comparing an element to itself).",
+  "code_example": "#include <set>\n#include <string>\n#include <iostream>\n\n// Correct SWO: Case-insensitive comparison\nstruct CaseInsensitiveCompare {\n    bool operator()(const std::string& a, const std::string& b) const {\n        // Assumes proper locale handling for real-world use\n        size_t len = std::min(a.length(), b.length());\n        return std::lexicographical_compare(\n            a.begin(), a.end(), \n            b.begin(), b.end(), \n            [](char ca, char cb) { return std::tolower(ca) < std::tolower(cb); }\n        );\n    }\n};\n\nint main() {\n    // std::set uses CaseInsensitiveCompare as its sorting criterion\n    std::set<std::string, CaseInsensitiveCompare> s;\n    s.insert(\"Apple\");\n    s.insert(\"apple\"); // Equivalent to \"Apple\" under SWO, only one stored\n    // Size is 1, proving equivalence is handled correctly.\n}",
+  "practical_example": "Developing a custom type (like a complex identifier or a version number) for use as a map key requires defining a consistent comparison function. If the comparison logic is flawed (e.g., only comparing the first few bytes, thus equating two distinct keys), the map will violate the SWO property, leading to keys being lost or unretrievable, breaking data integrity.",
+  "keywords": [
+    "strict weak ordering",
+    "SWO",
+    "comparator",
+    "std::less",
+    "associative container",
+    "undefined behavior",
+    "equivalence relation",
+    "irreflexivity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_requirement_of_strict_weak_ordering_a4312f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

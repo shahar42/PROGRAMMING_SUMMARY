@@ -1,0 +1,21 @@
+{
+  "topic": "Destructive Copy Semantics via auto_ptr_ref Conversion",
+  "category": "util",
+  "explanation": "Unlike standard C++ objects, `std::auto_ptr` implements destructive (or 'move') copy semantics, even before C++11 introduced formal move semantics. Copying or assigning a non-constant `auto_ptr` results in ownership transfer, nullifying the source object.\n\nMechanism:\nThis behavior is implemented using the auxiliary type `std::auto_ptr_ref`. When an `auto_ptr` is passed as an rvalue (e.g., returned from a function or used in an assignment), the compiler uses a conversion operator within `auto_ptr` to implicitly convert the source object into an `auto_ptr_ref`. The target `auto_ptr`'s copy constructor or assignment operator is overloaded to accept this `auto_ptr_ref`. This conversion process is where the original `auto_ptr` is modified (set to null) and its internal pointer is extracted for the destination.\n\nImplications:\n1. **Rvalue Handling:** This tricky conversion allows `auto_ptr`s to be passed to and from functions (as rvalues) efficiently, transferring ownership.\n2. **Const Restriction:** The destructive copy mechanism is intentionally blocked for `const auto_ptr` objects, preventing accidental ownership transfer from objects that should not be modified.\n3. **Container Incompatibility:** The destructive nature of copying makes `auto_ptr` fundamentally incompatible with standard STL containers and algorithms, as they rely on non-modifying copy semantics. This is a primary reason for its deprecation in C++11.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstd::auto_ptr<int> factory() {\n    return std::auto_ptr<int>(new int(100)); // Ownership transfer (rvalue)\n}\n\nint main() {\n    std::auto_ptr<int> p1(new int(50));\n    \n    std::auto_ptr<int> p2 = p1; \n    // DESTRUCTIVE COPY: p2 now owns 50. p1 is set to null.\n    \n    if (!p1.get()) {\n        std::cout << \"p1 is null after assignment.\" << std::endl;\n    }\n    \n    std::auto_ptr<int> p3 = factory();\n    // Ownership transferred from temporary object returned by factory.\n    \n    std::cout << \"p3 owns: \" << *p3 << std::endl;\n}",
+  "practical_example": "If an `auto_ptr` is stored in a `std::vector`, and the vector is resized or sorted, the internal copy operations used by the container will transfer ownership away from the source elements to the temporary or destination elements. This leads to the source elements being nullified, causing resource loss or subsequent crashes when the container attempts to access or destroy null pointers.",
+  "keywords": [
+    "auto_ptr_ref",
+    "destructive copy",
+    "ownership transfer",
+    "rvalue",
+    "lvalue",
+    "container incompatibility",
+    "move semantics (pre-C++11)"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "44, 47-48",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_destructive_copy_semantics_via_auto_795c6f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

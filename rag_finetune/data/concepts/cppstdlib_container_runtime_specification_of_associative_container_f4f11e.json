@@ -1,0 +1,20 @@
+{
+  "topic": "Runtime Specification of Associative Container Comparators",
+  "category": "container",
+  "explanation": "While the comparator type is usually fixed via a template parameter, the specific comparator *object* can be provided at runtime via the container's constructor. This allows for flexibility when the sorting criterion is stateful or determined dynamically.\n\n**Definition and Purpose:** Associative container constructors typically accept an optional argument of the comparator type (`Op`). If provided, this argument initializes the internal comparator object used for key comparisons. This is essential when the comparison logic depends on runtime data (e.g., locale-specific string comparison or user-defined configuration).\n\n**Technical Details:** The container's type remains fixed (based on the template parameters), but the specific behavior of the internal comparator object varies based on the object passed to the constructor. This is often achieved using custom function objects that contain internal state.\n\n**Usage:** This method is necessary when dealing with criteria that are of the same type but differ in their internal state (e.g., two different case-insensitive string comparators initialized with different locales). If no explicit comparator object is passed, the container uses the default-constructed instance of the template-specified type.\n\n**Pitfalls:** Passing a runtime-specified comparator does not change the container's type. This means that two containers of the same type, but initialized with different stateful comparators, can be assigned to each other, potentially leading to inconsistent behavior if the assignment doesn't correctly handle the comparator state.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\n// Custom stateful comparator\nstruct StringLengthLess {\n    bool operator()(const std::string& a, const std::string& b) const {\n        return a.length() < b.length();\n    }\n};\n\nint main() {\n    // Type definition uses the custom comparator type\n    using LenMap = std::map<std::string, int, StringLengthLess>;\n    \n    // The comparator object (default constructed) is used implicitly\n    LenMap coll;\n    coll[\"b\"] = 1; \n    coll[\"aaa\"] = 2; \n    coll[\"cc\"] = 3;\n    \n    // Iteration order based on length: \"b\", \"cc\", \"aaa\"\n}",
+  "practical_example": "A program reading configuration files might need to sort keys using a case-insensitive comparison specific to the user's current locale. A custom stateful comparator initialized with the locale object must be passed to the `std::map` constructor to ensure correct, locale-aware sorting at runtime.",
+  "keywords": [
+    "runtime sorting",
+    "constructor parameter",
+    "stateful comparator",
+    "function object",
+    "locale comparison",
+    "std::map initialization"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "175, 213 (reference)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_runtime_specification_of_associative_container_f4f11e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

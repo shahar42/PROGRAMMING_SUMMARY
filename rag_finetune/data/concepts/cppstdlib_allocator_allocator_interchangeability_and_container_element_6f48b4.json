@@ -1,0 +1,19 @@
+{
+  "topic": "Allocator Interchangeability and Container Element Mobility",
+  "category": "allocator",
+  "explanation": "The C++ Standard Library requires that allocators of the same type must be interchangeable. Specifically, storage allocated using one instance of an allocator type must be deallocated using another instance of the same type, provided they compare equal. This property is crucial for supporting efficient and safe container operations, particularly those involving the transfer or swapping of internal resources.\n\n**Purpose:** This requirement enables elements and their associated storage to be moved seamlessly between two containers of the same type (e.g., during move construction or assignment). If allocators were not interchangeable, moving internal memory buffers (like the underlying array in a vector) would require deep copying the elements, defeating the purpose of efficient moves.\n\n**Technical Details:** For standard library containers, if `std::allocator_traits<A>::propagate_on_container_move_assignment::value` is `true`, the allocator itself is moved. If it is `false` (the default for `std::allocator`), the containers must compare their allocators. If the allocators compare unequal, the container must perform a deep copy instead of a fast memory transfer. The interchangeability guarantee ensures that when containers share the same allocator type, memory management remains consistent regardless of which container instance originally performed the allocation.\n\n**Pitfalls:** Custom allocators that manage global or static resources must ensure they adhere to this interchangeability rule. If two instances of the custom allocator type are created but manage distinct memory pools, they must define their equality operator (`operator==`) appropriately to prevent illegal deallocation attempts by a mismatched pool.",
+  "code_example": "#include <vector>\n#include <memory>\n\n// std::allocator satisfies interchangeability\nusing DefaultVec = std::vector<int>;\n\nint main() {\n    DefaultVec v1(10, 5);\n    DefaultVec v2(std::move(v1)); // Fast move is possible\n    // Storage allocated by v1's internal allocator\n    // is correctly deallocated by v2's internal allocator.\n\n    // If custom allocators were used, this depends on \n    // propagate_on_container_move_assignment and equality comparison.\n}",
+  "practical_example": "When implementing a custom memory pool allocator for a high-performance system, the allocator must be designed such that any instance of that allocator type can correctly free memory allocated by any other instance, allowing containers using the pool to swap or move their contents without triggering exceptions or memory corruption.",
+  "keywords": [
+    "allocator interchangeability",
+    "move semantics",
+    "allocator requirement",
+    "propagate_on_container_move_assignment",
+    "equality comparison"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "217",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_allocator_allocator_interchangeability_and_container_element_6f48b4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

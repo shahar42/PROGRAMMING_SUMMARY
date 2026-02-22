@@ -1,0 +1,20 @@
+{
+  "topic": "Customizing std::swap for Constant-Time Performance",
+  "category": "util",
+  "explanation": "The default implementation of `std::swap` performs three copy/move operations (A to temp, B to A, temp to B). For user-defined types (UDTs) that manage large external resources (e.g., custom containers holding large arrays or file handles), this can be an O(N) operation, where N is the resource size, leading to significant performance degradation.\n\nPurpose: To ensure that swapping two objects remains an O(1) operation by exchanging the internal resource pointers or handles directly, rather than moving the resources themselves. This is critical for performance in algorithms (like sorting) and container operations (like reallocation cleanup or internal node swaps) that rely heavily on efficient swapping.\n\nTechnical Details:\n1. Provide an efficient, non-throwing public member function `swap(Other&)` for the UDT.\n2. Provide a non-member, non-template `swap` function in the same namespace as the UDT. This function should simply call the member function.\n3. Algorithms and generic code should call `using std::swap; swap(a, b);` to enable Argument Dependent Lookup (ADL) to find the specialized version before defaulting to `std::swap`.\n\nPitfalls:\n- Failing to provide a specialized swap leads to high overhead when the object is used within standard library containers or algorithms.\n- Specializing `std::swap` directly for fundamental types or standard library types is prohibited and leads to undefined behavior. Specialization is only permitted for user-defined types.",
+  "code_example": "#include <utility>\n#include <vector>\n\nclass ResourceHandle {\nprivate:\n    std::vector<int> data; // Large resource\npublic:\n    void swap(ResourceHandle& other) noexcept {\n        // O(1) swap of internal vector states\n        using std::swap;\n        swap(data, other.data);\n    }\n};\n\n// Non-member swap for ADL\nvoid swap(ResourceHandle& a, ResourceHandle& b) noexcept {\n    a.swap(b);\n}\n\n// Usage in generic code:\n// using std::swap; swap(rh1, rh2); // Uses specialized O(1) swap",
+  "practical_example": "When implementing a custom hash table or tree node that holds a large payload, defining a specialized, non-throwing swap operation ensures that rebalancing the structure (which involves node swaps) maintains O(1) complexity per swap, preventing performance bottlenecks in critical insertion or deletion paths.",
+  "keywords": [
+    "std::swap",
+    "swap specialization",
+    "ADL",
+    "Argument Dependent Lookup",
+    "O(1) complexity",
+    "resource management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "60-65",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_customizing_std__swap_for_2573c1",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

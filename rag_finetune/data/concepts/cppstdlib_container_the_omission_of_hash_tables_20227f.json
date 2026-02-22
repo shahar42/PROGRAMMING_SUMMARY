@@ -1,0 +1,22 @@
+{
+  "topic": "The Omission of Hash Tables in Initial C++ Standard Library (C++98/03)",
+  "category": "container",
+  "explanation": "The original C++ Standard Library (C++98/03) intentionally excluded hash table implementations (`unordered_map`, `unordered_set`), despite their being a fundamental data structure offering superior average-case complexity for lookup and modification compared to tree-based containers (`map`, `set`).\n\nPurpose/Rationale: The omission was primarily due to timing constraints during the standardization process, as the proposal for their inclusion was deemed too late relative to the finalization schedule. This decision prioritized finishing the standard over introducing new major container types.\n\nConsequences: Prior to C++11, developers relied on non-standard extensions, often found in vendor libraries (e.g., SGI/GNU `hash_map`, Microsoft's `std::tr1::unordered_map`, or Boost containers). This lack of standardization created significant portability challenges.\n\nTechnical Details:\n- **Standard Alternatives:** `std::map` and `std::set` were standardized, providing O(log N) complexity for search, insertion, and deletion, based on balanced binary search trees.\n- **Hash Table Complexity (Desired):** Hash tables provide average-case O(1) complexity for search, insertion, and deletion, making them essential for high-performance associative lookups.\n\nUsage Guidance: When portability was paramount in C++98/03, developers were forced to use `std::map` even where O(1) performance was desired. The eventual standardization of these structures (as `std::unordered_map` and `std::unordered_set` in C++11) resolved this major library gap.",
+  "code_example": "#include <map>\n#include <iostream>\n\n// Pre-C++11 scenario requiring O(log N) map for standard conformance\nvoid process_data_c98(const std::map<int, std::string>& data) {\n    if (data.count(5)) {\n        // Lookup complexity is O(log N)\n        std::cout << data.at(5) << \"\\n\";\n    }\n}\n\n// Post-C++11 equivalent (illustrating the missing structure)\n/*\n#include <unordered_map>\nvoid process_data_c11(const std::unordered_map<int, std::string>& data) {\n    // Lookup complexity is average O(1)\n    // ...\n}\n*/",
+  "practical_example": "A large-scale symbol table or cache implementation in C++98/03 required the use of `std::map`, accepting O(log N) lookups, or relying on non-standard vendor extensions like `__gnu_cxx::hash_map` to achieve the necessary O(1) average performance, sacrificing code portability.",
+  "keywords": [
+    "hash table",
+    "unordered_map",
+    "C++98",
+    "C++03",
+    "portability",
+    "associative container",
+    "O(1) complexity",
+    "map alternative"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "195",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_the_omission_of_hash_tables_20227f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

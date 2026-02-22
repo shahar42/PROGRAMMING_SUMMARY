@@ -1,0 +1,22 @@
+{
+  "topic": "Stack Container Adapter Interface Requirements and Mapping",
+  "category": "adapter",
+  "explanation": "The `std::stack<T, Container>` template is a container adapter, meaning it provides a restricted interface (LIFO) for an underlying sequence container. The adapter achieves this restriction by mapping LIFO operations to specific sequence container member functions.\n\n**Requirements:** The template parameter `Container` must be a sequence container that supports the following operations efficiently:\n1. `push_back()`: Used by `stack::push()`.\n2. `pop_back()`: Used by `stack::pop()`.\n3. `back()`: Used by `stack::top()`.\n4. `empty()` and `size()`.\n\n**Default Container:** Although not explicitly shown in the excerpt, the standard defines the default underlying container for `std::stack` as `std::deque<T>`. This choice is robust because `std::deque` guarantees O(1) complexity for insertions and deletions at both ends, ensuring the LIFO operations maintain constant time complexity.\n\n**Usage Guidance:** While `std::deque` is default, `std::vector` can be used (`std::stack<T, std::vector<T>>`) if memory locality is critical, or `std::list` (`std::stack<T, std::list<T>>`) if the element type `T` is very expensive to copy or move, as `std::list` avoids large block reallocations.\n\n**Complexity:** All primary stack operations (`push`, `pop`, `top`, `empty`) are guaranteed to execute in O(1) time complexity, assuming the underlying container meets the required performance guarantees.",
+  "code_example": "#include <stack>\n#include <vector>\n#include <deque>\n\n// Example of using vector as the underlying container\nusing VecStack = std::stack<int, std::vector<int>>;\n\nint main() {\n    VecStack s;\n    s.push(10); // Calls std::vector::push_back(10)\n    int top_val = s.top(); // Calls std::vector::back()\n    s.pop(); // Calls std::vector::pop_back()\n    \n    // std::list is also valid, provided it satisfies the interface\n    std::stack<double, std::list<double>> ls;\n    ls.push(3.14);\n}",
+  "practical_example": "Choosing the underlying container for a stack in a high-performance scenario, such as implementing a thread-safe undo history. If the maximum size is known, using `std::vector` and pre-allocating capacity on the vector before wrapping it in the stack adapter can improve cache performance and prevent dynamic memory thrashing compared to the default `std::deque`.",
+  "keywords": [
+    "std::stack",
+    "container adapter",
+    "LIFO",
+    "sequence container",
+    "push_back",
+    "pop_back",
+    "deque default",
+    "O(1) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "382",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_stack_container_adapter_interface_requirements_0f0929",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

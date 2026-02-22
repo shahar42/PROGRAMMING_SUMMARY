@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::unique() for Consecutive Duplicate Removal",
+  "category": "container",
+  "explanation": "The `std::list::unique()` member function removes consecutive duplicate elements within the list. It iterates through the list and, whenever an element is found to be equivalent to its immediate predecessor, the current element is removed. This operation is specific to `std::list` and `std::forward_list`.\n\nPurpose: `unique()` is structurally optimized for linked lists, performing node relinking and destruction directly. It is often used after sorting a list to fully deduplicate it (since sorting makes all duplicates consecutive).\n\nTechnical Details:\n1.  **Complexity:** O(N) complexity, where N is the size of the list, as it requires only a single pass through the elements.\n2.  **Comparison:** The default version uses the equality operator (`==`). An overload accepts a binary predicate (`op`) to define equivalence (e.g., case-insensitive comparison for strings).\n3.  **Behavior:** It only removes *consecutive* duplicates. If a list contains `{1, 2, 1}`, no elements are removed because the two '1's are not adjacent.\n4.  **Iterator Invalidation:** Only iterators pointing to the elements that are removed are invalidated.\n\nUsage: The standard pattern for full list deduplication is: `list.sort(); list.unique();`.\n\nPitfalls: Relying on `unique()` to remove all duplicates in an unsorted list is a common error; it only guarantees the removal of adjacent duplicates. Unlike `std::set`, which enforces uniqueness upon insertion, `list` requires explicit calls to `unique()` after modifications.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> l = {1, 2, 2, 3, 3, 3, 4, 1, 1};\n    \n    l.unique();\n    // l is now {1, 2, 3, 4, 1} \n    // (The final '1' is kept because it was not consecutive to the first '1')\n    \n    std::list<int> l_sorted = {1, 1, 2, 2, 3, 3};\n    l_sorted.unique();\n    // l_sorted is now {1, 2, 3}\n}",
+  "practical_example": "Cleaning up a historical log of user actions where intermittent network lag caused duplicate entries to be recorded consecutively. Using `unique()` on the list of actions effectively eliminates these adjacent, redundant entries while preserving the relative order of non-duplicate events.",
+  "keywords": [
+    "list unique",
+    "consecutive duplicates",
+    "deduplication",
+    "binary predicate",
+    "O(N) complexity",
+    "sort and unique"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "154 (Table 6.18)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__unique_796440",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

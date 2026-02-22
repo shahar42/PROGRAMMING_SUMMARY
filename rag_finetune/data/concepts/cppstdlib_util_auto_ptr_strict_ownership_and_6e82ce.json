@@ -1,0 +1,20 @@
+{
+  "topic": "auto_ptr Strict Ownership and Double Deletion Risk",
+  "category": "util",
+  "explanation": "`std::auto_ptr` enforces strict ownership semantics, meaning it assumes sole responsibility for deleting the managed object upon destruction. This mechanism is crucial for automatic memory management.\n\nRequirement: The fundamental requirement for correct `auto_ptr` usage is that the managed object must not be 'owned' by any other object, including another `auto_ptr`.\n\nPitfall (Undefined Behavior): If the programmer initializes two distinct `auto_ptr` instances with the same raw pointer, both will attempt to delete the resource when they go out of scope. This results in a double deletion, leading to Undefined Behavior (UB), typically a program crash or heap corruption.\n\nResponsibility: The C++ standard mandates that the programmer is entirely responsible for ensuring that multiple `auto_ptr` instances never manage the same resource simultaneously. The `auto_ptr` class itself provides no run-time checking or safety mechanism against this specific initialization error.\n\nComparison: Modern smart pointers like `std::unique_ptr` prevent this issue by making the copy constructor deleted, while `std::shared_ptr` uses reference counting to safely allow shared ownership.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct Resource { \n    ~Resource() { std::cout << \"Resource Deleted\\n\"; }\n};\n\nvoid dangerous_usage() {\n    Resource* raw_ptr = new Resource();\n    \n    // auto_ptr A owns the resource\n    std::auto_ptr<Resource> ptrA(raw_ptr);\n    \n    // DANGER! auto_ptr B also owns the resource\n    // Both will attempt deletion upon scope exit\n    std::auto_ptr<Resource> ptrB(raw_ptr);\n    \n    // Result: Double deletion (Undefined Behavior)\n}",
+  "practical_example": "In a factory function that returns a raw pointer, if the caller attempts to wrap that pointer twice using two separate `auto_ptr` variables for safety, the resulting double deletion will manifest as a memory corruption bug that is difficult to trace back to the ownership error.",
+  "keywords": [
+    "auto_ptr",
+    "strict ownership",
+    "double deletion",
+    "undefined behavior",
+    "raw pointer management",
+    "programmer responsibility"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "42",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_auto_ptr_strict_ownership_and_6e82ce",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

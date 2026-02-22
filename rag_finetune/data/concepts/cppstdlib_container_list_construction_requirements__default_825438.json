@@ -1,0 +1,20 @@
+{
+  "topic": "List Construction Requirements: Default vs. Range Initialization",
+  "category": "container",
+  "explanation": "List construction follows standard sequence container patterns, but specific constructors impose different requirements on the element type (`Elem`).\n\n1. **Default/Copy Construction:** `list<Elem> c` creates an empty list. `list<Elem> c1(c2)` requires `Elem` to be CopyConstructible.\n\n2. **Fill Construction (N default elements):** `list<Elem> c(n)` creates a list with `n` elements initialized using the default constructor. This requires `Elem` to be **DefaultConstructible**.\n\n3. **Fill Construction (N copies):** `list<Elem> c(n, elem)` creates a list with `n` copies of `elem`. This requires `Elem` to be **CopyConstructible**.\n\n4. **Range Construction:** `list<Elem> c(beg, end)` initializes the list with elements copied from the range `[beg, end)`. The element type `Elem` must be constructible from the dereferenced type of the input iterator (`*beg`), typically requiring `Elem` to be **CopyConstructible** (or Movable, depending on C++ version and iterator category).\n\nPitfalls: Attempting to use the `c(n)` constructor with a class that explicitly deletes its default constructor (e.g., a class requiring specific initialization arguments) will result in a compilation error. Range construction is generally the safest and most flexible method for initializing from existing data.",
+  "code_example": "#include <list>\n#include <vector>\n\nstruct NonDefault {\n    int val;\n    NonDefault(int v) : val(v) {} // Custom constructor\n    // NonDefault() = delete; // If deleted, list(n) fails\n};\n\nint main() {\n    // 1. Range initialization (safe, copies elements)\n    std::vector<int> source = {1, 2, 3};\n    std::list<int> l1(source.begin(), source.end());\n    \n    // 2. Fill (N copies)\n    std::list<NonDefault> l2(5, NonDefault(10)); // Requires CopyConstructible\n    \n    // 3. Fill (N default elements) - Requires DefaultConstructible\n    std::list<int> l3(10); \n    \n    // std::list<NonDefault> l4(10); // Fails if NonDefault() is deleted\n}",
+  "practical_example": "When creating a list of custom resource handles (`Handle`) that must always be initialized with a valid resource ID, the default constructor must be suppressed. Consequently, the only valid ways to construct the list are via range construction or explicit fill construction (`list<Handle>(n, initialized_handle)`), as `list<Handle>(n)` would attempt to call the deleted default constructor.",
+  "keywords": [
+    "list constructor",
+    "range initialization",
+    "DefaultConstructible",
+    "CopyConstructible",
+    "fill constructor",
+    "element requirements"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "149-150",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_list_construction_requirements__default_825438",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

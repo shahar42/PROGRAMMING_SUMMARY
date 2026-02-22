@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr and the RAII Principle for Exception Safety",
+  "category": "util",
+  "explanation": "The `std::auto_ptr` class template (deprecated since C++11, removed in C++17) was designed as a smart pointer fulfilling the Resource Acquisition Is Initialization (RAII) principle for dynamically allocated objects. Its primary purpose is to guarantee that the managed object is destroyed (via `delete`) when the `auto_ptr` object itself goes out of scope, regardless of whether the scope exit is normal or due to stack unwinding caused by an exception.\n\nPurpose: It eliminates the need for manual `delete` calls within complicated exception handling blocks (`try`/`catch`) by binding the lifetime of the dynamically allocated resource to the lifetime of the stack object (`auto_ptr`).\n\nTechnical Details:\n- The destructor of `auto_ptr` calls `delete` on the managed pointer if it is non-null.\n- It requires that the managed type `T` be a complete type when the `auto_ptr` is destroyed.\n- It behaves like a regular pointer, supporting `operator*` (dereference) and `operator->` (member access).\n\nPitfalls: While solving exception safety, its unique ownership semantics (see related concept) made it unsuitable for use in standard containers, leading to its obsolescence by `std::unique_ptr`.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource { \npublic:\n    Resource() { std::cout << \"Allocated\\n\"; }\n    ~Resource() { std::cout << \"Destroyed\\n\"; }\n};\n\nvoid safe_function() {\n    // auto_ptr guarantees destruction even if 'throw' occurs\n    std::auto_ptr<Resource> ptr(new Resource);\n    // ... operations that might throw ...\n    // Resource is automatically destroyed upon scope exit.\n}",
+  "practical_example": "Managing database connections or file handles wrapped in RAII-compliant classes within a function prone to various runtime errors. Using `auto_ptr` ensures the handle is closed or released automatically when an exception is thrown, preventing resource leaks.",
+  "keywords": [
+    "auto_ptr",
+    "RAII",
+    "exception safety",
+    "smart pointer",
+    "resource management",
+    "delete"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "120-125",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_and_a99b6d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

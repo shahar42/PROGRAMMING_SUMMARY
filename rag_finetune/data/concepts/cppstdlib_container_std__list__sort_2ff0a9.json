@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::sort: Stable, In-Place, Member Sorting",
+  "category": "container",
+  "explanation": "The `std::list::sort()` member function provides an optimized sorting mechanism specifically for linked lists, distinguishing it from the general-purpose `std::sort` algorithm.\n\n**Necessity:** Standard algorithms like `std::sort` require Random Access Iterators (O(1) element access), which `std::list` (Bidirectional Iterators) does not provide. Using `std::list::sort` ensures the sorting is performed efficiently by manipulating list nodes rather than requiring O(N) swaps and expensive O(N) traversals inherent in random access algorithms applied to a linked list.\n\n**Technical Details (Complexity and Algorithm):** `list::sort` typically employs an in-place merge sort algorithm. This guarantees a time complexity of O(N log N) comparisons, which is optimal for comparison sorts. Crucially, the sorting is achieved without requiring external memory proportional to the list size, as only pointer links are adjusted.\n\n**Stability Guarantee:** A key feature mentioned in the standard is that `list::sort` is a stable sort. If two elements are considered equal by the comparison criterion (either `operator<` or the provided predicate `op`), their relative order in the list is preserved after sorting. This is often necessary when sorting by multiple criteria sequentially.\n\n**Requirements:** Elements must be comparable. The default form uses `operator<`. The overload accepts a binary comparison predicate `op(elem1, elem2)` which returns true if `elem1` precedes `elem2`.\n\n**Pitfall:** Although `list::sort` is stable, if an exception is thrown during comparison (which should generally not happen if the predicate is well-defined), the stability guarantee might be compromised.",
+  "code_example": "#include <list>\n#include <algorithm>\n#include <iostream>\n\nstruct Data { int id; int value; };\n\nint main() {\n    std::list<Data> l = {{1, 10}, {2, 5}, {3, 10}, {4, 15}};\n\n    // Sort by value, demonstrating stability (id 1 and 3 are equal)\n    l.sort([](const Data& a, const Data& b) {\n        return a.value < b.value;\n    });\n\n    // Output order: (2, 5), (1, 10), (3, 10), (4, 15)\n    // Order of (1, 10) and (3, 10) is preserved relative to insertion.\n}",
+  "practical_example": "When implementing a scheduler where tasks have identical priority levels. Using `list::sort` ensures that tasks with the same priority are processed in the order they were initially added (FIFO for equal priority), maintaining fairness due to the stability guarantee.",
+  "keywords": [
+    "list sort",
+    "stable sort",
+    "O(N log N)",
+    "in-place sort",
+    "merge sort",
+    "bidirectional iterator requirement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "216",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__sort_2ff0a9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

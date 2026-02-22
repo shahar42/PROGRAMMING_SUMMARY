@@ -1,0 +1,21 @@
+{
+  "topic": "Key Equivalence Definition using Custom Comparators in std::map",
+  "category": "container",
+  "explanation": "In ordered associative containers like `std::map` and `std::set`, key uniqueness is enforced not by `operator==`, but by the equivalence relation derived from the comparison predicate (`Compare`), which must satisfy Strict Weak Ordering.\n\nDefinition: Two keys, `k1` and `k2`, are deemed equivalent if and only if `!comp(k1, k2)` and `!comp(k2, k1)`.\n\nPurpose: When a custom comparison functor is provided (e.g., for case-insensitive string sorting), keys that are syntactically different (e.g., \"Key\" and \"key\") may be considered equivalent according to the predicate. Since `std::map` mandates unique keys, attempting to insert a second key that is equivalent to an existing key will fail silently, retaining the original key and its associated value.\n\nPitfalls: This mechanism leads to data corruption or unexpected behavior if the associated values for the equivalent keys are different. As demonstrated in the source text, if two equivalent keys have different associated values, the second value is discarded, and the remaining key/value pair may represent a mismatch (e.g., the key's capitalization is retained, but the associated meaning was intended for the discarded key).\n\nUsage Guidance: When using a lossy comparator (one that ignores key features like case or locale), the application must anticipate and handle the uniqueness constraint. If multiple distinct values must be stored for equivalent keys, use `std::multimap`.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\n// Case-insensitive comparison functor\nstruct IgnoreCaseCmp {\n    bool operator()(const std::string& a, const std::string& b) const {\n        // Simplified case-insensitive comparison\n        return strcasecmp(a.c_str(), b.c_str()) < 0;\n    }\n};\n\nint main() {\n    // Map uses IgnoreCaseCmp to define both order and uniqueness\n    std::map<std::string, int, IgnoreCaseCmp> m;\n    \n    m.insert({\"Apple\", 1});\n    // \"apple\" is equivalent to \"Apple\" per IgnoreCaseCmp\n    m.insert({\"apple\", 2}); \n    \n    // Size is 1, not 2. Value 2 was discarded.\n    std::cout << m.size() << std::endl; // Output: 1\n    \n    // The key retained is implementation-dependent or based on insertion order.\n}",
+  "practical_example": "Developing configuration management where setting 'DEBUG' and 'debug' should be treated as the same flag. If different configuration values are assigned to each, the map's uniqueness enforcement will silently discard one, leading to an inconsistent runtime state where the user expects the last setting to prevail.",
+  "keywords": [
+    "strict weak ordering",
+    "key equivalence",
+    "custom comparator",
+    "std::map",
+    "uniqueness constraint",
+    "case-insensitive comparison",
+    "lossy comparison"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "191",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_equivalence_definition_using_custom_ad92cd",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

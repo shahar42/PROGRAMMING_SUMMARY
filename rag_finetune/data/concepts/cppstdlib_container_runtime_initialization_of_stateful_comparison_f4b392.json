@@ -1,0 +1,19 @@
+{
+  "topic": "Runtime Initialization of Stateful Comparison Objects",
+  "category": "container",
+  "explanation": "When the comparison criterion needs to be determined or configured at runtime (e.g., choosing between case-sensitive and case-insensitive string comparison), the comparison type must be stateful (contain member data) and an instance of that object must be passed explicitly to the container's constructor.\n\nMechanism: Associative containers store a copy of the comparison object supplied during construction as a private member. If the comparator object is initialized with parameters that define its behavior (like a flag for case sensitivity, as shown in the text's `RuntimeStringCmp` example), that behavior persists for the lifetime of the container.\n\nUsage: If a comparator type `Cmp` is defined:\n1. Create a configured instance: `Cmp config_obj(runtime_params);`\n2. Construct the container, passing the instance: `std::map<K, V, Cmp> coll(config_obj);`\n\nIf the comparator is stateless (e.g., an empty struct or `std::less<>`), the default constructor is used implicitly, and no runtime parameter passing is necessary. Using runtime configuration allows a single container type definition (e.g., `StringStringMap`) to support multiple distinct behaviors (e.g., `coll1` and `coll2` in the example), enhancing flexibility without resorting to polymorphism or template specialization for every variation.",
+  "code_example": "#include <map>\n#include <string>\n\nstruct CaseCmp {\n    bool ignore_case;\n    CaseCmp(bool ic = false) : ignore_case(ic) {}\n    bool operator()(const std::string& a, const std::string& b) const {\n        if (ignore_case) {\n            // Simplified case-insensitive comparison (requires custom function)\n            // return tolower(a) < tolower(b);\n            return a.length() < b.length(); // Placeholder for demonstration\n        }\n        return a < b;\n    }\n};\n\nint main() {\n    // Default case-sensitive comparison\n    std::map<std::string, int, CaseCmp> sensitive_map;\n    \n    // Runtime configured case-insensitive comparison\n    CaseCmp nocase_config(true);\n    std::map<std::string, int, CaseCmp> insensitive_map(nocase_config);\n}",
+  "practical_example": "A configuration parser that stores settings in a map. Depending on a command-line flag (e.g., `--strict`), the program can instantiate the configuration map using either a case-sensitive or case-insensitive string comparator, ensuring that key lookups follow the user's specified parsing rules without requiring changes to the core map access logic.",
+  "keywords": [
+    "stateful comparator",
+    "runtime configuration",
+    "map constructor",
+    "comparison object initialization",
+    "case-insensitive sort"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "190-191",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_runtime_initialization_of_stateful_comparison_f4b392",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

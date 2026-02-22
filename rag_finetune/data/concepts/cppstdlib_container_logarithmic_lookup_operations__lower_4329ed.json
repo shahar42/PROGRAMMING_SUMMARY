@@ -1,0 +1,22 @@
+{
+  "topic": "Logarithmic Lookup Operations: lower_bound, upper_bound, and equal_range",
+  "category": "container",
+  "explanation": "Associative containers like `std::set`, `std::multiset`, `std::map`, and `std::multimap` provide specialized member functions for efficient logarithmic (O(log N)) lookup based on the container's ordering criterion (usually less-than comparison).\n\n1.  `lower_bound(k)`: Returns an iterator pointing to the first element that is *not less than* the given key `k`. If `k` is present, it points to the first instance of `k`. If `k` is greater than all elements, it returns `c.end()`.\n2.  `upper_bound(k)`: Returns an iterator pointing to the first element that is *greater than* the given key `k`. This is the position immediately following the last instance of `k` (if `k` is present).\n3.  `equal_range(k)`: Returns a `std::pair<iterator, iterator>` where the first element is the result of `lower_bound(k)` and the second is the result of `upper_bound(k)`. This pair defines the range `[first, second)` containing all elements equivalent to `k` (especially useful in `multiset` and `multimap`).\n\nTechnical Details:\n- **Complexity:** All three operations have logarithmic time complexity, O(log N).\n- **Usage:** These are preferred over `std::find` (which only returns the first match) when determining the presence of a range of equivalent elements or finding insertion points based on the ordering.\n\nPitfalls: In `std::set` (unique keys), `lower_bound` and `upper_bound` will often return adjacent elements if the key is present or the same element if the key is not present (where `lower_bound` points to the next largest element). Always use `equal_range` for robust range handling, especially with multisets.",
+  "code_example": "#include <set>\n#include <iostream>\n#include <algorithm>\n\nint main() {\n    std::multiset<int> ms = {1, 3, 3, 5, 6};\n    \n    // Finding bounds for 3\n    auto range_3 = ms.equal_range(3);\n    \n    std::cout << \"Range for 3: \" \n              << *range_3.first << \" to \" \n              << *range_3.second << \"\\n\";\n              \n    // Finding bounds for 4 (not present)\n    auto range_4 = ms.equal_range(4);\n    \n    if (range_4.first == range_4.second) {\n        std::cout << \"4 not found. Next element: \" \n                  << *range_4.first << \"\\n\"; // Output: 5\n    }\n}",
+  "practical_example": "When implementing a database index lookup structure using a map, `lower_bound` is used to quickly jump to the starting record that satisfies a 'greater than or equal to' query condition, leveraging the logarithmic search efficiency of the underlying tree structure.",
+  "keywords": [
+    "lower_bound",
+    "upper_bound",
+    "equal_range",
+    "associative container",
+    "logarithmic complexity",
+    "O(log N)",
+    "set lookup",
+    "multiset"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "162",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_logarithmic_lookup_operations__lower_4329ed",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

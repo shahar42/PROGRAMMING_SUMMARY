@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 from rich.console import Console
 from rich.markdown import Markdown
@@ -31,7 +31,8 @@ from dotenv import load_dotenv
 BASE_DIR = Path("/home/shahar42/Suumerizing_C_holy_grale_book")
 INDEX_FILE = BASE_DIR / "rag_finetune/data/concept_index.pkl"
 BOOK_CONFIG_FILE = BASE_DIR / "rag_finetune/config/book_config.json"
-ENV_FILE = BASE_DIR / "rag_finetune/apikeys.env"
+# Use the valid API key from the Surf Lamp Agent project
+ENV_FILE = Path("/home/shahar42/Git_Surf_Lamp_Agent/.env")
 
 # Load environment variables from .env file
 if ENV_FILE.exists():
@@ -42,7 +43,9 @@ else:
 
 # Settings
 TOP_K = 50  # Fetch more results for filtering
+RERANK_K = 20  # Rerank top 20 results with cross-encoder
 DEFAULT_DISPLAY = 10  # Show 10 by default
+USE_RERANKER = True  # Enable cross-encoder reranking
 
 console = Console()
 
@@ -95,13 +98,20 @@ class ConceptSearch:
         self.embeddings = data["embeddings"]
         self.model_name = data["model_name"]
 
-        console.print(f"[dim]Loading model: {self.model_name}...[/dim]")
+        console.print(f"[dim]Loading embedding model: {self.model_name}...[/dim]")
         self.model = SentenceTransformer(self.model_name)
+
+        # Load cross-encoder reranker for better top-K accuracy
+        if USE_RERANKER:
+            console.print(f"[dim]Loading reranker: ms-marco-MiniLM-L-6-v2...[/dim]")
+            self.reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+        else:
+            self.reranker = None
 
         console.print(f"[green]✓[/green] Ready • {len(self.concepts)} concepts indexed\n")
 
     def search(self, query: str, top_k: int = TOP_K) -> List[Tuple[Dict, float]]:
-        """Search concepts by semantic similarity with keyword boost"""
+        """Search concepts by semantic similarity with keyword boost and reranking"""
         query_embedding = self.model.encode([query], convert_to_numpy=True)
         similarities = cosine_similarity(query_embedding, self.embeddings)[0]
         top_indices = np.argsort(similarities)[::-1][:top_k]
@@ -139,13 +149,51 @@ class ConceptSearch:
                 # Combine scores
                 final_score = min(semantic_score + keyword_boost, 1.0)  # Cap at 1.0
 
-                results.append((concept, final_score))
+                results.append((concept, final_score, full_data))
             except Exception:
                 # If we can't read the file, just use semantic score
-                results.append((concept, semantic_score))
+                results.append((concept, semantic_score, None))
 
         # Re-sort by boosted scores
         results.sort(key=lambda x: x[1], reverse=True)
+
+        # Apply cross-encoder reranking on top-K results
+        if self.reranker and len(results) > 0:
+            rerank_candidates = results[:RERANK_K]
+
+            # Prepare query-document pairs for reranking
+            pairs = []
+            for concept, score, full_data in rerank_candidates:
+                # Use topic + explanation for reranking
+                if full_data:
+                    doc_text = f"{concept['topic']}. {full_data.get('explanation', '')[:300]}"
+                else:
+                    doc_text = concept['topic']
+                pairs.append([query, doc_text])
+
+            # Get reranker scores
+            rerank_scores = self.reranker.predict(pairs)
+
+            # Update scores: blend original score (60%) with rerank score (40%)
+            reranked = []
+            for i, (concept, orig_score, full_data) in enumerate(rerank_candidates):
+                # Normalize rerank score to [0, 1]
+                rerank_score = float(rerank_scores[i])
+                normalized_rerank = 1 / (1 + np.exp(-rerank_score))  # Sigmoid
+
+                # Blend scores
+                blended_score = 0.6 * orig_score + 0.4 * normalized_rerank
+                reranked.append((concept, blended_score))
+
+            # Keep non-reranked results
+            remaining = [(c, s) for c, s, _ in results[RERANK_K:]]
+
+            # Combine and sort
+            results = reranked + remaining
+            results.sort(key=lambda x: x[1], reverse=True)
+        else:
+            # No reranking - just strip full_data
+            results = [(c, s) for c, s, _ in results]
 
         return results
 

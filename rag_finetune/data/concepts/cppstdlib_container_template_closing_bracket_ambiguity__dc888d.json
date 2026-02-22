@@ -1,0 +1,20 @@
+{
+  "topic": "Template Closing Bracket Ambiguity (The '>>' Pitfall)",
+  "category": "container",
+  "explanation": "A significant historical pitfall in C++ syntax concerns the parsing of nested template closing angle brackets when defining complex types, such as containers utilizing function object traits.\n\n**The Pitfall:** Prior to C++11, the C++ language grammar mandated that the sequence `>>` (two consecutive closing angle brackets) was always interpreted as the right shift operator. This caused a syntax error when used to close two nested template argument lists, such as when defining a set with a non-default comparator like `std::set<int, std::greater<int>>`.\n\n**Resolution (Historical Requirement):** To resolve this ambiguity and ensure correct parsing, programmers were required to insert a space between the two angle brackets: `std::set<int, std::greater<int> > coll;`.\n\n**Modern Status (C++11 and Later):** C++11 introduced changes to the parsing rules (specifically, resolving the 'two-angle-bracket' ambiguity) allowing `>>` to be correctly interpreted as nested template closing brackets if the context is unambiguous. While modern compilers (C++11 and later) typically handle the compact form (`>>`) correctly, understanding the historical requirement (`> >`) is essential for maintaining older codebases or ensuring maximum portability across diverse compiler versions. The use of the space is always syntactically valid.",
+  "code_example": "#include <set>\n#include <functional>\n\nint main() {\n    // Historical/Backward Compatible Syntax (Always Safe)\n    std::set<int, std::greater<int> > s1;\n    \n    // Modern C++11+ Syntax (Generally Accepted)\n    std::set<int, std::greater<int>> s2;\n    \n    // Example of intentional shift operator (unrelated to templates)\n    int x = 10;\n    x = x >> 1; // Right shift\n    \n    // Note: If C++03 compiler is used, s2 definition fails to compile\n    // due to the '>>' being parsed as a single token.\n}",
+  "practical_example": "When developing header files intended for broad distribution or for projects that must support older C++ standards (pre-C++11), using the spaced syntax (`> >`) for nested template arguments prevents mysterious syntax errors on platforms using older compiler versions.",
+  "keywords": [
+    "nested templates",
+    "parsing ambiguity",
+    "right shift operator",
+    "template syntax",
+    "C++11 parsing",
+    "greater-than operator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "159 (Footnote 18)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_template_closing_bracket_ambiguity__dc888d",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Non-Throwing Guarantee for std::list Removal and Structural Operations",
+  "category": "container",
+  "explanation": "A significant subset of `std::list` modifying operations are guaranteed not to throw exceptions. These operations primarily involve the removal of nodes or structural changes that do not rely on element construction or allocation, such as `pop_back()`, `pop_front()`, `erase()`, `clear()`, `reverse()`, and `swap()`.\n\nPurpose: This guarantee ensures high reliability for cleanup and deallocation routines. Since destructors are generally expected not to throw in C++, operations involving only pointer manipulation and destruction are inherently safe.\n\nEdge Cases for Conditional Non-Throwing:\n- `remove()` and `unique()`: These functions are guaranteed not to throw *only if* the comparison criterion (the element comparison operator or the supplied predicate for `remove_if()`) does not throw. If the comparison throws, the list might be left in an indeterminate state.\n- `merge()`: Requires comparing the elements not to throw to maintain the strong guarantee (either success or no effect).\n\nTechnical Details: The list relies on its basic structural operations being robust. `swap()` is O(1) and non-throwing, often implemented simply by exchanging the head pointers of the two lists.",
+  "code_example": "#include <list>\n#include <algorithm>\n\nint main() {\n    std::list<int> L = {1, 2, 3};\n    \n    // Guaranteed not to throw\n    L.pop_back();\n    L.erase(L.begin());\n    \n    std::list<int> L2 = {10, 20};\n    L.swap(L2); // O(1) and guaranteed not to throw\n    \n    // Conditional non-throw guarantee:\n    // If custom_predicate throws, behavior is indeterminate.\n    // L.remove_if(custom_predicate);\n    \n    L.clear(); // Guaranteed not to throw\n}",
+  "practical_example": "In RAII resource management, destructors often need to clear internal structures. Utilizing `std::list::clear()` within a destructor provides assurance that the cleanup process itself will not fail by throwing an exception, which is critical for maintaining exception safety across the entire program.",
+  "keywords": [
+    "no throw guarantee",
+    "pop_back",
+    "erase",
+    "clear",
+    "list exception safety",
+    "remove_if guarantee",
+    "swap noexcept"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "155",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_non_throwing_guarantee_for_std_25e60a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

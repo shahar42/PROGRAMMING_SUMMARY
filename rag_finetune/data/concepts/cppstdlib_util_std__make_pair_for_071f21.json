@@ -1,0 +1,20 @@
+{
+  "topic": "std::make_pair for Template Argument Deduction",
+  "category": "util",
+  "explanation": "The `std::make_pair()` function template provides a convenience mechanism to construct a `std::pair` without explicitly specifying the template types. This utilizes C++ template argument deduction (TAD).\n\nDefinition: `make_pair(v1, v2)` deduces the types of the pair elements based on the types of the arguments `v1` and `v2` provided to the function call, and returns the constructed pair.\n\nPerformance Guarantee: Josuttis notes that using `make_pair()` should be a zero-overhead abstraction, meaning it costs no runtime compared to explicit construction, as the compiler handles the type deduction at compile time.\n\nUsage:\n`auto p = std::make_pair(42, \"hello\");`\nThis is equivalent to the explicit construction:\n`std::pair<int, const char*> p(42, \"hello\");`\n\nPitfalls (Pre-C++11/14): While convenient, `make_pair` historically had subtle issues when dealing with reference types. Specifically, `make_pair` deduces the types as value types, potentially losing reference qualification, which required using `std::forward_as_tuple` or `std::ref` in certain complex scenarios involving perfect forwarding or references to non-copyable objects. (C++17 Class Template Argument Deduction, CTAD, has largely superseded the need for `make_pair` for simple construction.)",
+  "code_example": "#include <utility>\n#include <string>\n#include <typeinfo>\n\nint main() {\n    // Type deduction is automatic\n    auto p1 = std::make_pair(42, \"literal\"); \n    \n    // Explicit construction required type specification\n    std::pair<int, const char*> p2(42, \"literal\");\n    \n    // Demonstrating deduction (int, const char*)\n    // std::cout << typeid(p1.first).name() << \"\\n\";\n    \n    // Note: make_pair is often used to insert into maps:\n    // map.insert(std::make_pair(\"key\", value));\n    \n    return 0;\n}",
+  "practical_example": "When inserting elements into a `std::map`, `make_pair` simplifies the syntax for creating the key-value structure required by the `insert` function, improving code readability and reducing the chance of type mismatch errors.",
+  "keywords": [
+    "make_pair",
+    "template argument deduction",
+    "TAD",
+    "syntactic sugar",
+    "zero overhead",
+    "utility function"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "38",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__make_pair_for_071f21",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

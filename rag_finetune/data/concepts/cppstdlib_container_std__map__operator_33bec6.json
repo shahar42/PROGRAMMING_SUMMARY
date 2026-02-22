@@ -1,0 +1,21 @@
+{
+  "topic": "std::map::operator[] Auto-Insertion and Default Construction Requirement",
+  "category": "container",
+  "explanation": "For associative containers like `std::map`, the primary function of `operator[]` is accessing the value associated with a key. However, it exhibits crucial auto-insertion semantics that must be understood.\n\n**Behavior Guarantee:** If an element with the given key does not exist in the map, `operator[]` automatically inserts a new key-value pair into the map. The key is initialized with the provided argument, and the associated value is initialized using the default constructor of the value type (`T`).\n\n**Equivalence and Requirements:** This operation is equivalent to `(*((insert(make_pair(key, T()))).first)).second`. This implies two mandatory requirements:\n1. The key type must be CopyInsertable.\n2. The value type (`T`) must be **DefaultConstructible**.\n\n**Pitfalls:** Using `operator[]` purely for lookup can unexpectedly modify the map's size and contents, potentially masking logic errors, especially if the value type's default constructor has side effects or if the programmer intended a non-mutating search (for which `map::find()` or C++11's `map::at()` should be used). If the value type is not default constructible, using `operator[]` results in a compilation error.",
+  "code_example": "#include <map>\n#include <string>\n#include <iostream>\n\nint main() {\n    std::map<int, std::string> coll;\n    coll[77] = \"hello\"; // Insertion and assignment\n    \n    // Lookup for existing key (no insertion)\n    std::cout << \"77: \" << coll[77] << std::endl;\n    \n    // Lookup for non-existent key (Auto-insertion occurs)\n    std::cout << \"42: \" << coll[42] << std::endl; \n    \n    // coll now has size 2. Key 42 exists with value \"\".\n    std::cout << \"Map size: \" << coll.size() << std::endl;\n}",
+  "practical_example": "In configuration management, if a feature flag map is accessed via `operator[]`, a missing flag might be silently inserted with a default value (e.g., `false` or `0`) instead of signaling an error for a required, missing configuration item. This requires using `map::find()` or `map::count()` for non-mutating checks.",
+  "keywords": [
+    "map operator[]",
+    "auto-insertion",
+    "DefaultConstructible",
+    "associative container",
+    "side effects",
+    "lookup modification",
+    "std::map"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "209-210",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map__operator_33bec6",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

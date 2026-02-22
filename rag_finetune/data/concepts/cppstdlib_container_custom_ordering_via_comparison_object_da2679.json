@@ -1,0 +1,20 @@
+{
+  "topic": "Custom Ordering via Comparison Object in Associative Containers",
+  "category": "container",
+  "explanation": "`std::set` and `std::multiset` require a comparison object (template parameter `Compare`, defaulting to `std::less<Key>`) to maintain their sorted order. This object defines the strict weak ordering used for all element placement and lookup operations.\n\n**Technical Details:**\n1.  **Strict Weak Ordering Requirement:** The comparator must implement the mathematical concept of strict weak ordering. If two elements, `a` and `b`, satisfy `!comp(a, b) && !comp(b, a)`, they are considered equivalent (though not necessarily equal). In `std::set`, only one representative of an equivalence class is stored; in `std::multiset`, all are stored.\n2.  **Comparator Type:** The `Compare` type must be CopyConstructible. An instance of this comparator is stored within the container structure.\n3.  **Customization:** By providing a specific comparator, users can achieve non-default ordering, such as descending order using `std::greater<T>` or complex criteria based on multiple data members.\n\n**Usage and Pitfalls:**\nUsing a stateful comparator (one whose comparison result changes based on internal mutable state) is extremely dangerous and typically leads to undefined behavior, as the ordering invariant of the set may be violated after modification of the state.",
+  "code_example": "#include <set>\n#include <functional>\n#include <iostream>\n\nint main() {\n    // Define a set using std::greater<int> for descending order\n    typedef std::set<int, std::greater<int>> IntSetDesc;\n    IntSetDesc coll1;\n\n    coll1.insert(4);\n    coll1.insert(1);\n    coll1.insert(5);\n\n    // Output will be 5, 4, 1 (descending)\n    for (int elem : coll1) {\n        std::cout << elem << ' ';\n    }\n    std::cout << '\\n';\n}\n",
+  "practical_example": "Implementing a `std::set<std::string, CaseInsensitiveCompare>` where `CaseInsensitiveCompare` uses a custom functor to ensure that elements are ordered alphabetically regardless of capitalization. This allows efficient O(log N) lookup and insertion based on the desired linguistic ordering.",
+  "keywords": [
+    "comparison object",
+    "std::less",
+    "std::greater",
+    "strict weak ordering",
+    "custom comparator",
+    "associative container ordering"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "166-167",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_custom_ordering_via_comparison_object_da2679",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

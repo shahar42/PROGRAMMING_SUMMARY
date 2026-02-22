@@ -1,0 +1,20 @@
+{
+  "topic": "Idiomatic Key Modification in std::map via Copy and Erase",
+  "category": "container",
+  "explanation": "Keys in `std::map` (and other ordered associative containers) are immutable once inserted, as their value determines the element's position within the balanced tree structure. Therefore, directly modifying a key is disallowed. \n\nTo achieve the effect of key modification, the element must be logically 'moved.' The idiomatic approach involves two steps:\n1. Insert the value associated with the old key under the new key, typically using the subscript operator (`c[\"new_key\"] = c[\"old_key\"]`).\n2. Remove the element associated with the old key (`c.erase(\"old_key\")`).\n\nTechnical Details:\n- Requirement: The value type must be CopyConstructible and CopyAssignable.\n- Complexity: Both the lookup/insertion via `[]` and the key-based `erase()` operation are guaranteed O(log N), where N is the number of elements in the map. The overall key modification is therefore O(log N).\n\nPitfalls:\n1. If the new key already exists, step 1 overwrites the existing value associated with the new key, potentially losing data.\n2. This technique involves copying the value object. For large value types, this can introduce performance overhead compared to a hypothetical move or splice operation (which C++17 later introduced for nodes). Pre-C++17, this copy/erase is the standard approach.",
+  "code_example": "#include <map>\n#include <string>\n\nvoid change_key(std::map<std::string, float>& coll,\n                  const std::string& old_key,\n                  const std::string& new_key) {\n    // Check if old key exists and new key doesn't (optional safety)\n    if (coll.count(old_key) > 0) {\n        // 1. Insert new element (copies value)\n        coll[new_key] = coll[old_key]; // O(log N)\n        // 2. Remove old element\n        coll.erase(old_key);           // O(log N)\n    }\n}",
+  "practical_example": "Managing user sessions in a system where the session ID (the map key) needs to be updated after successful authentication. Instead of invalidating the session and creating a new one (losing associated temporary data), the map entry is modified to reflect the new session ID.",
+  "keywords": [
+    "map key mutation",
+    "std::map::erase",
+    "subscript operator",
+    "O(log N)",
+    "key immutability",
+    "associative container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "179",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_idiomatic_key_modification_in_std_dfcadb",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

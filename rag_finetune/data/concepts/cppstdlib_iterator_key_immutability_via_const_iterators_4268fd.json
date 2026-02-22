@@ -1,0 +1,20 @@
+{
+  "topic": "Key Immutability via Const Iterators in Associative Containers",
+  "category": "iterator",
+  "explanation": "Iterators returned by `std::set`, `std::multiset`, `std::map`, and `std::multimap` (when dereferenced) expose their elements as `const`. Specifically, for sets, the element type `T` is accessed as `const T&`. For maps, the key part of the `std::pair<const Key, Value>` is accessed as `const Key&`.\n\nPurpose: This constraint is mandatory for maintaining the container's internal ordering invariants. If a key element could be modified via an iterator, the container's sorted structure (usually implemented as a balanced tree) would be corrupted, leading to undefined behavior on subsequent operations.\n\nTechnical Details:\n- Iterators for sets/multisets are **Bidirectional Iterators** (Section 7.2.4).\n- Because they are not Random Access Iterators, they cannot be used with algorithms requiring random access (e.g., `std::sort`, `std::shuffle`).\n- Attempts to modify the element pointed to by a non-const iterator of a set will result in a compilation error because the dereferenced type is constant.\n\nUsage Guidance: To modify an element in a set or map (key modification), the old element must first be erased, and the new element must be inserted. For maps, only the associated value can be modified directly via the non-const iterator's dereferenced pair member.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> s = {10, 20};\n    auto it = s.begin();\n    \n    // *it = 15;  // ERROR: Dereferenced value is const, cannot modify key\n    \n    // Correct way to 'modify' a set element:\n    if (it != s.end()) {\n        int old_val = *it;\n        it = s.erase(it); // Erase returns iterator to next element\n        s.insert(old_val + 5); \n    }\n    \n    // Output: 15, 20\n    for (int x : s) std::cout << x << \" \";\n    std::cout << \"\\n\";\n}",
+  "practical_example": "In geometry processing where points are stored in a set based on their X-coordinate, if an algorithm needs to shift a point's X-coordinate, the point must be removed from the set and reinserted at its new position to ensure the set's ordering remains valid for O(log N) lookups.",
+  "keywords": [
+    "const iterator",
+    "key immutability",
+    "bidirectional iterator",
+    "set constraints",
+    "iterator category",
+    "associative container invariant"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "162-163",
+  "chapter": "Chapter 7: STL Iterators",
+  "id": "cppstdlib_iterator_key_immutability_via_const_iterators_4268fd",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

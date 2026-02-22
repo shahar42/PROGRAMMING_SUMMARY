@@ -1,0 +1,21 @@
+{
+  "topic": "Non-Invasive Range Definition for C-Style Arrays",
+  "category": "container",
+  "explanation": "C-style arrays (`T arr[N]`) are not classes and therefore do not provide the standard member functions `begin()` and `end()` required by STL containers. To use C-arrays with STL algorithms, the range must be defined using the 'non-invasive approach' where the range boundaries are calculated externally using raw pointers.\n\n**Definition:** An STL algorithm operates on a half-open range `[first, last)`. For a C-array `arr` of size `N`, `first` is simply the array name (which decays to a pointer to the first element), and `last` must be explicitly calculated as the address one position past the final element, typically `arr + N`.\n\n**Requirements:** This approach requires the programmer to accurately know and manage the array size `N`. The array must be defined in scope such that its size is known at compile time, or its size must be passed explicitly as a separate parameter.\n\n**Pitfalls:** The primary danger is defining the end pointer incorrectly, leading to algorithms accessing memory outside the array bounds (UB). Forgetting that the end iterator must point *past* the last element (e.g., using `arr + N - 1`) is a common error. Furthermore, if the array decays to a pointer when passed to a function, `sizeof(arr)` cannot be used to determine `N` inside that function.\n\n**Modern Alternatives:** Since C++11, the preferred mechanism is using `std::begin(arr)` and `std::end(arr)` (non-member functions) or using `std::array<T, N>` which encapsulates the array and provides standard member functions.",
+  "code_example": "#include <algorithm>\n#include <numeric>\n#include <iostream>\n\nint main() {\n    int coll[] = { 10, 20, 30, 40 };\n    const size_t N = sizeof(coll) / sizeof(coll[0]);\n    \n    // Correct non-invasive range definition: [coll, coll + N)\n    long sum = std::accumulate(coll, coll + N, 0L);\n    \n    std::cout << \"Sum: \" << sum << std::endl; // Output: 100\n    \n    // Pitfall: Incorrectly calculating the end pointer\n    // std::sort(coll, coll + 40); // UB: Accesses out of bounds\n}",
+  "practical_example": "In legacy codebases or embedded systems where `std::vector` overhead is undesirable, C-arrays are used for fixed-size buffers. The non-invasive approach is mandatory to apply standard algorithms (like searching or hashing) to these buffers without modifying the array definition, ensuring compatibility with the existing memory model.",
+  "keywords": [
+    "C-array range",
+    "non-invasive approach",
+    "array decay",
+    "half-open range",
+    "arr + N",
+    "std::begin/std::end",
+    "Undefined Behavior"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "193",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_non_invasive_range_definition_for_d8e238",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Strict Type Requirements for Relational Comparison of Standard Containers",
+  "category": "container",
+  "explanation": "Container relational operators (`operator==`, `operator!=`, `operator<`, etc.) are only defined and available for comparison when both container operands are of the *exact same type*. This strict requirement mandates that all template parameters\u2014the element type (`T`), the sorting criterion (`Compare` or `Hash`), and the allocator type (`Allocator`)\u2014must match precisely.\n\nPurpose: This ensures that comparison reflects the container's structural definition and internal ordering logic. If two sets contain the same elements but use different comparators (e.g., `std::less<int>` vs. `std::greater<int>`), they are considered different types, and comparison fails at compile time.\n\nTechnical Details:\n- Complexity for standard comparison is generally O(N), performing a lexicographical comparison of elements.\n- Failure to match template types results in a compile-time error, as the required overloaded comparison operator is not available.\n\nPitfalls: A common error is assuming containers holding the same element type are comparable if only the sorting criterion differs. If comparison is needed between structurally different containers, algorithms like `std::equal` or manual iteration must be used.",
+  "code_example": "#include <set>\n#include <functional>\n\nint main() {\n    std::set<float> c1; \n    // Default comparator: std::less<float>\n    \n    std::set<float, std::greater<float>> c2;\n    // Custom comparator: std::greater<float>\n    \n    // if (c1 == c2) { \n    //     // COMPILE-TIME ERROR: different types \n    //     // due to mismatch in the second template argument (Comparator)\n    // }\n    \n    std::set<float> c3; \n    if (c1 == c3) { \n        // OK: Types match exactly\n    }\n}",
+  "practical_example": "A system uses two different sets to store configuration IDs. One set uses the default ascending order (`std::less`), and the other uses a custom descending order for priority handling (`std::greater`). Attempting to use `operator==` to check if their contents are identical fails, requiring the developer to implement a manual element-wise check after sorting or using a standard algorithm that ignores the container's definition.",
+  "keywords": [
+    "container comparison",
+    "relational operators",
+    "template matching",
+    "std::set",
+    "compile error",
+    "comparator requirement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "160",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strict_type_requirements_for_relational_6c00b2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

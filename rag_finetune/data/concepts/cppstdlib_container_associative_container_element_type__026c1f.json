@@ -1,0 +1,22 @@
+{
+  "topic": "Associative Container Element Type, Duplication Rules, and Key Constancy",
+  "category": "container",
+  "explanation": "Ordered associative containers are distinguished by the structure of their stored element and their rules regarding key duplication, which is enforced by the key comparison function.\n\nElement Structure:\n1. Sets (`std::set`, `std::multiset`) store individual values (`T`), where the value itself serves as the key for ordering.\n2. Maps (`std::map`, `std::multimap`) store key/value pairs (`std::pair<const Key, Value>`).\n\nDuplication Rules:\n- Containers prefixed without 'multi' (`std::set`, `std::map`) enforce uniqueness of the key. Insertion of an element whose key already exists fails (or returns an iterator to the existing element).\n- Containers prefixed with 'multi' (`std::multiset`, `std::multimap`) allow duplicate keys, facilitating dictionary-like structures where multiple values can be associated with the same key.\n\nKey Constancy Pitfall: In all ordered associative containers, the key component must be immutable (`const`) after insertion. This invariant is essential because modifying the key would corrupt the container's internal binary tree structure and violate the sorting order. While the `Value` component in a `map` is mutable, the `Key` component is accessed as constant, preventing accidental structural damage.",
+  "code_example": "#include <map>\n#include <set>\n\nint main() {\n    std::map<int, std::string> m;\n    m.insert({10, \"A\"});\n    m.insert({10, \"B\"}); // Fails, key 10 unique\n\n    std::multimap<int, std::string> mm;\n    mm.insert({20, \"C\"});\n    mm.insert({20, \"D\"}); // Success, key 20 duplicated\n\n    auto it_m = m.begin();\n    // it_m->first = 5; // ERROR: Key is const and cannot be changed\n    it_m->second = \"NewValue\"; // OK: Value is mutable\n}",
+  "practical_example": "When implementing user authentication tracking, a `std::map<UserID, SessionData>` is used because each user ID must be unique. However, if logging access attempts, a `std::multimap<UserID, AttemptTime>` is necessary to record every attempt, allowing duplicate user IDs (keys).",
+  "keywords": [
+    "map key constancy",
+    "multimap",
+    "set duplicates",
+    "associative array",
+    "dictionary",
+    "key/value pair",
+    "const key",
+    "binary tree invariant"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "200, Table 6.33",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_element_type__026c1f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

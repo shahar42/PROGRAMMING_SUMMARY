@@ -1,0 +1,22 @@
+{
+  "topic": "Logarithmic Key Lookup using lower_bound() in Ordered Containers",
+  "category": "container",
+  "explanation": "Ordered associative containers (`std::set`, `std::map`, `std::multiset`, `std::multimap`) provide member functions like `lower_bound()`, `upper_bound()`, and `equal_range()` to perform efficient, logarithmic lookups based on key comparison, leveraging their underlying balanced tree structure (typically a Red-Black Tree).\n\n**Definition:** The `C::lower_bound(const Key& k)` member function returns an iterator pointing to the first element in the container whose key is *not less than* `k`. If no such element exists, it returns `C::end()`. This is fundamentally different from `C::find(k)`, which requires an exact match.\n\n**Technical Details:** The complexity guarantee for `lower_bound()` in ordered containers is strictly logarithmic, O(\\log N), where N is the number of elements. This efficiency is achieved because the search traverses the tree structure directly using the key comparison logic, avoiding the need for sequential iteration or full element dereferencing required by the generic `std::lower_bound` algorithm when used on non-random-access iterators.\n\n**Usage and Purpose:** `lower_bound()` is critical for range queries (finding all elements between $k_1$ and $k_2$) and determining the exact insertion point where a key would maintain the container's order. It is often used in conjunction with `upper_bound()` to define a specific range of elements via the `equal_range()` function, which returns a `std::pair` of iterators.\n\n**Pitfalls:** While the global algorithm `std::lower_bound` can be used on ordered container iterators (e.g., `std::lower_bound(s.begin(), s.end(), k)`), this generally requires iterating through the elements and performing comparisons via dereferencing. For key-based lookups, using the container's member function is always preferred, as it utilizes the container's internal structure for optimized O(\\log N) traversal. Using the global algorithm on non-random access iterators (like those provided by `std::set`) can sometimes result in reduced performance compared to the specialized member function, although the complexity remains O(\\log N).",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> data = {10, 20, 30, 40, 50};\n    int target = 25;\n\n    // O(log N) lookup using the container member function\n    auto it = data.lower_bound(target);\n\n    if (it != data.end()) {\n        // Finds the first element >= 25, which is 30\n        std::cout << \"First element >= \" << target << \": \" << *it << \"\\n\";\n    } else {\n        std::cout << \"Target is too large.\\n\";\n    }\n\n    // Check if 40 exists (using lower_bound)\n    target = 40;\n    it = data.lower_bound(target);\n    if (it != data.end() && *it == target) {\n        std::cout << target << \" found.\\n\";\n    }\n}",
+  "practical_example": "In a database index or configuration system where keys represent time stamps or version numbers, `lower_bound()` is used to quickly find the first entry that occurred on or after a specific time $T$. This allows for efficient querying of continuous data streams without iterating through the entire history, crucial for performance in systems handling large, chronologically ordered datasets.",
+  "keywords": [
+    "lower_bound",
+    "ordered container lookup",
+    "std::set",
+    "std::map",
+    "logarithmic complexity",
+    "O(log N)",
+    "range query",
+    "associative container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "224-225",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_logarithmic_key_lookup_using_lower_bound___af58cf",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "auto_ptr for RAII Class Members",
+  "category": "util",
+  "explanation": "Using `std::auto_ptr` (or modern smart pointers) as a member variable within a class is a core application of the RAII (Resource Acquisition Is Initialization) principle. The smart pointer ensures that the dynamically allocated resource is automatically managed and cleaned up upon the destruction of the containing object.\n\nPurpose: By delegating resource management to the smart pointer member, the containing class avoids the need for an explicit destructor to call `delete`. This simplifies class design, prevents common resource leaks, and helps adhere to the Rule of Zero (or Rule of Five in modern C++).\n\nTechnical Details: When the containing class object is destroyed (e.g., when it goes out of scope or is deleted), the member `auto_ptr`'s destructor is automatically invoked. This destructor checks if it holds ownership of a resource and, if so, calls `delete` on the managed pointer.\n\nPitfalls: While using `auto_ptr` simplifies destructor management, it complicates copy construction and assignment for the *containing class*. Since copying an object containing an `auto_ptr` member results in the original object's member losing ownership, any attempt to copy the containing class will result in a destructive copy, often necessitating the explicit deletion or restriction of the containing class's copy operations (often achieved by defining them as private or deleted). This behavior makes `std::unique_ptr` a superior choice for RAII members in modern C++.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass ResourceOwner {\npublic:\n    // Resource is acquired upon construction\n    ResourceOwner() : data_(new int(42)) {\n        std::cout << \"Owner created.\" << std::endl;\n    }\n    // No explicit destructor needed; auto_ptr handles cleanup\n\n    int getValue() const { return *data_; }\n\nprivate:\n    std::auto_ptr<int> data_;\n    // Note: Copying ResourceOwner would be dangerous due to data_ transfer\n};\n\nint main() {\n    { // Scope starts\n        ResourceOwner ro;\n        std::cout << \"Value: \" << ro.getValue() << std::endl;\n    } // Scope ends, ro is destroyed, data_ is deleted automatically\n    std::cout << \"Resource cleaned up.\" << std::endl;\n    return 0;\n}",
+  "practical_example": "A class managing a hardware handle (e.g., a file descriptor or connection socket) can use an `auto_ptr` (or similar smart pointer wrapper) to ensure the handle is closed/released automatically when the object representing the connection goes out of scope, preventing system resource exhaustion.",
+  "keywords": [
+    "RAII",
+    "auto_ptr member",
+    "resource leak prevention",
+    "destructor omission",
+    "Rule of Zero",
+    "smart pointer"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "131-132",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_auto_ptr_for_raii_class_55cfcf",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

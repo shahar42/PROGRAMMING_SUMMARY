@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Destructive Copy and Container Incompatibility",
+  "category": "util",
+  "explanation": "The fundamental design of `std::auto_ptr` utilizes destructive copy semantics: when an `auto_ptr` is copied or assigned, ownership of the managed resource is transferred to the destination object, and the source object is set to null. This behavior violates the fundamental requirements of standard library containers (such as `std::vector`, `std::map`, etc.), which mandate that copy and assignment operations must not modify the source object.\n\nPurpose: If `auto_ptr` were successfully used in containers, operations like `insert`, `push_back`, or internal container reallocation/copying would implicitly steal resources, leading to unexpected null pointers, potential double deletion (if the container implementation attempts to manage copies incorrectly), or violation of container invariants.\n\nTechnical Details: Due to the destructive nature of its copy constructor and assignment operator, `auto_ptr` cannot satisfy the `CopyAssignable` or `CopyConstructible` requirements mandated by the standard for elements stored in most STL containers. Attempting to use a non-const `auto_ptr` with container operations that involve copying (e.g., `insert` or `push_back`) often results in a compile-time error because the container attempts to bind the source object to a non-const reference for internal assignment/copy, which is disallowed or results in undesirable behavior. This issue is why `std::unique_ptr` was introduced in C++11, explicitly forbidding copying while allowing move semantics.\n\nPitfalls: Even if compilation succeeded in older compilers or specific contexts, the resulting container would be unstable, as resources would be silently moved or deleted during standard operations, leading to undefined behavior upon access.",
+  "code_example": "#include <memory>\n#include <vector>\n\nint main() {\n    std::auto_ptr<int> p(new int(10));\n    \n    // Container attempts insertion (requires non-destructive copy)\n    // This typically results in a compile-time error \n    // or deprecated warning in modern C++.\n    // In older standards, if allowed, it leads to resource theft.\n    // std::vector<std::auto_ptr<int>> v;\n    // v.push_back(p); // ERROR or WARNING\n\n    // Demonstrating the destructive copy behavior directly:\n    std::auto_ptr<int> p2 = p; // p transfers ownership to p2\n    // if (p.get() == nullptr) { /* Ownership transferred successfully */ }\n    // *p = 5; // DANGER: Accessing nullified pointer (UB)\n    \n    return 0;\n}",
+  "practical_example": "A system uses a `std::vector` to store pending database connections represented by smart pointers. If `std::auto_ptr` were used, sorting or resizing the vector would cause connections to be implicitly transferred, resulting in half the vector containing nullified pointers, leading to crashes when iterating through the list to use the connections.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "container incompatibility",
+    "ownership transfer",
+    "compile-time error",
+    "resource theft"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_7e0cb7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

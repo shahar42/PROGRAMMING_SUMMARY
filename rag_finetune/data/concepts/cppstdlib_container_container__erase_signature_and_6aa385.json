@@ -1,0 +1,20 @@
+{
+  "topic": "Container::erase Signature and Return Type Differentiation",
+  "category": "container",
+  "explanation": "The signature and return type of the range erase operation, `erase(beg, end)`, fundamentally differs between Sequence Containers (`vector`, `deque`, `list`) and Associative Containers (`set`, `map`). This difference is crucial for maintaining loop stability and implementing algorithms like the erase-remove idiom.\n\n**Sequence Containers (Vector, Deque, List):**\n- Signature: `iterator container::erase(iterator beg, iterator end)`.\n- Return Value: Returns an iterator pointing to the element immediately following the last element removed (i.e., the original `end` iterator, if it was valid). If the removed range extended to the container's end, it returns `end()`.\n- Purpose: The returned iterator allows efficient iteration after removal, especially when deleting elements within a loop, as the standard guarantees the returned iterator is valid and points to the correct successor.\n\n**Associative Containers (Set, Map):**\n- Signature: `void container::erase(iterator beg, iterator end)`.\n- Return Value: Returns `void` (pre-C++11). In C++11 and later, single-element erase typically returns an iterator, but the range erase defined here returns `void`.\n- Purpose: Associative containers do not rely on element ordering preservation in the same way, and the removal often requires specific lookup logic, making the returning iterator less universally necessary in range operations.\n\n**Complexity:**\n- `list::erase`: O(N) in the size of the range, O(1) if iterators are known.\n- `vector::erase`: O(N) in the size of the container elements following the range, due to shifting.\n- `set/map::erase`: O(N) in the size of the range, O(log N) for single element removal (amortized).\n\n**Pitfall:** Attempting to use the `erase` return value when iterating over an associative container (unless using the C++11 single-element overload) will result in a compilation error.",
+  "code_example": "#include <vector>\n#include <set>\n#include <list>\n\nvoid sequence_erase() {\n    std::vector<int> v = {1, 2, 3, 4, 5};\n    // Erase elements 2 and 3\n    auto it = v.erase(v.begin() + 1, v.begin() + 3); \n    // it now points to the element '4'\n}\n\nvoid associative_erase() {\n    std::set<int> s = {1, 2, 3, 4, 5};\n    // Range erase returns void (pre-C++11/17 standard for range erase)\n    s.erase(s.find(2), s.find(4)); \n    // auto it = s.erase(...) would be a compile error\n}",
+  "practical_example": "When implementing a filtering routine on a large `std::vector` where elements must be deleted based on a condition, the returned iterator from `v.erase(it)` is essential for correctly advancing the loop counter without skipping the element newly shifted into the erased position. If using an associative container, one must manually advance the iterator *before* calling `erase`.",
+  "keywords": [
+    "erase signature",
+    "sequence container",
+    "associative container",
+    "iterator return",
+    "erase-remove idiom",
+    "complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "214",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container__erase_signature_and_6aa385",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Initialization of Stateful Comparison Functors",
+  "category": "container",
+  "explanation": "Associative containers require a comparison object (functor) to maintain their ordering. This functor can be stateless (like `std::less<int>`) or stateful (if it holds runtime data necessary for comparison).\n\n**Initialization Methods:**\n1.  **Default Construction:** If the comparator is stateless, the container's default constructor calls the comparator's default constructor. This is the standard behavior when the comparator type is omitted (it defaults to `std::less<Key>`).\n2.  **Constructor Parameter:** If the comparator is stateful, or if its initial state needs to be determined at runtime, a constructed instance of the comparison object must be passed explicitly to the container's constructor.\n\n**Technical Details:**\n-   The container stores a copy of the comparison object provided during construction. Any state held by the functor is copied.\n-   If the comparator is default-constructible, it can be used implicitly. If it is not default-constructible, it *must* be passed explicitly.\n\n**Usage Guidance:** Use explicit constructor passing when the sorting logic depends on external runtime configuration, such as locale settings, custom thresholds, or specific sorting directions (e.g., ascending vs. descending defined dynamically). Stateless comparators generally allow for optimizations (e.g., empty base class optimization, EBO) but stateful ones trade memory for flexibility.",
+  "code_example": "#include <set>\n#include <iostream>\n\nstruct ThresholdComp {\n    int threshold;\n    ThresholdComp(int t) : threshold(t) {}\n    bool operator()(int a, int b) const {\n        // Custom logic: sort based on distance from threshold\n        return std::abs(a - threshold) < std::abs(b - threshold);\n    }\n};\n\nint main() {\n    // Initialize set with a stateful comparator\n    std::set<int, ThresholdComp> s(ThresholdComp(50));\n    \n    s.insert(60); // Distance 10\n    s.insert(45); // Distance 5 (closer to 50)\n    \n    // Output depends on the state (50) of the comparator\n    for (int x : s) {\n        std::cout << x << \" \"; // Output: 45 60 \n    }\n}",
+  "practical_example": "In a financial trading system, a `std::map` might store orders sorted by price deviation from the current market midpoint. A stateful comparator can be used to capture the midpoint at the time of container creation, ensuring all subsequent insertions are ordered relative to that specific threshold, rather than a fixed zero point.",
+  "keywords": [
+    "stateful comparator",
+    "comparison functor",
+    "custom sorting criterion",
+    "default constructible",
+    "set constructor",
+    "functor state"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "173, 191, 294",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_initialization_of_stateful_comparison_functors_ac2aa7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

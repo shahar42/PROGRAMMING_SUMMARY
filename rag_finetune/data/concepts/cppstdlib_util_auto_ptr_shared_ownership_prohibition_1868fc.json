@@ -1,0 +1,20 @@
+{
+  "topic": "auto_ptr Shared Ownership Prohibition and Dangling Pointers",
+  "category": "util",
+  "explanation": "`std::auto_ptr` is fundamentally designed to enforce single, exclusive ownership. The standard explicitly warns that an `auto_ptr` must not refer to an object that is owned by another smart pointer or object.\n\nPurpose: This requirement stems from `auto_ptr`'s primary goal: to guarantee resource release upon destruction. If ownership were shared, the first `auto_ptr` to be destroyed would call `delete`, leaving any subsequent `auto_ptr` objects referring to a destroyed resource. These remaining pointers become dangling pointers.\n\nPitfalls: If two `auto_ptr` instances somehow manage to point to the same resource (e.g., through unsafe initialization or casting), accessing the resource via the second pointer after the first has gone out of scope results in **Undefined Behavior (UB)**, typically a segmentation fault or heap corruption, as the memory has already been freed.\n\nUsage Guidance: If shared ownership is required (e.g., resources stored in containers or shared across multiple threads/functions), C++03 programmers must use raw pointers and manual reference counting, or, preferably, transition to C++11's `std::shared_ptr`, which correctly manages shared ownership via atomic reference counts.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct Data { int value = 42; };\n\nvoid transfer_ownership(std::auto_ptr<Data> p) {\n    // p now owns the data. Original caller's pointer is null.\n    std::cout << \"Inside func: \" << p->value << std::endl;\n}\n\nint main() {\n    std::auto_ptr<Data> original(new Data);\n    \n    // 1. Destructive Copy/Transfer\n    transfer_ownership(original); \n    // original is now NULL.\n    // if (original.get() == nullptr) { std::cout << \"Original is null.\\n\"; }\n    \n    // 2. Attempted Shared Ownership (DANGER!)\n    // Data* raw = original.release(); // if original was valid\n    // std::auto_ptr<Data> p1(raw);\n    // std::auto_ptr<Data> p2(raw); // UB: two pointers own same resource\n    \n    return 0;\n}",
+  "practical_example": "Placing `auto_ptr` objects into an STL container (like `std::vector`). When the container is copied, the underlying `auto_ptr` elements transfer ownership, leaving the source container holding null pointers. This makes `auto_ptr` incompatible with many standard library algorithms and containers.",
+  "keywords": [
+    "auto_ptr sharing",
+    "dangling pointer",
+    "unique ownership",
+    "shared ownership",
+    "std::shared_ptr",
+    "resource leak avoidance"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "47",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_auto_ptr_shared_ownership_prohibition_1868fc",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

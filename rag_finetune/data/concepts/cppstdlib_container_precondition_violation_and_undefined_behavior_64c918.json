@@ -1,0 +1,22 @@
+{
+  "topic": "Precondition Violation and Undefined Behavior for pop_front/pop_back",
+  "category": "container",
+  "explanation": "The member functions `pop_front()` and `pop_back()`, provided by `std::deque` and `std::list`, remove the first and last elements respectively. Crucially, these functions operate under a strict precondition: the container must not be empty (`container.size() > 0`).\n\n**Precondition Requirement:** The C++ Standard Library specifies that calling `pop_front()` or `pop_back()` on an empty container results in Undefined Behavior (UB). This is a common pattern for fundamental operations where checking the state of the container before modification is the responsibility of the caller, allowing the library implementation to be optimized by omitting internal checks.\n\n**Technical Details:**\n- UB means the program's behavior is unpredictable; it might crash, corrupt memory, or appear to work correctly in testing but fail in production.\n- The operation is equivalent to `container.erase(container.begin())` or `container.erase(std::prev(container.end()))`, which are themselves undefined if the respective iterators are invalid (i.e., when `begin() == end()`).\n- These functions offer a no-throw guarantee (they do not throw exceptions).\n\n**Usage Guidance:** Always check `container.empty()` or `container.size() > 0` immediately before calling any `pop_*` operation.",
+  "code_example": "#include <deque>\n#include <iostream>\n\nint main() {\n    std::deque<int> d = {1, 2};\n    d.pop_front(); \n    d.pop_back();\n    \n    // Check required precondition\n    if (!d.empty()) {\n        d.pop_front();\n    } else {\n        std::cerr << \"Error: Attempted pop on empty container.\\n\";\n        // Calling d.pop_front() here results in UB\n    }\n}",
+  "practical_example": "In multithreaded queue processing, a worker thread must acquire a lock and check if the queue is empty before calling `pop_front()`. Failure to check the empty state, even if rare, leads to intermittent, catastrophic failures that are extremely difficult to debug, as the resulting memory corruption is non-deterministic.",
+  "keywords": [
+    "pop_front",
+    "pop_back",
+    "undefined behavior",
+    "precondition",
+    "empty container",
+    "deque",
+    "list",
+    "no-throw"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "214",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_precondition_violation_and_undefined_behavior_64c918",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

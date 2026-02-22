@@ -1,0 +1,22 @@
+{
+  "topic": "std::queue Adapter and FIFO Access Requirements",
+  "category": "adapter",
+  "explanation": "`std::queue` is a container adapter providing a strict First-In, First-Out (FIFO) interface, meaning elements are processed in the exact order they were inserted. It is designed to expose only the necessary queue operations while hiding the internal structure of the underlying container.\n\nDefinition: Elements are inserted at the back (tail) using `push()` and retrieved/removed from the front (head) using `front()` and `pop()`, respectively.\n\nUnderlying Container Requirements: The standard mandates that the underlying container used by `std::queue` must provide efficient support (ideally O(1)) for: \n1. `push_back()` (used by `queue::push()`)\n2. `pop_front()` (used by `queue::pop()`)\n3. `front()` (used by `queue::front()`)\n4. `back()` (used by `queue::back()`)\n\nDefault Implementation: The default underlying container is `std::deque`, as it satisfies all requirements for constant-time insertion and removal at both ends. `std::list` is also a valid choice, but `std::vector` is unsuitable as it lacks efficient `pop_front()`.\n\nComplexity: All primary operations (`push`, `pop`, `front`, `back`, `empty`) guarantee O(1) constant time complexity.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::queue<int> q;\n    \n    q.push(10); // First in\n    q.push(20);\n    q.push(30); // Last in\n    \n    // Check newest element (back) without removal\n    std::cout << \"Newest: \" << q.back() << std::endl; // Output: 30\n    \n    while (!q.empty()) {\n        // Retrieve oldest element (front)\n        std::cout << q.front() << \" \"; \n        q.pop();\n    } // Output: 10 20 30 \n    return 0;\n}",
+  "practical_example": "Implementing a message broker or a task scheduler where jobs must be handled sequentially in the order they were received. Using `std::queue` ensures guaranteed FIFO processing, preventing newer, lower-priority tasks from being executed before older, higher-priority ones.",
+  "keywords": [
+    "queue",
+    "FIFO",
+    "container adapter",
+    "std::deque",
+    "push_back",
+    "pop_front",
+    "front()",
+    "constant time complexity"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "386",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__queue_adapter_and_105052",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

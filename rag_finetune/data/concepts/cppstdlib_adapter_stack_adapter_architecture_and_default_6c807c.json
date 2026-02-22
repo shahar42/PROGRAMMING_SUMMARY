@@ -1,0 +1,21 @@
+{
+  "topic": "Stack Adapter Architecture and Default Container Choice (std::deque)",
+  "category": "adapter",
+  "explanation": "The `std::stack` is implemented as a container adapter, wrapping an underlying sequence container and exposing only a restricted LIFO interface (`push`, `pop`, `top`, `empty`, `size`). The underlying container is specified by the second template parameter, which defaults to `std::deque<T>`.\n\nDefinition: `template <class T, class Container = std::deque<T> > class stack;`\n\nRequirements: The chosen underlying container must support efficient (O(1) amortized or worst-case) operations equivalent to `push_back`, `pop_back`, and `back` (for `top()`).\n\nDefault Rationale: `std::deque` is the default choice because it guarantees O(1) complexity for insertions and deletions at both ends, ensuring optimal performance for stack operations without the iterator invalidation and potential reallocation overhead associated with `std::vector` when it grows.\n\nUsage Guidance: While `std::deque` is the default, users can choose `std::vector` (if contiguous storage is preferred and reallocation is managed via `reserve`) or `std::list` (if guaranteed address stability is required, although typically less performant due to node overhead). The choice impacts memory usage and performance characteristics but not the semantic interface.",
+  "code_example": "#include <stack>\n#include <deque>\n#include <vector>\n#include <list>\n\nint main() {\n    // 1. Default (uses std::deque)\n    std::stack<int> s_default;\n\n    // 2. Using std::vector as underlying container\n    std::stack<int, std::vector<int>> s_vec;\n\n    // 3. Using std::list as underlying container\n    std::stack<int, std::list<int>> s_list;\n\n    s_vec.push(10);\n    // s_vec.top() internally calls vector::back()\n}",
+  "practical_example": "For embedded systems where predictable memory consumption is key, using `std::stack<T, std::vector<T>>` combined with an initial `reserve()` call might be preferred to avoid the segmented memory layout of `std::deque`, provided the maximum stack depth is reasonably bounded.",
+  "keywords": [
+    "container adapter",
+    "std::deque",
+    "underlying container",
+    "template parameter",
+    "LIFO implementation",
+    "std::vector",
+    "std::list"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "381-382",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_stack_adapter_architecture_and_default_6c807c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

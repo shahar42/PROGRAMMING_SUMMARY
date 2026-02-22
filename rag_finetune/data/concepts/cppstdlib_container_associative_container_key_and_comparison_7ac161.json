@@ -1,0 +1,23 @@
+{
+  "topic": "Associative Container Key and Comparison Type Management",
+  "category": "container",
+  "explanation": "Associative containers (`std::set`, `std::map`, `std::multiset`, `std::multimap`) define specialized type aliases necessary for key-based ordering and retrieval, distinguishing between the key used for ordering and the value stored.\n\n**1. Key and Mapped Types:**\n- `key_type`: The type of the ordering criterion. For `std::set` and `std::multiset`, `key_type` is identical to `value_type` (the element type). For `std::map` and `std::multimap`, it is the type of the key component.\n- `mapped_type`: Present only in map containers (`std::map`, `std::multimap`), representing the type of the associated data payload. Set containers do not define this type.\n\n**2. Comparison Types:**\n- `key_compare`: The type of the comparison function object (e.g., `std::less<Key>`) used to maintain the container's strict weak ordering based on `key_type`.\n- `value_compare`: The type of the comparison criterion for the entire element (`value_type`). For sets, this is identical to `key_compare`. For maps, `value_compare` is an auxiliary class that wraps the `key_compare` object, enabling it to compare two full elements (`std::pair<const Key, MappedType>`) by only evaluating their respective key components. This is crucial for internal operations like insertion and deletion.\n\n**Technical Details:** All key comparisons (lookup, insertion, iteration order) operate in logarithmic time complexity, typically O(log N), due to the reliance on balanced tree structures (usually red-black trees).\n\n**Pitfall:** Attempting to use `mapped_type` on a `std::set` will result in a compilation error. When iterating over a `std::map`, the iterator yields `value_type` which is `std::pair<const Key, T>`, meaning the key part of the pair is constant and cannot be modified directly through the iterator.",
+  "code_example": "#include <map>\n#include <set>\n#include <string>\n\nint main() {\n    using MapType = std::map<std::string, int>;\n    \n    // Map types\n    MapType::key_type map_key = \"ID\";\n    MapType::mapped_type map_value = 42;\n    \n    // Set types: key_type == value_type\n    using SetType = std::set<int>;\n    SetType::key_type set_key = 100;\n    \n    // Comparison types\n    MapType::key_compare map_comp_func; // std::less<std::string>\n    if (map_comp_func(\"A\", \"B\")) {\n        // ...\n    }\n}",
+  "practical_example": "When designing a generic utility function that accepts both maps and sets, the function must check for the existence of `mapped_type` (often using type traits) to determine if the container is a map. If it is, the function can access `C::mapped_type`; otherwise, it must rely solely on `C::key_type` (which is equivalent to the element type for sets).",
+  "keywords": [
+    "key_type",
+    "mapped_type",
+    "key_compare",
+    "value_compare",
+    "associative container",
+    "set",
+    "map",
+    "strict weak ordering",
+    "logarithmic complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "203",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_key_and_comparison_7ac161",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

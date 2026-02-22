@@ -1,0 +1,22 @@
+{
+  "topic": "Default Template Structure and Heap Implementation Requirements",
+  "category": "adapter",
+  "explanation": "`std::priority_queue` is a container adapter that wraps an underlying container to provide a max-heap structure based on the standard heap algorithms (`make_heap`, `push_heap`, `pop_heap`).\n\nTemplate Parameters:\nThe default definition is `template <class T, class Container = vector<T>, class Compare = less<typename Container::value_type>> class priority_queue;`\n\n1. **Value Type (T):** The type of elements stored.\n2. **Container:** The underlying container, defaulting to `std::vector<T>`. This container *must* provide Random Access Iterators (required by the heap algorithms) and support `front()`, `push_back()`, and `pop_back()`.\n3. **Compare:** The comparison functor, defaulting to `std::less<T>`. Since `std::less` defines 'less than', the largest element (the one for which no other element is 'less than' it) floats to the top. This results in a **Max Heap** by default.\n\nCustomization:\nTo create a **Min Heap** (where the smallest element has the highest priority and is returned by `top()`), the `Compare` functor must be changed to `std::greater<T>`. The underlying container choice is critical; `std::list` cannot be used because it lacks Random Access Iterators, failing the requirements for the standard heap algorithms.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <functional>\n\n// Default: Max Heap (uses std::vector and std::less)\nstd::priority_queue<int> max_q;\n\n// Custom: Min Heap (uses std::vector and std::greater)\n// The order of template arguments (T, Container, Compare) is fixed.\nstd::priority_queue<int, std::vector<int>, std::greater<int>> min_q;\n\nint main() {\n    max_q.push(10); max_q.push(5);\n    min_q.push(10); min_q.push(5);\n    \n    // Max Heap: 10\n    std::cout << \"Max Top: \" << max_q.top() << '\\n';\n    // Min Heap: 5\n    std::cout << \"Min Top: \" << min_q.top() << '\\n';\n}",
+  "practical_example": "In networking, implementing a Quality of Service (QoS) queue might require a min-heap to prioritize packets based on the smallest latency value. By specifying `std::greater<LatencyType>`, the queue automatically ensures that the packet with the lowest latency is served next, while still using the efficient, contiguous storage of `std::vector`.",
+  "keywords": [
+    "priority_queue template",
+    "container adapter",
+    "Max Heap",
+    "Min Heap",
+    "std::less",
+    "std::greater",
+    "std::vector",
+    "Random Access Iterator requirement"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "396-397",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_default_template_structure_and_heap_a4a54f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

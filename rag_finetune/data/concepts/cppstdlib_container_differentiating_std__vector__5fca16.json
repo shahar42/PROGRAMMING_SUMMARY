@@ -1,0 +1,20 @@
+{
+  "topic": "Differentiating std::vector::reserve() from Size-Based Construction",
+  "category": "container",
+  "explanation": "When preparing a `std::vector` for a known number of elements, two primary methods exist: `reserve(N)` and construction with size `std::vector<T> v(N)`.\n\n**1. Size-Based Construction (v(N)):** This initializes the vector with a size of N. It requires that the element type T be `DefaultConstructible` (or a specific value provided). N elements are constructed, and the vector's `size()` is N. This incurs the overhead of N constructor calls, even if the elements will immediately be overwritten.\n\n**2. Capacity Reservation (reserve(N)):** This operation only ensures that the vector's internal storage (`capacity()`) is sufficient to hold at least N elements without reallocation. The vector's `size()` remains zero, and no element constructors are called. This is the preferred method when the elements will be inserted later (e.g., via `push_back` or `insert`) and the goal is solely to prevent performance-intensive reallocations.\n\n**Technical Details:** Using `reserve()` minimizes initial setup time when T has a non-trivial default constructor, as only the memory allocation (which is usually O(N)) occurs, avoiding N O(1) construction calls. Failure to use `reserve()` when building a large vector sequentially results in repeated reallocations, destroying iterator stability and increasing overall time complexity due to copying existing elements to the new memory block.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nstruct Heavy { int x = 0; Heavy() { /* Expensive setup */ } };\n\nint main() {\n    // Method 1: Size Initialization (calls 100 constructors)\n    std::vector<Heavy> v1(100);\n    std::cout << \"V1 Size: \" << v1.size() \n              << \" Capacity: \" << v1.capacity() << std::endl;\n\n    // Method 2: Reservation (calls 0 constructors)\n    std::vector<Heavy> v2;\n    v2.reserve(100); \n    std::cout << \"V2 Size: \" << v2.size() \n              << \" Capacity: \" << v2.capacity() << std::endl;\n\n    // Only reserve() avoids construction overhead if elements are later inserted.\n}",
+  "practical_example": "When reading a large file of known record count (e.g., 1 million records), reserving the capacity upfront ensures that the entire dataset is loaded using a single memory allocation, preventing hundreds of expensive copy operations and iterator invalidation events that would occur during incremental growth.",
+  "keywords": [
+    "reserve",
+    "size constructor",
+    "capacity management",
+    "DefaultConstructible",
+    "performance optimization",
+    "reallocation avoidance"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "134",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_differentiating_std__vector__5fca16",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Destructive Copy and Ownership Transfer Semantics",
+  "category": "util",
+  "explanation": "The defining characteristic of `std::auto_ptr` (deprecated since C++11, removed since C++17) is its unique ownership model: ownership of the managed resource is strictly transferred upon copy construction or copy assignment. This mechanism is often referred to as 'destructive copy' because the source object is modified (set to null) during the copy operation.\n\n**Technical Details:** The copy constructor and copy assignment operator for `auto_ptr` take a non-const reference to the source object. When `q = p;` is executed, the raw pointer held by `p` is moved to `q`, and `p.get()` is set to `NULL`. This violates the fundamental requirement of standard library containers and algorithms, which mandate that copying elements must be non-destructive and idempotent.\n\n**Usage Guidance:** Due to destructive copy, `auto_ptr` cannot be safely used in standard containers (like `std::vector` or `std::map`), nor can it be reliably passed by value to functions, as the original pointer will be nullified upon the function return. Its primary, narrow use case was solely to guarantee resource cleanup in scope, replaced entirely by `std::unique_ptr` (which forbids copy and uses move semantics) and `std::shared_ptr` (which allows true sharing via reference counting).\n\n**Pitfalls:** Storing `auto_ptr` in an STL container leads to undefined behavior, usually resulting in the container holding nullified pointers after internal operations (like resizing or sorting), followed potentially by double deletion or memory leaks upon container destruction.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nvoid transfer_ownership() {\n    std::auto_ptr<int> p(new int(42));\n    std::auto_ptr<int> q;\n\n    std::cout << \"P before: \" << (p.get() ? *p : -1) << \"\\n\";\n    q = p; // Ownership transfer: P is nullified\n\n    // P is now NULL\n    std::cout << \"P after assignment: \" << (p.get() ? *p : 0) << \" (NULL)\\n\";\n    std::cout << \"Q after assignment: \" << (q.get() ? *q : 0) << \" (Owned)\\n\";\n}",
+  "practical_example": "If an attempt is made to sort a `std::vector<std::auto_ptr<T>>`, the comparison and swap operations performed by the algorithm will transfer ownership repeatedly. After sorting completes, only one element in the vector will hold a valid pointer; all others will be nullified, leading to resource leaks or unexpected behavior when attempting to access the stored objects.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "deprecated",
+    "smart pointer",
+    "unique_ptr",
+    "non-standard copy"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "49",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_92bf57",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

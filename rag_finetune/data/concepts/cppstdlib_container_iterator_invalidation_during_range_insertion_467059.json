@@ -1,0 +1,20 @@
+{
+  "topic": "Iterator Invalidation during Range Insertion into Sequential Containers",
+  "category": "container",
+  "explanation": "The general `insert` member template allows inserting elements from an arbitrary range `[beg, end)` defined by `InputIterator`s at a specific position `pos`.\n\nPurpose: This function provides efficient bulk insertion, often using specialized internal optimizations if the input range is known (e.g., Random Access Iterators). The flexibility of the member template means the source element type does not need to exactly match the container's element type, only be convertible to it.\n\nTechnical Details:\n1. **`std::vector` and `std::deque`:** Insertion requires shifting subsequent elements, resulting in O(N) complexity for insertion in the middle. For `vector`, insertion might trigger reallocation if capacity is exceeded, invalidating ALL iterators and references. Even without reallocation, insertion invalidates all iterators and references *after* the insertion point `pos`.\n2. **`std::list`:** Insertion is O(distance(beg, end)) complexity. Since `list` is node-based, insertion never invalidates any existing iterators or references.\n3. **Exception Guarantee:** The text notes that for `list`, the function 'either succeeds or has no effect' (strong guarantee), whereas `vector` and `deque` typically offer a basic guarantee or no guarantee if reallocation fails.\n\nUsage: When inserting into `vector` or `deque`, the iterator `pos` used for insertion must be updated or reacquired if needed after the operation, or use `list` if iterator stability is mandatory.",
+  "code_example": "#include <vector>\n#include <list>\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    std::vector<int> source = {10, 11};\n    \n    // Get iterator to middle element\n    auto it_v = v.begin() + 1;\n    \n    // Insert range. All iterators/references after insertion point are invalid\n    v.insert(it_v, source.begin(), source.end()); \n    \n    // it_v is now INVALIDATED, referencing the original '2' is undefined behavior.\n\n    std::list<int> l = {1, 2, 3};\n    auto it_l = l.begin();\n    ++it_l;\n    \n    l.insert(it_l, source.begin(), source.end());\n    // it_l remains VALID, still pointing to the original '2' element.\n}",
+  "practical_example": "When implementing a document editor that uses a vector to store lines of text, inserting a block of text (range insertion) requires careful management: any views or cursors (iterators/pointers) pointing to lines following the insertion point must be explicitly recalculated or they will point to invalid memory or the wrong elements.",
+  "keywords": [
+    "range insert",
+    "iterator invalidation",
+    "member template",
+    "InputIterator",
+    "vector insertion complexity",
+    "list iterator stability"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "173",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_iterator_invalidation_during_range_insertion_467059",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Performance Trade-offs for Uniqueness: Set (O(N log N)) vs. Sorted Vector (O(N log N))",
+  "category": "container",
+  "explanation": "Achieving uniqueness in a collection involves choosing between intrinsic uniqueness (associative containers like `std::set`) or post-processing (sequence containers like `std::vector` followed by sorting and unique operations).\n\n**1. `std::set` (Intrinsic Uniqueness):**\n- **Mechanism**: Uniqueness is enforced on insertion. `std::set::insert` checks for existence using comparison, preventing duplicates.\n- **Complexity**: Insertion is O(log N) due to tree balancing/traversal. Total time for N elements is O(N log N).\n- **Advantages**: Always unique, always sorted. Simple API.\n- **Disadvantages**: High memory overhead (node structure), insertion complexity is high, poor cache locality.\n\n**2. `std::vector` + `std::sort` + `std::unique_copy` (Post-processing):**\n- **Mechanism**: Insert all elements (O(N) amortized), sort the entire sequence (O(N log N)), then remove or copy adjacent duplicates (`std::unique` or `std::unique_copy`, O(N)).\n- **Complexity**: Dominated by sorting, O(N log N) total.\n- **Advantages**: Superior cache locality (contiguous memory), faster initial insertion (amortized O(1)).\n- **Disadvantages**: Requires three distinct steps; temporary duplicates exist.\n\n**Empirical Performance**: Despite having the same theoretical asymptotic complexity (O(N log N)), the vector approach is often empirically faster for large datasets (as noted in the text, 10% to 40% faster). This difference stems from the lower constant factors associated with vector's contiguous memory access and the faster amortized O(1) insertion time.",
+  "code_example": "#include <vector>\n#include <set>\n#include <algorithm>\n\nvoid unique_set(const std::vector<int>& data) {\n    // O(N log N) total due to N insertions\n    std::set<int> s(data.begin(), data.end());\n}\n\nvoid unique_vector(std::vector<int>& data) {\n    // O(N log N) dominated by sort\n    std::sort(data.begin(), data.end());\n    // O(N) to remove adjacent duplicates\n    data.erase(std::unique(data.begin(), data.end()), data.end());\n}",
+  "practical_example": "Processing large log files where performance is critical. If the input data is already known to contain many duplicates, using a vector followed by sorting minimizes the number of complex tree operations, leveraging faster sequential memory access.",
+  "keywords": [
+    "std::set",
+    "std::vector",
+    "uniqueness strategy",
+    "sorting performance",
+    "std::unique_copy",
+    "cache locality",
+    "O(N log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "207",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_performance_trade_offs_for_uniqueness_df8b5a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

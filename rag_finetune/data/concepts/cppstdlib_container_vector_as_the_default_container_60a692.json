@@ -1,0 +1,20 @@
+{
+  "topic": "Vector as the Default Container Choice and Random Access",
+  "category": "container",
+  "explanation": "The fundamental rule of thumb for container selection is to default to `std::vector`. This is due to its simple, contiguous internal data structure, which provides optimal cache locality and guarantees the highest performing iterator category: Random Access Iterators.\n\nPurpose: `std::vector` offers O(1) random access via `operator[]` or `at()`, making data access convenient, flexible, and fast. Its contiguous memory layout ensures that sequential access and processing (e.g., via algorithms or loops) benefit maximally from CPU caching mechanisms.\n\nTechnical Details:\n- Access Complexity: O(1).\n- Insertion/Deletion Complexity: O(N) for operations not at the end; Amortized O(1) for `push_back`.\n- Iterator Category: Random Access (compatible with pointer arithmetic).\n- Requirement: Elements must be MoveConstructible and MoveAssignable (or Copyable/Assignable if move operations are unavailable or suppressed).\n\nPitfalls:\n1. Frequent insertion/deletion in the middle is highly inefficient (O(N)).\n2. Reallocation invalidates all iterators, references, and pointers, requiring careful handling during growth operations or when using methods like `erase()` (which returns the next valid iterator).\n\nUsage Guidance: Use `std::vector` unless specific performance requirements (like O(1) insertion at both ends) necessitate `std::deque` or linked lists.",
+  "code_example": "#include <vector>\n#include <algorithm>\n\nint main() {\n    std::vector<int> v = {10, 20, 30};\n    \n    // O(1) Random Access\n    int value = v[1]; \n    \n    // High performance iteration due to contiguity\n    std::for_each(v.begin(), v.end(), [](int& x) {\n        x *= 2; // Cache friendly operation\n    });\n    \n    // O(N) operation: insertion in the middle\n    v.insert(v.begin() + 1, 15); \n    \n    // Amortized O(1) operation\n    v.push_back(40);\n}",
+  "practical_example": "Storing vertex data for 3D graphics. Since GPU APIs often require contiguous arrays, and rendering involves frequent random access (indexing) and sequential iteration, `std::vector` is the optimal choice for maximum throughput.",
+  "keywords": [
+    "vector",
+    "default container",
+    "contiguous storage",
+    "random access iterator",
+    "cache locality",
+    "O(1) access"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "132",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_as_the_default_container_60a692",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

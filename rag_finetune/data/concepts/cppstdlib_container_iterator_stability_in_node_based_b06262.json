@@ -1,0 +1,20 @@
+{
+  "topic": "Iterator Stability in Node-Based Containers",
+  "category": "container",
+  "explanation": "The underlying implementation of `std::set` and `std::multiset` utilizes a node-based structure (binary search tree), which fundamentally impacts iterator validity compared to sequence containers like `std::vector`.\n\n**Structural Advantage:** Each element is stored in an independent node, linked to its neighbors. When an element is inserted or deleted, only the pointers connecting the nodes are modified; the memory location of existing, non-deleted elements remains unchanged.\n\n**Iterator Invalidation Rules:**\n1.  **Insertion:** Insertion of a new element never invalidates any existing iterators, references, or pointers to elements already in the container.\n2.  **Deletion:** Only iterators, references, and pointers pointing specifically to the element being erased are invalidated. Iterators pointing to other elements remain fully valid and usable.\n\n**Performance Implication:** Although insertion and deletion operations are O(log N) due to the tree balancing, the stability of iterators makes these containers highly suitable for scenarios where external references to elements must persist across container modifications.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> s = {10, 20, 30};\n    \n    // Get an iterator to 20\n    auto it_20 = s.find(20);\n    \n    // Insert 40. This does NOT invalidate it_20.\n    s.insert(40);\n    \n    // Dereferencing the stable iterator is safe\n    std::cout << \"Iterator still points to: \" << *it_20 << std::endl;\n    \n    // Erase 10. This does NOT invalidate it_20.\n    s.erase(10);\n    \n    std::cout << \"Iterator still points to: \" << *it_20 << std::endl;\n    \n    // auto it_30 = s.find(30);\n    // s.erase(it_30); // Iterator it_30 is now invalid!\n}\n",
+  "practical_example": "Managing a pool of worker objects where external systems hold raw pointers or iterators to specific workers. If a new worker is added to the pool (`set::insert`), the existing references remain valid, avoiding the need for complex reference tracking or mass pointer updates that would be required if using a `std::vector`.",
+  "keywords": [
+    "iterator stability",
+    "node-based",
+    "binary tree",
+    "set iterator invalidation",
+    "pointer stability",
+    "O(log N) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "166",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_iterator_stability_in_node_based_b06262",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

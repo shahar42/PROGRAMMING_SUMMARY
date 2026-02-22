@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr::reset() and Array Deletion Mismatch",
+  "category": "util",
+  "explanation": "The `std::auto_ptr::reset(T* ptr)` function is used to change the object managed by the smart pointer. It performs two critical actions:\n1. **Destruction:** If the `auto_ptr` currently owns an object, that object is destroyed by calling the scalar `delete` operator.\n2. **Adoption:** The `auto_ptr` then adopts the new pointer `ptr`, becoming its sole owner.\n\nRequirements and Pitfalls:\nCrucially, `std::auto_ptr` is designed exclusively for objects allocated via the scalar `new` operator. The standard library guarantees that the destructor (and `reset`) will invoke the scalar `delete` operator on the owned pointer.\n\n**Undefined Behavior:** Passing a pointer allocated via `new[]` (an array) to `reset` or the constructor leads to undefined behavior upon deletion. The mismatch between the allocation (`new[]`) and deallocation (`delete`) operators is a severe error. The text strongly advises using STL container classes (like `std::vector`) instead of `auto_ptr` for managing arrays of objects.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nint main() {\n    int* p1 = new int(42);\n    std::auto_ptr<int> ap(p1);\n    \n    // 1. Deletes p1\n    // 2. Adopts nullptr\n    ap.reset(); \n    \n    // --- DANGER ZONE ---\n    // int* p_array = new int[10];\n    // std::auto_ptr<int> ap_bad(p_array); \n    // ap_bad will call 'delete p_array' instead of 'delete[] p_array'\n    // This is UNDEFINED BEHAVIOR and likely causes memory corruption.\n    \n    std::auto_ptr<int> ap2(new int(5));\n    int* p3 = new int(10);\n    ap2.reset(p3); // Deletes 5, adopts 10.\n}",
+  "practical_example": "A developer attempts to simplify resource cleanup by using `auto_ptr<char>` to manage a dynamically allocated C-style string buffer created with `new char[256]`. When the `auto_ptr` goes out of scope or `reset()` is called, the mismatched `delete` operation corrupts the heap metadata, manifesting as intermittent crashes or heap errors during later program execution.",
+  "keywords": [
+    "auto_ptr",
+    "reset",
+    "delete[]",
+    "new array",
+    "undefined behavior",
+    "scalar delete",
+    "allocation mismatch"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "46-47",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr__162c01",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Symbolic Bit Management via Enumeration Indexing in std::bitset",
+  "category": "adapter",
+  "explanation": "std::bitset provides a fixed-size container for managing a sequence of bits, optimized for space and performance. When managing state flags, using raw integer indices (magic numbers) is detrimental to readability and safety. By utilizing unscoped C++ enumerations, developers can map symbolic names directly to bit positions.\n\nDefinition: The index argument required by methods like `set()`, `reset()`, `test()`, and `operator[]` is of type `size_t`. Since unscoped enumerations implicitly convert to their underlying integral type (typically `int`), they can be passed directly as indices, provided the enumeration values fall within the range [0, N-1], where N is the size of the bitset.\n\nUsage Guidance: It is best practice to define a final enumeration value (e.g., `numColors` or `Count`) whose value equals the total number of required bits. This value is then used as the template parameter `N` for `std::bitset<N>`, ensuring the container size exactly matches the number of defined flags.\n\nPitfalls: If the enumeration is defined sparsely (e.g., values 0, 5, 10), the bitset must be sized to the highest required index (11 in this case), potentially wasting space. Scoped enumerations (`enum class`) require explicit casting to `size_t` to be used as indices.",
+  "code_example": "#include <bitset>\n#include <iostream>\n\nenum StateFlag { \n    READ_ONLY, \n    HIDDEN, \n    SYSTEM, \n    ARCHIVED, \n    NUM_FLAGS // Used for size N\n};\n\nint main() {\n    // Size N is 4, matching NUM_FLAGS\n    std::bitset<NUM_FLAGS> flags;\n    \n    flags.set(READ_ONLY); \n    flags.set(SYSTEM);\n\n    std::cout << \"Bitset: \" << flags << std::endl;\n    // Access using symbolic index\n    if (flags[SYSTEM]) {\n        std::cout << \"System flag is set.\" << std::endl;\n    }\n}",
+  "practical_example": "Managing file system permissions or object state flags where a fixed, small number of independent boolean properties needs to be tracked efficiently. Using enumerations ensures that if a new flag is added, the size parameter of the bitset is updated automatically.",
+  "keywords": [
+    "bitset indexing",
+    "enumeration mapping",
+    "symbolic flags",
+    "fixed size container",
+    "std::bitset::set",
+    "NUM_FLAGS"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "400",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_symbolic_bit_management_via_enumeration_fc70fa",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

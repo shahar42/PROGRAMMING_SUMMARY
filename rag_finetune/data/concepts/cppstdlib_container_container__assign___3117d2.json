@@ -1,0 +1,20 @@
+{
+  "topic": "Container `assign()` vs. Assignment Operator (`=`)",
+  "category": "container",
+  "explanation": "The `assign()` member function allows containers to replace their entire content using sources other than another container of the exact same type, providing flexibility beyond the standard copy assignment operator (`operator=`).\n\nDefinition:\n1. `c1 = c2`: Uses copy assignment, requiring `c1` and `c2` to be the same container type (e.g., `std::vector<T>`).\n2. `c.assign(n, elem)`: Replaces content with `n` copies of `elem`.\n3. `c.assign(beg, end)`: Replaces content with elements from the range `[beg, end)`. This is highly versatile, allowing assignment from raw arrays, iterators of different container types (e.g., assigning a `std::list` range to a `std::vector`), or input streams.\n\nTechnical Details:\n- **Memory Management:** Unlike `operator=`, which might try to reuse existing capacity efficiently, `assign()` often involves destroying existing elements and constructing new ones. If the new size is larger than the current capacity, reallocation occurs.\n- **Element Operations:** `assign()` calls constructors, destructors, and assignment operators on the element type `T` as needed to match the new content and size.\n- **Complexity:** Range assignment `assign(beg, end)` has complexity linear in the size of the range, O(R), plus potential reallocation costs if capacity is exceeded.\n\nUsage Guidance: Use `assign(beg, end)` when initializing or resetting a container from a generic range or an iterator pair belonging to a different container type, especially when the target container needs to change size drastically.\n\nPitfalls: Since `assign()` potentially changes the container's size and triggers reallocation, all existing iterators, references, and pointers to the container's elements are invalidated, requiring careful handling.",
+  "code_example": "#include <vector>\n#include <list>\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    std::list<int> l = {10, 20, 30, 40};\n    \n    // 1. Copy Assignment (same type)\n    std::vector<int> v2 = v; \n    \n    // 2. Range Assignment (different type iterators)\n    v.assign(l.begin(), l.end());\n    // v is now {10, 20, 30, 40}\n    \n    // 3. Fill Assignment\n    v.assign(5, 99); \n    // v is now {99, 99, 99, 99, 99}\n}",
+  "practical_example": "A parser reads configuration data into a temporary `std::list` because insertions are frequent and scattered. Once parsing is complete, the results must be stored contiguously for efficient random access. `std::vector::assign(list.begin(), list.end())` efficiently performs the bulk transfer and conversion to contiguous storage in one step.",
+  "keywords": [
+    "assign",
+    "range assignment",
+    "fill assignment",
+    "copy assignment",
+    "iterator invalidation",
+    "sequence container initialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "136",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container__assign___3117d2",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

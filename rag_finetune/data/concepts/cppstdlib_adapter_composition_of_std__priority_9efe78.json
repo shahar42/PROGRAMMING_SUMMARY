@@ -1,0 +1,22 @@
+{
+  "topic": "Composition of std::priority_queue: Container and Custom Comparator",
+  "category": "adapter",
+  "explanation": "The `std::priority_queue` is a container adapter defined by three template parameters: `T` (the element type), `Container` (the underlying container, default `std::vector<T>`), and `Compare` (the sorting criterion, default `std::less<T>`).\n\n**Purpose:** The `Compare` type defines the internal heap structure. By default (`std::less`), the resulting queue is a **max-heap**, where the largest element has the highest priority and is accessed via `top()`. To implement a **min-heap** (where the smallest element has highest priority), the custom comparator must be `std::greater<T>`. \n\n**Technical Details:** The underlying container must provide `front()`, `push_back()`, and `pop_back()`, and must support Random Access Iterators (required by the heap algorithms). `std::vector` and `std::deque` are common choices; `std::list` is unsuitable.\n\n**Usage:** Constructors allow passing an instance of the custom comparator (a `CompFunc` object) explicitly, ensuring that initialization from an existing container or range immediately builds the correct heap structure using the defined priority. Initialization from a range or existing container takes O(N) time complexity to build the heap.\n\n**Pitfalls:** Failing to provide the correct `Compare` type (e.g., using `std::less` when a min-heap is desired) or using an underlying container that does not meet the Random Access Iterator requirement will result in compilation failure or incorrect behavior.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <iostream>\n\n// Create a custom comparator (Min-Heap)\nstruct CustomCompare {\n    bool operator()(int a, int b) const { return a > b; }\n};\n\nint main() {\n    // 1. Min-Heap using std::greater\n    std::priority_queue<int, std::vector<int>, std::greater<int>> min_pq;\n    min_pq.push(10); min_pq.push(2);\n    std::cout << \"Min Top: \" << min_pq.top() << \"\\n\"; // Output: 2\n\n    // 2. Custom Comparator initialization\n    std::priority_queue<int, std::vector<int>, CustomCompare> custom_pq;\n    custom_pq.push(5); custom_pq.push(1);\n    std::cout << \"Custom Top: \" << custom_pq.top() << \"\\n\"; // Output: 1\n}",
+  "practical_example": "Implementing Dijkstra's algorithm where the priority queue must always return the node with the smallest distance (a min-heap). This requires explicitly specifying `std::greater<T>` as the comparator, often within a `std::pair` or custom struct.",
+  "keywords": [
+    "priority_queue",
+    "container adapter",
+    "min-heap",
+    "max-heap",
+    "std::greater",
+    "std::less",
+    "Compare requirements",
+    "CompFunc"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "398-399",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_composition_of_std__priority_9efe78",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Lexicographical Comparison of std::queue",
+  "category": "adapter",
+  "explanation": "The `std::queue` container adapter supports full relational comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`). These comparisons are performed based on the underlying container's elements.\n\nDefinition: Two queues, `q1` and `q2`, are considered equal (`q1 == q2`) if and only if they have the same number of elements (`q1.size() == q2.size()`) and all corresponding elements are equal (i.e., `q1.front()` equals `q2.front()`, etc., down the line).\n\nOrdering Comparison: Ordering operators (`<`, `>`, `<=`, `>=`) rely on lexicographical comparison. The comparison proceeds element-by-element from the front of the queue until a mismatch is found or one queue runs out of elements. The queue whose element is considered 'less' at the first mismatch point determines the overall ordering.\n\nTechnical Details:\n- Implementation: The comparison is typically implemented using `std::lexicographical_compare` on the iterators provided by the underlying container.\n- Requirements: The element type `T` stored in the queue must support the required comparison operators (e.g., `operator<` for ordering, `operator==` for equality).\n- Complexity: Comparison is generally O(N), where N is the minimum size of the two queues, as it must iterate through the elements.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::queue<int> q1;\n    std::queue<int> q2;\n    q1.push(10); q1.push(20);\n    q2.push(10); q2.push(30);\n    \n    // Lexicographical comparison: 20 < 30, so q1 < q2\n    if (q1 < q2) {\n        std::cout << \"q1 is lexicographically less than q2.\" << std::endl;\n    }\n    \n    std::queue<int> q3;\n    q3.push(10); q3.push(20);\n    \n    if (q1 == q3) {\n        std::cout << \"q1 equals q3 (same elements in same order).\" << std::endl;\n    }\n}",
+  "practical_example": "Queue comparison is useful in testing scenarios or specific synchronization protocols where the exact state of two distributed queues must be verified. For instance, ensuring that a backup queue exactly matches the primary queue after a sequence of transactions requires the use of `operator==`.",
+  "keywords": [
+    "lexicographical_compare",
+    "queue comparison",
+    "operator==",
+    "ordering",
+    "relational operators",
+    "O(N) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "391",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_lexicographical_comparison_of_std__03bcd7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

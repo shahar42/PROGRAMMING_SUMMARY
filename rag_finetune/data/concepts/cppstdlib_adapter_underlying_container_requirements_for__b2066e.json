@@ -1,0 +1,20 @@
+{
+  "topic": "Underlying Container Requirements for `std::priority_queue`",
+  "category": "adapter",
+  "explanation": "The `std::priority_queue` is a container adapter that uses an underlying sequence container to store its elements, maintaining a max-heap structure based on the priority criterion. The choice of the underlying container is restricted by the requirements of the heap algorithms (std::make_heap, std::push_heap, std::pop_heap).\n\nTechnical Requirements:\n1. **Random Access Iterators:** The container must provide random access iterators to allow the heap algorithms to efficiently navigate and reorder elements (O(log N) complexity for heap maintenance).\n2. **Interface:** The container must support `front()`, `push_back()`, and `pop_back()`.\n\nPurpose: These requirements ensure that the container can support the heap structure efficiently. The default underlying container is `std::vector<T>`, which satisfies all requirements and offers cache locality. `std::deque<T>` is also a valid alternative, although generally less performant for this use case due to non-contiguous storage.\n\nPitfalls: `std::list<T>` is explicitly unsuitable because it does not provide random access iterators, resulting in compilation failure if attempted as the underlying type.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <deque>\n\n// Default container: std::vector\nstd::priority_queue<float> p1; \n\n// Valid alternative container: std::deque\nstd::priority_queue<float, std::deque<float>> p2;\n\n// Invalid container (lacks Random Access Iterators):\n// std::priority_queue<float, std::list<float>> p3; // Error!",
+  "practical_example": "When implementing a high-throughput job scheduler where memory locality is critical, using the default `std::vector` implementation is preferred. If the element type is large and frequent insertions/deletions at both ends were also required by other parts of the system (a rare coupling scenario), `std::deque` could be considered, provided the performance hit from non-contiguous storage is acceptable.",
+  "keywords": [
+    "priority_queue",
+    "container adapter",
+    "random access iterator",
+    "std::vector",
+    "std::deque",
+    "heap algorithms"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "395",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_underlying_container_requirements_for__b2066e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

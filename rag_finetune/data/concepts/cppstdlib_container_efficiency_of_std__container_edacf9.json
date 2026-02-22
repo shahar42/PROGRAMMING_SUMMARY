@@ -1,0 +1,20 @@
+{
+  "topic": "Efficiency of std::container::empty() vs size() == 0",
+  "category": "container",
+  "explanation": "The standard library provides `empty()` as an explicit member function to determine if a container holds zero elements. While semantically equivalent to `size() == 0`, the library strongly recommends using `empty()` because it may be implemented more efficiently.\n\nTechnical Details:\n1.  **Complexity Guarantee:** Both `size()` and `empty()` are required to have constant time complexity, O(1), for all standard containers (vector, deque, list, map, set, etc.).\n2.  **Implementation Advantage:** Although both are O(1), calculating the full `size()` might involve subtle overheads (e.g., atomic access, cache misses, or, historically, for `std::list::size()` pre-C++11, non-constant time complexity). `empty()` is often implemented simply by checking if the beginning and ending iterators are equal (`begin() == end()`), which is generally the most minimal check possible.\n3.  **Usage:** `empty()` clearly expresses intent and guarantees the fastest possible check for emptiness, making it the preferred idiom.\n\nPitfalls: While modern compilers often optimize `size() == 0` to be identical to `empty()`, relying on this optimization sacrifices explicit intent and portability across older or non-optimizing implementations where the performance difference might be measurable.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nvoid check(const std::vector<int>& v) {\n    // Recommended practice\n    if (v.empty()) {\n        std::cout << \"Container is empty (Efficient check)\\n\";\n    }\n    \n    // Functional, but discouraged style\n    if (v.size() == 0) {\n        std::cout << \"Container is empty (Less idiomatic check)\\n\";\n    }\n}\n\nint main() {\n    std::vector<int> v;\n    check(v);\n    return 0;\n}",
+  "practical_example": "In performance-critical loops that frequently check if a queue or buffer is ready for processing, using `container.empty()` ensures the absolute minimum overhead for the state check, reducing instruction count compared to accessing and comparing the size counter.",
+  "keywords": [
+    "empty",
+    "size",
+    "O(1)",
+    "performance optimization",
+    "idiom",
+    "constant time"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "132",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_efficiency_of_std__container_edacf9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

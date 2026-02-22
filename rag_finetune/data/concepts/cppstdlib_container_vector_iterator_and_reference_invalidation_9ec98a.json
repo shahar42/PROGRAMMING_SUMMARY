@@ -1,0 +1,20 @@
+{
+  "topic": "Vector Iterator and Reference Invalidation Rules",
+  "category": "container",
+  "explanation": "Due to `std::vector`'s requirement for contiguous memory storage, modifying the container (insertion or removal) often necessitates shifting subsequent elements, leading to strict iterator and reference invalidation rules.\n\n**Technical Details and Guarantees:**\n1. **Insertion/Removal (Non-End):** Member functions like `insert()` or `erase()` (at any position other than the end) invalidate all iterators, references, and pointers that point to the element being modified *and all elements following it*.\n2. **Reallocation:** If an insertion operation (`push_back()`, `insert()`, or `emplace()`) causes the container's `size()` to exceed its current `capacity()`, a memory reallocation occurs. In this event, **all** iterators, references, and pointers associated with the container become invalid, regardless of where they point.\n3. **End Operations:** `pop_back()` only invalidates iterators/references to the removed element. `push_back()` invalidates everything only upon reallocation. `clear()` invalidates all iterators but preserves the container's capacity.\n\n**Pitfalls:** Relying on a stored iterator after an operation that *might* reallocate (e.g., `push_back` in a loop without prior `reserve()`) is a common source of Undefined Behavior (UB). The standard mandates that the return value of `insert()` or `erase()` provides the valid iterator to the element following the change, which should be used for subsequent iterations.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nvoid print_iter(const std::vector<int>& v, std::vector<int>::const_iterator it) {\n    // std::cout << *it << std::endl; // DANGER: UB if invalid\n}\n\nint main() {\n    std::vector<int> v = {10, 20, 30, 40, 50};\n    auto it = v.begin() + 1; // Points to 20\n    \n    // 1. Insertion shifts subsequent elements (O(N))\n    it = v.insert(it, 15); // 'it' must be reassigned with the return value\n    // Old iterator pointing to 20 is now invalid.\n    \n    // 2. Erase returns the next valid iterator\n    it = v.erase(it); // Erases 15, 'it' now points to 20\n    \n    // 3. Reallocation invalidates all\n    v.reserve(100); // Assume reallocation occurred\n    // print_iter(v, it); // UB if reallocation happened\n}",
+  "practical_example": "When iterating over a vector and conditionally removing elements, the loop must be structured to use the iterator returned by `erase()` to advance the loop, rather than relying on the standard pre-increment (`++it`). Failing to reassign the iterator after `insert()` or `erase()` leads to dangling pointers/references.",
+  "keywords": [
+    "iterator invalidation",
+    "reallocation",
+    "contiguous storage",
+    "insert complexity",
+    "erase complexity",
+    "Undefined Behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "138",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_iterator_and_reference_invalidation_9ec98a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Stateful Function Objects for Runtime Predicate Configuration",
+  "category": "util",
+  "explanation": "A stateful function object (functor) is a class that overloads the function call operator (`operator()`) and maintains internal member variables (state). When used as a predicate or comparator in the STL (e.g., in `std::map` or `std::sort`), this state allows the comparison logic to be dynamically configured at the time the container or algorithm is initialized.\n\n**Usage Pattern (Runtime Configuration):** The example `RuntimeStringCmp` uses an `enum cmp_mode` state to switch between normal and case-insensitive comparison logic. Because the container stores a copy of the comparator object, the comparison mode is fixed for the lifetime of the container instance.\n\n**Construction:** To use a specific state, the user must explicitly construct the container, passing an initialized instance of the comparator object to the constructor:\n`std::map<K, V, C> m(C(initial_state));`\nIf the container is default-constructed, the comparator's default constructor is used, potentially leading to incorrect behavior if the state is critical.\n\n**Case-Insensitive Example:** The `RuntimeStringCmp` uses `std::lexicographical_compare` combined with an auxiliary binary predicate (`nocase_compare`) that transforms characters to uppercase (`toupper`) before comparison, efficiently achieving case-insensitivity while adhering to iterator ranges.",
+  "code_example": "#include <map>\n#include <string>\n\nclass RuntimeStringCmp { \npublic:\n    enum cmp_mode { normal, nocase };\nprivate:\n    const cmp_mode mode;\npublic:\n    RuntimeStringCmp(cmp_mode m = normal) : mode(m) {}\n    bool operator() (const std::string& s1, const std::string& s2) const {\n        if (mode == normal) return s1 < s2;\n        // ... case-insensitive logic via lexicographical_compare ...\n        return false; // Simplified for brevity\n    }\n};\n\nint main() {\n    // 1. Default constructor: uses normal comparison\n    std::map<std::string, int, RuntimeStringCmp> m1;\n    \n    // 2. Explicit construction: uses nocase comparison\n    using SSMap = std::map<std::string, int, RuntimeStringCmp>;\n    SSMap m2(RuntimeStringCmp(RuntimeStringCmp::nocase));\n}",
+  "practical_example": "A configuration management system needs to store user settings, sometimes requiring case-sensitive keys (for filenames) and sometimes case-insensitive keys (for configuration variables). Using a stateful comparator allows a single map type definition to handle both requirements based on runtime configuration flags provided during map initialization.",
+  "keywords": [
+    "stateful functor",
+    "runtime configuration",
+    "predicate customization",
+    "comparison mode",
+    "lexicographical_compare",
+    "function object state"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "189-190",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_util_stateful_function_objects_for_runtime_5c8afd",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

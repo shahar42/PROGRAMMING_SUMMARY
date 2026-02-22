@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Mandatory Ownership Transfer via Assignment",
+  "category": "util",
+  "explanation": "The primary characteristic of `std::auto_ptr` (deprecated since C++11) is its strict, mandatory ownership semantics. An `auto_ptr` always owns the resource it manages, and this ownership is aggressively transferred upon assignment or copy construction.\n\nDefinition: When an `auto_ptr` (source) is assigned to another `auto_ptr` (destination), the destination takes ownership of the managed resource. Critically, the source `auto_ptr` is simultaneously reset to hold a null pointer (i.e., it relinquishes ownership).\n\nPurpose: This aggressive transfer prevents two `auto_ptr` instances from simultaneously owning and attempting to delete the same raw pointer, thus preventing double deletion and ensuring RAII principles are maintained even across ownership shifts.\n\nTechnical Details: The transfer operation is O(1). After transfer, attempting to dereference the source pointer results in undefined behavior (if the source was not already null). This behavior makes `auto_ptr` unsuitable for use in standard library containers, which require copy operations to be non-destructive.\n\nPitfalls: Developers often forget that the source pointer is nullified. Using a reference or iterator to the object stored in the source `auto_ptr` immediately after assignment leads to runtime errors or undefined behavior. This destructive copy behavior is why `std::unique_ptr` replaced it, using move semantics instead of destructive copy semantics.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource {};\n\nint main() {\n    std::auto_ptr<Resource> p1(new Resource);\n    std::cout << \"p1 owns resource: \" << (p1.get() != nullptr) << std::endl;\n\n    std::auto_ptr<Resource> p2 = p1; // Ownership transfer (destructive copy)\n\n    std::cout << \"p2 owns resource: \" << (p2.get() != nullptr) << std::endl;\n    std::cout << \"p1 owns resource now: \" << (p1.get() != nullptr) << std::endl;\n    // p1.get() is now NULL\n    // *p1; // DANGER: Dereferencing null pointer\n}",
+  "practical_example": "If implementing a factory function that returns a dynamically allocated object, returning an `auto_ptr` ensures the caller automatically receives ownership and the resource is cleaned up even if the caller immediately assigns it to another `auto_ptr` or throws an exception during processing.",
+  "keywords": [
+    "auto_ptr",
+    "ownership transfer",
+    "destructive copy",
+    "RAII",
+    "unique_ptr",
+    "null pointer"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "44",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_mandatory_0db863",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

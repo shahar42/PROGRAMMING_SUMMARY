@@ -1,0 +1,21 @@
+{
+  "topic": "The '>>' Parsing Rule and Template Syntax (Pre-C++11)",
+  "category": "trait",
+  "explanation": "Prior to the C++11 standard, the C++ language grammar dictated that the token sequence `>>` was always parsed as the right shift operator. This created a significant syntax issue when declaring nested template types, such as containers using other templates (like function objects) as template parameters.\n\n**Problem:** In declarations like `std::map<float, std::string, std::greater<float>> coll;`, the two consecutive closing angle brackets were incorrectly tokenized as the single binary right shift operator (`>>`), resulting in a compilation error.\n\n**Solution (Pre-C++11):** To enforce correct parsing, programmers were required to insert a mandatory space between the two closing angle brackets: `std::map<float, std::string, std::greater<float> > coll;`. This ensured the parser recognized two distinct closing brackets.\n\n**Modern Standard (C++11 and later):** C++11 introduced changes to the template parsing rules, allowing the `>>` token sequence to be correctly interpreted as two separate closing angle brackets (`> >`) when encountered in a template argument list. This eliminated the need for the manual space separation, simplifying modern C++ template syntax.",
+  "code_example": "#include <map>\n#include <string>\n#include <functional>\n\nint main() {\n    // C++11 and later: No space required\n    std::map<int, int, std::less<int>> modern_coll;\n    \n    // Pre-C++11 requirement (still valid, but unnecessary now)\n    std::map<float, std::string, std::greater<float> > legacy_coll;\n    \n    return 0;\n}",
+  "practical_example": "When maintaining or porting legacy C++ code (pre-C++11) that heavily uses nested containers (like `std::vector<std::list<T>>`), encountering syntax errors related to `>>` is a common indicator that the required space separator was omitted. For new codebases, the space should be avoided for clean, modern syntax.",
+  "keywords": [
+    "parsing pitfall",
+    "template syntax",
+    "angle brackets",
+    "right shift operator",
+    "C++11 compatibility",
+    "nested templates",
+    "tokenization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "175 (footnote 25)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_trait_the_____f4da40",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Vector `resize()` Initialization Requirements",
+  "category": "container",
+  "explanation": "`std::vector::resize()` changes the number of elements in the container (`size()`). This operation is distinct from `reserve()`, which only affects the allocated memory (`capacity()`). When `resize()` increases the size, new elements must be constructed, imposing specific requirements on the element type `T`.\n\n**Behavior and Requirements:**\n1. **`c.resize(num)`:** If `num > c.size()`, new elements are appended using their **default constructor**. Therefore, the element type `T` must be **DefaultConstructible**.\n2. **`c.resize(num, elem)`:** If `num > c.size()`, new elements are appended as **copies of `elem`**. Therefore, the element type `T` must be **CopyInsertable** (which usually implies CopyConstructible, or MoveConstructible for C++11 onward).\n3. **Size Decrease:** If `num < c.size()`, elements beyond the new size are destroyed using the element type's destructor, reducing the size.\n\n**Performance Implication:** If the new size is larger than the current capacity, `resize()` triggers a reallocation (O(N) worst case), invalidating all iterators and references, similar to `insert()`.\n\n**Comparison:** Use `resize()` when you need the container to hold a specific count of valid, constructed objects immediately. Use `reserve()` when you only need to optimize future insertions, leaving the current size at zero.",
+  "code_example": "#include <vector>\n#include <string>\n\nstruct NonDefault {\n    int val;\n    NonDefault(int v) : val(v) {}\n    // No default constructor defined\n};\n\nint main() {\n    std::vector<std::string> s_vec;\n    // 1. Default construction\n    s_vec.resize(5); // OK: string is DefaultConstructible (size 5, all empty strings)\n    \n    std::vector<int> i_vec;\n    // 2. Copy construction\n    i_vec.resize(5, 42); // OK: size 5, all elements are 42\n    \n    // std::vector<NonDefault> nd_vec;\n    // nd_vec.resize(5); // COMPILE ERROR: NonDefault is not DefaultConstructible\n    \n    std::vector<NonDefault> nd_vec2;\n    nd_vec2.resize(5, NonDefault(1)); // OK: uses copy construction\n}",
+  "practical_example": "Initializing a vector of objects (e.g., configuration structs) to a fixed size where each object needs to be initialized to a zero-state or a known default value. If the structs lack a default constructor, the developer must use the two-argument `resize(num, default_object)` to satisfy the initialization requirement.",
+  "keywords": [
+    "resize",
+    "default constructible",
+    "copy insertable",
+    "capacity",
+    "size",
+    "initialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "138",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector__resize___63a851",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

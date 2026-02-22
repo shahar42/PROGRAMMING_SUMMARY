@@ -1,0 +1,20 @@
+{
+  "topic": "`clear()` Function: Total Invalidation and Exception Safety Guarantees",
+  "category": "container",
+  "explanation": "The `container::clear()` function removes all elements, resulting in an empty container (`size() == 0`). It calls the destructors for every element but does not necessarily release the container's allocated memory (capacity remains unchanged for `std::vector`).\n\n**Total Invalidation:**\n`clear()` guarantees to **invalidate all iterators and references** pointing to elements within the container. This is a crucial guarantee, regardless of the container type (`vector`, `deque`, `list`, or associative containers).\n\n**Exception Safety:**\n1. **List and Associative Containers (Map, Set, etc.):** For these containers, `clear()` is guaranteed not to throw exceptions. The only operations performed are destructor calls and node deallocation, which are typically non-throwing.\n2. **Vector and Deque:** The text notes that `clear()` for `vector` and `deque` may only throw if the copy constructor or assignment operator of the elements may throw. However, since `clear()` only involves destruction and memory deallocation, the primary source of exceptions is usually memory allocation failure or throwing destructors (which is non-standard practice). If element destructors are non-throwing, `clear()` provides a strong exception guarantee (it either succeeds or has no effect).\n\n**Performance:** `clear()` executes in linear time with respect to the current size of the container, O(N), because it must call the destructor for every element.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20, 30};\n    \n    auto it = v.begin();\n    \n    v.clear();\n    std::cout << \"Size after clear: \" << v.size() << \"\\n\"; // Output: 0\n    \n    // *it; // DANGER: UNDEFINED BEHAVIOR - iterator invalidated\n    \n    // Capacity is often preserved (implementation dependent)\n    // std::cout << \"Capacity after clear: \" << v.capacity() << \"\\n\";\n}",
+  "practical_example": "When resetting a thread-local cache (e.g., a `std::list` of transaction objects) at the end of a processing batch, using `clear()` is the most efficient way to reset the container state. However, developers must ensure that no external pointers or iterators derived from the cache are retained, as they will immediately become dangling references after the call to `clear()`.",
+  "keywords": [
+    "clear",
+    "iterator invalidation",
+    "exception safety",
+    "destructor",
+    "O(N) complexity",
+    "dangling reference"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "215",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container__clear____b70f3a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

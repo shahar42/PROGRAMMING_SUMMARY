@@ -1,0 +1,19 @@
+{
+  "topic": "Iterator and Reference Stability in `std::list`",
+  "category": "iterator",
+  "explanation": "Due to its implementation as a node-based container, `std::list` offers strong guarantees regarding iterator and reference stability, contrasting sharply with contiguous containers like `std::vector`.\n\nTechnical Details:\n- Stability Guarantee: An iterator or reference pointing to an element in a `std::list` remains valid and refers to the same element throughout the container's lifetime, unless the element itself is explicitly removed from the list.\n- Insertion Effect: All insertion operations (`insert`, `push_back`, `push_front`, etc.) never invalidate existing iterators or references.\n- Deletion Effect: Only the iterators and references pointing directly to the deleted element are invalidated. Iterators pointing to any other element remain valid.\n- Exception: The `clear()` and `swap()` member functions invalidate all iterators and references.\n\nUsage Guidance: This stability is critical when maintaining long-lived pointers or iterators to specific elements within a dynamic structure, often required in graph algorithms or cache management, where reallocation must be avoided.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> L = {10, 20, 30};\n    \n    // Iterator 'it' points to 20\n    auto it = ++L.begin(); \n    \n    // Insert new elements (does not invalidate 'it')\n    L.push_front(5);\n    L.insert(L.end(), 40);\n    \n    // 'it' still points to 20\n    std::cout << \"Iterator value: \" << *it << std::endl; // Output: 20\n    \n    // Erase 10 (does not invalidate 'it')\n    L.erase(L.begin()); \n    \n    std::cout << \"Iterator value after erase: \" << *it << std::endl; // Output: 20\n}",
+  "practical_example": "Building a custom memory pool or handle-based object manager where internal pointers (iterators) must persist across external modifications to the list (e.g., adding or removing unrelated objects) requires the iterator stability provided by `std::list`.",
+  "keywords": [
+    "iterator stability",
+    "iterator invalidation",
+    "reference validity",
+    "node-based container",
+    "list iterator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "152",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_iterator_iterator_and_reference_stability_in_82e6a7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

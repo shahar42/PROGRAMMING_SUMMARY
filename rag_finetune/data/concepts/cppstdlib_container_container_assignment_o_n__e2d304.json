@@ -1,0 +1,20 @@
+{
+  "topic": "Container Assignment O(N) vs. std::swap() O(1) Optimization",
+  "category": "container",
+  "explanation": "Assigning one container to another (using `operator=`) involves deep copying: all elements in the destination container are destroyed, and all elements from the source container are copied. This operation is guaranteed to have linear complexity, O(N), where N is the number of elements being copied.\n\nPurpose: When the source container is disposable or the goal is to exchange resources rather than content duplication, the `std::swap()` function is the correct optimization. `swap()` is guaranteed to have constant complexity, O(1), for all standard library containers.\n\nTechnical Details: Standard containers achieve O(1) swap efficiency by exchanging only their internal state (e.g., size, capacity, internal pointers to the data buffer, and pointers to the allocator or sorting criterion). No element constructors, destructors, or copy assignments are called. This is critical for performance-sensitive code or when dealing with containers holding millions of elements.\n\nPitfalls: This optimization applies only if the containers are of exactly the same type (including allocators and custom comparison types for associative containers). Using `std::move` assignment offers an alternative, potentially linear time optimization if allocators are unequal, but `std::swap` remains the guaranteed constant-time resource exchange mechanism.\n\nUsage Guidance: Always use `std::swap` when clearing a large container (via the 'swap trick': `Container().swap(my_container);`) or when exchanging ownership between two objects.",
+  "code_example": "#include <vector>\n#include <algorithm>\n\nvoid demonstrate_swap_efficiency() {\n    std::vector<int> v1(1000000); \n    std::vector<int> v2(1000000); \n    \n    // Assignment: O(N) complexity (slow, copies 1M elements)\n    // v1 = v2; \n    \n    // Swap: O(1) complexity (fast, swaps internal pointers)\n    std::swap(v1, v2);\n}\n\n// Assignment of containers is relatively expensive (Josuttis, p. 133)",
+  "practical_example": "A server application managing large caches (e.g., vectors of thousands of objects) needs to quickly replace the active cache with a newly prepared one. Using `std::swap(active_cache, new_cache)` ensures the switch is instantaneous (O(1)) regardless of cache size, avoiding potential latency spikes associated with O(N) assignment.",
+  "keywords": [
+    "swap optimization",
+    "constant complexity",
+    "linear complexity",
+    "resource exchange",
+    "O(1) guarantee",
+    "container assignment"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "133",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_assignment_o_n__e2d304",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

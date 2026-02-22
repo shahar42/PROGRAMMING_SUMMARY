@@ -1,0 +1,20 @@
+{
+  "topic": "Sequence Container Iterator and Reference Invalidation Rules",
+  "category": "container",
+  "explanation": "Iterator and reference invalidation rules dictate when existing pointers, references, or iterators pointing to elements within a container become dangling or unusable after a container modification. These rules are fundamental for writing correct and performant STL code.\n\nTechnical Details:\n1. **`std::list` (Node-Based):** Iterators, pointers, and references referring to elements remain valid as long as the specific element is part of the container. Only the element being explicitly erased or moved (via splice) invalidates its corresponding iterator/reference. This provides maximum stability.\n2. **`std::vector` (Contiguous):**\n    a. **Reallocation:** If capacity is exceeded (e.g., via `push_back`), ALL iterators, references, and pointers are invalidated due to the move to a new contiguous memory block.\n    b. **Insertion/Deletion (Middle):** Insertion or deletion anywhere other than the end invalidates all iterators/references/pointers after the point of modification.\n3. **`std::deque` (Block-Based):** The rules are generally stricter than list but less severe than vector during small changes.\n    a. **General Rule:** Deques invalidate iterators, pointers, and references when they change their size (insertions or deletions). The exception is often `push_back`/`pop_back`/`push_front`/`pop_front` where only references/pointers (not iterators) might be invalidated, but the standard guarantees are complex. The safest practice, as noted by Josuttis, is assuming invalidation upon size change.\n\nUsage Guidance: When stability is paramount (e.g., maintaining pointer references to elements across container modifications), `std::list` is mandatory. When fast random access is needed, manage vector modifications carefully, often by recalculating iterators after any operation that might trigger reallocation or shift elements.",
+  "code_example": "#include <vector>\n#include <list>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {10, 20};\n    int& ref_v = v[0];\n    \n    // Vector reallocation invalidates reference\n    v.reserve(100); \n    // std::cout << ref_v; // DANGER: UB if reallocation occurred\n    \n    std::list<int> l = {30, 40};\n    auto it_l = l.begin();\n    \n    // List insertion does NOT invalidate existing iterators\n    l.push_back(50);\n    std::cout << \"List element: \" << *it_l << std::endl; // Safe: 30\n    \n    return 0;\n}",
+  "practical_example": "Building a UI framework where objects are stored in a container, and external UI elements hold pointers (references) to those stored objects. If a vector is used, adding a single new object could destroy all existing UI element pointers. A list guarantees pointer stability, allowing the UI to safely manipulate its stored references.",
+  "keywords": [
+    "iterator invalidation",
+    "reference invalidation",
+    "vector reallocation",
+    "list stability",
+    "deque invalidation",
+    "node-based container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "171",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_sequence_container_iterator_and_reference_6e6090",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,22 @@
+{
+  "topic": "Complexity Comparison of Key vs. Value Lookup in std::map",
+  "category": "container",
+  "explanation": "Associative containers like `std::map` are highly specialized for efficient key-based operations, typically implemented using a balanced binary search tree (e.g., Red-Black Tree).\n\n**Key Lookup (Member Function `find()`):** The member function `map::find(key)` leverages the container's internal structure, requiring traversal proportional to the height of the tree. This guarantees **logarithmic complexity (O(log N))** for searching by key, where N is the number of elements.\n\n**Value Lookup (Global Algorithm `find_if()`):** Searching for an element based on its mapped value, or any criteria other than the key, requires using a generic algorithm like `std::find_if`. Since the underlying structure is not indexed by value, the algorithm must iterate sequentially over every element (or a significant portion thereof) in the range defined by `begin()` and `end()`. This results in **linear complexity (O(N))** in the worst case.\n\n**Guidance:** For performance-critical applications requiring frequent lookups by non-key fields, consider using a second container (e.g., a `std::multimap` or `std::unordered_map`) indexed by the secondary field, or using a container specifically designed for multi-field indexing (if available). Relying on `find_if` for large maps will quickly degrade performance.",
+  "code_example": "#include <map>\n#include <algorithm>\n\nstd::map<int, int> data = {{1, 10}, {2, 20}, {3, 30}};\n\n// 1. Key Search: O(log N)\nauto pos_key = data.find(2);\n\n// 2. Value Search: O(N)\n// Predicate checks the mapped value (second element of pair)\nauto pos_value = std::find_if(data.begin(), data.end(), \n    [](const std::pair<const int, int>& elem) {\n        return elem.second == 30;\n    }\n);\n\n// Check results...\n",
+  "practical_example": "In a database cache indexed by user ID (the key), retrieving a user record is O(log N). However, if the system needs to find a user based on their login status (the value), iterating through the entire cache using `find_if` introduces O(N) latency, which is unacceptable if the cache holds millions of users.",
+  "keywords": [
+    "map complexity",
+    "logarithmic search",
+    "linear search",
+    "find",
+    "find_if",
+    "associative container",
+    "O(log N)",
+    "O(N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "188",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_complexity_comparison_of_key_vs_7dba83",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

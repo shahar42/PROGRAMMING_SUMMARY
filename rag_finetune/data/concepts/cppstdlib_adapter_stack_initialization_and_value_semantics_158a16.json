@@ -1,0 +1,21 @@
+{
+  "topic": "Stack Initialization and Value Semantics (Deep Copy)",
+  "category": "adapter",
+  "explanation": "When a `std::stack` is initialized using an existing container, the initialization process employs value semantics, resulting in a deep copy of the source container's elements.\n\n**Constructor:** `explicit stack::stack(const Container& cont)` creates a new stack whose internal storage (`Container c`) is initialized by copying the contents of the provided `cont` argument.\n\n**Mechanism:** Since the stack holds the underlying container by value (`protected: Container c;`), initializing the stack requires the underlying container to be CopyConstructible. This, in turn, requires the element type `T` to be CopyConstructible, ensuring the new stack instance is entirely independent of the source container.\n\n**Implication:** Modifications made to the original source container (`cont`) after initialization will not affect the contents of the newly created stack, and vice versa. This contrasts sharply with resource-managing wrappers (like smart pointers), which often employ reference or transfer semantics.\n\n**Pitfall:** For stacks containing very large numbers of elements or elements that are expensive to copy, this deep copy initialization can incur significant performance overhead and latency. In such cases, one must use move semantics (C++11 onward) or construct the stack empty and fill it via move operations if available.",
+  "code_example": "#include <stack>\n#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> source = {1, 2, 3};\n    \n    // Stack initialization performs a deep copy of 'source'\n    std::stack<int, std::vector<int>> s(source);\n    \n    // Modifying the source does NOT affect the stack\n    source.push_back(99);\n    \n    std::cout << \"Stack size: \" << s.size() << \" (Still 3)\\n\";\n    std::cout << \"Source size: \" << source.size() << \" (Now 4)\\n\";\n}",
+  "practical_example": "When creating worker threads, each thread needs its own independent task queue (stack). Initializing each thread's stack using a master list guarantees isolation. If reference semantics were used, concurrent access to the shared container would require explicit locking mechanisms.",
+  "keywords": [
+    "value semantics",
+    "deep copy",
+    "stack initialization",
+    "copy constructor",
+    "Container c",
+    "copy constructible",
+    "independence"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "382",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_stack_initialization_and_value_semantics_158a16",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Destructive Copy/Assignment: auto_ptr Ownership Transfer",
+  "category": "util",
+  "explanation": "To maintain the strict ownership invariant and prevent double deletion, `std::auto_ptr` implements unique copy and assignment semantics known as 'ownership transfer' or 'destructive copy'.\n\nMechanism: When an `auto_ptr` (source) is copied or assigned to another `auto_ptr` (destination), the ownership of the managed resource is transferred entirely to the destination object. The source object is simultaneously reset to hold a null pointer.\n\nBehavior: After `ptr2 = ptr1;` or `std::auto_ptr<T> ptr2(ptr1);`, `ptr1` no longer points to the resource and has lost control over its lifetime. Only `ptr2` is responsible for cleanup.\n\nConsequences: This behavior violates standard C++ value semantics (where copying leaves the source unchanged). Due to this destructive nature, `auto_ptr` is fundamentally incompatible with standard library containers and algorithms, which rely on non-destructive copy operations. Attempting to store `auto_ptr` in a container like `std::vector` leads to subtle resource loss or corruption when the container performs internal copies (e.g., during reallocation or sorting).\n\nModern Replacement: `std::unique_ptr` achieves similar strict ownership but prevents destructive copying by deleting the copy constructor and copy assignment operators, requiring explicit moves (`std::move`) for ownership transfer.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct ClassA {};\n\nint main() {\n    std::auto_ptr<ClassA> ptr1(new ClassA);\n    \n    // Check initial state\n    std::cout << \"ptr1 before copy: \" << (ptr1.get() != nullptr) << \"\\n\";\n    \n    // Ownership Transfer via Copy Constructor\n    std::auto_ptr<ClassA> ptr2(ptr1);\n    \n    // Check state after transfer\n    // ptr1 is now null; ptr2 owns the resource.\n    std::cout << \"ptr1 after copy: \" << (ptr1.get() != nullptr) << \"\\n\";\n    \n    // Assignment also transfers ownership\n    std::auto_ptr<ClassA> ptr3;\n    ptr3 = ptr2; // ptr2 becomes null\n}",
+  "practical_example": "Passing an `auto_ptr` by value to a function transfers ownership to the function parameter. If the function does not explicitly return the `auto_ptr`, the resource is deleted upon function exit, effectively consuming the resource from the caller without warning. This makes `auto_ptr` function signatures misleading regarding resource lifetime.",
+  "keywords": [
+    "auto_ptr",
+    "ownership transfer",
+    "destructive copy",
+    "copy semantics",
+    "assignment operator",
+    "unique ownership"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "42",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_destructive_copy_assignment__auto_2b178c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

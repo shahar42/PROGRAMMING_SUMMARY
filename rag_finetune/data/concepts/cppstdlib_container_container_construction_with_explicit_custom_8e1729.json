@@ -1,0 +1,20 @@
+{
+  "topic": "Container Construction with Explicit Custom Allocator Parameters",
+  "category": "container",
+  "explanation": "Standard library containers provide constructor overloads that accept an explicit `const Allocator& alloc` parameter, allowing the user to specify a custom memory management policy from the container's inception.\n\n**Pattern:** The allocator parameter is consistently the last argument in the constructor signature, regardless of whether the constructor is the default, fill, range, or copy constructor. This placement ensures that containers can be initialized correctly even if they also require comparison functions (for associative containers) or initial sizes/values.\n\n**Key Overloads:**\n1. `explicit container(const Allocator& alloc)`: Default constructor using the specified allocator.\n2. `container(InputIterator beg, InputIterator end, const Allocator& alloc)`: Range constructor.\n3. `container(size_type num, const T& value, const Allocator& alloc)`: Fill constructor (for sequences).\n4. `container(const CompFunc& op, const Allocator& alloc)`: Associative container constructor (for maps/sets) specifying both comparator and allocator.\n\n**Purpose:** Explicit allocator provision is necessary when using stateful custom allocators (like pool allocators or segmented memory managers). By passing the allocator instance during construction, the container binds its entire lifetime's memory management to that specific instance or policy. If the allocator parameter is omitted, the container defaults to using `std::allocator<T>`.\n\n**Requirements:** The `InputIterator` overload is a member template, ensuring type conversion compatibility between the source range elements and the container's element type `T`.",
+  "code_example": "#include <vector>\n#include <list>\n#include <memory>\n\n// Assume CustomAlloc is a defined stateful allocator\n// using CustomAlloc = std::allocator<int>; \n\nint main() {\n    // 1. Default constructor with custom alloc (explicit)\n    // std::vector<int, CustomAlloc> v1(CustomAlloc{}); \n    \n    // 2. Range constructor with custom alloc\n    std::vector<int> source = {1, 2, 3};\n    // std::vector<int, CustomAlloc> v2(\n    //     source.begin(), source.end(), CustomAlloc{});\n\n    // 3. Fill constructor (using std::list for variety)\n    // std::list<double, CustomAlloc> l1(10, 3.14, CustomAlloc{});\n\n    // Note: The use of explicit allocators requires the container \n    // to be specialized with that Allocator type.\n}",
+  "practical_example": "In a simulation engine where millions of small objects (stored in containers) are created and destroyed frequently, a developer might use a specialized `std::pool_allocator`. Passing an instance of this pool allocator to all container constructors guarantees that all memory operations are routed through the high-speed local pool, avoiding global heap fragmentation and locking overhead.",
+  "keywords": [
+    "custom allocator",
+    "explicit allocator parameter",
+    "container constructor",
+    "range constructor",
+    "fill constructor",
+    "stateful allocator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "217-218",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_construction_with_explicit_custom_8e1729",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

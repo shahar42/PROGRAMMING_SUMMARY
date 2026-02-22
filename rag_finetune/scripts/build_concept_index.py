@@ -15,7 +15,7 @@ from tqdm import tqdm
 # Configuration
 CONCEPTS_DIR = Path("rag_finetune/data/concepts")
 INDEX_DIR = Path("rag_finetune/data")
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # Fast, small (80MB), good quality
+EMBEDDING_MODEL = "all-mpnet-base-v2"  # Better quality (420MB), 768-dim, ~5-10% more accurate
 
 
 def load_all_concepts() -> List[Dict]:

@@ -1,0 +1,20 @@
+{
+  "topic": "std::auto_ptr Destructive Assignment and Ownership Transfer Semantics",
+  "category": "util",
+  "explanation": "The primary defining characteristic of `std::auto_ptr` is its destructive copy and assignment semantics, which fundamentally violate standard C++ value behavior. When ownership is transferred via copy construction or assignment (`operator=`), the resource managed by the source `auto_ptr` is moved to the destination. \n\n**Technical Details and Behavior:**\n1.  **Deletion**: If the destination `auto_ptr` already owns an object, that object is deleted via `delete` before the transfer.\n2.  **Modification of Source**: The source `auto_ptr` is explicitly modified after the operation; its internal pointer is set to `nullptr`, effectively relinquishing ownership.\n3.  **Member Templates**: The assignment operator is often implemented using a member template to allow automatic type conversions (e.g., assigning an `auto_ptr<Derived>` to an `auto_ptr<Base>`).\n\n**Pitfalls and Usage:**\nThis destructive behavior makes `auto_ptr` unsuitable for standard library containers, which require elements to be safely copyable. If an `auto_ptr` is copied into a container or used as an argument to an algorithm that copies elements, subsequent access to the original `auto_ptr` will result in undefined behavior because it no longer owns the resource. This mechanism is why `auto_ptr` was deprecated and replaced by `std::unique_ptr` (which uses move semantics instead of destructive copy).",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource { public: int data = 42; ~Resource() {} };\n\nvoid transfer_ownership(std::auto_ptr<Resource> p) {\n    std::cout << \"Inside function, resource transferred.\\n\";\n}\n\nint main() {\n    std::auto_ptr<Resource> ap1(new Resource);\n    \n    // Ownership transferred to ap2. ap1 becomes null.\n    std::auto_ptr<Resource> ap2 = ap1; \n\n    // std::cout << ap1->data; // DANGER: UB/Crash (ap1 is null)\n    \n    // Ownership transferred to function argument.\n    transfer_ownership(ap2);\n    \n    // std::cout << ap2->data; // DANGER: UB/Crash (ap2 is null)\n    \n    return 0; \n}",
+  "practical_example": "If an attempt is made to store `std::auto_ptr` objects in a `std::vector`, accessing elements after a vector resize or copy operation will fail, as the act of copying the `auto_ptr` into the new memory location transfers ownership, invalidating the source copy remaining in the original storage.",
+  "keywords": [
+    "auto_ptr",
+    "ownership transfer",
+    "destructive copy",
+    "assignment operator",
+    "deprecated utility",
+    "smart pointer"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "111-112",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_destructive_3820ee",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

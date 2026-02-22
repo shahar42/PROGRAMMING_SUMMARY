@@ -1,0 +1,21 @@
+{
+  "topic": "List Strong Exception Guarantee and Transaction Safety",
+  "category": "exception",
+  "explanation": "`std::list` provides the strongest level of exception safety among standard STL containers for many structural modification operations, often referred to as 'transaction safety.' This means that certain operations guarantee that they either succeed completely or, if an exception is thrown (typically during memory allocation), they have 'no effect' on the container's state, leaving container invariants intact and the container unchanged.\n\nOperations providing the strong guarantee ('succeeds or has no effect'):\n- `push_back()`\n- `push_front()`\n- `insert()` (all forms)\n- `splice()`, `reverse()`\n\nExceptions to the Strong Guarantee:\n1. Basic Guarantee Only: Assignment operators and `sort()` only provide the basic guarantee (no resource leaks, container invariants maintained, but state may change).\n2. Conditional Strong Guarantee: `merge()`, `remove()`, `remove_if()`, and `unique()` maintain the strong guarantee *only* under the condition that the element comparison operation (using `operator==` or the predicate) does not throw an exception. If comparison throws, the guarantee reverts to basic.\n\nImportance: This high level of safety minimizes the complexity of error handling code, as developers do not need to manually rollback changes or check partial state modifications for the most common insertion operations. This is a significant advantage over `std::vector` or `std::deque`, whose structural modifications often only provide the basic or no-throw guarantee (depending on element type and operation).",
+  "code_example": "#include <list>\n#include <stdexcept>\n\nclass CustomThrowingType {\n    // Type that might throw in constructor/copy\n};\n\nvoid safe_insert(std::list<CustomThrowingType>& l) {\n    try {\n        // If memory allocation fails during push_back,\n        // the strong guarantee ensures 'l' remains unchanged.\n        l.push_back(CustomThrowingType{}); \n    } catch (const std::bad_alloc& e) {\n        // List state is still valid and unchanged.\n        // No need for manual rollback.\n    }\n}\n",
+  "practical_example": "In financial trading systems or critical infrastructure control software, maintaining state consistency is paramount. Using `std::list` for transaction logs or pending command queues ensures that if a system component fails (e.g., runs out of memory while logging a new transaction), the existing log structure remains perfectly valid and untainted, enabling reliable recovery.",
+  "keywords": [
+    "strong exception guarantee",
+    "transaction safe",
+    "exception safety levels",
+    "list push_back",
+    "list insert",
+    "no effect guarantee",
+    "basic guarantee"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "154-155",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_exception_list_strong_exception_guarantee_and_e1a035",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

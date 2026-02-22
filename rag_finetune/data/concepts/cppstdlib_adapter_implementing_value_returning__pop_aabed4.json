@@ -1,0 +1,21 @@
+{
+  "topic": "Implementing Value-Returning `pop()` with Precondition Checks",
+  "category": "adapter",
+  "explanation": "A user-defined stack class often implements a combined `T pop()` function for convenience, which retrieves and removes the element simultaneously, deviating from the standard library design. This implementation requires rigorous precondition checking and introduces exception safety considerations.\n\n**Precondition Check**: The primary requirement is ensuring the stack is not empty before attempting access or removal. As demonstrated in the text, this is typically handled by throwing a custom exception (e.g., `ReadEmptyStack`) if `empty()` is true. Failure to check results in undefined behavior when calling `c.back()` or `c.pop_back()` on an empty container.\n\n**Implementation Steps (Value-Returning `pop`)**:\n1. Check `if (c.empty())` and throw exception if true.\n2. Access and copy the element: `T elem(c.back());` (Potential throw point if T's copy/move constructor throws).\n3. Remove the element: `c.pop_back();`\n4. Return the copy: `return elem;`\n\n**Pitfall**: If step 2 (copying `c.back()`) throws, the removal (step 3) never occurs. While the element remains in the underlying container (avoiding data loss), the stack operation has failed. This pattern provides weaker exception safety than the standard library's separation, which guarantees that if the copy throws, the stack state is unchanged.",
+  "code_example": "#include <deque>\n#include <exception>\n\n// Custom exception type\nclass ReadEmptyStack : public std::exception {\npublic:\n    const char* what() const throw() override { return \"read empty stack\"; }\n};\n\ntemplate <class T>\nT custom_pop(std::deque<T>& c) {\n    if (c.empty()) {\n        throw ReadEmptyStack(); // Precondition check\n    }\n    T elem(c.back());  // 1. Copy/Move (potential throw)\n    c.pop_back();      // 2. Remove\n    return elem;       // 3. Return\n}",
+  "practical_example": "In application prototyping or internal tools where the contained types are simple built-in types (like `int` or `double`) which do not throw on copy, using a value-returning `pop()` simplifies API usage significantly, as the exception safety concerns related to user-defined complex types are irrelevant.",
+  "keywords": [
+    "value-returning pop",
+    "precondition",
+    "empty check",
+    "ReadEmptyStack",
+    "exception handling",
+    "user-defined stack",
+    "weak exception safety"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "384",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_implementing_value_returning__pop_aabed4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

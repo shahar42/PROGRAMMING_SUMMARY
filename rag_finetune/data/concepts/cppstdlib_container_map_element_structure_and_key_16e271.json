@@ -1,0 +1,21 @@
+{
+  "topic": "Map Element Structure and Key Constancy Invariant",
+  "category": "container",
+  "explanation": "Map and multimap elements are fundamentally key/value pairs defined by the template arguments `Key` and `T`. However, the element stored internally and referenced by iterators is not `std::pair<Key, T>`, but rather `std::pair<const Key, T>`. \n\nThis `const` qualification on the Key component is a crucial invariant necessary to maintain the integrity of the ordered container (typically a balanced binary search tree). Since the container is sorted based on the keys, modifying a key after insertion would violate the structural ordering, rendering subsequent lookups and traversals incorrect, leading to undefined behavior.\n\nRequirements:\n1. The key type (`Key`) must be comparable using the sorting criterion.\n2. The element pair (`pair<const Key, T>`) must be assignable and copyable, supporting operations like insertion and assignment.\n\nPitfalls: Attempting to modify the key directly via a map iterator (e.g., dereferencing the iterator and assigning to `first`) is illegal and results in a compile-time error due to the `const` qualification. Only the associated value (`second`) is mutable via the iterator.",
+  "code_example": "#include <map>\n\nint main() {\n    std::map<int, std::string> m = {{1, \"One\"}};\n    auto it = m.begin();\n\n    // OK: Value is mutable\n    it->second = \"Uno\"; \n\n    // ERROR: Key is const and cannot be modified\n    // it->first = 2; // Compilation error: assignment of read-only member\n\n    // If a key must change, the original element must be erased\n    // and a new element inserted with the new key.\n    m.erase(it);\n    m.insert({2, \"Two\"});\n}",
+  "practical_example": "When iterating over a map to update data, developers must remember that while they can modify the payload (the value `T`), they cannot re-key the element in place. This forces explicit erasure and re-insertion, ensuring the O(log N) re-sorting cost is correctly accounted for whenever the key changes.",
+  "keywords": [
+    "pair<const Key, T>",
+    "key constancy",
+    "map invariant",
+    "iterator modification",
+    "key mutability",
+    "assignable",
+    "copyable"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "172",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_map_element_structure_and_key_16e271",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

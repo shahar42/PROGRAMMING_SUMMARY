@@ -1,0 +1,19 @@
+{
+  "topic": "Separation of Element Retrieval and Removal in std::stack",
+  "category": "adapter",
+  "explanation": "The interface of `std::stack` separates the operation of accessing the top element (`top()`) from the operation of removing it (`pop()`). The function `std::stack::pop()` is defined to return `void`, unlike many non-standard stack implementations that often combine retrieval and removal into a single function returning the value.\n\nPurpose and Exception Safety:\nThis separation is critical for providing strong exception safety guarantees. If `pop()` were to return the element by value, the element's move or copy constructor would execute during the return process. If this constructor throws an exception (e.g., due to resource exhaustion), the element has already been removed from the stack's internal storage, but the caller failed to receive it, resulting in data loss.\n\nBy enforcing the two-step pattern (`value = s.top(); s.pop();`):\n1. Retrieval (`top()`) happens first. If retrieval involves a copy/move that throws, the stack remains structurally unchanged.\n2. Removal (`pop()`) happens second. For standard containers like `std::deque` or `std::list`, the structural removal operation is typically `noexcept` or highly unlikely to throw, ensuring that once the element is successfully retrieved, its removal from the stack is guaranteed.\n\nUsage:\nConsumers must always use this two-step process to safely extract and process an element.",
+  "code_example": "#include <stack>\n#include <string>\n#include <utility>\n\nvoid safe_process(std::stack<std::string>& s) {\n    if (s.empty()) return;\n    \n    // 1. Retrieve value (potentially using move semantics)\n    std::string value = std::move(s.top()); \n    \n    // 2. Remove the element (pop() returns void)\n    s.pop(); \n    \n    // value is now processed safely outside the stack\n}",
+  "practical_example": "When implementing logging or transaction rollback systems using a stack of complex transaction objects, maintaining strong exception safety is paramount. The separated `top`/`pop` interface ensures that a transaction object is only definitively removed from the rollback stack after its contents have been successfully moved or copied to the processing logic, preventing the loss of critical transaction data if a subsequent operation fails.",
+  "keywords": [
+    "stack pop void",
+    "top and pop",
+    "exception safety guarantee",
+    "LIFO interface",
+    "two-step access"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "383",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_separation_of_element_retrieval_and_9813fe",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,22 @@
+{
+  "topic": "Priority Queue Ordering Semantics and Default Max-Heap Configuration",
+  "category": "adapter",
+  "explanation": "The `std::priority_queue` container adapter maintains a collection of elements organized internally as a heap, ensuring that the element with the highest defined priority is always accessible at the top via `top()`.\n\nDefinition:\nThe priority is determined by the `Compare` template parameter (defaulting to `std::less<T>`). Counter-intuitively, using `std::less<T>` results in a **Max-Heap** structure. The predicate `C(a, b)` determines if `a` has lower priority than `b`. If `C(a, b)` is true (i.e., `a < b` using the default `less`), then `b` is considered higher priority and will be placed closer to the top.\n\nTechnical Details:\n- `push()` and `pop()` operations typically have logarithmic time complexity, O(log N), relative to the number of elements N, due to the maintenance of the heap property.\n- `top()` is constant time, O(1).\n\nPitfalls and Subtleties:\n1. **Ambiguity of Equal Priority:** If multiple elements share the maximum priority (i.e., the comparison predicate returns false when comparing the elements in either direction), the standard specifies that which specific element is retrieved by `top()` and removed by `pop()` is **undefined (unspecified)**. `std::priority_queue` does not guarantee stable or FIFO ordering for equal-priority elements.\n2. **Min-Heap Configuration:** To achieve a Min-Heap (where the smallest element is at the top), the comparison must be reversed, typically by using `std::greater<T>` instead of `std::less<T>`.\n\nUsage Guidance:\nThe default template parameters lead to a max-heap: `std::priority_queue<int>` results in the largest integer being the highest priority.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <iostream>\n\nint main() {\n    // Default: Max-Heap (uses std::less<int>)\n    std::priority_queue<int> max_pq;\n    max_pq.push(10); max_pq.push(20); max_pq.push(5);\n    std::cout << \"Max Top: \" << max_pq.top() << \" (Expected 20)\\n\";\n\n    // Min-Heap configuration (uses std::greater<int>)\n    // Note the necessity to specify the container when overriding Compare\n    std::priority_queue<int, std::vector<int>, std::greater<int>> min_pq;\n    min_pq.push(10); min_pq.push(20); min_pq.push(5);\n    std::cout << \"Min Top: \" << min_pq.top() << \" (Expected 5)\\n\";\n}",
+  "practical_example": "In a task scheduling system, a max-heap is used to prioritize tasks based on their numerical priority level. If two high-priority tasks (e.g., priority 99) are inserted, the order in which they are processed is non-deterministic, requiring external logic if FIFO handling is necessary for equal priorities.",
+  "keywords": [
+    "priority_queue",
+    "max-heap",
+    "min-heap",
+    "std::less",
+    "std::greater",
+    "O(log N)",
+    "unspecified behavior",
+    "container adapter"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "393-394",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_priority_queue_ordering_semantics_and_c5d40a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

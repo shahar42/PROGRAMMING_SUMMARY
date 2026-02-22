@@ -1,0 +1,21 @@
+{
+  "topic": "Strict Type Requirements for Associative Container Comparison",
+  "category": "container",
+  "explanation": "Standard library container comparison operators (`==`, `!=`, `<`, `>`, etc.) require that both containers being compared are of the exact same type. This requirement is especially stringent for associative containers like `std::map` and `std::set`, where the type must match not only the element type and allocator type but also the custom comparison predicate type (the third template argument, defaulting to `std::less`).\n\nPurpose: If the comparison predicates differ (e.g., one container uses `std::less<T>` and the other uses `std::greater<T>`), the containers maintain different internal ordering invariants. Comparing them directly using overloaded operators would be logically inconsistent or require complex, non-standard comparisons. The standard mandates a compile-time error to enforce type safety.\n\nTechnical Details: When types match, comparison is performed lexicographically (element by element). For maps, this means comparing `std::pair<const Key, Value>` elements. If the types differ, the compiler cannot find a matching comparison operator overload.\n\nUsage Guidance: If heterogeneous container comparison is necessary (e.g., comparing the content of a map sorted ascendingly with one sorted descendingly), the programmer must use generic algorithms like `std::equal` or `std::lexicographical_compare` from `<algorithm>`, potentially using custom predicates or transforming the elements first.\n\nPitfalls: Attempting to compare two maps that store the same data but use different comparator types results in a hard compilation failure, often manifesting as an inability to deduce template arguments for `operator==`.",
+  "code_example": "#include <map>\n#include <string>\n#include <functional>\n\nint main() {\n    // c1 uses default std::less<float>\n    std::map<float, std::string> c1;\n    \n    // c2 uses std::greater<float>\n    std::map<float, std::string, std::greater<float>> c2;\n    \n    // if (c1 == c2) { ... } \n    // ERROR: Compiler fails here due to different types/predicates\n    \n    // OK: Comparing two maps with identical types\n    std::map<float, std::string> c3;\n    if (c1 == c3) { /* ... */ }\n    return 0;\n}",
+  "practical_example": "A system managing user scores might store scores in a map ordered by ID (default `std::less`). If a reporting module attempts to compare this map against a temporary map generated using a custom descending order predicate (`std::greater`), the compilation will fail, requiring the use of manual iteration or algorithm-based content comparison.",
+  "keywords": [
+    "map comparison",
+    "lexicographical comparison",
+    "comparison predicate",
+    "type error",
+    "std::less",
+    "std::greater",
+    "compile-time error"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strict_type_requirements_for_associative_2c183e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

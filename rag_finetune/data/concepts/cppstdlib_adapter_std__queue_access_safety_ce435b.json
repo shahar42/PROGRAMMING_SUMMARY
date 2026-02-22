@@ -1,0 +1,22 @@
+{
+  "topic": "std::queue Access Safety: Split Operation and Empty Container Precondition",
+  "category": "adapter",
+  "explanation": "The standard library container adapters `std::queue` and `std::stack` enforce a split operation for accessing and removing elements. Access is provided by `top()` (or `front()`/`back()` for queue), and removal is provided by the `void` function `pop()`. This design choice prevents the need for `pop()` to return the element by value, thereby avoiding potential exceptions related to the element's copy or move constructor failing during the removal process.\n\n**Technical Details:**\n1. `top()` returns a reference to the element at the top/front.\n2. `pop()` removes that element but returns nothing.\n3. **Precondition:** The caller must ensure that the container is not empty (`size() > 0`) before calling either `top()` or `pop()`. \n4. **Pitfall (Undefined Behavior):** Calling `top()` or `pop()` on an empty queue or stack results in Undefined Behavior (UB), as the library is not required to perform internal checks. This is a crucial difference compared to access via iterators on standard containers, where dereferencing an end iterator is the canonical UB.\n\n**Usage Guidance:** Always check `empty()` before attempting access or removal. In C++11 onward, the `emplace()` function allows construction directly inside the queue, avoiding temporary object creation, but still follows the split access/removal pattern.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nvoid safe_pop(std::queue<int>& q) {\n    if (q.empty()) {\n        // Handle error gracefully\n        std::cerr << \"Error: Queue is empty.\\n\";\n        return;\n    }\n    \n    // Correct split operation\n    int value = q.front(); // 1. Access\n    q.pop();             // 2. Remove (void)\n    std::cout << \"Popped: \" << value << \"\\n\";\n}\n\nint main() {\n    std::queue<int> q;\n    safe_pop(q); // Safe check\n    // q.pop(); // DANGER: UB if called here without check\n}",
+  "practical_example": "In a multithreaded producer-consumer architecture using a thread-safe queue wrapper, the split operation requires careful synchronization. If the queue becomes empty between the call to `front()` and the call to `pop()`, a race condition occurs, potentially leading to UB in the consumer thread if the wrapper does not use a critical section covering both operations.",
+  "keywords": [
+    "queue pop",
+    "stack pop",
+    "container adapter",
+    "precondition",
+    "undefined behavior",
+    "split operation",
+    "top",
+    "front"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "399-400",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__queue_access_safety_ce435b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

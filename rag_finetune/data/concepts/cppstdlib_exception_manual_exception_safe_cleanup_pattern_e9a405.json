@@ -1,0 +1,20 @@
+{
+  "topic": "Manual Exception-Safe Cleanup Pattern (Try-Catch-Rethrow)",
+  "category": "exception",
+  "explanation": "To manually ensure that explicitly acquired resources are freed upon an exception using raw pointers, a complex and redundant `try-catch` pattern must be employed within the resource-managing function.\n\nPattern Requirements: The required pattern involves three steps:\n1. Resource Acquisition (before `try`).\n2. Performing operations within the `try` block.\n3. A `catch (...)` block that catches *any* exception, executes the necessary cleanup (`delete ptr;`), and then rethrows the exception (`throw;`) to continue stack unwinding.\n4. A redundant cleanup call after the `try-catch` block for normal execution flow.\n\nComplexity: This pattern significantly increases code volume and reduces readability. The redundancy of the cleanup call (once in the `catch` block, once outside) is necessary because the `catch` block only executes during exceptional exit, while the final call executes during normal exit.\n\nMotivation for RAII: The necessity of this verbose manual pattern is the primary motivation for using standard library RAII mechanisms (like smart pointers or container destructors), which encapsulate this cleanup logic automatically and reliably, ensuring the strong exception guarantee without explicit boilerplate.",
+  "code_example": "#include <iostream>\n\nclass ClassA { public: ~ClassA() { std::cout << \"Cleaned up.\\n\"; } };\n\nvoid safe_manual_f() {\n    ClassA* ptr = new ClassA; \n    try {\n        // Operations\n        std::cout << \"Performing work...\\n\";\n        // throw std::runtime_error(\"Failure\"); // Uncomment to test exception path\n    } \n    catch (...) { // Catch any exception\n        delete ptr; // Cleanup (Exception path)\n        throw;      // Rethrow to continue unwinding\n    }\n    delete ptr;     // Cleanup (Normal path)\n}\n\nint main() {\n    try { safe_manual_f(); } catch (...) { /* caught */ }\n}\n",
+  "practical_example": "When dealing with legacy C APIs that return raw handles or pointers which must be freed by a specific function (e.g., `free()` or `CloseHandle()`), and wrapping them in a standard RAII utility like `std::unique_ptr` with a custom deleter is not feasible or desired, this manual structure is the only way to ensure safety.",
+  "keywords": [
+    "try-catch cleanup",
+    "rethrow",
+    "exception handling pattern",
+    "manual resource management",
+    "redundant cleanup",
+    "strong exception guarantee"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "Chunk 6",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_exception_manual_exception_safe_cleanup_pattern_e9a405",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

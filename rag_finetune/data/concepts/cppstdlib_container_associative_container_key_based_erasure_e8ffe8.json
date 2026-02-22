@@ -1,0 +1,20 @@
+{
+  "topic": "Associative Container Key-Based Erasure Semantics and Guarantees",
+  "category": "container",
+  "explanation": "Associative containers (`std::set`, `std::multiset`, `std::map`, `std::multimap`) provide a specific overloaded member function `size_type container::erase(const T& value)` (where T is the key or element type) designed for efficient removal based purely on the element's value or key.\n\n**Technical Details:**\n1.  **Return Value:** The function returns `size_type`, representing the exact number of elements removed. For unique containers (`set`, `map`), this will be 0 or 1. For multiple containers (`multiset`, `multimap`), it can be greater than 1.\n2.  **Complexity:** Erasure typically involves a lookup (O(log N)) followed by the removal of the corresponding nodes (O(1) per node removal). Total complexity is often O(log N + M), where M is the count of removed elements.\n3.  **Exception Safety:** The standard guarantees that this specific overload of `erase` will **not throw** exceptions. The only potential for exceptions comes from the element comparison operation itself, but the removal process is guaranteed not to throw.\n4.  **Iterator Invalidation:** Only iterators and references pointing to the removed elements are invalidated; iterators pointing to other elements remain valid.\n\n**Usage:** This is the preferred method for deleting elements from an associative container when the key/value is known, as it avoids the overhead of finding and dereferencing an iterator first.",
+  "code_example": "#include <map>\n#include <iostream>\n\nint main() {\n    std::map<int, std::string> m = {{1, \"A\"}, {2, \"B\"}, {3, \"C\"}};\n    \n    // Erase key 2, returns 1 (size_type)\n    size_t count = m.erase(2);\n    \n    // Erase key 99 (not present), returns 0\n    size_t count_fail = m.erase(99);\n    \n    std::cout << \"Removed elements: \" << count << \"\\n\";\n    \n    // The function does not throw\n}",
+  "practical_example": "In a caching system implemented using `std::map<Key, Data>`, when a cache entry expires, using `cache.erase(expired_key)` provides a guaranteed no-throw mechanism for removal and immediately confirms whether the key existed and was successfully removed.",
+  "keywords": [
+    "associative container",
+    "map erase",
+    "set erase",
+    "key-based erasure",
+    "no throw guarantee",
+    "size_type return"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "213",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_key_based_erasure_e8ffe8",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

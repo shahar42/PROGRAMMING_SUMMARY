@@ -1,0 +1,20 @@
+{
+  "topic": "std::queue Adapter Structure and Default Container Choice",
+  "category": "adapter",
+  "explanation": "The `std::queue` is a container adapter that provides a First-In, First-Out (FIFO) interface by wrapping an underlying sequence container. By default, the container used is `std::deque<T>`.\n\nPurpose: `std::deque` is selected as the default because it guarantees O(1) time complexity for both insertion at the back (`push_back`) and removal/access at the front (`pop_front`/`front`). These are the essential operations required to maintain FIFO semantics efficiently.\n\nTechnical Details:\n- Definition: `template <class T, class Container = deque<T> > class queue { ... };`\n- `queue::push(x)` maps directly to `Container::push_back(x)`. Complexity: Amortized O(1) for deque.\n- `queue::pop()` maps directly to `Container::pop_front()`. Complexity: O(1) for deque.\n- `queue::front()` maps to `Container::front()`. Complexity: O(1).\n\nUsage Guidance: While `std::list<T>` is also a valid underlying container (since it supports O(1) insertion/deletion at both ends), `std::deque` is generally preferred due to better cache locality and lower memory overhead compared to list nodes, especially for large, non-trivial element types.\n\nPitfalls: Replacing `deque` with `std::vector` is impossible as `vector` lacks an efficient `pop_front()` operation (it would be O(N) due to element shifting).",
+  "code_example": "#include <queue>\n#include <deque>\n#include <list>\n\n// Default queue using deque\nstd::queue<int> q1;\n\n// Explicitly specifying list as the underlying container\nstd::queue<int, std::list<int>> q2;\n\n// q1.push(10); // Uses deque::push_back\n// q1.pop();    // Uses deque::pop_front\n\nint main() { return 0; }",
+  "practical_example": "Implementing a task scheduler where jobs must be processed in the order they arrive (FIFO). Using `std::queue` with its default `std::deque` ensures that the enqueue and dequeue operations are highly efficient and deterministic (O(1)), suitable for high-throughput systems.",
+  "keywords": [
+    "std::queue",
+    "container adapter",
+    "FIFO",
+    "std::deque",
+    "pop_front",
+    "O(1) complexity"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "389",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__queue_adapter_structure_391ec9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "String-Based Initialization and Substring Indexing in std::bitset",
+  "category": "adapter",
+  "explanation": "The `std::bitset` class provides several constructors that accept `std::string` objects (or substrings) for initialization, allowing direct parsing of binary representations written as character sequences ('0' and '1').\n\nDefinition:\n- The string (or substring) must exclusively contain the characters '0' and '1'. Any other character results in undefined behavior or a runtime exception (usually `std::invalid_argument`).\n- The string characters are read starting from `str_idx` (the first character used) for a length of up to `str_num` characters (if specified). If `str_num` is omitted, the substring runs to the end of the string.\n- Mapping Rule: The rightmost character of the *used substring* initializes the LSB (index 0) of the bitset. The substring is effectively processed backward relative to the string indexing but maps sequentially to bitset indices (0, 1, 2, ...).\n- Sizing Rule: If the used substring is shorter than the bitset size N, the leading bit positions (MSBs) of the bitset are initialized to zero.\n\nUsage Guidance:\nUse the `str_idx` and `str_num` parameters when the binary sequence is embedded within a larger string structure (e.g., parsing a data packet header). Always ensure the input characters are strictly '0' or '1'.\n\nPitfall: The implicit conversion from `const char*` literal to `std::string` was historically problematic or disallowed due to templating of the constructor, sometimes requiring explicit construction: `bitset<10>(std::string(\"1001\"))` instead of `bitset<10>(\"1001\")` (though modern compilers often handle the latter).",
+  "code_example": "#include <bitset>\n#include <string>\n#include <iostream>\n\nint main() {\n    std::string s = \"HEADER_101100_TRAILER\";\n    \n    // Start at index 7 ('1'), use 6 characters ('101100')\n    // Bitset is 8 bits (N=8)\n    std::bitset<8> b1(s, 7, 6);\n    // String used: \"101100\". LSB (index 0) is '0', MSB (index 5) is '1'.\n    // Output: 00101100 (Leading two bits zeroed because 6 < 8)\n    std::cout << \"Substring: \" << b1 << \"\\n\";\n    \n    // Full string initialization, N=4\n    std::bitset<4> b2(\"110010\"); \n    // Only 4 LSBs used: '0010'\n    std::cout << \"String too long: \" << b2 << \"\\n\";\n}",
+  "practical_example": "Parsing configuration data from a network protocol where a known 16-bit flag field exists at a fixed offset (e.g., index 40) within a larger received buffer represented as a string. Using `bitset<16>(buffer, 40, 16)` extracts and initializes the flags in a single, safe operation.",
+  "keywords": [
+    "bitset string constructor",
+    "substring initialization",
+    "invalid_argument",
+    "str_idx",
+    "str_num",
+    "character requirement"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "402",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_string_based_initialization_and_substring_7e8eb7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

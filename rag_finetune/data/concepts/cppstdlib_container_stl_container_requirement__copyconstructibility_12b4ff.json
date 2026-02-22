@@ -1,0 +1,21 @@
+{
+  "topic": "STL Container Requirement: CopyConstructibility and Value Semantics",
+  "category": "container",
+  "explanation": "Standard Template Library (STL) containers enforce value semantics, meaning that when an element is inserted into a container, a copy of that element is stored internally. The container takes ownership of this copy, ensuring that the container's contents remain valid even if the original source object is modified or destroyed.\n\n**Definition and Requirements:** Every type intended for storage in a standard container (except potentially those supporting only move semantics in modern C++) must be **CopyConstructible** and, for assignment operations, **CopyAssignable**. If the element type is not copyable, the container cannot legally store it, resulting in a compilation error.\n\n**Purpose and Implications:** This design choice guarantees data independence and simplifies memory management (the container handles the lifetime of the stored copies). However, it imposes performance constraints:\n1. **Performance Cost:** Storing large objects directly incurs significant overhead during insertion (`insert`, `push_back`) and reallocation, as the entire object must be copied.\n2. **Non-Copyable Types:** Types managing unique resources (like file handles or `std::unique_ptr` prior to C++11 support for move-only types) cannot be stored directly. The standard solution is to store pointers or smart pointers (e.g., `std::shared_ptr`) to the resource, thereby copying only the pointer wrapper, not the resource itself.\n\n**Usage Guidance:** For performance-critical applications, or when storing large structures, consider storing smart pointers (`std::shared_ptr`) or references via wrapper classes, rather than the objects themselves, to minimize copy operations. C++11 and later leverage move semantics (`emplace`, `push_back(std::move(obj))`) to avoid copies, but the fundamental requirement for copy or move capability remains.\n\n**Pitfalls:** Failing to provide a valid, public copy constructor for a stored type, or storing objects whose copy operations are shallow (leading to double deletion or shared state when intended to be unique), results in incorrect behavior or compilation failure.",
+  "code_example": "#include <vector>\n#include <memory>\n#include <iostream>\n\nclass Resource { /* ... */ };\n\nint main() {\n    // Storing copies (Value Semantics)\n    std::vector<int> v = {10};\n    int x = v[0]; // x is a copy, modifying x doesn't affect v[0]\n    \n    // Storing pointers to avoid expensive copies and handle ownership\n    // (Reference Semantics via Smart Pointer)\n    std::vector<std::shared_ptr<Resource>> ptr_v;\n    ptr_v.push_back(std::make_shared<Resource>());\n    \n    // std::vector<std::unique_ptr<int>> u_v; // Requires move semantics (C++11+)\n}",
+  "practical_example": "When implementing a graph structure where nodes contain large metadata objects, storing the metadata directly in a vector of nodes would require copying all metadata every time a node is inserted or the vector reallocates. Storing `std::shared_ptr<Metadata>` within the node object ensures only the pointer is copied, drastically reducing insertion time and memory bandwidth usage.",
+  "keywords": [
+    "value semantics",
+    "copy constructible",
+    "copy assignment",
+    "element requirements",
+    "shared_ptr",
+    "ownership",
+    "container constraints"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130 (Point 1)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_stl_container_requirement__copyconstructibility_12b4ff",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

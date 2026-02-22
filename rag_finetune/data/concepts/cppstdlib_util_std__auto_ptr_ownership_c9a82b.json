@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Ownership Transfer on Pass-by-Value",
+  "category": "util",
+  "explanation": "The primary design characteristic of `std::auto_ptr` (now deprecated) is its destructive copy behavior, which manifests acutely when passed by value to a function. When an `auto_ptr` is used as a function argument passed by value, the copy constructor is invoked. This constructor implements ownership transfer: the source `auto_ptr` (in the caller's scope) is set to null, and the temporary parameter (in the function's scope) assumes ownership.\n\nPurpose: This mechanism was intended to enforce single ownership, acting as a primitive form of pre-C++11 move semantics.\n\nTechnical Details:\n- Complexity: O(1) for transfer.\n- Behavior: The resource is deleted when the function returns and the parameter goes out of scope, regardless of the caller's intent.\n\nPitfalls: The original caller's `auto_ptr` becomes null and cannot be dereferenced later, leading to runtime errors (null pointer dereference) or double deletion if the caller attempts to manage the resource through other means. This unpredictability makes `auto_ptr` unsafe for use in generic library interfaces or function calls where ownership transfer is not explicitly desired.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nvoid bad_print(std::auto_ptr<int> p) {\n    if (p.get()) {\n        std::cout << \"Value: \" << *p << std::endl;\n    }\n    // p is destroyed here, deleting the managed memory\n}\n\nint main() {\n    std::auto_ptr<int> p(new int);\n    *p = 42;\n    bad_print(p);  // Ownership transfers, p becomes NULL\n    \n    // *p = 18;  // RUNTIME ERROR (Dereferencing null pointer)\n    if (!p.get()) {\n        std::cout << \"Error: Caller's pointer is null.\\n\";\n    }\n}",
+  "practical_example": "Using `auto_ptr` in a factory pattern where the factory returns a pointer, and that pointer is immediately passed to a consuming function. If the consuming function takes the pointer by value, the factory's return value is immediately invalidated, preventing subsequent operations on the returned object handle in the factory's scope.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "pass by value",
+    "runtime error",
+    "null pointer dereference",
+    "deprecated utility"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "45",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_ownership_c9a82b",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

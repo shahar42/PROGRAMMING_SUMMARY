@@ -1,0 +1,21 @@
+{
+  "topic": "Deque Exception Safety Guarantees for Insertions and Deletions",
+  "category": "exception",
+  "explanation": "Standard library containers provide specific guarantees regarding exception handling to maintain state consistency. For `std::deque`, the focus is on providing the Strong Exception Guarantee for insertion and the Nothrow Guarantee for deletion.\n\nTechnical Details:\n1. **Insertion Guarantees (Strong Guarantee):** If an exception occurs during element insertion via `push_back()` or `push_front()`, the function guarantees the **no effect** principle. This means the deque remains in its original state, as if the operation had never been attempted. This typically happens if the element's copy/move constructor throws, or if memory allocation fails.\n2. **Deletion Guarantees (Nothrow Guarantee):** The deletion operations, `pop_back()` and `pop_front()`, are guaranteed not to throw any exceptions. These operations only involve releasing internal resource management structures and destroying the element (which is performed via the element's destructor, which is implicitly assumed not to throw in well-designed C++ types).\n\nUsage Guidance: The strong guarantee for insertion simplifies error recovery, ensuring that if an insertion fails, the container state is stable. The nothrow guarantee on deletion ensures that cleanup operations are always reliable, even under memory pressure or external failure conditions.",
+  "code_example": "#include <deque>\n#include <stdexcept>\n\nclass ThrowingType {\npublic:\n    ThrowingType() = default;\n    ThrowingType(const ThrowingType&) { \n        throw std::runtime_error(\"Copy failed\"); \n    }\n};\n\nvoid test_push_front_exception(std::deque<ThrowingType>& d) {\n    size_t initial_size = d.size();\n    try {\n        d.push_front(ThrowingType()); // Attempts copy, throws\n    } catch (const std::exception&) {\n        // Strong Guarantee: Deque size remains unchanged\n        if (d.size() != initial_size) {\n            // State corruption (should not happen)\n        }\n    }\n    // pop_back() and pop_front() are guaranteed not to throw\n    // d.pop_back(); \n}",
+  "practical_example": "In transactional systems where a deque holds pending operations, the Strong Guarantee ensures that if adding a new operation fails due to resource constraints, the existing queue of operations is not partially modified or corrupted. The system can safely retry or log the failure without needing complex rollback logic for the container itself.",
+  "keywords": [
+    "exception safety",
+    "strong guarantee",
+    "no effect",
+    "nothrow guarantee",
+    "push_back exception",
+    "pop_front exception",
+    "deque exceptions"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "161-162",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_exception_deque_exception_safety_guarantees_for_f3e59f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

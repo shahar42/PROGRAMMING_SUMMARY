@@ -1,0 +1,20 @@
+{
+  "topic": "Counting Elements Removed by `std::multiset::erase(key)`",
+  "category": "container",
+  "explanation": "The non-unique associative containers (`std::multiset` and `std::multimap`) provide an overload of the `erase` member function that accepts a key value (`size_type erase(const key_type& k)`). This function removes *all* elements in the container whose key compares equivalent to `k` and returns the number of elements removed.\n\nPurpose: This is the most efficient way to remove all instances of a specific key, especially when dealing with duplicates, as it avoids manually iterating and checking equality.\n\nTechnical Details: The complexity of `erase(key)` is proportional to the logarithm of the container size (O(log N)) plus the time required to remove the elements (proportional to the count of elements removed). For containers like `std::set` or `std::map`, which only allow unique keys, this function returns either 0 or 1.\n\nIterator Invalidation: Iterators and references pointing to the removed elements are invalidated. However, iterators and references to elements *not* removed remain valid. This is crucial for safe operations.\n\nPitfalls: If the key type is complex, using `erase(key)` might involve expensive key comparisons. Ensure the key comparison is efficient. Do not attempt to use iterators that pointed to the erased elements.",
+  "code_example": "#include <multiset>\n#include <iostream>\n\nint main() {\n    std::multiset<int> coll = {5, 1, 5, 2, 5, 3};\n    \n    // Remove all instances of 5\n    size_t num_removed = coll.erase(5); \n    \n    std::cout << \"Elements removed: \" << num_removed << \"\\n\";\n    // coll now contains {1, 2, 3}\n    \n    num_removed = coll.erase(10); \n    std::cout << \"Elements removed: \" << num_removed << \"\\n\";\n}",
+  "practical_example": "In a transaction logging system where multiple entries might share the same transaction ID (the key), using `multimap::erase(transaction_id)` efficiently purges all associated records when that transaction is finalized, guaranteeing that no partial records remain.",
+  "keywords": [
+    "multiset erase",
+    "erase by key",
+    "element count",
+    "O(log N)",
+    "iterator validity",
+    "size_type"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "169",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_counting_elements_removed_by__cf3e09",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

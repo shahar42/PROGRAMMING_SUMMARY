@@ -1,0 +1,20 @@
+{
+  "topic": "const std::auto_ptr Semantics: Ownership Locking",
+  "category": "util",
+  "explanation": "Applying the `const` qualifier to an `std::auto_ptr<T>` instance prevents modification of the pointer wrapper itself, thereby locking the ownership state. A `const auto_ptr` cannot transfer ownership, release the resource, or be reassigned to manage a different resource.\n\nTechnical Details: A `const auto_ptr<T>` behaves semantically like a constant raw pointer (`T* const p`). This means:\n1. **Ownership Lock:** Operations that imply ownership transfer (assignment, copy construction, or calling `release()`) become compile-time errors.\n2. **Value Mutability:** The object pointed to (`*p`) remains mutable, provided the template parameter `T` itself is not const (i.e., `auto_ptr<int>` allows `*p = 42;`). The `const` applies to the wrapper, not the pointee.\n\nPurpose: Using `const auto_ptr` signals the end of the ownership chain. When passing an `auto_ptr` to a function that should observe the resource but absolutely must not take ownership, passing it by `const` reference or as a `const` value guarantees that no unintended ownership transfer can occur. This mitigates the primary danger associated with `auto_ptr`'s implicit destructive copy.\n\nPitfalls: Misunderstanding that `const auto_ptr<T>` does not make the owned object constant. Developers must remember the `const` applies to the wrapper's ability to change its managed address, not the state of the managed object.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nvoid attempt_transfer(std::auto_ptr<int> p) {\n    // Ownership transfer happens on call\n}\n\nint main() {\n    const std::auto_ptr<int> p_const(new int(100));\n    \n    *p_const = 42; // OK: Change value of owned object\n    \n    // attempt_transfer(p_const); // COMPILE-TIME ERROR: Cannot copy const auto_ptr\n    \n    std::auto_ptr<int> q(new int(50));\n    // p_const = q; // COMPILE-TIME ERROR: Cannot assign to const auto_ptr\n    \n    std::cout << *p_const << std::endl; // Output: 42\n    return 0;\n}",
+  "practical_example": "When designing an interface function that needs read access to a resource managed by an `auto_ptr` but must guarantee it does not accidentally take ownership (e.g., a logging or inspection function), the parameter should be specified as `const std::auto_ptr<T>&` to enforce the ownership lock.",
+  "keywords": [
+    "const auto_ptr",
+    "ownership lock",
+    "T* const p",
+    "mutable pointee",
+    "compile-time safety",
+    "resource observation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130-131",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_const_std__auto_ptr_163474",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Overloaded `bitset::set` for Conditional and Boolean Assignment",
+  "category": "adapter",
+  "explanation": "The `std::bitset::set` function is overloaded to provide three distinct modes of operation, allowing for fine-grained control over setting bits:\n\n1. `set()`: Sets all bits in the bitset to true (1).\n2. `set(size_t idx)`: Sets the bit at position `idx` to true (1).\n3. `set(size_t idx, int value)`: Provides conditional assignment based on the integer `value`.\n\nConditional Assignment (`set(idx, value)`):\nIf `value` is equal to 0, the bit at `idx` is reset (set to false). If `value` is any non-zero integer, the bit at `idx` is set (set to true). This overload is highly useful for mapping external integer flags directly onto a bitset position without needing explicit type casting or conditional logic.\n\nTechnical Details:\n- Type Requirement: The second argument must be an `int` (or convertible to `int`).\n- Bounds Check: Both indexed overloads (2 and 3) throw `std::out_of_range` if `idx` is invalid.\n- Return Value: All overloads return a reference to the modified bitset (`bitset<bits>&`).\n\nPitfalls: The `int value` is treated strictly as a boolean test (0 vs. non-zero). If the intention is to use a specific bit from `value` to set the bitset, manual shifting and masking is still required; `set(idx, value)` only checks the integer value itself.",
+  "code_example": "#include <bitset>\n#include <iostream>\n\nint main() {\n    std::bitset<4> b;\n    b.set(); // All true: 1111\n    \n    // Conditional assignment\n    int flag_on = 42; \n    int flag_off = 0;\n    \n    // b[0] = true (42 != 0)\n    b.set(0, flag_on);\n    \n    // b[1] = false (0 == 0)\n    b.set(1, flag_off);\n    \n    // b[2] = true (simple set)\n    b.set(2);\n    \n    std::cout << \"Bitset: \" << b << \"\\n\"; // Output: 1011\n}",
+  "practical_example": "In a configuration manager, an external API returns integer status codes where 0 means 'disabled' and any other code means 'enabled'. Using `bitset::set(index, status_code)` directly maps this status to a configuration flag in the bitset, streamlining the parsing logic.",
+  "keywords": [
+    "bitset set",
+    "overload resolution",
+    "conditional setting",
+    "boolean assignment",
+    "bitset reset"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "404",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_overloaded__bitset__set_d6d48c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

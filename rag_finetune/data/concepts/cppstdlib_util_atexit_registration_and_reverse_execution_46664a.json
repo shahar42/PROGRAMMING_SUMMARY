@@ -1,0 +1,20 @@
+{
+  "topic": "atexit Registration and Reverse Execution Order Guarantee",
+  "category": "util",
+  "explanation": "The `atexit()` function allows registration of a function pointer (`void (*)()`) that will be executed upon normal program termination. Normal termination occurs either when `main()` returns or when `std::exit()` is called.\n\n**Registration Requirements:** The function registered must take no arguments and return `void`. The standard guarantees that at least 32 functions can be registered.\n\n**Execution Order Guarantee:** `atexit()` functions are called in the *reverse order* of their registration. This mechanism is critical for ensuring proper cleanup dependencies, where resources acquired later (and thus registered later) must often be released first.\n\n**Exception Safety Pitfall:** If a function registered via `atexit()` throws an exception, the C++ runtime handles this by immediately calling `std::terminate()`. Therefore, `atexit` handlers must be non-throwing or internally catch and handle all potential exceptions to guarantee stable program exit.\n\n**Non-Execution Scenario:** If the program terminates abnormally via `std::abort()`, no `atexit` functions are executed.",
+  "code_example": "#include <cstdlib>\n#include <iostream>\n\nvoid log_close() { std::cout << \"Cleanup 2: Closing log file.\\n\"; }\nvoid db_disconnect() { std::cout << \"Cleanup 1: Disconnecting DB.\\n\"; }\n\nint main() {\n    // Register 1st (runs last)\n    if (std::atexit(db_disconnect) != 0) {\n        std::cerr << \"Failed to register DB cleanup.\\n\";\n        return EXIT_FAILURE;\n    }\n    \n    // Register 2nd (runs first)\n    if (std::atexit(log_close) != 0) {\n        std::cerr << \"Failed to register log cleanup.\\n\";\n        return EXIT_FAILURE;\n    }\n    \n    // Program ends, handlers run in reverse order (log_close then db_disconnect)\n    return EXIT_SUCCESS;\n}",
+  "practical_example": "A library initializes a logger and then opens a database connection. The database connection cleanup (`db_disconnect`) must be registered *before* the logger cleanup (`log_close`). If the logger is registered last, it runs first, ensuring the logger is still available to record the successful database disconnection event before the logger itself is shut down.",
+  "keywords": [
+    "atexit",
+    "cleanup function",
+    "reverse order",
+    "normal termination",
+    "static cleanup",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "72",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_atexit_registration_and_reverse_execution_46664a",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

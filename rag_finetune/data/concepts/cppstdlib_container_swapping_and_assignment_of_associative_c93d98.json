@@ -1,0 +1,20 @@
+{
+  "topic": "Swapping and Assignment of Associative Container Comparators",
+  "category": "container",
+  "explanation": "When performing assignment (`c1 = c2`) or swapping (`c1.swap(c2)` or `swap(c1, c2)`) between two associative containers (sets or maps), the comparison criteria object (the functor defining the ordering) is also assigned or swapped.\n\nRequirements:\n1.  The containers must be of the *exact same type*, including the element type and the comparator type (e.g., `std::set<int, std::less<int>>` cannot be swapped with `std::set<int, MyCustomComp>`).\n2.  If the comparator is stateful (i.e., it holds internal data or references), that state is moved or copied during the operation.\n\nTechnical Details:\n- **Assignment (`=`):** Performs a deep copy of elements and copies the comparator object.\n- **Swap:** Swapping the containers involves swapping the internal data structures (nodes/tree roots) and swapping the comparator objects. Swapping is typically O(1) time complexity (no element movement).\n\nPitfalls: If a custom comparator is used and it holds non-swappable or non-copyable state (e.g., a non-owning raw pointer), standard assignment or swap operations might fail or lead to resource issues. For stateful comparators, users must ensure the comparator itself provides correct move/copy/swap semantics, especially if it manages external resources or state crucial for ordering.",
+  "code_example": "#include <set>\n#include <algorithm>\n#include <iostream>\n\nstruct StatefulComp {\n    int counter = 0;\n    bool operator()(int a, int b) {\n        counter++;\n        return a < b;\n    }\n};\n\nint main() {\n    std::set<int, StatefulComp> s1;\n    s1.insert(5);\n    s1.insert(1);\n    \n    std::set<int, StatefulComp> s2;\n    s2.insert(10);\n    \n    std::cout << \"S1 initial ops: \" << s1.key_comp().counter << \"\\n\";\n    \n    // Swapping also swaps the comparison criteria objects\n    s1.swap(s2);\n    \n    // s1 now contains the elements of s2, and the comparator object of s2\n    // The counter state has been exchanged.\n    std::cout << \"S2 post-swap ops: \" << s2.key_comp().counter << \"\\n\"; \n}",
+  "practical_example": "A specialized logging system uses a `std::map` where the comparator functor manages a counter to track how often comparisons occur for performance profiling. When the container is swapped with another instance (e.g., during double-buffering), it is essential that the profiling state (the counter) is also swapped correctly so that the new active container continues tracking comparisons from the point the old one left off.",
+  "keywords": [
+    "container swap",
+    "comparator object",
+    "stateful functor",
+    "key_comp",
+    "associative assignment",
+    "O(1) swap"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "162",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_swapping_and_assignment_of_associative_c93d98",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

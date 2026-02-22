@@ -1,0 +1,19 @@
+{
+  "topic": "Incompatibility of std::auto_ptr with Standard Containers",
+  "category": "container",
+  "explanation": "Due to its destructive copy semantics (ownership transfer), `std::auto_ptr` fundamentally fails to meet the requirements for elements stored in standard library containers (`std::vector`, `std::list`, etc.). Standard containers mandate that element types must be CopyConstructible and CopyAssignable in a non-destructive manner, ensuring source and destination remain equivalent after the operation.\n\nTechnical Details: Container operations like reallocation (in `std::vector`), sorting, or insertion often involve internal copying of elements. If an `auto_ptr` is copied during one of these operations, the original element inside the container might be nullified. For instance, if a vector reallocates, the old elements are copied to the new memory block, nullifying the elements in the old block. If the container then tries to destroy the old elements, it might find them null, or worse, if a subsequent operation relies on the old element's value, it will fail.\n\nConsequence: Using `auto_ptr` as a container element results in undefined behavior, logical errors, or premature resource deletion. The C++ standard library design intended to prevent this misuse, but compiler behavior historically varied, sometimes allowing compilation of logically flawed code.\n\nAlternative: This issue is solved in C++11 and later by using `std::unique_ptr` (which is explicitly non-copyable but movable, satisfying reallocation requirements) or `std::shared_ptr` (which uses reference counting and satisfies copy requirements).",
+  "code_example": "#include <vector>\n#include <memory>\n\n// std::auto_ptr violates container requirements\n// This code is dangerous and usually deprecated/forbidden.\n\nvoid dangerous_container_usage() {\n    // std::vector internal operations (e.g., reallocation)\n    // rely on non-destructive copy semantics.\n    \n    // std::vector<std::auto_ptr<int>> v; // Fails compilation in C++11+\n    \n    // Conceptual failure during copy:\n    // auto_ptr<T> p_old = v[0]; \n    // auto_ptr<T> p_new = p_old; // p_old is now null\n    // The original element in the vector is now nullified.\n}",
+  "practical_example": "If a vector of `auto_ptr` elements needs to grow (reallocate), the copying process during reallocation nullifies the elements in the original memory block. When the original block is cleaned up, the destructors run on the now-nullified `auto_ptr`s, but the newly copied elements now hold the only valid pointer. If the program attempts to access the original vector elements after reallocation, it accesses null pointers.",
+  "keywords": [
+    "auto_ptr container element",
+    "container requirements",
+    "CopyConstructible violation",
+    "reallocation failure",
+    "undefined behavior"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "48",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_container_incompatibility_of_std__auto_dae439",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "std::list::merge() Linear Time Sorted Union",
+  "category": "container",
+  "explanation": "The `std::list::merge()` operation performs a sorted union of two lists. It is specifically optimized for `std::list` by leveraging node transfer, ensuring optimal performance.\n\n**Requirements and Behavior:**\n1. **Prerequisite:** Both the calling list and the source list must be sorted according to the same comparison criterion (default is `std::less<T>`) prior to calling `merge`.\n2. **Result:** The resulting list is a single, sorted list containing all elements from both sources.\n3. **Source Modification:** The source list passed to `merge` is left empty after the operation. Elements are moved, not copied.\n\n**Technical Details:**\n- **Complexity:** `merge` guarantees linear time complexity, O(N), where N is the total number of elements in both lists. This is a significant advantage over merging other container types (like `std::vector`) which would require O(N) copies/moves plus potential reallocations.\n- **Implementation:** The merge process iterates through both lists simultaneously, comparing elements and using internal pointer manipulation (similar to `splice`) to interleave the nodes into the destination list while maintaining sort order.\n\n**Pitfalls:** If the lists are not sorted before calling `merge`, the resulting list will not be sorted, violating the expected invariant, though the operation remains O(N) and the source list is still emptied.",
+  "code_example": "#include <list>\n#include <algorithm>\n\nint main() {\n    std::list<int> L1 = {0, 2, 4};\n    std::list<int> L2 = {1, 3, 5};\n    \n    // L1 and L2 must be sorted (they are)\n    L1.merge(L2);\n    \n    // L1 is now {0, 1, 2, 3, 4, 5}\n    // L2 is empty\n    \n    if (L2.empty()) {\n        // Success: L2 is empty after merge\n    }\n    // Note: L1.sort() and L2.sort() must precede merge if not guaranteed sorted.\n}",
+  "practical_example": "In a distributed logging system, where multiple threads or processes generate ordered log segments, `std::list::merge()` can be used to efficiently combine these sorted segments into a single, master log stream in guaranteed O(N) time, without the overhead of heap allocations or massive data copying.",
+  "keywords": [
+    "list merge",
+    "sorted union",
+    "O(N) complexity",
+    "node transfer",
+    "sorted container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "155-156",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__merge_8947d5",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

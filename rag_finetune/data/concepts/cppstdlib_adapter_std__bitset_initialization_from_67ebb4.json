@@ -1,0 +1,19 @@
+{
+  "topic": "std::bitset Initialization from Integral Types",
+  "category": "adapter",
+  "explanation": "The `std::bitset<N>::bitset(unsigned long value)` constructor initializes a fixed-size sequence of N bits based on the binary representation of the provided integral value. This mechanism is crucial for using bitset as a fixed-size flag register or state machine.\n\nDefinition:\n1. The bits of the `unsigned long` argument (`value`) are copied directly into the corresponding lowest-order bit positions (LSBs) of the bitset.\n2. If the size N of the bitset is greater than the number of bits in `unsigned long` (typically 32 or 64), the remaining leading (highest-order) bit positions of the bitset are initialized to zero.\n3. If N is smaller than the size of `unsigned long`, only the N LSBs of `value` are used; the higher-order bits of `value` are discarded.\n\nTechnical Details:\n- Requirement: The input must be convertible to `unsigned long`.\n- Complexity: Initialization is O(1) or O(N), typically fast and independent of runtime data size.\n- Pitfall: Using a signed integer that results in a negative value (e.g., `bitset<32>(-1)`) will trigger implicit conversion to `unsigned long`, potentially setting all 32 LSBs, which may not be the intended behavior if the user expected an error or specific bit pattern.",
+  "code_example": "#include <bitset>\n#include <iostream>\n\nint main() {\n    // 7 is binary 000...0111\n    std::bitset<10> flags1(7); \n    // Output: 0000000111\n    std::cout << \"N=10, Value=7: \" << flags1 << \"\\n\";\n    \n    // Value exceeds N, only LSBs are used (15 = 1111)\n    std::bitset<3> flags2(15); \n    // Output: 111\n    std::cout << \"N=3, Value=15: \" << flags2 << \"\\n\";\n    \n    std::bitset<50> flags3; // Default: all zeros\n    std::cout << \"Default: \" << flags3.to_string().substr(0, 10) << \"...\\n\";\n}",
+  "practical_example": "Initializing a hardware control register representation. If the register is 16 bits wide, `std::bitset<16> ctrl(0x5A03);` immediately sets the default configuration required for the device startup, ensuring the correct LSBs are set while higher unused bits remain zero.",
+  "keywords": [
+    "bitset constructor",
+    "unsigned long initialization",
+    "default constructor",
+    "fixed size",
+    "integral conversion"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "402",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_initialization_from_67ebb4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "std::map::operator[] Insertion Semantics and Complexity",
+  "category": "container",
+  "explanation": "The `std::map::operator[]` (subscript operator) provides convenient access but fundamentally differs from array indexing by performing an implicit insertion operation. When called with a key that does not exist in the map, the operator automatically inserts a new element into the container. This new element uses the provided key and a value initialized by the default constructor of the mapped type (`T`).\n\n**Technical Details:**\n1. Search Phase: The map searches for the key (O(log N)).\n2. Insertion Phase (if key missing): A new node is constructed in place using the key and `T()` (the default-constructed value).\n3. Return Value: The operator returns an lvalue reference to the mapped value of the (newly inserted or existing) element.\n\n**Complexity:** Both search and insertion require logarithmic time complexity, O(log N), due to the underlying balanced binary search tree structure.\n\n**Usage:** This mechanism is preferred for insertion combined with immediate assignment, as it is often cleaner than using `insert()` or `emplace()` when the default constructor is available. Example: `coll[key] = value;`",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    std::map<std::string, int> counts;\n    \n    // 1. Search for \"apple\" (misses).\n    // 2. Insert {\"apple\", 0} (int()).\n    // 3. Assign 10 to the reference.\n    counts[\"apple\"] = 10; \n    \n    // If key exists, only assignment occurs (no new insertion).\n    counts[\"apple\"] = 11;\n    \n    // Size is 1\n    return counts.size(); \n}",
+  "practical_example": "In a frequency counting application, `operator[]` simplifies the logic: `word_counts[word]++;`. If the word is new, it is initialized to 0 then incremented to 1 in a single, atomic conceptual step. Using `find()` and conditional insertion would require more verbose code.",
+  "keywords": [
+    "operator[]",
+    "std::map",
+    "automatic insertion",
+    "logarithmic complexity",
+    "lvalue reference",
+    "map semantics"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "183-184",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__map__operator_c7ab65",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

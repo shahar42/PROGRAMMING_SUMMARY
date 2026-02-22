@@ -1,0 +1,19 @@
+{
+  "topic": "List-Specific Element Removal (`remove` and `remove_if`)",
+  "category": "container",
+  "explanation": "Unlike sequence containers such as `std::vector` or `std::deque`, `std::list` provides dedicated member functions, `remove(val)` and `remove_if(pred)`, to efficiently delete all elements matching a specific value or satisfying a predicate.\n\nPurpose: These member functions encapsulate the logic necessary for removing elements from a linked list structure by adjusting pointers, avoiding the need for the inefficient erase-remove idiom commonly used with sequence containers that lack specialized removal methods.\n\nTechnical Details:\n- Complexity: Both `c.remove(val)` and `c.remove_if(pred)` guarantee linear time complexity, O(N), where N is the size of the list, as they must traverse the container exactly once.\n- Operation: The removal process involves modifying the `next` and `prev` pointers of the surrounding nodes for each removed element. Crucially, this operation does not involve moving or copying the remaining elements.\n- Iterator Invalidation: Only iterators and references pointing to the removed elements are invalidated. Iterators pointing to elements that remain in the list retain their validity.\n\nUsage Guidance: Always prefer the list member functions over `std::remove` followed by `erase` when working with `std::list`, as the latter combination is significantly less performant and unnecessary.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> L = {1, 4, 2, 4, 3, 4};\n    \n    // Efficiently remove all occurrences of '4'\n    L.remove(4); \n    \n    // Efficiently remove all odd numbers (using lambda predicate)\n    L.remove_if([](int x) { return x % 2 != 0; });\n    \n    // Output: 2\n    for (int x : L) {\n        std::cout << x << \" \";\n    }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "In a simulation tracking active tasks, where tasks may finish at any time, using `list::remove_if` allows for quick, single-pass cleanup of all completed tasks without incurring the O(N) cost of element shifting required by array-based containers.",
+  "keywords": [
+    "list remove",
+    "remove_if",
+    "erase-remove idiom",
+    "linear complexity",
+    "node-based container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "154",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_list_specific_element_removal__447def",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

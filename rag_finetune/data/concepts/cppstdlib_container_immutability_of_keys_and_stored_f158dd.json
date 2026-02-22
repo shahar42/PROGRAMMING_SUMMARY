@@ -1,0 +1,20 @@
+{
+  "topic": "Immutability of Keys and Stored Values in Sets",
+  "category": "container",
+  "explanation": "Elements stored in `std::set` and `std::multiset` (and the keys of `std::map` and `std::multimap`) cannot be modified in place. This constraint is fundamental because any change to the element's value might alter its sorting criterion, thereby compromising the container's internal ordering (the binary search tree structure).\n\nInterface Reflection: The container interface enforces this immutability in two ways:\n1. Direct element access is not provided (no `operator[]` or `at()`).\n2. Iterators dereference to a constant value type (i.e., `const T&` for sets and `const Key&` for map keys). Attempting to assign to the dereferenced iterator results in a compilation error.\n\nModification Procedure: To change the effective value of an element, the programmer must perform a two-step process: first, erase the existing element using its iterator, and second, insert a new element with the desired value. This ensures the container re-evaluates the ordering and places the new element correctly in the tree.\n\nPitfalls: Using `const_cast` to bypass the immutability restriction to modify an element is a severe violation of the container's invariants. This leads directly to undefined behavior, as the internal structure of the balanced tree will become corrupt, causing subsequent searches and operations to fail or crash.",
+  "code_example": "#include <set>\n#include <iostream>\n\nint main() {\n    std::set<int> s = {10, 20};\n    auto it = s.find(10);\n    \n    // *it = 15; // ERROR: assignment of read-only location\n    \n    if (it != s.end()) {\n        int old_val = *it;\n        // Correct modification procedure:\n        it = s.erase(it); // Erase old element (O(log N))\n        s.insert(15);     // Insert new element (O(log N))\n        std::cout << \"Modified: 10 -> 15. Set size: \" << s.size() << std::endl;\n    }\n}",
+  "practical_example": "In a simulation tracking unique object states (represented by a set of structs), if an object's state variable (which is part of the key definition) changes, the entire object must be removed and re-inserted. If the state were modified in place, the simulation would fail because the set would no longer be able to locate the object efficiently via its key.",
+  "keywords": [
+    "const iterator",
+    "key immutability",
+    "set modification",
+    "undefined behavior",
+    "ordering constraint",
+    "erase and insert"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "158-159",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_immutability_of_keys_and_stored_f158dd",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

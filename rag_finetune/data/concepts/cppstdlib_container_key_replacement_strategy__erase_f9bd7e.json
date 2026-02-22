@@ -1,0 +1,19 @@
+{
+  "topic": "Key Replacement Strategy (Erase-and-Insert) in Ordered Maps",
+  "category": "container",
+  "explanation": "Since the key component of an element in `std::map` is immutable (due to the `const Key` property), changing the key of an existing element requires a specific, multi-step replacement pattern: locating the old element, extracting its mapped value, inserting a new element using the desired key and the old value, and finally erasing the old element.\n\n**Procedure (Atomic Replacement):**\n1. Use `find(old_key)` to locate the element.\n2. If found, retrieve the value (`pos->second`).\n3. Call `insert(new_key, value)`. This may invalidate the iterator `pos` if the map uses node-based implementation (C++17 and later) and the insertion mechanism internally uses node handles, but since we are about to erase `pos`, this is usually safe.\n4. Call `erase(pos)` using the iterator pointing to the old element.\n\n**Complexity Guarantee:** The entire operation is dominated by the search and insertion steps. For `std::map`, both `find` and `insert` are guaranteed O(log N) complexity. Therefore, changing a key requires O(log N) time complexity, equivalent to a separate deletion and insertion.\n\n**Efficiency Consideration:** This approach ensures the structural integrity of the container is maintained, as the new element is correctly positioned based on the new key's value, and the old element is removed without disturbing the remaining structure.",
+  "code_example": "#include <map>\n#include <string>\n\n// Generic function illustrating the replacement pattern\ntemplate <class Cont>\nbool replace_key (Cont& c, \n                  const typename Cont::key_type& old_key, \n                  const typename Cont::key_type& new_key)\n{\n    auto pos = c.find(old_key);\n    if (pos != c.end()) {\n        // 1. Insert new element using old value\n        c.insert(typename Cont::value_type(new_key, pos->second));\n        // 2. Remove old element\n        c.erase(pos);\n        return true;\n    }\n    return false;\n}",
+  "practical_example": "In database ORM mapping, if a primary key (used as the map key) is updated in the database, the corresponding C++ object must have its map entry updated. Directly modifying the key is impossible; instead, the ORM layer must execute the erase-and-insert sequence to reposition the object correctly within the in-memory map structure.",
+  "keywords": [
+    "key replacement",
+    "erase-and-insert",
+    "O(log N) complexity",
+    "map modification",
+    "container invariant"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "179",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_replacement_strategy__erase_f9bd7e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

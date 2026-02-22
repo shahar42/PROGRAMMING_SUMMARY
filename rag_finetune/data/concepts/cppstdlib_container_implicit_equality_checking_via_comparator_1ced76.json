@@ -1,0 +1,20 @@
+{
+  "topic": "Implicit Equality Checking via Comparator in Sets",
+  "category": "container",
+  "explanation": "In sorted associative containers (`set`, `map`), equality between two elements is not determined by `operator==`. Instead, equality is derived directly from the container's sorting criterion (the SWO-compliant comparator).\n\nTwo elements, `x` and `y`, are considered equivalent (i.e., they occupy the same logical position in the sorted container, preventing the insertion of both into a `std::set`) if and only if:\n\n1. The comparator determines that `x` is NOT less than `y` (i.e., `!op(x, y)` is true), AND\n2. The comparator determines that `y` is NOT less than `x` (i.e., `!op(y, x)` is true).\n\nThis derived equality is critical because it allows the container to function even if `operator==` is not defined or is inconsistent with the sorting order. For `std::set`, if two elements are equivalent by this definition, only one will be stored. For `std::multiset`, both are stored, but they will be adjacent.\n\nPitfall: If a custom comparator only compares a subset of an object's fields (e.g., comparing only the ID of a user object, ignoring the name), the container will treat two objects with the same ID but different names as equal, leading to data loss in a `std::set`.",
+  "code_example": "#include <set>\n#include <string>\n\nstruct User {\n    int id;\n    std::string name;\n};\n\n// Custom comparator that compares only the ID\nstruct CompareUser {\n    bool operator()(const User& a, const User& b) const {\n        return a.id < b.id;\n    }\n};\n\nint main() {\n    std::set<User, CompareUser> user_set;\n    User u1 = {101, \"Alice\"};\n    User u2 = {101, \"Bob\"}; // Same ID, different name\n\n    user_set.insert(u1);\n    user_set.insert(u2); // Insertion fails because: \n                         // !(u1 < u2) && !(u2 < u1) is true.\n                         // The set treats u1 and u2 as equal.\n    \n    // user_set.size() will be 1.\n}",
+  "practical_example": "When using `std::map<Key, Value, CustomComp>`, the custom comparator must be carefully designed. If the comparator treats two distinct keys as equivalent, lookup operations might fail to find the correct value, or insertion might silently fail to update the map.",
+  "keywords": [
+    "derived equality",
+    "set equality",
+    "comparator consistency",
+    "operator==",
+    "equivalent keys",
+    "sorting criterion"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "157",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_implicit_equality_checking_via_comparator_1ced76",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

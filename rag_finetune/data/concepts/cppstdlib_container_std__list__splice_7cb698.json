@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::splice: Constant Time Transfer Operation",
+  "category": "container",
+  "explanation": "The `std::list::splice` member function is used to transfer elements from one list to another, or move elements within the same list, by only manipulating internal list pointers.\n\n**Definition and Purpose:** There are three overloads: transferring the entire list, transferring a single element, or transferring a range `[sourceBeg, sourceEnd)`. Unlike insertion operations in other containers (like `vector::insert`), `splice` performs a structural move rather than copying or moving element values.\n\n**Technical Details (Complexity):** The primary advantage of `splice` is its strict constant time complexity, O(1), regardless of the number of elements being transferred (N) or the size of the lists involved. This is possible because `std::list` is a doubly linked list, allowing pointer redirection to be done in a fixed number of steps.\n\n**Iterator Invalidation Rules:** Splicing is extremely iterator-friendly. Iterators, references, and pointers pointing to the elements being moved remain valid; they simply now refer to the elements within the target list. Iterators in the target list that are not moved also remain valid. The only iterators potentially invalidated are those pointing to the `source` list's structure (e.g., `source.begin()` or `source.end()`) if the entire list is moved.\n\n**Usage and Pitfalls:**\n1. Use `splice` for high-performance merging or partitioning of lists.\n2. When splicing a range internally (self-splice), the insertion position `pos` must not be within the range `[sourceBeg, sourceEnd)` being moved, otherwise the behavior is undefined.\n3. The function is guaranteed not to throw exceptions (`noexcept` in modern C++), ensuring strong exception safety.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> l1 = {1, 2, 3};\n    std::list<int> l2 = {4, 5, 6};\n\n    // O(1) transfer of all elements from l2 to l1 before l1.end()\n    l1.splice(l1.end(), l2);\n    \n    std::cout << \"l1 size: \" << l1.size() << \" (Expected 6)\\n\"; \n    std::cout << \"l2 size: \" << l2.size() << \" (Expected 0)\\n\"; \n    \n    // Self-splice (moving element 3 to the front)\n    auto it_three = l1.begin();\n    std::advance(it_three, 2); // Points to 3\n    l1.splice(l1.begin(), l1, it_three);\n}",
+  "practical_example": "Implementing a custom priority queue or cache where elements must be efficiently moved between a 'waiting' list and an 'active' list (e.g., LRU cache). Splice ensures that the transfer operation does not introduce linear time complexity proportional to the size of the element set.",
+  "keywords": [
+    "list splice",
+    "O(1) complexity",
+    "iterator validity",
+    "pointer manipulation",
+    "list transfer",
+    "noexcept"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "216",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__splice_7cb698",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

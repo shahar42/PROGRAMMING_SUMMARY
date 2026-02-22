@@ -1,0 +1,21 @@
+{
+  "topic": "`auto_ptr` Motivation: Resource Allocation Is Initialization (RAII) for Exception Safety",
+  "category": "util",
+  "explanation": "The primary motivation for introducing `std::auto_ptr` (now deprecated since C++11 and removed in C++17) was to provide a mechanism for enforcing the Resource Allocation Is Initialization (RAII) idiom, specifically to prevent resource leaks (usually dynamically allocated memory) when exceptions are thrown.\n\nDefinition: RAII dictates that acquired resources must be immediately bound to the lifetime of a stack-allocated object. The resource is released in the object's destructor, guaranteeing cleanup when the object goes out of scope, whether normally or due to stack unwinding during exception propagation.\n\nPurpose: Traditional C++ code following the pattern 'Acquire -> Operate -> Free' is vulnerable to leaks if the 'Operate' step throws an exception, bypassing the explicit 'Free' call. `auto_ptr` ensures the acquired resource is freed via its destructor, making resource management exception-safe.\n\nTechnical Details: `auto_ptr` holds a pointer to the resource. Its destructor calls `delete` on the stored pointer. This mechanism ensures deterministic destruction and resource release during stack unwinding. Complexity for acquisition and release is O(1).\n\nPitfalls (The reason for deprecation): `auto_ptr` implements ownership transfer upon copy or assignment. Copying an `auto_ptr` nullifies the source, violating standard copy semantics expected by STL containers and algorithms, leading to subtle bugs and runtime errors if used incorrectly (e.g., passing it by value or storing it in a vector). This is the 'certain kind of problem' it doesn't solve.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct Resource { ~Resource() { std::cout << \"Resource released.\\n\"; } };\n\nvoid vulnerable_function() {\n    Resource* r = new Resource(); // Acquire\n    throw 1; // Exception thrown before explicit delete\n    delete r; // Free (Never reached, causes leak)\n}\n\nvoid safe_function() {\n    // Resource bound to auto_ptr (RAII)\n    std::auto_ptr<Resource> r(new Resource());\n    throw 1; // Destructor called during stack unwind\n    // No explicit delete needed\n}",
+  "practical_example": "In a function opening a file handle and processing data, if the processing fails and throws, a raw file handle might remain open. By wrapping the handle (or a pointer managing it) in an RAII smart pointer like `auto_ptr` (or modern `unique_ptr`), the resource is guaranteed to be closed when the function exits due to the exception.",
+  "keywords": [
+    "auto_ptr",
+    "RAII",
+    "smart pointer",
+    "exception safety",
+    "resource leak",
+    "stack unwinding",
+    "deprecated"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "91-92",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util__auto_ptr__motivation_dd1924",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Container Nonmodifying Operations: The Importance of empty()",
+  "category": "container",
+  "explanation": "Standard containers provide nonmodifying operations like `size()`, `max_size()`, and `empty()` for querying state. While `empty()` is logically equivalent to `size() == 0`, the standard typically guarantees superior performance for `empty()`.\n\nTechnical Details:\n- **Complexity Guarantee:** `c.empty()` is guaranteed to execute in constant time, O(1), for all standard containers (`vector`, `list`, `map`, etc.).\n- **Size Complexity:** While most modern implementations (especially C++11 onwards) ensure `std::list::size()` is also O(1) by caching the size count, historically, or in certain specialized container implementations (like `std::forward_list`), calculating `size()` might require traversing the entire container, resulting in O(N) complexity.\n- **Best Practice:** Always use `c.empty()` to check if a container contains elements. This ensures maximum portability, adherence to the strongest performance guarantees, and clarity, regardless of the container type or implementation specifics regarding size caching.\n- **Comparison Operations:** Containers also define comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`). These comparisons are based on lexicographical element comparison and require the element type to define the necessary comparison operators (e.g., `operator<` for ordering comparisons).",
+  "code_example": "#include <list>\n#include <vector>\n#include <chrono>\n\nint main() {\n    std::list<int> c(100000); // Large list\n    \n    // Preferred check: Guaranteed O(1)\n    if (c.empty()) {\n        // ...\n    }\n    \n    // Avoid relying on O(1) guarantee for size() for linked lists\n    // if portability or strict adherence to minimal complexity is required.\n    if (c.size() == 0) {\n        // ...\n    }\n    \n    // Lexicographical comparison\n    std::vector<int> v1 = {1, 2};\n    std::vector<int> v2 = {1, 3};\n    bool less = (v1 < v2); // True, based on element comparison\n}",
+  "practical_example": "In template code operating on an unknown container type (e.g., a generic sequence), using `c.empty()` guarantees the check will not introduce an accidental O(N) performance hit if the container happens to be a type where size calculation is expensive.",
+  "keywords": [
+    "empty()",
+    "size()",
+    "O(1) complexity",
+    "nonmodifying operations",
+    "lexicographical comparison",
+    "performance guarantee"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "150",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_container_nonmodifying_operations__the_070179",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

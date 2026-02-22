@@ -1,0 +1,20 @@
+{
+  "topic": "Portable Querying of Type Characteristics (`is_signed`, `is_integer`, `is_exact`)",
+  "category": "util",
+  "explanation": "The `std::numeric_limits` class provides a set of static Boolean flags that describe the fundamental characteristics of the numeric type `T` in a portable manner, independent of compiler or architecture.\n\n**`is_signed`:** Indicates whether the type can represent negative values. This is `true` for `int`, `float`, `double`, and `false` for `unsigned int`, `char` (on some platforms), and `bool`.\n\n**`is_integer`:** Indicates whether the type represents integer values (e.g., `int`, `short`, `long`). This is `false` for floating-point types (`float`, `double`).\n\n**`is_exact`:** Indicates whether calculations involving this type produce no rounding errors. This is guaranteed to be `true` for all integer types, reflecting that they store precise mathematical values, but `false` for floating-point types due to their inherent representation limitations.\n\n**Purpose:** These flags are crucial for writing generic algorithms that must behave differently based on whether the input type is integral, floating-point, or capable of representing signed values. They replace potentially non-standard or less explicit checks using type traits or conditional compilation based on type names.\n\n**Technical Details:** These members are static constants defined within the specialized `numeric_limits` template, providing compile-time knowledge about the type.",
+  "code_example": "#include <limits>\n#include <iostream>\n\ntemplate <typename T>\nvoid check_type() {\n    if (std::numeric_limits<T>::is_integer) {\n        std::cout << (std::numeric_limits<T>::is_signed ? \"Signed \" : \"Unsigned \") \n                  << \"Integer. Exact: \" << std::boolalpha \n                  << std::numeric_limits<T>::is_exact << \"\\n\";\n    } else {\n        std::cout << \"Floating Point. Exact: \" << std::boolalpha \n                  << std::numeric_limits<T>::is_exact << \"\\n\";\n    }\n}\n\nint main() {\n    check_type<int>();\n    check_type<unsigned int>();\n    check_type<double>();\n}",
+  "practical_example": "A data serialization library needs to determine if a generic type `T` requires special handling for sign extension or if it can be written directly as a fixed-width integer. Using `std::numeric_limits<T>::is_signed` reliably handles all fundamental types, ensuring portable binary output.",
+  "keywords": [
+    "is_signed",
+    "is_integer",
+    "is_exact",
+    "type characteristics",
+    "portable types",
+    "numeric_limits flags"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "60 (Table 4.2)",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_portable_querying_of_type_characteristics_fbb187",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

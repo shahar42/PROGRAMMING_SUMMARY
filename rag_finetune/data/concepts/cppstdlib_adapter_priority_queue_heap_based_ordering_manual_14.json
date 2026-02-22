@@ -1,0 +1,23 @@
+{
+  "topic": "Priority Queue: Heap-Based Element Ordering and Access",
+  "category": "adapter",
+  "explanation": "`std::priority_queue<T>` is a container adapter that provides priority-based element access rather than FIFO (First-In-First-Out) ordering. Unlike `std::queue`, which returns the oldest inserted element, `priority_queue` always returns the element with the highest priority as determined by a comparison function.\n\nDefinition: The priority queue is implemented using a heap data structure (typically a binary max-heap by default), which ensures that the element with the maximum value is always at the top and can be accessed in O(1) time.\n\nPurpose: Priority queues solve the problem of efficiently managing elements where processing order depends on element value rather than insertion order. This is essential for scheduling algorithms, shortest-path computations (Dijkstra's algorithm), and event-driven simulations.\n\nTechnical Details:\n- Interface: Similar to `std::queue` with `push()`, `top()`, and `pop()` operations.\n- Complexity Guarantees:\n  - `top()`: O(1) - access highest priority element\n  - `push()`: O(log n) - insert element and maintain heap property\n  - `pop()`: O(log n) - remove top element and reheapify\n- Default Container: Uses `std::vector<T>` as the underlying container (unlike queue which uses deque).\n- Default Comparison: Uses `std::less<T>`, creating a max-heap (largest element has highest priority).\n- Customizable: Can provide custom comparison function for different priority semantics (e.g., `std::greater<T>` for min-heap).\n\nUsage: Elements are inserted with `push()`. The `top()` operation retrieves (but does not remove) the highest-priority element. The `pop()` operation removes it. Unlike the custom queue wrapper example, standard `priority_queue::pop()` does not return a value.\n\nPitfalls:\n1. No Random Access: Cannot access elements other than the top; no iteration support.\n2. No Removal by Value: Cannot remove a specific element; only the top can be removed.\n3. Undefined Behavior on Empty: Like `std::queue`, calling `top()` or `pop()` on an empty priority queue is undefined behavior.\n4. Comparison Semantics: The default `std::less<T>` creates a max-heap (largest on top), which may be counterintuitive for those expecting smallest-first ordering.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <iostream>\n\nint main() {\n    // Max-heap (default): largest element has highest priority\n    std::priority_queue<int> maxHeap;\n    maxHeap.push(30);\n    maxHeap.push(10);\n    maxHeap.push(50);\n    maxHeap.push(20);\n    \n    std::cout << \"Max-heap top: \" << maxHeap.top() << std::endl; // 50\n    maxHeap.pop();\n    std::cout << \"After pop: \" << maxHeap.top() << std::endl;    // 30\n    \n    // Min-heap: smallest element has highest priority\n    std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;\n    minHeap.push(30);\n    minHeap.push(10);\n    minHeap.push(50);\n    \n    std::cout << \"Min-heap top: \" << minHeap.top() << std::endl; // 10\n}",
+  "practical_example": "In a task scheduler for an operating system, jobs arrive with different priority levels. Using a `std::priority_queue<Task, std::vector<Task>, TaskComparator>` where the comparator orders by priority level, the scheduler can efficiently retrieve and execute the highest-priority task in O(1) time, while new tasks are inserted in O(log n) time, maintaining optimal scheduling performance even with thousands of pending tasks.",
+  "keywords": [
+    "priority_queue",
+    "heap",
+    "max-heap",
+    "min-heap",
+    "priority",
+    "std::less",
+    "std::greater",
+    "O(log n) insertion",
+    "scheduling"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "393",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_priority_queue_heap_based_ordering_manual_14",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

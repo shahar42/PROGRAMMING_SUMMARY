@@ -1,0 +1,20 @@
+{
+  "topic": "Associative Container Key Immutability and `value_type` Definition",
+  "category": "container",
+  "explanation": "In ordered associative containers (`std::map`, `std::multimap`), the key component of an element must remain immutable once inserted. This is a fundamental requirement to maintain the container's internal structure (typically a balanced search tree) which relies on the key's value for ordering.\n\n**Technical Definition:** The `value_type` for `std::map<Key, T>` is defined as `std::pair<const Key, T>`. When iterating through the map, dereferencing the iterator (`*pos`) yields an object of this type. The `const` qualification on the key type prevents modification via the iterator.\n\n**Access and Mutability:**\n1. `pos->first` (the key) is immutable, and attempting assignment results in a compile-time error.\n2. `pos->second` (the mapped value) is mutable, allowing in-place modification, provided the type `T` is not constant itself.\n\n**Purpose:** Enforcing key immutability guarantees that the ordering invariant of the tree is never violated by element modification, preventing corruption and ensuring O(log N) lookup complexity is maintained. If modification were allowed, the container would need a costly manual rebalancing operation or would enter an inconsistent state.\n\n**Pitfalls:** Programmers often mistakenly try to change a key in place, leading to immediate compile failure or, in older non-standard compliant libraries, potential runtime corruption if the `const` requirement was bypassed.",
+  "code_example": "#include <map>\n#include <string>\n\nint main() {\n    std::map<std::string, float> coll = {\n        {\"old_key\", 10.0f}\n    };\n    \n    auto pos = coll.begin();\n    \n    // 1. Changing the mapped value is OK\n    pos->second = 13.5f; // Compiles and modifies value\n    \n    // 2. Changing the key is a compile-time ERROR\n    // pos->first = \"new_key\"; \n    // Error: assignment of read-only member 'std::pair<const Key, T>::first'\n}",
+  "practical_example": "When implementing a cache or registry where entries are looked up by a string identifier, the identifier (key) must be stable. If a program needs to update the identifier, it must treat the old key/value pair as logically deleted and insert a new pair, rather than attempting in-place modification.",
+  "keywords": [
+    "map key immutability",
+    "const key",
+    "value_type",
+    "std::pair<const Key, T>",
+    "ordering invariant",
+    "compile-time error"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "178-179",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_key_immutability_and_f204d9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

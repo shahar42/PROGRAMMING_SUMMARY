@@ -1,0 +1,21 @@
+{
+  "topic": "Container Adapter Underlying Container Requirements and Choice",
+  "category": "adapter",
+  "explanation": "Container adapters (`std::stack`, `std::queue`, `std::priority_queue`) restrict the interface of an underlying sequence container, which is specified as the second template parameter. The underlying container must satisfy specific interface requirements corresponding to the adapter's intended behavior (LIFO for stack, FIFO for queue).\n\n**Requirements for `std::stack`**:\nThe underlying container `C` must provide the following constant-time complexity operations:\n1. Insertion at the back: `C::push_back(const T&)`\n2. Removal from the back: `C::pop_back()`\n3. Access to the back element: `C::back()`\n\n**Container Choice**:\n- **`std::deque<T>`**: The default choice. Offers excellent performance (amortized O(1)) and avoids the full reallocation overhead associated with `std::vector` when size exceeds capacity.\n- **`std::vector<T>`**: Suitable, but growth requires reallocation, which can invalidate all existing iterators and references (though stack only uses the back). Requires careful use of `reserve()` for performance predictability.\n- **`std::list<T>`**: Suitable, as it supports O(1) `push_back`, `pop_back`, and `back`, but generally has higher memory overhead and worse cache performance than contiguous or chunked alternatives.\n\nExplicitly selecting the container allows optimization based on memory footprint, performance requirements, and cache locality.",
+  "code_example": "#include <stack>\n#include <vector>\n#include <list>\n\n// Use default (std::deque)\nstd::stack<int> s1;\n\n// Explicitly use std::vector for better cache locality\nstd::stack<int, std::vector<int>> s2;\n\n// Explicitly use std::list (valid, usually slower)\nstd::stack<int, std::list<int>> s3;\n\nint main() {\n    s2.push(42);\n    s3.push(99);\n}",
+  "practical_example": "When implementing a stack on a highly memory-constrained embedded system where predictable allocation is crucial, choosing `std::vector` and pre-reserving the maximum expected size guarantees contiguous memory usage and prevents the dynamic, chunked allocation behavior of `std::deque`.",
+  "keywords": [
+    "underlying container",
+    "std::deque",
+    "std::vector",
+    "std::list",
+    "adapter requirements",
+    "LIFO interface",
+    "template parameter"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "384",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_container_adapter_underlying_container_requirements_c2a2fe",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

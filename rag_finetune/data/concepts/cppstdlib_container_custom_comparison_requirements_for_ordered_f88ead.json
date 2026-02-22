@@ -1,0 +1,20 @@
+{
+  "topic": "Custom Comparison Requirements for Ordered Associative Containers",
+  "category": "container",
+  "explanation": "Ordered associative containers (`std::map`, `std::set`, etc.) require a comparison object (the third template parameter, defaulting to `std::less<Key>`) that establishes a **strict weak ordering** over the key type. This comparison object determines the internal structure (typically a red-black tree) and defines key uniqueness.\n\n**Technical Details & Requirements:**\n1.  **Strict Weak Ordering:** The predicate must satisfy irreflexivity, asymmetry, and transitivity. Failure to adhere to these rules results in undefined behavior (e.g., corrupted tree structure).\n2.  **Equivalence:** Two keys `a` and `b` are considered equivalent (i.e., only one can exist in a unique container like `std::map` or `std::set`) if and only if `comp(a, b)` is false AND `comp(b, a)` is false.\n3.  **Interface:** The comparator must be callable with two constant key references and return a `bool`. The `operator()` must be declared `const`.\n4.  **Storage:** The container stores a copy of the comparator object. If the comparator is stateful (as demonstrated by `RuntimeStringCmp`), the state is fixed at container construction time.\n\n**Pitfalls:** If the custom comparison is unstable or violates strict weak ordering (e.g., if it relies on mutable state outside the object or uses non-transitive logic), the container's integrity is compromised, leading to unpredictable insertion and lookup behavior.",
+  "code_example": "#include <map>\n#include <string>\n#include <functional>\n\n// Custom comparator implementing strict weak ordering\nstruct ReverseStringCmp {\n    bool operator()(const std::string& s1, \n                    const std::string& s2) const {\n        // s1 comes before s2 if s1 > s2 (reverse alphabetical)\n        return s1 > s2;\n    }\n};\n\nint main() {\n    // The map keys will be ordered descendingly\n    std::map<std::string, int, ReverseStringCmp> m;\n    m[\"apple\"] = 1;\n    m[\"zebra\"] = 2;\n    // Iteration yields: \"zebra\", \"apple\"\n}",
+  "practical_example": "When implementing a custom data structure (like case-insensitive string maps or maps keyed by complex objects where only a subset of fields should determine uniqueness), specifying a custom comparator ensures the container handles comparison and equivalence correctly, avoiding the need for wrapper types or manual hashing.",
+  "keywords": [
+    "strict weak ordering",
+    "std::map comparator",
+    "std::set predicate",
+    "key equivalence",
+    "custom functor",
+    "associative container requirements"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "189",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_custom_comparison_requirements_for_ordered_f88ead",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

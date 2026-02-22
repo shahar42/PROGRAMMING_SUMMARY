@@ -1,0 +1,19 @@
+{
+  "topic": "std::pair Converting Constructor and Implicit Type Handling",
+  "category": "util",
+  "explanation": "The `std::pair` class template provides both an implicitly generated default copy constructor and a template converting constructor. The standard guarantees that the implicitly generated copy constructor (used when source and target types match exactly) is not hidden by the presence of the template constructor.\n\nDefinition: The template converting constructor allows initialization from a pair of potentially different but convertible types (U1, U2).\n\nTechnical Details:\n- If `std::pair<T1, T2>` is copied from `std::pair<T1, T2>`, the default copy constructor is used.\n- If `std::pair<T1, T2>` is initialized from `std::pair<U1, U2>` where `U1` is convertible to `T1` and `U2` is convertible to `T2` (but the types are not identical), the template constructor is invoked to perform the conversion.\n\nPurpose: This design ensures seamless interoperability when pairs are passed between functions requiring slightly different but compatible types (e.g., passing `pair<int, const char*>` to a function expecting `pair<const int, std::string>`). This behavior is essential for flexibility in generic programming.\n\nPitfalls: Relying on implicit conversions might hide expensive operations if the constructors of T1 or T2 involve significant overhead (e.g., converting a raw pointer to a smart pointer or a C-string to `std::string`).",
+  "code_example": "#include <utility>\n#include <string>\n\nvoid g(std::pair<const int, std::string> p) { /* ... */ }\n\nint main() {\n    std::pair<int, const char*> p(42, \"hello\");\n    \n    // 1. Calls default copy constructor (types match exactly)\n    std::pair<int, const char*> p_copy = p;\n    \n    // 2. Calls template converting constructor (int -> const int, const char* -> std::string)\n    g(p); \n    \n    return 0;\n}",
+  "practical_example": "When using key-value pairs in APIs, such as returning a pair of iterators (where one might be const and the other non-const, or where a temporary C-string needs to be converted into a persistent std::string member of a struct), the converting constructor simplifies interface design by accepting convertible types directly.",
+  "keywords": [
+    "pair conversion",
+    "template constructor",
+    "default copy constructor",
+    "implicit conversion",
+    "std::pair"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "38",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__pair_converting_constructor_940d09",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

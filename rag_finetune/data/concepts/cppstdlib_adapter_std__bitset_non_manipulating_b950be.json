@@ -1,0 +1,22 @@
+{
+  "topic": "std::bitset Non-Manipulating Query Operations and Complexity",
+  "category": "adapter",
+  "explanation": "`std::bitset` provides several constant-time or linear-time query operations to inspect its state without altering the bit values. These functions are essential for checking properties like population count or overall state.\n\n**Key Query Functions:**\n1. **`size_t size() const`:** Returns the fixed number of bits, equal to the template parameter `N`. This is a compile-time constant, effectively O(1).\n2. **`size_t count() const`:** Returns the number of set bits (bits with value 1). This is often referred to as the Hamming weight or population count. Its theoretical complexity is O(N) where N is the number of bits, but modern implementations often use highly optimized algorithms or hardware instructions (e.g., POPCNT) to approach constant time for typical machine word sizes.\n3. **`bool any() const`:** Returns `true` if at least one bit is set (i.e., `count() > 0`).\n4. **`bool none() const`:** Returns `true` if no bit is set (i.e., `count() == 0`).\n5. **`bool test(size_t idx) const`:** Returns the value of the bit at position `idx`. This is an O(1) operation.\n\n**Error Handling for `test()`:**\n- `test()` throws `std::out_of_range` if the provided index `idx` is greater than or equal to `size()`. Unlike array access, bounds checking is mandatory for `test()`.\n\n**Comparison:**\n- `operator==` and `operator!=` perform a bitwise comparison across all `N` bits. Complexity is O(N).",
+  "code_example": "#include <bitset>\n#include <stdexcept>\n#include <iostream>\n\nint main() {\n    std::bitset<8> flags(\"10110001\");\n\n    // Query Operations\n    std::cout << \"Size: \" << flags.size() << \"\\n\";\n    std::cout << \"Count (set bits): \" << flags.count() << \"\\n\"; // Output: 4\n    std::cout << \"Any set? \" << flags.any() << \"\\n\"; // Output: 1 (true)\n    \n    // Test specific bit\n    if (flags.test(7)) {\n        std::cout << \"Bit 7 is set.\\n\";\n    }\n\n    try {\n        flags.test(8); // Index 8 is out of range for bitset<8>\n    } catch (const std::out_of_range& e) {\n        std::cerr << \"Error: Index out of range.\\n\";\n    }\n}",
+  "practical_example": "In protocol parsing, a fixed-size header often uses specific bits as flags (e.g., ACK, SYN, FIN). `bitset::test(idx)` provides efficient, bounds-checked access to check individual flags, while `bitset::count()` can be used to quickly determine the sparsity or density of active features.",
+  "keywords": [
+    "bitset count",
+    "population count",
+    "test",
+    "any",
+    "none",
+    "size",
+    "complexity",
+    "out_of_range"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "403",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_non_manipulating_b950be",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

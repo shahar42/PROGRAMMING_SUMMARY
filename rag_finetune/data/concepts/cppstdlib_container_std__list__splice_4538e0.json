@@ -1,0 +1,20 @@
+{
+  "topic": "std::list::splice() for O(1) Node Transfer",
+  "category": "container",
+  "explanation": "The `std::list::splice()` member functions provide a mechanism to move elements (or ranges of elements) between lists, or within the same list, by simply redirecting internal node pointers. This operation is unique to linked containers (`std::list` and `std::forward_list`) and guarantees constant time complexity (O(1)) for the pointer manipulations, regardless of the total size of the lists involved, provided the number of elements being moved is known or the range is supplied.\n\nPurpose: `splice()` avoids copying or moving element values (unlike inserting elements from one vector into another). It is used when efficient structural modification and transfer of ownership are required.\n\nTechnical Details:\n1.  **Complexity:** O(1) for moving a single element or all elements of the source list. O(N) where N is the number of elements in the range `[c2beg, c2end)` for range splice, but this O(N) complexity is due only to iterating the range, not copying data.\n2.  **Iterator Validity:** Iterators pointing to the moved elements remain valid and continue to point to the same elements, but they are now associated with the target list (c1).\n3.  **Requirements:** Both lists (`c1` and `c2`) must be of the exact same type (same element type, same allocator type). Splice operations modify both the source and destination lists.\n\nUsage: Used for merging lists, rotating elements, or efficiently partitioning a list without requiring element construction/destruction.\n\nPitfalls: If the source and destination lists share the same allocator but are of different types (e.g., different custom comparison functions in a map), `splice` cannot be used. Care must be taken to ensure iterators used to define the source range are valid and belong to the source list.",
+  "code_example": "#include <list>\n#include <iostream>\n\nint main() {\n    std::list<int> l1 = {1, 2, 3};\n    std::list<int> l2 = {4, 5, 6};\n    \n    // Move all of l2 to the beginning of l1 (O(1))\n    l1.splice(l1.begin(), l2);\n    \n    // l1 is now {4, 5, 6, 1, 2, 3}, l2 is empty\n    \n    std::list<int> l3 = {7, 8, 9};\n    auto it_8 = std::next(l3.begin()); // Iterator pointing to 8\n    \n    // Move element '8' from l3 to the end of l1 (O(1))\n    l1.splice(l1.end(), l3, it_8);\n    // l1: {4, 5, 6, 1, 2, 3, 8}\n    // l3: {7, 9}\n}",
+  "practical_example": "Implementing a custom priority scheduler where tasks are moved between 'Waiting,' 'Running,' and 'Completed' lists. Using `splice()` ensures that moving a task object from the Waiting list to the Running list is instantaneous (O(1)) regardless of the number of tasks currently waiting, avoiding unnecessary copies or memory allocation overhead.",
+  "keywords": [
+    "list splice",
+    "O(1) complexity",
+    "node relinking",
+    "iterator stability",
+    "transfer ownership",
+    "linked list"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "153-154",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_std__list__splice_4538e0",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

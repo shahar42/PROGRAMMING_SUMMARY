@@ -1,0 +1,21 @@
+{
+  "topic": "Precondition Violation in priority_queue::top() and pop()",
+  "category": "adapter",
+  "explanation": "Accessing or removing elements from an empty `std::priority_queue` via `top()` or `pop()` constitutes a precondition violation, resulting in Undefined Behavior (UB). The C++ Standard Library generally mandates that the caller ensure the container is not empty before performing operations that require an existing element.\n\nTechnical Details:\n1. **Precondition:** The invariant `priority_queue::size() > 0` must hold before calling `top()` or `pop()`.\n2. **Behavior:** If the precondition is violated, the program exhibits UB, which might manifest as a crash, corrupted memory, or non-deterministic behavior.\n3. **Checking:** The preferred method for checking emptiness is `empty()`, as the standard suggests it may be implemented more efficiently (O(1)) than checking `size() > 0` (though both are typically O(1) for adapters).\n\nUsage Guidance: Always guard `top()` and `pop()` calls with a check to `empty()` to maintain correctness and robustness. Since `priority_queue` is an adapter, it does not offer bounds-checking methods like `std::vector::at()`, meaning user responsibility for precondition checks is absolute.\n\nPitfalls: Unlike some containers (like `std::map::at()`), standard STL container element access functions like `top()`, `front()`, and `back()` do not throw exceptions upon precondition violation; they immediately result in UB.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <iostream>\n\nvoid safe_access(std::priority_queue<int>& pq) {\n    if (!pq.empty()) { // Mandatory check\n        int max_val = pq.top();\n        std::cout << \"Top: \" << max_val << std::endl;\n        pq.pop();\n    } else {\n        std::cerr << \"Error: Queue is empty.\\n\";\n    }\n    \n    // DANGER: Undefined Behavior if called on empty queue\n    // pq.top(); \n}",
+  "practical_example": "In message processing queues where incoming data is handled, failing to check `empty()` before calling `pop()` on a `priority_queue` can lead to intermittent crashes when the queue temporarily empties between processing steps, especially under high concurrency or unpredictable input rates.",
+  "keywords": [
+    "priority_queue",
+    "undefined behavior",
+    "precondition",
+    "empty()",
+    "top()",
+    "pop()",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "399",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_precondition_violation_in_priority_queue_443e58",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "Guaranteed O(1) Complexity for std::list::swap",
+  "category": "container",
+  "explanation": "The `std::list` container provides a guaranteed constant time complexity, O(1), for both its member function `c1.swap(c2)` and the non-member function `std::swap(c1, c2)`. This guarantee holds regardless of the number of elements contained in the lists.\n\nMechanism: Because `std::list` is a linked structure, the container itself only stores metadata, such as pointers to the head and tail nodes, and the current size. Swapping two lists does not involve moving or copying any individual elements; it only requires exchanging these few internal pointers and the size counter. This pointer-swapping operation is highly efficient and guaranteed `noexcept`.\n\nTechnical Details:\n- Complexity: O(1) (Constant time).\n- Exception Safety: Guaranteed `noexcept` (does not throw exceptions).\n- Behavior: The elements themselves remain in the same memory locations, but their ownership and association are transferred instantly between the two container objects.\n\nComparison: This O(1) guarantee is a significant advantage, especially when dealing with very large containers, over sequence containers like `std::vector` if they were designed poorly (though modern `std::vector` swaps are also O(1) due to standardized move semantics and specialization). However, the O(1) nature of `std::list::swap` is fundamental to its structure, offering reliable performance for container exchange operations, making it ideal for implementing structures like double-buffering or quick state resets.",
+  "code_example": "#include <list>\n#include <iostream>\n#include <utility>\n\nvoid print_swap_status(const std::list<int>& l, const std::string& name) {\n    std::cout << name << \" size: \" << l.size() << \", front: \" \n              << (l.empty() ? \"(empty)\" : std::to_string(l.front())) << \"\\n\";\n}\n\nint main() {\n    std::list<int> l1 = {1, 2, 3, 4000000}; // Large list\n    std::list<int> l2 = {99, 100};\n\n    // O(1) operation, regardless of size\n    l1.swap(l2);\n    \n    print_swap_status(l1, \"L1\"); // L1 now has {99, 100}\n    print_swap_status(l2, \"L2\"); // L2 now has {1, 2, 3, 4000000}\n}",
+  "practical_example": "In a memory manager or custom allocator, efficiently exchanging the free lists (lists of available memory blocks) between two threads or between a temporary state and the global state is crucial. Using `std::list::swap` ensures that this exchange is instantaneous, preventing long lock times or performance bottlenecks associated with copying large amounts of data.",
+  "keywords": [
+    "swap",
+    "std::list::swap",
+    "O(1) complexity",
+    "constant time",
+    "noexcept",
+    "list assignment"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "Table 6.14",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_guaranteed_o_1__complexity_1e1319",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

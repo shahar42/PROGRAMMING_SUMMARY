@@ -1,0 +1,22 @@
+{
+  "topic": "STL Design Philosophy: Performance and Undefined Behavior on Precondition Violation",
+  "category": "exception",
+  "explanation": "The C++ Standard Library (STL) adopts a design philosophy prioritizing performance and zero-overhead abstraction. This means that standard container operations generally omit runtime checks for preconditions, placing the burden of correctness entirely upon the caller.\n\n**Definition:** A precondition is a requirement that must be met before an operation is called (e.g., an iterator must be valid, an index must be within bounds, a map key must exist for certain access patterns). If the caller violates a precondition, the resulting behavior is formally **Undefined Behavior (UB)** according to the C++ standard.\n\n**Technical Details:** The STL typically does not throw exceptions for internal requirement violations (like accessing `v.at(10)` when `v.size() < 10`, though `std::vector::at()` is a notable exception designed specifically to check bounds). For instance, using an invalidated iterator or accessing an array via `operator[]` out of bounds results in UB. This choice guarantees that the library functions execute as fast as possible without the overhead of bounds checking or state verification.\n\n**Exception Handling:** Exceptions are generally reserved for:\n1. Resource exhaustion (e.g., `std::bad_alloc`).\n2. User-defined operations (e.g., a constructor or comparison operator used by the container throws an exception).\n3. Specific 'safe' accessors (like `std::vector::at()` or `std::deque::at()`).\n\n**Pitfalls and Debugging:** Relying on implicit checks or expecting exceptions for precondition violations is a major pitfall. Debugging tools and special debug builds of the STL often insert assertions to catch UB (e.g., using `_GLIBCXX_DEBUG` with GCC), but these checks disappear in optimized release builds, potentially hiding critical bugs until deployment.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v = {1, 2, 3};\n    \n    // Correct access (precondition met)\n    std::cout << v[1] << std::endl; \n    \n    // Undefined Behavior: Index out of bounds\n    // No exception guaranteed by operator[]\n    // std::cout << v[100] << std::endl; \n    \n    // Safe access (throws exception if precondition violated)\n    try {\n        std::cout << v.at(100) << std::endl;\n    } catch (const std::out_of_range& e) {\n        std::cerr << \"Caught exception (safe accessor): \" << e.what() << std::endl;\n    }\n}",
+  "practical_example": "In high-frequency trading systems, performance is paramount. Using `std::vector::operator[]` instead of `std::vector::at()` is standard practice. The developer assumes the responsibility of guaranteeing index validity, accepting the risk of silent memory corruption (UB) if an index bug occurs, in exchange for avoiding the necessary bounds check overhead on every access.",
+  "keywords": [
+    "undefined behavior",
+    "precondition",
+    "runtime checks",
+    "exception safety",
+    "operator[]",
+    "at()",
+    "performance optimization",
+    "STL safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "130 (Point 3)",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_exception_stl_design_philosophy__performance_b8aeda",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

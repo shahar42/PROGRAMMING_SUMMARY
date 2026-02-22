@@ -1,0 +1,22 @@
+{
+  "topic": "Non-Mutating Bitwise Operations in std::bitset",
+  "category": "container",
+  "explanation": "The C++ Standard Library defines several global and member bitwise operators for `std::bitset` that are non-mutating, meaning they calculate the result of the operation and return a completely new `std::bitset<bits>` object, leaving the operands unchanged.\n\nTechnical Details:\n1. **Unary Complement (`operator~()`):** Returns a new bitset where all bits are toggled. This is a member function.\n2. **Shift Operators (`operator<<`, `operator>>`):** Return a new bitset shifted by `num` positions. These are member functions.\n3. **Binary Operators (`operator&`, `operator|`, `operator^`):** Defined as non-member global functions taking two constant `bitset` references and returning a new bitset representing the result of AND, OR, or XOR.\n\nComplexity:\nThese operations typically require iterating over the underlying storage units of the bitset. Thus, the complexity is generally linear with respect to the number of required storage words, often denoted as `O(N/W)` where N is the number of bits and W is the word size of the underlying type (e.g., `unsigned long`).\n\nUsage Guidance:\nThese value-returning operators are essential for functional programming patterns, where immutability of source data is preferred, or when composing complex intermediate masks without altering the original masks. They contrast sharply with the compound assignment operators (`&=`, `|=`, `^=`, `<<=`, `>>=`), which perform the operation in-place and modify `*this`.\n\nPitfalls:\nPerformance overhead can occur if temporary bitsets are created unnecessarily in tight loops. If the goal is mutation, the compound assignment operators (`&=`, `|=`) should be preferred as they avoid the cost of constructing a new bitset object.",
+  "code_example": "#include <bitset>\n#include <iostream>\n\nint main() {\n    std::bitset<8> b1(0b11001100);\n    std::bitset<8> b2(0b10101010);\n    \n    // Non-mutating AND operation\n    std::bitset<8> b_and = b1 & b2; \n    \n    // Non-mutating complement\n    std::bitset<8> b_not = ~b1;\n    \n    // Non-mutating left shift\n    std::bitset<8> b_shift = b1 << 2;\n    \n    // Check immutability (b1 remains 11001100)\n    // std::cout << b1.to_string() << std::endl; \n    // std::cout << b_and.to_string() << std::endl; // 10001000\n    \n    // Contrast with Mutating operation:\n    // b1 &= b2; // b1 would be modified here\n}",
+  "practical_example": "In networking protocols, flags often need to be checked against a mask (e.g., determining which features are supported by a peer). Using non-mutating operators like `(received_flags & supported_mask)` ensures that the original `received_flags` variable remains pristine for subsequent checks or logging, aligning with robust data handling principles.",
+  "keywords": [
+    "bitwise operators",
+    "non-mutating",
+    "operator&",
+    "operator|",
+    "operator^",
+    "operator~",
+    "shift operators",
+    "bitset performance"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "406-407",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_container_non_mutating_bitwise_operations_in_e1f778",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

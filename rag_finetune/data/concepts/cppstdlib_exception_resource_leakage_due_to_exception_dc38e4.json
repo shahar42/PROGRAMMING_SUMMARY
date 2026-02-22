@@ -1,0 +1,20 @@
+{
+  "topic": "Resource Leakage Due to Exception Stack Unwinding",
+  "category": "exception",
+  "explanation": "A primary danger of using raw pointers and manual resource acquisition (`new`) is the failure to guarantee resource release when an exception occurs, leading to resource leaks (e.g., memory leaks).\n\nMechanism: When an exception is thrown, the C++ runtime performs stack unwinding. This process bypasses all instructions between the throw point and the nearest catching block. If a resource release instruction (like `delete ptr;`) is positioned after the throw point but before the end of the function, it will not be executed.\n\nGuarantees Violated: This violates the principle of exception safety, specifically the basic guarantee (that resources are not leaked, even if the operation fails).\n\nTechnical Details: This issue is specific to explicit resource management using pointers that do not have associated destructors. The leak occurs because the pointer itself (the local variable) is destroyed correctly, but the resource it points to remains allocated and inaccessible.\n\nMitigation: The only robust way to avoid this leak without using RAII wrappers is to manually wrap all potentially throwing operations in a `try-catch` block that explicitly performs cleanup before rethrowing the exception. This is complex and redundant.",
+  "code_example": "#include <iostream>\n\nclass ClassA { public: ~ClassA() { std::cout << \"Destroyed\\n\"; } };\n\nvoid leaky_f() {\n    ClassA* ptr = new ClassA; // Acquire resource\n    std::cout << \"Allocated\\n\";\n    \n    // If exception occurs here, stack unwinds...\n    throw 42;\n    \n    // ...this line is never reached, resource leaks.\n    delete ptr; \n}\n\nint main() {\n    try {\n        leaky_f();\n    } catch (...) {\n        // Catching the exception\n    }\n    // Output shows 'Allocated' but not 'Destroyed'\n    // Memory is leaked.\n}\n",
+  "practical_example": "A function that allocates a large temporary buffer using `new[]` and then calls an external library function that might throw. If the buffer is not wrapped in a smart array pointer (`std::unique_ptr<T[]>`), the buffer memory will be permanently lost if the external call fails.",
+  "keywords": [
+    "memory leak",
+    "resource leak",
+    "stack unwinding",
+    "exception safety failure",
+    "raw pointer danger",
+    "delete"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "Chunk 6",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_exception_resource_leakage_due_to_exception_dc38e4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

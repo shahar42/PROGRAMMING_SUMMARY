@@ -1,0 +1,21 @@
+{
+  "topic": "Legacy RAII Implementation via std::auto_ptr for Member Cleanup",
+  "category": "util",
+  "explanation": "`std::auto_ptr` (available in C++98/03, deprecated in C++11, removed in C++17) provided a simple, mandatory-move RAII wrapper for single ownership of dynamically allocated objects. Its primary utility, demonstrated here, is simplifying class design by eliminating the need for an explicit destructor solely dedicated to releasing dynamically allocated member resources.\n\n**Mechanism:** When a class member is defined as an `std::auto_ptr<T>`, its destructor is automatically invoked when the containing object is destroyed (either normally or during exception-driven stack unwinding). This destructor, in turn, calls `delete` on the managed pointer, guaranteeing resource release and solving the resource leak problem inherent to raw pointers in constructors.\n\n**Usage Note:** Due to its flawed, non-standard copy semantics (copying an `auto_ptr` performs a destructive move, invalidating the source), `auto_ptr` is unsafe for use in standard containers and function returns. It was superseded by `std::unique_ptr`, which uses explicit move semantics (C++11).\n\n**Requirement:** When used as a member, it often needs to be declared `const std::auto_ptr<T>` if the class relies on the implicit copy constructor/assignment operator, as the standard library implementation of `auto_ptr`'s copy constructor has moving behavior, which violates standard class invariants unless move semantics are specifically handled.",
+  "code_example": "#include <memory>\n\nclass ClassA {};\n\nclass ClassB_Safe {\nprivate:\n    // Using auto_ptr ensures delete is called upon destruction\n    const std::auto_ptr<ClassA> ptr1;\n    const std::auto_ptr<ClassA> ptr2;\npublic:\n    // No explicit destructor needed for ptr1/ptr2 cleanup.\n    // If new ClassA() for ptr2 throws, ptr1's destructor runs.\n    ClassB_Safe() : ptr1(new ClassA()), ptr2(new ClassA()) {}\n    // ~ClassB_Safe() {} // Unnecessary\n};\n",
+  "practical_example": "In legacy C++98 code, large classes managing dozens of internal heap structures relied on `auto_ptr` members to simplify the 'Rule of Three' implementation. By using `auto_ptr`, the programmer only had to worry about defining the copy constructor and assignment operator for deep copies, as the destructor was handled automatically.",
+  "keywords": [
+    "auto_ptr",
+    "smart pointer",
+    "RAII",
+    "exception safety",
+    "deprecated",
+    "unique_ptr predecessor",
+    "resource management"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "46-47",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_legacy_raii_implementation_via_std_5a70c5",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

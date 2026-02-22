@@ -1,0 +1,20 @@
+{
+  "topic": "Associative Container Erasure by Value and Return Count",
+  "category": "container",
+  "explanation": "For associative containers (`set`, `multiset`, `map`, `multimap`), the member function `c.erase(const key_type& elem)` removes all elements whose key is equivalent to `elem`. This function is characterized by its specific return type, which differs significantly from sequence container `erase` methods.\n\n**Technical Details:**\n- **Return Value:** `c.erase(elem)` returns a `size_type` representing the *number of elements removed*.\n- **Complexity:** The complexity is typically O(log N + M), where N is the total container size and M is the number of elements removed (0 or 1 for `set`/`map`, and potentially > 1 for `multiset`/`multimap`).\n\n**Usage and Guarantees:**\n1. For `std::set` and `std::map`, the return value is always 0 (if the key is not found) or 1 (if the key is found and removed).\n2. For `std::multiset` and `std::multimap`, the return value can be any integer >= 0, reflecting the number of duplicates removed.\n\n**Pitfalls:** Unlike sequence containers (like `vector` or `list`), where `erase(pos)` returns an iterator to the element following the erased one, the associative container `erase(elem)` returns a count. Using the return value of `erase(elem)` as an iterator (or expecting it to be one) is a common error when transitioning from sequence containers. Iterators pointing to the erased elements are invalidated, but other iterators remain valid.",
+  "code_example": "#include <set>\n#include <map>\n#include <iostream>\n\nint main() {\n    std::multiset<int> ms = {10, 20, 20, 30};\n    std::set<int> s = {10, 20};\n    \n    // Erasure in Multiset (removes duplicates)\n    size_t count_multi = ms.erase(20); \n    std::cout << \"Multiset erased count: \" << count_multi << std::endl; // Output: 2\n\n    // Erasure in Set (removes at most one)\n    size_t count_single = s.erase(10); \n    std::cout << \"Set erased count: \" << count_single << std::endl; // Output: 1\n\n    // Failed erasure\n    size_t count_fail = s.erase(99);\n    std::cout << \"Failed erase count: \" << count_fail << std::endl; // Output: 0\n}",
+  "practical_example": "In a transactional log system implemented using a `std::multimap` to store event IDs, using `erase(event_id)` is the canonical way to remove all occurrences of a specific event ID simultaneously, and the returned count provides immediate feedback on how many log entries were successfully retired.",
+  "keywords": [
+    "erase by value",
+    "associative container erase",
+    "return count",
+    "multiset erase",
+    "map erase",
+    "complexity O(log N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "164",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_associative_container_erasure_by_value_ff8563",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

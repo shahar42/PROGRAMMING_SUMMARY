@@ -1,0 +1,22 @@
+{
+  "topic": "Querying and Accessing Floating-Point Special Values (NaN, Infinity, Denormals)",
+  "category": "util",
+  "explanation": "`std::numeric_limits` provides essential mechanisms for querying and retrieving IEEE 754 standard floating-point special values, ensuring portable handling of mathematical singularities.\n\nDefinition:\n1. **Infinity:** Determined by `has_infinity` (Boolean). Accessed via `infinity()` (returns the positive infinity value).\n2. **Not a Number (NaN):** Determined by `has_quiet_NaN` and `has_signaling_NaN`. Accessed via `quiet_NaN()` (propagates without generating exceptions) and `signaling_NaN()` (designed to trap or signal an error upon use).\n3. **Denormals (Subnormal Numbers):** Determined by `has_denorm`, which returns a value from the `float_denorm_style` enumeration (`denorm_absent`, `denorm_present`, `denorm_indeterminate`). The standard guarantees that `denorm_absent` is 0, allowing `has_denorm` to be used in a Boolean context where 0 signifies absence.\n\nTechnical Details: The functions returning special values (`infinity()`, `quiet_NaN()`, etc.) are guaranteed to be `throw()` safe. While the boolean flags are compile-time constants, the function return values might be determined at runtime based on the specific CPU's FPU settings.\n\nPitfall: When checking for denormal support, although `has_denorm` returns an enumerated type, it can be safely evaluated as a boolean because `denorm_absent` is defined as 0 (false). However, relying on the specific integer values of `denorm_present` (1) or `denorm_indeterminate` (-1) should be avoided unless necessary, preferring explicit comparison with the enum names.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nvoid check_fp_support() {\n    using L = std::numeric_limits<float>;\n    \n    if (L::has_infinity) {\n        std::cout << \"Infinity: \" << L::infinity() << \"\\n\";\n    }\n    \n    if (L::has_quiet_NaN) {\n        std::cout << \"Quiet NaN: \" << L::quiet_NaN() << \"\\n\";\n    }\n    \n    // Using has_denorm as a boolean (since denorm_absent is 0)\n    if (L::has_denorm) {\n        std::cout << \"Denormals are present or indeterminate.\\n\";\n    }\n}\n\nint main() {\n    check_fp_support();\n}",
+  "practical_example": "In a numerical solver, the input validation routine uses `std::numeric_limits<T>::quiet_NaN()` to initialize error results, ensuring that any subsequent operation involving the error result propagates the error state silently, as required by the algorithm's fault tolerance model.",
+  "keywords": [
+    "NaN",
+    "Infinity",
+    "Denormals",
+    "IEEE 754",
+    "float_denorm_style",
+    "quiet_NaN",
+    "signaling_NaN",
+    "numeric_limits"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "62-63",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_querying_and_accessing_floating_point_9dd611",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

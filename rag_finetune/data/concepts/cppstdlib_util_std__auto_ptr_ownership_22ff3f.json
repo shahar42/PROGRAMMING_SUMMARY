@@ -1,0 +1,21 @@
+{
+  "topic": "std::auto_ptr Ownership Transfer Semantics and Deprecation",
+  "category": "util",
+  "explanation": "The defining characteristic of `std::auto_ptr` (deprecated since C++11, removed in C++17) is its unique ownership model combined with destructive copy/assignment semantics. When an `auto_ptr` is copied or assigned, ownership of the managed raw pointer is transferred to the destination object, and the source object is set to null (it releases ownership).\n\nPurpose: This mechanism was intended to guarantee single ownership and automatic deletion. However, because the copy operation modifies the source object, `auto_ptr` violates fundamental requirements for use in standard library containers (e.g., `std::vector` requires copy operations to be non-modifying). This led to significant pitfalls, including silent resource theft and potential double deletion if not handled carefully.\n\nTechnical Details: Ownership transfer is implemented using the internal auxiliary type `std::auto_ptr_ref`. When an `auto_ptr` is passed by value or copied, the source object's `release()` function is implicitly called, invalidating the source. The destructor deletes the underlying pointer (`delete ap`) if ownership is held.\n\nPitfalls: The primary pitfall is using `auto_ptr` in standard containers or algorithms that rely on non-destructive copies. If a container attempts to copy an `auto_ptr`, the source element in the container is invalidated, leading to resource loss or immediate undefined behavior upon access.\n\nGuidance: Use `std::unique_ptr` (which is move-only, enforcing unique ownership safely) or `std::shared_ptr` instead.",
+  "code_example": "#include <memory>\n#include <iostream>\n\n// NOTE: auto_ptr is deprecated and should not be used.\nvoid process_ptr(std::auto_ptr<int> p) {\n    if (p.get()) {\n        std::cout << \"Processing value: \" << *p << std::endl;\n    }\n    // Ownership transferred to p, which deletes it on exit.\n}\n\nint main() {\n    std::auto_ptr<int> original(new int(42));\n    \n    // Ownership transfer (destructive copy):\n    std::auto_ptr<int> stolen = original; \n    \n    std::cout << \"Stolen value: \" << *stolen << std::endl;\n    \n    // original.get() is now nullptr. Accessing it is UB.\n    // std::cout << *original; // DANGER!\n    \n    // Function call also transfers ownership:\n    process_ptr(stolen);\n    // stolen is now nullptr.\n}",
+  "practical_example": "A function returns an `auto_ptr` to a resource. If the caller attempts to store this resource in a `std::vector` via push_back, the vector's internal copy operation (which requires non-destructive copy semantics) steals the resource from the temporary object, leading to immediate resource loss or unexpected behavior if the vector later attempts to resize and copy the element again.",
+  "keywords": [
+    "auto_ptr",
+    "deprecated",
+    "ownership transfer",
+    "destructive copy",
+    "auto_ptr_ref",
+    "unique_ptr",
+    "smart pointer"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "57",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__auto_ptr_ownership_22ff3f",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

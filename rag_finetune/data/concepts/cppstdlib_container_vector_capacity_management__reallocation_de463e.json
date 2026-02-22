@@ -1,0 +1,21 @@
+{
+  "topic": "Vector Capacity Management, Reallocation, and Iterator Invalidation",
+  "category": "container",
+  "explanation": "The `capacity()` and `reserve()` member functions are central to managing the performance and stability of `std::vector`.\n\n**Definition:**\n- `capacity()` returns the total number of elements the container can hold without triggering a memory reallocation.\n- `reserve(num)` is a non-modifying operation that requests the container to pre-allocate storage for at least `num` elements. If `num` is less than the current capacity, the call has no effect (it does not shrink the allocation).\n\n**Purpose:** The primary purpose of `reserve()` is performance optimization. By pre-allocating sufficient memory, repeated, expensive reallocations (which involve allocating new memory, copying/moving existing elements, and deallocating old memory) are avoided, ensuring that subsequent `push_back` operations maintain their amortized O(1) complexity and preventing unpredictable latency spikes.\n\n**Technical Details & Pitfalls (Iterator Invalidation):**\nEach time a reallocation occurs (either due to `push_back` exceeding `capacity()`, or an explicit call to `reserve()` with a larger `num` than current capacity), **all** existing iterators, pointers, and references to elements within the vector are immediately invalidated. Using an invalidated reference or iterator results in Undefined Behavior (UB). This is the single most critical pitfall when working with vector capacity.\n\n**Usage Guidance:** Call `reserve()` when the approximate final size is known before bulk insertion (e.g., reading from a file or processing a known count of items). Using `reserve()` is mandatory in scenarios where pointers or references to internal elements must remain stable across insertions.",
+  "code_example": "#include <vector>\n#include <iostream>\n\nint main() {\n    std::vector<int> v;\n    v.reserve(100); // Pre-allocate storage\n    \n    int& ref = v.emplace_back(10);\n    std::cout << \"Initial Capacity: \" << v.capacity() << \"\\n\";\n    \n    // If we insert enough elements to trigger reallocation\n    // the reference 'ref' becomes invalid.\n    for (int i = 0; i < 100; ++i) {\n        v.push_back(i);\n    }\n    \n    // If v.capacity() was less than 101, reallocation occurred.\n    // std::cout << ref; // DANGER: UB if reallocation happened\n    \n    std::cout << \"Final Capacity: \" << v.capacity() << \"\\n\";\n}",
+  "practical_example": "When reading a large dataset of millions of records into memory, estimating the total size (M) and calling `data_vector.reserve(M)` before the read loop ensures that the entire process incurs memory allocation overhead only once, dramatically improving total throughput and avoiding intermittent performance degradation associated with reallocation events.",
+  "keywords": [
+    "capacity",
+    "reserve",
+    "reallocation",
+    "iterator invalidation",
+    "push_back complexity",
+    "performance optimization",
+    "Undefined Behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "149, 206",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_vector_capacity_management__reallocation_de463e",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

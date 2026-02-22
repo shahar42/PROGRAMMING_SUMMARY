@@ -1,0 +1,21 @@
+{
+  "topic": "Generic Range Assignment via container::assign Member Template",
+  "category": "container",
+  "explanation": "Sequence containers (`std::vector`, `std::deque`, `std::list`, `std::string`) provide the `assign` member function template overload: `void container::assign(InputIterator beg, InputIterator end)`. This function replaces *all* existing elements of the container with copies of the elements in the range `[beg, end)`.\n\nTechnical Details:\n1. **Member Template:** The function is a member template, allowing the source iterators (`InputIterator`) to point to elements of a type that is different from the target container's element type (`T`), provided the source element type is convertible to `T`.\n2. **Replacement Semantics:** Unlike `insert` (which adds elements) or `operator=` (which requires the same container type), `assign` completely discards the old content. This typically involves destroying existing elements, potentially reallocating memory (for `vector`/`deque`) if the new range size is different, and then copy/move constructing the new elements.\n3. **Complexity:** For `std::vector`, if reallocation is necessary, the complexity is proportional to the size of the new range (O(N)). If no reallocation is needed, it involves destruction of old elements and construction of new ones.\n\nPitfalls:\n- **Iterator Invalidation:** For `std::vector` and `std::deque`, calling `assign` invalidates all existing iterators, references, and pointers to the container's elements, as the underlying storage may be completely redefined.\n- **Type Conversion:** While flexible, conversion must be valid. Assigning a range of non-convertible objects results in a compilation error.",
+  "code_example": "#include <vector>\n#include <list>\n#include <iostream>\n#include <numeric>\n\nint main() {\n    std::vector<int> v(5, 10); // Size 5\n    std::list<double> l(3);\n    std::iota(l.begin(), l.end(), 1.5);\n    \n    // Assigns the three doubles (1.5, 2.5, 3.5) to v,\n    // converting them to integers (1, 2, 3).\n    v.assign(l.begin(), l.end());\n    \n    std::cout << \"Vector size: \" << v.size() << std::endl; // Output: 3\n    std::cout << v[0] << \", \" << v[1] << \", \" << v[2] << std::endl; \n}",
+  "practical_example": "A parser reads tokens into a temporary `std::list<std::string>`. If the tokens need to be stored efficiently in a primary `std::vector<std::string>` that must always hold only the current token set, using `vector::assign(list.begin(), list.end())` is the preferred, explicit way to achieve complete replacement and potential memory optimization in one operation.",
+  "keywords": [
+    "assign",
+    "member template",
+    "InputIterator",
+    "vector",
+    "deque",
+    "replacement semantics",
+    "iterator invalidation"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "208",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_generic_range_assignment_via_container_528c05",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

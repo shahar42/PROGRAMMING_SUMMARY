@@ -1,0 +1,21 @@
+{
+  "topic": "Determining Equivalent Element Ranges via lower_bound and upper_bound",
+  "category": "container",
+  "explanation": "For ordered associative containers (sets, multisets), `lower_bound` and `upper_bound` define the precise half-open range `[first, last)` containing all elements equivalent to a given search key, based on the container's sorting criterion. This is essential for handling `multiset` and `multimap` where multiple elements share the same key.\n\nDefinition:\n1. `lower_bound(elem)`: Returns an iterator pointing to the first element in the container that is *not less than* `elem` (i.e., the first element `>= elem`). This is the start of the equivalent range.\n2. `upper_bound(elem)`: Returns an iterator pointing to the first element in the container that is *greater than* `elem` (i.e., the first element `> elem`). This defines the end of the equivalent range.\n\nTechnical Details: Both operations guarantee O(log N) complexity. The member function `equal_range(elem)` executes both `lower_bound` and `upper_bound` and returns the resulting pair of iterators (`std::pair<iterator, iterator>`), simplifying the retrieval of the full equivalent range.\n\nUsage: These functions are critical for iterating over all entries associated with a specific key in a multiset or multimap, or for determining the exact insertion position if the container were not full.",
+  "code_example": "#include <set>\n#include <iostream>\n#include <algorithm>\n\nint main() {\n    std::multiset<int> ms = {10, 20, 20, 30, 40};\n    int key = 20;\n    \n    // Use equal_range to get the full range [first >= key, first > key)\n    auto range = ms.equal_range(key);\n    \n    std::cout << \"Elements equivalent to \" << key << \": \";\n    for (auto it = range.first; it != range.second; ++it) {\n        std::cout << *it << \" \";\n    }\n    std::cout << \"\\n\";\n}",
+  "practical_example": "In a financial trading system using a `std::multimap<Timestamp, TradeOrder>`, a user needs to retrieve all trade orders placed exactly at or after a specific time (T1) but strictly before another time (T2). This is achieved by calling `multimap::lower_bound(T1)` and `multimap::upper_bound(T2)`, defining the exact range of interest for iteration.",
+  "keywords": [
+    "lower_bound",
+    "upper_bound",
+    "equal_range",
+    "multiset",
+    "ordered search",
+    "insertion position",
+    "equivalent range"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "162",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_determining_equivalent_element_ranges_via_6c3575",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,19 @@
+{
+  "topic": "Iterator Return Convention for Sequence Container Erase Operations",
+  "category": "iterator",
+  "explanation": "For sequence containers like `std::deque`, the `erase()` member function is designed to facilitate safe and efficient removal of elements, particularly within loops. The function `c.erase(pos)` or `c.erase(beg, end)` returns an iterator that points to the element immediately following the last element removed.\n\nPurpose: This return convention is critical because the act of erasing an element invalidates the iterator(s) pointing to the removed element(s). By returning the iterator to the next valid element, the caller can safely continue iterating through the container without resorting to pre-incrementing or complex manual iterator management, which is necessary for containers like `std::list` (where `erase` returns `void` in older standards or the next iterator in modern standards).\n\nTechnical Details:\n- `c.erase(pos)`: Removes the element at `pos`. Returns iterator to `pos + 1` (or `c.end()` if the last element was erased).\n- `c.erase(beg, end)`: Removes the range `[beg, end)`. Returns iterator to the element that immediately follows `end` (or `c.end()`).\n\nUsage: This return value must be captured and used as the new loop iterator to prevent undefined behavior from dereferencing an invalidated iterator.\n\nPitfalls: Ignoring the return value and attempting to increment the old iterator (`++pos`) after erasure is a common error and results in undefined behavior. This is especially true for `vector` and `deque` where erasure invalidates all iterators from the point of erasure onward (and potentially all iterators in deque for insertions/erasures far from the ends).",
+  "code_example": "#include <deque>\n#include <algorithm>\n\nint main() {\n    std::deque<int> d = {1, 2, 3, 4, 5};\n    \n    for (auto it = d.begin(); it != d.end(); ) {\n        if (*it % 2 != 0) { // If odd, erase it\n            // Capture the return value (the iterator to the next element)\n            it = d.erase(it); \n        } else {\n            // If not erased, move to the next element safely\n            ++it;\n        }\n    }\n    // d now contains: {2, 4}\n}",
+  "practical_example": "Filtering a large list of user sessions stored in a deque. Iterating through the sessions and removing expired ones using `d.erase(it)` ensures that the loop continues correctly and efficiently without skipping elements or causing iterator corruption.",
+  "keywords": [
+    "erase return value",
+    "iterator invalidation",
+    "safe iteration",
+    "deque erase",
+    "sequence container iterator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "146",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_iterator_iterator_return_convention_for_sequence_ee7077",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

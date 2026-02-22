@@ -1,0 +1,19 @@
+{
+  "topic": "Initialization Syntax Requirement for std::auto_ptr",
+  "category": "util",
+  "explanation": "`std::auto_ptr` enforces a strict requirement regarding its initialization syntax when taking ownership of a raw pointer. It must be initialized using direct initialization (parentheses syntax) and strictly forbids copy-initialization using the assignment syntax from a raw pointer.\n\n**Syntax Constraint:**\n- **Valid:** `std::auto_ptr<T> p(new T(...))` (Direct initialization)\n- **Invalid:** `std::auto_ptr<T> p = new T(...)` (Copy initialization from raw pointer)\n\n**Rationale:** Although the text does not fully detail the internal proxy mechanism that necessitated this restriction in early implementations, the primary effect is preventing potential ambiguities or implicit conversions that could arise if the assignment syntax were permitted for construction from a raw pointer. This constraint helps enforce explicit resource management and limits accidental initialization.\n\n**Pitfalls:** Using the assignment operator (`=`) when attempting to construct an `auto_ptr` from a raw pointer results in a compile-time error, as the constructor taking the raw pointer is typically not available for implicit conversions via the copy-initialization pathway.",
+  "code_example": "#include <memory>\n\nint main() {\n    // OK: Direct initialization using parentheses\n    std::auto_ptr<int> p1(new int(10));\n\n    // Error: Copy initialization from raw pointer is forbidden\n    // std::auto_ptr<int> p2 = new int(20); \n\n    // OK: Assignment after construction (transfers ownership)\n    std::auto_ptr<int> p3;\n    p3 = p1;\n    \n    return 0;\n}",
+  "practical_example": "When transitioning legacy code using raw pointers to smart pointers, developers often mistakenly use `auto_ptr<T> var = ptr;` for initialization, leading to immediate compilation failure. This forces the use of the direct initialization syntax, which is often considered clearer for resource acquisition.",
+  "keywords": [
+    "auto_ptr initialization",
+    "direct initialization",
+    "copy initialization prohibition",
+    "raw pointer assignment",
+    "syntax error"
+  ],
+  "difficulty": "beginner",
+  "page_reference": "49",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_initialization_syntax_requirement_for_std_8e1b65",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

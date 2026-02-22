@@ -1,0 +1,21 @@
+{
+  "topic": "Range Initialization via Member Template and Element Conversion",
+  "category": "adapter",
+  "explanation": "`std::priority_queue` provides constructors that initialize the queue by copying elements from a range defined by two `InputIterator`s (`beg` and `end`). These constructors are implemented as member templates.\n\n**Technical Details:** The use of member templates for range initialization (`template <typename InputIterator> priority_queue(InputIterator beg, InputIterator end, ...)` ensures maximum flexibility. The type of the elements yielded by the `InputIterator` does not need to exactly match the queue's `value_type` (`T`), but must merely be **convertible** to `T`. This allows initialization from heterogeneous collections (e.g., initializing a queue of `int`s from a range of `float`s).\n\n**Complexity and Performance:** The standard guarantees that building the heap structure from a range of N elements takes O(N) time complexity, which is significantly faster than inserting N elements sequentially (which would take O(N log N)). This efficiency is due to the underlying `std::make_heap` algorithm.\n\n**Usage Guidance:** Always prefer range initialization over repeated `push()` calls when the source data is available upfront, especially for large datasets, to benefit from the O(N) heap construction guarantee.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <list>\n\nint main() {\n    std::list<double> source = {3.1, 1.9, 4.5};\n    \n    // Initializing a priority_queue<int> from a range of doubles.\n    // Doubles are converted to ints (3, 1, 4).\n    std::priority_queue<int> pq_int(\n        source.begin(), \n        source.end()\n    );\n    \n    // Top element is max (4)\n    if (!pq_int.empty()) {\n        // Output: 4\n        std::cout << \"Top element (converted): \" << pq_int.top() << \"\\n\";\n    }\n}",
+  "practical_example": "When loading configuration data from a file where values are stored as strings or floating-point numbers, but the application requires integer priority levels. Range initialization handles the conversion seamlessly while efficiently building the necessary heap structure.",
+  "keywords": [
+    "range initialization",
+    "InputIterator",
+    "member template",
+    "type conversion",
+    "O(N) complexity",
+    "make_heap",
+    "heterogeneous initialization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "398",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_range_initialization_via_member_template_2c8994",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

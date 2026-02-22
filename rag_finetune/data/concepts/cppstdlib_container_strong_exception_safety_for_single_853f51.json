@@ -1,0 +1,20 @@
+{
+  "topic": "Strong Exception Safety for Single Insertion in Associative Containers",
+  "category": "container",
+  "explanation": "The insertion of a single element into standard associative containers (`std::set`, `std::multiset`, `std::map`, `std::multimap`) is guaranteed to adhere to the Strong Exception Guarantee. The standard specifies that the operation 'either succeeds or has no effect.' This means insertion is atomic: if any exception occurs during the process (e.g., memory allocation failure for the new node, or an exception thrown by the custom key comparison object), the container is guaranteed to revert to the exact state it held prior to the call.\n\nPurpose: This guarantee prevents the internal Red-Black tree structure from becoming corrupted due to partial insertions, ensuring structural integrity and preventing undefined behavior upon subsequent operations. The guarantee holds specifically for single-element insertion forms, such as `insert(const value_type&)` or `insert(value_type&&)`.\n\nTechnical Details:\n- **Guarantee:** Strong exception guarantee.\n- **Complexity:** O(log N) average time complexity (or O(1) amortized if using position hint correctly).\n- **Pitfalls:** This strong guarantee usually does *not* extend to range insertion (`insert(first, last)`), which typically only offers the Basic Exception Guarantee (container remains usable, but elements may have been partially inserted).\n- **Requirement:** The comparison criterion must be safe, although exceptions thrown by the comparison object are generally caught, triggering the rollback.",
+  "code_example": "#include <map>\n#include <iostream>\n\nclass ThrowingKey {}; // Placeholder for a key type or operation that might throw\n\nvoid insert_safe(std::map<int, int>& m, int key, int value) {\n    size_t old_size = m.size();\n    try {\n        // Strong Guarantee: If insert fails, m.size() == old_size\n        m.insert({key, value}); \n    } catch (const std::bad_alloc& e) {\n        // The container structure is guaranteed to be unchanged\n        std::cerr << \"Insert failed, size remains: \" << m.size() << std::endl;\n    }\n}\n\nint main() {\n    std::map<int, int> data;\n    data.insert({1, 10});\n    insert_safe(data, 2, 20); \n    // If the insert failed due to exception, data remains valid and uncorrupted.\n}",
+  "practical_example": "In a critical multi-threaded system where a map stores configuration data, relying on the strong exception guarantee for single insertions ensures that if the system runs out of memory during a configuration update, the configuration map remains in its last known consistent state, preventing data corruption or race conditions based on partial updates.",
+  "keywords": [
+    "strong exception guarantee",
+    "associative container",
+    "map insert",
+    "set insert",
+    "atomic operation",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "240",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strong_exception_safety_for_single_853f51",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

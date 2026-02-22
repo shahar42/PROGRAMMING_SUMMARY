@@ -1,0 +1,21 @@
+{
+  "topic": "Undefined Behavior on Null `auto_ptr` Dereference",
+  "category": "util",
+  "explanation": "Accessing the managed object through `std::auto_ptr` requires explicit verification that the pointer is non-null, as failure to do so results in Undefined Behavior (UB).\n\nThe accessors `T& auto_ptr::operator*()` and `T* auto_ptr::operator->()` are provided for dereferencing. If the `auto_ptr` does not own an object (i.e., its internal pointer is equivalent to `nullptr`), calling either of these operators is explicitly defined by the standard as resulting in UB. This null state can occur if the `auto_ptr` was default-constructed, had its ownership transferred to another smart pointer, or if `release()` was called.\n\n**Usage Guidance:**\nTo prevent UB, developers must use `T* auto_ptr::get()` to inspect the underlying pointer before accessing the value. Although `auto_ptr` does not provide an explicit boolean conversion operator (unlike modern smart pointers), the standard idiom is to check the return value of `get()`.\n\n**Related Functionality:**\n- `auto_ptr::get()`: Returns the raw address without affecting ownership. This is the safe way to check if an object is owned.\n- `auto_ptr::release()`: Relinquishes ownership and returns the raw pointer, setting the `auto_ptr` to null. This action is irreversible for the `auto_ptr` and is often used to manually transfer the raw pointer to a legacy API or another ownership mechanism.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nstruct Data { int value = 10; };\n\nint main() {\n    std::auto_ptr<Data> p1(new Data);\n    std::auto_ptr<Data> p2 = p1; // p1 is now null\n\n    if (p1.get() != nullptr) {\n        // SAFE CHECK\n        std::cout << p1->value; \n    } else {\n        std::cout << \"p1 is null.\\n\";\n    }\n    \n    // T* raw_ptr = p2.release(); // p2 becomes null\n    \n    // std::cout << p2->value; // DANGER: UB/Crash after release\n    \n    return 0;\n}",
+  "practical_example": "In legacy code utilizing `auto_ptr`, a function might return an `auto_ptr` by value, transferring ownership upon return. If the caller immediately attempts to access the object without checking if the source pointer (used in a local scope before the return) was invalidated, the resulting UB leads to difficult-to-debug crashes in production environments.",
+  "keywords": [
+    "auto_ptr dereference",
+    "get()",
+    "release()",
+    "undefined behavior",
+    "null pointer access",
+    "operator*",
+    "operator->"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "112-113",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_undefined_behavior_on_null__dcbfae",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

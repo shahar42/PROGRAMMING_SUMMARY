@@ -1,0 +1,20 @@
+{
+  "topic": "Value Search in Maps Requires Generic Algorithms or Iteration",
+  "category": "container",
+  "explanation": "The specialized member functions provided by `std::map` and `std::multimap` (`find`, `count`, etc.) are implemented solely for searching based on the container's designated *key* type. Searching for an element based on its associated *value* (the mapped type) cannot leverage the container's internal search tree structure.\n\nRequirement: To search by value, the programmer must resort to general-purpose methods:\n1. Explicit iteration (a manual loop).\n2. Generic algorithms, most commonly `std::find_if`, providing a predicate that checks the `second` member of the stored `std::pair<const Key, Value>` elements.\n\nComplexity: Because neither iteration nor generic algorithms can utilize the balanced tree indexing, searching by value in a map or multimap always requires linear time complexity, O(N), where N is the number of elements. This is a crucial performance distinction.\n\nUsage Guidance: If frequent value-based lookups are required, consider maintaining a secondary index using a `std::multimap<Value, Key>` or using a container designed for dual indexing (such as those provided by Boost.MultiIndex).",
+  "code_example": "#include <map>\n#include <string>\n#include <algorithm>\n#include <iostream>\n\nint main() {\n    std::map<int, std::string> users = {{1, \"Alice\"}, {2, \"Bob\"}};\n    const std::string target_value = \"Bob\";\n\n    // O(N) search using find_if (searching by value)\n    auto pos = std::find_if(users.begin(), users.end(), \n        [&](const auto& pair) { \n            return pair.second == target_value; \n        }\n    );\n\n    if (pos != users.end()) {\n        std::cout << \"Found user '\" << pos->second \n                  << \"' with Key: \" << pos->first << \" (O(N))\\n\";\n    }\n    return 0;\n}",
+  "practical_example": "A dictionary mapping words to definitions (`map<string, string>`) needs to find all words that share a specific definition. Since the map is keyed by the word, finding by definition requires iterating through the entire map (O(N)), highlighting that maps are fundamentally one-dimensional lookup structures based on the key.",
+  "keywords": [
+    "search by value",
+    "std::find_if",
+    "generic algorithm",
+    "map value lookup",
+    "linear complexity",
+    "O(N)"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "176",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_value_search_in_maps_requires_4b7910",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

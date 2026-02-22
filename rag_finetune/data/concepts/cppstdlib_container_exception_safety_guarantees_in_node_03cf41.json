@@ -1,0 +1,20 @@
+{
+  "topic": "Exception Safety Guarantees in Node-Based Associative Containers",
+  "category": "container",
+  "explanation": "Due to their node-based implementation (typically Red-Black Trees), `std::set` and `std::multiset` provide strong exception safety guarantees during modification operations.\n\n**Definition and Guarantees:**\n1.  **Single-Element Insertion (`insert(value)`):** These operations offer the strong exception guarantee, exhibiting **commit-or-rollback** behavior. If memory allocation fails or the comparison object throws during node construction, the operation fails completely, and the container remains in its original state (no side effects).\n2.  **Deletion/Erasure:** All single and multiple-element delete operations are guaranteed to succeed and never throw exceptions, provided that the element destructors themselves do not throw (a general C++ requirement).\n3.  **Multiple-Element Insertion:** Range insertion and initializer list insertion often do not guarantee full transactional rollback. If an exception is thrown partway through, the container may be left in a partially modified, but internally consistent, state, as full recovery is complex due to the requirement of maintaining sorted order.\n\n**Pitfalls:** While deletion cannot fail, the `swap()` operation on containers may throw if copying or assigning the stored comparison criterion object throws an exception.",
+  "code_example": "#include <set>\n#include <stdexcept>\n\nstruct ThrowingComp {\n    bool operator()(int a, int b) const { return a < b; }\n    // If copy constructor for this struct threw, swap() might fail.\n};\n\nvoid safe_insert(std::set<int>& s, int val) {\n    try {\n        // Strong guarantee: either succeeds or the container is unchanged\n        s.insert(val);\n    } catch (const std::exception& e) {\n        // s is guaranteed to be valid and unchanged\n        // if insertion failed due to internal allocation.\n    }\n}\n",
+  "practical_example": "In high-reliability server systems, using `std::set` for configuration tracking ensures that if a resource constraint (like memory exhaustion) prevents adding a new configuration item, the existing set remains valid and operational, preventing cascading failures.",
+  "keywords": [
+    "exception safety",
+    "strong guarantee",
+    "commit-or-rollback",
+    "node-based container",
+    "set exception handling",
+    "noexcept guarantee"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "166",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_exception_safety_guarantees_in_node_03cf41",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

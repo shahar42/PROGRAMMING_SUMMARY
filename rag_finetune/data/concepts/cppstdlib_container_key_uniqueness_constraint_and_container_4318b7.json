@@ -1,0 +1,20 @@
+{
+  "topic": "Key Uniqueness Constraint and Container Selection in Maps",
+  "category": "container",
+  "explanation": "The core distinction between `std::map` and `std::multimap` lies in their handling of equivalent keys. Both containers manage elements as key/value pairs and maintain automatic sorting based on the key, utilizing the provided comparison criterion (`Compare`).\n\n`std::map` enforces uniqueness: it guarantees that no two elements have keys that are equivalent (i.e., where neither key is ordered before the other by the comparison function). Insertion attempts with an already existing key will fail silently, returning an iterator to the existing element and a `false` boolean flag, or simply overwrite the value if using `operator[]`.\n\n`std::multimap`, conversely, allows duplicate keys, meaning multiple elements can exist where their keys are deemed equivalent by the sorting criterion. Insertion into a `std::multimap` always succeeds.\n\nThis structural difference dictates usage: use `std::map` for dictionary-like unique lookups (e.g., configuration settings by name) and `std::multimap` when modeling relationships where a single key maps to multiple possible values (e.g., indices where a word appears multiple times). Both guarantee O(log N) complexity for insertion and lookup operations, provided the comparison function is valid.",
+  "code_example": "#include <map>\n#include <iostream>\n\nint main() {\n    std::map<int, char> m;\n    std::multimap<int, char> mm;\n\n    // Map: Second insertion fails, value 'A' remains\n    m.insert({1, 'A'});\n    m.insert({1, 'B'}); \n    std::cout << \"Map size: \" << m.size() << \", Value: \" << m.at(1) << std::endl;\n\n    // Multimap: Both insertions succeed\n    mm.insert({1, 'A'});\n    mm.insert({1, 'B'});\n    std::cout << \"Multimap size: \" << mm.size() << std::endl;\n\n    // Use equal_range for multimap lookup\n    auto range = mm.equal_range(1);\n    // range.first != range.second is true\n}",
+  "practical_example": "In a compiler's symbol table, identifiers must be unique, making `std::map` the appropriate choice to store (Identifier, TypeInfo). In a logging system where multiple events share the same timestamp, `std::multimap` is necessary to store (Timestamp, LogMessage), allowing retrieval of all events that occurred at a specific time.",
+  "keywords": [
+    "map uniqueness",
+    "multimap duplicates",
+    "key equivalence",
+    "container choice",
+    "O(log N) complexity",
+    "insertion behavior"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "172",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_key_uniqueness_constraint_and_container_4318b7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

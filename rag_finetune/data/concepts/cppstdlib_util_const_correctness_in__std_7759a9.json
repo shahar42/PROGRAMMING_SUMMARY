@@ -1,0 +1,20 @@
+{
+  "topic": "Const Correctness in `std::auto_ptr`: Modifying Value vs. Ownership",
+  "category": "util",
+  "explanation": "When an `std::auto_ptr` object is declared `const`, the smart pointer itself (the wrapper object managing the pointer) cannot be modified. This prevents operations that would change the ownership or the address held by the wrapper, such as assignment from another `auto_ptr` or calling `reset()`. Attempting ownership transfer on a `const auto_ptr` results in a compile-time error.\n\nHowever, declaring the *wrapper* as `const` does not make the *managed object* constant (assuming the template type `T` is non-const). The overloaded `operator*()` for a `const std::auto_ptr<T>` typically returns a non-const reference `T&`. This allows modification of the value stored in the dynamically allocated memory pointed to by the `auto_ptr`, even though the wrapper object itself is constant. \n\nThis behavior adheres to standard C++ const-correctness: `const` applies to the object being declared (the `auto_ptr` handle), not necessarily the data it points to.",
+  "code_example": "#include <memory>\n\nvoid const_test() {\n    // p is const; the pointer p holds cannot change, but the value can.\n    const std::auto_ptr<int> p(new int(42));\n    const std::auto_ptr<int> q(new int(0));\n\n    // OK: Modifying the value pointed to by p and q\n    *q = *p; \n    *p = -77;\n    \n    // ERROR: Attempting to change the ownership/pointer held by p or q\n    // q = p; // Compile-time error: assignment operator is not const-qualified\n}",
+  "practical_example": "Passing a smart pointer by `const` reference to a logging or inspection function guarantees that the function cannot accidentally steal ownership (a major pitfall of non-const `auto_ptr` passing) or redirect the pointer, while still permitting read/write access to the managed data if required by the function's logic.",
+  "keywords": [
+    "auto_ptr const",
+    "const correctness",
+    "ownership transfer",
+    "dereference operator",
+    "smart pointer constraints",
+    "compile-time error"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "50-51",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_const_correctness_in__std_7759a9",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,21 @@
+{
+  "topic": "Deque Capacity Management and Dual-Ended Insertion Complexity",
+  "category": "container",
+  "explanation": "The `std::deque` (double-ended queue) is designed for efficient insertion and deletion at both the beginning and the end, achieving constant time complexity for these operations. Unlike `std::vector`, `std::deque` does not store elements in a single contiguous memory block; instead, it uses a sequence of fixed-size blocks managed by a map.\n\nPurpose: This structure allows `deque` to grow efficiently in both directions without needing full memory reallocation, which is required by `vector` when capacity is exceeded.\n\nTechnical Details:\n1. **Capacity Functions Omission:** `std::deque` explicitly omits the `capacity()` and `reserve()` member functions found in `std::vector`. Since memory allocation is managed in chunks, the concept of a total, pre-reserved contiguous capacity is not applicable.\n2. **Front Operations:** `push_front()` and `pop_front()` are provided, guaranteeing **O(1)** (constant time) complexity, matching `push_back()` and `pop_back()`.\n3. **Memory Layout:** The non-contiguous nature means `deque` iterators are not Random Access Iterators in the sense that they are simple pointers (like `vector` iterators); they must handle block transitions, potentially incurring cache penalties compared to `vector` during linear traversal.\n\nUsage: Use `std::deque` when frequent insertion/deletion at both ends is necessary, prioritizing performance stability over absolute contiguous memory access.",
+  "code_example": "#include <deque>\n#include <iostream>\n\nint main() {\n    std::deque<int> d;\n    // Deque supports O(1) insertion at both ends\n    d.push_back(5);\n    d.push_front(1);\n    d.push_front(0);\n    d.push_back(10);\n    \n    // d.capacity(); // ERROR: Deque does not support capacity()\n    // d.reserve(100); // ERROR: Deque does not support reserve()\n    \n    std::cout << \"Deque size: \" << d.size() << \"\\n\";\n    d.pop_front(); // O(1) deletion\n    d.pop_back();  // O(1) deletion\n}",
+  "practical_example": "Implementing a job scheduler or a process queue where tasks are added to the back (standard queue behavior) but high-priority tasks must be inserted immediately at the front (priority handling). The O(1) guarantee for both ends is critical for predictable latency.",
+  "keywords": [
+    "deque",
+    "push_front",
+    "pop_front",
+    "capacity",
+    "reserve",
+    "O(1) complexity",
+    "non-contiguous memory"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "161",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_deque_capacity_management_and_dual_93849c",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

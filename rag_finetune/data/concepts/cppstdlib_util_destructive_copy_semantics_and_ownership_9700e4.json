@@ -1,0 +1,20 @@
+{
+  "topic": "Destructive Copy Semantics and Ownership Transfer in `std::auto_ptr`",
+  "category": "util",
+  "explanation": "The defining characteristic and major pitfall of the deprecated `std::auto_ptr` is its destructive copy behavior, resulting from its implementation of ownership transfer. The copy constructor and assignment operators take their arguments by non-const reference (`auto_ptr(auto_ptr&)` and `operator=(auto_ptr&)`).\n\n**Mechanism:** When an `auto_ptr` (source) is copied or assigned to another `auto_ptr` (destination), the ownership of the underlying resource is transferred entirely to the destination. The raw pointer held by the source object is set to null, meaning the source no longer manages or owns the resource.\n\n**Implications (Pitfall):** This transfer of ownership violates the fundamental principle of value semantics (where copying leaves the source intact). Consequently, `std::auto_ptr` cannot be safely used in standard library containers or algorithms which rely on copies being non-destructive. For example, sorting or passing an `auto_ptr` by value into a function will result in unexpected nullification of the original object, leading to potential crashes or double-deletion if the caller attempts to access the resource later.\n\n**Complexity:** Ownership transfer operations (copy/assignment) are O(1) time complexity, involving only pointer manipulation.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource { public: int data = 42; ~Resource() { std::cout << \"Destroyed\\n\"; } };\n\nvoid consume(std::auto_ptr<Resource> p) {\n    // p now owns the resource\n    std::cout << \"Consumed: \" << p->data << \"\\n\";\n}\n\nint main() {\n    std::auto_ptr<Resource> owner(new Resource());\n    \n    // Assignment transfers ownership (owner becomes null)\n    std::auto_ptr<Resource> receiver = owner;\n    \n    if (owner.get() == nullptr) {\n        std::cout << \"Owner relinquished ownership.\\n\";\n    }\n    \n    // If 'owner' were used here, it would be UB/crash.\n    // Calling consume() also transfers ownership, deleting the resource upon return.\n}",
+  "practical_example": "Attempting to store `std::auto_ptr` in a `std::vector` and then accessing elements via iterators. When the vector reallocates, it attempts to copy elements, triggering ownership transfer. The original elements in the old memory block are destroyed (nullified), and subsequent access via iterators pointing to the original block results in undefined behavior or crashes.",
+  "keywords": [
+    "auto_ptr",
+    "destructive copy",
+    "ownership transfer",
+    "non-const reference",
+    "std::vector pitfall",
+    "deprecated"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "52",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_destructive_copy_semantics_and_ownership_9700e4",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

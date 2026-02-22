@@ -1,0 +1,21 @@
+{
+  "topic": "Shared Ownership and Reference Counting Semantics",
+  "category": "util",
+  "explanation": "Shared ownership, as implemented by the custom `CountedPtr` (and standardized in `std::shared_ptr`), uses reference counting to manage resource lifetime. The core mechanism involves associating a heap-allocated counter with the managed resource. \n\n**Mechanism:** Copy construction and copy assignment increment the counter, indicating a new owner. Destruction or assignment decrement the counter. When the counter reaches zero, the last owner is responsible for deleting both the counter object and the managed resource (RAII principle).\n\n**Purpose:** This model allows multiple smart pointers to safely access the same resource simultaneously. Unlike unique ownership (like `std::unique_ptr`), shared pointers can be safely copied and used in standard library containers and algorithms without invalidating existing references.\n\n**Technical Details:** Operations like copy construction, assignment, and destruction are generally O(1). Crucially, the standard library implementation (`std::shared_ptr`) requires the reference count operations (increment/decrement) to be atomic to ensure thread safety when shared across concurrent execution paths. The custom `CountedPtr` provided is typically *not* thread-safe due to non-atomic operations on the `long* count`.\n\n**Pitfalls:** Cyclic references (A holds shared_ptr to B, B holds shared_ptr to A) prevent the reference count from ever reaching zero, causing a memory leak. This is mitigated in `std::shared_ptr` usage by employing `std::weak_ptr` for back-references.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Data {};\n\nvoid print_count(const std::shared_ptr<Data>& p) {\n    std::cout << \"Count: \" << p.use_count() << std::endl;\n}\n\nint main() {\n    auto p1 = std::make_shared<Data>();\n    print_count(p1); // Count: 1\n    \n    std::shared_ptr<Data> p2 = p1;\n    print_count(p1); // Count: 2\n    \n    p1.reset();\n    print_count(p2); // Count: 1\n    \n    // Resource deleted when p2 goes out of scope.\n}",
+  "practical_example": "Managing resources like database connections or large configuration objects that must be accessed by multiple independent modules. Shared ownership ensures the resource remains valid as long as any module needs it, automatically cleaning up when the last reference is dropped.",
+  "keywords": [
+    "shared_ptr",
+    "reference counting",
+    "RAII",
+    "shared ownership",
+    "use_count",
+    "atomic operations",
+    "cyclic reference"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "196-197",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_shared_ownership_and_reference_counting_bf7788",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

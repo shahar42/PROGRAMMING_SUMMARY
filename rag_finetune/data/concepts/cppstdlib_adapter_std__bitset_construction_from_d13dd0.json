@@ -1,0 +1,21 @@
+{
+  "topic": "std::bitset Construction from String: Padding, Truncation, and Requirements",
+  "category": "adapter",
+  "explanation": "The `std::bitset` constructor overload accepting a string (`std::basic_string`) allows initialization of the bitset state directly from a sequence of '0' and '1' characters, optionally specifying a starting index (`pos`) and length (`n`) for a substring.\n\n**Technical Details and Behavior:**\n1. **Bit Ordering:** The string is read such that the characters corresponding to the substring are used to initialize the bits, where the rightmost character of the substring maps to the least significant bit (index 0) of the `bitset`.\n2. **Padding:** If the string segment used is shorter than the template size `N` of the bitset, the leading (most significant) bit positions are initialized to zero.\n3. **Truncation:** If the string segment is longer than `N`, the excess leading characters are ignored.\n4. **Requirements:** All characters within the relevant segment of the string must be either '0' or '1'.\n\n**Exception Guarantees:**\n- Throws `std::out_of_range` if the starting index (`pos`) is greater than the size of the input string.\n- Throws `std::invalid_argument` if any character within the relevant segment is not '0' or '1'.\n\n**Pitfall: Implicit Conversion Failure:** Because the string constructor is a member template (to support various `basic_string` types), standard rules prevent the implicit conversion of a C-style string literal (`const char*`) directly to the required string type (e.g., `std::string`). Attempting to pass a literal directly results in a compilation error, requiring explicit construction of the string object.",
+  "code_example": "#include <bitset>\n#include <string>\n\nint main() {\n    // Example 1: Full string, truncation (N=5 < 7 chars)\n    // Result: 10101 (The first two '10' are ignored)\n    std::bitset<5> b1(std::string(\"1010101\"));\n\n    // Example 2: Substring (start at index 2, length 3)\n    // \"1111000\" -> substring \"110\" -> Result: 00110 (Padded with leading zeros)\n    std::bitset<7> b2(std::string(\"1111000\"), 2, 3);\n\n    // Example 3: Implicit conversion pitfall workaround\n    // bitset<8> b3(\"1010\"); // ERROR (No implicit const char* to string)\n    std::bitset<8> b3(std::string(\"1010\")); // OK\n}",
+  "practical_example": "When initializing configuration flags read from a text file or network stream, the `bitset` string constructor provides a concise way to parse the binary sequence directly into the bit structure, ensuring validation occurs automatically (via `invalid_argument`) regarding character legality.",
+  "keywords": [
+    "bitset constructor",
+    "string initialization",
+    "padding",
+    "truncation",
+    "invalid_argument",
+    "out_of_range",
+    "member template pitfall"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "402-403",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_std__bitset_construction_from_d13dd0",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

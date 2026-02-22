@@ -1,0 +1,21 @@
+{
+  "topic": "Customizing Priority Queue Ordering (Max-Heap vs Min-Heap)",
+  "category": "adapter",
+  "explanation": "The behavior of `std::priority_queue`\u2014specifically whether it functions as a max-heap (largest element on top) or a min-heap (smallest element on top)\u2014is determined by the third template parameter, `Compare`.\n\n**Definition:** The `Compare` object defines the strict weak ordering used by the heap algorithms. The standard definition states that `priority_queue` uses `Compare` to determine which element has *higher priority*. If `comp(A, B)` is true, B has higher priority than A.\n\n**Default Behavior (Max-Heap):** The default comparator is `std::less<T>`. If `std::less<T>(A, B)` is true, it means A < B. In this case, B has higher priority and rises to the top. Thus, using `std::less` results in a max-heap where the largest element is at the top.\n\n**Min-Heap Implementation:** To achieve a min-heap (smallest element on top), the comparator must be inverted. We use `std::greater<T>`. If `std::greater<T>(A, B)` is true, it means A > B, and B has higher priority (smaller value). This inversion places the smallest element at the top.\n\n**Requirements:** The `Compare` type must be CopyConstructible and provide an overloaded `operator()` accepting two `value_type` parameters and returning a boolean.",
+  "code_example": "#include <queue>\n#include <vector>\n#include <functional>\n\n// Default behavior: Max-Heap (uses std::less)\nstd::priority_queue<int> max_pq;\nmax_pq.push(5); max_pq.push(10);\n// Output: 10 (max_pq.top())\n\n// Customization: Min-Heap (uses std::greater)\n// Note: The underlying container must also be specified\nstd::priority_queue<int, \n    std::vector<int>, \n    std::greater<int>> min_pq;\n    \nmin_pq.push(5); min_pq.push(10);\n// Output: 5 (min_pq.top())\n",
+  "practical_example": "A task scheduler prioritizing jobs based on execution time: If the goal is to process the shortest jobs first (Shortest Job Next), a min-heap using `std::greater` on the time metric is required. If the goal is to handle the largest pending tasks first, the default max-heap (`std::less`) is used.",
+  "keywords": [
+    "priority_queue comparator",
+    "std::less",
+    "std::greater",
+    "max-heap",
+    "min-heap",
+    "strict weak ordering",
+    "adapter customization"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "397",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_customizing_priority_queue_ordering__1e0764",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

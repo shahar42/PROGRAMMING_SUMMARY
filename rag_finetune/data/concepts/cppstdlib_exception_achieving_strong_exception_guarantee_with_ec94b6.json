@@ -1,0 +1,20 @@
+{
+  "topic": "Achieving Strong Exception Guarantee with List and Associative Containers",
+  "category": "exception",
+  "explanation": "The strong exception safety guarantee ensures that an operation either succeeds completely or, if an exception is thrown, the container remains in its original state (transactional semantics). Most STL operations provide only basic exception safety (no resource leaks, but data may be modified). However, certain containers and operations can guarantee strong safety.\n\nTechnical Details:\n1. **`std::list`:** Due to its node-based structure and simple linking operations, `std::list` naturally provides strong exception safety for many operations (like single-element insertion/deletion), provided user-defined operations (like constructors or comparisons) do not throw.\n    *   **Restrictions:** To maintain strong safety, avoid: assignment operations, `sort()`, and (if element comparison or copying may throw) `merge()`, `remove()`, `remove_if()`, and `unique()`.\n2. **Associative Containers (`set`, `map`):** These containers generally offer strong exception safety for single-element insertions and deletions.\n    *   **Restrictions:** To maintain strong safety, avoid: multiple-element insert operations (which might leave a partial state if an exception occurs during the sequence processing), and avoid `swap()` if copying or assigning the comparison criterion (e.g., custom comparator) may throw.\n\nPurpose: Strong safety is critical in transactional systems where failure mid-operation must not corrupt the state of the data structure. When an operation might throw (e.g., memory allocation failure or throwing move/copy constructors), these containers provide reliable rollback semantics.\n\nUsage Guidance: When writing exception-safe code, prefer `list::push_back` over `vector::push_back` if memory is tight and reallocations are possible, or if the stored type has a throwing copy constructor, as list insertion only requires allocating one node, ensuring the container itself is modified only after successful allocation.",
+  "code_example": "#include <list>\n#include <stdexcept>\n\nstruct ThrowingType {\n    ThrowingType() { \n        if (rand() % 10 == 0) throw std::runtime_error(\"Allocation fail\"); \n    }\n};\n\nint main() {\n    std::list<int> safe_list = {1, 2};\n    // std::vector<int> unsafe_vector = {1, 2}; // Basic safety only\n    \n    // List insertion is strongly safe: if the node allocation fails,\n    // the list state (size, iterators) is unchanged.\n    try {\n        safe_list.push_front(0); \n    } catch (...) {\n        // safe_list is guaranteed to still contain {1, 2}\n    }\n}",
+  "practical_example": "Implementing a cache or queue where elements are added and removed in a multi-threaded, exception-prone environment. Using a list ensures that if memory allocation fails during an insertion, the existing queue state remains valid and consistent, preventing data loss or corruption.",
+  "keywords": [
+    "strong exception guarantee",
+    "basic exception guarantee",
+    "std::list exception safety",
+    "associative container exception",
+    "transactional safety",
+    "no-effect guarantee"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "172",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_exception_achieving_strong_exception_guarantee_with_ec94b6",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

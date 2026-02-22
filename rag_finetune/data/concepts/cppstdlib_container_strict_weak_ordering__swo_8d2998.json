@@ -1,0 +1,22 @@
+{
+  "topic": "Strict Weak Ordering (SWO) Requirement for Associative Container Comparators",
+  "category": "container",
+  "explanation": "Associative containers like `std::set`, `std::multiset`, `std::map`, and `std::multimap` require their sorting criterion (the template parameter `Compare`, defaulting to `std::less<T>`) to define a Strict Weak Ordering (SWO). Failure to enforce SWO results in undefined behavior and corruption of the container's internal structure (typically a balanced search tree).\n\nSWO is defined by three properties for a predicate `op(x, y)`:\n1. **Irreflexivity:** `op(x, x)` must always be false.\n2. **Antisymmetry:** If `op(x, y)` is true, then `op(y, x)` must be false.\n3. **Transitivity:** If `op(x, y)` is true and `op(y, z)` is true, then `op(x, z)` must be true.\n\nPurpose: SWO ensures that the container can consistently place elements in a unique, sorted order, guaranteeing the logarithmic time complexity (O(log N)) for insertion and lookup operations. It is mathematically required for a valid binary search tree structure.\n\nTechnical Details: If the default `std::less<T>` is used, the element type `T` must define a valid `operator<` that satisfies these three properties. Custom comparators must adhere to the same rules.",
+  "code_example": "#include <set>\n#include <iostream>\n\nstruct SWO_Violation {\n    int value;\n    // INCORRECT: Operator is NOT irreflexive (x < x is true if value > 0)\n    bool operator<(const SWO_Violation& other) const {\n        return value <= other.value; \n    }\n};\n\nint main() {\n    // std::set<SWO_Violation> s; \n    // s.insert({5}); \n    // s.insert({5}); \n    // DANGER: Using this comparator leads to undefined behavior \n    // or container corruption because it violates Irreflexivity.\n    // The container relies on (x < x) always being false.\n    \n    std::cout << \"SWO must be enforced for correct container behavior.\";\n}",
+  "practical_example": "When sorting custom objects (e.g., a complex struct with multiple fields), a developer must ensure that the custom comparator meets SWO. A common pitfall is forgetting the irreflexivity rule, such as defining comparison using `<=` instead of `<`.",
+  "keywords": [
+    "Strict Weak Ordering",
+    "SWO",
+    "Antisymmetry",
+    "Irreflexivity",
+    "Transitivity",
+    "comparator requirement",
+    "std::less",
+    "associative container"
+  ],
+  "difficulty": "advanced",
+  "page_reference": "157",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_strict_weak_ordering__swo_8d2998",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

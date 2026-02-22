@@ -1,0 +1,20 @@
+{
+  "topic": "Resource Acquisition Is Initialization (RAII) Motivation via Destructor Guarantee",
+  "category": "util",
+  "explanation": "The core principle underlying safe resource management in C++ Standard Library utilities (like smart pointers, streams, and mutex locks) is Resource Acquisition Is Initialization (RAII).\n\nDefinition: RAII mandates that resources (memory, file handles, locks, network connections) must be acquired during the construction of an object and managed by that object. The resource is released in the object's destructor.\n\nPurpose: When resources are bound to local objects (stack variables), their destructors are guaranteed to be called automatically upon scope exit, regardless of whether the exit is normal (function return) or exceptional (stack unwinding due to an exception).\n\nTechnical Details: This guarantee relies on the C++ language rule that destructors for automatic storage duration objects are executed during stack unwinding. This contrasts sharply with manual cleanup via raw pointers, where explicit `delete` calls can be easily bypassed by control flow jumps or exceptions.\n\nUsage Guidance: Always use standard library RAII wrappers (e.g., `std::unique_ptr` for exclusive ownership, `std::fstream` for files) instead of raw pointers and manual `new`/`delete` to manage resources. This drastically simplifies exception safety.\n\nPitfalls: Attempting to manage resources manually alongside RAII objects can lead to double-free errors or subtle lifetime bugs if ownership is ambiguous.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource {};\n\nvoid safe_f() {\n    // RAII via std::unique_ptr guarantees deletion\n    // even if an exception occurs after this line.\n    std::unique_ptr<Resource> ptr(new Resource);\n    \n    // Simulate operations that might throw\n    // if (condition) throw std::runtime_error(\"Error\");\n    \n    // No explicit delete required\n}\n",
+  "practical_example": "Using `std::lock_guard` (or `std::unique_lock`) to manage mutexes automatically. The lock is acquired in the constructor and released reliably in the destructor upon scope exit, preventing deadlocks even if the guarded code throws an exception.",
+  "keywords": [
+    "RAII",
+    "Resource Management",
+    "Destructor",
+    "Exception Safety",
+    "Stack Unwinding",
+    "unique_ptr"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "Chunk 6 (Implied)",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_resource_acquisition_is_initialization__9d5657",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

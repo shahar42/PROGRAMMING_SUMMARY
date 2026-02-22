@@ -1,0 +1,22 @@
+{
+  "topic": "std::numeric_limits for Type-Safe Numerical Introspection",
+  "category": "util",
+  "explanation": "The `std::numeric_limits<T>` class template provides a standardized, type-safe mechanism for accessing properties and limits of fundamental arithmetic types (`T`), replacing the older, less type-safe C preprocessor constants found in `<climits>` and `<cfloat>`. \n\nPurpose: This structure enables writing generic template code that can query numerical properties (such as maximum value, minimum positive value, number of digits, and rounding style) specific to the type `T` without relying on platform-specific header definitions or macros. The core advantage is type safety; for example, `std::numeric_limits<int>::max()` returns an `int`, whereas the C macro `INT_MAX` is often defined purely as a literal.\n\nTechnical Details:\n1. All members of `numeric_limits` are static and constant.\n2. The standard guarantees minimum precision and size for built-in types (e.g., `int` is at least 16 bits, `float` is at least 4 bytes/32 bits), ensuring a minimum level of portability. Relying on these minimums or using `numeric_limits` values promotes platform independence.\n3. Key members include `min()`, `max()`, `lowest()`, `digits` (number of radix digits), `epsilon()`, and `is_integer`.\n\nUsage: Used extensively in generic programming, algorithm design (especially bounds checking or precision analysis), and serialization routines where explicit type limits are required.\n\nPitfalls: Do not confuse the minimum guaranteed size (e.g., 2 bytes for `int`) with the size implemented on a specific platform (usually 4 bytes on modern systems). Rely on `sizeof(T)` for actual size and `numeric_limits` for properties.",
+  "code_example": "#include <limits>\n#include <iostream>\n\nint main() {\n    // Type-safe retrieval of limits\n    double d_max = std::numeric_limits<double>::max();\n    long long ll_min = std::numeric_limits<long long>::min();\n    \n    std::cout << \"Max double exponent: \" \n              << std::numeric_limits<double>::max_exponent << \"\\n\";\n    \n    // Using properties in generic code\n    if (std::numeric_limits<int>::is_signed) {\n        std::cout << \"int is signed.\\n\";\n    }\n    \n    // C-style equivalent (less type-safe, requires different headers)\n    // #include <climits>\n    // int c_max = INT_MAX;\n}",
+  "practical_example": "When implementing a high-precision numerical integration routine, using `std::numeric_limits<T>::epsilon()` ensures that calculations involving floating-point comparisons are performed relative to the precision of the specific floating-point type (T), guaranteeing correct behavior regardless of whether `T` is `float`, `double`, or `long double`.",
+  "keywords": [
+    "numeric_limits",
+    "type safety",
+    "introspection",
+    "platform independence",
+    "min",
+    "max",
+    "epsilon",
+    "climits"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "57-58",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_std__numeric_limits_for_b63fd7",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

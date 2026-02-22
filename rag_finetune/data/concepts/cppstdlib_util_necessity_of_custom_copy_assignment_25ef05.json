@@ -1,0 +1,20 @@
+{
+  "topic": "Necessity of Custom Copy/Assignment Operators when using auto_ptr Members",
+  "category": "util",
+  "explanation": "When a user-defined class holds one or more `std::auto_ptr` members, the default compiler-generated copy constructor and assignment operator will utilize the `auto_ptr`'s built-in destructive copy semantics. This means that copying an object of the class will transfer ownership of the managed resources from the source object to the destination object, setting the source object's `auto_ptr` members to null. This behavior is usually undesirable when aiming for standard value semantics (deep copy).\n\nTo achieve deep copy semantics\u2014where the new object receives its own unique copy of the managed resource\u2014the class designer must explicitly define the copy constructor and the assignment operator. These custom implementations must manually dereference the source `auto_ptr` (`*x.ptr`) and allocate a new resource (`new T(...)`) for the destination `auto_ptr` member. This ensures both objects maintain ownership of distinct, valid resources.\n\nPitfall: Failing to define these operations results in unintended ownership transfer, potentially leading to dangling pointers if the original object attempts to access its now nullified resources.",
+  "code_example": "#include <memory>\n#include <iostream>\n\nclass Resource {};\n\nclass ClassB {\nprivate:\n    std::auto_ptr<Resource> ptr;\npublic:\n    ClassB() : ptr(new Resource()) {}\n    \n    // Required Custom Copy Constructor for Deep Copy\n    ClassB(const ClassB& x) \n    : ptr(new Resource(*x.ptr)) {}\n    \n    // Required Custom Assignment Operator\n    ClassB& operator=(const ClassB& x) {\n        if (this != &x) {\n            // Resource management via auto_ptr destructor/assignment\n            ptr.reset(new Resource(*x.ptr));\n        }\n        return *this;\n    }\n    // Default operations would have caused ownership transfer.\n};\n",
+  "practical_example": "Developing a deep-copyable wrapper for a complex external library resource (like a file handle or database connection state) managed by `auto_ptr`. Without custom copy logic, passing the wrapper object by value would immediately invalidate the resource within the caller's scope.",
+  "keywords": [
+    "auto_ptr ownership",
+    "destructive copy",
+    "Rule of Three",
+    "deep copy",
+    "resource management",
+    "assignment operator"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "47",
+  "chapter": "Chapter 4: Utilities",
+  "id": "cppstdlib_util_necessity_of_custom_copy_assignment_25ef05",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

@@ -1,0 +1,20 @@
+{
+  "topic": "No-Throw Guarantee for Structural Modification in `std::list`",
+  "category": "container",
+  "explanation": "The node-based structure of `std::list` (a doubly linked list) fundamentally changes its exception safety profile compared to array-based containers (`vector`, `deque`). Operations that modify the structure by manipulating pointers, rather than moving elements, are guaranteed not to throw exceptions.\n\nThis absolute no-throw guarantee (`noexcept`) applies to:\n- `pop_back()` and `pop_front()`\n- `erase()` (single element or range)\n- `clear()`\n- `splice()` (all variations)\n- `reverse()`\n\nTechnical Details:\n1. **Mechanism**: These operations only involve pointer reassignment and internal node deletion/deallocation. Since standard deallocators are assumed non-throwing, the operation itself is non-throwing.\n2. **Conditional No-Throw**: Operations involving user-provided callable objects, such as `list::remove()`, `list::remove_if()`, and `list::unique()`, are guaranteed not to throw, provided the comparison function or predicate itself does not throw.\n\nUsage Guidance: `std::list` is the preferred container when high exception safety is paramount for frequent element removal or list merging, as its structural modifications are maximally robust against failure.",
+  "code_example": "#include <list>\n#include <iostream>\n\nvoid list_operations(std::list<int>& l) noexcept {\n    // These operations are guaranteed not to throw, \n    // provided element destruction (which happens internally)\n    // is also non-throwing.\n    \n    l.pop_back(); \n    l.erase(l.begin());\n    \n    std::list<int> temp = {10, 20};\n    // Splice is guaranteed no-throw, only pointer manipulation\n    l.splice(l.end(), temp);\n    \n    // l.clear(); // Also no-throw\n}",
+  "practical_example": "In a thread-safe logging queue where transactions must be dequeued and processed atomically, using `std::list::pop_front()` within a critical section provides assurance that the structural modification will complete without throwing, preventing potential deadlock or inconsistent state if a C++ exception were raised during the pop operation.",
+  "keywords": [
+    "list exception safety",
+    "noexcept",
+    "pop_back",
+    "erase no-throw",
+    "splice",
+    "node-based container"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "242-245",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_no_throw_guarantee_for_structural_f3a652",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

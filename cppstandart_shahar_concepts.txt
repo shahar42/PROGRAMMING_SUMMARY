@@ -1,0 +1,49 @@
+the difference between  an object and a name
+
+a name is the use of an identifier an identifier is an operation funciton user defined literal every name than denotes an entity is introduced by a declaration
+
+a decleration may introduce one or more names into a transalation unit or redeclare names introduced my prev decleration 
+
+a decleration is a definition unless it declares a function without specifying the functions body
+examples
+enum {....} is a defenition and a decleration
+extern const int c = 1; is a defenition and a decleration  becayse in defines and initializes and its extern
+
+static iny y is a decleration and int x is a definition?
+
+inside a class static int is not a definition its just a decleration but non static is indeed a definition which means that
+
+static variable in a class in cpp is the same var and its shared upon all objects of the class
+
+one defenition rule:
+no translation unit shall contain more than one definition of any varaiable function class type enums type or template
+
+aninline function shall be defined i every translation unit
+
+// Function with a local static object 'A'
+int& getCounter() {
+    static int A = 0; // Local static
+    return ++A;
+}
+
+// Another static object 'B'
+struct UsesCounter {
+    ~UsesCounter() {
+        // This runs at program exit
+        getCounter(); // Tries to use 'A'
+    }
+};
+
+UsesCounter B; // Global static 'B'
+
+int main() {
+    // 1. 'B' is initialized (before main).
+    getCounter(); // 2. 'A' is initialized.
+
+    // At program exit:
+    // 1. 'A' is destroyed (initialized last).
+    // 2. 'B' is destroyed (initialized first).
+    // 3. ~UsesCounter() calls getCounter().
+    // 4. Control passes 'static int A = 0', which is already destroyed.
+    // 5. This is UNDEFINED BEHAVIOR.
+}

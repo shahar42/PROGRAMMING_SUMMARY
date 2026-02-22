@@ -1,0 +1,21 @@
+{
+  "topic": "Precondition Violation: Undefined Behavior for Empty Queue Access Methods",
+  "category": "adapter",
+  "explanation": "Access methods of `std::queue` (`front()`, `back()`, and `pop()`) operate under the strict precondition that the container must not be empty. If these methods are invoked when `q.empty()` returns true, the program violates the standard library's contract, resulting in Undefined Behavior (UB).\n\nTechnical Details:\n- Precondition Check: Programmers must explicitly use `q.empty()` or `q.size() > 0` before attempting access or removal. Both `empty()` and `size()` are guaranteed to be O(1) for the default underlying container (`std::deque`).\n- Consequence of UB: Unlike methods like `std::vector::at()`, which are bounds-checked and throw `std::out_of_range`, `queue` methods are unchecked for speed. Violating the precondition may lead to memory corruption, segmentation faults, or silent data errors, making debugging exceptionally difficult.\n- Safety Requirement: The use of `front()`, `back()`, and `pop()` is only conditionally safe based on the state reported by `empty()`. This design choice maximizes performance by eliminating runtime checks within the library implementation.\n\nUsage Guidance: Always wrap access and removal within a check. For production code, especially in concurrent environments, this check must be protected by appropriate synchronization mechanisms.",
+  "code_example": "#include <queue>\n#include <iostream>\n\nint main() {\n    std::queue<int> q;\n    \n    // Correct usage: Check first\n    if (!q.empty()) {\n        q.pop();\n    } else {\n        std::cerr << \"Queue is empty, safe exit.\\n\";\n    }\n    \n    // Incorrect usage (leads to UB if q is empty)\n    // q.front();\n    // q.pop();\n    \n    q.push(1);\n    std::cout << q.front() << std::endl; // Safe, q is not empty\n}",
+  "practical_example": "In robust server applications processing asynchronous requests, consumer threads must guarantee that a request exists before attempting to dequeue it. Failure to check `empty()` (or failure to synchronize the check correctly) means that if the queue becomes empty between the time a thread acquires the lock and attempts `front()`, the thread immediately enters an undefined state, compromising server stability.",
+  "keywords": [
+    "undefined behavior",
+    "precondition violation",
+    "std::queue::empty",
+    "front() error",
+    "pop() safety",
+    "runtime check",
+    "exception safety"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "387",
+  "chapter": "Chapter 10: Special Containers",
+  "id": "cppstdlib_adapter_precondition_violation__undefined_behavior_d0e155",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}

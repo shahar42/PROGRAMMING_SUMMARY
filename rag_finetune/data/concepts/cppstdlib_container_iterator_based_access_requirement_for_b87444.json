@@ -1,0 +1,20 @@
+{
+  "topic": "Iterator-Based Access Requirement for Associative Containers",
+  "category": "container",
+  "explanation": "Unlike sequence containers (`std::vector`, `std::deque`) which support direct, constant-time element access via the subscript operator (`operator[]`) using an integer index, associative containers generally rely exclusively on iterators for element access.\n\nRationale: Associative containers are sorted based on key value, not physical insertion order or sequential indices. Therefore, accessing the '5th' element is typically meaningless or requires O(N) traversal. Accessing elements must be achieved through key lookup (O(log N)) followed by iterator dereferencing (O(1)).\n\nAccess Methods:\n1. Iterators: The primary means of traversal and access (e.g., using `begin()`, `end()`, and key-based lookup functions like `find()`).\n2. Subscript Operator (`std::map` only): `std::map` provides `operator[]` for key-based access. Crucially, this operation is not pure access; if the key does not exist, it inserts a new element using the key and a default-constructed value, returning a reference to that value. This is a mutating operation.\n\nRestriction: `std::multimap` and `std::multiset` (containers allowing non-unique keys) *do not* provide `operator[]` because a key may map to multiple values, making the result of a single reference ambiguous.\n\nPitfalls: Attempting to use `operator[]` on a `const std::map` will fail unless the key is guaranteed to exist, as the insertion behavior requires a non-const container. For read-only access, `map::at()` (which throws an exception if the key is not found) or `map::find()` must be used.",
+  "code_example": "#include <map>\n#include <iostream>\n\nint main() {\n    std::map<int, std::string> m = {{1, \"One\"}, {2, \"Two\"}};\n\n    // O(log N) lookup, O(1) access via iterator\n    auto it = m.find(1);\n    if (it != m.end()) {\n        std::cout << \"Found: \" << it->second << \"\\n\";\n    }\n    \n    // Access using operator[] (lookup + potential insertion)\n    std::cout << \"Access 2: \" << m[2] << \"\\n\";\n\n    // m[10]; // Inserts {10, \"\"}\n    \n    // std::multimap<int, int> mm;\n    // mm[1] = 1; // ERROR: multimap does not support operator[]\n}",
+  "practical_example": "In a configuration manager using `std::map`, retrieving a setting via `map::find()` or `map::at()` ensures that if the setting is missing, the program either handles the exception or checks the iterator validity, whereas using `map::operator[]` would silently create a default configuration entry, potentially masking errors.",
+  "keywords": [
+    "iterator access",
+    "std::map::operator[]",
+    "direct element access",
+    "logarithmic lookup",
+    "multimap restriction",
+    "key access"
+  ],
+  "difficulty": "intermediate",
+  "page_reference": "177",
+  "chapter": "Chapter 6: STL Containers",
+  "id": "cppstdlib_container_iterator_based_access_requirement_for_b87444",
+  "book": "The C++ Standard Library: A Tutorial and Reference by Nicolai M. Josuttis"
+}
